@@ -5,21 +5,21 @@
 
 /* ── Variables ──────────────────────────────────────────────── */
 :root {
-  --bg:           #080d17;
-  --bg2:          #0f1623;
-  --bg3:          #161f30;
-  --border:       rgba(255,255,255,0.07);
-  --border-mid:   rgba(255,255,255,0.12);
-  --text:         #e8eaf0;
-  --text-muted:   #7a8494;
-  --text-dim:     #3d4760;
-  --accent:       #4a9eff;
-  --accent-glow:  rgba(74,158,255,0.25);
-  --danger:       #e74c3c;
-  --success:      #27ae60;
-  --nav-h:        56px;
-  --timeline-h:   0px;
-  --panel-w:      380px;
+  --bg:             #080d17;
+  --bg2:            #0f1623;
+  --bg3:            #161f30;
+  --border:         rgba(255,255,255,0.07);
+  --border-mid:     rgba(255,255,255,0.12);
+  --text:           #e8eaf0;
+  --text-muted:     #7a8494;
+  --text-dim:       #3d4760;
+  --accent:         #4a9eff;
+  --accent-glow:    rgba(74,158,255,0.25);
+  --danger:         #e74c3c;
+  --success:        #27ae60;
+  --nav-h:          56px;
+  --timeline-bar-h: 37px;  /* height of collapsed timeline toggle */
+  --panel-w:        380px;
   --radius:       8px;
   --radius-lg:    14px;
   --shadow:       0 8px 32px rgba(0,0,0,0.5);
@@ -178,7 +178,8 @@ img { display: block; }
    ══════════════════════════════════════════════════════════════ */
 .app-container {
   position: fixed;
-  top: var(--nav-h); left: 0; right: 0; bottom: 0;
+  top: var(--nav-h); left: 0; right: 0;
+  bottom: var(--timeline-bar-h);  /* leave room for timeline toggle */
   display: flex;
   overflow: hidden;
 }
@@ -316,21 +317,27 @@ img { display: block; }
 
 /* ══════════════════════════════════════════════════════════════
    DETAIL PANEL
+   Takes zero flex space when closed; expands to --panel-w when open.
+   Inner children use min-width to avoid content reflow during animation.
    ══════════════════════════════════════════════════════════════ */
 .detail-panel {
-  width: var(--panel-w);
-  height: 100%;
+  flex-shrink: 0;
+  width: 0;                    /* no space when closed */
+  overflow: hidden;
   background: var(--bg2);
   border-left: 1px solid var(--border);
   display: flex; flex-direction: column;
-  overflow: hidden;
-  flex-shrink: 0;
-  transform: translateX(100%);
-  transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
   position: relative;
+  transition: width 0.32s cubic-bezier(0.4,0,0.2,1);
 }
-.detail-panel:not([hidden]) { transform: translateX(0); }
-.detail-panel[hidden] { display: flex !important; transform: translateX(100%); }
+.detail-panel.panel-open {
+  width: var(--panel-w);
+}
+/* Prevent inner content from reflowing as width animates */
+.detail-panel > * {
+  min-width: var(--panel-w);
+  max-width: var(--panel-w);
+}
 
 .panel-close {
   position: absolute; top: 12px; right: 14px; z-index: 10;
@@ -680,13 +687,71 @@ img { display: block; }
   :root { --panel-w: 100vw; }
   .detail-panel {
     position: fixed; bottom: 0; left: 0; right: 0;
-    width: 100%; height: 75vh;
+    width: 100% !important; max-width: 100%;
+    min-width: 0 !important;
+    height: 0;             /* closed: zero height */
     border-left: none; border-top: 1px solid var(--border);
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    transform: translateY(100%);
+    transition: height 0.32s cubic-bezier(0.4,0,0.2,1);
+    overflow: hidden;
   }
-  .detail-panel:not([hidden]) { transform: translateY(0); }
-  .detail-panel[hidden] { display: flex !important; transform: translateY(100%); }
+  .detail-panel.panel-open { height: 75vh; }
+  .detail-panel > * { min-width: 0 !important; max-width: 100% !important; width: 100%; }
   .logo-text, .nav-btn span { display: none; }
   .legend { font-size: 11px; padding: 8px 10px; }
 }
+
+/* ══════════════════════════════════════════════════════════════
+   LANGUAGE SWITCHER
+   ══════════════════════════════════════════════════════════════ */
+.lang-switcher {
+  display: flex; align-items: center; gap: 2px;
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 2px;
+  flex-shrink: 0;
+}
+.lang-btn {
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.3px;
+  color: var(--text-muted);
+  transition: all 0.15s;
+}
+.lang-btn:hover { color: var(--text); background: var(--bg2); }
+.lang-btn.active { background: var(--accent); color: #fff; }
+
+/* ══════════════════════════════════════════════════════════════
+   RTL SUPPORT (Hebrew)
+   ══════════════════════════════════════════════════════════════ */
+[dir="rtl"] .navbar       { flex-direction: row-reverse; }
+[dir="rtl"] .nav-logo     { flex-direction: row-reverse; }
+[dir="rtl"] .nav-controls { flex-direction: row-reverse; }
+[dir="rtl"] .search-input-wrap { flex-direction: row-reverse; }
+[dir="rtl"] #search-input { text-align: right; direction: rtl; }
+[dir="rtl"] .detail-panel {
+  border-left: none;
+  border-right: 1px solid var(--border);
+  order: -1;           /* panel on the left for RTL */
+}
+[dir="rtl"] .panel-content  { direction: rtl; text-align: right; }
+[dir="rtl"] .panel-name-block { direction: rtl; text-align: right; }
+[dir="rtl"] .panel-tabs      { direction: rtl; }
+[dir="rtl"] .panel-badges    { flex-direction: row-reverse; }
+[dir="rtl"] .lineage-trail   { flex-direction: row-reverse; }
+[dir="rtl"] .legend          { left: auto; right: 16px; }
+[dir="rtl"] .legend-item     { flex-direction: row-reverse; }
+[dir="rtl"] .tree-controls   { right: auto; left: 16px; }
+[dir="rtl"] .minimap         { right: auto; left: 16px; }
+[dir="rtl"] .search-results  { direction: rtl; }
+[dir="rtl"] .sri-names       { text-align: right; }
+[dir="rtl"] .info-grid       { direction: rtl; }
+[dir="rtl"] .science-row     { flex-direction: row-reverse; }
+[dir="rtl"] .panel-close     { right: auto; left: 14px; }
+
+/* Hebrew font additions */
+[lang="he"], [lang="he"] * {
+  font-family: 'Inter', 'Arial Hebrew', 'David', Arial, sans-serif;
+}
+/* Russian uses Inter fine — Cyrillic is included */

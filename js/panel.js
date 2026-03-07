@@ -35,8 +35,8 @@ const Panel = (() => {
     currentTab  = 'overview';
     enriched    = null;
 
-    // Un-hide panel (triggers CSS animation)
-    el.panel().hidden = false;
+    // Open panel (triggers CSS width animation)
+    el.panel().classList.add('panel-open');
     // Reset tab
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === 'overview'));
 
@@ -83,7 +83,7 @@ const Panel = (() => {
   }
 
   function hide() {
-    el.panel().hidden = true;
+    el.panel().classList.remove('panel-open');
     currentNode = null;
   }
 
@@ -122,30 +122,30 @@ const Panel = (() => {
 
     const desc = wiki?.extract
       ? `<p class="panel-desc">${wiki.extract.slice(0, 500)}${wiki.extract.length > 500 ? '…' : ''}</p>`
-      : `<p class="panel-desc" style="color:var(--text-dim)">No description available for this taxon.</p>`;
+      : `<p class="panel-desc" style="color:var(--text-dim)">${I18n.t('no_desc')}</p>`;
 
     const traits = buildTraits(nd, inat);
     const traitsHtml = traits.length
-      ? `<div class="traits-row">${traits.map(t => `<span class="trait-chip">${t}</span>`).join('')}</div>`
+      ? `<div class="traits-row">${traits.map(tr => `<span class="trait-chip">${tr}</span>`).join('')}</div>`
       : '';
 
     const obs = inat?.observations ? `<div class="info-card">
-      <div class="info-card-label">Observations</div>
-      <div class="info-card-value">${inat.observations.toLocaleString()} <span class="info-card-unit">iNat records</span></div>
+      <div class="info-card-label">${I18n.t('lbl_observations')}</div>
+      <div class="info-card-value">${inat.observations.toLocaleString()} <span class="info-card-unit">${I18n.t('unit_inat')}</span></div>
     </div>` : '';
 
     const div = nd.divergence_mya ? `<div class="info-card">
-      <div class="info-card-label">Divergence</div>
+      <div class="info-card-label">${I18n.t('lbl_divergence')}</div>
       <div class="info-card-value">${nd.divergence_mya.toLocaleString()} <span class="info-card-unit">Mya</span></div>
     </div>` : '';
 
     const spp = nd.num_tips ? `<div class="info-card">
-      <div class="info-card-label">Species</div>
-      <div class="info-card-value">${nd.num_tips.toLocaleString()} <span class="info-card-unit">approx.</span></div>
+      <div class="info-card-label">${I18n.t('lbl_species')}</div>
+      <div class="info-card-value">${nd.num_tips.toLocaleString()} <span class="info-card-unit">${I18n.t('unit_approx')}</span></div>
     </div>` : '';
 
     const rank = `<div class="info-card">
-      <div class="info-card-label">Rank</div>
+      <div class="info-card-label">${I18n.t('lbl_rank')}</div>
       <div class="info-card-value" style="text-transform:capitalize">${nd.rank || '—'}</div>
     </div>`;
 
@@ -202,7 +202,7 @@ const Panel = (() => {
     } catch (e) {}
 
     const lineageHtml = lineage.length ? `
-      <p class="panel-section-title">Lineage</p>
+      <p class="panel-section-title">${I18n.t('sec_lineage')}</p>
       <div class="lineage-trail">
         ${lineage.map((l, i) => `
           <span class="lineage-crumb ${i === lineage.length-1 ? 'current' : ''}"
@@ -214,13 +214,13 @@ const Panel = (() => {
 
     const divergeHtml = nd.divergence_mya ? `
       <div class="diverge-box">
-        <div class="diverge-label">Estimated Divergence Time</div>
-        <div class="diverge-value">${nd.divergence_mya.toLocaleString()} <span class="diverge-unit">million years ago</span></div>
+        <div class="diverge-label">${I18n.t('sec_divergence')}</div>
+        <div class="diverge-value">${nd.divergence_mya.toLocaleString()} <span class="diverge-unit">${I18n.t('unit_mya')}</span></div>
       </div>
     ` : '';
 
     const relHtml = relatives.length ? `
-      <p class="panel-section-title">Sister Groups</p>
+      <p class="panel-section-title">${I18n.t('sec_relatives')}</p>
       <div class="relatives-list">
         ${relatives.map(r => `
           <div class="relative-item" data-ott="${r.ott_id}">
@@ -247,7 +247,7 @@ const Panel = (() => {
   function renderGallery() {
     const photos = enriched?.photos || [];
     if (!photos.length) {
-      el.content().innerHTML = `<div class="gallery-empty">No photos available.<br><small>Images sourced from iNaturalist.</small></div>`;
+      el.content().innerHTML = `<div class="gallery-empty">${I18n.t('gallery_empty')}<br><small>iNaturalist</small></div>`;
       return;
     }
     el.content().innerHTML = `

@@ -61,6 +61,12 @@
     });
   });
 
+  /* ── Language switcher ────────────────────────────────────── */
+  I18n.setLang(I18n.currentLang()); // apply saved/default language on load
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.addEventListener('click', () => I18n.setLang(btn.dataset.lang));
+  });
+
   /* ── Theme toggle ─────────────────────────────────────────── */
   const btnTheme = document.getElementById('btn-theme');
   const savedTheme = localStorage.getItem('tol-theme') || 'dark';

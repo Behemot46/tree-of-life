@@ -48,22 +48,28 @@
     </div>
 
     <div class="nav-controls">
-      <button id="btn-layout" class="nav-btn" title="Toggle layout (Radial / Cladogram)">
+      <button id="btn-layout" class="nav-btn" title="Toggle layout">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
         </svg>
       </button>
-      <button id="btn-explore" class="nav-btn accent-btn" title="Discover a random species">
+      <button id="btn-explore" class="nav-btn accent-btn">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <polygon points="5 3 19 12 5 21 5 3"/>
         </svg>
-        <span>Discover</span>
+        <span data-i18n="btn_discover">Discover</span>
       </button>
-      <button id="btn-theme" class="nav-btn" title="Toggle light/dark mode">
+      <button id="btn-theme" class="nav-btn" title="Toggle theme">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
         </svg>
       </button>
+      <!-- Language switcher -->
+      <div class="lang-switcher" role="group" aria-label="Language">
+        <button class="lang-btn active" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="he">עב</button>
+        <button class="lang-btn" data-lang="ru">РУ</button>
+      </div>
     </div>
   </nav>
 
@@ -98,15 +104,15 @@
 
       <!-- Legend -->
       <div id="legend" class="legend">
-        <div class="legend-title">Domains of Life <span class="legend-hint">click to highlight</span></div>
-        <div class="legend-item" data-domain="Bacteria"     title="Highlight Bacteria"><span class="legend-dot" style="background:#e8a838"></span>🦠 Bacteria</div>
-        <div class="legend-item" data-domain="Archaea"      title="Highlight Archaea"><span class="legend-dot" style="background:#9b59b6"></span>🔬 Archaea</div>
-        <div class="legend-item" data-domain="Viridiplantae" title="Highlight Plants"><span class="legend-dot" style="background:#27ae60"></span>🌿 Plants</div>
-        <div class="legend-item" data-domain="Fungi"        title="Highlight Fungi"><span class="legend-dot" style="background:#e67e22"></span>🍄 Fungi</div>
-        <div class="legend-item" data-domain="Metazoa"      title="Highlight Animals"><span class="legend-dot" style="background:#2980b9"></span>🐾 Animals</div>
-        <div class="legend-item" data-domain="Chromista"    title="Highlight Protists"><span class="legend-dot" style="background:#1abc9c"></span>🔵 Protists</div>
+        <div class="legend-title"><span data-i18n="legend_title">Domains of Life</span> <span class="legend-hint" data-i18n="legend_hint">click to highlight</span></div>
+        <div class="legend-item" data-domain="Bacteria"     ><span class="legend-dot" style="background:#e8a838"></span>🦠 <span data-i18n="leg_bacteria">Bacteria</span></div>
+        <div class="legend-item" data-domain="Archaea"      ><span class="legend-dot" style="background:#9b59b6"></span>🔬 <span data-i18n="leg_archaea">Archaea</span></div>
+        <div class="legend-item" data-domain="Viridiplantae"><span class="legend-dot" style="background:#27ae60"></span>🌿 <span data-i18n="leg_plants">Plants</span></div>
+        <div class="legend-item" data-domain="Fungi"        ><span class="legend-dot" style="background:#e67e22"></span>🍄 <span data-i18n="leg_fungi">Fungi</span></div>
+        <div class="legend-item" data-domain="Metazoa"      ><span class="legend-dot" style="background:#2980b9"></span>🐾 <span data-i18n="leg_animals">Animals</span></div>
+        <div class="legend-item" data-domain="Chromista"    ><span class="legend-dot" style="background:#1abc9c"></span>🔵 <span data-i18n="leg_protists">Protists</span></div>
         <div class="legend-sep"></div>
-        <div class="legend-item" style="cursor:default"><span class="legend-dot extinct-dot"></span>† Extinct</div>
+        <div class="legend-item" style="cursor:default"><span class="legend-dot extinct-dot"></span><span data-i18n="leg_extinct">† Extinct</span></div>
       </div>
 
       <!-- Minimap -->
@@ -138,10 +144,10 @@
       </div>
 
       <div class="panel-tabs" role="tablist">
-        <button class="tab-btn active" data-tab="overview" role="tab">Overview</button>
-        <button class="tab-btn" data-tab="evolution" role="tab">Evolution</button>
-        <button class="tab-btn" data-tab="gallery" role="tab">Gallery</button>
-        <button class="tab-btn" data-tab="science" role="tab">Science</button>
+        <button class="tab-btn active" data-tab="overview" role="tab" data-i18n="tab_overview">Overview</button>
+        <button class="tab-btn" data-tab="evolution" role="tab" data-i18n="tab_evolution">Evolution</button>
+        <button class="tab-btn" data-tab="gallery" role="tab" data-i18n="tab_gallery">Gallery</button>
+        <button class="tab-btn" data-tab="science" role="tab" data-i18n="tab_science">Science</button>
       </div>
 
       <div class="panel-content" id="panel-content">
@@ -157,7 +163,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="timeline-arrow">
         <polyline points="18 15 12 9 6 15"/>
       </svg>
-      <span>Geological Timeline</span>
+      <span data-i18n="timeline_label">Geological Timeline</span>
     </button>
     <div id="timeline-inner" class="timeline-inner">
       <!-- Populated by timeline.js -->
@@ -187,12 +193,13 @@
         <circle cx="70" cy="12" r="3" fill="#e8a838" class="load-leaf load-l6"/>
       </svg>
     </div>
-    <div class="loading-text">Loading Tree of Life…</div>
-    <div class="loading-sub">Connecting to Open Tree of Life database</div>
+    <div class="loading-text" data-i18n="loading_text">Loading Tree of Life…</div>
+    <div class="loading-sub" data-i18n="loading_sub">Connecting to Open Tree of Life database</div>
   </div>
 
   <!-- Scripts -->
   <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="js/i18n.js"></script>
   <script src="js/api.js"></script>
   <script src="js/tree.js"></script>
   <script src="js/panel.js"></script>

@@ -282,6 +282,27 @@ img { display: block; }
   border-top: 1px solid var(--border);
   margin: 8px 0;
 }
+.legend-item[data-domain] {
+  cursor: pointer;
+  border-radius: 5px;
+  padding: 2px 6px;
+  margin: 1px -6px;
+  transition: background 0.15s, opacity 0.2s;
+}
+.legend-item[data-domain]:hover { background: var(--bg3); color: var(--text); }
+.legend-item.legend-active {
+  background: var(--bg3);
+  border: 1px solid var(--border-mid);
+  font-weight: 600;
+  color: var(--text);
+}
+.legend-hint {
+  font-size: 9px; font-weight: 400; text-transform: none;
+  color: var(--text-dim); letter-spacing: 0; margin-left: 4px;
+}
+/* Make tree nodes obviously clickable */
+.node { cursor: pointer; }
+.node:hover circle { stroke-width: 2.5px; }
 
 /* Minimap */
 .minimap {

@@ -12,6 +12,35 @@ const Tree = (() => {
   let onNodeSelectCb = null;
   let expandingNodes = new Set();
 
+  /* Domain icons for major groups */
+  const ICONS = {
+    'Life':          '🌍',
+    'Bacteria':      '🦠',
+    'Archaea':       '🔬',
+    'Eukaryota':     '◎',
+    'Viridiplantae': '🌿',
+    'Fungi':         '🍄',
+    'Metazoa':       '🐾',
+    'Chordata':      '🐟',
+    'Mammalia':      '🐾',
+    'Aves':          '🐦',
+    'Arthropoda':    '🦗',
+    'Insecta':       '🦋',
+    'Mollusca':      '🐚',
+    'Cnidaria':      '🪸',
+    'Porifera':      '🧽',
+  };
+
+  function nodeIcon(d) {
+    return ICONS[d.data.name] || null;
+  }
+
+  function nodeLabel(d) {
+    const name = d.data.common || d.data.name;
+    const icon = nodeIcon(d);
+    return icon ? `${icon} ${name}` : name;
+  }
+
   /* Color helper — inherit from ancestors */
   function getColor(d) {
     let node = d;
@@ -64,6 +93,52 @@ const Tree = (() => {
 
     // Layout toggle
     document.getElementById('btn-layout').addEventListener('click', toggleLayout);
+
+    // Legend click — highlight domain
+    let activeDomain = null;
+    document.querySelectorAll('.legend-item').forEach(item => {
+      item.style.cursor = 'pointer';
+      item.addEventListener('click', () => {
+        const domainName = item.dataset.domain;
+        if (!domainName) return;
+        activeDomain = activeDomain === domainName ? null : domainName;
+        document.querySelectorAll('.legend-item').forEach(li => {
+          li.classList.toggle('legend-active', li.dataset.domain === activeDomain);
+          li.style.opacity = activeDomain && li.dataset.domain !== activeDomain ? '0.4' : '1';
+        });
+        highlightDomain(activeDomain);
+      });
+    });
+  }
+
+  /* Highlight all nodes belonging to a domain name */
+  function highlightDomain(domainName) {
+    nodesG.selectAll('.node').each(function(d) {
+      let inDomain = false;
+      if (domainName) {
+        let node = d;
+        while (node) {
+          if (node.data.name === domainName) { inDomain = true; break; }
+          node = node.parent;
+        }
+      }
+      d3.select(this)
+        .transition().duration(300)
+        .style('opacity', !domainName || inDomain ? 1 : 0.15);
+    });
+    linksG.selectAll('.link').each(function(d) {
+      let inDomain = false;
+      if (domainName) {
+        let node = d.target;
+        while (node) {
+          if (node.data.name === domainName) { inDomain = true; break; }
+          node = node.parent;
+        }
+      }
+      d3.select(this)
+        .transition().duration(300)
+        .style('opacity', !domainName || inDomain ? null : 0.05);
+    });
   }
 
   function updateDimensions() {
@@ -184,31 +259,24 @@ const Tree = (() => {
       .attr('stroke', d => getColor(d))
       .attr('stroke-opacity', 0.4);
 
-    /* Labels — only for nodes with depth ≤ 3 or if leaf */
+    /* Labels — only for nodes with depth ≤ 3 or if leaf.
+       Key: nodes are already translated to cartesian position.
+       Left-side = d.x > Math.PI (sin(d.x) < 0 → x coord < cx).
+       Never rotate text — only shift dx and flip text-anchor.        */
     nodesEnter.filter(d => d.depth <= 3 || !d.children)
       .append('text')
       .attr('class', 'node-label sci')
-      .attr('dy', d => {
-        if (currentLayout !== 'radial') return '0.32em';
-        const angle = (d.x * 180 / Math.PI) % 360;
-        return angle > 90 && angle < 270 ? '1.2em' : '-0.5em';
-      })
+      .attr('dy', '0.35em')
       .attr('dx', d => {
         if (currentLayout !== 'radial') return d.children ? -10 : 8;
-        return 0;
+        const r = nodeRadius(d) + 5;
+        return d.x > Math.PI ? -r : r;   // left side: negative, right side: positive
       })
       .attr('text-anchor', d => {
         if (currentLayout !== 'radial') return d.children ? 'end' : 'start';
-        const angle = (d.x * 180 / Math.PI) % 360;
-        return (angle > 90 && angle < 270) ? 'end' : 'start';
+        return d.x > Math.PI ? 'end' : 'start';
       })
-      .attr('transform', d => {
-        if (currentLayout !== 'radial') return '';
-        const angle = (d.x * 180 / Math.PI) % 360;
-        const isLeft = angle > 90 && angle < 270;
-        return `rotate(${isLeft ? 180 : 0}) translate(${isLeft ? -(nodeRadius(d)+4) : nodeRadius(d)+4}, 0)`;
-      })
-      .text(d => d.data.common || d.data.name);
+      .text(d => nodeLabel(d));
 
     /* Merge enter + update */
     const allNodes = nodes.merge(nodesEnter);
@@ -226,6 +294,20 @@ const Tree = (() => {
       .attr('r', nodeRadius)
       .attr('fill', d => getColor(d))
       .attr('stroke', d => getColor(d));
+
+    /* Update label positions when layout changes */
+    allNodes.select('text.node-label')
+      .attr('dy', '0.35em')
+      .attr('dx', d => {
+        if (currentLayout !== 'radial') return d.children ? -10 : 8;
+        const r = nodeRadius(d) + 5;
+        return d.x > Math.PI ? -r : r;
+      })
+      .attr('text-anchor', d => {
+        if (currentLayout !== 'radial') return d.children ? 'end' : 'start';
+        return d.x > Math.PI ? 'end' : 'start';
+      })
+      .text(d => nodeLabel(d));
 
     nodes.exit().transition().duration(dur).style('opacity', 0).remove();
 

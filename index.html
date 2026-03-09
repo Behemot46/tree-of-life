@@ -351,6 +351,76 @@ svg{width:100%;height:100%;}
 [dir="rtl"] #hom-filters{flex-direction:row-reverse;}
 [dir="rtl"] #hom-filters>div:last-child{margin-left:0;margin-right:auto;}
 [lang="he"],[lang="he"] *{font-family:'Noto Serif Hebrew','Playfair Display',serif;}
+
+/* ── SEMANTIC COLOR VARIABLES ── */
+:root{
+  --text-muted:rgba(242,232,208,0.72);
+  --text-dim:rgba(242,232,208,0.50);
+  --text-faint:rgba(242,232,208,0.38);
+  --gold-text:rgba(200,136,58,0.70);
+  --gold-text-dim:rgba(200,136,58,0.50);
+}
+[data-theme="light"]{
+  --text-muted:rgba(30,14,2,0.65);
+  --text-dim:rgba(30,14,2,0.50);
+  --text-faint:rgba(30,14,2,0.38);
+  --gold-text:rgba(138,90,24,0.72);
+  --gold-text-dim:rgba(138,90,24,0.50);
+}
+
+/* ── LIGHT THEME: ELEMENT CONTRAST FIXES ── */
+[data-theme="light"] .hint-bar{color:rgba(30,14,2,0.45);}
+[data-theme="light"] .leg-row{color:rgba(30,14,2,0.65);}
+[data-theme="light"] .p-detail{color:rgba(30,14,2,0.6);}
+[data-theme="light"] .p-desc{color:rgba(30,14,2,0.72);}
+[data-theme="light"] .p-children li{color:rgba(30,14,2,0.65);}
+[data-theme="light"] .hp-desc{color:rgba(30,14,2,0.75);}
+[data-theme="light"] .hp-detail{color:rgba(30,14,2,0.65);}
+[data-theme="light"] .hp-fact-v{color:rgba(30,14,2,0.82);}
+[data-theme="light"] .tip-fact{color:rgba(30,14,2,0.6);}
+[data-theme="light"] .era-tick{color:rgba(30,14,2,0.45);}
+[data-theme="light"] #era-label{color:rgba(30,14,2,0.65);}
+[data-theme="light"] .hom-filter{color:rgba(30,14,2,0.55);}
+[data-theme="light"] .hom-filter.active{color:var(--gold-light);}
+[data-theme="light"] .hs-mya{color:rgba(30,14,2,0.5);}
+[data-theme="light"] .hs-name{color:rgba(30,14,2,0.88);}
+[data-theme="light"] .brain-label{color:rgba(30,14,2,0.5);}
+[data-theme="light"] .hs-tag{color:rgba(30,50,10,0.72);background:rgba(60,100,20,0.08);border-color:rgba(60,100,20,0.15);}
+[data-theme="light"] .hp-tag{color:rgba(30,50,10,0.72);background:rgba(60,100,20,0.07);border-color:rgba(60,100,20,0.18);}
+[data-theme="light"] .p-tag{color:rgba(30,50,10,0.72);background:rgba(60,100,20,0.08);border-color:rgba(60,100,20,0.18);}
+[data-theme="light"] #hom-panel-empty{color:rgba(138,90,24,0.4);}
+[data-theme="light"] .node-label-text{fill:rgba(30,14,2,0.75);}
+[data-theme="light"] #compare-btn{color:rgba(30,14,2,0.6);}
+[data-theme="light"] .bc-item{color:rgba(138,90,24,0.65);}
+[data-theme="light"] .bc-item.active{color:var(--parchment);}
+[data-theme="light"] .fact-l{color:rgba(138,90,24,0.72);}
+[data-theme="light"] .fact-v{color:rgba(30,14,2,0.85);}
+[data-theme="light"] .hp-fact-l{color:rgba(138,90,24,0.72);}
+[data-theme="light"] .p-section{color:rgba(30,80,15,0.75);}
+[data-theme="light"] .hp-section{color:rgba(30,80,15,0.72);}
+[data-theme="light"] .hs-latin{color:rgba(138,90,24,0.72);}
+[data-theme="light"] .hom-era-title{color:rgba(138,90,24,0.85);}
+[data-theme="light"] #hom-sub{color:rgba(30,80,15,0.65);}
+[data-theme="light"] #hom-header{background:rgba(248,242,230,0.98);}
+[data-theme="light"] .hs-icons-row{color:rgba(138,90,24,0.65);}
+
+/* ── SPECIES IMAGE ── */
+.p-img{width:100%;border-radius:10px;margin-bottom:0.6rem;object-fit:cover;max-height:175px;border:1px solid rgba(200,136,58,0.15);display:block;}
+.p-img-attr{font-size:0.6rem;color:var(--gold-text-dim);margin-bottom:0.9rem;text-align:right;font-style:italic;}
+[data-theme="light"] .p-img{border-color:rgba(138,90,24,0.18);}
+
+/* ── COMPARE CARD CSS CLASSES ── */
+.compare-card{border-radius:12px;padding:1.2rem;border:1px solid rgba(200,136,58,0.18);background:rgba(200,136,58,0.04);}
+[data-theme="light"] .compare-card{background:rgba(138,90,24,0.05);border-color:rgba(138,90,24,0.2);}
+.cc-sub{font-size:0.65rem;color:var(--text-dim);font-style:italic;margin-bottom:0.8rem;}
+.cc-lbl{font-size:0.7rem;color:var(--gold-text);margin-bottom:0.3rem;}
+.cc-val{font-size:0.75rem;color:var(--parchment);margin-bottom:0.5rem;}
+.cc-desc{font-size:0.7rem;color:var(--text-faint);line-height:1.6;margin-top:0.5rem;}
+.cc-bar-bg{height:6px;background:rgba(200,136,58,0.1);border-radius:3px;overflow:hidden;margin-bottom:0.8rem;}
+[data-theme="light"] .cc-bar-bg{background:rgba(138,90,24,0.12);}
+.cc-dna-bg{height:5px;background:rgba(200,136,58,0.08);border-radius:3px;overflow:hidden;margin-bottom:0.3rem;}
+[data-theme="light"] .cc-dna-bg{background:rgba(138,90,24,0.1);}
+.cc-dna-label{font-size:0.65rem;margin-bottom:0.5rem;}
 </style>
 </head>
 <body>
@@ -358,12 +428,12 @@ svg{width:100%;height:100%;}
 <div id="particles"></div>
 
 <!-- LANGUAGE SWITCHER -->
-<div id="lang-switcher">
-  <button class="lang-btn active" data-lang="en" onclick="setLang('en')">EN</button>
-  <button class="lang-btn" data-lang="he" onclick="setLang('he')">עב</button>
-  <button class="lang-btn" data-lang="ru" onclick="setLang('ru')">РУ</button>
+<div id="lang-switcher" role="toolbar" aria-label="Language selector">
+  <button class="lang-btn active" data-lang="en" onclick="setLang('en')" aria-label="English" aria-pressed="true">EN</button>
+  <button class="lang-btn" data-lang="he" onclick="setLang('he')" aria-label="Hebrew" aria-pressed="false">עב</button>
+  <button class="lang-btn" data-lang="ru" onclick="setLang('ru')" aria-label="Russian" aria-pressed="false">РУ</button>
 </div>
-<button id="theme-btn" onclick="toggleTheme()" title="Toggle theme">☀</button>
+<button id="theme-btn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle light/dark theme">☀</button>
 
 <!-- HEADER -->
 <div id="header">
@@ -379,9 +449,9 @@ svg{width:100%;height:100%;}
 
 <!-- SEARCH -->
 <div id="search-wrap" style="position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:300;pointer-events:all;">
-  <span id="search-icon" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:rgba(200,136,58,0.5);font-size:0.8rem;pointer-events:none;">🔍</span>
-  <input id="search-input" type="text" placeholder="Search species…" autocomplete="off" id="search-input">
-  <div id="search-results"></div>
+  <span id="search-icon" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:rgba(200,136,58,0.5);font-size:0.8rem;pointer-events:none;" aria-hidden="true">🔍</span>
+  <input id="search-input" type="text" placeholder="Search species…" autocomplete="off" aria-label="Search species and clades" role="combobox" aria-expanded="false" aria-controls="search-results">
+  <div id="search-results" role="listbox"></div>
 </div>
 
 <!-- BREADCRUMB -->
@@ -422,7 +492,7 @@ svg{width:100%;height:100%;}
 <!-- MAIN DETAIL PANEL -->
 <div id="panel">
   <div class="panel-accent" id="panel-accent"></div>
-  <button class="p-close" id="panel-close">✕</button>
+  <button class="p-close" id="panel-close" aria-label="Close panel">✕</button>
   <div class="panel-scroll">
     <div class="p-top">
       <div class="p-icon-wrap" id="p-icon-wrap"><span id="p-icon"></span></div>
@@ -502,11 +572,11 @@ svg{width:100%;height:100%;}
 </div>
 
 <!-- ZOOM -->
-<div id="zoom-ctrl">
-  <button class="zbtn" id="btn-in">+</button>
-  <button class="zbtn" id="btn-reset" title="Reset view">⌂</button>
-  <button class="zbtn" id="btn-out">−</button>
-  <button class="zbtn" id="btn-random" title="Random species" style="font-size:0.9rem;">🎲</button>
+<div id="zoom-ctrl" role="toolbar" aria-label="Map controls">
+  <button class="zbtn" id="btn-in" aria-label="Zoom in">+</button>
+  <button class="zbtn" id="btn-reset" title="Reset view" aria-label="Reset view">⌂</button>
+  <button class="zbtn" id="btn-out" aria-label="Zoom out">−</button>
+  <button class="zbtn" id="btn-random" title="Random species" aria-label="Jump to random species" style="font-size:0.9rem;">🎲</button>
 </div>
 
 <!-- ERA BROWSER -->
@@ -532,7 +602,7 @@ svg{width:100%;height:100%;}
 // TREE DATA
 // ══════════════════════════════════════════════════════
 const TREE = {
-  id:'luca',icon:'🌐',color:'#c8883a',r:26,appeared:3800,extinct:null,
+  id:'luca',icon:'🌐',color:'#c8883a',r:26,appeared:3800,extinct:null,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Oceanic_spreading.jpg/400px-Oceanic_spreading.jpg',imgCredit:'Hydrothermal vent: NOAA (Public Domain)',
   name:'LUCA',latin:'Last Universal Common Ancestor',era:'~3.8 Billion Years Ago',
   desc:'The Last Universal Common Ancestor — a single-celled microorganism from which every living thing on Earth descends. LUCA likely inhabited hydrothermal vents on the ancient ocean floor, harvesting chemical energy from mineral-rich superheated water. It possessed DNA-based heredity, RNA-based ribosomes, and a lipid membrane — the three foundational features of all life.',
   detail:'Phylogenomic reconstructions suggest LUCA had ~355 protein families, including ion pumps, metabolic enzymes, and a primitive ribosome. It was neither fully Bacteria nor Archaea — the last shared ancestor before these lineages diverged. Some estimates place LUCA at 3.48–4.1 billion years ago, within 500 million years of Earth\'s formation.',
@@ -578,7 +648,7 @@ const TREE = {
           tags:['Gram-negative','Mitochondria ancestor','Aerobic respiration','Endosymbiosis'],
           tipFact:'Parent group of all mitochondria — inside every one of your cells.',
           children:[
-            {id:'ecoli',icon:'🔬',color:'#6090d8',r:8,appeared:100,extinct:null,
+            {id:'ecoli',icon:'🔬',color:'#6090d8',r:8,appeared:100,extinct:null,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/EscherichiaColi_NIAID.jpg/400px-EscherichiaColi_NIAID.jpg',imgCredit:'E. coli: NIAID (CC BY 2.0)',
               name:'Escherichia coli',latin:'Escherichia coli K-12',era:'~100 Mya (divergence)',
               desc:'The most studied organism in biology. E. coli K-12 is the workhorse of molecular biology — used to produce insulin, human growth hormone, and countless research proteins.',
               detail:'E. coli divides every 20 minutes. Genome: ~4.6 million base pairs encoding ~4,400 genes. CRISPR-Cas9 technology was first demonstrated in E. coli.',
@@ -591,7 +661,21 @@ const TREE = {
           detail:'The Firmicutes:Bacteroidetes ratio in the gut microbiome has been linked to metabolic health and obesity.',
           facts:[{l:'Appeared',v:'~2.5 Bya'},{l:'Cell wall',v:'Thick peptidoglycan'},{l:'Key genera',v:'Lactobacillus, Bacillus'}],
           tags:['Gram-positive','Endospore forming','Gut microbiome','Fermentation'],
-          tipFact:'Lactobacillus in Firmicutes ferments milk into yogurt and cheese.',children:[]}
+          tipFact:'Lactobacillus in Firmicutes ferments milk into yogurt and cheese.',children:[]},
+        {id:'actinobacteria',icon:'💊',color:'#6888cc',r:11,appeared:2000,extinct:null,
+          name:'Actinobacteria',latin:'Phylum Actinobacteria',era:'~2 Billion Years Ago',
+          desc:'The soil bacteria that gave medicine penicillin, streptomycin, tetracycline, and most other antibiotics. Streptomyces alone has produced over 500 clinically useful antibiotics. When you smell the earth after rain (petrichor), you are smelling geosmin — a chemical produced by Streptomyces.',
+          detail:'Actinobacteria also include Mycobacterium tuberculosis (TB, still killing 1.5M per year) and M. leprae (leprosy). The genus Streptomyces produces ~70% of all antibiotics in clinical use.',
+          facts:[{l:'Appeared',v:'~2 Bya'},{l:'Antibiotics',v:'~70% of all clinical antibiotics'},{l:'TB cause',v:'M. tuberculosis'},{l:'Petrichor',v:'Geosmin from Streptomyces'}],
+          tags:['Antibiotic source','Soil bacteria','Petrichor','M. tuberculosis','Streptomyces'],
+          tipFact:'The smell of fresh rain on earth (petrichor) comes from bacteria.',children:[]},
+        {id:'spirochetes',icon:'🌀',color:'#5878b8',r:9,appeared:2000,extinct:null,
+          name:'Spirochetes',latin:'Phylum Spirochaetota',era:'~2 Billion Years Ago',
+          desc:'Corkscrew-shaped bacteria that move by rotating internal flagella (periplasmic flagella), enabling them to drill through viscous environments. Include Treponema pallidum (syphilis), Borrelia burgdorferi (Lyme disease), and Leptospira. Also, mitochondria-like ancestors of eukaryotic flagella may have been spirochetes.',
+          detail:'Spirochetes move differently from all other bacteria — their corkscrew rotation is powered by internal flagella running the length of the cell body, allowing penetration of tissues no other pathogen can reach.',
+          facts:[{l:'Appeared',v:'~2 Bya'},{l:'Movement',v:'Internal flagella rotation'},{l:'Pathogens',v:'Syphilis, Lyme disease'},{l:'Lyme cases',v:'~476,000/yr USA'}],
+          tags:['Corkscrew movement','Internal flagella','Syphilis','Lyme disease','Soil + water'],
+          tipFact:'Lyme disease is the most common tick-borne illness in the Northern Hemisphere.',children:[]}
       ]},
     // ── ARCHAEA ──
     {id:'archaea',icon:'🌋',color:'#8a60cc',r:17,appeared:3500,extinct:null,
@@ -643,7 +727,7 @@ const TREE = {
           tags:['Chitin cell wall','Absorptive nutrition','Mycelial network','Spore reproduction','Decomposer'],
           tipFact:'The largest organism on Earth is a fungus covering 9.6 km².',
           children:[
-            {id:'ascomycetes',icon:'🫧',color:'#d4a840',r:9,appeared:500,extinct:null,
+            {id:'ascomycetes',icon:'🫧',color:'#d4a840',r:9,appeared:500,extinct:null,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Fomitopsis_pinicola_Rbx.jpg/400px-Fomitopsis_pinicola_Rbx.jpg',imgCredit:'Fungal fruiting body: Wikimedia Commons (CC BY-SA)',
               name:'Ascomycetes',latin:'Division Ascomycota',era:'~500 Mya',
               desc:'The largest fungal division: yeasts, truffles, morels, and Penicillium — source of the antibiotic penicillin. Saccharomyces cerevisiae was the first eukaryote to have its complete genome sequenced (1996).',
               detail:'S. cerevisiae fermentation underlies bread, beer, and wine production — a 10,000-year human partnership.',
@@ -654,7 +738,13 @@ const TREE = {
               desc:'Club fungi — mushrooms, toadstools, puffballs, shelf fungi. They construct the Wood Wide Web\'s mycelial superhighways. Armillaria ostoyae in Oregon covers 9.6 km² and is ~8,650 years old.',
               detail:'Basidiomycetes digest lignin — the tough polymer in wood — more effectively than any other organism.',
               facts:[{l:'Appeared',v:'~430 Mya'},{l:'Largest org.',v:'Armillaria, 9.6 km²'},{l:'Wood decay',v:'White & brown rot'}],
-              tags:['Basidiospores','Lignin digestion','Wood Wide Web','Bioluminescence'],tipFact:'~80 species of mushrooms glow in the dark via luciferin.',children:[]}
+              tags:['Basidiospores','Lignin digestion','Wood Wide Web','Bioluminescence'],tipFact:'~80 species of mushrooms glow in the dark via luciferin.',children:[]},
+            {id:'chytrids',icon:'💧',color:'#c8982e',r:8,appeared:800,extinct:null,
+              name:'Chytrids',latin:'Division Chytridiomycota',era:'~800 Mya',
+              desc:'The most ancient fungi — the only group with motile spores (zoospores with flagella). Chytrids are key decomposers in aquatic ecosystems. Unfortunately, Batrachochytrium dendrobatidis has caused the greatest biodiversity loss due to disease in recorded history, decimating amphibian populations worldwide.',
+              detail:'The chytrid fungal disease chytridiomycosis has driven over 90 amphibian species to extinction since the 1970s and caused catastrophic population declines in 500+ more.',
+              facts:[{l:'Appeared',v:'~800 Mya'},{l:'Unique trait',v:'Flagellated spores'},{l:'Crisis',v:'Bd drove 90+ amphibian extinctions'},{l:'Role',v:'Aquatic decomposers'}],
+              tags:['Flagellated spores','Most ancient fungi','Amphibian pathogen','Aquatic decomposer'],tipFact:'Chytrid fungi killed more animal species faster than any disease in history.',children:[]}
           ]},
         // ── PLANTS ──
         {id:'plantae',icon:'🌿',color:'#4a9c58',r:17,appeared:470,extinct:null,
@@ -671,13 +761,25 @@ const TREE = {
               detail:'Mosses were instrumental in soil formation, enabling colonization by larger plants.',
               facts:[{l:'Appeared',v:'~470 Mya'},{l:'Vascular tissue',v:'None'},{l:'Sphagnum',v:'30% land carbon stored'}],
               tags:['Nonvascular','Gametophyte dominant','Peat formation'],tipFact:'Peat bogs store 30% of all land carbon — more than all forests.',children:[]},
-            {id:'angiosperms',icon:'🌸',color:'#8fcc60',r:12,appeared:130,extinct:null,
+            {id:'angiosperms',icon:'🌸',color:'#8fcc60',r:12,appeared:130,extinct:null,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Sunflower_from_Silesia2.jpg/400px-Sunflower_from_Silesia2.jpg',imgCredit:'Sunflower: Wikimedia Commons (CC BY-SA)',
               name:'Flowering Plants',latin:'Angiosperms',era:'~130 Mya',
               desc:'The most evolutionarily successful plant group — 300,000+ species dominating virtually every terrestrial ecosystem. Flowers are sophisticated reproductive structures co-evolved with animal pollinators.',
               detail:'Key innovations: double fertilization, closed carpels, and the flower as a precise pollinator-targeting device.',
               facts:[{l:'Appeared',v:'~130 Mya'},{l:'Species',v:'~300,000+'},{l:'% land plants',v:'~90% of plant species'}],
               tags:['Flowers','Double fertilization','Endosperm','Closed carpels','Fruit dispersal'],
-              tipFact:'Rice, wheat, and corn — angiosperms — feed ~70% of humanity.',children:[]}
+              tipFact:'Rice, wheat, and corn — angiosperms — feed ~70% of humanity.',children:[]},
+            {id:'gymnosperms',icon:'🌲',color:'#5aaa68',r:10,appeared:360,extinct:null,
+              name:'Gymnosperms',latin:'Paraphyletic group',era:'~360 Mya',
+              desc:'The "naked seed" plants — conifers, cycads, ginkgos, and gnetophytes. Gymnosperms dominated terrestrial ecosystems for 200 million years before angiosperms expanded. Redwood trees (Sequoia sempervirens) reach 115 m and live 3,000+ years. Ginkgo biloba is a living fossil unchanged for 200 million years.',
+              detail:'The gymnosperm pollen grain is the plant world\'s equivalent of the sperm — a drought-resistant package that can travel thousands of miles on wind. Conifer forests cover ~15% of Earth\'s land surface and store enormous quantities of carbon.',
+              facts:[{l:'Appeared',v:'~360 Mya'},{l:'Species',v:'~1,000'},{l:'Tallest',v:'Coastal Redwood: 115 m'},{l:'Living fossil',v:'Ginkgo biloba (200 Mya)'}],
+              tags:['Naked seeds','Wind pollination','Conifers','Living fossil Ginkgo','Carbon storage'],tipFact:'A single Ponderosa pine releases enough oxygen for two people for a day.',children:[]},
+            {id:'ferns',icon:'🌿',color:'#60b858',r:9,appeared:360,extinct:null,
+              name:'Ferns',latin:'Division Pteridophyta',era:'~360 Mya',
+              desc:'Vascular plants reproducing by spores rather than seeds. Ferns dominated Carboniferous forests (360–300 Mya) — their compressed remains became the coal seams that powered the Industrial Revolution. Today 10,500+ species persist in tropical forests as the understory layer.',
+              detail:'Fern spore cases (sporangia) are spring-loaded: at a certain level of desiccation they snap open, catapulting spores at 10 m/s — one of nature\'s fastest movements.',
+              facts:[{l:'Appeared',v:'~360 Mya'},{l:'Species',v:'~10,500'},{l:'Coal formation',v:'Carboniferous forests'},{l:'Spore speed',v:'10 m/s launch'}],
+              tags:['Spore reproduction','No seeds','Vascular','Carboniferous coal ancestor','Fronds'],tipFact:'The ferns you see today are remarkably similar to those that dinosaurs walked among.',children:[]}
           ]},
         // ── ANIMALIA ──
         {id:'animalia',icon:'🐾',color:'#cc5050',r:19,appeared:800,extinct:null,
@@ -702,12 +804,30 @@ const TREE = {
                   detail:'Insects pollinate 75% of flowering plants and form the base of most terrestrial food chains.',
                   facts:[{l:'Appeared',v:'~480 Mya'},{l:'Species',v:'~5.5 million'},{l:'Pollination',v:'75% of flowering plants'}],
                   tags:['6 legs','Compound eyes','Metamorphosis','Eusocial','Pollinators'],tipFact:'A single bee colony makes 100,000 foraging trips to fill a honey jar.',children:[]},
-                {id:'cephalopods',icon:'🐙',color:'#cc6868',r:9,appeared:480,extinct:null,
+                {id:'cephalopods',icon:'🐙',color:'#cc6868',r:9,appeared:480,extinct:null,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Day_Octopus_%28Octopus_cyanea%29.jpg/400px-Day_Octopus_%28Octopus_cyanea%29.jpg',imgCredit:'Day octopus: Nick Hobgood (CC BY-SA)',
                   name:'Cephalopods',latin:'Class Cephalopoda',era:'~480 Mya',
                   desc:'The most intelligent invertebrates — octopuses, squid, cuttlefish, nautiluses. Octopuses possess 500 million neurons distributed in a decentralized nervous system: 2/3 are in their arms.',
                   detail:'Cephalopod chromatophores enable millisecond camouflage changes. The mimic octopus impersonates lionfish, flatfish, and sea snakes.',
                   facts:[{l:'Appeared',v:'~480 Mya'},{l:'Neurons',v:'~500M (octopus)'},{l:'Living fossil',v:'Nautilus (500 Mya)'}],
-                  tags:['Decentralized nervous system','Chromatophores','Tool use','3 hearts','Blue blood'],tipFact:'Octopus arms can operate independently — each has its own mini-brain.',children:[]}
+                  tags:['Decentralized nervous system','Chromatophores','Tool use','3 hearts','Blue blood'],tipFact:'Octopus arms can operate independently — each has its own mini-brain.',children:[]},
+                {id:'cnidarians',icon:'🪸',color:'#e87878',r:9,appeared:580,extinct:null,
+                  name:'Cnidarians',latin:'Phylum Cnidaria',era:'~580 Mya',
+                  desc:'The first animals with true tissue layers — jellyfish, corals, sea anemones, hydras. Cnidarians invented the stinging cell (cnidocyte) and radial symmetry. Coral reefs, built by colonial Scleractinian corals over millions of years, support 25% of all marine species.',
+                  detail:'A cnidocyte fires its harpoon-like nematocyst in under 700 nanoseconds — one of the fastest biological events known. Box jellyfish have 24 eyes with true lenses, capable of color vision despite having no brain.',
+                  facts:[{l:'Appeared',v:'~580 Mya'},{l:'Species',v:'~11,000'},{l:'Reef coverage',v:'Supports 25% marine life'},{l:'Stinging speed',v:'700 nanoseconds'}],
+                  tags:['Stinging cells','Radial symmetry','Coral reefs','No brain','Bioluminescence'],tipFact:'A coral reef the size of a coffee table can contain 1,000+ species.',children:[]},
+                {id:'echinoderms',icon:'⭐',color:'#d86868',r:9,appeared:540,extinct:null,
+                  name:'Echinoderms',latin:'Phylum Echinodermata',era:'~540 Mya',
+                  desc:'Starfish, sea urchins, sea cucumbers, brittle stars, and crinoids — the group most closely related to vertebrates among invertebrates. Their deuterostome development (where the anus forms first) links them directly to chordates.',
+                  detail:'Echinoderms have a water vascular system driving hundreds of tube feet. Sea cucumbers eject their internal organs when threatened (evisceration) and regenerate them in weeks. Starfish can regenerate an entire body from a single arm.',
+                  facts:[{l:'Appeared',v:'~540 Mya'},{l:'Species',v:'~7,000'},{l:'Development',v:'Deuterostome'},{l:'Symmetry',v:'5-fold radial'}],
+                  tags:['5-fold symmetry','Water vascular system','Tube feet','Regeneration','Deuterostome'],tipFact:'A starfish can regrow its entire body from one arm and a fragment of the central disc.',children:[]},
+                {id:'annelids',icon:'🪱',color:'#c87070',r:8,appeared:540,extinct:null,
+                  name:'Annelids',latin:'Phylum Annelida',era:'~540 Mya',
+                  desc:'Segmented worms — earthworms, leeches, polychaetes. Earthworms process 10 tonnes of soil per acre per year, creating the rich topsoil that feeds civilization. Marine polychaetes are among the most diverse animals on the seafloor.',
+                  detail:'Charles Darwin spent 40 years studying earthworms, concluding they were the most important creatures on Earth. Leech saliva contains hirudin — a powerful anticoagulant used in modern medicine.',
+                  facts:[{l:'Appeared',v:'~540 Mya'},{l:'Species',v:'~22,000'},{l:'Soil',v:'10 tonnes/acre/year moved'},{l:'Medicine',v:'Hirudin anticoagulant'}],
+                  tags:['Segmented body','Coelom','Setae','Soil formation','Circulatory system'],tipFact:'Earthworms have 5 pairs of hearts.',children:[]}
               ]},
             {id:'vertebrates',icon:'🦴',color:'#c84848',r:15,appeared:525,extinct:null,
               name:'Vertebrates',latin:'Subphylum Vertebrata',era:'~525 Mya',
@@ -728,7 +848,21 @@ const TREE = {
                   desc:'The first fully terrestrial vertebrates — scaly amniotes with shelled eggs that freed reproduction from water. Reptiles dominated Earth for 250 million years. Crucially, birds ARE living dinosaurs.',
                   detail:'The amniotic egg — with its protective membranes and hard shell — was a key innovation enabling vertebrate conquest of dry land.',
                   facts:[{l:'Appeared',v:'~315 Mya'},{l:'Species',v:'~11,500'},{l:'Birds',v:'Living dinosaurs'}],
-                  tags:['Amniotic egg','Scales','Ectothermic','Birds = dinosaurs'],tipFact:'Crocodilians are more closely related to birds than to lizards.',children:[]},
+                  tags:['Amniotic egg','Scales','Ectothermic','Birds = dinosaurs'],tipFact:'Crocodilians are more closely related to birds than to lizards.',
+                  children:[
+                    {id:'birds',icon:'🦅',color:'#aac840',r:9,appeared:150,extinct:null,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/White_Peafowl_%28Pavo_cristatus%29.jpg/400px-White_Peafowl_%28Pavo_cristatus%29.jpg',imgCredit:'Peafowl: Wikimedia Commons (CC BY-SA)',
+                      name:'Birds',latin:'Class Aves',era:'~150 Mya (Archaeopteryx)',
+                      desc:'The only surviving dinosaur lineage — 10,500 species descended from small feathered theropods. Birds evolved powered flight, hollow bones, warm blood, and remarkable cognitive abilities. The crow family\'s tool use rivals that of great apes.',
+                      detail:'The oldest known bird, Archaeopteryx (150 Mya), preserved both dinosaurian features (teeth, clawed wings) and avian features (feathers, wishbone). Modern birds can navigate using the Earth\'s magnetic field, polarized light, and star maps simultaneously.',
+                      facts:[{l:'Appeared',v:'~150 Mya (Archaeopteryx)'},{l:'Species',v:'~10,500'},{l:'Fastest',v:'Peregrine falcon, 389 km/h'},{l:'Smallest',v:'Bee hummingbird, 1.6 g'}],
+                      tags:['Living dinosaurs','Feathers','Hollow bones','Warm-blooded','Magnetic navigation','Tool use'],tipFact:'A pigeon can recognize individual human faces with >90% accuracy.',children:[]}
+                  ]},
+                {id:'amphibians',icon:'🐸',color:'#78b845',r:9,appeared:375,extinct:null,
+                  name:'Amphibians',latin:'Class Amphibia',era:'~375 Mya',
+                  desc:'The first vertebrates to conquer land, yet bound to water for reproduction. Frogs, salamanders, and caecilians breathe partly through their permeable skin — making them the most sensitive bioindicators of ecosystem health. One-third of all amphibian species are threatened with extinction.',
+                  detail:'The transition from water to land is documented in Tiktaalik roseae (375 Mya) — a fish with proto-limbs, a neck, and ribs. Poison dart frogs sequester alkaloid toxins from their insect diet, making them among the most toxic vertebrates per gram.',
+                  facts:[{l:'Appeared',v:'~375 Mya'},{l:'Species',v:'~8,000'},{l:'Threatened',v:'~41% of species'},{l:'Key fossil',v:'Tiktaalik (375 Mya)'}],
+                  tags:['Permeable skin','Lung + skin breathing','Water-dependent reproduction','Tiktaalik ancestor','Bioindicators'],tipFact:'The golden poison dart frog has enough toxin to kill 10 adult humans.',children:[]},
                 {id:'mammals',icon:'🦁',color:'#c84848',r:13,appeared:225,extinct:null,
                   name:'Mammals',latin:'Class Mammalia',era:'~225 Mya',
                   desc:'Warm-blooded amniotes defined by: hair/fur, mammary glands producing milk, and three middle-ear bones. Mammals arose as small nocturnal insectivores. After the K-Pg extinction (66 Mya), they underwent explosive adaptive radiation.',
@@ -737,7 +871,7 @@ const TREE = {
                   tags:['Endothermic','Neocortex','Mammary glands','3 middle ear bones','Hair/fur','Placenta'],
                   tipFact:'Three of your middle-ear bones were reptile jaw bones 200 million years ago.',
                   children:[
-                    {id:'cetaceans',icon:'🐋',color:'#d05050',r:8,appeared:50,extinct:null,
+                    {id:'cetaceans',icon:'🐋',color:'#d05050',r:8,appeared:50,extinct:null,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Humpback_whales_in_singing_position.jpg/400px-Humpback_whales_in_singing_position.jpg',imgCredit:'Humpback whales: NOAA (Public Domain)',
                       name:'Cetaceans',latin:'Order Cetacea',era:'~50 Mya',
                       desc:'Whales, dolphins, and porpoises — fully aquatic mammals descended from terrestrial artiodactyls related to hippos. The transition from land to sea occurred ~50 Mya, documented by transitional fossils like Pakicetus.',
                       detail:'Blue whales are up to 33 m and 190 tonnes. Humpback whale songs propagate across entire ocean basins.',
@@ -751,7 +885,7 @@ const TREE = {
                       tags:['Stereoscopic vision','Grasping hands','Extended childhood','Tool use','Cultural transmission'],
                       tipFact:'You share 99% of your DNA with a chimpanzee.',
                       children:[
-                        {id:'humans',icon:'🧠',color:'#e8b86d',r:14,appeared:0.3,extinct:null,
+                        {id:'humans',icon:'🧠',color:'#e8b86d',r:14,appeared:0.3,extinct:null,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Human_evolution_scheme.svg/400px-Human_evolution_scheme.svg.png',imgCredit:'Human evolution: José-Manuel Benitos (Public Domain)',
                           name:'Homo sapiens',latin:'Homo sapiens sapiens',era:'~300,000 Years Ago',
                           desc:'The only surviving member of genus Homo — a genus that once included at least 8 other species. Anatomically modern humans emerged ~300,000 years ago in Africa. We carry ~2% Neanderthal DNA and ~5% Denisovan DNA in non-African populations.',
                           detail:'Behavioral modernity — symbolic art, complex language, long-distance trade — emerged ~70,000–50,000 years ago. In 300,000 years we transformed the atmosphere, triggered a mass extinction, and launched spacecraft beyond the solar system.',
@@ -762,7 +896,60 @@ const TREE = {
                       ]}
                   ]}
               ]}
-          ]}
+          ]},
+          // ── PROTISTS ──
+          {id:'protists',icon:'🔵',color:'#40b8b0',r:14,appeared:1500,extinct:null,
+            name:'Protists',latin:'Paraphyletic group',era:'~1.5 Billion Years Ago',
+            desc:'A vast, paraphyletic collection of eukaryotes that are neither animal, plant, nor fungus — and the ancestors of all three. Protists were the first eukaryotes to evolve true nuclei and organelles. They include the malaria parasite, the organisms responsible for 25% of global photosynthesis, and the enigmatic life that first evolved predation.',
+            detail:'Protists are incredibly diverse: some photosynthesize, some hunt prey, some are parasites, some do all three. Diatoms form glass-walled cells of exquisite geometric beauty and underpin oceanic food webs. Foraminifera built the White Cliffs of Dover with their calcium carbonate shells over millions of years.',
+            facts:[{l:'Appeared',v:'~1.5 Bya'},{l:'Est. species',v:'~100,000 described'},{l:'O₂ share',v:'~25% via algae'},{l:'Includes',v:'Algae, amoeba, ciliates, malaria'}],
+            tags:['Paraphyletic','First eukaryotes','Algal O₂ producers','Diatoms','Malaria ancestor'],
+            tipFact:'Diatoms produce more oxygen than all the world\'s rainforests combined.',
+            children:[
+              {id:'alveolates',icon:'🌀',color:'#2abba8',r:11,appeared:1000,extinct:null,
+                name:'Alveolata',latin:'Superphylum Alveolata',era:'~1 Billion Years Ago',
+                desc:'A major protist lineage defined by membrane-bound sacs (alveoli) beneath the cell membrane. Includes ciliates (Paramecium), dinoflagellates (cause red tides and bioluminescence), and apicomplexans — whose members include Plasmodium, the malaria parasite killing 600,000 people per year.',
+                detail:'Apicomplexan parasites have the most complex life cycles in nature, passing through multiple distinct stages in different hosts. Dinoflagellates produce some of the most potent natural neurotoxins and drive the bioluminescent "sea sparkle" seen in tropical bays.',
+                facts:[{l:'Appeared',v:'~1 Bya'},{l:'Key genera',v:'Plasmodium, Paramecium'},{l:'Toxins',v:'Paralytic shellfish toxins'},{l:'Biolum.',v:'Sea sparkle (Noctiluca)'}],
+                tags:['Alveoli membranes','Malaria parasite','Red tides','Bioluminescence','Ciliates'],
+                tipFact:'The bioluminescent glow in ocean waves at night is caused by dinoflagellates.',
+                children:[
+                  {id:'plasmodium',icon:'🦟',color:'#1d9988',r:8,appeared:200,extinct:null,
+                    name:'Plasmodium',latin:'Plasmodium falciparum',era:'~200 Mya (divergence)',
+                    desc:'The most deadly eukaryotic parasite in human history. Plasmodium falciparum causes malaria — killing 600,000+ people per year, mostly children under 5 in sub-Saharan Africa. It is transmitted by Anopheles mosquitoes and has the most complex life cycle of any known pathogen.',
+                    detail:'P. falciparum evades the immune system by continuously switching the surface proteins it displays (PfEMP1 genes). Sickle cell anemia confers partial resistance — explaining why the gene persists in malaria-endemic regions despite its costs.',
+                    facts:[{l:'Deaths',v:'600,000+ yearly'},{l:'Host stages',v:'Liver cells, red blood cells'},{l:'Resistance',v:'Sickle cell trait'},{l:'Lifecycle',v:'~48-hour blood stage'}],
+                    tags:['Malaria','Immune evasion','Most deadly parasite','Sickle cell selection','Anopheles vector'],tipFact:'Malaria may have killed more humans than all wars in history combined.',children:[]},
+                  {id:'paramecium',icon:'🌀',color:'#2daaa0',r:8,appeared:500,extinct:null,
+                    name:'Paramecium',latin:'Paramecium caudatum',era:'~500 Mya',
+                    desc:'The classic microscopy organism — a slipper-shaped ciliate covered in ~2,500 hair-like cilia that beat in coordinated metachronal waves. Among the first organisms ever observed through a microscope, Paramecium exhibit simple forms of learning and can avoid negative stimuli.',
+                    detail:'Paramecium undergo conjugation — a primitive form of sexual reproduction where two individuals exchange micronuclear material without fusing permanently. They also maintain both a macronucleus (for everyday functions) and a micronucleus (for reproduction).',
+                    facts:[{l:'Size',v:'50–330 μm'},{l:'Speed',v:'~1 mm/sec'},{l:'Cilia',v:'~2,500 per cell'},{l:'Nuclei',v:'Macronucleus + micronucleus'}],
+                    tags:['Ciliate','Food vacuoles','Conjugation','Two nuclei','Simple learning'],tipFact:'A Paramecium can "remember" and avoid a negative stimulus for ~1 minute.',children:[]}
+                ]},
+              {id:'stramenopiles',icon:'🌾',color:'#3dbba8',r:11,appeared:1200,extinct:null,
+                name:'Stramenopiles',latin:'Superphylum Stramenopila',era:'~1.2 Billion Years Ago',
+                desc:'A superphylum encompassing diatoms, brown algae (kelp), golden algae, and water molds. Diatoms — encased in exquisite silica glass shells — produce 20–25% of Earth\'s oxygen annually, underpinning oceanic food chains. Brown algae include the largest algae on Earth: giant kelp reaching 45 m.',
+                detail:'Diatom frustules (glass shells) accumulate on the seafloor, forming thick deposits of diatomite used in pool filters, reflective paint, and as a natural insecticide. Each of the ~100,000 diatom species has a unique ornamental frustule pattern.',
+                facts:[{l:'Appeared',v:'~1.2 Bya'},{l:'O₂ share',v:'20–25% of global O₂'},{l:'Kelp height',v:'Up to 45 m'},{l:'Diatoms',v:'~100,000 species'}],
+                tags:['Diatoms','Kelp forests','Silica frustules','Major O₂ producer','Ocean food web base'],
+                tipFact:'A single drop of seawater can contain over a million diatoms.',
+                children:[
+                  {id:'diatoms',icon:'💠',color:'#2daab0',r:8,appeared:200,extinct:null,
+                    name:'Diatoms',latin:'Class Bacillariophyceae',era:'~200 Mya',
+                    desc:'Microscopic algae encased in intricate silica glass shells called frustules. Each of the ~100,000 species has a geometrically unique frustule — making diatoms a favorite of microscopists. Diatoms form the base of most marine food chains and produce ~20% of all oxygen on Earth.',
+                    detail:'When diatoms die, their glass shells sink and form thick seabed deposits of diatomite. Fossilized Cretaceous diatoms are mined today for pool filtration, road paint, and as a natural, non-toxic insecticide (scratches insect exoskeletons).',
+                    facts:[{l:'Size',v:'2–500 μm'},{l:'Species',v:'~100,000'},{l:'O₂',v:'~20% global production'},{l:'Shell',v:'Amorphous silica (SiO₂)'}],
+                    tags:['Glass shells','O₂ producer','Food chain base','Biofuel potential','Industrial diatomite'],tipFact:'The White Cliffs of Dover are composed largely of ancient microscopic shells.',children:[]}
+                ]},
+              {id:'amoebozoa',icon:'🫧',color:'#35a8a0',r:9,appeared:1000,extinct:null,
+                name:'Amoebozoa',latin:'Superphylum Amoebozoa',era:'~1 Billion Years Ago',
+                desc:'Amoeboid eukaryotes that move by extending cytoplasmic "false feet" called pseudopods. Includes the classic Amoeba proteus, slime molds with surprising social behavior (Dictyostelium), and the rare but deadly brain-eating amoeba Naegleria fowleri.',
+                detail:'Dictyostelium discoideum performs true multicellular behavior: when food is scarce, thousands of individual amoeba aggregate, some sacrifice themselves to form a stalk, lifting spores to disperse — a form of programmed altruism in an otherwise single-celled organism.',
+                facts:[{l:'Movement',v:'Pseudopods'},{l:'Key genera',v:'Amoeba, Dictyostelium'},{l:'Social',v:'Slime mold aggregation'},{l:'Pathogen',v:'Naegleria (brain amoeba)'}],
+                tags:['Pseudopods','Slime molds','Altruism','Phagocytosis','Brain-eating amoeba'],
+                tipFact:'Slime molds solve mazes and model Tokyo\'s subway routes with no brain.',children:[]}
+            ]}
       ]}
   ]
 };
@@ -934,7 +1121,7 @@ function render(){
     c.setAttribute('class','node-circle nc-main');
     c.setAttribute('fill',n.depth===0?'url(#rootGrad)':n.color);
     c.setAttribute('fill-opacity',inEra?(n.depth===0?'1':n.depth<=1?'0.9':'0.8'):'0.15');
-    c.setAttribute('stroke','#070503');c.setAttribute('stroke-width','1.5');
+    c.style.stroke='var(--bg)';c.setAttribute('stroke-width','1.5');
     c.style.setProperty('--nc',n.color);
     if(n.depth===0) c.setAttribute('filter','url(#strongGlow)');
     g.appendChild(c);
@@ -957,17 +1144,17 @@ function render(){
       const lx=n._x+Math.cos(angleRad)*lDist;
       const ly=n._y+Math.sin(angleRad)*lDist;
       const cos=Math.cos(angleRad);
-      const t=document.createElementNS('http://www.w3.org/2000/svg','text');
-      t.setAttribute('x',lx);t.setAttribute('y',ly);
-      t.setAttribute('text-anchor',cos<-0.15?'end':cos>0.15?'start':'middle');
-      t.setAttribute('dominant-baseline','middle');
-      t.setAttribute('fill',n.depth===0?'#f2e8d0':n.depth<=1?'rgba(242,232,208,0.92)':'rgba(242,232,208,0.75)');
-      t.setAttribute('font-size',n.depth===0?'14':n.depth===1?'12':'10');
-      t.setAttribute('font-family',"'Lora', serif");
-      t.setAttribute('font-weight',n.depth<=1?'500':'400');
-      t.setAttribute('class','node-label-text');
-      t.textContent=n.name;
-      g.appendChild(t);
+      const svgText=document.createElementNS('http://www.w3.org/2000/svg','text');
+      svgText.setAttribute('x',lx);svgText.setAttribute('y',ly);
+      svgText.setAttribute('text-anchor',cos<-0.15?'end':cos>0.15?'start':'middle');
+      svgText.setAttribute('dominant-baseline','middle');
+      svgText.setAttribute('fill',n.depth===0?'#f2e8d0':n.depth<=1?'rgba(242,232,208,0.92)':'rgba(242,232,208,0.75)');
+      svgText.setAttribute('font-size',n.depth===0?'14':n.depth===1?'12':'10');
+      svgText.setAttribute('font-family',"'Lora', serif");
+      svgText.setAttribute('font-weight',n.depth<=1?'500':'400');
+      svgText.setAttribute('class','node-label-text');
+      svgText.textContent=n.name;
+      g.appendChild(svgText);
     }
 
     // Collapse dot
@@ -975,7 +1162,7 @@ function render(){
       const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
       dot.setAttribute('cx',n._x+n.r-3);dot.setAttribute('cy',n._y-n.r+3);dot.setAttribute('r','3.5');
       dot.setAttribute('fill',n._collapsed?'#e8b86d':'#4a9c58');
-      dot.setAttribute('stroke','#070503');dot.setAttribute('stroke-width','1');
+      dot.style.stroke='var(--bg)';dot.setAttribute('stroke-width','1');
       g.appendChild(dot);
     }
 
@@ -990,10 +1177,7 @@ function render(){
     }
 
     // Events
-    g.addEventListener('click',e=>{e.stopPropagation();
-      if(n.id==='humans') showMainPanel(n);
-      else showMainPanel(n);
-    });
+    g.addEventListener('click',e=>{e.stopPropagation();showMainPanel(n);});
     g.addEventListener('contextmenu',e=>{e.preventDefault();if(n.children?.length){n._collapsed=!n._collapsed;render();}});
     g.addEventListener('mouseenter',e=>showTip(e,n));
     g.addEventListener('mouseleave',hideTip);
@@ -1013,6 +1197,22 @@ function showMainPanel(n){
   document.getElementById('p-era').textContent=n.era;
   document.getElementById('p-name').textContent=n.name;
   document.getElementById('p-latin').textContent=n.latin;
+  // Species image
+  const existingImg=document.getElementById('p-species-img-wrap');
+  if(existingImg) existingImg.remove();
+  if(n.img){
+    const imgWrap=document.createElement('div');
+    imgWrap.id='p-species-img-wrap';
+    const img=document.createElement('img');
+    img.src=n.img;img.alt=n.name;img.className='p-img';
+    img.onerror=()=>imgWrap.remove();
+    const attr=document.createElement('div');
+    attr.className='p-img-attr';
+    attr.textContent=n.imgCredit||'Photo: Wikimedia Commons (CC)';
+    imgWrap.appendChild(img);imgWrap.appendChild(attr);
+    const descEl=document.getElementById('p-desc');
+    descEl.parentNode.insertBefore(imgWrap,descEl);
+  }
   document.getElementById('p-desc').textContent=n.desc;
   document.getElementById('p-icon').textContent=n.icon;
   document.getElementById('p-icon-wrap').style.borderColor=n.color+'55';
@@ -1039,8 +1239,8 @@ function showMainPanel(n){
   updateBreadcrumb(n);
 }
 
-document.getElementById('panel-close').addEventListener('click',()=>panel.classList.remove('open'));
-document.getElementById('svg').addEventListener('click',()=>panel.classList.remove('open'));
+document.getElementById('panel-close').addEventListener('click',()=>{panel.classList.remove('open');history.replaceState(null,'',location.pathname);});
+document.getElementById('svg').addEventListener('click',()=>{panel.classList.remove('open');history.replaceState(null,'',location.pathname);});
 
 // ══════════════════════════════════════════════════════
 // BREADCRUMB
@@ -1116,33 +1316,44 @@ const searchResults=document.getElementById('search-results');
 const allNodes=Object.values(nodeMap);
 
 function buildSearchIndex(){
-  return allNodes.map(n=>({id:n.id,name:n.name,latin:n.latin||'',era:n.era||'',icon:n.icon,depth:n.depth}));
+  const treeItems=allNodes.map(n=>({id:n.id,name:n.name,latin:n.latin||'',era:n.era||'',icon:n.icon,depth:n.depth,tags:(n.tags||[]).join(' '),type:'tree'}));
+  const homItems=HOMININS.map(h=>({id:'hom:'+h.id,name:h.name,latin:h.short||'',era:h.mya[0]+'–'+h.mya[1]+' Mya',icon:h.icon,depth:0,tags:(h.tags||[]).join(' '),type:'hominin',homId:h.id}));
+  return [...treeItems,...homItems];
 }
 const searchIndex=buildSearchIndex();
 
 searchInput.addEventListener('input',()=>{
   const q=searchInput.value.trim().toLowerCase();
-  if(!q){searchResults.classList.remove('show');return;}
-  const matches=searchIndex.filter(n=>n.name.toLowerCase().includes(q)||n.latin.toLowerCase().includes(q)).slice(0,8);
-  searchResults.innerHTML=matches.map(m=>`<div class="sr-item" onclick="navigateTo('${m.id}')"><span class="sri-icon">${m.icon}</span><span class="sri-name">${m.name}</span><span class="sri-sub">${m.era?m.era.replace('~','').split(' ').slice(0,3).join(' '):''}</span></div>`).join('');
-  searchResults.classList.toggle('show',matches.length>0);
+  if(!q){searchResults.classList.remove('show');searchInput.setAttribute('aria-expanded','false');return;}
+  const matches=searchIndex.filter(n=>n.name.toLowerCase().includes(q)||n.latin.toLowerCase().includes(q)||n.tags.toLowerCase().includes(q)).slice(0,10);
+  searchResults.innerHTML=matches.map(m=>`<div class="sr-item" role="option" tabindex="-1" onclick="navigateTo('${m.id}')"><span class="sri-icon" aria-hidden="true">${m.icon}</span><span class="sri-name">${m.name}</span><span class="sri-sub">${m.era?m.era.replace('~','').split(' ').slice(0,3).join(' '):''}</span></div>`).join('');
+  const show=matches.length>0;
+  searchResults.classList.toggle('show',show);
+  searchInput.setAttribute('aria-expanded',show?'true':'false');
 });
-searchInput.addEventListener('blur',()=>setTimeout(()=>searchResults.classList.remove('show'),200));
+searchInput.addEventListener('blur',()=>setTimeout(()=>{searchResults.classList.remove('show');searchInput.setAttribute('aria-expanded','false');},200));
 
 window.navigateTo=function(id){
+  searchInput.value='';searchResults.classList.remove('show');searchInput.setAttribute('aria-expanded','false');
+  // Handle hominin items from search (prefixed with 'hom:')
+  if(id.startsWith('hom:')){
+    const homId=id.slice(4);
+    const h=HOMININS.find(x=>x.id===homId);
+    if(h){openHomininView();setTimeout(()=>{selectedHominin=homId;renderHominins();showHominDetail(h);},100);}
+    return;
+  }
   const n=nodeMap[id];if(!n)return;
-  searchInput.value='';searchResults.classList.remove('show');
   highlightedId=id;
   // Ensure path is not collapsed
   let c=n;while(c._parent){c._parent._collapsed=false;c=c._parent;}
   layout();render();applyT();
   // Pan to node
   const cx=window.innerWidth/2,cy=window.innerHeight/2;
-  const tx=cx-(n._x*transform.s+transform.x)+cx-cx;
   transform.x=cx-n._x*transform.s;
   transform.y=cy-n._y*transform.s;
   applyT();
   showMainPanel(n);
+  history.replaceState(null,'','?node='+encodeURIComponent(id));
   setTimeout(()=>{highlightedId=null;render();},2500);
 };
 
@@ -1233,15 +1444,15 @@ function showHominDetail(h){
     </div>
     ${neanPct!=null||denPct!=null?`
     <div class="hp-section">${t('sec_dna')}</div>
-    ${neanPct!=null?`<div class="hp-dna"><span style="font-size:0.65rem;min-width:80px;color:rgba(200,136,58,0.7)">${t('lbl_nean').replace(' DNA','')}</span><div class="dna-fill"><div class="dna-fill-inner" style="width:${Math.min(100,neanPct*25)}%;background:#7A9BAA"></div></div><span style="font-size:0.65rem;color:#7A9BAA;min-width:28px;text-align:right">${neanPct}%</span></div>`:''}
-    ${denPct!=null?`<div class="hp-dna"><span style="font-size:0.65rem;min-width:80px;color:rgba(200,136,58,0.7)">${t('lbl_den').replace(' DNA','')}</span><div class="dna-fill"><div class="dna-fill-inner" style="width:${Math.min(100,denPct*20)}%;background:#7A8BAA"></div></div><span style="font-size:0.65rem;color:#7A8BAA;min-width:28px;text-align:right">${denPct}%</span></div>`:''}
-    <div style="font-size:0.65rem;color:rgba(200,136,58,0.5);margin-top:0.3rem;font-style:italic">${h.dna.note||''}</div>`:''}
+    ${neanPct!=null?`<div class="hp-dna"><span style="font-size:0.65rem;min-width:80px;color:var(--gold-text)">${t('lbl_nean').replace(' DNA','')}</span><div class="dna-fill"><div class="dna-fill-inner" style="width:${Math.min(100,neanPct*25)}%;background:#7A9BAA"></div></div><span style="font-size:0.65rem;color:#7A9BAA;min-width:28px;text-align:right">${neanPct}%</span></div>`:''}
+    ${denPct!=null?`<div class="hp-dna"><span style="font-size:0.65rem;min-width:80px;color:var(--gold-text)">${t('lbl_den').replace(' DNA','')}</span><div class="dna-fill"><div class="dna-fill-inner" style="width:${Math.min(100,denPct*20)}%;background:#7A8BAA"></div></div><span style="font-size:0.65rem;color:#7A8BAA;min-width:28px;text-align:right">${denPct}%</span></div>`:''}
+    <div style="font-size:0.65rem;color:var(--gold-text-dim);margin-top:0.3rem;font-style:italic">${h.dna.note||''}</div>`:''}
     <div class="hp-section">${t('sec_evo')}</div>
-    <div style="font-size:0.78rem;color:rgba(242,232,208,0.65);line-height:1.8;margin-bottom:0.8rem">${h.detail||''}</div>
+    <div class="hp-detail">${h.detail||''}</div>
     <div class="hp-section">${t('sec_traits')}</div>
     <div class="hp-tags">${(h.tags||[]).map(tag=>`<span class="hp-tag">${tag}</span>`).join('')}</div>
-    <div style="margin-top:0.8rem;font-size:0.65rem;color:rgba(200,136,58,0.4);letter-spacing:0.1em">${t('sec_fossil')}</div>
-    <div style="font-size:0.75rem;color:rgba(242,232,208,0.55);margin-top:0.3rem;line-height:1.7">${(h.sites||[]).join(' · ')}</div>`;
+    <div style="margin-top:0.8rem;font-size:0.65rem;color:var(--gold-text-dim);letter-spacing:0.1em">${t('sec_fossil')}</div>
+    <div style="font-size:0.75rem;color:var(--text-dim);margin-top:0.3rem;line-height:1.7">${(h.sites||[]).join(' · ')}</div>`;
 }
 
 // ══════════════════════════════════════════════════════
@@ -1314,36 +1525,30 @@ function showComparePanel(){
     const brainPct=brainMax?(brainMax/maxB*100):0;
     const nP=h.dna&&h.dna.neanderthal!=null?h.dna.neanderthal:null;
     const dP=h.dna&&h.dna.denisovan!=null?h.dna.denisovan:null;
-    return `<div style="border:1px solid ${h.color}33;border-radius:12px;padding:1.2rem;background:rgba(255,255,255,0.02);">
-      <div style="font-size:2rem;margin-bottom:0.5rem">${h.icon}</div>
+    return `<div class="compare-card" style="border-color:${h.color}44;">
+      <div style="font-size:2rem;margin-bottom:0.5rem" aria-hidden="true">${h.icon}</div>
       <div style="font-family:var(--font-head);font-size:0.95rem;color:${h.color};margin-bottom:0.15rem">${h.short}</div>
-      <div style="font-size:0.65rem;color:rgba(242,232,208,0.5);font-style:italic;margin-bottom:0.8rem">${h.name}</div>
-      <div style="font-size:0.7rem;color:rgba(200,136,58,0.7);margin-bottom:0.2rem">${t('lbl_timeline')}</div>
-      <div style="font-size:0.8rem;margin-bottom:0.8rem">${h.mya[0]}–${h.mya[1]} Ma</div>
+      <div class="cc-sub">${h.name}</div>
+      <div class="cc-lbl">${t('lbl_timeline')}</div>
+      <div class="cc-val">${h.mya[0]}–${h.mya[1]} Ma</div>
       ${brainMax?`
-      <div style="font-size:0.7rem;color:rgba(200,136,58,0.7);margin-bottom:0.3rem">${t('lbl_brain')} — ${brainMax} cm³</div>
-      <div style="height:6px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;margin-bottom:0.8rem">
-        <div style="height:100%;width:${brainPct}%;background:${h.color};transition:width 0.6s"></div>
-      </div>`:`<div style="font-size:0.7rem;color:rgba(242,232,208,0.3);margin-bottom:0.8rem;">${t('lbl_brain')} —</div>`}
-      <div style="font-size:0.7rem;color:rgba(200,136,58,0.7);margin-bottom:0.3rem">${t('lbl_tools')}</div>
-      <div style="font-size:0.75rem;margin-bottom:0.5rem">${h.tools}</div>
-      <div style="font-size:0.7rem;color:rgba(200,136,58,0.7);margin-bottom:0.3rem">${t('lbl_fire')}</div>
-      <div style="font-size:0.75rem;margin-bottom:0.5rem">${h.fire}</div>
-      <div style="font-size:0.7rem;color:rgba(200,136,58,0.7);margin-bottom:0.3rem">${t('lbl_language')}</div>
-      <div style="font-size:0.75rem;margin-bottom:0.8rem">${h.language}</div>
+      <div class="cc-lbl">${t('lbl_brain')} — ${brainMax} cm³</div>
+      <div class="cc-bar-bg"><div style="height:100%;width:${brainPct}%;background:${h.color};transition:width 0.6s"></div></div>`:`<div class="cc-lbl" style="margin-bottom:0.8rem">${t('lbl_brain')} —</div>`}
+      <div class="cc-lbl">${t('lbl_tools')}</div>
+      <div class="cc-val">${h.tools}</div>
+      <div class="cc-lbl">${t('lbl_fire')}</div>
+      <div class="cc-val">${h.fire}</div>
+      <div class="cc-lbl">${t('lbl_language')}</div>
+      <div class="cc-val">${h.language}</div>
       ${nP!=null?`
-      <div style="font-size:0.7rem;color:rgba(200,136,58,0.7);margin-bottom:0.3rem">${t('lbl_nean')}</div>
-      <div style="height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;margin-bottom:0.3rem">
-        <div style="height:100%;width:${Math.min(100,nP*25)}%;background:#7A9BAA"></div>
-      </div>
-      <div style="font-size:0.65rem;color:#7A9BAA;margin-bottom:0.5rem">${nP}%</div>`:''}
+      <div class="cc-lbl">${t('lbl_nean')}</div>
+      <div class="cc-dna-bg"><div style="height:100%;width:${Math.min(100,nP*25)}%;background:#7A9BAA"></div></div>
+      <div class="cc-dna-label" style="color:#7A9BAA">${nP}%</div>`:''}
       ${dP!=null?`
-      <div style="font-size:0.7rem;color:rgba(200,136,58,0.7);margin-bottom:0.3rem">${t('lbl_den')}</div>
-      <div style="height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;margin-bottom:0.3rem">
-        <div style="height:100%;width:${Math.min(100,dP*20)}%;background:#7A8BAA"></div>
-      </div>
-      <div style="font-size:0.65rem;color:#7A8BAA;margin-bottom:0.5rem">${dP}%</div>`:''}
-      <div style="font-size:0.7rem;color:rgba(242,232,208,0.4);line-height:1.6;margin-top:0.5rem">${h.desc.slice(0,180)}${h.desc.length>180?'...':''}</div>
+      <div class="cc-lbl">${t('lbl_den')}</div>
+      <div class="cc-dna-bg"><div style="height:100%;width:${Math.min(100,dP*20)}%;background:#7A8BAA"></div></div>
+      <div class="cc-dna-label" style="color:#7A8BAA">${dP}%</div>`:''}
+      <div class="cc-desc">${h.desc.slice(0,200)}${h.desc.length>200?'…':''}</div>
     </div>`;
   }).join('');
 }
@@ -1369,9 +1574,17 @@ document.getElementById('btn-random').addEventListener('click',()=>{
 // KEYBOARD
 // ══════════════════════════════════════════════════════
 document.addEventListener('keydown',e=>{
-
-  if(e.key==='Escape'){panel.classList.remove('open');document.getElementById('hominin-view').classList.remove('open');}
-  if(e.key==='f'||e.key==='F'){searchInput.focus();}
+  if(e.key==='Escape'){
+    panel.classList.remove('open');
+    document.getElementById('hominin-view').classList.remove('open');
+    searchResults.classList.remove('show');
+    searchInput.setAttribute('aria-expanded','false');
+    history.replaceState(null,'',location.pathname);
+    return;
+  }
+  // Prevent shortcuts firing while typing in any input/textarea
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.isContentEditable) return;
+  if(e.key==='f'||e.key==='F'){searchInput.focus();e.preventDefault();}
   if(e.key==='h'||e.key==='H'){openHomininView();}
   if(e.key==='r'||e.key==='R'){transform={x:0,y:0,s:1};applyT();}
 });
@@ -1395,12 +1608,14 @@ function spawnParticles(){
 // INTRO ANIMATION
 // ══════════════════════════════════════════════════════
 function showIntro(){
+  // Skip intro if loading a specific node from URL
+  if(new URLSearchParams(location.search).get('node')) return;
   const overlay=document.createElement('div');
-  overlay.style.cssText='position:fixed;inset:0;z-index:999;background:#070503;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;';
+  overlay.style.cssText='position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;transition:background 0s;';
   overlay.innerHTML=`
-    <div style="font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);color:#f2e8d0;text-align:center;letter-spacing:0.05em;opacity:0;transition:opacity 1.5s" id="intro-text1">Tree of Life</div>
-    <div style="font-size:clamp(0.75rem,1.5vw,0.9rem);color:rgba(200,136,58,0.8);text-align:center;letter-spacing:0.25em;text-transform:uppercase;margin-top:0.8rem;opacity:0;transition:opacity 1.5s 0.5s" id="intro-text2">3.8 Billion Years of Natural Selection</div>
-    <div style="font-size:0.7rem;color:rgba(122,184,96,0.6);text-align:center;margin-top:1.5rem;opacity:0;transition:opacity 1.5s 1.2s;font-style:italic" id="intro-text3">Every living thing you have ever known is a cousin</div>`;
+    <div style="font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);color:var(--parchment);text-align:center;letter-spacing:0.05em;opacity:0;transition:opacity 1.5s" id="intro-text1">Tree of Life</div>
+    <div style="font-size:clamp(0.75rem,1.5vw,0.9rem);color:var(--gold-text);text-align:center;letter-spacing:0.25em;text-transform:uppercase;margin-top:0.8rem;opacity:0;transition:opacity 1.5s 0.5s" id="intro-text2">3.8 Billion Years of Natural Selection</div>
+    <div style="font-size:0.7rem;color:var(--sage);text-align:center;margin-top:1.5rem;opacity:0;transition:opacity 1.5s 1.2s;font-style:italic" id="intro-text3">Every living thing you have ever known is a cousin</div>`;
   document.body.appendChild(overlay);
   requestAnimationFrame(()=>{
     document.getElementById('intro-text1').style.opacity='1';
@@ -1571,7 +1786,10 @@ function setLang(lang){
   const isRtl=lang==='he';
   document.documentElement.dir=isRtl?'rtl':'ltr';
   document.documentElement.lang=lang;
-  document.querySelectorAll('.lang-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.lang===lang));
+  document.querySelectorAll('.lang-btn').forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.lang===lang);
+    btn.setAttribute('aria-pressed',btn.dataset.lang===lang?'true':'false');
+  });
   applyI18n();
 }
 
@@ -1625,6 +1843,8 @@ function applyTheme(){
     document.documentElement.setAttribute('data-theme','light');
     document.getElementById('theme-btn').textContent='\ud83c\udf19';
   }
+  // Re-render SVG so stroke CSS vars pick up new --bg value
+  if(typeof render==='function') render();
 }
 
 function toggleTheme(){
@@ -1646,9 +1866,18 @@ function init(){
   currentLang=localStorage.getItem('tol-lang')||'en';
   document.documentElement.dir=currentLang==='he'?'rtl':'ltr';
   document.documentElement.lang=currentLang;
-  document.querySelectorAll('.lang-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.lang===currentLang));
+  document.querySelectorAll('.lang-btn').forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.lang===currentLang);
+    btn.setAttribute('aria-pressed',btn.dataset.lang===currentLang?'true':'false');
+  });
   applyI18n();
-  showIntro();
+  // Restore URL state (?node=id)
+  const urlNode=new URLSearchParams(location.search).get('node');
+  if(urlNode){
+    setTimeout(()=>navigateTo(urlNode),120);
+  } else {
+    showIntro();
+  }
 }
 window.addEventListener('resize',()=>{layout();render();});
 init();

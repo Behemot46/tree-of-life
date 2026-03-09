@@ -1,210 +1,1657 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" dir="ltr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Tree of Life — Explorer</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tree of Life — 3.8 Billion Years</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Lora:ital,wght@0,400;0,500;1,400&family=Noto+Serif+Hebrew:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#070503;
+  --parchment:#f2e8d0;
+  --gold:#c8883a;
+  --gold-light:#e8b86d;
+  --gold-dim:rgba(200,136,58,0.18);
+  --teal:#2dd4bf;
+  --teal-dim:rgba(45,212,191,0.15);
+  --terra:#b05050;
+  --sage:#7ab860;
+  --panel-bg:rgba(7,5,3,0.97);
+  --font-head:'Playfair Display','Noto Serif Hebrew',serif;
+  --font-body:'Lora','Noto Serif Hebrew',serif;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--parchment);}
+body{font-family:var(--font-body);user-select:none;cursor:grab;}
+body.dragging{cursor:grabbing;}
+
+/* ── ATMOSPHERIC BACKGROUND ── */
+#bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 120% 70% at 50% 120%,#1a0e05 0%,transparent 55%),
+    radial-gradient(ellipse 60% 50% at 15% 80%,#0a1205 0%,transparent 50%),
+    radial-gradient(ellipse 50% 40% at 85% 85%,#0d1308 0%,transparent 45%),
+    radial-gradient(ellipse 90% 60% at 50% 40%,#080604 0%,#070503 100%);}
+#bg::after{content:'';position:absolute;inset:0;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+  opacity:0.6;}
+
+/* ── PARTICLES ── */
+.particle{position:fixed;border-radius:50%;pointer-events:none;z-index:0;}
+@keyframes drift{0%{transform:translateY(0) translateX(0);opacity:0.5}50%{opacity:1}100%{transform:translateY(-100px) translateX(30px);opacity:0}}
+
+/* ── HEADER ── */
+#header{position:fixed;top:0;left:0;right:0;z-index:200;padding:1rem 1.5rem 3rem;
+  background:linear-gradient(to bottom,rgba(7,5,3,0.98) 35%,transparent);
+  display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;}
+.title-wrap{pointer-events:none;}
+.title-main{font-family:var(--font-head);font-size:clamp(1.5rem,2.8vw,2.2rem);font-weight:600;
+  color:var(--parchment);letter-spacing:0.03em;line-height:1;
+  text-shadow:0 0 40px rgba(200,136,58,0.3);}
+.title-sub{font-size:clamp(0.6rem,1.1vw,0.7rem);color:var(--sage);letter-spacing:0.2em;
+  text-transform:uppercase;margin-top:0.3rem;font-style:italic;}
+.hint-bar{font-size:0.62rem;color:rgba(122,184,96,0.45);letter-spacing:0.06em;
+  line-height:2;text-align:right;pointer-events:none;}
+
+/* ── SEARCH BAR ── */
+#search-wrap{position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:300;
+  display:flex;align-items:center;gap:0;pointer-events:all;}
+#search-input{background:rgba(7,5,3,0.9);border:1px solid rgba(200,136,58,0.25);
+  border-radius:20px;padding:0.45rem 1rem 0.45rem 2.2rem;color:var(--parchment);
+  font-family:var(--font-body);font-size:0.78rem;width:220px;outline:none;
+  transition:all 0.3s;backdrop-filter:blur(10px);}
+#search-input::placeholder{color:rgba(242,232,208,0.3);}
+#search-input:focus{border-color:rgba(200,136,58,0.6);width:280px;box-shadow:0 0 20px rgba(200,136,58,0.1);}
+#search-icon{position:absolute;left:1.35rem;color:rgba(200,136,58,0.5);font-size:0.75rem;pointer-events:none;}
+#search-results{position:absolute;top:calc(100% + 8px);left:0;right:0;
+  background:rgba(7,5,3,0.97);border:1px solid rgba(200,136,58,0.2);border-radius:10px;
+  overflow:hidden;display:none;max-height:220px;overflow-y:auto;
+  box-shadow:0 8px 30px rgba(0,0,0,0.6);}
+#search-results.show{display:block;}
+.sr-item{padding:0.5rem 0.9rem;cursor:pointer;font-size:0.78rem;color:rgba(242,232,208,0.75);
+  border-bottom:1px solid rgba(200,136,58,0.08);display:flex;align-items:center;gap:0.5rem;transition:background 0.15s;}
+.sr-item:hover{background:rgba(200,136,58,0.1);color:var(--parchment);}
+.sr-item:last-child{border-bottom:none;}
+.sr-item .sri-icon{font-size:1rem;}
+.sr-item .sri-name{font-weight:500;}
+.sr-item .sri-sub{font-size:0.68rem;color:rgba(200,136,58,0.7);margin-left:auto;}
+
+/* ── BREADCRUMB ── */
+#breadcrumb{position:fixed;top:4.2rem;left:50%;transform:translateX(-50%);z-index:200;
+  display:flex;align-items:center;gap:0;pointer-events:all;
+  background:rgba(7,5,3,0.75);border:1px solid rgba(200,136,58,0.12);border-radius:20px;
+  padding:0.3rem 0.8rem;backdrop-filter:blur(10px);
+  max-width:min(600px,90vw);overflow:hidden;}
+.bc-item{font-size:0.65rem;color:rgba(200,136,58,0.7);cursor:pointer;white-space:nowrap;
+  padding:0 0.1rem;transition:color 0.2s;letter-spacing:0.04em;}
+.bc-item:hover{color:var(--gold-light);}
+.bc-item.active{color:var(--parchment);cursor:default;}
+.bc-sep{font-size:0.55rem;color:rgba(200,136,58,0.3);padding:0 0.3rem;}
+#breadcrumb.hidden{display:none;}
+
+/* ── ERA BROWSER ── */
+#era-bar{position:fixed;bottom:0;left:0;right:0;z-index:200;
+  padding:0.6rem 1.5rem 1rem;
+  background:linear-gradient(to top,rgba(7,5,3,0.95) 50%,transparent);
+  pointer-events:all;}
+#era-label{font-size:0.62rem;color:var(--gold);letter-spacing:0.18em;text-transform:uppercase;
+  margin-bottom:0.4rem;text-align:center;}
+#era-track{position:relative;height:6px;background:rgba(200,136,58,0.12);border-radius:3px;margin:0 0.5rem;}
+#era-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(to right,var(--gold),var(--gold-light));
+  border-radius:3px;transition:width 0.1s;}
+#era-slider{width:100%;height:6px;opacity:0;position:absolute;top:0;left:0;cursor:pointer;margin:0;}
+.era-ticks{display:flex;justify-content:space-between;margin-top:0.4rem;}
+.era-tick{font-size:0.55rem;color:rgba(200,136,58,0.45);letter-spacing:0.04em;}
+#extinction-markers{position:absolute;top:0;left:0;right:0;height:100%;pointer-events:none;}
+.ext-line{position:absolute;top:-4px;width:2px;height:14px;background:rgba(176,80,80,0.7);border-radius:1px;}
+
+/* ── MAIN SVG ── */
+#canvas-wrap{position:fixed;inset:0;z-index:1;}
+svg{width:100%;height:100%;}
+.node-group{cursor:pointer;}
+.node-circle{transition:filter 0.3s;}
+.node-group:hover .nc-main{filter:brightness(1.4) drop-shadow(0 0 14px var(--nc));}
+.branch-path{fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.node-label-text{pointer-events:none;font-family:'Lora',serif;}
+.node-pulse{pointer-events:none;}
+
+/* ── HOMININ VIEW ── */
+#hominin-view{position:fixed;inset:0;z-index:150;
+  background:rgba(7,5,3,0.96);backdrop-filter:blur(20px);
+  display:none;flex-direction:column;
+  border-left:1px solid rgba(200,136,58,0.15);}
+#hominin-view.open{display:flex;}
+#hom-header{padding:1.5rem 2rem 1rem;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid rgba(200,136,58,0.12);flex-shrink:0;}
+#hom-title{font-family:var(--font-head);font-size:1.5rem;font-weight:600;color:var(--parchment);}
+#hom-sub{font-size:0.65rem;color:var(--sage);letter-spacing:0.15em;text-transform:uppercase;margin-top:0.2rem;}
+#hom-close{padding:0.4rem 1rem;background:rgba(200,136,58,0.12);border:1px solid rgba(200,136,58,0.3);
+  border-radius:20px;color:var(--gold);font-size:0.72rem;cursor:pointer;transition:all 0.2s;
+  font-family:var(--font-body);letter-spacing:0.05em;}
+#hom-close:hover{background:rgba(200,136,58,0.25);color:var(--parchment);}
+#hom-filters{padding:0.6rem 2rem;display:flex;gap:0.5rem;border-bottom:1px solid rgba(200,136,58,0.08);flex-shrink:0;flex-wrap:wrap;}
+.hom-filter{padding:0.25rem 0.75rem;border:1px solid rgba(200,136,58,0.2);border-radius:14px;
+  font-size:0.65rem;color:rgba(200,136,58,0.65);cursor:pointer;transition:all 0.2s;
+  font-family:var(--font-body);letter-spacing:0.04em;}
+.hom-filter:hover{border-color:rgba(200,136,58,0.5);color:var(--gold);}
+.hom-filter.active{background:rgba(200,136,58,0.15);border-color:var(--gold);color:var(--gold-light);}
+#hom-body{display:flex;flex:1;overflow:hidden;}
+#hom-timeline{flex:1;overflow-y:auto;padding:1.5rem 1.5rem 2rem;position:relative;}
+#hom-timeline::-webkit-scrollbar{width:4px;}
+#hom-timeline::-webkit-scrollbar-thumb{background:rgba(200,136,58,0.25);border-radius:2px;}
+.hom-era-group{margin-bottom:1.5rem;}
+.hom-era-title{font-family:var(--font-head);font-size:0.75rem;color:var(--gold);letter-spacing:0.15em;
+  text-transform:uppercase;padding:0.4rem 0.7rem;background:rgba(200,136,58,0.06);
+  border-left:2px solid var(--gold);border-radius:0 6px 6px 0;margin-bottom:0.8rem;}
+.hom-species{display:flex;align-items:flex-start;gap:0.9rem;padding:0.7rem 0.8rem;
+  border-radius:10px;cursor:pointer;transition:background 0.2s;border:1px solid transparent;margin-bottom:0.4rem;}
+.hom-species:hover{background:rgba(200,136,58,0.05);border-color:rgba(200,136,58,0.1);}
+.hom-species.selected{background:rgba(200,136,58,0.1);border-color:rgba(200,136,58,0.25);}
+.hs-icon{font-size:1.5rem;flex-shrink:0;margin-top:0.1rem;}
+.hs-info{flex:1;min-width:0;}
+.hs-name{font-family:var(--font-head);font-size:0.88rem;font-weight:600;color:var(--parchment);}
+.hs-latin{font-style:italic;font-size:0.72rem;color:rgba(200,136,58,0.8);}
+.hs-mya{font-size:0.65rem;color:var(--sage);margin-top:0.15rem;}
+.hs-brain{margin-top:0.4rem;display:flex;align-items:center;gap:0.5rem;}
+.brain-bar-wrap{flex:1;height:4px;background:rgba(200,136,58,0.1);border-radius:2px;overflow:hidden;}
+.brain-bar-fill{height:100%;border-radius:2px;transition:width 0.5s;}
+.brain-label{font-size:0.6rem;color:rgba(200,136,58,0.6);white-space:nowrap;}
+.hs-tags{display:flex;flex-wrap:wrap;gap:0.3rem;margin-top:0.4rem;}
+.hs-tag{font-size:0.58rem;padding:0.15rem 0.4rem;border-radius:10px;
+  background:rgba(122,184,96,0.08);border:1px solid rgba(122,184,96,0.15);color:rgba(122,184,96,0.75);}
+.hs-status-extinct{opacity:0.7;}
+.hs-status-surviving .hs-name{color:var(--gold-light);}
+.hs-icons-row{display:flex;gap:0.5rem;margin-top:0.35rem;font-size:0.65rem;color:rgba(200,136,58,0.6);}
+
+/* ── HOMININ DETAIL PANEL ── */
+#hom-panel{width:min(380px,40vw);border-left:1px solid rgba(200,136,58,0.12);
+  overflow-y:auto;padding:1.5rem;flex-shrink:0;}
+#hom-panel::-webkit-scrollbar{width:4px;}
+#hom-panel::-webkit-scrollbar-thumb{background:rgba(200,136,58,0.2);border-radius:2px;}
+.hp-accent{height:3px;border-radius:2px;margin-bottom:1.2rem;margin:-1.5rem -1.5rem 1.2rem;}
+.hp-top{display:flex;gap:0.8rem;align-items:flex-start;margin-bottom:1rem;}
+.hp-icon{font-size:2rem;flex-shrink:0;}
+.hp-name{font-family:var(--font-head);font-size:1.1rem;font-weight:600;color:var(--parchment);line-height:1.2;}
+.hp-latin{font-style:italic;font-size:0.75rem;color:var(--gold);margin-top:0.2rem;}
+.hp-mya{font-size:0.62rem;color:var(--sage);letter-spacing:0.1em;}
+.hp-desc{font-size:0.82rem;color:rgba(242,232,208,0.8);line-height:1.85;margin-bottom:1rem;}
+.hp-facts{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1rem;}
+.hp-fact{background:rgba(200,136,58,0.05);border:1px solid rgba(200,136,58,0.12);border-radius:8px;padding:0.6rem;}
+.hp-fact-l{font-size:0.56rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:0.2rem;}
+.hp-fact-v{font-size:0.78rem;color:var(--parchment);}
+.hp-section{font-family:var(--font-head);font-size:0.8rem;color:var(--sage);letter-spacing:0.1em;
+  text-transform:uppercase;margin:0.8rem 0 0.4rem;}
+.hp-detail{font-size:0.78rem;color:rgba(242,232,208,0.65);line-height:1.8;margin-bottom:0.8rem;}
+.hp-dna{display:flex;gap:0.6rem;align-items:center;margin-bottom:0.3rem;font-size:0.72rem;}
+.dna-fill{flex:1;height:6px;background:rgba(200,136,58,0.08);border-radius:3px;overflow:hidden;}
+.dna-fill-inner{height:100%;border-radius:3px;}
+.hp-tags{display:flex;flex-wrap:wrap;gap:0.3rem;}
+.hp-tag{font-size:0.6rem;padding:0.15rem 0.5rem;border-radius:10px;
+  background:rgba(122,184,96,0.07);border:1px solid rgba(122,184,96,0.18);color:rgba(122,184,96,0.8);}
+#hom-panel-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:100%;color:rgba(200,136,58,0.3);font-style:italic;font-size:0.85rem;text-align:center;padding:2rem;}
+
+/* ── MAIN DETAIL PANEL ── */
+#panel{position:fixed;top:0;right:-500px;bottom:0;
+  width:min(440px,92vw);background:var(--panel-bg);
+  border-left:1px solid rgba(200,136,58,0.18);z-index:400;
+  transition:right 0.5s cubic-bezier(0.16,1,0.3,1);
+  display:flex;flex-direction:column;
+  box-shadow:-20px 0 60px rgba(0,0,0,0.7);backdrop-filter:blur(20px);}
+#panel.open{right:0;}
+.panel-accent{height:4px;flex-shrink:0;transition:background 0.4s;}
+.panel-scroll{overflow-y:auto;flex:1;padding:1.4rem 1.6rem 2rem;}
+.panel-scroll::-webkit-scrollbar{width:4px;}
+.panel-scroll::-webkit-scrollbar-thumb{background:rgba(200,136,58,0.25);border-radius:2px;}
+.p-close{position:absolute;top:1rem;right:1rem;width:28px;height:28px;
+  border:1px solid rgba(200,136,58,0.28);border-radius:50%;background:transparent;
+  color:rgba(122,184,96,0.7);font-size:0.85rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all 0.2s;z-index:5;}
+.p-close:hover{background:rgba(200,136,58,0.15);color:var(--parchment);}
+.p-top{display:flex;align-items:flex-start;gap:0.9rem;margin-bottom:1.1rem;}
+.p-icon-wrap{width:48px;height:48px;flex-shrink:0;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;font-size:1.6rem;
+  border:1px solid rgba(200,136,58,0.18);background:rgba(200,136,58,0.06);}
+.p-era{font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:0.2rem;}
+.p-name{font-family:var(--font-head);font-size:clamp(1.2rem,2.5vw,1.6rem);font-weight:600;
+  color:var(--parchment);line-height:1.15;}
+.p-latin{font-style:italic;color:var(--sage);font-size:0.8rem;margin-top:0.15rem;}
+.p-divider{height:1px;margin:0.9rem 0;background:linear-gradient(to right,rgba(200,136,58,0.4),transparent);}
+.p-desc{font-size:0.85rem;color:rgba(242,232,208,0.78);line-height:1.85;margin-bottom:1.1rem;}
+.p-facts{display:grid;grid-template-columns:1fr 1fr;gap:0.55rem;margin-bottom:1.1rem;}
+.fact-card{background:rgba(200,136,58,0.05);border:1px solid rgba(200,136,58,0.12);
+  border-radius:9px;padding:0.65rem 0.75rem;transition:background 0.2s;}
+.fact-card:hover{background:rgba(200,136,58,0.09);}
+.fact-l{font-size:0.56rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:0.25rem;}
+.fact-v{font-size:0.82rem;color:var(--parchment);font-weight:500;line-height:1.3;}
+.p-section{font-family:var(--font-head);font-size:0.85rem;color:var(--sage);letter-spacing:0.1em;
+  text-transform:uppercase;margin-bottom:0.5rem;margin-top:0.2rem;}
+.p-detail{font-size:0.8rem;color:rgba(242,232,208,0.62);line-height:1.8;margin-bottom:0.75rem;}
+.p-tag{display:inline-block;background:rgba(122,184,96,0.1);border:1px solid rgba(122,184,96,0.22);
+  border-radius:18px;padding:0.18rem 0.6rem;font-size:0.7rem;color:var(--sage);margin:0.2rem 0.15rem;}
+.p-children{list-style:none;margin-top:0.35rem;}
+.p-children li{padding:0.35rem 0.5rem;border-radius:6px;color:rgba(242,232,208,0.58);
+  font-size:0.78rem;display:flex;align-items:center;gap:0.45rem;cursor:pointer;transition:all 0.18s;}
+.p-children li:hover{background:rgba(200,136,58,0.07);color:var(--parchment);}
+.p-children li .pci{font-size:0.95rem;}
+
+/* ── HOMININ ENTER BUTTON ── */
+#hom-enter-btn{display:inline-flex;align-items:center;gap:0.5rem;margin-top:0.8rem;
+  padding:0.45rem 1rem;background:rgba(200,136,58,0.15);border:1px solid rgba(200,136,58,0.4);
+  border-radius:20px;color:var(--gold-light);font-size:0.73rem;cursor:pointer;transition:all 0.2s;
+  font-family:var(--font-body);letter-spacing:0.05em;}
+#hom-enter-btn:hover{background:rgba(200,136,58,0.28);color:var(--parchment);}
+
+/* ── LEGEND ── */
+#legend{position:fixed;bottom:4.5rem;left:1.2rem;z-index:200;
+  background:rgba(7,5,3,0.85);border:1px solid rgba(200,136,58,0.1);border-radius:9px;
+  padding:0.7rem 0.9rem;backdrop-filter:blur(10px);}
+.leg-title{font-size:0.56rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:0.25rem;}
+.leg-row{display:flex;align-items:center;gap:0.45rem;font-size:0.65rem;color:rgba(242,232,208,0.5);margin-top:0.2rem;}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+/* ── ZOOM CONTROLS ── */
+#zoom-ctrl{position:fixed;bottom:4.5rem;right:1.2rem;z-index:200;display:flex;flex-direction:column;gap:0.35rem;}
+.zbtn{width:35px;height:35px;background:rgba(7,5,3,0.92);border:1px solid rgba(200,136,58,0.22);
+  border-radius:8px;color:var(--sage);font-size:1rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all 0.2s;backdrop-filter:blur(10px);}
+.zbtn:hover{background:rgba(200,136,58,0.14);border-color:var(--gold);color:var(--parchment);}
+
+/* ── TOOLTIP ── */
+#tooltip{position:fixed;z-index:300;background:rgba(7,5,3,0.94);
+  border:1px solid rgba(200,136,58,0.28);border-radius:8px;padding:0.5rem 0.8rem;
+  font-size:0.75rem;color:var(--parchment);pointer-events:none;opacity:0;transition:opacity 0.2s;
+  max-width:220px;backdrop-filter:blur(10px);}
+#tooltip.show{opacity:1;}
+.tip-name{font-family:var(--font-head);font-size:0.9rem;font-weight:600;}
+.tip-era{font-size:0.62rem;color:var(--gold);letter-spacing:0.1em;margin-top:0.15rem;}
+.tip-fact{font-size:0.65rem;color:rgba(242,232,208,0.65);margin-top:0.2rem;font-style:italic;}
+
+/* ── ANIMATIONS ── */
+@keyframes rootPulse{0%,100%{opacity:0.4;transform:scale(1)}50%{opacity:0.8;transform:scale(1.06)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes livingPulse{0%,100%{opacity:0.25}50%{opacity:0.55}}
+@keyframes searchHighlight{0%{stroke-width:0;opacity:0}50%{opacity:1}100%{stroke-width:0;opacity:0}}
+
+/* ── LANGUAGE SWITCHER ── */
+#lang-switcher{position:fixed;top:1rem;right:1.2rem;z-index:400;display:flex;align-items:center;gap:0.25rem;pointer-events:all;}
+.lang-btn{padding:0.22rem 0.5rem;border:1px solid rgba(200,136,58,0.25);border-radius:6px;
+  background:rgba(7,5,3,0.85);color:rgba(200,136,58,0.55);font-size:0.62rem;font-weight:700;
+  letter-spacing:0.06em;cursor:pointer;transition:all 0.2s;font-family:var(--font-body);
+  backdrop-filter:blur(10px);}
+.lang-btn:hover{color:var(--gold);border-color:rgba(200,136,58,0.5);}
+.lang-btn.active{background:rgba(200,136,58,0.18);border-color:var(--gold);color:var(--gold-light);}
+
+/* ── THEME TOGGLE ── */
+#theme-btn{position:fixed;top:3rem;right:1.2rem;z-index:400;width:30px;height:30px;
+  border-radius:7px;background:rgba(7,5,3,0.85);border:1px solid rgba(200,136,58,0.2);
+  color:rgba(200,136,58,0.55);font-size:0.85rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all 0.2s;
+  backdrop-filter:blur(10px);}
+#theme-btn:hover{border-color:rgba(200,136,58,0.5);color:var(--gold);}
+
+/* ── LIGHT THEME ── */
+[data-theme="light"]{
+  --bg:#f8f2e6;
+  --parchment:#1e0e02;
+  --gold:#8a5a18;
+  --gold-light:#a06820;
+  --gold-dim:rgba(138,90,24,0.15);
+  --teal:#1a8a78;
+  --teal-dim:rgba(26,138,120,0.12);
+  --terra:#8a3030;
+  --sage:#2a5c18;
+  --panel-bg:rgba(248,242,230,0.98);
+}
+[data-theme="light"] body{background:var(--bg);color:var(--parchment);}
+[data-theme="light"] #bg{
+  background:
+    radial-gradient(ellipse 120% 70% at 50% 120%,#e8d8b0 0%,transparent 55%),
+    radial-gradient(ellipse 60% 50% at 15% 80%,#dde8c8 0%,transparent 50%),
+    radial-gradient(ellipse 50% 40% at 85% 85%,#d5dfc0 0%,transparent 45%),
+    radial-gradient(ellipse 90% 60% at 50% 40%,#f0e5d0 0%,#f8f2e6 100%);}
+[data-theme="light"] #header{background:linear-gradient(to bottom,rgba(248,242,230,0.98) 35%,transparent);}
+[data-theme="light"] #panel{background:var(--panel-bg);border-left-color:rgba(138,90,24,0.18);}
+[data-theme="light"] #hominin-view{background:rgba(248,242,230,0.97);}
+[data-theme="light"] #legend{background:rgba(248,242,230,0.92);border-color:rgba(138,90,24,0.12);}
+[data-theme="light"] #zoom-ctrl .zbtn{background:rgba(248,242,230,0.92);border-color:rgba(138,90,24,0.22);}
+[data-theme="light"] #search-input{background:rgba(248,242,230,0.95);color:var(--parchment);}
+[data-theme="light"] #search-results{background:rgba(248,242,230,0.98);}
+[data-theme="light"] #era-bar{background:linear-gradient(to top,rgba(248,242,230,0.95) 50%,transparent);}
+[data-theme="light"] #tooltip{background:rgba(248,242,230,0.96);color:var(--parchment);}
+[data-theme="light"] .lang-btn{background:rgba(248,242,230,0.9);color:rgba(138,90,24,0.6);border-color:rgba(138,90,24,0.25);}
+[data-theme="light"] .lang-btn.active{background:rgba(138,90,24,0.18);border-color:var(--gold);color:var(--gold-light);}
+[data-theme="light"] #theme-btn{background:rgba(248,242,230,0.9);color:rgba(138,90,24,0.6);border-color:rgba(138,90,24,0.2);}
+[data-theme="light"] .sr-item{background:rgba(248,242,230,0.5);color:rgba(30,14,2,0.75);}
+[data-theme="light"] .sr-item:hover{background:rgba(138,90,24,0.1);}
+[data-theme="light"] .hom-era-title{background:rgba(138,90,24,0.08);}
+[data-theme="light"] .hom-species:hover{background:rgba(138,90,24,0.06);}
+[data-theme="light"] #hom-panel{background:rgba(248,242,230,0.5);}
+[data-theme="light"] #breadcrumb{background:rgba(248,242,230,0.85);}
+[data-theme="light"] #hom-header{border-bottom-color:rgba(138,90,24,0.12);}
+[data-theme="light"] #hom-filters{border-bottom-color:rgba(138,90,24,0.08);}
+
+/* ── RTL (Hebrew) ── */
+[dir="rtl"] #header{flex-direction:row-reverse;}
+[dir="rtl"] .hint-bar{text-align:left;}
+[dir="rtl"] #lang-switcher{right:auto;left:1.2rem;}
+[dir="rtl"] #theme-btn{right:auto;left:1.2rem;}
+[dir="rtl"] #search-wrap{left:auto;right:50%;transform:translateX(50%);}
+[dir="rtl"] #search-input{text-align:right;direction:rtl;}
+[dir="rtl"] #panel{right:auto;left:-500px;border-left:none;border-right:1px solid rgba(200,136,58,0.18);transition:left 0.5s cubic-bezier(0.16,1,0.3,1);}
+[dir="rtl"] #panel.open{left:0;right:auto;}
+[dir="rtl"] .panel-scroll{direction:rtl;}
+[dir="rtl"] #legend{left:auto;right:1.2rem;}
+[dir="rtl"] #zoom-ctrl{right:auto;left:1.2rem;}
+[dir="rtl"] .p-top{flex-direction:row-reverse;}
+[dir="rtl"] .bc-sep{transform:scaleX(-1);display:inline-block;}
+[dir="rtl"] .hom-species{flex-direction:row-reverse;}
+[dir="rtl"] #hom-header{flex-direction:row-reverse;}
+[dir="rtl"] #hom-body{flex-direction:row-reverse;}
+[dir="rtl"] #hom-filters{flex-direction:row-reverse;}
+[dir="rtl"] #hom-filters>div:last-child{margin-left:0;margin-right:auto;}
+[lang="he"],[lang="he"] *{font-family:'Noto Serif Hebrew','Playfair Display',serif;}
+</style>
 </head>
 <body>
+<div id="bg"></div>
+<div id="particles"></div>
 
-  <!-- ── Navbar ─────────────────────────────────────────────────── -->
-  <nav class="navbar">
-    <div class="nav-logo">
-      <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="16" cy="28" r="2.5" fill="#4a9eff"/>
-        <line x1="16" y1="25.5" x2="16" y2="18" stroke="#4a9eff" stroke-width="1.5"/>
-        <line x1="16" y1="18" x2="8" y2="10" stroke="#27ae60" stroke-width="1.5"/>
-        <line x1="16" y1="18" x2="24" y2="10" stroke="#e8a838" stroke-width="1.5"/>
-        <line x1="8" y1="10" x2="4" y2="5" stroke="#27ae60" stroke-width="1.5"/>
-        <line x1="8" y1="10" x2="12" y2="5" stroke="#27ae60" stroke-width="1.5"/>
-        <line x1="24" y1="10" x2="20" y2="5" stroke="#e8a838" stroke-width="1.5"/>
-        <line x1="24" y1="10" x2="28" y2="5" stroke="#e8a838" stroke-width="1.5"/>
-        <circle cx="4"  cy="4"  r="2" fill="#27ae60"/>
-        <circle cx="12" cy="4"  r="2" fill="#27ae60"/>
-        <circle cx="20" cy="4"  r="2" fill="#e8a838"/>
-        <circle cx="28" cy="4"  r="2" fill="#e8a838"/>
-        <circle cx="8"  cy="10" r="2" fill="#27ae60"/>
-        <circle cx="24" cy="10" r="2" fill="#e8a838"/>
-        <circle cx="16" cy="18" r="2.5" fill="#4a9eff"/>
-      </svg>
-      <span class="logo-text">Tree<span class="logo-accent">of Life</span></span>
-    </div>
+<!-- LANGUAGE SWITCHER -->
+<div id="lang-switcher">
+  <button class="lang-btn active" data-lang="en" onclick="setLang('en')">EN</button>
+  <button class="lang-btn" data-lang="he" onclick="setLang('he')">עב</button>
+  <button class="lang-btn" data-lang="ru" onclick="setLang('ru')">РУ</button>
+</div>
+<button id="theme-btn" onclick="toggleTheme()" title="Toggle theme">☀</button>
 
-    <div class="nav-search" id="search-container">
-      <div class="search-input-wrap">
-        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-        </svg>
-        <input type="text" id="search-input" placeholder="Search species or clade…" autocomplete="off" spellcheck="false">
-        <button id="search-clear" class="search-clear" hidden>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
-      </div>
-      <div id="search-results" class="search-results" hidden></div>
-    </div>
+<!-- HEADER -->
+<div id="header">
+  <div class="title-wrap">
+    <div class="title-main" id="i-title">Tree of Life</div>
+    <div class="title-sub" id="i-subtitle">3.8 Billion Years of Natural Selection</div>
+  </div>
+  <div class="hint-bar" id="i-hints">
+    Scroll · Zoom &nbsp;|&nbsp; Drag · Pan<br>
+    Click · Explore &nbsp;|&nbsp; Right-click · Collapse
+  </div>
+</div>
 
-    <div class="nav-controls">
-      <button id="btn-layout" class="nav-btn" title="Toggle layout">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
-        </svg>
-      </button>
-      <button id="btn-explore" class="nav-btn accent-btn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="5 3 19 12 5 21 5 3"/>
-        </svg>
-        <span data-i18n="btn_discover">Discover</span>
-      </button>
-      <button id="btn-theme" class="nav-btn" title="Toggle theme">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-        </svg>
-      </button>
-      <!-- Language switcher -->
-      <div class="lang-switcher" role="group" aria-label="Language">
-        <button class="lang-btn active" data-lang="en">EN</button>
-        <button class="lang-btn" data-lang="he">עב</button>
-        <button class="lang-btn" data-lang="ru">РУ</button>
-      </div>
-    </div>
-  </nav>
+<!-- SEARCH -->
+<div id="search-wrap" style="position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:300;pointer-events:all;">
+  <span id="search-icon" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:rgba(200,136,58,0.5);font-size:0.8rem;pointer-events:none;">🔍</span>
+  <input id="search-input" type="text" placeholder="Search species…" autocomplete="off" id="search-input">
+  <div id="search-results"></div>
+</div>
 
-  <!-- ── Main App ───────────────────────────────────────────────── -->
-  <div class="app-container">
+<!-- BREADCRUMB -->
+<div id="breadcrumb" class="hidden"></div>
 
-    <!-- Tree Canvas -->
-    <div id="tree-container">
-      <svg id="tree-svg">
-        <defs>
-          <filter id="glow">
-            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-            <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-          <radialGradient id="node-pulse" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#4a9eff" stop-opacity="0.6"/>
-            <stop offset="100%" stop-color="#4a9eff" stop-opacity="0"/>
-          </radialGradient>
-        </defs>
-        <g id="tree-root-g">
-          <g id="links-g"></g>
-          <g id="nodes-g"></g>
-        </g>
-      </svg>
+<!-- SVG CANVAS -->
+<div id="canvas-wrap">
+  <svg id="svg" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="rootGrad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#f0a840"/>
+        <stop offset="55%" stop-color="#c8883a"/>
+        <stop offset="100%" stop-color="#7a4e18"/>
+      </radialGradient>
+      <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+        <feGaussianBlur stdDeviation="4" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="strongGlow" x="-60%" y="-60%" width="220%" height="220%">
+        <feGaussianBlur stdDeviation="9" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+    <g id="viewport">
+      <g id="layer-branches"></g>
+      <g id="layer-nodes"></g>
+    </g>
+  </svg>
+</div>
 
-      <!-- Controls overlay -->
-      <div class="tree-controls">
-        <button class="zoom-btn" id="zoom-in" title="Zoom in">+</button>
-        <button class="zoom-btn" id="zoom-out" title="Zoom out">−</button>
-        <button class="zoom-btn" id="zoom-reset" title="Reset view">⟳</button>
-      </div>
+<!-- TOOLTIP -->
+<div id="tooltip">
+  <div class="tip-name" id="tip-name"></div>
+  <div class="tip-era" id="tip-era"></div>
+  <div class="tip-fact" id="tip-fact"></div>
+</div>
 
-      <!-- Legend -->
-      <div id="legend" class="legend">
-        <div class="legend-title"><span data-i18n="legend_title">Domains of Life</span> <span class="legend-hint" data-i18n="legend_hint">click to highlight</span></div>
-        <div class="legend-item" data-domain="Bacteria"     ><span class="legend-dot" style="background:#e8a838"></span>🦠 <span data-i18n="leg_bacteria">Bacteria</span></div>
-        <div class="legend-item" data-domain="Archaea"      ><span class="legend-dot" style="background:#9b59b6"></span>🔬 <span data-i18n="leg_archaea">Archaea</span></div>
-        <div class="legend-item" data-domain="Viridiplantae"><span class="legend-dot" style="background:#27ae60"></span>🌿 <span data-i18n="leg_plants">Plants</span></div>
-        <div class="legend-item" data-domain="Fungi"        ><span class="legend-dot" style="background:#e67e22"></span>🍄 <span data-i18n="leg_fungi">Fungi</span></div>
-        <div class="legend-item" data-domain="Metazoa"      ><span class="legend-dot" style="background:#2980b9"></span>🐾 <span data-i18n="leg_animals">Animals</span></div>
-        <div class="legend-item" data-domain="Chromista"    ><span class="legend-dot" style="background:#1abc9c"></span>🔵 <span data-i18n="leg_protists">Protists</span></div>
-        <div class="legend-sep"></div>
-        <div class="legend-item" style="cursor:default"><span class="legend-dot extinct-dot"></span><span data-i18n="leg_extinct">† Extinct</span></div>
-      </div>
-
-      <!-- Minimap -->
-      <canvas id="minimap" class="minimap" width="160" height="120"></canvas>
-    </div>
-
-    <!-- ── Detail Panel ─────────────────────────────────────────── -->
-    <div id="panel" class="detail-panel" hidden>
-      <button id="panel-close" class="panel-close" aria-label="Close">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-        </svg>
-      </button>
-
-      <div class="panel-hero">
-        <div class="panel-img-wrap">
-          <img id="panel-image" src="assets/placeholder.svg" alt="Species illustration" loading="lazy">
-          <div class="panel-img-credit" id="panel-img-credit"></div>
-        </div>
-        <div class="panel-name-block">
-          <h2 id="panel-sci-name" class="sci-name"></h2>
-          <p id="panel-common-name" class="common-name"></p>
-          <div class="panel-badges">
-            <span id="panel-rank-badge" class="badge rank-badge"></span>
-            <span id="panel-status-badge" class="badge status-badge" hidden></span>
-            <span id="panel-extinct-badge" class="badge extinct-badge" hidden>Extinct</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="panel-tabs" role="tablist">
-        <button class="tab-btn active" data-tab="overview" role="tab" data-i18n="tab_overview">Overview</button>
-        <button class="tab-btn" data-tab="evolution" role="tab" data-i18n="tab_evolution">Evolution</button>
-        <button class="tab-btn" data-tab="gallery" role="tab" data-i18n="tab_gallery">Gallery</button>
-        <button class="tab-btn" data-tab="science" role="tab" data-i18n="tab_science">Science</button>
-      </div>
-
-      <div class="panel-content" id="panel-content">
-        <!-- Populated by panel.js -->
+<!-- MAIN DETAIL PANEL -->
+<div id="panel">
+  <div class="panel-accent" id="panel-accent"></div>
+  <button class="p-close" id="panel-close">✕</button>
+  <div class="panel-scroll">
+    <div class="p-top">
+      <div class="p-icon-wrap" id="p-icon-wrap"><span id="p-icon"></span></div>
+      <div>
+        <div class="p-era" id="p-era"></div>
+        <div class="p-name" id="p-name"></div>
+        <div class="p-latin" id="p-latin"></div>
       </div>
     </div>
-
-  </div><!-- /.app-container -->
-
-  <!-- ── Geological Timeline ──────────────────────────────────── -->
-  <div id="timeline-container" class="timeline-container">
-    <button id="timeline-toggle" class="timeline-toggle">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" id="timeline-arrow">
-        <polyline points="18 15 12 9 6 15"/>
-      </svg>
-      <span data-i18n="timeline_label">Geological Timeline</span>
-    </button>
-    <div id="timeline-inner" class="timeline-inner">
-      <!-- Populated by timeline.js -->
+    <div class="p-divider"></div>
+    <div class="p-desc" id="p-desc"></div>
+    <div class="p-facts" id="p-facts"></div>
+    <div id="p-hom-btn-wrap"></div>
+    <div id="p-tags-section">
+      <div class="p-section" id="i-p-traits">Key Traits</div>
+      <div id="p-tags"></div>
+    </div>
+    <div class="p-divider"></div>
+    <div class="p-section" id="i-p-evo">Evolutionary Detail</div>
+    <div class="p-detail" id="p-detail"></div>
+    <div id="p-children-section" style="display:none">
+      <div class="p-divider"></div>
+      <div class="p-section" id="i-p-sub">Sub-groups</div>
+      <ul class="p-children" id="p-children"></ul>
     </div>
   </div>
+</div>
 
-  <!-- ── Tooltip ──────────────────────────────────────────────── -->
-  <div id="tooltip" class="tooltip" hidden></div>
-
-  <!-- ── Loading overlay ─────────────────────────────────────── -->
-  <div id="loading" class="loading-overlay">
-    <div class="loading-tree">
-      <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="40" cy="70" r="4" fill="#4a9eff" class="load-root"/>
-        <line x1="40" y1="66" x2="40" y2="50" stroke="#4a9eff" stroke-width="2" class="load-trunk"/>
-        <line x1="40" y1="50" x2="20" y2="30" stroke="#27ae60" stroke-width="2" class="load-branch load-b1"/>
-        <line x1="40" y1="50" x2="60" y2="30" stroke="#e8a838" stroke-width="2" class="load-branch load-b2"/>
-        <circle cx="20" cy="28" r="4" fill="#27ae60" class="load-leaf load-l1"/>
-        <circle cx="60" cy="28" r="4" fill="#e8a838" class="load-leaf load-l2"/>
-        <line x1="20" y1="28" x2="10" y2="14" stroke="#27ae60" stroke-width="1.5" class="load-branch load-b3"/>
-        <line x1="20" y1="28" x2="30" y2="14" stroke="#27ae60" stroke-width="1.5" class="load-branch load-b4"/>
-        <circle cx="10" cy="12" r="3" fill="#27ae60" class="load-leaf load-l3"/>
-        <circle cx="30" cy="12" r="3" fill="#27ae60" class="load-leaf load-l4"/>
-        <line x1="60" y1="28" x2="50" y2="14" stroke="#e8a838" stroke-width="1.5" class="load-branch load-b5"/>
-        <line x1="60" y1="28" x2="70" y2="14" stroke="#e8a838" stroke-width="1.5" class="load-branch load-b6"/>
-        <circle cx="50" cy="12" r="3" fill="#e8a838" class="load-leaf load-l5"/>
-        <circle cx="70" cy="12" r="3" fill="#e8a838" class="load-leaf load-l6"/>
-      </svg>
+<!-- HOMININ VIEW -->
+<div id="hominin-view">
+  <div id="hom-header">
+    <div>
+      <div id="hom-title">Hominin Evolution</div>
+      <div id="hom-sub">7 Million Years of the Human Journey</div>
     </div>
-    <div class="loading-text" data-i18n="loading_text">Loading Tree of Life…</div>
-    <div class="loading-sub" data-i18n="loading_sub">Connecting to Open Tree of Life database</div>
-  </div>
+    <button id="hom-close">← Back to Tree</button>
 
-  <!-- Scripts -->
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-  <script src="js/i18n.js"></script>
-  <script src="js/api.js"></script>
-  <script src="js/tree.js"></script>
-  <script src="js/panel.js"></script>
-  <script src="js/search.js"></script>
-  <script src="js/timeline.js"></script>
-  <script src="js/main.js"></script>
+  </div>
+  <div id="hom-filters">
+    <div class="hom-filter active" data-filter="all" id="i-hf-all">All Species</div>
+    <div class="hom-filter" data-filter="proto" id="i-hf-proto">Proto-Hominins</div>
+    <div class="hom-filter" data-filter="australopith" id="i-hf-australo">Australopithecus</div>
+    <div class="hom-filter" data-filter="paranthropus" id="i-hf-paranth">Paranthropus</div>
+    <div class="hom-filter" data-filter="homo" id="i-hf-homo">Genus Homo</div>
+    <div class="hom-filter" data-filter="surviving" id="i-hf-surv">Surviving</div>
+    <div style="margin-left:auto;display:flex;gap:0.5rem;align-items:center;">
+      <button id="compare-btn" onclick="toggleCompareMode()" style="padding:0.25rem 0.85rem;border:1px solid rgba(200,136,58,0.3);border-radius:14px;background:transparent;color:rgba(242,232,208,0.6);font-size:0.7rem;font-family:var(--font-body);cursor:pointer;transition:all 0.2s;letter-spacing:0.05em;">⚖ Compare Mode</button>
+      <span id="compare-hint" style="display:none;font-size:0.65rem;color:rgba(200,136,58,0.6);font-style:italic;">Select 2–4 species</span>
+
+    </div>
+  </div>
+  <!-- Compare Panel -->
+  <div id="compare-panel" style="display:none;position:absolute;inset:0;z-index:10;background:var(--bg);overflow-y:auto;padding:1.5rem 2rem;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <div id="i-compare-title" style="font-family:var(--font-head);font-size:1.2rem;color:var(--gold);">Species Comparison</div>
+      <button id="i-compare-back" onclick="closeCompare()" style="padding:0.3rem 0.8rem;border:1px solid rgba(200,136,58,0.3);border-radius:12px;background:transparent;color:var(--parchment);font-size:0.75rem;cursor:pointer;font-family:var(--font-body);">← Back</button>
+    </div>
+    <div id="compare-grid" style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));"></div>
+  </div>
+  <div id="hom-body">
+    <div id="hom-timeline"></div>
+    <div id="hom-panel"><div id="hom-panel-empty">← Select a species<br>to explore</div></div>
+
+  </div>
+</div>
+
+<!-- LEGEND -->
+<div id="legend">
+  <div class="leg-title" id="i-leg-title">Domains</div>
+  <div class="leg-row"><div class="leg-dot" style="background:#c8883a"></div><span id="i-leg-luca">LUCA / Root</span></div>
+  <div class="leg-row"><div class="leg-dot" style="background:#5a8fcc"></div><span id="i-leg-bact">Bacteria</span></div>
+  <div class="leg-row"><div class="leg-dot" style="background:#8a60cc"></div><span id="i-leg-arch">Archaea</span></div>
+  <div class="leg-row"><div class="leg-dot" style="background:#4a9c58"></div><span id="i-leg-plant">Plants</span></div>
+  <div class="leg-row"><div class="leg-dot" style="background:#cc5050"></div><span id="i-leg-anim">Animals</span></div>
+  <div class="leg-row"><div class="leg-dot" style="background:#c8a43a"></div><span id="i-leg-fungi">Fungi</span></div>
+  <div class="leg-row"><div class="leg-dot" style="background:#40b8b0"></div><span id="i-leg-prot">Protists</span></div>
+</div>
+
+<!-- ZOOM -->
+<div id="zoom-ctrl">
+  <button class="zbtn" id="btn-in">+</button>
+  <button class="zbtn" id="btn-reset" title="Reset view">⌂</button>
+  <button class="zbtn" id="btn-out">−</button>
+  <button class="zbtn" id="btn-random" title="Random species" style="font-size:0.9rem;">🎲</button>
+</div>
+
+<!-- ERA BROWSER -->
+<div id="era-bar">
+  <div id="era-label">PRESENT (0 Ma)</div>
+  <div id="era-track">
+    <div id="era-fill" style="width:100%"></div>
+    <div id="extinction-markers"></div>
+    <input id="era-slider" type="range" min="0" max="3800" value="3800" step="10">
+  </div>
+  <div class="era-ticks">
+    <span class="era-tick">3,800 Ma (LUCA)</span>
+    <span class="era-tick">2,500 Ma</span>
+    <span class="era-tick">1,000 Ma</span>
+    <span class="era-tick">541 Ma (Cambrian)</span>
+    <span class="era-tick">66 Ma (K-Pg)</span>
+    <span class="era-tick">Present</span>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+// TREE DATA
+// ══════════════════════════════════════════════════════
+const TREE = {
+  id:'luca',icon:'🌐',color:'#c8883a',r:26,appeared:3800,extinct:null,
+  name:'LUCA',latin:'Last Universal Common Ancestor',era:'~3.8 Billion Years Ago',
+  desc:'The Last Universal Common Ancestor — a single-celled microorganism from which every living thing on Earth descends. LUCA likely inhabited hydrothermal vents on the ancient ocean floor, harvesting chemical energy from mineral-rich superheated water. It possessed DNA-based heredity, RNA-based ribosomes, and a lipid membrane — the three foundational features of all life.',
+  detail:'Phylogenomic reconstructions suggest LUCA had ~355 protein families, including ion pumps, metabolic enzymes, and a primitive ribosome. It was neither fully Bacteria nor Archaea — the last shared ancestor before these lineages diverged. Some estimates place LUCA at 3.48–4.1 billion years ago, within 500 million years of Earth\'s formation.',
+  facts:[{l:'Appeared',v:'~3.8 Bya'},{l:'Cell type',v:'Prokaryote-like'},{l:'Genome',v:'DNA + RNA ribosomes'},{l:'Habitat',v:'Hydrothermal vents'},{l:'Temperature',v:'~70–80°C optimal'},{l:'Energy',v:'Chemolithotrophy'}],
+  tags:['DNA heredity','RNA ribosomes','Lipid membrane','Ion pumps','Chemosynthesis','H₂ metabolism'],
+  tipFact:'All life on Earth is descended from this single ancestor.',
+  children:[
+    // ── BACTERIA ──
+    {id:'bacteria',icon:'🦠',color:'#5a8fcc',r:18,appeared:3500,extinct:null,
+      name:'Bacteria',latin:'Domain Bacteria',era:'~3.5 Billion Years Ago',
+      desc:'The oldest and most metabolically diverse domain of life. Bacteria pioneered photosynthesis, nitrogen fixation, and aerobic respiration — three processes that transformed Earth and made complex life possible. They occupy every conceivable habitat: from boiling springs to glacial ice, from ocean abysses to the human gut.',
+      detail:'Bacteria lack a membrane-bound nucleus; their circular chromosome floats in the cytoplasm. They reproduce via binary fission, with some doubling in as little as 20 minutes. Horizontal gene transfer (conjugation, transduction, transformation) allows rapid genetic innovation across species.',
+      facts:[{l:'Appeared',v:'~3.5 Bya'},{l:'Est. species',v:'~1 trillion'},{l:'Cell type',v:'Prokaryotic'},{l:'Genome',v:'Circular DNA'},{l:'Reproduction',v:'Binary fission'},{l:'HGT',v:'Yes — rampant'}],
+      tags:['Prokaryotic','Circular chromosome','Binary fission','HGT capable','Gram+/Gram−','Flagella'],
+      tipFact:'~1 trillion species estimated — more than stars in the galaxy.',
+      children:[
+        {id:'cyanobacteria',icon:'☀️',color:'#3dbba0',r:13,appeared:2700,extinct:null,
+          name:'Cyanobacteria',latin:'Phylum Cyanobacteria',era:'~2.7 Billion Years Ago',
+          desc:'The great oxygenators of Earth. Cyanobacteria invented oxygenic photosynthesis — splitting water to release O₂ — 2.7 billion years ago. The resulting Great Oxidation Event (~2.4 Bya) poisoned anaerobic life and catalyzed the evolution of all aerobic organisms. Their descendants became chloroplasts inside all plant cells.',
+          detail:'Cyanobacteria form mats, filaments, and globular colonies. Some fix atmospheric nitrogen using specialized heterocyst cells. Prochlorococcus contributes ~20% of global oxygen production.',
+          facts:[{l:'Appeared',v:'~2.7 Bya'},{l:'Key event',v:'Great Oxidation'},{l:'Legacy',v:'Plant chloroplasts'},{l:'O₂ output',v:'20% global production'}],
+          tags:['Oxygenic photosynthesis','Heterocysts','N₂ fixation','Endosymbiosis ancestor'],
+          tipFact:'Transformed Earth\'s atmosphere from toxic to breathable.',
+          children:[
+            {id:'prochlorococcus',icon:'🔵',color:'#2da890',r:8,appeared:100,extinct:null,
+              name:'Prochlorococcus',latin:'Prochlorococcus marinus',era:'~100 Million Years Ago',
+              desc:'The most abundant photosynthetic organism on Earth. A single drop of ocean water contains 20,000 of these 0.5-micron spheres. Collectively they produce ~20% of global oxygen — more than all the world\'s rainforests combined.',
+              detail:'Discovered in 1988. Different ecotypes adapt to different light intensities from sunlit surface to dim twilight zones.',
+              facts:[{l:'Size',v:'0.5–0.8 μm'},{l:'Abundance',v:'~10²⁷ cells'},{l:'O₂ share',v:'~20% global'},{l:'Discovered',v:'1988'}],
+              tags:['Smallest photosynthesizer','Divinyl chlorophyll','Multiple ecotypes'],tipFact:'More numerous than any other photosynthesizer on Earth.',children:[]},
+            {id:'nostoc',icon:'🌿',color:'#3da888',r:8,appeared:2000,extinct:null,
+              name:'Nostoc',latin:'Nostoc commune',era:'~2 Billion Years Ago',
+              desc:'Colonial cyanobacteria forming gelatinous sheets. Nostoc fixes atmospheric nitrogen and forms mutualistic relationships with fungi (lichens), hornworts, and cycads.',
+              detail:'Nostoc can survive complete desiccation, extreme UV, and temperatures from −20°C to 60°C.',
+              facts:[{l:'Form',v:'Colonial filaments'},{l:'N₂ fixation',v:'Yes'},{l:'Tolerance',v:'Extreme desiccation'}],
+              tags:['Colonial','N₂ fixation','Lichen partner','Desiccation tolerant'],tipFact:'Edible for 2,000+ years in China as hair-moss.',children:[]}
+          ]},
+        {id:'proteobacteria',icon:'⚙️',color:'#4878c8',r:12,appeared:2000,extinct:null,
+          name:'Proteobacteria',latin:'Phylum Proteobacteria',era:'~2 Billion Years Ago',
+          desc:'The most metabolically diverse phylum of bacteria — a vast empire of gram-negative microbes. One ancient proteobacterium was engulfed by an archaeal cell to become the mitochondrion, the energy powerhouse of all eukaryotic life.',
+          detail:'Alpha-proteobacteria gave rise to mitochondria. Gamma-proteobacteria include E. coli, Salmonella, and Vibrio cholerae.',
+          facts:[{l:'Appeared',v:'~2 Bya'},{l:'Legacy',v:'Mitochondria'},{l:'Includes',v:'E. coli, Salmonella'},{l:'Classes',v:'α β γ δ ε'}],
+          tags:['Gram-negative','Mitochondria ancestor','Aerobic respiration','Endosymbiosis'],
+          tipFact:'Parent group of all mitochondria — inside every one of your cells.',
+          children:[
+            {id:'ecoli',icon:'🔬',color:'#6090d8',r:8,appeared:100,extinct:null,
+              name:'Escherichia coli',latin:'Escherichia coli K-12',era:'~100 Mya (divergence)',
+              desc:'The most studied organism in biology. E. coli K-12 is the workhorse of molecular biology — used to produce insulin, human growth hormone, and countless research proteins.',
+              detail:'E. coli divides every 20 minutes. Genome: ~4.6 million base pairs encoding ~4,400 genes. CRISPR-Cas9 technology was first demonstrated in E. coli.',
+              facts:[{l:'Genome',v:'4.6 Mbp'},{l:'Division',v:'Every 20 min'},{l:'Sequenced',v:'1997'}],
+              tags:['Model organism','Biotech workhorse','CRISPR research'],tipFact:'Used to produce ~35% of the world\'s insulin supply.',children:[]}
+          ]},
+        {id:'firmicutes',icon:'💪',color:'#7895cc',r:11,appeared:2500,extinct:null,
+          name:'Firmicutes',latin:'Phylum Firmicutes',era:'~2.5 Billion Years Ago',
+          desc:'Gram-positive bacteria with a thick peptidoglycan cell wall. Includes Lactobacillus (yogurt), Streptococcus, Clostridium, and Bacillus. Firmicutes dominate the human gut microbiome and form heat-resistant endospores.',
+          detail:'The Firmicutes:Bacteroidetes ratio in the gut microbiome has been linked to metabolic health and obesity.',
+          facts:[{l:'Appeared',v:'~2.5 Bya'},{l:'Cell wall',v:'Thick peptidoglycan'},{l:'Key genera',v:'Lactobacillus, Bacillus'}],
+          tags:['Gram-positive','Endospore forming','Gut microbiome','Fermentation'],
+          tipFact:'Lactobacillus in Firmicutes ferments milk into yogurt and cheese.',children:[]}
+      ]},
+    // ── ARCHAEA ──
+    {id:'archaea',icon:'🌋',color:'#8a60cc',r:17,appeared:3500,extinct:null,
+      name:'Archaea',latin:'Domain Archaea',era:'~3.5 Billion Years Ago',
+      desc:'Long confused with bacteria, Archaea are a distinct domain of life — and molecular evidence places them as the closest living relatives of Eukaryotes. They thrive in Earth\'s most extreme environments: boiling sulfur springs, saturated salt lakes, methane-rich swamps, and deep ocean hydrothermal vents.',
+      detail:'Archaeal cell membranes use ether-linked isoprenoid lipids rather than ester-linked fatty acids, conferring extraordinary heat stability. The discovery of the Asgard superphylum in 2015 revolutionized understanding of eukaryote origins.',
+      facts:[{l:'Appeared',v:'~3.5 Bya'},{l:'Membrane',v:'Ether-linked isoprenoids'},{l:'Histones',v:'Yes (like Eukaryotes)'},{l:'Relation',v:'Sister to Eukaryotes'}],
+      tags:['Ether-linked membranes','Histones','Extremophile','Eukaryote ancestor','Methanogenesis'],
+      tipFact:'Thrives in places too extreme for almost any other life.',
+      children:[
+        {id:'euryarchaeota',icon:'🔥',color:'#9070d8',r:11,appeared:3000,extinct:null,
+          name:'Euryarchaeota',latin:'Phylum Euryarchaeota',era:'~3 Billion Years Ago',
+          desc:'The most phenotypically diverse archaea — encompassing methanogens, extreme halophiles, thermoacidophiles, and marine forms. Methanogens produce 1 billion metric tons of methane annually as a metabolic byproduct.',
+          detail:'Halobacterium salinarum uses bacteriorhodopsin — a light-driven proton pump — for photosynthesis-like energy generation. Halophiles paint salt lakes brilliant crimson.',
+          facts:[{l:'Appeared',v:'~3 Bya'},{l:'Methane',v:'1 Gt/year'},{l:'Max salt',v:'Saturated brines (36%)'},{l:'Max temp',v:'Up to 110°C'}],
+          tags:['Methanogenesis','Halophile','Bacteriorhodopsin','Thermoacidophile'],
+          tipFact:'Cow guts harbor 10¹² methanogen cells per animal.',
+          children:[
+            {id:'methanobacterium',icon:'💨',color:'#a880e8',r:8,appeared:2500,extinct:null,
+              name:'Methanobacterium',latin:'Methanobacterium thermoautotrophicum',era:'~2.5 Billion Years Ago',
+              desc:'Ancient methane factories living in hot springs, swamp sediments, and animal digestive tracts. Reduces CO₂ with H₂ to produce CH₄ — a metabolism unchanged for billions of years.',
+              detail:'Its cofactors — methanofuran, tetrahydromethanopterin, coenzyme F₄₂₀ — are unique to methanogens, glowing blue-green under UV light.',
+              facts:[{l:'Metabolism',v:'CO₂ + H₂ → CH₄'},{l:'Temperature',v:'Up to 75°C'},{l:'Climate role',v:'Greenhouse gas source'}],
+              tags:['Strict anaerobe','F₄₂₀ cofactor','Thermophile'],tipFact:'Glows blue-green under UV light.',children:[]}
+          ]},
+        {id:'asgard',icon:'⚡',color:'#b09aed',r:11,appeared:2000,extinct:null,
+          name:'Asgard Archaea',latin:'Superphylum Asgard',era:'~2 Billion Years Ago',
+          desc:'Discovered in deep-sea sediments in 2015 and named after Norse mythology, Asgard archaea possess eukaryotic signature proteins — actin, tubulin-like proteins, ESCRT machinery — suggesting eukaryotes evolved from within this group.',
+          detail:'The "inside-out" model: an Asgard archaeon extended membrane protrusions that engulfed a proteobacterial symbiont (proto-mitochondrion). Known only from environmental DNA sequences and one 2022 culture.',
+          facts:[{l:'Discovered',v:'2015 (from DNA)'},{l:'Cultured',v:'2022'},{l:'Key proteins',v:'Actin, ESCRT, tubulin'},{l:'Relation',v:'Eukaryote ancestors'}],
+          tags:['Eukaryote ancestors','Actin homologs','ESCRT machinery','Deep sea'],
+          tipFact:'Our cells may literally be descended from this archaeon.',children:[]}
+      ]},
+    // ── EUKARYOTA ──
+    {id:'eukaryota',icon:'🔮',color:'#40b8b0',r:20,appeared:2100,extinct:null,
+      name:'Eukaryota',latin:'Domain Eukaryota',era:'~2.1 Billion Years Ago',
+      desc:'The domain of complex, nucleated cells — and the one that gave rise to all multicellular life. Eukaryotes arose through a landmark event: an Asgard archaeon engulfed a proteobacterium (becoming the mitochondrion) and later a cyanobacterium (becoming the chloroplast).',
+      detail:'The eukaryotic cell is a city compared to a prokaryotic hut. Its nucleus, endoplasmic reticulum, Golgi apparatus, lysosomes, mitochondria, and (in plants) chloroplasts perform specialized functions with remarkable efficiency.',
+      facts:[{l:'Appeared',v:'~2.1 Bya'},{l:'Key trait',v:'Membrane-bound nucleus'},{l:'Organelles',v:'Mito, chloroplast, etc.'},{l:'Chromosome',v:'Linear, with histones'}],
+      tags:['Nucleus','Mitochondria','Endosymbiosis','Linear chromosomes','Histones','Cytoskeleton','Sexual reproduction'],
+      tipFact:'Your cells are each 1,000× more complex than a bacterial cell.',
+      children:[
+        // ── FUNGI ──
+        {id:'fungi',icon:'🍄',color:'#c8a43a',r:14,appeared:1000,extinct:null,
+          name:'Fungi',latin:'Kingdom Fungi',era:'~1 Billion Years Ago',
+          desc:'Earth\'s hidden web-weavers and essential decomposers. Fungi are more closely related to animals than to plants. Their mycelial networks — the "Wood Wide Web" — connect forest trees, allowing them to share nutrients and chemical distress signals.',
+          detail:'Fungi digest food externally by secreting enzymes and absorbing the breakdown products through their hyphae. Lichens — partnerships of fungi with algae or cyanobacteria — are fungi that learned to "farm" photosynthesis.',
+          facts:[{l:'Appeared',v:'~1 Bya'},{l:'Species',v:'~2.2–3.8 million'},{l:'Cell wall',v:'Chitin'},{l:'Closest to',v:'Animals'}],
+          tags:['Chitin cell wall','Absorptive nutrition','Mycelial network','Spore reproduction','Decomposer'],
+          tipFact:'The largest organism on Earth is a fungus covering 9.6 km².',
+          children:[
+            {id:'ascomycetes',icon:'🫧',color:'#d4a840',r:9,appeared:500,extinct:null,
+              name:'Ascomycetes',latin:'Division Ascomycota',era:'~500 Mya',
+              desc:'The largest fungal division: yeasts, truffles, morels, and Penicillium — source of the antibiotic penicillin. Saccharomyces cerevisiae was the first eukaryote to have its complete genome sequenced (1996).',
+              detail:'S. cerevisiae fermentation underlies bread, beer, and wine production — a 10,000-year human partnership.',
+              facts:[{l:'Appeared',v:'~500 Mya'},{l:'Includes',v:'Yeast, truffles, Penicillium'},{l:'Sequenced',v:'S. cerevisiae 1996'}],
+              tags:['Ascospores','Yeasts','Penicillin source','Fermentation'],tipFact:'Penicillin from Penicillium has saved ~200 million lives.',children:[]},
+            {id:'basidiomycetes',icon:'🌲',color:'#b8922e',r:9,appeared:430,extinct:null,
+              name:'Basidiomycetes',latin:'Division Basidiomycota',era:'~430 Mya',
+              desc:'Club fungi — mushrooms, toadstools, puffballs, shelf fungi. They construct the Wood Wide Web\'s mycelial superhighways. Armillaria ostoyae in Oregon covers 9.6 km² and is ~8,650 years old.',
+              detail:'Basidiomycetes digest lignin — the tough polymer in wood — more effectively than any other organism.',
+              facts:[{l:'Appeared',v:'~430 Mya'},{l:'Largest org.',v:'Armillaria, 9.6 km²'},{l:'Wood decay',v:'White & brown rot'}],
+              tags:['Basidiospores','Lignin digestion','Wood Wide Web','Bioluminescence'],tipFact:'~80 species of mushrooms glow in the dark via luciferin.',children:[]}
+          ]},
+        // ── PLANTS ──
+        {id:'plantae',icon:'🌿',color:'#4a9c58',r:17,appeared:470,extinct:null,
+          name:'Plants',latin:'Kingdom Plantae',era:'~470 Mya (land)',
+          desc:'The green architects of terrestrial life. Plants colonized land ~470 million years ago, transforming bare rock into rich ecosystems via soil creation, oxygen production, and climate regulation.',
+          detail:'Land plants evolved from freshwater green algae (Charophytes). Key innovations for land colonization: waxy cuticle, stomata, vascular tissue, and seeds.',
+          facts:[{l:'Appeared',v:'~470 Mya on land'},{l:'Species',v:'~390,000'},{l:'Photosynthesis',v:'Via chloroplasts'},{l:'Ancestor',v:'Green algae (Charophyte)'}],
+          tags:['Chloroplasts','Cellulose cell wall','Vascular tissue','Stomata','Cuticle','Spores & seeds'],
+          tipFact:'Plants produce ~50% of Earth\'s oxygen and store 80% of its biomass.',
+          children:[
+            {id:'bryophytes',icon:'🌱',color:'#5aab65',r:9,appeared:470,extinct:null,
+              name:'Mosses & Liverworts',latin:'Bryophyta',era:'~470 Mya',
+              desc:'The first land plants. Without vascular tissue, mosses rely on diffusion and capillary action. Sphagnum (peat moss) absorbs up to 20× its dry weight in water and stores 30% of Earth\'s terrestrial carbon.',
+              detail:'Mosses were instrumental in soil formation, enabling colonization by larger plants.',
+              facts:[{l:'Appeared',v:'~470 Mya'},{l:'Vascular tissue',v:'None'},{l:'Sphagnum',v:'30% land carbon stored'}],
+              tags:['Nonvascular','Gametophyte dominant','Peat formation'],tipFact:'Peat bogs store 30% of all land carbon — more than all forests.',children:[]},
+            {id:'angiosperms',icon:'🌸',color:'#8fcc60',r:12,appeared:130,extinct:null,
+              name:'Flowering Plants',latin:'Angiosperms',era:'~130 Mya',
+              desc:'The most evolutionarily successful plant group — 300,000+ species dominating virtually every terrestrial ecosystem. Flowers are sophisticated reproductive structures co-evolved with animal pollinators.',
+              detail:'Key innovations: double fertilization, closed carpels, and the flower as a precise pollinator-targeting device.',
+              facts:[{l:'Appeared',v:'~130 Mya'},{l:'Species',v:'~300,000+'},{l:'% land plants',v:'~90% of plant species'}],
+              tags:['Flowers','Double fertilization','Endosperm','Closed carpels','Fruit dispersal'],
+              tipFact:'Rice, wheat, and corn — angiosperms — feed ~70% of humanity.',children:[]}
+          ]},
+        // ── ANIMALIA ──
+        {id:'animalia',icon:'🐾',color:'#cc5050',r:19,appeared:800,extinct:null,
+          name:'Animals',latin:'Kingdom Animalia',era:'~800 Mya',
+          desc:'Multicellular heterotrophs — organisms that must consume other life to survive. Animals arose ~800 Mya from choanoflagellate ancestors and diversified explosively during the Cambrian Explosion (541 Mya), generating most modern body plans within 20 million years.',
+          detail:'The Cambrian Explosion is one of evolution\'s great mysteries. The Burgess Shale of Canada preserves 508-million-year-old soft-bodied Cambrian animals in exquisite detail.',
+          facts:[{l:'Appeared',v:'~800 Mya'},{l:'Species',v:'~8.7 million est.'},{l:'Key event',v:'Cambrian Explosion 541 Mya'},{l:'Ancestor',v:'Choanoflagellates'}],
+          tags:['Heterotrophic','Motile','Nervous system','Sexual reproduction','Cambrian Explosion','Bilateral symmetry'],
+          tipFact:'97% of all animal species have no backbone.',
+          children:[
+            {id:'invertebrates',icon:'🦀',color:'#d87070',r:13,appeared:541,extinct:null,
+              name:'Invertebrates',latin:'Paraphyletic group',era:'~541 Mya',
+              desc:'97% of all animal species — arthropods (insects, crustaceans), mollusks (octopus, squid), annelids (earthworms), echinoderms (starfish), cnidarians (jellyfish, corals). Without insects, terrestrial ecosystems would collapse within months.',
+              detail:'The arthropod exoskeleton of chitin revolutionized animal body plans. The mantis shrimp has 16 types of photoreceptors vs. 3 in humans.',
+              facts:[{l:'Species share',v:'97% of all animals'},{l:'Largest phylum',v:'Arthropoda'},{l:'Insects',v:'~5.5 million species'},{l:'Smartest',v:'Octopus'}],
+              tags:['No backbone','Exoskeleton','Compound eyes','Molting'],
+              tipFact:'Insect biomass has declined ~75% in Europe since 1989.',
+              children:[
+                {id:'insects',icon:'🦋',color:'#e08080',r:9,appeared:480,extinct:null,
+                  name:'Insects',latin:'Class Insecta',era:'~480 Mya',
+                  desc:'The most species-rich class of animals — ~5.5 million species. Insects evolved flight ~400 Mya. Eusocial insects evolved superorganism-level organization: division of labor, caste systems, and collective intelligence.',
+                  detail:'Insects pollinate 75% of flowering plants and form the base of most terrestrial food chains.',
+                  facts:[{l:'Appeared',v:'~480 Mya'},{l:'Species',v:'~5.5 million'},{l:'Pollination',v:'75% of flowering plants'}],
+                  tags:['6 legs','Compound eyes','Metamorphosis','Eusocial','Pollinators'],tipFact:'A single bee colony makes 100,000 foraging trips to fill a honey jar.',children:[]},
+                {id:'cephalopods',icon:'🐙',color:'#cc6868',r:9,appeared:480,extinct:null,
+                  name:'Cephalopods',latin:'Class Cephalopoda',era:'~480 Mya',
+                  desc:'The most intelligent invertebrates — octopuses, squid, cuttlefish, nautiluses. Octopuses possess 500 million neurons distributed in a decentralized nervous system: 2/3 are in their arms.',
+                  detail:'Cephalopod chromatophores enable millisecond camouflage changes. The mimic octopus impersonates lionfish, flatfish, and sea snakes.',
+                  facts:[{l:'Appeared',v:'~480 Mya'},{l:'Neurons',v:'~500M (octopus)'},{l:'Living fossil',v:'Nautilus (500 Mya)'}],
+                  tags:['Decentralized nervous system','Chromatophores','Tool use','3 hearts','Blue blood'],tipFact:'Octopus arms can operate independently — each has its own mini-brain.',children:[]}
+              ]},
+            {id:'vertebrates',icon:'🦴',color:'#c84848',r:15,appeared:525,extinct:null,
+              name:'Vertebrates',latin:'Subphylum Vertebrata',era:'~525 Mya',
+              desc:'Animals with a vertebral column and cranium encasing a complex brain. The vertebrate body plan — endoskeleton, paired appendages, sophisticated sensory organs — enabled large body size, high mobility, and complex cognition.',
+              detail:'The evolution of the jaw was a watershed. The neural crest — unique migratory stem cells — defines vertebrates, generating skull bones, peripheral nerves, and pigment cells.',
+              facts:[{l:'Appeared',v:'~525 Mya'},{l:'Species',v:'~66,000'},{l:'% of animals',v:'~3%'},{l:'Jaw evolved',v:'~440 Mya'}],
+              tags:['Vertebral column','Endoskeleton','Neural crest','Jaw evolution','Complex brain'],
+              tipFact:'Vertebrates are only 3% of animal species but dominate all megafauna.',
+              children:[
+                {id:'fish',icon:'🐟',color:'#5880c8',r:10,appeared:480,extinct:null,
+                  name:'Fish',latin:'Paraphyletic group',era:'~480 Mya',
+                  desc:'The ancestral vertebrate body plan. The lobe-finned fish — coelacanths and lungfish — are the living relatives of tetrapods. Their fleshy, jointed fins are homologous to terrestrial limbs.',
+                  detail:'Ray-finned fish (Actinopterygii) comprise ~30,000 species — half of all vertebrates. Hagfish and lampreys are jawless fish — surviving relics of pre-jaw vertebrates.',
+                  facts:[{l:'Appeared',v:'~480 Mya'},{l:'Species',v:'~34,000'},{l:'Deepest',v:'Snailfish at 8,336 m'}],
+                  tags:['Gills','Swim bladder','Lateral line','Cold-blooded','Scales'],tipFact:'A coelacanth was thought extinct for 65 million years until caught in 1938.',children:[]},
+                {id:'reptiles',icon:'🦎',color:'#88aa44',r:10,appeared:315,extinct:null,
+                  name:'Reptiles',latin:'Class Reptilia',era:'~315 Mya',
+                  desc:'The first fully terrestrial vertebrates — scaly amniotes with shelled eggs that freed reproduction from water. Reptiles dominated Earth for 250 million years. Crucially, birds ARE living dinosaurs.',
+                  detail:'The amniotic egg — with its protective membranes and hard shell — was a key innovation enabling vertebrate conquest of dry land.',
+                  facts:[{l:'Appeared',v:'~315 Mya'},{l:'Species',v:'~11,500'},{l:'Birds',v:'Living dinosaurs'}],
+                  tags:['Amniotic egg','Scales','Ectothermic','Birds = dinosaurs'],tipFact:'Crocodilians are more closely related to birds than to lizards.',children:[]},
+                {id:'mammals',icon:'🦁',color:'#c84848',r:13,appeared:225,extinct:null,
+                  name:'Mammals',latin:'Class Mammalia',era:'~225 Mya',
+                  desc:'Warm-blooded amniotes defined by: hair/fur, mammary glands producing milk, and three middle-ear bones. Mammals arose as small nocturnal insectivores. After the K-Pg extinction (66 Mya), they underwent explosive adaptive radiation.',
+                  detail:'The mammalian neocortex reached its greatest complexity in primates. Three middle-ear bones evolved from reptilian jaw bones — one of the best-documented evolutionary transitions in the fossil record.',
+                  facts:[{l:'Appeared',v:'~225 Mya'},{l:'Species',v:'~6,500'},{l:'Key traits',v:'Hair, milk, 3 ear bones'},{l:'Largest',v:'Blue whale (190 tonnes)'}],
+                  tags:['Endothermic','Neocortex','Mammary glands','3 middle ear bones','Hair/fur','Placenta'],
+                  tipFact:'Three of your middle-ear bones were reptile jaw bones 200 million years ago.',
+                  children:[
+                    {id:'cetaceans',icon:'🐋',color:'#d05050',r:8,appeared:50,extinct:null,
+                      name:'Cetaceans',latin:'Order Cetacea',era:'~50 Mya',
+                      desc:'Whales, dolphins, and porpoises — fully aquatic mammals descended from terrestrial artiodactyls related to hippos. The transition from land to sea occurred ~50 Mya, documented by transitional fossils like Pakicetus.',
+                      detail:'Blue whales are up to 33 m and 190 tonnes. Humpback whale songs propagate across entire ocean basins.',
+                      facts:[{l:'Appeared',v:'~50 Mya (in sea)'},{l:'Ancestor',v:'Pakicetus (land mammal)'},{l:'Largest ever',v:'Blue whale (190 t)'}],
+                      tags:['Aquatic mammal','Echolocation','Largest animal','Blowhole'],tipFact:'A blue whale\'s heartbeat can be heard 2 miles away.',children:[]},
+                    {id:'primates',icon:'🦍',color:'#c03a3a',r:9,appeared:85,extinct:null,
+                      name:'Primates',latin:'Order Primates',era:'~85 Mya',
+                      desc:'Forward-facing eyes granting stereoscopic depth perception, grasping hands with fingerprints, large brains, and extended social development. The human lineage diverged from chimpanzees ~6–7 Mya.',
+                      detail:'Great apes share 98.7–99% DNA identity with humans. Chimpanzees use stone tools for nut-cracking and have distinct cultural traditions across populations.',
+                      facts:[{l:'Appeared',v:'~85 Mya'},{l:'Species',v:'~500'},{l:'Human-chimp split',v:'~6–7 Mya'},{l:'DNA similarity',v:'98.7% (chimp)'}],
+                      tags:['Stereoscopic vision','Grasping hands','Extended childhood','Tool use','Cultural transmission'],
+                      tipFact:'You share 99% of your DNA with a chimpanzee.',
+                      children:[
+                        {id:'humans',icon:'🧠',color:'#e8b86d',r:14,appeared:0.3,extinct:null,
+                          name:'Homo sapiens',latin:'Homo sapiens sapiens',era:'~300,000 Years Ago',
+                          desc:'The only surviving member of genus Homo — a genus that once included at least 8 other species. Anatomically modern humans emerged ~300,000 years ago in Africa. We carry ~2% Neanderthal DNA and ~5% Denisovan DNA in non-African populations.',
+                          detail:'Behavioral modernity — symbolic art, complex language, long-distance trade — emerged ~70,000–50,000 years ago. In 300,000 years we transformed the atmosphere, triggered a mass extinction, and launched spacecraft beyond the solar system.',
+                          facts:[{l:'Appeared',v:'~300,000 years ago'},{l:'Population',v:'~8.1 billion'},{l:'Genome',v:'3.2 billion base pairs'},{l:'Neanderthal DNA',v:'~2% (non-African)'}],
+                          tags:['Language','Symbolic art','Tool culture','Agriculture','Writing','Cities','Space travel'],
+                          tipFact:'You carry genetic memories of at least 3 other human species.',
+                          children:[]}
+                      ]}
+                  ]}
+              ]}
+          ]}
+      ]}
+  ]
+};
+
+// ══════════════════════════════════════════════════════
+// HOMININS DATA
+// ══════════════════════════════════════════════════════
+const HOMININS = [
+  {id:'sahelanthropus',group:'proto',name:'Sahelanthropus tchadensis',short:'Sahelanthropus',icon:'🦴',color:'#8B5E3C',status:'extinct',mya:[7,6],brain:[320,380],height:'~120cm',weight:'~30–50kg',habitat:'Forested lake margin, Chad',tools:'None known',fire:'No',language:'None',sites:['Toros-Menalla, Chad'],desc:'The oldest known member of the human lineage — possibly. Discovered in Chad in 2001, dates to 6–7 million years ago, shortly after the human-chimp split. Its small canine teeth and possible bipedal posture suggest it belongs on the human side of the divide, but debate continues.',detail:'The skull was crushed flat and required meticulous 3D reconstruction. In 2022, a femur tentatively attributed to Sahelanthropus suggested it walked upright.',facts:[{l:'Lived',v:'~7–6 Mya'},{l:'Discovered',v:'2001, Chad'},{l:'Brain vol.',v:'~320–380 cm³'},{l:'Bipedal?',v:'Debated'}],tags:['Possible biped','Reduced canines','Human-chimp split era','Chad','Toumaï'],dna:{note:'Pre-DNA record'}},
+  {id:'orrorin',group:'proto',name:'Orrorin tugenensis',short:'Orrorin',icon:'🦴',color:'#7a5530',status:'extinct',mya:[6.1,5.7],brain:[null,null],height:'~120cm',weight:'~35–50kg',habitat:'Mixed forest, Kenya',tools:'None known',fire:'No',language:'None',sites:['Tugen Hills, Kenya'],desc:'"Original Man" in Tugen. Represented mainly by femur bones showing clear adaptations for bipedal walking. Yet the hands show curved phalanges for tree-climbing, suggesting a dual lifestyle typical of early hominins.',detail:'The femoral morphology is strikingly similar to Australopithecus and even early Homo, causing some to propose Orrorin may be directly ancestral to Homo.',facts:[{l:'Lived',v:'~6.1–5.7 Mya'},{l:'Key fossil',v:'Femur (bipedal)'},{l:'Locomotion',v:'Biped + arboreal'}],tags:['Early biped','Thick enamel','Curved phalanges','Tugen Hills','Millennium Man'],dna:{note:'Pre-DNA record'}},
+  {id:'ardipithecus_r',group:'proto',name:'Ardipithecus ramidus',short:'Ar. ramidus',icon:'🦴',color:'#a07050',status:'extinct',mya:[4.4,4.3],brain:[280,350],height:'~120cm',weight:'~50kg',habitat:'Woodland, Ethiopia',tools:'None known',fire:'No',language:'None',sites:['Aramis, Ethiopia'],desc:'"Ardi" — the 4.4-million-year-old near-complete skeleton rewrote our understanding of human origins. Ardipithecus ramidus walked upright but retained a grasping big toe for climbing. Crucially, it lacked the large canines of chimps, suggesting human social evolution began earlier than thought.',detail:'Ardi\'s foot combines an opposable big toe (ape-like) with rigid midfoot bones (bipedal). This mosaic suggests bipedalism did not evolve from a chimp-like ancestor.',facts:[{l:'Lived',v:'~4.4 Mya'},{l:'Discovered',v:'1994 (pub. 2009)'},{l:'Brain vol.',v:'~280–350 cm³'},{l:'Key fossil',v:'"Ardi" — near-complete'}],tags:['Mosaic anatomy','Opposable big toe','Woodland biped','Rewrote origins'],dna:{note:'Pre-DNA record'}},
+  {id:'au_anamensis',group:'australopith',name:'Australopithecus anamensis',short:'Au. anamensis',icon:'🐒',color:'#b07840',status:'extinct',mya:[4.2,3.8],brain:[370,400],height:'~145cm',weight:'~45–55kg',habitat:'Lakeshore woodland, Kenya/Ethiopia',tools:'None known',fire:'No',language:'None',sites:['Kanapoi, Kenya','Woranso-Mille, Ethiopia'],desc:'The oldest definitive Australopithecus, bridging the gap between Ardipithecus and Au. afarensis. The tibia indicates habitual bipedalism. A 2019 discovery revealed a complete cranium with surprising ape-like features.',detail:'The 2019 Woranso-Mille cranium showed temporal overlap with afarensis — possibly two branches from a common ancestor.',facts:[{l:'Lived',v:'~4.2–3.8 Mya'},{l:'Discovered',v:'1994 (Leakey)'},{l:'Brain vol.',v:'~370–400 cm³'}],tags:['Oldest Australopithecus','Hard-food diet','Thick enamel','Transitional species'],dna:{note:'Pre-DNA record'}},
+  {id:'au_afarensis',group:'australopith',name:'Australopithecus afarensis',short:'Au. afarensis',icon:'🚶',color:'#c08850',status:'extinct',mya:[3.9,2.9],brain:[380,450],height:'~105–150cm',weight:'~30–55kg',habitat:'Savanna and woodland, East Africa',tools:'Possible',fire:'No',language:'Calls, no speech',sites:['Hadar, Ethiopia','Laetoli, Tanzania','Dikika, Ethiopia'],desc:'"Lucy" (AL 288-1) — discovered in 1974 — is the most famous hominin fossil ever found. Walked fully upright (confirmed by the 3.6 Mya Laetoli footprints) but retained long, curved arms for tree climbing.',detail:'The Laetoli footprints in volcanic ash show two individuals walking upright with a gait nearly identical to modern humans — 3.6 million years ago.',facts:[{l:'Lived',v:'~3.9–2.9 Mya'},{l:'Famous fossil',v:'Lucy (AL 288-1)'},{l:'Brain vol.',v:'~380–450 cm³'},{l:'Key evidence',v:'Laetoli footprints'}],tags:['Lucy','Laetoli footprints','Savanna biped','Ancestral to Homo?'],dna:{note:'Pre-DNA record'}},
+  {id:'au_africanus',group:'australopith',name:'Australopithecus africanus',short:'Au. africanus',icon:'🐒',color:'#b88050',status:'extinct',mya:[3.3,2.1],brain:[420,500],height:'~115–138cm',weight:'~30–45kg',habitat:'Mixed woodland-savanna, South Africa',tools:'Possible bone tools',fire:'No',language:'Limited',sites:['Taung, South Africa','Sterkfontein, South Africa'],desc:'The first australopith ever discovered. Raymond Dart\'s 1924 "Taung Child" was initially dismissed. Africanus has a rounder braincase and more human-like face than afarensis.',detail:'The Taung Child skull preserves a natural endocast — the first time paleoneurologists could study hominin brain morphology.',facts:[{l:'Lived',v:'~3.3–2.1 Mya'},{l:'Discovered',v:'1924 (Dart)'},{l:'Famous fossil',v:'Taung Child'}],tags:['Taung Child','First australopith','South Africa','Precision grip?'],dna:{note:'Pre-DNA record'}},
+  {id:'par_boisei',group:'paranthropus',name:'Paranthropus boisei',short:'P. boisei',icon:'💪',color:'#9B3A3A',status:'extinct',mya:[2.4,1.4],brain:[410,530],height:'~124–137cm',weight:'~44–68kg',habitat:'Woodland-savanna edge, East Africa',tools:'None',fire:'No',language:'None',sites:['Olduvai Gorge, Tanzania','Koobi Fora, Kenya'],desc:'"Nutcracker Man" — Mary Leakey\'s 1959 discovery at Olduvai. With massive molars and a dramatic sagittal crest, boisei was spectacularly specialized for grinding tough plant foods. Coexisted with early Homo for over a million years.',detail:'Isotopic analysis surprisingly shows boisei ate mostly C4 grasses and sedges — not hard nuts as assumed. The dental machinery may have been an evolutionary safety net for fallback foods.',facts:[{l:'Lived',v:'~2.4–1.4 Mya'},{l:'Famous fossil',v:'OH 5 "Nutcracker Man"'},{l:'Brain vol.',v:'~410–530 cm³'},{l:'Molars',v:'Largest in any hominin'}],tags:['Nutcracker Man','Largest molars','C4 grass diet','Olduvai','Dead end lineage'],dna:{note:'Pre-DNA record'}},
+  {id:'par_robustus',group:'paranthropus',name:'Paranthropus robustus',short:'P. robustus',icon:'💪',color:'#8B2A2A',status:'extinct',mya:[2.0,1.2],brain:[450,530],height:'~120–132cm',weight:'~40–54kg',habitat:'Woodland-savanna, South Africa',tools:'Possible bone digging tools',fire:'No',language:'None',sites:['Kromdraai','Swartkrans, South Africa'],desc:'The South African robust australopith — independently evolved its massive-jawed body plan. Possibly using bone tools for digging termite mounds. At Swartkrans, burned bones suggest possible fire use.',detail:'If robustus made fire, it would be the first non-Homo hominin to do so. Current consensus leans toward opportunistic use of natural fires, but debate persists.',facts:[{l:'Lived',v:'~2.0–1.2 Mya'},{l:'Tools?',v:'Bone digging tools'},{l:'Fire?',v:'Possible'}],tags:['South Africa','Bone tools?','Burned bones','Independent robust evolution'],dna:{note:'Pre-DNA record'}},
+  {id:'h_habilis',group:'homo',name:'Homo habilis',short:'H. habilis',icon:'🪨',color:'#6B8B5E',status:'extinct',mya:[2.4,1.4],brain:[510,680],height:'~100–135cm',weight:'~32kg',habitat:'Woodland-savanna, East/South Africa',tools:'Oldowan (Mode 1)',fire:'No',language:'Proto-language possible',sites:['Olduvai Gorge','Koobi Fora, Kenya'],desc:'"Handy Man" — named by the Leakeys in 1964 for its association with Oldowan stone tools. H. habilis marks the conventional beginning of genus Homo. It had a larger brain than any australopith and a more human-like hand, but retained very long arms.',detail:'Recent evidence pushes tool use back to 3.3 Mya (Lomekwi 3), before habilis existed. This means either another species invented tools, or habilis was not the first toolmaker.',facts:[{l:'Lived',v:'~2.4–1.4 Mya'},{l:'Named',v:'1964 (Leakeys)'},{l:'Brain vol.',v:'~510–680 cm³'},{l:'Tools',v:'Oldowan (Mode 1)'}],tags:['Handy Man','Oldowan tools','First Homo?','Bushy Homo clade'],dna:{note:'Pre-DNA era'}},
+  {id:'h_erectus',group:'homo',name:'Homo erectus',short:'H. erectus',icon:'🔥',color:'#8BAA7A',status:'extinct',mya:[1.89,0.11],brain:[600,1100],height:'~145–185cm',weight:'~40–68kg',habitat:'Savanna, forest, coast — worldwide',tools:'Acheulean (Mode 2)',fire:'Controlled use ~1 Mya',language:'Proto-language likely',sites:['Trinil, Java','Peking, China','Dmanisi, Georgia'],desc:'The great traveler — the first hominin to leave Africa, spreading across Asia and possibly Europe. With a body essentially modern in proportions, control of fire, and the sophisticated Acheulean hand axe, erectus persisted for nearly 2 million years.',detail:'The Nariokotome Boy (1984) — near-complete skeleton of a 1.5 Ma adolescent — revealed H. erectus had a fully modern body below the neck. Erectus in Java may have survived until 108,000 years ago, potentially overlapping with H. sapiens.',facts:[{l:'Lived',v:'~1.89 Mya – 110 Kya'},{l:'Range',v:'Africa, Asia, possibly Europe'},{l:'Brain vol.',v:'~600–1,100 cm³'},{l:'Fire',v:'Controlled ~1 Mya'}],tags:['First out of Africa','Fire control','Acheulean tools','Longest-lived Homo','Turkana Boy'],dna:{note:'No ancient DNA recovered'}},
+  {id:'neanderthal',group:'homo',name:'Homo neanderthalensis',short:'Neanderthal',icon:'🏔️',color:'#7A9BAA',status:'extinct',mya:[0.4,0.04],brain:[1200,1750],height:'~164–168cm',weight:'~64–82kg',habitat:'Cold steppe, tundra, forest — Europe & W. Asia',tools:'Mousterian (Mode 3), personal ornaments',fire:'Routine',language:'Complex — FOXP2 gene',sites:['Neander Valley, Germany','Shanidar, Iraq','El Sidrón, Spain'],desc:'Our closest known extinct relative — and part of us. Neanderthals were cold-adapted hunters with brains on average slightly larger than ours, burying their dead, creating art and jewelry, and caring for the sick. All people outside sub-Saharan Africa carry ~1–4% Neanderthal DNA.',detail:'The Shanidar 1 individual survived multiple severe injuries requiring group care for years — evidence of Neanderthal compassion. Neanderthal cave art in Spain (65,000 years ago) predates H. sapiens arrival in Europe.',facts:[{l:'Lived',v:'~400–40 Kya'},{l:'Brain vol.',v:'~1,200–1,750 cm³'},{l:'DNA in us',v:'~1–4% (non-African)'},{l:'FOXP2',v:'Modern speech gene'}],tags:['1–4% in all non-Africans','Mousterian tools','Burial of dead','Cold adapted','FOXP2 speech gene'],dna:{neanderthal:100,denisovan:0,note:'~1–4% in all non-African modern humans'}},
+  {id:'denisovans',group:'homo',name:'Denisovans',short:'Denisovans',icon:'🧬',color:'#7A8BAA',status:'extinct',mya:[0.4,0.03],brain:[null,null],height:null,weight:null,habitat:'Cave and open environments, Siberia and Asia',tools:'Advanced (beads, jewelry)',fire:'Yes',language:'Likely complex',sites:['Denisova Cave, Siberia','Baishiya Karst Cave, Tibet'],desc:'The ghost lineage given flesh. Discovered not from bones but from DNA — a 2010 analysis of a pinky bone from Denisova Cave revealed a previously unknown human species. Despite almost no fossil record, we know their genome in exquisite detail. Sister group of Neanderthals, diverging ~400 Kya.',detail:'Denisovan DNA lives in living people today: Melanesians and Aboriginal Australians carry ~3–5%. The EPAS1 gene enabling Tibetan altitude adaptation was inherited from Denisovans.',facts:[{l:'Lived',v:'~400–30 Kya'},{l:'Discovered',v:'2010 (via DNA)'},{l:'DNA in living people',v:'3–5% in Melanesians'},{l:'Key gift',v:'EPAS1 altitude gene'}],tags:['Ghost lineage','DNA discovery','Melanesian introgression','Denny hybrid','Tibet EPAS1'],dna:{neanderthal:0,denisovan:100,note:'3–5% in Melanesians/Papuans/Aboriginals'}},
+  {id:'h_naledi',group:'homo',name:'Homo naledi',short:'H. naledi',icon:'⭐',color:'#AA9B7A',status:'extinct',mya:[0.335,0.236],brain:[465,610],height:'~143–150cm',weight:'~39–55kg',habitat:'Cave system, South Africa',tools:'Possible',fire:'Possible (cave torches?)',language:'Unknown',sites:['Rising Star Cave, South Africa'],desc:'The most astonishing paleoanthropological discovery of the 21st century. With a tiny australopith-sized brain (~500 cm³) yet modern-looking feet, wrists, and hands — and a geological age of only 236,000–335,000 years ago — naledi defies all expectations. It appears to have deliberately deposited its dead in a cave.',detail:'The 2022 discovery of possible fire use and engravings in the cave, if confirmed, would be revolutionary. Coexisting in South Africa with Homo sapiens at 250 Kya.',facts:[{l:'Lived',v:'~335–236 Kya'},{l:'Discovered',v:'2013 (Berger team)'},{l:'Brain vol.',v:'~465–610 cm³'},{l:'Behavior',v:'Possible deliberate burial'}],tags:['Rising Star Cave','Deliberate burial?','Mosaic anatomy','Tiny-brained late Homo'],dna:{note:'No DNA recovered from hot humid caves'}},
+  {id:'h_floresiensis',group:'homo',name:'Homo floresiensis',short:'H. floresiensis',icon:'🌴',color:'#8B7050',status:'extinct',mya:[0.1,0.05],brain:[380,417],height:'~106cm',weight:'~25–30kg',habitat:'Tropical forest, Flores Island, Indonesia',tools:'Sophisticated stone tools',fire:'Possible',language:'Unknown',sites:['Liang Bua Cave, Flores, Indonesia'],desc:'"The Hobbit." Discovered in 2003, had a brain the size of a grapefruit yet was associated with sophisticated stone tools. Island dwarfism likely explains the tiny body. Flores island folklore of the "Ebu Gogo" — small hairy people — may be a cultural memory of floresiensis.',detail:'May have survived until ~50,000 years ago — potentially coexisting with H. sapiens. Ancient DNA has not been recovered, leaving floresiensis\' exact ancestry unresolved.',facts:[{l:'Lived',v:'~100–50 Kya'},{l:'Brain vol.',v:'~380–417 cm³'},{l:'Height',v:'~106 cm'},{l:'Island',v:'Flores, Indonesia'}],tags:['The Hobbit','Island dwarfism','Tiny brain','Sophisticated tools','Ebu Gogo legend'],dna:{note:'No DNA recovered'}},
+  {id:'au_bahrelghazali',group:'australopith',name:'Australopithecus bahrelghazali',short:'Au. bahrelghazali',icon:'🐒',color:'#a07040',status:'extinct',mya:[3.6,3.0],brain:[null,null],height:'~120cm',weight:'~30–40kg',habitat:'Savanna, Chad Basin',tools:'None known',fire:'No',language:'None',sites:['Bahr el Ghazal, Chad'],desc:'"Abel" - found in Chad in 1995, this species shattered the assumption that early australopiths lived only in East Africa. Its discovery in Chad, over 2,500 km west of the Rift Valley, suggests the hominin range in the Pliocene was far broader than previously imagined.',detail:'Abel consists mainly of a mandible fragment with teeth. The enamel structure and jaw morphology place it in Australopithecus, but its geographic isolation raises questions about migration routes across Plio-Pleistocene Africa.',facts:[{l:'Lived',v:'~3.6-3.0 Mya'},{l:'Discovered',v:'1995, Michel Brunet'},{l:'Region',v:'Chad, Central Africa'}],tags:['Abel','West Africa australopith','Shatters East Africa bias','Isolated mandible'],dna:{note:'Pre-DNA record'}},
+  {id:'au_deyiremeda',group:'australopith',name:'Australopithecus deyiremeda',short:'Au. deyiremeda',icon:'🐒',color:'#b08048',status:'extinct',mya:[3.5,3.3],brain:[null,null],height:'~120cm',weight:'~30–45kg',habitat:'Woodland, Woranso-Mille, Ethiopia',tools:'None known',fire:'No',language:'None',sites:['Woranso-Mille, Ethiopia'],desc:'Named in 2015, Au. deyiremeda lived in the same region and at nearly the same time as Au. afarensis - overturning the notion that only one hominin existed per region per era. Its distinct jaw and tooth morphology identify it as a separate species coexisting with Lucy.',detail:'The coexistence of deyiremeda and afarensis in Woranso-Mille suggests the hominin family bush was genuinely bushy - multiple contemporaneous lineages competing or coexisting in the same habitat.',facts:[{l:'Lived',v:'~3.5-3.3 Mya'},{l:'Discovered',v:'2015 (Haile-Selassie)'},{l:'Key find',v:'Maxilla and mandible fragments'}],tags:['Contemporaneous with Lucy','Multi-species era','Woranso-Mille','New species 2015'],dna:{note:'Pre-DNA record'}},
+  {id:'au_garhi',group:'australopith',name:'Australopithecus garhi',short:'Au. garhi',icon:'🐒',color:'#a87848',status:'extinct',mya:[2.5,2.5],brain:[450,null],height:'~130cm',weight:'~40–50kg',habitat:'Open savanna, Ethiopia',tools:'Associated with animal butchery',fire:'No',language:'None',sites:['Bouri, Ethiopia'],desc:'"Surprise" in the Afar language. Dated to 2.5 Mya - a critical transitional moment between Australopithecus and early Homo. Found with animal bones bearing cut marks, suggesting this species may have been butchering large mammals before H. habilis.',detail:'If garhi made stone tools, it would push the cognitive threshold for tool-use back into Australopithecus. The tools and hominin bones were found in the same deposit but not in direct association - the question remains open.',facts:[{l:'Lived',v:'~2.5 Mya'},{l:'Discovered',v:'1999 (Asfaw)'},{l:'Key association',v:'Cut-marked animal bones'}],tags:['Surprise species','Butchery evidence','2.5 Ma transition','Pre-Homo tools?'],dna:{note:'Pre-DNA record'}},
+  {id:'au_sediba',group:'australopith',name:'Australopithecus sediba',short:'Au. sediba',icon:'🧗',color:'#a07850',status:'extinct',mya:[1.98,1.78],brain:[420,440],height:'~130cm',weight:'~27–33kg',habitat:'Woodland, South Africa',tools:'None confirmed',fire:'No',language:'None',sites:['Malapa, South Africa'],desc:'Discovered in 2010 - an extraordinary mosaic. Au. sediba has a small australopith brain but hands capable of precision gripping, and a Homo-like pelvis ideal for upright walking. Some researchers argue it may be ancestral to Homo; others see it as a parallel South African evolutionary experiment.',detail:'The Malapa site preserved two articulated skeletons - an adult female and juvenile male - with soft tissue impressions. One of the most complete early hominin specimens known.',facts:[{l:'Lived',v:'~1.98-1.78 Mya'},{l:'Discovered',v:'2010 (Berger)'},{l:'Brain vol.',v:'~420-440 cm3'},{l:'Key fossil',v:'Two near-complete skeletons'}],tags:['Precision grip','Homo-like pelvis','Malapa death trap','Homo ancestor?','2010 discovery'],dna:{note:'Pre-DNA record'}},
+  {id:'au_prometheus',group:'australopith',name:'Australopithecus prometheus',short:'Au. prometheus (Little Foot)',icon:'🦶',color:'#b08858',status:'extinct',mya:[3.67,3.67],brain:[408,null],height:'~135cm',weight:'~40–50kg',habitat:'Cave and forest margin, South Africa',tools:'None',fire:'No',language:'None',sites:['Sterkfontein, South Africa'],desc:'"Little Foot" - a near-complete skeleton (StW 573) excavated over 20 years from Sterkfontein cave. Dated controversially to 3.67 Mya, which would make it older than Lucy. The long arms and grasping big toe show strong arboreal adaptations alongside bipedalism.',detail:'Whether Little Foot represents a distinct species or falls within africanus is actively debated. The 20-year excavation by Ron Clarke required removing the skeleton from cave breccia with dental picks - one of paleontology great feats of patience.',facts:[{l:'Lived',v:'~3.67 Mya (debated)'},{l:'Discovered',v:'1994-2017 excavation'},{l:'Brain vol.',v:'~408 cm3'},{l:'Status',v:'Species debated'}],tags:['Little Foot','StW 573','3.67 Ma?','20-year excavation','Sterkfontein','Arboreal biped'],dna:{note:'Pre-DNA record'}},
+  {id:'kenyanthropus',group:'proto',name:'Kenyanthropus platyops',short:'Kenyanthropus',icon:'🦴',color:'#907050',status:'extinct',mya:[3.5,3.2],brain:[null,null],height:'~130cm',weight:'~40kg',habitat:'Mixed woodland-lakeside, Kenya',tools:'None known',fire:'No',language:'None',sites:['Lomekwi, Lake Turkana, Kenya'],desc:'"Flat-faced man of Kenya." Discovered by Meave Leakey in 1999 at Lake Turkana. This 3.5-million-year-old skull has a remarkably flat face unlike any australopith - more resembling Homo than the projecting faces of Australopithecus. Its existence challenges the neat Lucy-to-Homo narrative.',detail:'Some researchers argue Kenyanthropus, not afarensis, could be ancestral to Homo. If so, Au. afarensis was a parallel branch - and the ancestor of all humans lived at Turkana, not Hadar.',facts:[{l:'Lived',v:'~3.5-3.2 Mya'},{l:'Discovered',v:'1999 (M. Leakey)'},{l:'Key feature',v:'Extremely flat face'}],tags:['Flat-faced','Challenges Lucy ancestry','Lake Turkana','Possible Homo ancestor'],dna:{note:'Pre-DNA record'}},
+  {id:'par_aethiopicus',group:'paranthropus',name:'Paranthropus aethiopicus',short:'P. aethiopicus',icon:'💪',color:'#7A2A2A',status:'extinct',mya:[2.7,2.3],brain:[410,null],height:'~125cm',weight:'~44kg',habitat:'Lakeshore savanna, East Africa',tools:'None',fire:'No',language:'None',sites:['Omo River, Ethiopia','West Turkana, Kenya'],desc:'The earliest and most primitive Paranthropus. The Black Skull (KNM-WT 17000, 1985) is its defining specimen - dramatically black from manganese mineralization. It has the largest sagittal crest of any hominin and extremely prognathic lower face.',detail:'The Black Skull structure suggests the robust skull architecture evolved independently from africanus, implying Paranthropus may have evolved twice in parallel.',facts:[{l:'Lived',v:'~2.7-2.3 Mya'},{l:'Key fossil',v:'Black Skull (1985)'},{l:'Brain vol.',v:'~410 cm3'},{l:'Crest',v:'Largest sagittal crest known'}],tags:['Black Skull','Largest sagittal crest','Earliest Paranthropus','Polyphyletic origin?'],dna:{note:'Pre-DNA record'}},
+  {id:'h_rudolfensis',group:'homo',name:'Homo rudolfensis',short:'H. rudolfensis',icon:'🪨',color:'#6A7B50',status:'extinct',mya:[2.4,1.8],brain:[700,800],height:'~150cm',weight:'~45kg',habitat:'Woodland-savanna, East Africa',tools:'Oldowan possible',fire:'No',language:'Rudimentary',sites:['Koobi Fora, Kenya'],desc:'Known from a single large skull (KNM-ER 1470) with a notably flat, broad face and large braincase. Its relationship to H. habilis is intensely debated - some see them as one variable species; others as two coexisting Homo lineages, demonstrating that early genus Homo was immediately diverse.',detail:'The 1470 skull was assembled from hundreds of fragments. Initial dating suggested 2.9 Mya. Later recalibration placed it at ~1.9 Mya, resolving a major conflict with evolutionary theory.',facts:[{l:'Lived',v:'~2.4-1.8 Mya'},{l:'Key fossil',v:'KNM-ER 1470'},{l:'Brain vol.',v:'~700-800 cm3'},{l:'Debate',v:'Same species as habilis?'}],tags:['KNM-ER 1470','Large flat face','Debated species','Early Homo diversity'],dna:{note:'Pre-DNA era'}},
+  {id:'h_antecessor',group:'homo',name:'Homo antecessor',short:'H. antecessor',icon:'⚒️',color:'#7A8A6A',status:'extinct',mya:[1.2,0.8],brain:[1000,1100],height:'~170cm',weight:'~60–90kg',habitat:'Forest-savanna, Spain',tools:'Acheulean',fire:'Possible',language:'Proto-language',sites:['Atapuerca, Spain'],desc:'The oldest western European hominin, discovered at Atapuerca cave in 1994. H. antecessor may represent the common ancestor of both Neanderthals and Homo sapiens. Includes evidence of cannibalism - defleshing marks on juvenile bones at Gran Dolina.',detail:'The face of antecessor is strikingly modern, leading Bermudez de Castro to propose it as pioneer man who colonized Europe from Africa and gave rise to the Neanderthal lineage.',facts:[{l:'Lived',v:'~1.2-0.8 Mya'},{l:'Discovered',v:'1994, Atapuerca'},{l:'Brain vol.',v:'~1,000-1,100 cm3'},{l:'Evidence',v:'Cannibalism at Atapuerca'}],tags:['Pioneer Man','Atapuerca','Earliest W. European','Cannibalism evidence','Common ancestor?'],dna:{note:'Ancient protein analysis links to Neanderthal lineage'}},
+  {id:'h_heidelbergensis',group:'homo',name:'Homo heidelbergensis',short:'H. heidelbergensis',icon:'⚒️',color:'#809070',status:'extinct',mya:[0.7,0.2],brain:[1100,1400],height:'~175cm',weight:'~60–80kg',habitat:'Forest, savanna, tundra - Africa and Europe',tools:'Advanced Acheulean, wooden spears',fire:'Routine',language:'Proto-language, likely advanced',sites:['Mauer, Germany','Bodo, Ethiopia'],desc:'A cosmopolitan hominin spanning Africa and Europe. The probable ancestor of Neanderthals in Europe and Homo sapiens in Africa. Notable for the Schoningen spears (400,000 years old) - the oldest complete hunting weapons ever found - indicating sophisticated planned hunting of wild horses.',detail:'Heidelbergensis represents the threshold where symbolic thought becomes plausible. Cave lion skulls show strategic use of topography to herd and ambush mega-fauna.',facts:[{l:'Lived',v:'~700-200 Kya'},{l:'Range',v:'Africa + Europe'},{l:'Brain vol.',v:'~1,100-1,400 cm3'},{l:'Key find',v:'Schoningen wooden spears'}],tags:['Schoningen spears','Neanderthal ancestor','Sapiens ancestor?','Strategic hunters','Both Africa & Europe'],dna:{note:'No DNA; protein analysis groups with Neanderthal clade'}},
+  {id:'h_bodoensis',group:'homo',name:'Homo bodoensis',short:'H. bodoensis',icon:'⚒️',color:'#7A9060',status:'extinct',mya:[0.6,0.15],brain:[1250,null],height:'~175cm',weight:'~65kg',habitat:'Savanna and woodland, Africa',tools:'Acheulean',fire:'Yes',language:'Advanced proto-language',sites:['Bodo D\'ar, Ethiopia'],desc:'Described as a new species in 2021 to resolve confusion about African Middle Pleistocene hominins. H. bodoensis is proposed as the direct African ancestor of H. sapiens. Named for the Bodo skull which shows cut marks indicating deliberate defleshing.',detail:'The 2021 description by Roksandic et al. argues H. heidelbergensis should be restricted to Europe, and that the African Middle Pleistocene lineage deserves its own designation as our direct ancestors.',facts:[{l:'Lived',v:'~600-150 Kya'},{l:'Described',v:'2021 (Roksandic et al.)'},{l:'Brain vol.',v:'~1,250 cm3'},{l:'Key fossil',v:'Bodo skull'}],tags:['New species 2021','Sapiens direct ancestor?','African MPA','Bodo skull','Defleshing marks'],dna:{note:'No DNA; proposed direct sapiens ancestor'}},
+  {id:'h_luzonensis',group:'homo',name:'Homo luzonensis',short:'H. luzonensis',icon:'🏝️',color:'#7A6B50',status:'extinct',mya:[0.067,0.05],brain:[null,null],height:'~120cm',weight:'~25kg',habitat:'Tropical island, Luzon, Philippines',tools:'Stone tools',fire:'Unknown',language:'Unknown',sites:['Callao Cave, Luzon, Philippines'],desc:'Announced in 2019 from Callao Cave - a tiny island hominin with a mosaic of features. Some foot and finger bones resemble Australopithecus rather than any Homo. With an age of 50-67 thousand years ago, it coexisted with Denisovans, H. sapiens, and floresiensis - the most crowded moment in hominin history.',detail:'The survival of primitive morphology in luzonensis may reflect island dwarfism or indicate an earlier migration to Southeast Asia than previously recognized.',facts:[{l:'Lived',v:'~67-50 Kya'},{l:'Announced',v:'2019'},{l:'Region',v:'Callao Cave, Luzon'},{l:'Features',v:'Mosaic Australopithecus + Homo'}],tags:['New species 2019','Philippine hominin','Mosaic anatomy','Island dwarf','Callao Cave'],dna:{note:'No DNA recovered from tropical site'}},
+  {id:'h_longi',group:'homo',name:'Homo longi',short:'H. longi (Dragon Man)',icon:'🐉',color:'#7A8090',status:'extinct',mya:[0.146,0.146],brain:[1420,null],height:'~180cm',weight:'~70kg',habitat:'Cold temperate Asia',tools:'Unknown',fire:'Possible',language:'Possible',sites:['Harbin, Heilongjiang, China'],desc:'"Dragon Man" - a massive skull found in Harbin, China, with a brain size matching Homo sapiens but archaic features. Described in 2021, it may be more closely related to H. sapiens than Neanderthals are - which would fundamentally reorganize the human family tree.',detail:'The Harbin skull was allegedly discovered in the 1930s, hidden in a well for 80+ years, and donated to researchers before the original discoverer death. Protein analysis supports placement near the sapiens lineage.',facts:[{l:'Lived',v:'~146 Kya'},{l:'Brain vol.',v:'~1,420 cm3'},{l:'Described',v:'2021'},{l:'Claim',v:'Closer to sapiens than Neanderthal'}],tags:['Dragon Man','Harbin skull','New species 2021','Paleoproteomics','Reorganizes family tree'],dna:{note:'No DNA; protein analysis places near sapiens lineage'}},
+  {id:'h_sapiens',group:'homo',name:'Homo sapiens',short:'H. sapiens',icon:'🧠',color:'#E8B86D',status:'surviving',mya:[0.3,0],brain:[1350,1500],height:'~170cm avg',weight:'~62–80kg',habitat:'Universal — all continents',tools:'All technology in history',fire:'Total control',language:'Full language',sites:['Jebel Irhoud, Morocco','Omo Kibish, Ethiopia'],desc:'You. Emerged ~300,000 years ago in Africa. Behavioral modernity appeared ~70,000–50,000 years ago. We left Africa in multiple waves, interbreeding with Neanderthals, Denisovans, and possibly other archaic humans. We carry a mosaic of archaic DNA in our genomes today.',detail:'In 300,000 years we reshaped the biosphere, triggered a mass extinction, split the atom, walked on the moon, and began sequencing the genomes of every organism on this tree of life.',facts:[{l:'Appeared',v:'~300 Kya (Africa)'},{l:'Population',v:'~8.1 billion'},{l:'Brain vol.',v:'~1,350–1,500 cm³'},{l:'Neanderthal DNA',v:'~1–4% (non-African)'}],tags:['Language & art','Global dispersal','Archaic DNA legacy','Agriculture ~12 Kya','Space travel','FOXP2'],dna:{neanderthal:2,denisovan:1,note:'~1–4% Neanderthal + up to 5% Denisovan in some populations'}}
+];
+
+const MAX_BRAIN = 1750;
+const ERA_GROUPS = [
+  {label:'Proto-Hominins (7–3 Ma)',filter:n=>n.group==='proto'},
+  {label:'Australopithecus (4–1.7 Ma)',filter:n=>n.group==='australopith'},
+  {label:'Paranthropus (2.7–1.2 Ma)',filter:n=>n.group==='paranthropus'},
+  {label:'Early Homo (2.5–0.5 Ma)',filter:n=>n.group==='homo'&&!['neanderthal','denisovans','h_sapiens','h_naledi','h_floresiensis','h_luzonensis','h_longi'].includes(n.id)&&n.mya[0]>0.5},
+  {label:'Island & Late Homo (700–50 Ka)',filter:n=>['h_naledi','h_floresiensis','h_luzonensis','h_longi'].includes(n.id)},
+  {label:'Our Closest Relatives',filter:n=>['neanderthal','denisovans','h_sapiens'].includes(n.id)},
+];
+
+// ══════════════════════════════════════════════════════
+// NODE MAP + PREPROCESSING
+// ══════════════════════════════════════════════════════
+const nodeMap = {};
+function preprocess(n,parent=null,depth=0){
+  n._parent=parent; n.depth=depth; n._collapsed=false;
+  nodeMap[n.id]=n;
+  if(n.children) n.children.forEach(c=>preprocess(c,n,depth+1));
+}
+preprocess(TREE);
+window.getNodeById = id=>nodeMap[id];
+
+// ══════════════════════════════════════════════════════
+// LAYOUT
+// ══════════════════════════════════════════════════════
+const DEPTH_R=[0,115,210,295,370,435,492,544,588];
+function getVisible(n){let a=[n];if(n.children&&!n._collapsed)n.children.forEach(c=>a=a.concat(getVisible(c)));return a;}
+function getVisibleEdges(n){let a=[];if(n.children&&!n._collapsed){n.children.forEach(c=>{a.push({from:n,to:c});a=a.concat(getVisibleEdges(c));});}return a;}
+function assignAngles(n,a0,a1){n._a0=a0;n._a1=a1;n._angle=(a0+a1)/2;if(!n.children||!n.children.length||n._collapsed)return;const visible=n.children;const range=a1-a0;let a=a0;visible.forEach(c=>{const share=range/visible.length;assignAngles(c,a,a+share);a+=share;});}
+function assignPositions(n,cx,cy){const r=DEPTH_R[n.depth]||(n.depth*65);n._x=cx+Math.cos(n._angle-Math.PI/2)*r;n._y=cy+Math.sin(n._angle-Math.PI/2)*r;if(n.children&&!n._collapsed)n.children.forEach(c=>assignPositions(c,cx,cy));}
+function layout(){const cx=window.innerWidth/2,cy=window.innerHeight/2+35;assignAngles(TREE,0,Math.PI*2);assignPositions(TREE,cx,cy);}
+
+// ══════════════════════════════════════════════════════
+// ERA FILTER
+// ══════════════════════════════════════════════════════
+let currentEra = 3800;
+function nodeInEra(n){
+  if(!n.appeared) return true;
+  const mya = n.appeared;
+  const extinctMya = n.extinct || 0;
+  const showFrom = currentEra;
+  return mya >= extinctMya && mya <= showFrom + 200;
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════
+const branchLayer=document.getElementById('layer-branches');
+const nodesLayer=document.getElementById('layer-nodes');
+const viewport=document.getElementById('viewport');
+let transform={x:0,y:0,s:1};
+const applyT=()=>viewport.setAttribute('transform',`translate(${transform.x},${transform.y}) scale(${transform.s})`);
+const animDone=new Set();
+let highlightedId=null;
+
+function branchPath(x1,y1,x2,y2){const mx=(x1+x2)/2,my=(y1+y2)/2;return `M${x1},${y1} Q${mx+(my-y1)*0.28},${my-(mx-x1)*0.28} ${x2},${y2}`;}
+
+function render(){
+  branchLayer.innerHTML=''; nodesLayer.innerHTML='';
+  const edges=getVisibleEdges(TREE);
+  const nodes=getVisible(TREE);
+
+  // Branches
+  edges.forEach(({from,to})=>{
+    const inEra=nodeInEra(to);
+    const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d',branchPath(from._x,from._y,to._x,to._y));
+    p.setAttribute('class','branch-path');
+    const sw=Math.max(1,5-to.depth*0.65);
+    const op=inEra?Math.max(0.22,0.88-to.depth*0.07):0.06;
+    p.setAttribute('stroke',to.color);
+    p.setAttribute('stroke-width',sw);
+    p.setAttribute('stroke-opacity',op);
+    if(!animDone.has(to.id)){
+      const len=300;p.style.strokeDasharray=len;p.style.strokeDashoffset=len;
+      p.style.transition=`stroke-dashoffset ${0.65+to.depth*0.14}s cubic-bezier(.4,0,.2,1) ${to.depth*0.09}s`;
+      setTimeout(()=>{p.style.strokeDashoffset=0;},50);
+    }
+    branchLayer.appendChild(p);
+  });
+
+  // Nodes
+  nodes.forEach(n=>{
+    const inEra=nodeInEra(n);
+    const isHighlighted=highlightedId===n.id;
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class','node-group');
+
+    // Root pulse ring
+    if(n.depth===0){
+      const glow=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      glow.setAttribute('cx',n._x);glow.setAttribute('cy',n._y);glow.setAttribute('r',n.r+14);
+      glow.setAttribute('fill','none');glow.setAttribute('stroke',n.color);
+      glow.setAttribute('stroke-width','1.5');glow.setAttribute('stroke-opacity','0.4');
+      glow.style.animation='rootPulse 2.8s ease-in-out infinite';
+      g.appendChild(glow);
+    }
+
+    // Living pulse ring for Homo sapiens
+    if(n.id==='humans'){
+      const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      ring.setAttribute('cx',n._x);ring.setAttribute('cy',n._y);ring.setAttribute('r',n.r+10);
+      ring.setAttribute('fill','none');ring.setAttribute('stroke',n.color);
+      ring.setAttribute('stroke-width','1');ring.setAttribute('stroke-opacity','0.5');
+      ring.style.animation='livingPulse 2s ease-in-out infinite';
+      g.appendChild(ring);
+    }
+
+    // Highlight ring
+    if(isHighlighted){
+      const hl=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      hl.setAttribute('cx',n._x);hl.setAttribute('cy',n._y);hl.setAttribute('r',n.r+9);
+      hl.setAttribute('fill','none');hl.setAttribute('stroke','#e8b86d');
+      hl.setAttribute('stroke-width','2');hl.setAttribute('stroke-opacity','0.9');
+      g.appendChild(hl);
+    }
+
+    // Collapse ring
+    if(n.children&&n.children.length&&n.depth>0){
+      const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      ring.setAttribute('cx',n._x);ring.setAttribute('cy',n._y);ring.setAttribute('r',n.r+5);
+      ring.setAttribute('fill','none');ring.setAttribute('stroke',n.color);
+      ring.setAttribute('stroke-width','0.7');ring.setAttribute('stroke-opacity','0.2');
+      ring.setAttribute('stroke-dasharray','3 3');
+      g.appendChild(ring);
+    }
+
+    // Main circle
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',n._x);c.setAttribute('cy',n._y);c.setAttribute('r',n.r);
+    c.setAttribute('class','node-circle nc-main');
+    c.setAttribute('fill',n.depth===0?'url(#rootGrad)':n.color);
+    c.setAttribute('fill-opacity',inEra?(n.depth===0?'1':n.depth<=1?'0.9':'0.8'):'0.15');
+    c.setAttribute('stroke','#070503');c.setAttribute('stroke-width','1.5');
+    c.style.setProperty('--nc',n.color);
+    if(n.depth===0) c.setAttribute('filter','url(#strongGlow)');
+    g.appendChild(c);
+
+    // Icon
+    if(inEra){
+      const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+      const iw=n.r*1.5,ih=n.r*1.5;
+      fo.setAttribute('x',n._x-iw/2);fo.setAttribute('y',n._y-ih/2);
+      fo.setAttribute('width',iw);fo.setAttribute('height',ih);fo.style.pointerEvents='none';
+      const d=document.createElement('div');
+      d.style.cssText=`width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:${Math.max(9,n.r*0.6)}px;line-height:1;`;
+      d.textContent=n.icon;fo.appendChild(d);g.appendChild(fo);
+    }
+
+    // Label — smart positioning to avoid overlap
+    if(inEra && n.depth<=5){
+      const angleRad=n._angle-Math.PI/2;
+      const lDist=n.r+14;
+      const lx=n._x+Math.cos(angleRad)*lDist;
+      const ly=n._y+Math.sin(angleRad)*lDist;
+      const cos=Math.cos(angleRad);
+      const t=document.createElementNS('http://www.w3.org/2000/svg','text');
+      t.setAttribute('x',lx);t.setAttribute('y',ly);
+      t.setAttribute('text-anchor',cos<-0.15?'end':cos>0.15?'start':'middle');
+      t.setAttribute('dominant-baseline','middle');
+      t.setAttribute('fill',n.depth===0?'#f2e8d0':n.depth<=1?'rgba(242,232,208,0.92)':'rgba(242,232,208,0.75)');
+      t.setAttribute('font-size',n.depth===0?'14':n.depth===1?'12':'10');
+      t.setAttribute('font-family',"'Lora', serif");
+      t.setAttribute('font-weight',n.depth<=1?'500':'400');
+      t.setAttribute('class','node-label-text');
+      t.textContent=n.name;
+      g.appendChild(t);
+    }
+
+    // Collapse dot
+    if(n.children?.length&&n.depth>0){
+      const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      dot.setAttribute('cx',n._x+n.r-3);dot.setAttribute('cy',n._y-n.r+3);dot.setAttribute('r','3.5');
+      dot.setAttribute('fill',n._collapsed?'#e8b86d':'#4a9c58');
+      dot.setAttribute('stroke','#070503');dot.setAttribute('stroke-width','1');
+      g.appendChild(dot);
+    }
+
+    // Animate in
+    if(!animDone.has(n.id)){
+      g.style.opacity='0';g.style.transformOrigin=`${n._x}px ${n._y}px`;g.style.transform='scale(0.2)';
+      setTimeout(()=>{
+        g.style.transition=`opacity 0.45s ease ${n.depth*0.09}s, transform 0.45s cubic-bezier(.34,1.56,.64,1) ${n.depth*0.09}s`;
+        g.style.opacity='1';g.style.transform='scale(1)';
+        setTimeout(()=>animDone.add(n.id),550+n.depth*90);
+      },40);
+    }
+
+    // Events
+    g.addEventListener('click',e=>{e.stopPropagation();
+      if(n.id==='humans') showMainPanel(n);
+      else showMainPanel(n);
+    });
+    g.addEventListener('contextmenu',e=>{e.preventDefault();if(n.children?.length){n._collapsed=!n._collapsed;render();}});
+    g.addEventListener('mouseenter',e=>showTip(e,n));
+    g.addEventListener('mouseleave',hideTip);
+    nodesLayer.appendChild(g);
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// MAIN PANEL
+// ══════════════════════════════════════════════════════
+const panel=document.getElementById('panel');
+const panelAccent=document.getElementById('panel-accent');
+let currentPanelNode=null;
+
+function showMainPanel(n){
+  currentPanelNode=n;
+  document.getElementById('p-era').textContent=n.era;
+  document.getElementById('p-name').textContent=n.name;
+  document.getElementById('p-latin').textContent=n.latin;
+  document.getElementById('p-desc').textContent=n.desc;
+  document.getElementById('p-icon').textContent=n.icon;
+  document.getElementById('p-icon-wrap').style.borderColor=n.color+'55';
+  panelAccent.style.background=`linear-gradient(to right,${n.color},transparent)`;
+  document.getElementById('p-facts').innerHTML=(n.facts||[]).map(f=>`<div class="fact-card"><div class="fact-l">${f.l}</div><div class="fact-v">${f.v}</div></div>`).join('');
+  document.getElementById('p-tags').innerHTML=(n.tags||[]).map(t=>`<span class="p-tag">${t}</span>`).join('');
+  document.getElementById('p-detail').textContent=n.detail||'';
+
+  // Hominin dive button for humans/primates
+  const btnWrap=document.getElementById('p-hom-btn-wrap');
+  if(n.id==='humans'||n.id==='primates'){
+    btnWrap.innerHTML=`<button id="hom-enter-btn" onclick="openHomininView()">${t('hom_btn')}</button>`;
+  } else btnWrap.innerHTML='';
+
+  // Children
+  const cs=document.getElementById('p-children-section');
+  const cl=document.getElementById('p-children');
+  if(n.children?.length){
+    cl.innerHTML=n.children.map(c=>`<li onclick="showMainPanel(getNodeById('${c.id}'))"><span class="pci">${c.icon}</span>${c.name} <span style="margin-left:auto;font-size:0.65em;color:var(--gold)">${c.era}</span></li>`).join('');
+    cs.style.display='block';
+  } else cs.style.display='none';
+
+  panel.classList.add('open');
+  updateBreadcrumb(n);
+}
+
+document.getElementById('panel-close').addEventListener('click',()=>panel.classList.remove('open'));
+document.getElementById('svg').addEventListener('click',()=>panel.classList.remove('open'));
+
+// ══════════════════════════════════════════════════════
+// BREADCRUMB
+// ══════════════════════════════════════════════════════
+function getAncestors(n){const path=[];let c=n;while(c){path.unshift(c);c=c._parent;}return path;}
+function updateBreadcrumb(n){
+  const bc=document.getElementById('breadcrumb');
+  const path=getAncestors(n);
+  if(path.length<=1){bc.classList.add('hidden');return;}
+  bc.classList.remove('hidden');
+  bc.innerHTML=path.map((p,i)=>{
+    const isLast=i===path.length-1;
+    return `<span class="bc-item ${isLast?'active':''}" onclick="${isLast?'':`showMainPanel(getNodeById('${p.id}'))`}">${p.icon} ${p.name}</span>${isLast?'':'<span class="bc-sep">›</span>'}`;
+  }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// TOOLTIP
+// ══════════════════════════════════════════════════════
+const tooltip=document.getElementById('tooltip');
+function showTip(e,n){
+  document.getElementById('tip-name').textContent=n.name;
+  document.getElementById('tip-era').textContent=n.era;
+  document.getElementById('tip-fact').textContent=n.tipFact||'';
+  moveTip(e);tooltip.classList.add('show');
+}
+function moveTip(e){let x=e.clientX+16,y=e.clientY-12;if(x+240>window.innerWidth)x=e.clientX-250;if(y<10)y=e.clientY+20;tooltip.style.left=x+'px';tooltip.style.top=y+'px';}
+function hideTip(){tooltip.classList.remove('show');}
+window.addEventListener('mousemove',e=>{if(tooltip.classList.contains('show'))moveTip(e);});
+
+// ══════════════════════════════════════════════════════
+// ERA BROWSER
+// ══════════════════════════════════════════════════════
+const eraSlider=document.getElementById('era-slider');
+const eraLabel=document.getElementById('era-label');
+const eraFill=document.getElementById('era-fill');
+
+const ERA_NAMES={3800:'Eoarchean (3.8 Ga) — LUCA emerges',3500:'Paleoarchean (3.5 Ga) — First Bacteria',2700:'Neoarchean (2.7 Ga) — Cyanobacteria & Oxygen',2400:'Siderian (2.4 Ga) — Great Oxidation Event',2100:'Rhyacian (2.1 Ga) — First Eukaryotes',1000:'Tonian (1 Ga) — First Multicellular Life',541:'Cambrian (541 Ma) — Explosion of Animal Life',445:'Ordovician extinction (445 Ma)',420:'Silurian (420 Ma) — First Vascular Plants',370:'Late Devonian extinction (370 Ma)',252:'Permian–Triassic extinction (252 Ma) — Worst Ever',200:'Triassic–Jurassic extinction (200 Ma)',130:'Cretaceous (130 Ma) — Flowering Plants',66:'K–Pg extinction (66 Ma) — Dinosaurs End',50:'Eocene (50 Ma) — Whales Enter Sea',35:'Oligocene (35 Ma) — Grasslands Spread',23:'Miocene (23 Ma) — Apes Diversify',7:'Late Miocene (7 Ma) — Hominin Split',3:'Pliocene (3 Ma) — Lucy\'s World',1:'Pleistocene (1 Ma) — Ice Ages',0:'Present'};
+
+function getEraName(v){
+  const keys=Object.keys(ERA_NAMES).map(Number).sort((a,b)=>a-b);
+  let best=keys[0];
+  for(const k of keys){if(v>=k)best=k;}
+  return ERA_NAMES[best]||`${v} Ma`;
+}
+
+const EXTINCTIONS=[445,370,252,200,66];
+function buildExtinctionMarkers(){
+  const container=document.getElementById('extinction-markers');
+  EXTINCTIONS.forEach(mya=>{
+    const pct=(mya/3800)*100;
+    const line=document.createElement('div');
+    line.className='ext-line';
+    line.style.left=`${100-pct}%`;
+    line.title=`Mass extinction ~${mya} Ma`;
+    container.appendChild(line);
+  });
+}
+
+eraSlider.addEventListener('input',()=>{
+  currentEra=parseInt(eraSlider.value);
+  const pct=(currentEra/3800)*100;
+  eraFill.style.width=pct+'%';
+  eraLabel.textContent=getEraName(currentEra);
+  render();
+});
+
+// ══════════════════════════════════════════════════════
+// SEARCH
+// ══════════════════════════════════════════════════════
+const searchInput=document.getElementById('search-input');
+const searchResults=document.getElementById('search-results');
+const allNodes=Object.values(nodeMap);
+
+function buildSearchIndex(){
+  return allNodes.map(n=>({id:n.id,name:n.name,latin:n.latin||'',era:n.era||'',icon:n.icon,depth:n.depth}));
+}
+const searchIndex=buildSearchIndex();
+
+searchInput.addEventListener('input',()=>{
+  const q=searchInput.value.trim().toLowerCase();
+  if(!q){searchResults.classList.remove('show');return;}
+  const matches=searchIndex.filter(n=>n.name.toLowerCase().includes(q)||n.latin.toLowerCase().includes(q)).slice(0,8);
+  searchResults.innerHTML=matches.map(m=>`<div class="sr-item" onclick="navigateTo('${m.id}')"><span class="sri-icon">${m.icon}</span><span class="sri-name">${m.name}</span><span class="sri-sub">${m.era?m.era.replace('~','').split(' ').slice(0,3).join(' '):''}</span></div>`).join('');
+  searchResults.classList.toggle('show',matches.length>0);
+});
+searchInput.addEventListener('blur',()=>setTimeout(()=>searchResults.classList.remove('show'),200));
+
+window.navigateTo=function(id){
+  const n=nodeMap[id];if(!n)return;
+  searchInput.value='';searchResults.classList.remove('show');
+  highlightedId=id;
+  // Ensure path is not collapsed
+  let c=n;while(c._parent){c._parent._collapsed=false;c=c._parent;}
+  layout();render();applyT();
+  // Pan to node
+  const cx=window.innerWidth/2,cy=window.innerHeight/2;
+  const tx=cx-(n._x*transform.s+transform.x)+cx-cx;
+  transform.x=cx-n._x*transform.s;
+  transform.y=cy-n._y*transform.s;
+  applyT();
+  showMainPanel(n);
+  setTimeout(()=>{highlightedId=null;render();},2500);
+};
+
+// ══════════════════════════════════════════════════════
+// HOMININ VIEW
+// ══════════════════════════════════════════════════════
+let currentHomFilter='all';
+let selectedHominin=null;
+
+window.openHomininView=function(){
+  document.getElementById('hominin-view').classList.add('open');
+  panel.classList.remove('open');
+  renderHominins();
+};
+document.getElementById('hom-close').addEventListener('click',()=>{
+  document.getElementById('hominin-view').classList.remove('open');
+});
+
+document.querySelectorAll('.hom-filter').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    document.querySelectorAll('.hom-filter').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentHomFilter=btn.dataset.filter;
+    renderHominins();
+  });
+});
+
+function renderHominins(){
+  const tl=document.getElementById('hom-timeline');
+  const filtered=HOMININS.filter(h=>{
+    if(currentHomFilter==='all')return true;
+    if(currentHomFilter==='surviving')return h.status==='surviving';
+    return h.group===currentHomFilter;
+  });
+  tl.innerHTML='';
+  ERA_GROUPS.forEach(eg=>{
+    const items=filtered.filter(eg.filter);
+    if(!items.length)return;
+    const group=document.createElement('div');group.className='hom-era-group';
+    const title=document.createElement('div');title.className='hom-era-title';title.textContent=eg.label;
+    group.appendChild(title);
+    items.sort((a,b)=>b.mya[0]-a.mya[0]).forEach(h=>{
+      const el=document.createElement('div');
+      el.className=`hom-species hs-status-${h.status}${selectedHominin===h.id?' selected':''}${compareMode&&compareSelected.has(h.id)?' selected':''}`;
+      const brainMax=h.brain[1]||h.brain[0];
+      const brainPct=brainMax?(brainMax/MAX_BRAIN*100):0;
+      const hasTools=h.tools&&h.tools!=='None known'&&h.tools!=='None';
+      const hasFire=h.fire&&h.fire!=='No';
+      const hasLang=h.language&&h.language!=='None';
+      el.innerHTML=`
+        <div class="hs-icon">${h.icon}</div>
+        <div class="hs-info">
+          <div class="hs-name">${h.short}</div>
+          <div class="hs-latin">${h.name}</div>
+          <div class="hs-mya">${h.mya[0]}–${h.mya[1]} Ma</div>
+          ${brainMax?`<div class="hs-brain"><div class="brain-bar-wrap"><div class="brain-bar-fill" style="width:${brainPct}%;background:${h.color}"></div></div><span class="brain-label">${brainMax} cm³</span></div>`:''}
+          <div class="hs-icons-row">${hasTools?t('cap_tools'):''} ${hasFire?t('cap_fire'):''} ${hasLang?t('cap_lang'):''}</div>
+          <div class="hs-tags">${(h.tags||[]).slice(0,3).map(t=>`<span class="hs-tag">${t}</span>`).join('')}</div>
+        </div>`;
+      el.addEventListener('click',()=>{
+        if(compareMode){toggleCompareSelect(h.id);}
+        else{selectedHominin=h.id;renderHominins();showHominDetail(h);}
+      });
+      group.appendChild(el);
+    });
+    tl.appendChild(group);
+  });
+}
+
+function showHominDetail(h){
+  const p=document.getElementById('hom-panel');
+  const brainMax=h.brain[1]||h.brain[0];
+  const neanPct=h.dna&&h.dna.neanderthal!=null?h.dna.neanderthal:null;
+  const denPct=h.dna&&h.dna.denisovan!=null?h.dna.denisovan:null;
+  p.innerHTML=`
+    <div class="hp-accent" style="background:linear-gradient(to right,${h.color},transparent)"></div>
+    <div class="hp-top">
+      <div class="hp-icon">${h.icon}</div>
+      <div>
+        <div class="hp-name">${h.short}</div>
+        <div class="hp-latin">${h.name}</div>
+        <div class="hp-mya">${h.mya[0]}–${h.mya[1]} Ma ago</div>
+      </div>
+    </div>
+    <div class="hp-desc">${h.desc}</div>
+    <div class="hp-facts">
+      ${(h.facts||[]).map(f=>`<div class="hp-fact"><div class="hp-fact-l">${f.l}</div><div class="hp-fact-v">${f.v}</div></div>`).join('')}
+    </div>
+    ${neanPct!=null||denPct!=null?`
+    <div class="hp-section">${t('sec_dna')}</div>
+    ${neanPct!=null?`<div class="hp-dna"><span style="font-size:0.65rem;min-width:80px;color:rgba(200,136,58,0.7)">${t('lbl_nean').replace(' DNA','')}</span><div class="dna-fill"><div class="dna-fill-inner" style="width:${Math.min(100,neanPct*25)}%;background:#7A9BAA"></div></div><span style="font-size:0.65rem;color:#7A9BAA;min-width:28px;text-align:right">${neanPct}%</span></div>`:''}
+    ${denPct!=null?`<div class="hp-dna"><span style="font-size:0.65rem;min-width:80px;color:rgba(200,136,58,0.7)">${t('lbl_den').replace(' DNA','')}</span><div class="dna-fill"><div class="dna-fill-inner" style="width:${Math.min(100,denPct*20)}%;background:#7A8BAA"></div></div><span style="font-size:0.65rem;color:#7A8BAA;min-width:28px;text-align:right">${denPct}%</span></div>`:''}
+    <div style="font-size:0.65rem;color:rgba(200,136,58,0.5);margin-top:0.3rem;font-style:italic">${h.dna.note||''}</div>`:''}
+    <div class="hp-section">${t('sec_evo')}</div>
+    <div style="font-size:0.78rem;color:rgba(242,232,208,0.65);line-height:1.8;margin-bottom:0.8rem">${h.detail||''}</div>
+    <div class="hp-section">${t('sec_traits')}</div>
+    <div class="hp-tags">${(h.tags||[]).map(tag=>`<span class="hp-tag">${tag}</span>`).join('')}</div>
+    <div style="margin-top:0.8rem;font-size:0.65rem;color:rgba(200,136,58,0.4);letter-spacing:0.1em">${t('sec_fossil')}</div>
+    <div style="font-size:0.75rem;color:rgba(242,232,208,0.55);margin-top:0.3rem;line-height:1.7">${(h.sites||[]).join(' · ')}</div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// PAN & ZOOM
+// ══════════════════════════════════════════════════════
+const svgEl=document.getElementById('svg');
+let panning=false,ps={x:0,y:0},ts={x:0,y:0};
+svgEl.addEventListener('mousedown',e=>{if(e.button!==0)return;panning=true;ps={x:e.clientX,y:e.clientY};ts={...transform};document.body.classList.add('dragging');});
+window.addEventListener('mousemove',e=>{if(!panning)return;transform.x=ts.x+(e.clientX-ps.x);transform.y=ts.y+(e.clientY-ps.y);applyT();});
+window.addEventListener('mouseup',()=>{panning=false;document.body.classList.remove('dragging');});
+let lt=null;
+svgEl.addEventListener('touchstart',e=>{if(e.touches.length===1){panning=true;ps={x:e.touches[0].clientX,y:e.touches[0].clientY};ts={...transform};}else if(e.touches.length===2){panning=false;lt=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);}},{passive:true});
+svgEl.addEventListener('touchmove',e=>{if(e.touches.length===1&&panning){transform.x=ts.x+(e.touches[0].clientX-ps.x);transform.y=ts.y+(e.touches[0].clientY-ps.y);applyT();}else if(e.touches.length===2&&lt){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);transform.s=Math.min(6,Math.max(0.12,transform.s*(d/lt)));lt=d;applyT();}},{passive:true});
+svgEl.addEventListener('touchend',()=>{panning=false;lt=null;});
+svgEl.addEventListener('wheel',e=>{e.preventDefault();const f=e.deltaY<0?1.13:0.88;const rect=svgEl.getBoundingClientRect();const mx=e.clientX-rect.left,my=e.clientY-rect.top;const ns=Math.min(6,Math.max(0.12,transform.s*f));transform.x=mx-(mx-transform.x)*(ns/transform.s);transform.y=my-(my-transform.y)*(ns/transform.s);transform.s=ns;applyT();},{passive:false});
+document.getElementById('btn-in').addEventListener('click',()=>{transform.s=Math.min(6,transform.s*1.2);applyT();});
+document.getElementById('btn-out').addEventListener('click',()=>{transform.s=Math.max(0.12,transform.s*0.83);applyT();});
+document.getElementById('btn-reset').addEventListener('click',()=>{transform={x:0,y:0,s:1};applyT();});
+
+// ══════════════════════════════════════════════════════
+// COMPARE MODE
+// ══════════════════════════════════════════════════════
+let compareMode=false;
+let compareSelected=new Set();
+
+function toggleCompareMode(){
+  compareMode=!compareMode;
+  compareSelected.clear();
+  const btn=document.getElementById('compare-btn');
+  const hint=document.getElementById('compare-hint');
+  if(compareMode){
+    btn.style.borderColor='rgba(200,136,58,0.8)';
+    btn.style.color='var(--gold)';
+    btn.style.background='rgba(200,136,58,0.1)';
+    hint.style.display='inline';
+  } else {
+    btn.style.borderColor='rgba(200,136,58,0.3)';
+    btn.style.color='rgba(242,232,208,0.6)';
+    btn.style.background='transparent';
+    hint.style.display='none';
+    renderHominins();
+  }
+  renderHominins();
+}
+
+function toggleCompareSelect(hId){
+  if(compareSelected.has(hId)){
+    compareSelected.delete(hId);
+  } else if(compareSelected.size<4){
+    compareSelected.add(hId);
+  }
+  renderHominins();
+  if(compareSelected.size>=2){
+    showComparePanel();
+  }
+}
+
+function showComparePanel(){
+  const panel=document.getElementById('compare-panel');
+  const grid=document.getElementById('compare-grid');
+  const species=Array.from(compareSelected).map(id=>HOMININS.find(h=>h.id===id)).filter(Boolean);
+  panel.style.display='block';
+
+  const MAX_B=1750;
+  const allBrains=species.map(h=>h.brain[1]||h.brain[0]).filter(Boolean);
+  const maxB=allBrains.length?Math.max(...allBrains):MAX_B;
+
+  grid.innerHTML=species.map(h=>{
+    const brainMax=h.brain[1]||h.brain[0];
+    const brainPct=brainMax?(brainMax/maxB*100):0;
+    const nP=h.dna&&h.dna.neanderthal!=null?h.dna.neanderthal:null;
+    const dP=h.dna&&h.dna.denisovan!=null?h.dna.denisovan:null;
+    return `<div style="border:1px solid ${h.color}33;border-radius:12px;padding:1.2rem;background:rgba(255,255,255,0.02);">
+      <div style="font-size:2rem;margin-bottom:0.5rem">${h.icon}</div>
+      <div style="font-family:var(--font-head);font-size:0.95rem;color:${h.color};margin-bottom:0.15rem">${h.short}</div>
+      <div style="font-size:0.65rem;color:rgba(242,232,208,0.5);font-style:italic;margin-bottom:0.8rem">${h.name}</div>
+      <div style="font-size:0.7rem;color:rgba(200,136,58,0.7);margin-bottom:0.2rem">${t('lbl_timeline')}</div>
+      <div style="font-size:0.8rem;margin-bottom:0.8rem">${h.mya[0]}–${h.mya[1]} Ma</div>
+      ${brainMax?`
+      <div style="font-size:0.7rem;color:rgba(200,136,58,0.7);margin-bottom:0.3rem">${t('lbl_brain')} — ${brainMax} cm³</div>
+      <div style="height:6px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;margin-bottom:0.8rem">
+        <div style="height:100%;width:${brainPct}%;background:${h.color};transition:width 0.6s"></div>
+      </div>`:`<div style="font-size:0.7rem;color:rgba(242,232,208,0.3);margin-bottom:0.8rem;">${t('lbl_brain')} —</div>`}
+      <div style="font-size:0.7rem;color:rgba(200,136,58,0.7);margin-bottom:0.3rem">${t('lbl_tools')}</div>
+      <div style="font-size:0.75rem;margin-bottom:0.5rem">${h.tools}</div>
+      <div style="font-size:0.7rem;color:rgba(200,136,58,0.7);margin-bottom:0.3rem">${t('lbl_fire')}</div>
+      <div style="font-size:0.75rem;margin-bottom:0.5rem">${h.fire}</div>
+      <div style="font-size:0.7rem;color:rgba(200,136,58,0.7);margin-bottom:0.3rem">${t('lbl_language')}</div>
+      <div style="font-size:0.75rem;margin-bottom:0.8rem">${h.language}</div>
+      ${nP!=null?`
+      <div style="font-size:0.7rem;color:rgba(200,136,58,0.7);margin-bottom:0.3rem">${t('lbl_nean')}</div>
+      <div style="height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;margin-bottom:0.3rem">
+        <div style="height:100%;width:${Math.min(100,nP*25)}%;background:#7A9BAA"></div>
+      </div>
+      <div style="font-size:0.65rem;color:#7A9BAA;margin-bottom:0.5rem">${nP}%</div>`:''}
+      ${dP!=null?`
+      <div style="font-size:0.7rem;color:rgba(200,136,58,0.7);margin-bottom:0.3rem">${t('lbl_den')}</div>
+      <div style="height:5px;background:rgba(255,255,255,0.07);border-radius:3px;overflow:hidden;margin-bottom:0.3rem">
+        <div style="height:100%;width:${Math.min(100,dP*20)}%;background:#7A8BAA"></div>
+      </div>
+      <div style="font-size:0.65rem;color:#7A8BAA;margin-bottom:0.5rem">${dP}%</div>`:''}
+      <div style="font-size:0.7rem;color:rgba(242,232,208,0.4);line-height:1.6;margin-top:0.5rem">${h.desc.slice(0,180)}${h.desc.length>180?'...':''}</div>
+    </div>`;
+  }).join('');
+}
+
+function closeCompare(){
+  document.getElementById('compare-panel').style.display='none';
+}
+
+// ══════════════════════════════════════════════════════
+// RANDOM SPECIES
+// ══════════════════════════════════════════════════════
+document.getElementById('btn-random').addEventListener('click',()=>{
+  const allNodes=Object.values(nodeMap);
+  const leaves=allNodes.filter(n=>!n.children||!n.children.length);
+  if(leaves.length){
+    const pick=leaves[Math.floor(Math.random()*leaves.length)];
+    navigateTo(pick.id);
+    setTimeout(()=>showMainPanel(pick),300);
+  }
+});
+
+// ══════════════════════════════════════════════════════
+// KEYBOARD
+// ══════════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+
+  if(e.key==='Escape'){panel.classList.remove('open');document.getElementById('hominin-view').classList.remove('open');}
+  if(e.key==='f'||e.key==='F'){searchInput.focus();}
+  if(e.key==='h'||e.key==='H'){openHomininView();}
+  if(e.key==='r'||e.key==='R'){transform={x:0,y:0,s:1};applyT();}
+});
+
+// ══════════════════════════════════════════════════════
+// PARTICLES
+// ══════════════════════════════════════════════════════
+function spawnParticles(){
+  const container=document.getElementById('particles');
+  for(let i=0;i<22;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    const sz=1.5+Math.random()*3.5;
+    const colors=['rgba(45,212,191,0.4)','rgba(122,184,96,0.4)','rgba(200,136,58,0.3)'];
+    p.style.cssText=`width:${sz}px;height:${sz}px;left:${Math.random()*100}%;bottom:${Math.random()*25}%;background:${colors[Math.floor(Math.random()*3)]};animation:drift ${9+Math.random()*14}s linear ${Math.random()*12}s infinite;`;
+    container.appendChild(p);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// INTRO ANIMATION
+// ══════════════════════════════════════════════════════
+function showIntro(){
+  const overlay=document.createElement('div');
+  overlay.style.cssText='position:fixed;inset:0;z-index:999;background:#070503;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;';
+  overlay.innerHTML=`
+    <div style="font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);color:#f2e8d0;text-align:center;letter-spacing:0.05em;opacity:0;transition:opacity 1.5s" id="intro-text1">Tree of Life</div>
+    <div style="font-size:clamp(0.75rem,1.5vw,0.9rem);color:rgba(200,136,58,0.8);text-align:center;letter-spacing:0.25em;text-transform:uppercase;margin-top:0.8rem;opacity:0;transition:opacity 1.5s 0.5s" id="intro-text2">3.8 Billion Years of Natural Selection</div>
+    <div style="font-size:0.7rem;color:rgba(122,184,96,0.6);text-align:center;margin-top:1.5rem;opacity:0;transition:opacity 1.5s 1.2s;font-style:italic" id="intro-text3">Every living thing you have ever known is a cousin</div>`;
+  document.body.appendChild(overlay);
+  requestAnimationFrame(()=>{
+    document.getElementById('intro-text1').style.opacity='1';
+    document.getElementById('intro-text2').style.opacity='1';
+    document.getElementById('intro-text3').style.opacity='1';
+  });
+  setTimeout(()=>{
+    overlay.style.transition='opacity 1.2s';overlay.style.opacity='0';
+    setTimeout(()=>overlay.remove(),1200);
+  },3200);
+}
+
+// ══════════════════════════════════════════════════════
+// i18n — EN / HE / RU
+// ══════════════════════════════════════════════════════
+const TRANSLATIONS = {
+  en:{
+    title:'Tree of Life',
+    subtitle:'3.8 Billion Years of Natural Selection',
+    hint1:'Scroll · Zoom\u00a0|\u00a0Drag · Pan',
+    hint2:'Click · Explore\u00a0|\u00a0Right-click · Collapse',
+    search_ph:'Search species\u2026',
+    leg_title:'Domains',
+    leg_luca:'LUCA / Root',
+    leg_bact:'Bacteria',
+    leg_arch:'Archaea',
+    leg_plant:'Plants',
+    leg_anim:'Animals',
+    leg_fungi:'Fungi',
+    leg_prot:'Protists',
+    p_traits:'Key Traits',
+    p_evo:'Evolutionary Detail',
+    p_sub:'Sub-groups',
+    hom_title:'Hominin Evolution',
+    hom_sub:'7 Million Years of the Human Journey',
+    hom_back:'\u2190 Back to Tree',
+    hom_all:'All Species',
+    hom_proto:'Proto-Hominins',
+    hom_australo:'Australopithecus',
+    hom_paranth:'Paranthropus',
+    hom_homo:'Genus Homo',
+    hom_surv:'Surviving',
+    compare_btn:'\u2696 Compare Mode',
+    compare_hint:'Select 2\u20134 species',
+    compare_title:'Species Comparison',
+    compare_back:'\u2190 Back',
+    hom_empty:'\u2190 Select a species\nto explore',
+    hom_btn:'\ud83e\uddec Explore Hominin Lineage \u2192',
+    sec_dna:'DNA Introgression',
+    sec_evo:'Evolutionary Detail',
+    sec_traits:'Key Traits',
+    sec_fossil:'FOSSIL SITES',
+    lbl_timeline:'Timeline',
+    lbl_brain:'Brain Volume',
+    lbl_tools:'Tools',
+    lbl_fire:'Fire',
+    lbl_language:'Language',
+    lbl_nean:'Neanderthal DNA',
+    lbl_den:'Denisovan DNA',
+    cap_tools:'\ud83e\udea8 Tools',
+    cap_fire:'\ud83d\udd25 Fire',
+    cap_lang:'\ud83d\udcac Language',
+  },
+  he:{
+    title:'\u05e2\u05e5 \u05d4\u05d7\u05d9\u05d9\u05dd',
+    subtitle:'3.8 \u05de\u05d9\u05dc\u05d9\u05d0\u05e8\u05d3 \u05e9\u05e0\u05d5\u05ea \u05d1\u05e8\u05d9\u05e8\u05d4 \u05d8\u05d1\u05e2\u05d9\u05ea',
+    hint1:'\u05d2\u05dc\u05dc\u05d5\u05dc \u00b7 \u05d6\u05d5\u05dd\u00a0|\u00a0\u05d2\u05e8\u05d9\u05e8\u05d4 \u00b7 \u05e0\u05d9\u05d5\u05d5\u05d8',
+    hint2:'\u05dc\u05d7\u05d9\u05e6\u05d4 \u00b7 \u05d7\u05e7\u05d5\u05e8\u00a0|\u00a0\u05dc\u05d7\u05d9\u05e6\u05d4 \u05d9\u05de\u05e0\u05d9\u05ea \u00b7 \u05e7\u05e4\u05d9\u05dc\u05d4',
+    search_ph:'\u05d7\u05d9\u05e4\u05d5\u05e9 \u05de\u05d9\u05df...',
+    leg_title:'\u05ea\u05d7\u05d5\u05de\u05d9\u05dd',
+    leg_luca:'LUCA / \u05e9\u05d5\u05e8\u05e9',
+    leg_bact:'\u05d1\u05e7\u05d8\u05e8\u05d9\u05d5\u05ea',
+    leg_arch:'\u05d0\u05e8\u05db\u05d0\u05d5\u05ea',
+    leg_plant:'\u05e6\u05de\u05d7\u05d9\u05dd',
+    leg_anim:'\u05d1\u05e2\u05dc\u05d9 \u05d7\u05d9\u05d9\u05dd',
+    leg_fungi:'\u05e4\u05d8\u05e8\u05d9\u05d5\u05ea',
+    leg_prot:'\u05e4\u05e8\u05d5\u05d8\u05d9\u05e1\u05d8\u05d5\u05ea',
+    p_traits:'\u05ea\u05db\u05d5\u05e0\u05d5\u05ea \u05e2\u05d9\u05e7\u05e8\u05d9\u05d5\u05ea',
+    p_evo:'\u05e4\u05e8\u05d8 \u05d0\u05d1\u05d5\u05dc\u05d5\u05e6\u05d9\u05d5\u05e0\u05d9',
+    p_sub:'\u05ea\u05ea-\u05e7\u05d1\u05d5\u05e6\u05d5\u05ea',
+    hom_title:'\u05d0\u05d1\u05d5\u05dc\u05d5\u05e6\u05d9\u05d9\u05ea \u05d4\u05d5\u05de\u05d9\u05e0\u05d9\u05e0\u05d9\u05dd',
+    hom_sub:'7 \u05de\u05d9\u05dc\u05d9\u05d5\u05df \u05e9\u05e0\u05d5\u05ea \u05d4\u05de\u05e1\u05e2 \u05d4\u05d0\u05e0\u05d5\u05e9\u05d9',
+    hom_back:'\u2192 \u05d7\u05d6\u05e8\u05d4 \u05dc\u05e2\u05e5',
+    hom_all:'\u05db\u05dc \u05d4\u05de\u05d9\u05e0\u05d9\u05dd',
+    hom_proto:'\u05e4\u05e8\u05d5\u05d8\u05d5-\u05d4\u05d5\u05de\u05d9\u05e0\u05d9\u05e0\u05d9\u05dd',
+    hom_australo:'\u05d0\u05d5\u05e1\u05d8\u05e8\u05dc\u05d5\u05e4\u05d9\u05ea\u05e7\u05d5\u05e1',
+    hom_paranth:'\u05e4\u05e8\u05e0\u05ea\u05e8\u05d5\u05e4\u05d5\u05e1',
+    hom_homo:'\u05e1\u05d5\u05d2 \u05d4\u05d5\u05de\u05d5',
+    hom_surv:'\u05e9\u05d5\u05e8\u05d3\u05d9\u05dd',
+    compare_btn:'\u2696 \u05de\u05e6\u05d1 \u05d4\u05e9\u05d5\u05d5\u05d0\u05d4',
+    compare_hint:'\u05d1\u05d7\u05e8 2-4 \u05de\u05d9\u05e0\u05d9\u05dd',
+    compare_title:'\u05d4\u05e9\u05d5\u05d5\u05d0\u05ea \u05de\u05d9\u05e0\u05d9\u05dd',
+    compare_back:'\u2192 \u05d7\u05d6\u05e8\u05d4',
+    hom_empty:'\u2192 \u05d1\u05d7\u05e8 \u05de\u05d9\u05df\n\u05dc\u05d7\u05e7\u05d9\u05e8\u05d4',
+    hom_btn:'\ud83e\uddec \u05d7\u05e7\u05d5\u05e8 \u05e9\u05d5\u05e9\u05dc\u05ea \u05d4\u05d5\u05de\u05d9\u05e0\u05d9\u05e0\u05d9\u05dd \u2190',
+    sec_dna:'\u05d7\u05d3\u05d9\u05e8\u05d4 \u05d2\u05e0\u05d8\u05d9\u05ea',
+    sec_evo:'\u05e4\u05e8\u05d8 \u05d0\u05d1\u05d5\u05dc\u05d5\u05e6\u05d9\u05d5\u05e0\u05d9',
+    sec_traits:'\u05ea\u05db\u05d5\u05e0\u05d5\u05ea \u05e2\u05d9\u05e7\u05e8\u05d9\u05d5\u05ea',
+    sec_fossil:'\u05d0\u05ea\u05e8\u05d9 \u05de\u05d0\u05d5\u05d1\u05e0\u05d9\u05dd',
+    lbl_timeline:'\u05e6\u05d9\u05e8 \u05d6\u05de\u05df',
+    lbl_brain:'\u05e0\u05e4\u05d7 \u05de\u05d5\u05d7',
+    lbl_tools:'\u05db\u05dc\u05d9\u05dd',
+    lbl_fire:'\u05d0\u05e9',
+    lbl_language:'\u05e9\u05e4\u05d4',
+    lbl_nean:'\u05d3\u05e0\u05d0 \u05e0\u05d0\u05e0\u05d3\u05e8\u05ea\u05dc\u05d9',
+    lbl_den:'\u05d3\u05e0\u05d0 \u05d3\u05e0\u05d9\u05e1\u05d5\u05d1\u05e0\u05d9',
+    cap_tools:'\ud83e\udea8 \u05db\u05dc\u05d9\u05dd',
+    cap_fire:'\ud83d\udd25 \u05d0\u05e9',
+    cap_lang:'\ud83d\udcac \u05e9\u05e4\u05d4',
+  },
+  ru:{
+    title:'\u0414\u0435\u0440\u0435\u0432\u043e \u0436\u0438\u0437\u043d\u0438',
+    subtitle:'3.8 \u043c\u043b\u0440\u0434 \u043b\u0435\u0442 \u0435\u0441\u0442\u0435\u0441\u0442\u0432\u0435\u043d\u043d\u043e\u0433\u043e \u043e\u0442\u0431\u043e\u0440\u0430',
+    hint1:'\u041f\u0440\u043e\u043a\u0440\u0443\u0442\u043a\u0430 \u00b7 \u0417\u0443\u043c\u00a0|\u00a0\u041f\u0435\u0440\u0435\u0442\u0430\u0441\u043a\u0438\u0432\u0430\u043d\u0438\u0435',
+    hint2:'\u041a\u043b\u0438\u043a \u00b7 \u0418\u0437\u0443\u0447\u0438\u0442\u044c\u00a0|\u00a0\u041f\u041f\u043a\u043d\u043e\u043f\u043a\u0430 \u00b7 \u0421\u0432\u0435\u0440\u043d\u0443\u0442\u044c',
+    search_ph:'\u041f\u043e\u0438\u0441\u043a \u0432\u0438\u0434\u043e\u0432\u2026',
+    leg_title:'\u0414\u043e\u043c\u0435\u043d\u044b',
+    leg_luca:'LUCA / \u041a\u043e\u0440\u0435\u043d\u044c',
+    leg_bact:'\u0411\u0430\u043a\u0442\u0435\u0440\u0438\u0438',
+    leg_arch:'\u0410\u0440\u0445\u0435\u0438',
+    leg_plant:'\u0420\u0430\u0441\u0442\u0435\u043d\u0438\u044f',
+    leg_anim:'\u0416\u0438\u0432\u043e\u0442\u043d\u044b\u0435',
+    leg_fungi:'\u0413\u0440\u0438\u0431\u044b',
+    leg_prot:'\u041f\u0440\u043e\u0442\u0438\u0441\u0442\u044b',
+    p_traits:'\u041a\u043b\u044e\u0447\u0435\u0432\u044b\u0435 \u0447\u0435\u0440\u0442\u044b',
+    p_evo:'\u042d\u0432\u043e\u043b\u044e\u0446\u0438\u043e\u043d\u043d\u044b\u0435 \u0434\u0435\u0442\u0430\u043b\u0438',
+    p_sub:'\u041f\u043e\u0434\u0433\u0440\u0443\u043f\u043f\u044b',
+    hom_title:'\u042d\u0432\u043e\u043b\u044e\u0446\u0438\u044f \u0433\u043e\u043c\u0438\u043d\u0438\u043d',
+    hom_sub:'7 \u043c\u043b\u043d \u043b\u0435\u0442 \u0447\u0435\u043b\u043e\u0432\u0435\u0447\u0435\u0441\u043a\u043e\u0433\u043e \u043f\u0443\u0442\u0438',
+    hom_back:'\u2190 \u041d\u0430\u0437\u0430\u0434 \u043a \u0434\u0435\u0440\u0435\u0432\u0443',
+    hom_all:'\u0412\u0441\u0435 \u0432\u0438\u0434\u044b',
+    hom_proto:'\u041f\u0440\u043e\u0442\u043e-\u0433\u043e\u043c\u0438\u043d\u0438\u043d\u044b',
+    hom_australo:'\u0410\u0432\u0441\u0442\u0440\u0430\u043b\u043e\u043f\u0438\u0442\u0435\u043a',
+    hom_paranth:'\u041f\u0430\u0440\u0430\u043d\u0442\u0440\u043e\u043f',
+    hom_homo:'\u0420\u043e\u0434 Homo',
+    hom_surv:'\u0412\u044b\u0436\u0438\u0432\u0448\u0438\u0435',
+    compare_btn:'\u2696 \u0420\u0435\u0436\u0438\u043c \u0441\u0440\u0430\u0432\u043d\u0435\u043d\u0438\u044f',
+    compare_hint:'\u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 2-4 \u0432\u0438\u0434\u0430',
+    compare_title:'\u0421\u0440\u0430\u0432\u043d\u0435\u043d\u0438\u0435 \u0432\u0438\u0434\u043e\u0432',
+    compare_back:'\u2190 \u041d\u0430\u0437\u0430\u0434',
+    hom_empty:'\u2190 \u0412\u044b\u0431\u0435\u0440\u0438\u0442\u0435 \u0432\u0438\u0434\n\u0434\u043b\u044f \u0438\u0437\u0443\u0447\u0435\u043d\u0438\u044f',
+    hom_btn:'\ud83e\uddec \u0418\u0437\u0443\u0447\u0438\u0442\u044c \u043b\u0438\u043d\u0438\u044e \u0433\u043e\u043c\u0438\u043d\u0438\u043d \u2192',
+    sec_dna:'\u0418\u043d\u0442\u0440\u043e\u0433\u0440\u0435\u0441\u0441\u0438\u044f \u0414\u041d\u041a',
+    sec_evo:'\u042d\u0432\u043e\u043b\u044e\u0446\u0438\u043e\u043d\u043d\u044b\u0435 \u0434\u0435\u0442\u0430\u043b\u0438',
+    sec_traits:'\u041a\u043b\u044e\u0447\u0435\u0432\u044b\u0435 \u0447\u0435\u0440\u0442\u044b',
+    sec_fossil:'\u041c\u0415\u0421\u0422\u0410 \u041d\u0410\u0425\u041e\u0414\u041e\u041a',
+    lbl_timeline:'\u0425\u0440\u043e\u043d\u043e\u043b\u043e\u0433\u0438\u044f',
+    lbl_brain:'\u041e\u0431\u044a\u0451\u043c \u043c\u043e\u0437\u0433\u0430',
+    lbl_tools:'\u041e\u0440\u0443\u0434\u0438\u044f',
+    lbl_fire:'\u041e\u0433\u043e\u043d\u044c',
+    lbl_language:'\u042f\u0437\u044b\u043a',
+    lbl_nean:'\u0414\u041d\u041a \u043d\u0435\u0430\u043d\u0434\u0435\u0440\u0442\u0430\u043b\u044c\u0446\u0435\u0432',
+    lbl_den:'\u0414\u041d\u041a \u0434\u0435\u043d\u0438\u0441\u043e\u0432\u0446\u0435\u0432',
+    cap_tools:'\ud83e\udea8 \u041e\u0440\u0443\u0434\u0438\u044f',
+    cap_fire:'\ud83d\udd25 \u041e\u0433\u043e\u043d\u044c',
+    cap_lang:'\ud83d\udcac \u042f\u0437\u044b\u043a',
+  }
+};
+
+let currentLang=localStorage.getItem('tol-lang')||'en';
+
+function t(key){return(TRANSLATIONS[currentLang]&&TRANSLATIONS[currentLang][key])||TRANSLATIONS.en[key]||key;}
+
+function setLang(lang){
+  if(!TRANSLATIONS[lang])return;
+  currentLang=lang;
+  localStorage.setItem('tol-lang',lang);
+  const isRtl=lang==='he';
+  document.documentElement.dir=isRtl?'rtl':'ltr';
+  document.documentElement.lang=lang;
+  document.querySelectorAll('.lang-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.lang===lang));
+  applyI18n();
+}
+
+function applyI18n(){
+  const el=id=>document.getElementById(id);
+  const set=(id,v)=>{const e=el(id);if(e)e.textContent=v;};
+  set('i-title',t('title'));
+  set('i-subtitle',t('subtitle'));
+  const hints=el('i-hints');if(hints)hints.innerHTML=t('hint1')+'<br>'+t('hint2');
+  const si=el('search-input');if(si)si.placeholder=t('search_ph');
+  set('i-leg-title',t('leg_title'));
+  set('i-leg-luca',t('leg_luca'));
+  set('i-leg-bact',t('leg_bact'));
+  set('i-leg-arch',t('leg_arch'));
+  set('i-leg-plant',t('leg_plant'));
+  set('i-leg-anim',t('leg_anim'));
+  set('i-leg-fungi',t('leg_fungi'));
+  set('i-leg-prot',t('leg_prot'));
+  set('i-p-traits',t('p_traits'));
+  set('i-p-evo',t('p_evo'));
+  set('i-p-sub',t('p_sub'));
+  set('hom-title',t('hom_title'));
+  set('hom-sub',t('hom_sub'));
+  set('hom-close',t('hom_back'));
+  set('i-hf-all',t('hom_all'));
+  set('i-hf-proto',t('hom_proto'));
+  set('i-hf-australo',t('hom_australo'));
+  set('i-hf-paranth',t('hom_paranth'));
+  set('i-hf-homo',t('hom_homo'));
+  set('i-hf-surv',t('hom_surv'));
+  const cb=el('compare-btn');if(cb)cb.textContent=t('compare_btn');
+  const ch=el('compare-hint');if(ch)ch.textContent=t('compare_hint');
+  set('i-compare-title',t('compare_title'));
+  set('i-compare-back',t('compare_back'));
+  const hpe=el('hom-panel-empty');
+  if(hpe){const parts=t('hom_empty').split('\n');hpe.innerHTML=parts.join('<br>');}
+  // Update page title
+  document.title=t('title')+' \u2014 '+t('subtitle').split(' ').slice(0,3).join(' ')+'...';
+}
+
+// ══════════════════════════════════════════════════════
+// THEME TOGGLE
+// ══════════════════════════════════════════════════════
+let isDark=localStorage.getItem('tol-theme')!=='light';
+
+function applyTheme(){
+  if(isDark){
+    document.documentElement.removeAttribute('data-theme');
+    document.getElementById('theme-btn').textContent='\u2600';
+  } else {
+    document.documentElement.setAttribute('data-theme','light');
+    document.getElementById('theme-btn').textContent='\ud83c\udf19';
+  }
+}
+
+function toggleTheme(){
+  isDark=!isDark;
+  localStorage.setItem('tol-theme',isDark?'dark':'light');
+  applyTheme();
+}
+
+// ══════════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════════
+function init(){
+  layout();render();applyT();
+  spawnParticles();
+  buildExtinctionMarkers();
+  // Restore saved theme & language
+  isDark=localStorage.getItem('tol-theme')!=='light';
+  applyTheme();
+  currentLang=localStorage.getItem('tol-lang')||'en';
+  document.documentElement.dir=currentLang==='he'?'rtl':'ltr';
+  document.documentElement.lang=currentLang;
+  document.querySelectorAll('.lang-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.lang===currentLang));
+  applyI18n();
+  showIntro();
+}
+window.addEventListener('resize',()=>{layout();render();});
+init();
+</script>
 </body>
 </html>

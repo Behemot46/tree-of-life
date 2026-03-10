@@ -1,0 +1,61 @@
+name: Deploy Check
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check for required files
+        run: |
+          required=("index.html" "README.md" "CHANGELOG.md" "style.css" "js/main.js" "js/api.js" "js/tree.js")
+          all_ok=true
+          for file in "${required[@]}"; do
+            if [ -f "$file" ]; then
+              echo "✅ $file"
+            else
+              echo "❌ Missing: $file"
+              all_ok=false
+            fi
+          done
+          if [ "$all_ok" = false ]; then exit 1; fi
+
+      - name: Check for broken HTML (basic)
+        run: |
+          if grep -q '</html>' index.html; then
+            echo "✅ index.html appears well-formed"
+          else
+            echo "❌ index.html missing closing </html> tag"
+            exit 1
+          fi
+
+      - name: Check JS files are non-empty
+        run: |
+          for f in js/*.js; do
+            if [ -s "$f" ]; then
+              echo "✅ $f"
+            else
+              echo "❌ $f is empty"
+              exit 1
+            fi
+          done
+
+      - name: Confirm docs structure
+        run: |
+          docs=("docs/ARCHITECTURE.md" "docs/DATA_SCHEMA.md" "docs/I18N_GUIDE.md")
+          for doc in "${docs[@]}"; do
+            if [ -f "$doc" ]; then
+              echo "✅ $doc"
+            else
+              echo "⚠️  Missing doc: $doc"
+            fi
+          done
+
+      - name: Summary
+        run: echo "✅ All checks passed — GitHub Pages will update within 2 minutes of merge to main"

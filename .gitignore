@@ -2,3 +2,7 @@
 Thumbs.db
 *.log
 node_modules/
+.env
+.env.local
+*.tmp
+.claude/worktrees/

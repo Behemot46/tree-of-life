@@ -1195,9 +1195,8 @@ function nodeInEra(n){
 const branchLayer=document.getElementById('layer-branches');
 const nodesLayer=document.getElementById('layer-nodes');
 const viewport=document.getElementById('viewport');
-let transform={x:window.innerWidth/2,y:window.innerHeight/2,s:0.85};
+let transform={x:0,y:0,s:1};
 const applyT=()=>viewport.setAttribute('transform',`translate(${transform.x},${transform.y}) scale(${transform.s})`);
-applyT();
 const animDone=new Set();
 let highlightedId=null;
 
@@ -2016,9 +2015,6 @@ function toggleTheme(){
 // ══════════════════════════════════════════════════════
 function init(){
   layout();render();applyT();
-  // Auto-open all depth-1 domain nodes
-  TREE.children.forEach(child => { child.open = true; });
-  layout();render();
   spawnParticles();
   buildExtinctionMarkers();
   // Restore saved theme & language

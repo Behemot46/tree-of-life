@@ -367,6 +367,25 @@ svg{width:100%;height:100%;}
 [dir="rtl"] #hom-filters{flex-direction:row-reverse;}
 [dir="rtl"] #hom-filters>div:last-child{margin-left:0;margin-right:auto;}
 [lang="he"],[lang="he"] *{font-family:'Noto Serif Hebrew','Playfair Display',serif;}
+[lang="he"] {
+  direction: rtl;
+  font-family: 'Heebo', sans-serif;
+}
+[lang="he"] #header,
+[lang="he"] .header {
+  flex-direction: row-reverse;
+}
+[lang="he"] #panel,
+[lang="he"] #info-panel {
+  border-left: none;
+  border-right: 1px solid #e0d4bc;
+}
+[lang="he"] .panel__fun-fact,
+[lang="he"] [style*="border-left:3px solid #2e7d32"] {
+  border-left: none !important;
+  border-right: 3px solid #2e7d32;
+  border-radius: 8px 0 0 8px;
+}
 
 /* ── SEMANTIC COLOR VARIABLES ── */
 :root{
@@ -437,6 +456,17 @@ svg{width:100%;height:100%;}
 .cc-dna-bg{height:5px;background:rgba(200,136,58,0.08);border-radius:3px;overflow:hidden;margin-bottom:0.3rem;}
 [data-theme="light"] .cc-dna-bg{background:rgba(138,90,24,0.1);}
 .cc-dna-label{font-size:0.65rem;margin-bottom:0.5rem;}
+
+/* ── ERA TINTS ── */
+.era-hadean      { background-color: rgba(120,50,30,0.08) !important; }
+.era-archean     { background-color: rgba(100,60,40,0.07) !important; }
+.era-proterozoic { background-color: rgba(50,80,110,0.07) !important; }
+.era-cambrian    { background-color: rgba(30,100,100,0.07) !important; }
+.era-carboniferous { background-color: rgba(20,80,30,0.09) !important; }
+.era-permian     { background-color: rgba(140,60,20,0.08) !important; }
+.era-triassic    { background-color: rgba(180,80,20,0.07) !important; }
+.era-cretaceous  { background-color: rgba(30,90,40,0.09) !important; }
+.era-cenozoic    { background-color: rgba(60,100,80,0.06) !important; }
 
 /* ── PANEL IMPROVEMENTS ── */
 [data-theme="light"] #panel{
@@ -595,13 +625,13 @@ svg{width:100%;height:100%;}
 <!-- LEGEND -->
 <div id="legend">
   <div class="leg-title" id="i-leg-title">Domains</div>
-  <div class="leg-row"><div class="leg-dot" style="background:#c8883a"></div><span id="i-leg-luca">LUCA / Root</span></div>
-  <div class="leg-row"><div class="leg-dot" style="background:#5a8fcc"></div><span id="i-leg-bact">Bacteria</span></div>
-  <div class="leg-row"><div class="leg-dot" style="background:#8a60cc"></div><span id="i-leg-arch">Archaea</span></div>
-  <div class="leg-row"><div class="leg-dot" style="background:#4a9c58"></div><span id="i-leg-plant">Plants</span></div>
-  <div class="leg-row"><div class="leg-dot" style="background:#cc5050"></div><span id="i-leg-anim">Animals</span></div>
-  <div class="leg-row"><div class="leg-dot" style="background:#c8a43a"></div><span id="i-leg-fungi">Fungi</span></div>
-  <div class="leg-row"><div class="leg-dot" style="background:#40b8b0"></div><span id="i-leg-prot">Protists</span></div>
+  <div class="leg-row"><div class="leg-dot" style="background:#b8745a"></div><span id="i-leg-luca">LUCA / Root</span></div>
+  <div class="leg-row"><div class="leg-dot" style="background:#b85c4a"></div><span id="i-leg-bact">Bacteria</span></div>
+  <div class="leg-row"><div class="leg-dot" style="background:#c49a4a"></div><span id="i-leg-arch">Archaea</span></div>
+  <div class="leg-row"><div class="leg-dot" style="background:#6a8a5a"></div><span id="i-leg-plant">Plants</span></div>
+  <div class="leg-row"><div class="leg-dot" style="background:#4a7a9a"></div><span id="i-leg-anim">Animals</span></div>
+  <div class="leg-row"><div class="leg-dot" style="background:#8a6a4a"></div><span id="i-leg-fungi">Fungi</span></div>
+  <div class="leg-row"><div class="leg-dot" style="background:#7a6aaa"></div><span id="i-leg-prot">Protists</span></div>
 </div>
 
 <!-- ZOOM -->
@@ -635,7 +665,7 @@ svg{width:100%;height:100%;}
 // TREE DATA
 // ══════════════════════════════════════════════════════
 const TREE = {
-  id:'luca',icon:'🌐',color:'#c8883a',r:26,appeared:3800,extinct:null,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Oceanic_spreading.jpg/400px-Oceanic_spreading.jpg',imgCredit:'Hydrothermal vent: NOAA (Public Domain)',
+  id:'luca',icon:'🌐',color:'#b8745a',r:26,appeared:3800,extinct:null,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Oceanic_spreading.jpg/400px-Oceanic_spreading.jpg',imgCredit:'Hydrothermal vent: NOAA (Public Domain)',
   name:'LUCA',latin:'Last Universal Common Ancestor',era:'~3.8 Billion Years Ago',
   desc:'The Last Universal Common Ancestor — a single-celled microorganism from which every living thing on Earth descends. LUCA likely inhabited hydrothermal vents on the ancient ocean floor, harvesting chemical energy from mineral-rich superheated water. It possessed DNA-based heredity, RNA-based ribosomes, and a lipid membrane — the three foundational features of all life.',
   detail:'Phylogenomic reconstructions suggest LUCA had ~355 protein families, including ion pumps, metabolic enzymes, and a primitive ribosome. It was neither fully Bacteria nor Archaea — the last shared ancestor before these lineages diverged. Some estimates place LUCA at 3.48–4.1 billion years ago, within 500 million years of Earth\'s formation.',
@@ -644,7 +674,7 @@ const TREE = {
   tipFact:'All life on Earth is descended from this single ancestor.',
   children:[
     // ── BACTERIA ──
-    {id:'bacteria',icon:'🦠',color:'#5a8fcc',r:18,appeared:3500,extinct:null,
+    {id:'bacteria',icon:'🦠',color:'#b85c4a',r:18,appeared:3500,extinct:null,
       name:'Bacteria',latin:'Domain Bacteria',era:'~3.5 Billion Years Ago',
       desc:'The oldest and most metabolically diverse domain of life. Bacteria pioneered photosynthesis, nitrogen fixation, and aerobic respiration — three processes that transformed Earth and made complex life possible. They occupy every conceivable habitat: from boiling springs to glacial ice, from ocean abysses to the human gut.',
       detail:'Bacteria lack a membrane-bound nucleus; their circular chromosome floats in the cytoplasm. They reproduce via binary fission, with some doubling in as little as 20 minutes. Horizontal gene transfer (conjugation, transduction, transformation) allows rapid genetic innovation across species.',
@@ -711,7 +741,7 @@ const TREE = {
           tipFact:'Lyme disease is the most common tick-borne illness in the Northern Hemisphere.',children:[]}
       ]},
     // ── ARCHAEA ──
-    {id:'archaea',icon:'🌋',color:'#8a60cc',r:17,appeared:3500,extinct:null,
+    {id:'archaea',icon:'🌋',color:'#c49a4a',r:17,appeared:3500,extinct:null,
       name:'Archaea',latin:'Domain Archaea',era:'~3.5 Billion Years Ago',
       desc:'Long confused with bacteria, Archaea are a distinct domain of life — and molecular evidence places them as the closest living relatives of Eukaryotes. They thrive in Earth\'s most extreme environments: boiling sulfur springs, saturated salt lakes, methane-rich swamps, and deep ocean hydrothermal vents.',
       detail:'Archaeal cell membranes use ether-linked isoprenoid lipids rather than ester-linked fatty acids, conferring extraordinary heat stability. The discovery of the Asgard superphylum in 2015 revolutionized understanding of eukaryote origins.',
@@ -752,7 +782,7 @@ const TREE = {
       tipFact:'Your cells are each 1,000× more complex than a bacterial cell.',
       children:[
         // ── FUNGI ──
-        {id:'fungi',icon:'🍄',color:'#c8a43a',r:14,appeared:1000,extinct:null,
+        {id:'fungi',icon:'🍄',color:'#8a6a4a',r:14,appeared:1000,extinct:null,
           name:'Fungi',latin:'Kingdom Fungi',era:'~1 Billion Years Ago',
           desc:'Earth\'s hidden web-weavers and essential decomposers. Fungi are more closely related to animals than to plants. Their mycelial networks — the "Wood Wide Web" — connect forest trees, allowing them to share nutrients and chemical distress signals.',
           detail:'Fungi digest food externally by secreting enzymes and absorbing the breakdown products through their hyphae. Lichens — partnerships of fungi with algae or cyanobacteria — are fungi that learned to "farm" photosynthesis.',
@@ -780,7 +810,7 @@ const TREE = {
               tags:['Flagellated spores','Most ancient fungi','Amphibian pathogen','Aquatic decomposer'],tipFact:'Chytrid fungi killed more animal species faster than any disease in history.',children:[]}
           ]},
         // ── PLANTS ──
-        {id:'plantae',icon:'🌿',color:'#4a9c58',r:17,appeared:470,extinct:null,
+        {id:'plantae',icon:'🌿',color:'#6a8a5a',r:17,appeared:470,extinct:null,
           name:'Plants',latin:'Kingdom Plantae',era:'~470 Mya (land)',
           desc:'The green architects of terrestrial life. Plants colonized land ~470 million years ago, transforming bare rock into rich ecosystems via soil creation, oxygen production, and climate regulation.',
           detail:'Land plants evolved from freshwater green algae (Charophytes). Key innovations for land colonization: waxy cuticle, stomata, vascular tissue, and seeds.',
@@ -815,7 +845,7 @@ const TREE = {
               tags:['Spore reproduction','No seeds','Vascular','Carboniferous coal ancestor','Fronds'],tipFact:'The ferns you see today are remarkably similar to those that dinosaurs walked among.',children:[]}
           ]},
         // ── ANIMALIA ──
-        {id:'animalia',icon:'🐾',color:'#cc5050',r:19,appeared:800,extinct:null,
+        {id:'animalia',icon:'🐾',color:'#4a7a9a',r:19,appeared:800,extinct:null,
           name:'Animals',latin:'Kingdom Animalia',era:'~800 Mya',
           desc:'Multicellular heterotrophs — organisms that must consume other life to survive. Animals arose ~800 Mya from choanoflagellate ancestors and diversified explosively during the Cambrian Explosion (541 Mya), generating most modern body plans within 20 million years.',
           detail:'The Cambrian Explosion is one of evolution\'s great mysteries. The Burgess Shale of Canada preserves 508-million-year-old soft-bodied Cambrian animals in exquisite detail.',
@@ -931,7 +961,7 @@ const TREE = {
               ]}
           ]},
           // ── PROTISTS ──
-          {id:'protists',icon:'🔵',color:'#40b8b0',r:14,appeared:1500,extinct:null,
+          {id:'protists',icon:'🔵',color:'#7a6aaa',r:14,appeared:1500,extinct:null,
             name:'Protists',latin:'Paraphyletic group',era:'~1.5 Billion Years Ago',
             desc:'A vast, paraphyletic collection of eukaryotes that are neither animal, plant, nor fungus — and the ancestors of all three. Protists were the first eukaryotes to evolve true nuclei and organelles. They include the malaria parasite, the organisms responsible for 25% of global photosynthesis, and the enigmatic life that first evolved predation.',
             detail:'Protists are incredibly diverse: some photosynthesize, some hunt prey, some are parasites, some do all three. Diatoms form glass-walled cells of exquisite geometric beauty and underpin oceanic food webs. Foraminifera built the White Cliffs of Dover with their calcium carbonate shells over millions of years.',
@@ -1346,11 +1376,33 @@ function buildExtinctionMarkers(){
   });
 }
 
+const ERA_TINTS=[
+  {min:3800,max:4600,cls:'era-hadean'},
+  {min:2500,max:3800,cls:'era-archean'},
+  {min:541,max:2500,cls:'era-proterozoic'},
+  {min:485,max:541,cls:'era-cambrian'},
+  {min:299,max:359,cls:'era-carboniferous'},
+  {min:252,max:299,cls:'era-permian'},
+  {min:200,max:252,cls:'era-triassic'},
+  {min:66,max:145,cls:'era-cretaceous'},
+  {min:0,max:66,cls:'era-cenozoic'}
+];
+const ALL_ERA_CLASSES=ERA_TINTS.map(e=>e.cls);
+
+function updateEraTint(mya){
+  const bg=document.getElementById('bg');
+  bg.classList.remove(...ALL_ERA_CLASSES);
+  for(const e of ERA_TINTS){
+    if(mya>=e.min&&mya<=e.max){bg.classList.add(e.cls);break;}
+  }
+}
+
 eraSlider.addEventListener('input',()=>{
   currentEra=parseInt(eraSlider.value);
   const pct=(currentEra/3800)*100;
   eraFill.style.width=pct+'%';
   eraLabel.textContent=getEraName(currentEra);
+  updateEraTint(currentEra);
   render();
 });
 

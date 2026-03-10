@@ -128,7 +128,7 @@ svg{width:100%;height:100%;}
 .node-circle{transition:filter 0.3s;}
 .node-group:hover .nc-main{filter:brightness(1.4) drop-shadow(0 0 14px var(--nc));}
 .branch-path{fill:none;stroke-linecap:round;stroke-linejoin:round;}
-.node-label-text{pointer-events:none;font-family:'Lora',serif;}
+.node-label-text{pointer-events:none;font-family:var(--font-body, 'Source Sans 3', sans-serif);font-size:14px;}
 .node-pulse{pointer-events:none;}
 
 /* ── HOMININ VIEW ── */
@@ -1035,7 +1035,7 @@ window.getNodeById = id=>nodeMap[id];
 // ══════════════════════════════════════════════════════
 // LAYOUT
 // ══════════════════════════════════════════════════════
-const DEPTH_R=[0,115,210,295,370,435,492,544,588];
+const DEPTH_R=[0,161,294,413,518,609,689,762,823];
 function getVisible(n){let a=[n];if(n.children&&!n._collapsed)n.children.forEach(c=>a=a.concat(getVisible(c)));return a;}
 function getVisibleEdges(n){let a=[];if(n.children&&!n._collapsed){n.children.forEach(c=>{a.push({from:n,to:c});a=a.concat(getVisibleEdges(c));});}return a;}
 function assignAngles(n,a0,a1){n._a0=a0;n._a1=a1;n._angle=(a0+a1)/2;if(!n.children||!n.children.length||n._collapsed)return;const visible=n.children;const range=a1-a0;let a=a0;visible.forEach(c=>{const share=range/visible.length;assignAngles(c,a,a+share);a+=share;});}
@@ -1060,7 +1060,7 @@ function nodeInEra(n){
 const branchLayer=document.getElementById('layer-branches');
 const nodesLayer=document.getElementById('layer-nodes');
 const viewport=document.getElementById('viewport');
-let transform={x:0,y:0,s:1};
+let transform={x:0,y:0,s:1.4};
 const applyT=()=>viewport.setAttribute('transform',`translate(${transform.x},${transform.y}) scale(${transform.s})`);
 const animDone=new Set();
 let highlightedId=null;

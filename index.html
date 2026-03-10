@@ -560,7 +560,6 @@ input:focus, select:focus {
 #canvas-wrap, .canvas-area, svg#tree {
   background: transparent;
   position: relative;
-  border: 2px solid red; /* DEBUG — remove after confirming tree visible */
 }
 #canvas-wrap::before, .canvas-area::before {
   content: '';
@@ -576,6 +575,12 @@ input:focus, select:focus {
 </style>
 </head>
 <body>
+<div id="splash" style="position:fixed;inset:0;background:#0d110e;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px;transition:opacity 0.8s ease;">
+  <div style="font-family:'Source Sans 3',sans-serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:rgba(200,220,180,0.5);">3,800,000,000 years of evolution</div>
+  <h1 style="font-family:'Playfair Display',serif;font-size:clamp(48px,8vw,96px);font-weight:700;color:#e8ead4;letter-spacing:-2px;line-height:1;margin:0;">Tree of Life</h1>
+  <div style="width:60px;height:1px;background:rgba(200,220,180,0.3);"></div>
+  <div id="splash-tagline" style="font-family:'Playfair Display',serif;font-style:italic;font-size:16px;color:rgba(200,220,180,0.6);"></div>
+</div>
 <div id="bg"></div>
 <div id="particles"></div>
 
@@ -754,7 +759,7 @@ input:focus, select:focus {
 // TREE DATA
 // ══════════════════════════════════════════════════════
 const TREE = {
-  id:'luca',icon:'🌐',color:'#c8883a',r:26,appeared:3800,extinct:null,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Oceanic_spreading.jpg/400px-Oceanic_spreading.jpg',imgCredit:'Hydrothermal vent: NOAA (Public Domain)',
+  id:'luca',icon:'🌐',color:'#c8883a',r:26,appeared:3800,extinct:null,open:true,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Oceanic_spreading.jpg/400px-Oceanic_spreading.jpg',imgCredit:'Hydrothermal vent: NOAA (Public Domain)',
   name:'LUCA',latin:'Last Universal Common Ancestor',era:'~3.8 Billion Years Ago',
   desc:'The Last Universal Common Ancestor — a single-celled microorganism from which every living thing on Earth descends. LUCA likely inhabited hydrothermal vents on the ancient ocean floor, harvesting chemical energy from mineral-rich superheated water. It possessed DNA-based heredity, RNA-based ribosomes, and a lipid membrane — the three foundational features of all life.',
   detail:'Phylogenomic reconstructions suggest LUCA had ~355 protein families, including ion pumps, metabolic enzymes, and a primitive ribosome. It was neither fully Bacteria nor Archaea — the last shared ancestor before these lineages diverged. Some estimates place LUCA at 3.48–4.1 billion years ago, within 500 million years of Earth\'s formation.',
@@ -1190,8 +1195,9 @@ function nodeInEra(n){
 const branchLayer=document.getElementById('layer-branches');
 const nodesLayer=document.getElementById('layer-nodes');
 const viewport=document.getElementById('viewport');
-let transform={x:0,y:0,s:1};
+let transform={x:window.innerWidth/2,y:window.innerHeight/2,s:0.85};
 const applyT=()=>viewport.setAttribute('transform',`translate(${transform.x},${transform.y}) scale(${transform.s})`);
+applyT();
 const animDone=new Set();
 let highlightedId=null;
 
@@ -1272,7 +1278,7 @@ function render(){
     c.setAttribute('cx',n._x);c.setAttribute('cy',n._y);c.setAttribute('r',n.r);
     c.setAttribute('class','node-circle nc-main');
     c.setAttribute('fill',n.depth===0?'url(#rootGrad)':n.color);
-    c.setAttribute('fill-opacity',inEra?(n.depth===0?'1':n.depth<=1?'0.9':'0.8'):'0.15');
+    c.setAttribute('fill-opacity',inEra?(n.depth===0?'1':n.depth<=1?'0.9':'0.8'):'0.35');
     c.style.stroke='var(--color-canvas)';c.setAttribute('stroke-width','1.5');
     c.style.setProperty('--nc',n.color);
     if(n.depth===0) c.setAttribute('filter','url(#strongGlow)');
@@ -2010,6 +2016,9 @@ function toggleTheme(){
 // ══════════════════════════════════════════════════════
 function init(){
   layout();render();applyT();
+  // Auto-open all depth-1 domain nodes
+  TREE.children.forEach(child => { child.open = true; });
+  layout();render();
   spawnParticles();
   buildExtinctionMarkers();
   // Restore saved theme & language
@@ -2023,6 +2032,27 @@ function init(){
     btn.setAttribute('aria-pressed',btn.dataset.lang===currentLang?'true':'false');
   });
   applyI18n();
+  // Splash screen
+  const taglines = [
+    "Every living thing is your cousin.",
+    "You share 50% of your DNA with a banana.",
+    "Life found a way — 3.8 billion years ago.",
+    "From a single cell to 8 billion humans.",
+    "The tree is real. You are a leaf."
+  ];
+  const splash = document.getElementById('splash');
+  const taglineEl = document.getElementById('splash-tagline');
+  if (splash) {
+    taglineEl.textContent = taglines[Math.floor(Math.random() * taglines.length)];
+    setTimeout(() => {
+      splash.style.opacity = '0';
+      setTimeout(() => { splash.style.display = 'none'; }, 800);
+    }, 2800);
+    splash.addEventListener('click', () => {
+      splash.style.opacity = '0';
+      setTimeout(() => { splash.style.display = 'none'; }, 800);
+    });
+  }
   // Restore URL state (?node=id)
   const urlNode=new URLSearchParams(location.search).get('node');
   if(urlNode){

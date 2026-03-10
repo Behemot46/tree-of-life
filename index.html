@@ -367,6 +367,9 @@ svg{width:100%;height:100%;}
 [dir="rtl"] #hom-filters{flex-direction:row-reverse;}
 [dir="rtl"] #hom-filters>div:last-child{margin-left:0;margin-right:auto;}
 [lang="he"],[lang="he"] *{font-family:'Noto Serif Hebrew','Playfair Display',serif;}
+[lang="he"] #breadcrumb {
+  flex-direction: row-reverse;
+}
 [lang="he"] {
   direction: rtl;
   font-family: 'Heebo', sans-serif;
@@ -511,10 +514,13 @@ svg{width:100%;height:100%;}
 </div>
 
 <!-- SEARCH -->
-<div id="search-wrap" style="position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:300;pointer-events:all;">
+<div id="search-wrap" style="position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:300;pointer-events:all;display:flex;align-items:center;gap:8px;">
   <span id="search-icon" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:rgba(200,136,58,0.5);font-size:0.8rem;pointer-events:none;" aria-hidden="true">🔍</span>
   <input id="search-input" type="text" placeholder="Search species…" autocomplete="off" aria-label="Search species and clades" role="combobox" aria-expanded="false" aria-controls="search-results">
   <div id="search-results" role="listbox"></div>
+  <button id="extinct-toggle" onclick="toggleExtinct()" style="font-family:'Source Sans 3',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid #c8b99a;background:#f0ebe0;cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:#1c1a14;white-space:nowrap;flex-shrink:0;">
+    <span>†</span><span id="extinct-label">Hide Extinct</span>
+  </button>
 </div>
 
 <!-- BREADCRUMB -->
@@ -1089,12 +1095,23 @@ function layout(){const cx=window.innerWidth/2,cy=window.innerHeight/2+35;assign
 // ══════════════════════════════════════════════════════
 let currentEra = 3800;
 let activeDomains = new Set(['luca','bacteria','archaea','eukaryota','protists','fungi','plantae','animalia']);
+let showExtinct = true;
 function nodeInEra(n){
   if(!n.appeared) return true;
   const mya = n.appeared;
   const extinctMya = n.extinct || 0;
   const showFrom = currentEra;
   return mya >= extinctMya && mya <= showFrom + 200;
+}
+
+// ══════════════════════════════════════════════════════
+// EXTINCT TOGGLE
+// ══════════════════════════════════════════════════════
+function toggleExtinct() {
+  showExtinct = !showExtinct;
+  document.getElementById('extinct-label').textContent = showExtinct ? 'Hide Extinct' : 'Show Extinct';
+  document.getElementById('extinct-toggle').style.opacity = showExtinct ? '1' : '0.6';
+  render();
 }
 
 // ══════════════════════════════════════════════════════
@@ -1144,6 +1161,7 @@ function render(){
   // Branches
   edges.forEach(({from,to})=>{
     if(to._domain && to._domain!=='luca' && !activeDomains.has(to._domain)) return;
+    if(!showExtinct && to.extinct) return;
     const inEra=nodeInEra(to);
     const p=document.createElementNS('http://www.w3.org/2000/svg','path');
     p.setAttribute('d',branchPath(from._x,from._y,to._x,to._y));
@@ -1164,6 +1182,7 @@ function render(){
   // Nodes
   nodes.forEach(n=>{
     if(n._domain && n._domain!=='luca' && !activeDomains.has(n._domain)) return;
+    if(!showExtinct && n.extinct) return;
     const inEra=nodeInEra(n);
     const isHighlighted=highlightedId===n.id;
     const g=document.createElementNS('http://www.w3.org/2000/svg','g');
@@ -1345,13 +1364,28 @@ function showMainPanel(n){
   updateBreadcrumb(n);
 }
 
-document.getElementById('panel-close').addEventListener('click',()=>{panel.classList.remove('open');history.replaceState(null,'',location.pathname);});
-document.getElementById('svg').addEventListener('click',()=>{panel.classList.remove('open');history.replaceState(null,'',location.pathname);});
+document.getElementById('panel-close').addEventListener('click',()=>{panel.classList.remove('open');updateBreadcrumb(null);history.replaceState(null,'',location.pathname);});
+document.getElementById('svg').addEventListener('click',()=>{panel.classList.remove('open');updateBreadcrumb(null);history.replaceState(null,'',location.pathname);});
 
 // ══════════════════════════════════════════════════════
 // BREADCRUMB
 // ══════════════════════════════════════════════════════
 function getAncestors(n){const path=[];let c=n;while(c){path.unshift(c);c=c._parent;}return path;}
+
+function focusNode(id) {
+  function find(node) {
+    if (node.id === id) return node;
+    if (node.children) {
+      for (const c of node.children) {
+        const found = find(c);
+        if (found) return found;
+      }
+    }
+    return null;
+  }
+  const node = find(TREE);
+  if (node) showMainPanel(node);
+}
 function updateBreadcrumb(n){
   const bc=document.getElementById('breadcrumb');
   const path=getAncestors(n);
@@ -1704,6 +1738,7 @@ document.getElementById('btn-random').addEventListener('click',()=>{
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
     panel.classList.remove('open');
+    updateBreadcrumb(null);
     document.getElementById('hominin-view').classList.remove('open');
     searchResults.classList.remove('show');
     searchInput.setAttribute('aria-expanded','false');

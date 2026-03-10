@@ -558,8 +558,9 @@ input:focus, select:focus {
 
 /* ── PAPER TEXTURE ON CANVAS (Prompt 2A) ── */
 #canvas-wrap, .canvas-area, svg#tree {
-  background: var(--color-canvas);
+  background: transparent;
   position: relative;
+  border: 2px solid red; /* DEBUG — remove after confirming tree visible */
 }
 #canvas-wrap::before, .canvas-area::before {
   content: '';
@@ -1272,7 +1273,7 @@ function render(){
     c.setAttribute('class','node-circle nc-main');
     c.setAttribute('fill',n.depth===0?'url(#rootGrad)':n.color);
     c.setAttribute('fill-opacity',inEra?(n.depth===0?'1':n.depth<=1?'0.9':'0.8'):'0.15');
-    c.style.stroke='var(--bg)';c.setAttribute('stroke-width','1.5');
+    c.style.stroke='var(--color-canvas)';c.setAttribute('stroke-width','1.5');
     c.style.setProperty('--nc',n.color);
     if(n.depth===0) c.setAttribute('filter','url(#strongGlow)');
     g.appendChild(c);
@@ -1313,7 +1314,7 @@ function render(){
       const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
       dot.setAttribute('cx',n._x+n.r-3);dot.setAttribute('cy',n._y-n.r+3);dot.setAttribute('r','3.5');
       dot.setAttribute('fill',n._collapsed?'#e8b86d':'#4a9c58');
-      dot.style.stroke='var(--bg)';dot.setAttribute('stroke-width','1');
+      dot.style.stroke='var(--color-canvas)';dot.setAttribute('stroke-width','1');
       g.appendChild(dot);
     }
 

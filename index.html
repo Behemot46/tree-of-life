@@ -440,6 +440,12 @@ svg{width:100%;height:100%;}
 </style>
 </head>
 <body>
+<div id="splash" style="position:fixed;inset:0;background:#0d110e;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px;transition:opacity 0.8s ease;">
+  <div style="font-family:'Source Sans 3',sans-serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:rgba(200,220,180,0.5);">3,800,000,000 years of evolution</div>
+  <h1 style="font-family:'Playfair Display',serif;font-size:clamp(48px,8vw,96px);font-weight:700;color:#e8ead4;letter-spacing:-2px;line-height:1;margin:0;">Tree of Life</h1>
+  <div style="width:60px;height:1px;background:rgba(200,220,180,0.3);"></div>
+  <div id="splash-tagline" style="font-family:'Playfair Display',serif;font-style:italic;font-size:16px;color:rgba(200,220,180,0.6);"></div>
+</div>
 <div id="bg"></div>
 <div id="particles"></div>
 
@@ -1072,8 +1078,8 @@ function render(){
     const p=document.createElementNS('http://www.w3.org/2000/svg','path');
     p.setAttribute('d',branchPath(from._x,from._y,to._x,to._y));
     p.setAttribute('class','branch-path');
-    const sw=Math.max(1,5-to.depth*0.65);
-    const op=inEra?Math.max(0.22,0.88-to.depth*0.07):0.06;
+    const sw=Math.max(2,6-to.depth*0.5);
+    const op=inEra?Math.max(0.4,0.95-to.depth*0.07):0.15;
     p.setAttribute('stroke',to.color);
     p.setAttribute('stroke-width',sw);
     p.setAttribute('stroke-opacity',op);
@@ -1133,7 +1139,7 @@ function render(){
 
     // Main circle
     const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
-    c.setAttribute('cx',n._x);c.setAttribute('cy',n._y);c.setAttribute('r',n.r);
+    c.setAttribute('cx',n._x);c.setAttribute('cy',n._y);c.setAttribute('r',Math.max(n.r,8));
     c.setAttribute('class','node-circle nc-main');
     c.setAttribute('fill',n.depth===0?'url(#rootGrad)':n.color);
     c.setAttribute('fill-opacity',inEra?(n.depth===0?'1':n.depth<=1?'0.9':'0.8'):'0.15');
@@ -1875,6 +1881,24 @@ function toggleTheme(){
 // INIT
 // ══════════════════════════════════════════════════════
 function init(){
+  const _taglines = [
+    "Every living thing is your cousin.",
+    "You share 50% of your DNA with a banana.",
+    "Life found a way — 3.8 billion years ago.",
+    "From a single cell to 8 billion humans.",
+    "The tree is real. You are a leaf."
+  ];
+  const _splash = document.getElementById('splash');
+  const _taglineEl = document.getElementById('splash-tagline');
+  if (_splash && _taglineEl) {
+    _taglineEl.textContent = _taglines[Math.floor(Math.random() * _taglines.length)];
+    const _dismissSplash = () => {
+      _splash.style.opacity = '0';
+      setTimeout(() => { _splash.style.display = 'none'; }, 800);
+    };
+    setTimeout(_dismissSplash, 2800);
+    _splash.addEventListener('click', _dismissSplash);
+  }
   layout();render();applyT();
   spawnParticles();
   buildExtinctionMarkers();

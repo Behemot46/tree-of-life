@@ -625,13 +625,14 @@ svg{width:100%;height:100%;}
 <!-- LEGEND -->
 <div id="legend">
   <div class="leg-title" id="i-leg-title">Domains</div>
-  <div class="leg-row"><div class="leg-dot" style="background:#b8745a"></div><span id="i-leg-luca">LUCA / Root</span></div>
-  <div class="leg-row"><div class="leg-dot" style="background:#b85c4a"></div><span id="i-leg-bact">Bacteria</span></div>
-  <div class="leg-row"><div class="leg-dot" style="background:#c49a4a"></div><span id="i-leg-arch">Archaea</span></div>
-  <div class="leg-row"><div class="leg-dot" style="background:#6a8a5a"></div><span id="i-leg-plant">Plants</span></div>
-  <div class="leg-row"><div class="leg-dot" style="background:#4a7a9a"></div><span id="i-leg-anim">Animals</span></div>
-  <div class="leg-row"><div class="leg-dot" style="background:#8a6a4a"></div><span id="i-leg-fungi">Fungi</span></div>
-  <div class="leg-row"><div class="leg-dot" style="background:#7a6aaa"></div><span id="i-leg-prot">Protists</span></div>
+  <div class="leg-row" data-domain="luca" onclick="toggleDomain('luca')" style="cursor:pointer;"><div class="leg-dot" style="background:#b8745a"></div><span id="i-leg-luca">LUCA / Root</span></div>
+  <div class="leg-row" data-domain="bacteria" onclick="toggleDomain('bacteria')" style="cursor:pointer;"><div class="leg-dot" style="background:#b85c4a"></div><span id="i-leg-bact">Bacteria</span></div>
+  <div class="leg-row" data-domain="archaea" onclick="toggleDomain('archaea')" style="cursor:pointer;"><div class="leg-dot" style="background:#c49a4a"></div><span id="i-leg-arch">Archaea</span></div>
+  <div class="leg-row" data-domain="plantae" onclick="toggleDomain('plantae')" style="cursor:pointer;"><div class="leg-dot" style="background:#6a8a5a"></div><span id="i-leg-plant">Plants</span></div>
+  <div class="leg-row" data-domain="animalia" onclick="toggleDomain('animalia')" style="cursor:pointer;"><div class="leg-dot" style="background:#4a7a9a"></div><span id="i-leg-anim">Animals</span></div>
+  <div class="leg-row" data-domain="fungi" onclick="toggleDomain('fungi')" style="cursor:pointer;"><div class="leg-dot" style="background:#8a6a4a"></div><span id="i-leg-fungi">Fungi</span></div>
+  <div class="leg-row" data-domain="protists" onclick="toggleDomain('protists')" style="cursor:pointer;"><div class="leg-dot" style="background:#7a6aaa"></div><span id="i-leg-prot">Protists</span></div>
+  <button onclick="resetDomains()" style="font-size:11px;padding:3px 10px;border-radius:9999px;border:1px solid #c8b99a;background:transparent;color:var(--parchment);cursor:pointer;margin-top:8px;font-family:'Source Sans 3',sans-serif;">Show All</button>
 </div>
 
 <!-- ZOOM -->
@@ -1087,12 +1088,39 @@ function layout(){const cx=window.innerWidth/2,cy=window.innerHeight/2+35;assign
 // ERA FILTER
 // ══════════════════════════════════════════════════════
 let currentEra = 3800;
+let activeDomains = new Set(['luca','bacteria','archaea','eukaryota','protists','fungi','plantae','animalia']);
 function nodeInEra(n){
   if(!n.appeared) return true;
   const mya = n.appeared;
   const extinctMya = n.extinct || 0;
   const showFrom = currentEra;
   return mya >= extinctMya && mya <= showFrom + 200;
+}
+
+// ══════════════════════════════════════════════════════
+// DOMAIN FILTER
+// ══════════════════════════════════════════════════════
+function toggleDomain(domain) {
+  if (activeDomains.has(domain)) {
+    if (activeDomains.size > 2) activeDomains.delete(domain);
+  } else {
+    activeDomains.add(domain);
+  }
+  document.querySelectorAll('[data-domain]').forEach(el => {
+    const d = el.getAttribute('data-domain');
+    el.style.opacity = activeDomains.has(d) ? '1' : '0.35';
+    el.style.fontWeight = activeDomains.has(d) ? '600' : '400';
+  });
+  render();
+}
+
+function resetDomains() {
+  activeDomains = new Set(['luca','bacteria','archaea','eukaryota','protists','fungi','plantae','animalia']);
+  document.querySelectorAll('[data-domain]').forEach(el => {
+    el.style.opacity = '1';
+    el.style.fontWeight = '400';
+  });
+  render();
 }
 
 // ══════════════════════════════════════════════════════
@@ -1115,6 +1143,7 @@ function render(){
 
   // Branches
   edges.forEach(({from,to})=>{
+    if(to._domain && to._domain!=='luca' && !activeDomains.has(to._domain)) return;
     const inEra=nodeInEra(to);
     const p=document.createElementNS('http://www.w3.org/2000/svg','path');
     p.setAttribute('d',branchPath(from._x,from._y,to._x,to._y));
@@ -1134,6 +1163,7 @@ function render(){
 
   // Nodes
   nodes.forEach(n=>{
+    if(n._domain && n._domain!=='luca' && !activeDomains.has(n._domain)) return;
     const inEra=nodeInEra(n);
     const isHighlighted=highlightedId===n.id;
     const g=document.createElementNS('http://www.w3.org/2000/svg','g');
@@ -1975,6 +2005,16 @@ function init(){
     setTimeout(_dismissSplash, 2800);
     _splash.addEventListener('click', _dismissSplash);
   }
+  function assignDomains(node, domain) {
+    node._domain = domain;
+    if (node.children) {
+      node.children.forEach(child => {
+        const childDomain = (node.id === 'luca' || node.id === 'eukaryota') ? child.id : domain;
+        assignDomains(child, childDomain);
+      });
+    }
+  }
+  assignDomains(TREE, 'luca');
   layout();render();applyT();
   spawnParticles();
   buildExtinctionMarkers();

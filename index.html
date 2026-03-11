@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" dir="ltr" data-theme="light">
 <head>
@@ -75,14 +76,16 @@ body.dragging{cursor:grabbing;}
 
 /* ── HEADER ── */
 #header{position:fixed;top:0;left:0;right:0;z-index:200;padding:1rem 1.5rem 3rem;
-  background:linear-gradient(to bottom,rgba(7,5,3,0.98) 35%,transparent);
+  background:linear-gradient(to bottom,rgba(7,5,3,0.98) 50%,transparent);
   display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;}
 .title-wrap{pointer-events:none;}
-.title-main{font-family:var(--font-head);font-size:clamp(1.5rem,2.8vw,2.2rem);font-weight:600;
-  color:var(--parchment);letter-spacing:0.03em;line-height:1;
-  text-shadow:0 0 40px rgba(200,136,58,0.3);}
-.title-sub{font-size:clamp(0.6rem,1.1vw,0.7rem);color:var(--sage);letter-spacing:0.2em;
-  text-transform:uppercase;margin-top:0.3rem;font-style:italic;}
+.title-main{font-family:var(--font-head);font-size:clamp(1.4rem,2.8vw,2.2rem);font-weight:700;
+  color:#f2e8d0;letter-spacing:0.03em;line-height:1;
+  text-shadow:0 2px 20px rgba(0,0,0,0.8),0 0 40px rgba(200,136,58,0.4);}
+.title-sub{font-size:clamp(0.6rem,1.1vw,0.72rem);color:#7ab860;letter-spacing:0.2em;
+  text-transform:uppercase;margin-top:0.35rem;font-style:italic;opacity:0.9;}
+[data-theme="light"] .title-main{color:#1e0e02 !important;text-shadow:0 1px 8px rgba(248,242,230,0.9);}
+[data-theme="light"] .title-sub{color:#2a5c18 !important;}
 .hint-bar{font-size:0.62rem;color:rgba(122,184,96,0.45);letter-spacing:0.06em;
   line-height:2;text-align:right;pointer-events:none;}
 
@@ -644,8 +647,8 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
     <div class="title-sub" id="i-subtitle">3.8 Billion Years of Natural Selection</div>
   </div>
   <div class="hint-bar" id="i-hints">
-    Scroll · Zoom &nbsp;|&nbsp; Drag · Pan<br>
-    Click · Explore &nbsp;|&nbsp; Right-click · Collapse
+    Scroll to zoom &nbsp;|&nbsp; Drag to pan<br>
+    <strong style="color:rgba(122,184,96,0.75);">Click any node to explore</strong> &nbsp;|&nbsp; Right-click to collapse
   </div>
 </div>
 
@@ -1566,23 +1569,60 @@ const TREE = {
                       tags:['Stereoscopic vision','Grasping hands','Extended childhood','Tool use','Cultural transmission'],
                       tipFact:'You share 99% of your DNA with a chimpanzee.',
                       children:[
-                        {id:'homo-sapiens',icon:'🧠',color:lightenColor('#9a7055','species'),r:14,appeared:0.3,extinct:null,
-                          img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Akha_woman.jpg/320px-Akha_woman.jpg',
-                          imgCredit:'Steve Evans, CC BY 2.0',
-                          name:'Homo sapiens',latin:'Homo sapiens',era:'Quaternary',
-                          desc:'The only surviving human species. Anatomically modern humans appeared in Africa around 300,000 years ago and spread across every continent. Our large prefrontal cortex enables abstract thought, language, art, and culture.',
-                          detail:'Homo sapiens have the largest brain relative to body size of any animal. We are the only species known to use symbolic language, create cumulative culture, and contemplate our own existence. Despite our diversity we are genetically one of the least variable large mammals — a genetic bottleneck around 70,000 years ago reduced our ancestors to perhaps 10,000 individuals.',
-                          funFact:'All 8 billion humans alive today descend from a population of perhaps 10,000 individuals who survived a near-extinction event 70,000 years ago — making us one of the least genetically diverse large mammals on Earth.',
-                          facts:[
-                            {l:'Appeared',v:'~300,000 years ago'},
-                            {l:'Brain volume',v:'1,200–1,700 cc'},
-                            {l:'Population',v:'8 billion'},
-                            {l:'Genetic bottleneck',v:'~70,000 years ago'},
-                            {l:'Continents inhabited',v:'All 7'}
-                          ],
-                          tags:['Modern human','Language','Culture','Tool use','Art'],
-                          tipFact:'You are a 300,000 year old African species looking at a screen.',
-                          children:[]}
+                        {id:'great-apes',icon:'🦍',color:'#b03535',r:11,appeared:20,extinct:null,
+                          name:'Great Apes',latin:'Family Hominidae',era:'~20 Mya',
+                          desc:'The family that includes orangutans, gorillas, chimpanzees, bonobos, and humans. All great apes are characterised by large brains, no tail, an upright posture, and complex social structures. We share a common ancestor who lived roughly 20 million years ago.',
+                          detail:'Great apes are our closest living relatives. DNA comparisons show chimpanzees and humans diverged only 6–7 million years ago — an evolutionary eyeblink. All great apes use tools, recognise themselves in mirrors, and exhibit distinct cultural traditions.',
+                          funFact:'You and a chimpanzee share 98.7% of your DNA — closer than a horse and a zebra share theirs.',
+                          facts:[{l:'Appeared',v:'~20 Mya'},{l:'Living species',v:'7 (incl. humans)'},{l:'Human-chimp split',v:'~6–7 Mya'},{l:'Status',v:'All endangered except humans'}],
+                          tags:['Hominidae','No tail','Large brain','Tool use','Self-recognition'],
+                          tipFact:'Every great ape species except Homo sapiens is endangered or critically endangered.',
+                          children:[
+                            {id:'orangutan',icon:'🦧',color:lightenColor('#b03535','species'),r:10,appeared:14,extinct:null,
+                              img:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Orang_Utan%2C_Semenggok_Forest_Reserve%2C_Sarawak%2C_Borneo%2C_Malaysia.JPG/320px-Orang_Utan%2C_Semenggok_Forest_Reserve%2C_Sarawak%2C_Borneo%2C_Malaysia.JPG',
+                              imgCredit:'Thorsten Bachner, CC BY-SA 3.0',
+                              name:'Orangutan',latin:'Pongo pygmaeus / abelii',era:'~14 Mya divergence',
+                              desc:'The most solitary of the great apes and the only primarily arboreal one. Orangutans in Borneo and Sumatra have distinct cultures — some populations use tools to extract honey while others never do. They have the longest birth interval of any mammal.',
+                              detail:'An orangutan mother nurses her offspring for up to 8 years — longer than any other mammal. They construct elaborate sleeping nests each night and have been observed using leaves as rain hats.',
+                              funFact:'Orangutan mothers nurse their young for up to 8 years — the longest of any mammal — and teach them hundreds of unique foraging techniques passed down through generations.',
+                              facts:[{l:'Diverged from humans',v:'~14 Mya'},{l:'Gestation',v:'9 months'},{l:'Nursing period',v:'Up to 8 years'},{l:'Status',v:'Critically Endangered'}],
+                              tags:['Arboreal','Solitary','Cultural tools','Longest nursing'],tipFact:'The only great ape native to Asia — and critically endangered.',children:[]},
+                            {id:'gorilla',icon:'🦍',color:lightenColor('#b03535','species'),r:11,appeared:9,extinct:null,
+                              img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Western_gorilla_%28Gorilla_gorilla%29_-_british_council.jpg/320px-Western_gorilla_%28Gorilla_gorilla%29_-_british_council.jpg',
+                              imgCredit:'Brocken Inaglory, CC BY-SA 3.0',
+                              name:'Gorilla',latin:'Gorilla gorilla / beringei',era:'~9 Mya divergence',
+                              desc:'The largest living primate. Gentle vegetarians, gorillas live in troops led by a dominant silverback. Mountain gorillas were once thought nearly mythical by Western science. A critically endangered species brought back from the brink through conservation efforts.',
+                              detail:'Gorillas share ~98.3% of human DNA. Koko the gorilla learned over 1,000 words of American Sign Language and used it to express grief when her kitten died.',
+                              funFact:'Koko the gorilla learned 1,000+ signs in American Sign Language — and when her kitten died, she signed "bad, sad, frown" to express grief.',
+                              facts:[{l:'Diverged from humans',v:'~9 Mya'},{l:'Weight',v:'Up to 220 kg (male)'},{l:'DNA similarity',v:'98.3%'},{l:'Status',v:'Critically Endangered'}],
+                              tags:['Largest primate','Silverback','Sign language','Vegetarian'],tipFact:'Despite terrifying appearance, gorillas are gentle herbivores — and critically endangered.',children:[]},
+                            {id:'chimpanzee',icon:'🐒',color:'#c03a3a',r:12,appeared:7,extinct:null,
+                              img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/ChimpanzeeZoo.jpg/320px-ChimpanzeeZoo.jpg',
+                              imgCredit:'Thomas Lersch, CC BY-SA 3.0',
+                              name:'Chimpanzee',latin:'Pan troglodytes',era:'~6–7 Mya divergence',
+                              desc:'Our closest living relative, sharing 98.7% of human DNA. Chimpanzees use stone tools to crack nuts, craft sticks to fish for termites, and pass these techniques down as distinct cultural traditions. They wage coordinated warfare, form political alliances, and grieve their dead.',
+                              detail:'Over 40 distinct chimpanzee cultures have been documented, with skills — such as different tool-use techniques — passed socially across generations, never discovered independently. Their genome differs from ours by only ~1.2%.',
+                              funFact:'Different chimpanzee communities use different tools and techniques — a form of culture — and young chimps spend years being taught by their mothers, exactly as human children do.',
+                              facts:[{l:'Diverged from humans',v:'~6–7 Mya'},{l:'DNA similarity',v:'98.7%'},{l:'Cultures documented',v:'40+'},{l:'Status',v:'Endangered'}],
+                              tags:['Closest relative','Stone tools','Culture','Political alliances','Grief'],tipFact:'You share more DNA with a chimp than a mouse shares with a rat.',children:[]},
+                            {id:'homo-sapiens',icon:'🧠',color:'#9a5050',r:14,appeared:0.3,extinct:null,
+                              img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Akha_woman.jpg/320px-Akha_woman.jpg',
+                              imgCredit:'Steve Evans, CC BY 2.0',
+                              name:'Homo sapiens',latin:'Homo sapiens',era:'Quaternary',
+                              desc:'The only surviving human species. Anatomically modern humans appeared in Africa around 300,000 years ago and spread across every continent. Our large prefrontal cortex enables abstract thought, language, art, and culture.',
+                              detail:'Homo sapiens have the largest brain relative to body size of any animal. We are the only species known to use symbolic language, create cumulative culture, and contemplate our own existence. Despite our diversity we are genetically one of the least variable large mammals — a genetic bottleneck around 70,000 years ago reduced our ancestors to perhaps 10,000 individuals.',
+                              funFact:'All 8 billion humans alive today descend from a population of perhaps 10,000 individuals who survived a near-extinction event 70,000 years ago — making us one of the least genetically diverse large mammals on Earth.',
+                              facts:[
+                                {l:'Appeared',v:'~300,000 years ago'},
+                                {l:'Brain volume',v:'1,200–1,700 cc'},
+                                {l:'Population',v:'8 billion'},
+                                {l:'Genetic bottleneck',v:'~70,000 years ago'},
+                                {l:'Continents inhabited',v:'All 7'}
+                              ],
+                              tags:['Modern human','Language','Culture','Tool use','Art','Hominin'],
+                              tipFact:'You are a 300,000 year old African species looking at a screen.',
+                              children:[]}
+                          ]}
                       ]}
                   ]}
               ]}
@@ -1861,6 +1901,7 @@ function render(){
     const isHighlighted=highlightedId===n.id;
     const g=document.createElementNS('http://www.w3.org/2000/svg','g');
     g.setAttribute('class','node-group');
+    g.style.cursor='pointer';
 
     // Root pulse ring
     if(n.depth===0){
@@ -1900,6 +1941,13 @@ function render(){
       ring.setAttribute('stroke-dasharray','3 3');
       g.appendChild(ring);
     }
+
+    // Invisible hit area — much easier to click
+    const hit=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    hit.setAttribute('cx',n._x);hit.setAttribute('cy',n._y);hit.setAttribute('r',Math.max(n.r+14,22));
+    hit.setAttribute('fill','transparent');hit.style.cursor='pointer';
+    hit.addEventListener('click',e=>{e.stopPropagation();showMainPanel(n);});
+    g.appendChild(hit);
 
     // Main circle
     const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
@@ -1992,24 +2040,430 @@ function render(){
 const panel=document.getElementById('panel');
 const panelAccent=document.getElementById('panel-accent');
 let currentPanelNode=null;
+let panelHistory=[];  // navigation history stack
+
+function generateSpeciesIllustration(node) {
+  const id = node.id || '';
+  const color = node.color || '#4a9eff';
+  const icon = node.icon || '🌿';
+  const c = color;
+  // Parse hex or rgb color to components for manipulation
+  function hexToRgb(h) {
+    if (h.startsWith('rgb')) {
+      const m = h.match(/\d+/g); return m ? {r:+m[0],g:+m[1],b:+m[2]} : {r:100,g:150,b:200};
+    }
+    const hh = h.replace('#','');
+    return {r:parseInt(hh.slice(0,2),16),g:parseInt(hh.slice(2,4),16),b:parseInt(hh.slice(4,6),16)};
+  }
+  function rgba(hex, a) { const {r,g,b} = hexToRgb(hex); return `rgba(${r},${g},${b},${a})`; }
+  function lighten(hex, t) { const {r,g,b} = hexToRgb(hex); return `rgb(${Math.round(r+(255-r)*t)},${Math.round(g+(255-g)*t)},${Math.round(b+(255-b)*t)})`; }
+  function darken(hex, t) { const {r,g,b} = hexToRgb(hex); return `rgb(${Math.round(r*(1-t))},${Math.round(g*(1-t))},${Math.round(b*(1-t))})`; }
+
+  // Shared SVG wrapper
+  const W=440, H=200;
+  function wrap(bg, content) {
+    return `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block;">
+      <defs>
+        <radialGradient id="ig_rg" cx="50%" cy="60%" r="70%">
+          <stop offset="0%" stop-color="${lighten(c,0.18)}"/>
+          <stop offset="100%" stop-color="${darken(c,0.55)}"/>
+        </radialGradient>
+        <filter id="ig_glow"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+        <filter id="ig_soft"><feGaussianBlur stdDeviation="2.5"/></filter>
+        <filter id="ig_noise"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" result="n"/><feColorMatrix type="saturate" values="0" in="n"/><feBlend in="SourceGraphic" in2="n" mode="overlay" result="b"/><feComposite in="b" in2="SourceGraphic" operator="in"/></filter>
+      </defs>
+      <rect width="${W}" height="${H}" fill="${bg}"/>
+      ${content}
+    </svg>`;
+  }
+
+  // ── Category-specific illustrations ──
+
+  // BACTERIA / MICROBES
+  if (['bacteria','cyanobacteria','proteobacteria','firmicutes','actinobacteria',
+       'ecoli','helicobacter','vibrio-cholerae','lactobacillus','clostridium-botulinum',
+       'streptomyces','mycobacterium-tb','deinococcus','bacteroides','prochlorococcus','nostoc'].includes(id)) {
+    const cells = Array.from({length:14},(_,i)=>({
+      x: 40+Math.sin(i*1.7)*160+i*22, y: 60+Math.cos(i*1.3)*50+Math.sin(i)*30,
+      rx: 6+Math.sin(i*2)*4, ry: 10+Math.cos(i*1.5)*5,
+      rot: i*25, op: 0.55+Math.sin(i)*0.35
+    }));
+    return wrap(darken(c,0.82),
+      `<ellipse cx="220" cy="100" rx="200" ry="90" fill="${rgba(c,0.06)}"/>
+       ${cells.map(p=>`<ellipse cx="${p.x}" cy="${p.y}" rx="${p.rx}" ry="${p.ry}" fill="${rgba(c,p.op)}" transform="rotate(${p.rot},${p.x},${p.y})" filter="url(#ig_glow)"/>
+         <ellipse cx="${p.x}" cy="${p.y}" rx="${p.rx*0.5}" ry="${p.ry*0.5}" fill="${lighten(c,0.5)}" opacity="0.4" transform="rotate(${p.rot},${p.x},${p.y})"/>`).join('')}
+       <text x="${W/2}" y="${H-14}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+    );
+  }
+
+  // ARCHAEA
+  if (['archaea','halobacterium','sulfolobus','pyrolobus','lokiarchaeota','thermophiles'].includes(id)) {
+    const rings = [80,55,35,18];
+    return wrap(darken(c,0.85),
+      `${rings.map((r,i)=>`<circle cx="${W/2}" cy="${H/2}" r="${r}" fill="none" stroke="${rgba(c,0.18+i*0.12)}" stroke-width="${1.5-i*0.2}" stroke-dasharray="${4+i*3} ${3+i*2}"/>`).join('')}
+       <circle cx="${W/2}" cy="${H/2}" r="18" fill="${rgba(c,0.7)}" filter="url(#ig_glow)"/>
+       <circle cx="${W/2}" cy="${H/2}" r="9" fill="${lighten(c,0.6)}" opacity="0.9"/>
+       ${Array.from({length:12},(_,i)=>{const a=i/12*Math.PI*2;return `<line x1="${W/2+Math.cos(a)*18}" y1="${H/2+Math.sin(a)*18}" x2="${W/2+Math.cos(a)*78}" y2="${H/2+Math.sin(a)*78}" stroke="${rgba(c,0.35)}" stroke-width="1.2"/>`}).join('')}
+       ${Array.from({length:18},(_,i)=>{const a=i/18*Math.PI*2; const r2=38+Math.sin(i*2.3)*12; return `<circle cx="${W/2+Math.cos(a)*r2}" cy="${H/2+Math.sin(a)*r2}" r="3.5" fill="${rgba(c,0.6)}" filter="url(#ig_glow)"/>`}).join('')}
+       <text x="${W/2}" y="${H-14}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+    );
+  }
+
+  // FUNGI
+  if (['fungi','ascomycetes','basidiomycetes','saccharomyces','penicillium',
+       'amanita-muscaria','armillaria','psilocybe','chytrids','batrachochytrium'].includes(id)) {
+    const stems = Array.from({length:7},(_,i)=>({x:50+i*57, h:40+Math.sin(i*1.4)*30, cap:22+Math.sin(i*0.9)*12}));
+    return wrap(darken(c,0.8),
+      `<rect x="0" y="${H*0.72}" width="${W}" height="${H*0.28}" fill="${rgba(c,0.1)}"/>
+       <line x1="0" y1="${H*0.72}" x2="${W}" y2="${H*0.72}" stroke="${rgba(c,0.25)}" stroke-width="1.5"/>
+       ${stems.map(s=>`
+         <rect x="${s.x-4}" y="${H*0.72-s.h}" width="7" height="${s.h}" rx="3" fill="${rgba(c,0.5)}"/>
+         <ellipse cx="${s.x}" cy="${H*0.72-s.h}" rx="${s.cap}" ry="${s.cap*0.38}" fill="${rgba(c,0.75)}" filter="url(#ig_glow)"/>
+         <ellipse cx="${s.x}" cy="${H*0.72-s.h-1}" rx="${s.cap*0.65}" ry="${s.cap*0.22}" fill="${lighten(c,0.35)}" opacity="0.5"/>
+       `).join('')}
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+    );
+  }
+
+  // PLANTS — trees, ferns, mosses
+  if (['viridiplantae','plantae','angiosperms','gymnosperms','ferns','mosses',
+       'liverworts','sunflower','arabidopsis','rafflesia','titan-arum','mimosa',
+       'wollemi-pine','welwitschia','sequoia','tree-fern','azolla','sphagnum','marchantia'].includes(id)) {
+    const branches = Array.from({length:9},(_,i)=>({
+      a: -Math.PI/2 + (i-4)*0.38, len: 55+Math.sin(i*1.1)*25, leaves: 3+Math.floor(i%3)
+    }));
+    return wrap(darken(c,0.78),
+      `<rect x="0" y="${H*0.75}" width="${W}" height="${H*0.25}" fill="${rgba(c,0.08)}"/>
+       <rect x="${W/2-5}" y="${H*0.35}" width="9" height="${H*0.4}" rx="4" fill="${darken(c,0.3)}"/>
+       ${branches.map(b=>{
+         const ex=W/2+Math.cos(b.a)*b.len, ey=H*0.35+Math.sin(b.a)*b.len;
+         return `<line x1="${W/2}" y1="${H*0.5}" x2="${ex}" y2="${ey}" stroke="${rgba(c,0.5)}" stroke-width="2.5" stroke-linecap="round"/>
+           ${Array.from({length:b.leaves},(_,j)=>{
+             const t=0.3+j*0.28;
+             const lx=W/2+(ex-W/2)*t, ly=H*0.5+(ey-H*0.5)*t;
+             const la=b.a+Math.PI/2+(j%2===0?0.3:-0.3);
+             return `<ellipse cx="${lx+Math.cos(la)*11}" cy="${ly+Math.sin(la)*11}" rx="11" ry="6" fill="${rgba(c,0.7)}" transform="rotate(${(b.a*180/Math.PI+90).toFixed(0)},${lx+Math.cos(la)*11},${ly+Math.sin(la)*11})" filter="url(#ig_glow)"/>`;
+           }).join('')}`;
+       }).join('')}
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+    );
+  }
+
+  // OCEAN / FISH / AQUATIC
+  if (['fish','sharks','coelacanth','white-shark','cetaceans','blue-whale'].includes(id)) {
+    return wrap(darken(c,0.82),
+      `${Array.from({length:6},(_,i)=>`<ellipse cx="${W/2}" cy="${H/2}" rx="${30+i*28}" ry="${14+i*9}" fill="none" stroke="${rgba(c,0.06+i*0.03)}" stroke-width="1"/>`).join('')}
+       <path d="M90,${H/2} Q180,${H/2-28} ${W/2},${H/2} Q${W-180},${H/2+28} ${W-90},${H/2}" fill="none" stroke="${rgba(c,0.6)}" stroke-width="3" stroke-linecap="round" filter="url(#ig_glow)"/>
+       <path d="M${W-90},${H/2} L${W-60},${H/2-22} L${W-60},${H/2+22} Z" fill="${rgba(c,0.7)}"/>
+       <ellipse cx="118" cy="${H/2}" rx="9" ry="6" fill="${lighten(c,0.6)}" opacity="0.85"/>
+       ${Array.from({length:18},(_,i)=>{const x=30+i*22, y=H/2+Math.sin(i*0.7+1)*18; return `<circle cx="${x}" cy="${y}" r="1.5" fill="${rgba(c,0.3)}"/>`}).join('')}
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+    );
+  }
+
+  // BIRDS
+  if (['birds','aves','archaeopteryx','peregrine-falcon'].includes(id)) {
+    return wrap(darken(c,0.82),
+      `${Array.from({length:5},(_,i)=>{ const y=H*0.25+i*18; return `<path d="M${W/2-60-i*15},${y} Q${W/2},${y-28-i*4} ${W/2+60+i*15},${y}" fill="none" stroke="${rgba(c,0.15+i*0.1)}" stroke-width="${2.5-i*0.3}"/>`; }).join('')}
+       <path d="M${W/2-65},${H*0.35} Q${W/2},${H*0.05} ${W/2+65},${H*0.35}" fill="${rgba(c,0.55)}" filter="url(#ig_glow)"/>
+       <path d="M${W/2-65},${H*0.35} Q${W/2},${H*0.22} ${W/2+65},${H*0.35}" fill="${lighten(c,0.25)}" opacity="0.55"/>
+       <ellipse cx="${W/2}" cy="${H*0.45}" rx="9" ry="12" fill="${rgba(c,0.8)}"/>
+       <ellipse cx="${W/2+4}" cy="${H*0.44}" rx="3.5" ry="3.5" fill="${lighten(c,0.7)}" opacity="0.9"/>
+       ${Array.from({length:5},(_,i)=>{ const y=H*0.62+i*7; return `<path d="M${W/2-16},${y} L${W/2},${y-4} L${W/2+16},${y}" fill="${rgba(c,0.25+i*0.06)}" stroke="${rgba(c,0.3)}" stroke-width="0.8"/>`; }).join('')}
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+    );
+  }
+
+  // REPTILES
+  if (['reptilia','komodo-dragon','tuatara'].includes(id)) {
+    return wrap(darken(c,0.8),
+      `<path d="M60,${H*0.55} Q120,${H*0.3} ${W/2},${H*0.45} Q${W-120},${H*0.6} ${W-60},${H*0.5}" fill="${rgba(c,0.45)}" stroke="${rgba(c,0.7)}" stroke-width="2" filter="url(#ig_glow)"/>
+       <path d="M60,${H*0.55} Q80,${H*0.5} 100,${H*0.55} Q80,${H*0.65} 60,${H*0.55}" fill="${rgba(c,0.7)}"/>
+       ${Array.from({length:24},(_,i)=>{ const t=i/23; const x=60+(W-120)*t; const y=H*0.45+Math.sin(t*Math.PI*2.5)*18; return `<ellipse cx="${x}" cy="${y}" rx="${5+Math.sin(i)*2}" ry="${3.5+Math.cos(i)*1}" fill="${rgba(c,0.45+Math.sin(i*0.7)*0.25)}" transform="rotate(${t*20},${x},${y})"/>`;}).join('')}
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+    );
+  }
+
+  // MOLLUSCS / OCTOPUS / NAUTILUS
+  if (['cephalopods','octopus','octopus-day','nautilus'].includes(id)) {
+    const arms = 8;
+    return wrap(darken(c,0.82),
+      `<circle cx="${W/2}" cy="${H/2-5}" r="32" fill="${rgba(c,0.6)}" filter="url(#ig_glow)"/>
+       <circle cx="${W/2}" cy="${H/2-5}" r="20" fill="${lighten(c,0.2)}" opacity="0.5"/>
+       ${Array.from({length:arms},(_,i)=>{
+         const a=(i/arms)*Math.PI*2; const len=62+Math.sin(i*1.3)*18;
+         const cx=W/2+Math.cos(a)*18, cy=H/2-5+Math.sin(a)*18;
+         const ex=W/2+Math.cos(a)*len, ey=H/2-5+Math.sin(a)*len;
+         return `<path d="M${cx},${cy} Q${(cx+ex)/2+Math.cos(a+Math.PI/2)*22},${(cy+ey)/2+Math.sin(a+Math.PI/2)*22} ${ex},${ey}" fill="none" stroke="${rgba(c,0.7)}" stroke-width="5" stroke-linecap="round"/>
+           ${Array.from({length:5},(_,j)=>{const t=0.25+j*0.16; const sx=cx+(ex-cx)*t, sy=cy+(ey-cy)*t; return `<circle cx="${sx}" cy="${sy}" r="2.5" fill="${lighten(c,0.5)}" opacity="0.7"/>`;}).join('')}`;
+       }).join('')}
+       <circle cx="${W/2+11}" cy="${H/2-11}" r="5" fill="${lighten(c,0.8)}" opacity="0.9"/>
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+    );
+  }
+
+  // INSECTS / ARTHROPODS
+  if (['arthropoda','insecta','honey-bee','mantis-shrimp','horseshoe-crab'].includes(id)) {
+    return wrap(darken(c,0.82),
+      `<ellipse cx="${W/2}" cy="${H*0.42}" rx="28" ry="22" fill="${rgba(c,0.7)}" filter="url(#ig_glow)"/>
+       <ellipse cx="${W/2}" cy="${H*0.62}" rx="22" ry="17" fill="${rgba(c,0.55)}"/>
+       <ellipse cx="${W/2}" cy="${H*0.28}" rx="14" ry="11" fill="${rgba(c,0.65)}"/>
+       ${[-1,1].map(side=>Array.from({length:3},(_,i)=>`<path d="M${W/2+side*28},${H*0.35+i*14} Q${W/2+side*(60+i*18)},${H*0.3+i*12} ${W/2+side*(72+i*20)},${H*0.38+i*16}" fill="none" stroke="${rgba(c,0.55)}" stroke-width="1.8" stroke-linecap="round"/>`).join('')).join('')}
+       ${[-1,1].map(side=>`<path d="M${W/2+side*11},${H*0.27} Q${W/2+side*22},${H*0.1} ${W/2+side*18},${H*0.12}" fill="none" stroke="${rgba(c,0.6)}" stroke-width="1.5" stroke-linecap="round"/>`).join('')}
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+    );
+  }
+
+  // MAMMALS — generic
+  if (['mammalia','mammals','cetaceans','naked-mole-rat','platypus'].includes(id)) {
+    return wrap(darken(c,0.8),
+      `<ellipse cx="${W/2}" cy="${H*0.55}" rx="80" ry="48" fill="${rgba(c,0.5)}" filter="url(#ig_glow)"/>
+       <ellipse cx="${W/2+72}" cy="${H*0.48}" rx="28" ry="22" fill="${rgba(c,0.55)}"/>
+       ${[-1,1].map(side=>`<ellipse cx="${W/2+side*22}" cy="${H*0.82}" rx="11" ry="20" fill="${rgba(c,0.45)}" transform="rotate(${side*8},${W/2+side*22},${H*0.82})"/>`).join('')}
+       <ellipse cx="${W/2-72}" cy="${H*0.48}" rx="15" ry="10" fill="${rgba(c,0.4)}"/>
+       <ellipse cx="${W/2+86}" cy="${H*0.43}" rx="9" ry="6" fill="${lighten(c,0.5)}" opacity="0.8"/>
+       <circle cx="${W/2+92}" cy="${H*0.41}" r="3.5" fill="${lighten(c,0.8)}" opacity="0.9"/>
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+    );
+  }
+
+  // PRIMATES / GREAT APES / HUMANS
+  if (['primates','great-apes','chimpanzee','gorilla','orangutan','homo-sapiens'].includes(id)) {
+    return wrap(darken(c,0.78),
+      `<ellipse cx="${W/2}" cy="${H*0.38}" rx="38" ry="40" fill="${rgba(c,0.55)}" filter="url(#ig_glow)"/>
+       <ellipse cx="${W/2}" cy="${H*0.38}" rx="26" ry="28" fill="${lighten(c,0.15)}" opacity="0.5"/>
+       <ellipse cx="${W/2}" cy="${H*0.62}" rx="32" ry="26" fill="${rgba(c,0.45)}"/>
+       ${[-1,1].map(side=>[
+         `<path d="M${W/2+side*26},${H*0.48} Q${W/2+side*68},${H*0.52} ${W/2+side*72},${H*0.72}" fill="none" stroke="${rgba(c,0.5)}" stroke-width="8" stroke-linecap="round"/>`,
+         `<ellipse cx="${W/2+side*26}" cy="${H*0.78}" rx="10" ry="7" fill="${rgba(c,0.45)}" transform="rotate(${side*15},${W/2+side*26},${H*0.78})"/>`
+       ].join('')).join('')}
+       ${[-1,1].map(side=>`<circle cx="${W/2+side*18}" cy="${H*0.34}" r="7" fill="${lighten(c,0.5)}" opacity="0.75"/>`).join('')}
+       <ellipse cx="${W/2}" cy="${H*0.44}" rx="14" ry="8" fill="${rgba(c,0.35)}"/>
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+    );
+  }
+
+  // CNIDARIA / CORAL / JELLYFISH
+  if (['cnidaria','turritopsis','coral-reef'].includes(id)) {
+    const tendrils = Array.from({length:16},(_,i)=>({a:i/16*Math.PI*2, len:40+Math.sin(i*1.7)*20}));
+    return wrap(darken(c,0.82),
+      `<ellipse cx="${W/2}" cy="${H*0.38}" rx="42" ry="28" fill="${rgba(c,0.55)}" filter="url(#ig_glow)"/>
+       <ellipse cx="${W/2}" cy="${H*0.38}" rx="30" ry="18}" fill="${lighten(c,0.3)}" opacity="0.45"/>
+       ${tendrils.map(t=>`<path d="M${W/2+Math.cos(t.a)*40},${H*0.38+Math.sin(t.a)*26} Q${W/2+Math.cos(t.a+0.4)*(t.len+18)},${H*0.38+Math.sin(t.a+0.4)*(t.len+18)} ${W/2+Math.cos(t.a+0.8)*t.len},${H*0.38+28+t.len*0.9}" fill="none" stroke="${rgba(c,0.4)}" stroke-width="1.5" stroke-linecap="round"/>`).join('')}
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+    );
+  }
+
+  // PROTISTS
+  if (['protists','alveolates','plasmodium','paramecium','dinoflagellates',
+       'diatoms','phytophthora','amoeba','volvox'].includes(id)) {
+    return wrap(darken(c,0.82),
+      `${Array.from({length:5},(_,i)=>{
+        const cx=W/2+Math.sin(i*1.26)*90, cy=H/2+Math.cos(i*0.9)*38;
+        const r=14+Math.sin(i*2)*7;
+        return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${rgba(c,0.5)}" filter="url(#ig_glow)"/>
+          <circle cx="${cx}" cy="${cy}" r="${r*0.55}" fill="${lighten(c,0.4)}" opacity="0.5"/>
+          ${Array.from({length:8},(_,j)=>{const a=j/8*Math.PI*2; return `<line x1="${cx+Math.cos(a)*r}" y1="${cy+Math.sin(a)*r}" x2="${cx+Math.cos(a)*(r+12)}" y2="${cy+Math.sin(a)*(r+12)}" stroke="${rgba(c,0.35)}" stroke-width="1.2" stroke-linecap="round"/>`;}).join('')}`;
+      }).join('')}
+      <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+    );
+  }
+
+  // HOMININS (fossils)
+  if (id.startsWith('h-') || id.startsWith('homo-') || id.startsWith('au_') || id.startsWith('au-') ||
+      ['sahelanthropus','orrorin','ardipithecus_r','au_afarensis','au_africanus','paranthropus-boisei',
+       'paranthropus-robustus','h_habilis','h_erectus','h_heidelbergensis','h_neanderthalensis',
+       'h_naledi','h_floresiensis','h_luzonensis','denisovan','homo-naledi','homo-floresiensis'].includes(id)) {
+    return wrap(darken(c,0.85),
+      `<rect x="0" y="${H*0.72}" width="${W}" height="${H*0.28}" fill="${rgba(c,0.06)}"/>
+       <path d="M${W/2-55},${H*0.72} L${W/2-55},${H*0.28} Q${W/2-55},${H*0.08} ${W/2},${H*0.08} Q${W/2+55},${H*0.08} ${W/2+55},${H*0.28} L${W/2+55},${H*0.72} Z" fill="${rgba(c,0.25)}" filter="url(#ig_glow)"/>
+       <ellipse cx="${W/2}" cy="${H*0.22}" rx="44" ry="38" fill="${rgba(c,0.45)}" filter="url(#ig_glow)"/>
+       <ellipse cx="${W/2}" cy="${H*0.22}" rx="28" ry="22}" fill="${lighten(c,0.2)}" opacity="0.45"/>
+       ${[-1,1].map(side=>`<ellipse cx="${W/2+side*20}" cy="${H*0.21}" rx="8" ry="5" fill="${lighten(c,0.55)}" opacity="0.6"/>`).join('')}
+       <path d="M${W/2-14},${H*0.3} Q${W/2},${H*0.34} ${W/2+14},${H*0.3}" fill="none" stroke="${rgba(c,0.5)}" stroke-width="2.5" stroke-linecap="round"/>
+       ${[H*0.52,H*0.58,H*0.64].map((y,i)=>`<rect x="${W/2-28+i*3}" y="${y}" width="${56-i*6}" height="4" rx="2" fill="${rgba(c,0.3+i*0.08)}"/>`).join('')}
+       <line x1="${W/2}" y1="${H*0.68}" x2="${W/2}" y2="${H*0.72}" stroke="${rgba(c,0.4)}" stroke-width="6" stroke-linecap="round"/>
+       ${[-1,1].map(side=>`<path d="M${W/2},${H*0.72} L${W/2+side*30},${H*0.72} L${W/2+side*32},${H*0.95}" fill="none" stroke="${rgba(c,0.4)}" stroke-width="5" stroke-linecap="round"/>`).join('')}
+       <text x="${W/2}" y="${H-6}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+    );
+  }
+
+  // LUCA / ROOT
+  if (id === 'luca') {
+    return wrap('#050302',
+      `${Array.from({length:7},(_,i)=>`<circle cx="${W/2}" cy="${H/2}" r="${22+i*18}" fill="none" stroke="${rgba(c,0.04+i*0.035)}" stroke-width="${1.5-i*0.15}"/>`).join('')}
+       <circle cx="${W/2}" cy="${H/2}" r="22" fill="url(#ig_rg)" filter="url(#ig_glow)"/>
+       ${Array.from({length:24},(_,i)=>{const a=i/24*Math.PI*2; const r1=22, r2=28+Math.sin(i*3)*6; return `<line x1="${W/2+Math.cos(a)*r1}" y1="${H/2+Math.sin(a)*r1}" x2="${W/2+Math.cos(a)*r2}" y2="${H/2+Math.sin(a)*r2}" stroke="${rgba(c,0.5)}" stroke-width="1.5"/>`}).join('')}
+       ${Array.from({length:6},(_,i)=>{const a=i/6*Math.PI*2; return Array.from({length:3},(_,j)=>{const r=45+j*22; const bx=W/2+Math.cos(a)*r, by=H/2+Math.sin(a)*r; return `<circle cx="${bx}" cy="${by}" r="${4-j*0.8}" fill="${rgba(c,0.45-j*0.1)}" filter="url(#ig_glow)"/><line x1="${W/2+Math.cos(a)*(r-12)}" y1="${H/2+Math.sin(a)*(r-12)}" x2="${bx}" y2="${by}" stroke="${rgba(c,0.2)}" stroke-width="0.8"/>`;}).join('');}).join('')}
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.6)}" letter-spacing="3">Last Universal Common Ancestor</text>`
+    );
+  }
+
+  // EUKARYOTA / METAZOA / broad groups
+  if (['eukaryota','metazoa','chordata','amphibia','porifera','echinodermata'].includes(id)) {
+    const pts = Array.from({length:20},(_,i)=>({ x:W/2+Math.cos(i/20*Math.PI*2)*(100+Math.sin(i*3)*20), y:H/2+Math.sin(i/20*Math.PI*2)*(70+Math.cos(i*2.5)*15) }));
+    return wrap(darken(c,0.82),
+      `<polygon points="${pts.map(p=>`${p.x},${p.y}`).join(' ')}" fill="${rgba(c,0.12)}" stroke="${rgba(c,0.3)}" stroke-width="1.5" filter="url(#ig_soft)"/>
+       ${Array.from({length:5},(_,i)=>`<circle cx="${pts[i*4].x}" cy="${pts[i*4].y}" r="${6+i*2}" fill="${rgba(c,0.55+i*0.06)}" filter="url(#ig_glow)"/>`).join('')}
+       <circle cx="${W/2}" cy="${H/2}" r="18" fill="${rgba(c,0.7)}" filter="url(#ig_glow)"/>
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+    );
+  }
+
+  // DEFAULT — elegant radial burst
+  const spokes = Array.from({length:16},(_,i)=>{ const a=i/16*Math.PI*2; const r=55+Math.sin(i*2.3)*25; return {x:W/2+Math.cos(a)*r, y:H/2+Math.sin(a)*r, a}; });
+  return wrap(darken(c,0.82),
+    `${spokes.map(s=>`<line x1="${W/2}" y1="${H/2}" x2="${s.x}" y2="${s.y}" stroke="${rgba(c,0.18)}" stroke-width="1.2"/>`).join('')}
+     ${spokes.map(s=>`<circle cx="${s.x}" cy="${s.y}" r="${4+Math.random()*3}" fill="${rgba(c,0.5)}" filter="url(#ig_glow)"/>`).join('')}
+     ${Array.from({length:3},(_,i)=>`<circle cx="${W/2}" cy="${H/2}" r="${14+i*16}" fill="none" stroke="${rgba(c,0.14+i*0.06)}" stroke-width="1.2"/>`).join('')}
+     <circle cx="${W/2}" cy="${H/2}" r="14" fill="${rgba(c,0.75)}" filter="url(#ig_glow)"/>
+     <text x="${W/2}" y="${H*0.85}" text-anchor="middle" font-family="'Playfair Display',serif" font-size="${Math.min(16,220/Math.max(node.name.length,1))}px" fill="${lighten(c,0.55)}" font-weight="600" opacity="0.9">${icon} ${node.name}</text>
+     <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.5)}" letter-spacing="2">${node.latin||''}</text>`
+  );
+}
 
 function renderPanelContent(node) {
   const p = document.getElementById('panel') || document.getElementById('info-panel');
   if (!p) return;
-  const hasImg = node.img && node.img.length > 0;
   const extinctBadge = node.extinct
     ? '<span style="background:#c0392b;color:white;font-size:10px;padding:2px 8px;border-radius:9999px;font-family:Source Sans 3,sans-serif;font-weight:600;letter-spacing:0.05em;">† EXTINCT</span>'
     : '';
+  const PHOTO_MAP = {
+    // Bacteria
+    'luca':                  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Oceanic_spreading.jpg/600px-Oceanic_spreading.jpg', credit:'NOAA, Public Domain'},
+    'bacteria':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Bacteria_collage.jpg/600px-Bacteria_collage.jpg', credit:'CDC/Wikipedia, Public Domain'},
+    'cyanobacteria':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/AnabaenaFS.jpg/480px-AnabaenaFS.jpg', credit:'Kristian Peters, CC BY-SA 3.0'},
+    'prochlorococcus':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Prochlorococcus.jpg/480px-Prochlorococcus.jpg', credit:'Luke Thompson/Chisholm Lab, CC BY 2.5'},
+    'proteobacteria':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/EscherichiaColi_NIAID.jpg/480px-EscherichiaColi_NIAID.jpg', credit:'NIAID, CC BY 2.0'},
+    'ecoli':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/EscherichiaColi_NIAID.jpg/480px-EscherichiaColi_NIAID.jpg', credit:'NIAID, CC BY 2.0'},
+    'helicobacter':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/EMpylori.jpg/480px-EMpylori.jpg', credit:'Yutaka Tsutsumi, CC BY 2.5'},
+    'vibrio-cholerae':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Cholera_bacteria_SEM.jpg/480px-Cholera_bacteria_SEM.jpg', credit:'Tom Kirn/Louisa Howard, Public Domain'},
+    'firmicutes':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Lactobacillus_acidophilus_SEM.jpg/480px-Lactobacillus_acidophilus_SEM.jpg', credit:'Bob Blaylock, CC BY-SA 3.0'},
+    'lactobacillus':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Lactobacillus_acidophilus_SEM.jpg/480px-Lactobacillus_acidophilus_SEM.jpg', credit:'Bob Blaylock, CC BY-SA 3.0'},
+    'clostridium-botulinum': {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Clostridium_botulinum.jpg/480px-Clostridium_botulinum.jpg', credit:'CDC, Public Domain'},
+    'actinobacteria':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Streptomyces_coelicolor.jpg/480px-Streptomyces_coelicolor.jpg', credit:'Ninjatacoshell, CC BY-SA 3.0'},
+    'streptomyces':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Streptomyces_coelicolor.jpg/480px-Streptomyces_coelicolor.jpg', credit:'Ninjatacoshell, CC BY-SA 3.0'},
+    'mycobacterium-tb':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/TB_Culture.jpg/480px-TB_Culture.jpg', credit:'CDC, Public Domain'},
+    'deinococcus':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Deinococcus_radiodurans.jpg/480px-Deinococcus_radiodurans.jpg', credit:'Michael Daly, Public Domain'},
+    'bacteroides':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Bacteroides_fragilis_01.jpg/480px-Bacteroides_fragilis_01.jpg', credit:'CDC, Public Domain'},
+    // Archaea
+    'archaea':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Halobacterium_sp._NRC-1.jpg/480px-Halobacterium_sp._NRC-1.jpg', credit:'NASA, Public Domain'},
+    'halobacterium':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Halobacterium_sp._NRC-1.jpg/480px-Halobacterium_sp._NRC-1.jpg', credit:'NASA, Public Domain'},
+    'sulfolobus':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Sulfolobus_solfataricus_electron_micrograph.jpg/480px-Sulfolobus_solfataricus_electron_micrograph.jpg', credit:'Dr. Wolfram Zillig, Public Domain'},
+    'pyrolobus':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Hydrothermal_vents_at_Galapagos_Rift_1977.jpg/480px-Hydrothermal_vents_at_Galapagos_Rift_1977.jpg', credit:'NOAA, Public Domain'},
+    'lokiarchaeota':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Loki%27s_Castle_2008_location_map.jpg/480px-Loki%27s_Castle_2008_location_map.jpg', credit:'Jan Petter Holm, CC BY-SA 3.0'},
+    // Fungi
+    'fungi':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Fomitopsis_pinicola_Rbx.jpg/480px-Fomitopsis_pinicola_Rbx.jpg', credit:'Ron Pastorino, CC BY-SA 3.0'},
+    'ascomycetes':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/S_cerevisiae_under_DIC_microscopy.jpg/480px-S_cerevisiae_under_DIC_microscopy.jpg', credit:'Masur, Public Domain'},
+    'saccharomyces':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/S_cerevisiae_under_DIC_microscopy.jpg/480px-S_cerevisiae_under_DIC_microscopy.jpg', credit:'Masur, Public Domain'},
+    'penicillium':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Penicillium_chrysogenum.jpg/480px-Penicillium_chrysogenum.jpg', credit:'Ajc1, CC BY-SA 3.0'},
+    'basidiomycetes':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Amanita_muscaria_3_vliegenzwammen_op_rij.jpg/480px-Amanita_muscaria_3_vliegenzwammen_op_rij.jpg', credit:'Onderwijsgek, CC BY-SA 3.0'},
+    'amanita-muscaria':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Amanita_muscaria_3_vliegenzwammen_op_rij.jpg/480px-Amanita_muscaria_3_vliegenzwammen_op_rij.jpg', credit:'Onderwijsgek, CC BY-SA 3.0'},
+    'armillaria':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Armillaria_ostoyae.jpg/480px-Armillaria_ostoyae.jpg', credit:'USFS, Public Domain'},
+    'psilocybe':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Psilocybe_cubensis_Maui.jpg/480px-Psilocybe_cubensis_Maui.jpg', credit:'Workman, CC BY-SA 3.0'},
+    'chytrids':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Litoria_caerulea_White%27s_tree_frog.jpg/480px-Litoria_caerulea_White%27s_tree_frog.jpg', credit:'LiquidGhoul, CC BY-SA 3.0'},
+    'batrachochytrium':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Litoria_caerulea_White%27s_tree_frog.jpg/480px-Litoria_caerulea_White%27s_tree_frog.jpg', credit:'LiquidGhoul, CC BY-SA 3.0'},
+    // Plants
+    'viridiplantae':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Sunflower_from_Silesia2.jpg/480px-Sunflower_from_Silesia2.jpg', credit:'Malcom Manners, CC BY 2.0'},
+    'mosses':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Sphagnum_Moss.jpg/480px-Sphagnum_Moss.jpg', credit:'Bff, CC BY-SA 3.0'},
+    'sphagnum':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Sphagnum_Moss.jpg/480px-Sphagnum_Moss.jpg', credit:'Bff, CC BY-SA 3.0'},
+    'liverworts':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Marchantia_polymorpha.jpg/480px-Marchantia_polymorpha.jpg', credit:'Hermann Schachner, CC0'},
+    'marchantia':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Marchantia_polymorpha.jpg/480px-Marchantia_polymorpha.jpg', credit:'Hermann Schachner, CC0'},
+    'angiosperms':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Sunflower_from_Silesia2.jpg/480px-Sunflower_from_Silesia2.jpg', credit:'Malcom Manners, CC BY 2.0'},
+    'sunflower':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Sunflower_from_Silesia2.jpg/480px-Sunflower_from_Silesia2.jpg', credit:'Malcom Manners, CC BY 2.0'},
+    'arabidopsis':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Arabidopsis_thaliana_inflorescens.jpg/480px-Arabidopsis_thaliana_inflorescens.jpg', credit:'Nikolai Sitnov, Public Domain'},
+    'rafflesia':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Rafflesia_arnoldii.jpg/480px-Rafflesia_arnoldii.jpg', credit:'Rendra Regen Rais, CC BY 2.0'},
+    'titan-arum':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Amorphophallus_titanum2.jpg/480px-Amorphophallus_titanum2.jpg', credit:'Rhett A. Butler, CC BY 2.5'},
+    'mimosa':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Mimosa_pudica_touch.jpg/480px-Mimosa_pudica_touch.jpg', credit:'Hrushikesh, CC BY-SA 3.0'},
+    'gymnosperms':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/General_Sherman_tree_looking_up.jpg/480px-General_Sherman_tree_looking_up.jpg', credit:'Jim Bahn, CC BY 2.0'},
+    'wollemi-pine':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Wollemi_Pine_in_habitat.jpg/480px-Wollemi_Pine_in_habitat.jpg', credit:'Brent Miller, CC BY 2.0'},
+    'welwitschia':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Welwitschia_mirabilis2.jpg/480px-Welwitschia_mirabilis2.jpg', credit:'Thomas Schoch, CC BY-SA 2.5'},
+    'sequoia':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/General_Sherman_tree_looking_up.jpg/480px-General_Sherman_tree_looking_up.jpg', credit:'Jim Bahn, CC BY 2.0'},
+    'ferns':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Cyathea_cooperi.jpg/480px-Cyathea_cooperi.jpg', credit:'Photohound, CC BY-SA 3.0'},
+    'tree-fern':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Cyathea_cooperi.jpg/480px-Cyathea_cooperi.jpg', credit:'Photohound, CC BY-SA 3.0'},
+    'azolla':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Azolla_caroliniana.jpg/480px-Azolla_caroliniana.jpg', credit:'Christian Fischer, CC BY-SA 3.0'},
+    // Animals
+    'metazoa':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Turritopsis_nutricula.jpg/480px-Turritopsis_nutricula.jpg', credit:'Bachware, Public Domain'},
+    'porifera':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Coral_reef_at_palmyra.jpg/480px-Coral_reef_at_palmyra.jpg', credit:'U.S. Fish and Wildlife Service, Public Domain'},
+    'cnidaria':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Turritopsis_nutricula.jpg/480px-Turritopsis_nutricula.jpg', credit:'Bachware, Public Domain'},
+    'turritopsis':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Turritopsis_nutricula.jpg/480px-Turritopsis_nutricula.jpg', credit:'Bachware, Public Domain'},
+    'coral-reef':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Coral_reef_at_palmyra.jpg/480px-Coral_reef_at_palmyra.jpg', credit:'U.S. Fish and Wildlife Service, Public Domain'},
+    'arthropoda':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Odontodactylus_scyllarus.jpg/480px-Odontodactylus_scyllarus.jpg', credit:'Roy Caldwell, Public Domain'},
+    'insecta':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Apis_mellifera_Western_honey_bee.jpg/480px-Apis_mellifera_Western_honey_bee.jpg', credit:'Charles J. Sharp, CC BY-SA 4.0'},
+    'honey-bee':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Apis_mellifera_Western_honey_bee.jpg/480px-Apis_mellifera_Western_honey_bee.jpg', credit:'Charles J. Sharp, CC BY-SA 4.0'},
+    'mantis-shrimp':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Odontodactylus_scyllarus.jpg/480px-Odontodactylus_scyllarus.jpg', credit:'Roy Caldwell, Public Domain'},
+    'horseshoe-crab':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Horseshoe_crab_dig.jpg/480px-Horseshoe_crab_dig.jpg', credit:'Steve Droter/CBF, CC BY 2.0'},
+    'mollusca':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Day_Octopus_%28Octopus_cyanea%29.jpg/480px-Day_Octopus_%28Octopus_cyanea%29.jpg', credit:'Albert Kok, CC BY-SA 3.0'},
+    'cephalopods':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Day_Octopus_%28Octopus_cyanea%29.jpg/480px-Day_Octopus_%28Octopus_cyanea%29.jpg', credit:'Albert Kok, CC BY-SA 3.0'},
+    'octopus':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Octopus3.jpg/480px-Octopus3.jpg', credit:'Albert Kok, CC BY-SA 3.0'},
+    'octopus-day':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Day_Octopus_%28Octopus_cyanea%29.jpg/480px-Day_Octopus_%28Octopus_cyanea%29.jpg', credit:'Albert Kok, CC BY-SA 3.0'},
+    'nautilus':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Nautilus_pompilius_%28head%29.jpg/480px-Nautilus_pompilius_%28head%29.jpg', credit:'Profberger, CC BY-SA 4.0'},
+    'echinodermata':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Coral_reef_at_palmyra.jpg/480px-Coral_reef_at_palmyra.jpg', credit:'U.S. Fish and Wildlife Service, Public Domain'},
+    'chordata':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Coelacanth_cast.jpg/480px-Coelacanth_cast.jpg', credit:'Citron, CC BY-SA 3.0'},
+    'fish':                  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/White_shark.jpg/480px-White_shark.jpg', credit:'Pterantula, CC BY-SA 3.0'},
+    'sharks':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/White_shark.jpg/480px-White_shark.jpg', credit:'Pterantula, CC BY-SA 3.0'},
+    'white-shark':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/White_shark.jpg/480px-White_shark.jpg', credit:'Pterantula, CC BY-SA 3.0'},
+    'coelacanth':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Coelacanth_cast.jpg/480px-Coelacanth_cast.jpg', credit:'Citron, CC BY-SA 3.0'},
+    'amphibia':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Litoria_caerulea_White%27s_tree_frog.jpg/480px-Litoria_caerulea_White%27s_tree_frog.jpg', credit:'LiquidGhoul, CC BY-SA 3.0'},
+    'reptilia':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Komodo_dragon_%28Varanus_komodoensis%29_-edit2.jpg/480px-Komodo_dragon_%28Varanus_komodoensis%29_-edit2.jpg', credit:'Adhi Rachdian, CC BY 2.0'},
+    'komodo-dragon':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Komodo_dragon_%28Varanus_komodoensis%29_-edit2.jpg/480px-Komodo_dragon_%28Varanus_komodoensis%29_-edit2.jpg', credit:'Adhi Rachdian, CC BY 2.0'},
+    'tuatara':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Tuatara_%28Sphenodon_punctatus%29.jpg/480px-Tuatara_%28Sphenodon_punctatus%29.jpg', credit:'KeresH, CC BY-SA 3.0'},
+    'aves':                  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/White_Peafowl_%28Pavo_cristatus%29.jpg/480px-White_Peafowl_%28Pavo_cristatus%29.jpg', credit:'Hahifuhehu, CC BY-SA 3.0'},
+    'birds':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Falco_peregrinus_-_01.jpg/480px-Falco_peregrinus_-_01.jpg', credit:'Juan Lacruz, CC BY-SA 3.0'},
+    'archaeopteryx':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Archaeopteryx_lithographica_%28Berlin_specimen%29.jpg/480px-Archaeopteryx_lithographica_%28Berlin_specimen%29.jpg', credit:'H. Raab, CC BY-SA 3.0'},
+    'peregrine-falcon':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Falco_peregrinus_-_01.jpg/480px-Falco_peregrinus_-_01.jpg', credit:'Juan Lacruz, CC BY-SA 3.0'},
+    'mammalia':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Humpback_whales_in_singing_position.jpg/480px-Humpback_whales_in_singing_position.jpg', credit:'NOAA, Public Domain'},
+    'mammals':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Humpback_whales_in_singing_position.jpg/480px-Humpback_whales_in_singing_position.jpg', credit:'NOAA, Public Domain'},
+    'cetaceans':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Humpback_whales_in_singing_position.jpg/480px-Humpback_whales_in_singing_position.jpg', credit:'NOAA, Public Domain'},
+    'blue-whale':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Snout_of_a_Blue_Whale.jpg/480px-Snout_of_a_Blue_Whale.jpg', credit:'NOAA, Public Domain'},
+    'naked-mole-rat':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Naked_mole_rat.jpg/480px-Naked_mole_rat.jpg', credit:'Jedimentat44, CC BY 2.0'},
+    'platypus':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Platypus.jpg/480px-Platypus.jpg', credit:'Peter Schouten, CC BY-SA 3.0'},
+    'primates':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/ChimpanzeeZoo.jpg/480px-ChimpanzeeZoo.jpg', credit:'Thomas Lersch, CC BY-SA 3.0'},
+    'great-apes':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Western_gorilla_%28Gorilla_gorilla%29_-_british_council.jpg/480px-Western_gorilla_%28Gorilla_gorilla%29_-_british_council.jpg', credit:'Brocken Inaglory, CC BY-SA 3.0'},
+    'orangutan':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Orang_Utan%2C_Semenggok_Forest_Reserve%2C_Sarawak%2C_Borneo%2C_Malaysia.JPG/480px-Orang_Utan%2C_Semenggok_Forest_Reserve%2C_Sarawak%2C_Borneo%2C_Malaysia.JPG', credit:'Thorsten Bachner, CC BY-SA 3.0'},
+    'gorilla':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Western_gorilla_%28Gorilla_gorilla%29_-_british_council.jpg/480px-Western_gorilla_%28Gorilla_gorilla%29_-_british_council.jpg', credit:'Brocken Inaglory, CC BY-SA 3.0'},
+    'chimpanzee':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/ChimpanzeeZoo.jpg/480px-ChimpanzeeZoo.jpg', credit:'Thomas Lersch, CC BY-SA 3.0'},
+    'homo-sapiens':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Akha_woman.jpg/480px-Akha_woman.jpg', credit:'Steve Evans, CC BY 2.0'},
+    // Protists
+    'protists':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Diatoms_through_the_microscope.jpg/480px-Diatoms_through_the_microscope.jpg', credit:'Wipeter, CC BY-SA 3.0'},
+    'alveolates':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Dinoflagellate_bloom.jpg/480px-Dinoflagellate_bloom.jpg', credit:'NOAA, Public Domain'},
+    'plasmodium':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Plasmodium_falciparum_01.png/480px-Plasmodium_falciparum_01.png', credit:'CDC, Public Domain'},
+    'dinoflagellates':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Dinoflagellate_bloom.jpg/480px-Dinoflagellate_bloom.jpg', credit:'NOAA, Public Domain'},
+    'diatoms':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Diatoms_through_the_microscope.jpg/480px-Diatoms_through_the_microscope.jpg', credit:'Wipeter, CC BY-SA 3.0'},
+    'phytophthora':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Phytophthora_infestans_on_tomato.jpg/480px-Phytophthora_infestans_on_tomato.jpg', credit:'Ninjatacoshell, CC BY-SA 3.0'},
+    'amoeba':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Amoeba_proteus_with_many_pseudopodia.jpg/480px-Amoeba_proteus_with_many_pseudopodia.jpg', credit:'Deuterostome, CC BY-SA 3.0'},
+    'volvox':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Volvox_aureus.jpg/480px-Volvox_aureus.jpg', credit:'Frank Fox, CC BY-SA 3.0'},
+    // Hominins
+    'homo-naledi':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Homo_naledi_skull.jpg/480px-Homo_naledi_skull.jpg', credit:'Lee Roger Berger, CC BY 4.0'},
+    'h_naledi':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Homo_naledi_skull.jpg/480px-Homo_naledi_skull.jpg', credit:'Lee Roger Berger, CC BY 4.0'},
+    'homo-floresiensis':     {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Homo_floresiensis_cave.jpg/480px-Homo_floresiensis_cave.jpg', credit:'Rosino, CC BY-SA 2.0'},
+    'h_floresiensis':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Homo_floresiensis_cave.jpg/480px-Homo_floresiensis_cave.jpg', credit:'Rosino, CC BY-SA 2.0'},
+    'h_luzonensis':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Callao_Cave_Entrance.jpg/480px-Callao_Cave_Entrance.jpg', credit:'Judgefloro, CC0'},
+    'denisovan':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Denisova_Cave_main_gallery.jpg/480px-Denisova_Cave_main_gallery.jpg', credit:'Демин Алексей Барнаул, CC BY-SA 3.0'},
+    'h_neanderthalensis':    {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Homo_neanderthalensis.jpg/480px-Homo_neanderthalensis.jpg', credit:'Erich Ferdinand, CC BY 2.0'},
+    'h_erectus':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Turkana_Boy_1.JPG/480px-Turkana_Boy_1.JPG', credit:'Locutus Borg, CC BY-SA 3.0'},
+    'h_heidelbergensis':     {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Homo_heidelbergensis-male.jpg/480px-Homo_heidelbergensis-male.jpg', credit:'Cicero Moraes, CC BY-SA 3.0'},
+    'h_habilis':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Homo_habilis-2.JPG/480px-Homo_habilis-2.JPG', credit:'Lillyundfreya, CC BY-SA 2.5'},
+    'au_afarensis':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Lucy_Skeleton.jpg/480px-Lucy_Skeleton.jpg', credit:'101cats/Cleveland Museum, CC BY 4.0'},
+    'au_africanus':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Australopithecus_africanus_-_Cast_of_taung_child.jpg/480px-Australopithecus_africanus_-_Cast_of_taung_child.jpg', credit:'José Braga/Didier Descouens, CC BY-SA 4.0'},
+    'sahelanthropus':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg/480px-Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg', credit:'Didier Descouens, CC BY-SA 4.0'},
+    'ardipithecus_r':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Ardipithecus_ramidus_-_Scientific_reconstruction.jpg/480px-Ardipithecus_ramidus_-_Scientific_reconstruction.jpg', credit:'Science, Fair Use educational'},
+  };
+  // Merge data-level img with the lookup map; lookup takes priority
+  const photoEntry = PHOTO_MAP[node.id];
+  const imgUrl = (photoEntry && photoEntry.url) || node.img || null;
+  const imgCredit = (photoEntry && photoEntry.credit) || node.imgCredit || null;
   p.innerHTML = `
-    <div style="width:100%;aspect-ratio:16/9;background:var(--color-button-bg);overflow:hidden;position:relative;flex-shrink:0;">
-      ${hasImg ? `
-        <img src="${node.img}" alt="${node.name}"
+    <div style="width:100%;aspect-ratio:16/9;background:#111;overflow:hidden;position:relative;flex-shrink:0;">
+      ${imgUrl ? `
+        <img src="${imgUrl}" alt="${node.name}"
           style="width:100%;height:100%;object-fit:cover;display:block;"
-          onerror="this.parentElement.innerHTML='<div style=\\'width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:72px;\\'>${node.icon || '🌿'}</div>'"
+          onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
         />
-        ${node.imgCredit ? `<div style="position:absolute;bottom:4px;right:8px;font-size:10px;color:rgba(255,255,255,0.7);font-family:Source Sans 3,sans-serif;text-shadow:0 1px 3px rgba(0,0,0,0.8);">${node.imgCredit}</div>` : ''}
+        <div style="display:none;width:100%;height:100%;align-items:center;justify-content:center;font-size:72px;background:#111;">${node.icon||'🌿'}</div>
+        ${imgCredit ? `<div style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.65);font-family:'Source Sans 3',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.35);padding:1px 5px;border-radius:3px;">${imgCredit}</div>` : ''}
       ` : `
-        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:72px;">${node.icon || '🌿'}</div>
+        <div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:72px;background:#111;">${node.icon||'🌿'}</div>
       `}
     </div>
     <div style="padding:20px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;flex:1;">
@@ -2057,6 +2511,17 @@ function renderPanelContent(node) {
       </button>
     </div>
   `;
+  // Inject back button at top if we have history
+  if(panelHistory.length>0){
+    const scroll=p.querySelector('[style*="padding:20px"]');
+    if(scroll){
+      const backBtn=document.createElement('button');
+      backBtn.textContent='← Back';
+      backBtn.onclick=panelBack;
+      backBtn.style.cssText='padding:6px 14px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:Source Sans 3,sans-serif;font-size:12px;color:var(--color-text-secondary);margin-bottom:4px;display:inline-flex;align-items:center;gap:4px;';
+      scroll.insertBefore(backBtn,scroll.firstChild);
+    }
+  }
 }
 
 function openHominins(nodeId) {
@@ -2069,6 +2534,10 @@ function openHominins(nodeId) {
   }, 300);
 }
 function showMainPanel(n){
+  if(currentPanelNode && currentPanelNode.id !== n.id){
+    panelHistory.push(currentPanelNode);
+    if(panelHistory.length>20) panelHistory.shift(); // cap history
+  }
   currentPanelNode=n;
   renderPanelContent(n);
   panel.classList.add('panel-enter');
@@ -2081,7 +2550,15 @@ function showMainPanel(n){
   updateBreadcrumb(n);
 }
 
-function closePanel(){const p=document.getElementById('panel')||document.getElementById('info-panel');if(p){p.classList.remove('open');}updateBreadcrumb(null);history.replaceState(null,'',location.pathname);}
+function panelBack(){
+  if(panelHistory.length===0) return;
+  const prev=panelHistory.pop();
+  currentPanelNode=prev;
+  renderPanelContent(prev);
+  updateBreadcrumb(prev);
+}
+
+function closePanel(){const p=document.getElementById('panel')||document.getElementById('info-panel');if(p){p.classList.remove('open');}updateBreadcrumb(null);panelHistory=[];history.replaceState(null,'',location.pathname);}
 document.getElementById('panel-close').addEventListener('click',closePanel);
 document.getElementById('svg').addEventListener('click',closePanel);
 

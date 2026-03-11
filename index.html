@@ -142,7 +142,8 @@ body.dragging{cursor:grabbing;}
 #canvas-wrap{position:fixed;inset:0;z-index:1;}
 svg{width:100%;height:100%;}
 .node-group{cursor:pointer;}
-.node-circle{transition:filter 0.3s;}
+.node-circle{transition:r 150ms ease,opacity 150ms ease,filter 0.3s;cursor:pointer;}
+.node-circle:hover{filter:brightness(1.15);}
 .node-group:hover .nc-main{filter:brightness(1.4) drop-shadow(0 0 14px var(--nc));}
 .branch-path{fill:none;stroke-linecap:round;stroke-linejoin:round;}
 .node-label-text{pointer-events:none;font-family:var(--font-body, 'Source Sans 3', sans-serif);font-size:14px;}
@@ -302,8 +303,9 @@ svg{width:100%;height:100%;}
 
 /* ── ANIMATIONS ── */
 @keyframes rootPulse{0%,100%{opacity:0.4;transform:scale(1)}50%{opacity:0.8;transform:scale(1.06)}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 @keyframes livingPulse{0%,100%{opacity:0.25}50%{opacity:0.55}}
+@keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 @keyframes searchHighlight{0%{stroke-width:0;opacity:0}50%{opacity:1}100%{stroke-width:0;opacity:0}}
 
 /* ── LANGUAGE SWITCHER ── */
@@ -487,6 +489,24 @@ svg{width:100%;height:100%;}
 .era-triassic    { background-color: rgba(180,80,20,0.07) !important; }
 .era-cretaceous  { background-color: rgba(30,90,40,0.09) !important; }
 .era-cenozoic    { background-color: rgba(60,100,80,0.06) !important; }
+
+/* ── DARK MODE POLISH ── */
+[data-theme="dark"] #search-results{background:#121810;border-color:#2a3a28;box-shadow:0 4px 16px rgba(0,0,0,0.4);}
+[data-theme="dark"] .search-result-item:hover{background:#1a2418;}
+[data-theme="dark"] .search-result-name{color:#e8ead4;}
+[data-theme="dark"] .search-result-meta{color:#6a8a65;}
+[data-theme="dark"] #shortcuts-hint{background:#121810;border-color:#2a3a28;color:#6a8a65;}
+[data-theme="dark"] kbd{background:#1a2418;border-color:#2a3a28;color:#a8c4a0;}
+[data-theme="dark"] #loader{background:#0d110e;}
+
+/* ── SPLASH POLISH ── */
+#splash{animation:fadeIn 600ms ease forwards;}
+#splash h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,6vw,4rem);letter-spacing:-0.02em;margin-bottom:8px;}
+#splash .tagline{font-family:'Source Sans 3',sans-serif;font-size:clamp(0.9rem,2vw,1.1rem);opacity:0.75;max-width:480px;text-align:center;line-height:1.6;}
+
+/* ── PANEL ANIMATION ── */
+#panel,#info-panel{transition:transform 250ms ease,opacity 250ms ease,right 0.5s cubic-bezier(0.16,1,0.3,1);}
+#panel.panel-enter,#info-panel.panel-enter{transform:translateX(100%);opacity:0;}
 
 /* ── PANEL IMPROVEMENTS ── */
 [data-theme="light"] #panel{
@@ -1869,6 +1889,8 @@ function render(){
     c.style.setProperty('--nc',n.color);
     if(n.depth===0) c.setAttribute('filter','url(#strongGlow)');
     if(n.extinct){c.setAttribute('stroke-dasharray','4 2');c.setAttribute('opacity','0.6');}
+    c.addEventListener('mouseenter',function(){this.style.transform='scale(1.15)';this.style.transformOrigin='center';this.style.filter='brightness(1.2)';});
+    c.addEventListener('mouseleave',function(){this.style.transform='scale(1)';this.style.filter='';});
     g.appendChild(c);
 
     // Icon
@@ -1992,18 +2014,19 @@ function showMainPanel(n){
     cs.style.display='block';
   } else cs.style.display='none';
 
-  panel.style.opacity = '0';
-  panel.style.transform = 'translateX(20px)';
+  panel.classList.add('panel-enter');
   panel.classList.add('open');
   requestAnimationFrame(() => {
+    panel.classList.remove('panel-enter');
     panel.style.opacity = '1';
     panel.style.transform = 'translateX(0)';
   });
   updateBreadcrumb(n);
 }
 
-document.getElementById('panel-close').addEventListener('click',()=>{panel.classList.remove('open');updateBreadcrumb(null);history.replaceState(null,'',location.pathname);});
-document.getElementById('svg').addEventListener('click',()=>{panel.classList.remove('open');updateBreadcrumb(null);history.replaceState(null,'',location.pathname);});
+function closePanel(){const p=document.getElementById('panel')||document.getElementById('info-panel');if(p){p.classList.remove('open');}updateBreadcrumb(null);history.replaceState(null,'',location.pathname);}
+document.getElementById('panel-close').addEventListener('click',closePanel);
+document.getElementById('svg').addEventListener('click',closePanel);
 
 // ══════════════════════════════════════════════════════
 // BREADCRUMB
@@ -2737,8 +2760,7 @@ function showLoading() {
   `;
   loader.innerHTML = `
     <div style="font-size:48px;margin-bottom:16px;animation:spin 2s linear infinite;">🌿</div>
-    <div style="font-size:18px;color:var(--color-text-secondary);letter-spacing:0.05em;">Loading the Tree of Life...</div>
-    <style>@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style>
+    <div style="font-size:18px;color:var(--color-text-secondary);letter-spacing:0.05em;">Growing the tree...</div>
   `;
   document.body.appendChild(loader);
   return loader;
@@ -2860,6 +2882,15 @@ function init(){
   } else {
     showIntro();
   }
+  // Keyboard shortcut hint
+  setTimeout(()=>{
+    const hint=document.getElementById('shortcuts-hint');
+    if(hint&&!localStorage.getItem('hints-shown')){
+      hint.style.opacity='1';
+      setTimeout(()=>{hint.style.opacity='0';},4000);
+      localStorage.setItem('hints-shown','1');
+    }
+  },3000);
 }
 window.addEventListener('resize',()=>{layout();render();});
 init();
@@ -2868,5 +2899,8 @@ init();
 <footer style="position:fixed;bottom:4px;right:8px;font-family:'Source Sans 3',sans-serif;font-size:10px;color:var(--color-text-muted);opacity:0.6;z-index:10;pointer-events:none;">
   Tree of Life · Images via Wikimedia Commons · Built with Claude
 </footer>
+<div id="shortcuts-hint" style="position:fixed;bottom:8px;right:8px;font-family:'Source Sans 3',sans-serif;font-size:11px;color:var(--color-text-muted);background:var(--color-canvas);border:1px solid var(--color-divider);border-radius:6px;padding:4px 10px;opacity:0;transition:opacity 300ms ease;pointer-events:none;z-index:50;">
+  Press <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">/</kbd> to search &nbsp;·&nbsp; <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">D</kbd> dark mode &nbsp;·&nbsp; <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">Esc</kbd> close
+</div>
 </body>
 </html>

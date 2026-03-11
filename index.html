@@ -292,11 +292,12 @@ svg{width:100%;height:100%;}
 .zbtn:hover{background:rgba(200,136,58,0.14);border-color:var(--gold);color:var(--parchment);}
 
 /* ── TOOLTIP ── */
-#tooltip{position:fixed;z-index:300;background:rgba(7,5,3,0.94);
+#tooltip{position:fixed;z-index:1000;background:rgba(7,5,3,0.94);
   border:1px solid rgba(200,136,58,0.28);border-radius:8px;padding:0.5rem 0.8rem;
-  font-size:0.75rem;color:var(--parchment);pointer-events:none !important;opacity:0;transition:opacity 0.2s;
+  font-size:0.75rem;color:var(--parchment);pointer-events:none !important;
+  opacity:0;visibility:hidden;transition:opacity 150ms ease,visibility 150ms ease;
   max-width:220px;backdrop-filter:blur(10px);}
-#tooltip.show{opacity:1;}
+#tooltip.show{opacity:1;visibility:visible;}
 .tip-name{font-family:var(--font-head);font-size:0.9rem;font-weight:600;}
 .tip-era{font-size:0.62rem;color:var(--gold);letter-spacing:0.1em;margin-top:0.15rem;}
 .tip-fact{font-size:0.65rem;color:rgba(242,232,208,0.65);margin-top:0.2rem;font-style:italic;}
@@ -2092,7 +2093,9 @@ const tooltip=document.getElementById('tooltip');
 function showTooltip(node, x, y) {
   const tip = document.getElementById('node-tooltip');
   if (!tip) return;
-  tip.style.display = 'block';
+  clearTimeout(_tooltipHideTimer);
+  tip.style.opacity = '1';
+  tip.style.visibility = 'visible';
   tip.innerHTML = `
     <div style="font-weight:700;margin-bottom:2px;">${node.icon || ''} ${node.name}</div>
     ${node.latin ? `<div style="font-style:italic;color:var(--color-text-secondary);font-size:11px;">${node.latin}</div>` : ''}
@@ -2105,24 +2108,34 @@ function showTooltip(node, x, y) {
   tip.style.left = (x + 16 + tw > wx ? x - tw - 8 : x + 16) + 'px';
   tip.style.top = (y + th > wy ? y - th : y) + 'px';
 }
-let _tooltipHideTimer;
+let _tooltipHideTimer = null;
 function hideTooltip() {
+  clearTimeout(_tooltipHideTimer);
   _tooltipHideTimer = setTimeout(() => {
     const tip = document.getElementById('node-tooltip');
-    if (tip) tip.style.display = 'none';
+    if (tip) { tip.style.opacity = '0'; tip.style.visibility = 'hidden'; }
     tooltip.style.opacity = '0';
+    tooltip.style.visibility = 'hidden';
     tooltip.classList.remove('show');
-  }, 80);
+  }, 100);
 }
 function showTip(e,n){
   clearTimeout(_tooltipHideTimer);
   document.getElementById('tip-name').textContent=n.name;
   document.getElementById('tip-era').textContent=n.era;
   document.getElementById('tip-fact').textContent=n.tipFact||'';
-  moveTip(e);tooltip.classList.add('show');
+  moveTip(e);
+  tooltip.style.visibility = 'visible';
+  tooltip.classList.add('show');
   showTooltip(n, e.clientX, e.clientY);
 }
-function moveTip(e){let x=e.clientX+16,y=e.clientY-12;if(x+240>window.innerWidth)x=e.clientX-250;if(y<10)y=e.clientY+20;tooltip.style.left=x+'px';tooltip.style.top=y+'px';}
+function moveTip(e){
+  let x = e.clientX + 16, y = e.clientY - 10;
+  if(x + 240 > window.innerWidth) x = e.clientX - 250;
+  if(y < 10) y = e.clientY + 20;
+  tooltip.style.left = x + 'px';
+  tooltip.style.top = y + 'px';
+}
 function hideTip(){hideTooltip();}
 window.addEventListener('mousemove',e=>{if(tooltip.classList.contains('show'))moveTip(e);});
 
@@ -2958,7 +2971,7 @@ function init(){
 window.addEventListener('resize',()=>{layout();render();});
 init();
 </script>
-<div id="node-tooltip" style="display:none;position:fixed;background:var(--color-panel-bg);border:1px solid var(--color-panel-border);border-radius:8px;padding:8px 12px;font-family:'Source Sans 3',sans-serif;font-size:13px;color:var(--color-text-primary);pointer-events:none;z-index:500;box-shadow:0 4px 16px rgba(60,45,20,0.12);max-width:220px;"></div>
+<div id="node-tooltip" style="position:fixed;opacity:0;visibility:hidden;background:var(--color-panel-bg);border:1px solid var(--color-panel-border);border-radius:8px;padding:8px 12px;font-family:'Source Sans 3',sans-serif;font-size:13px;color:var(--color-text-primary);pointer-events:none !important;z-index:1000;box-shadow:0 4px 16px rgba(60,45,20,0.12);max-width:220px;transition:opacity 150ms ease,visibility 150ms ease;"></div>
 <footer style="position:fixed;bottom:4px;right:8px;font-family:'Source Sans 3',sans-serif;font-size:10px;color:var(--color-text-muted);opacity:0.6;z-index:10;pointer-events:none;">
   Tree of Life · Images via Wikimedia Commons · Built with Claude
 </footer>

@@ -1567,13 +1567,22 @@ const TREE = {
                       tags:['Stereoscopic vision','Grasping hands','Extended childhood','Tool use','Cultural transmission'],
                       tipFact:'You share 99% of your DNA with a chimpanzee.',
                       children:[
-                        {id:'humans',icon:'🧠',color:'#e8b86d',r:14,appeared:0.3,extinct:null,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Human_evolution_scheme.svg/400px-Human_evolution_scheme.svg.png',imgCredit:'Human evolution: José-Manuel Benitos (Public Domain)',
-                          name:'Homo sapiens',latin:'Homo sapiens sapiens',era:'~300,000 Years Ago',
-                          desc:'The only surviving member of genus Homo — a genus that once included at least 8 other species. Anatomically modern humans emerged ~300,000 years ago in Africa. We carry ~2% Neanderthal DNA and ~5% Denisovan DNA in non-African populations.',
-                          detail:'Behavioral modernity — symbolic art, complex language, long-distance trade — emerged ~70,000–50,000 years ago. In 300,000 years we transformed the atmosphere, triggered a mass extinction, and launched spacecraft beyond the solar system.',
-                          facts:[{l:'Appeared',v:'~300,000 years ago'},{l:'Population',v:'~8.1 billion'},{l:'Genome',v:'3.2 billion base pairs'},{l:'Neanderthal DNA',v:'~2% (non-African)'}],
-                          tags:['Language','Symbolic art','Tool culture','Agriculture','Writing','Cities','Space travel'],
-                          tipFact:'You carry genetic memories of at least 3 other human species.',
+                        {id:'homo-sapiens',icon:'🧠',color:lightenColor('#9a7055','species'),r:14,appeared:0.3,extinct:null,
+                          img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Akha_woman.jpg/320px-Akha_woman.jpg',
+                          imgCredit:'Steve Evans, CC BY 2.0',
+                          name:'Homo sapiens',latin:'Homo sapiens',era:'Quaternary',
+                          desc:'The only surviving human species. Anatomically modern humans appeared in Africa around 300,000 years ago and spread across every continent. Our large prefrontal cortex enables abstract thought, language, art, and culture.',
+                          detail:'Homo sapiens have the largest brain relative to body size of any animal. We are the only species known to use symbolic language, create cumulative culture, and contemplate our own existence. Despite our diversity we are genetically one of the least variable large mammals — a genetic bottleneck around 70,000 years ago reduced our ancestors to perhaps 10,000 individuals.',
+                          funFact:'All 8 billion humans alive today descend from a population of perhaps 10,000 individuals who survived a near-extinction event 70,000 years ago — making us one of the least genetically diverse large mammals on Earth.',
+                          facts:[
+                            {l:'Appeared',v:'~300,000 years ago'},
+                            {l:'Brain volume',v:'1,200–1,700 cc'},
+                            {l:'Population',v:'8 billion'},
+                            {l:'Genetic bottleneck',v:'~70,000 years ago'},
+                            {l:'Continents inhabited',v:'All 7'}
+                          ],
+                          tags:['Modern human','Language','Culture','Tool use','Art'],
+                          tipFact:'You are a 300,000 year old African species looking at a screen.',
                           children:[]}
                       ]}
                   ]}
@@ -1748,10 +1757,10 @@ window.getNodeById = id=>nodeMap[id];
 // ══════════════════════════════════════════════════════
 // LAYOUT
 // ══════════════════════════════════════════════════════
-const DEPTH_R=[0,161,294,413,518,609,689,762,823];
+const DEPTH_R=[0,225,412,578,725,853,965,1067,1152];
 function getVisible(n){let a=[n];if(n.children&&!n._collapsed)n.children.forEach(c=>a=a.concat(getVisible(c)));return a;}
 function getVisibleEdges(n){let a=[];if(n.children&&!n._collapsed){n.children.forEach(c=>{a.push({from:n,to:c});a=a.concat(getVisibleEdges(c));});}return a;}
-function assignAngles(n,a0,a1){n._a0=a0;n._a1=a1;n._angle=(a0+a1)/2;if(!n.children||!n.children.length||n._collapsed)return;const visible=n.children;const range=a1-a0;let a=a0;visible.forEach(c=>{const share=range/visible.length;assignAngles(c,a,a+share);a+=share;});}
+function assignAngles(n,a0,a1){n._a0=a0;n._a1=a1;n._angle=(a0+a1)/2;if(!n.children||!n.children.length||n._collapsed)return;const visible=n.children;const minAngleSep=0.15;const range=a1-a0;const minTotal=visible.length*minAngleSep;const effectiveRange=Math.max(range,minTotal);let a=a0-(effectiveRange-range)/2;visible.forEach(c=>{const share=effectiveRange/visible.length;assignAngles(c,a,a+share);a+=share;});}
 function assignPositions(n,cx,cy){const r=DEPTH_R[n.depth]||(n.depth*65);n._x=cx+Math.cos(n._angle-Math.PI/2)*r;n._y=cy+Math.sin(n._angle-Math.PI/2)*r;if(n.children&&!n._collapsed)n.children.forEach(c=>assignPositions(c,cx,cy));}
 function layout(){const cx=window.innerWidth/2,cy=window.innerHeight/2+35;assignAngles(TREE,0,Math.PI*2);assignPositions(TREE,cx,cy);}
 
@@ -1811,7 +1820,7 @@ function resetDomains() {
 const branchLayer=document.getElementById('layer-branches');
 const nodesLayer=document.getElementById('layer-nodes');
 const viewport=document.getElementById('viewport');
-let transform={x:0,y:0,s:1.4};
+let transform={x:0,y:0,s:0.75};
 const applyT=()=>viewport.setAttribute('transform',`translate(${transform.x},${transform.y}) scale(${transform.s})`);
 const animDone=new Set();
 let highlightedId=null;
@@ -1865,7 +1874,7 @@ function render(){
     }
 
     // Living pulse ring for Homo sapiens
-    if(n.id==='humans'){
+    if(n.id==='homo-sapiens'){
       const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
       ring.setAttribute('cx',n._x);ring.setAttribute('cy',n._y);ring.setAttribute('r',n.r+10);
       ring.setAttribute('fill','none');ring.setAttribute('stroke',n.color);
@@ -1920,7 +1929,17 @@ function render(){
     }
 
     // Label — smart positioning to avoid overlap
-    if(inEra && n.depth<=5){
+    let showLabel=inEra&&n.depth<=5;
+    if(showLabel&&n._parent&&n._parent.children&&n._parent.children.length>1){
+      const siblings=n._parent.children.filter(s=>s!==n);
+      for(const sib of siblings){
+        if(sib._x===undefined)continue;
+        const dx=n._x-sib._x,dy=n._y-sib._y;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<40&&n.r<=sib.r){showLabel=false;break;}
+      }
+    }
+    if(showLabel){
       const angleRad=n._angle-Math.PI/2;
       const lDist=n.r+14;
       const lx=n._x+Math.cos(angleRad)*lDist;

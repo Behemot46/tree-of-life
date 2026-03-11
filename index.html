@@ -1757,10 +1757,10 @@ window.getNodeById = id=>nodeMap[id];
 // ══════════════════════════════════════════════════════
 // LAYOUT
 // ══════════════════════════════════════════════════════
-const DEPTH_R=[0,161,294,413,518,609,689,762,823];
+const DEPTH_R=[0,225,412,578,725,853,965,1067,1152];
 function getVisible(n){let a=[n];if(n.children&&!n._collapsed)n.children.forEach(c=>a=a.concat(getVisible(c)));return a;}
 function getVisibleEdges(n){let a=[];if(n.children&&!n._collapsed){n.children.forEach(c=>{a.push({from:n,to:c});a=a.concat(getVisibleEdges(c));});}return a;}
-function assignAngles(n,a0,a1){n._a0=a0;n._a1=a1;n._angle=(a0+a1)/2;if(!n.children||!n.children.length||n._collapsed)return;const visible=n.children;const range=a1-a0;let a=a0;visible.forEach(c=>{const share=range/visible.length;assignAngles(c,a,a+share);a+=share;});}
+function assignAngles(n,a0,a1){n._a0=a0;n._a1=a1;n._angle=(a0+a1)/2;if(!n.children||!n.children.length||n._collapsed)return;const visible=n.children;const minAngleSep=0.15;const range=a1-a0;const minTotal=visible.length*minAngleSep;const effectiveRange=Math.max(range,minTotal);let a=a0-(effectiveRange-range)/2;visible.forEach(c=>{const share=effectiveRange/visible.length;assignAngles(c,a,a+share);a+=share;});}
 function assignPositions(n,cx,cy){const r=DEPTH_R[n.depth]||(n.depth*65);n._x=cx+Math.cos(n._angle-Math.PI/2)*r;n._y=cy+Math.sin(n._angle-Math.PI/2)*r;if(n.children&&!n._collapsed)n.children.forEach(c=>assignPositions(c,cx,cy));}
 function layout(){const cx=window.innerWidth/2,cy=window.innerHeight/2+35;assignAngles(TREE,0,Math.PI*2);assignPositions(TREE,cx,cy);}
 
@@ -1820,7 +1820,7 @@ function resetDomains() {
 const branchLayer=document.getElementById('layer-branches');
 const nodesLayer=document.getElementById('layer-nodes');
 const viewport=document.getElementById('viewport');
-let transform={x:0,y:0,s:1.4};
+let transform={x:0,y:0,s:0.75};
 const applyT=()=>viewport.setAttribute('transform',`translate(${transform.x},${transform.y}) scale(${transform.s})`);
 const animDone=new Set();
 let highlightedId=null;
@@ -1929,7 +1929,17 @@ function render(){
     }
 
     // Label — smart positioning to avoid overlap
-    if(inEra && n.depth<=5){
+    let showLabel=inEra&&n.depth<=5;
+    if(showLabel&&n._parent&&n._parent.children&&n._parent.children.length>1){
+      const siblings=n._parent.children.filter(s=>s!==n);
+      for(const sib of siblings){
+        if(sib._x===undefined)continue;
+        const dx=n._x-sib._x,dy=n._y-sib._y;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<40&&n.r<=sib.r){showLabel=false;break;}
+      }
+    }
+    if(showLabel){
       const angleRad=n._angle-Math.PI/2;
       const lDist=n.r+14;
       const lx=n._x+Math.cos(angleRad)*lDist;

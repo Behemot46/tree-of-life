@@ -1784,7 +1784,7 @@ function toggleExtinct() {
   showExtinct = !showExtinct;
   document.getElementById('extinct-label').textContent = showExtinct ? 'Hide Extinct' : 'Show Extinct';
   document.getElementById('extinct-toggle').style.opacity = showExtinct ? '1' : '0.6';
-  render();
+  scheduleRender();
 }
 
 // ══════════════════════════════════════════════════════
@@ -1801,7 +1801,7 @@ function toggleDomain(domain) {
     el.style.opacity = activeDomains.has(d) ? '1' : '0.35';
     el.style.fontWeight = activeDomains.has(d) ? '600' : '400';
   });
-  render();
+  scheduleRender();
 }
 
 function resetDomains() {
@@ -1810,7 +1810,7 @@ function resetDomains() {
     el.style.opacity = '1';
     el.style.fontWeight = '400';
   });
-  render();
+  scheduleRender();
 }
 
 // ══════════════════════════════════════════════════════
@@ -1931,7 +1931,7 @@ function render(){
     }
 
     // Label — smart positioning to avoid overlap
-    let showLabel=inEra&&n.depth<=5;
+    let showLabel=inEra&&n.depth<=6;
     if(showLabel&&n._parent&&n._parent.children&&n._parent.children.length>1){
       const siblings=n._parent.children.filter(s=>s!==n);
       for(const sib of siblings){
@@ -1941,20 +1941,29 @@ function render(){
         if(dist<40&&n.r<=sib.r){showLabel=false;break;}
       }
     }
+    if(n.id==='homo-sapiens') showLabel=true; // Always show Homo sapiens
     if(showLabel){
-      const angleRad=n._angle-Math.PI/2;
-      const lDist=n.r+14;
-      const lx=n._x+Math.cos(angleRad)*lDist;
-      const ly=n._y+Math.sin(angleRad)*lDist;
-      const cos=Math.cos(angleRad);
+      const _lcx=window.innerWidth/2;
+      const _lcy=window.innerHeight/2+35;
+      const _ndx=n._x-_lcx;
+      const _ndy=n._y-_lcy;
+      let lx,ly,textAnchor;
+      if(Math.abs(_ndx)>=Math.abs(_ndy)){
+        const side=_ndx>=0?1:-1;
+        lx=n._x+side*(n.r+8);ly=n._y;textAnchor=_ndx>=0?'start':'end';
+      } else {
+        const side=_ndy>=0?1:-1;
+        lx=n._x;ly=n._y+side*(n.r+14);textAnchor='middle';
+      }
       const svgText=document.createElementNS('http://www.w3.org/2000/svg','text');
       svgText.setAttribute('x',lx);svgText.setAttribute('y',ly);
-      svgText.setAttribute('text-anchor',cos<-0.15?'end':cos>0.15?'start':'middle');
+      svgText.setAttribute('text-anchor',textAnchor);
       svgText.setAttribute('dominant-baseline','middle');
       svgText.setAttribute('fill',n.depth===0?'#f2e8d0':n.depth<=1?'rgba(242,232,208,0.92)':'rgba(242,232,208,0.75)');
-      svgText.setAttribute('font-size',n.depth===0?'14':n.depth===1?'12':'10');
+      const _fs=Math.max(9,Math.min(14,n.r*0.8));
+      svgText.setAttribute('font-size',_fs+'px');
       svgText.setAttribute('font-family',"'Lora', serif");
-      svgText.setAttribute('font-weight',n.depth<=1?'500':'400');
+      svgText.setAttribute('font-weight',n.r>=20?'700':n.r>=14?'600':'400');
       svgText.setAttribute('class','node-label-text');
       svgText.textContent=n.name;
       g.appendChild(svgText);
@@ -1981,9 +1990,17 @@ function render(){
 
     // Events
     g.addEventListener('click',e=>{e.stopPropagation();showMainPanel(n);});
-    g.addEventListener('contextmenu',e=>{e.preventDefault();if(n.children?.length){n._collapsed=!n._collapsed;render();}});
+    g.addEventListener('contextmenu',e=>{e.preventDefault();if(n.children?.length){n._collapsed=!n._collapsed;scheduleRender();}});
     nodesLayer.appendChild(g);
   });
+}
+
+let _renderScheduled=false;
+function scheduleRender(){
+  if(!_renderScheduled){
+    _renderScheduled=true;
+    requestAnimationFrame(()=>{_renderScheduled=false;render();});
+  }
 }
 
 // ══════════════════════════════════════════════════════
@@ -2194,7 +2211,7 @@ eraSlider.addEventListener('input',()=>{
   eraFill.style.width=pct+'%';
   eraLabel.textContent=getEraName(currentEra);
   updateEraTint(currentEra);
-  render();
+  scheduleRender();
 });
 
 // ══════════════════════════════════════════════════════
@@ -2254,7 +2271,7 @@ window.navigateTo=function(id){
   applyT();
   showMainPanel(n);
   history.replaceState(null,'','?node='+encodeURIComponent(id));
-  setTimeout(()=>{highlightedId=null;render();},2500);
+  setTimeout(()=>{highlightedId=null;scheduleRender();},2500);
 };
 
 // ══════════════════════════════════════════════════════
@@ -2782,7 +2799,7 @@ function applyTheme(){
     document.getElementById('theme-btn').textContent='\ud83c\udf19';
   }
   // Re-render SVG so stroke CSS vars pick up new --bg value
-  if(typeof render==='function') render();
+  if(typeof scheduleRender==='function') scheduleRender();
 }
 
 function toggleTheme(){
@@ -2968,7 +2985,7 @@ function init(){
     }
   },3000);
 }
-window.addEventListener('resize',()=>{layout();render();});
+window.addEventListener('resize',()=>{layout();scheduleRender();});
 init();
 </script>
 <footer style="position:fixed;bottom:4px;right:8px;font-family:'Source Sans 3',sans-serif;font-size:10px;color:var(--color-text-muted);opacity:0.6;z-index:10;pointer-events:none;">

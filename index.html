@@ -145,7 +145,7 @@ svg{width:100%;height:100%;}
 .node-circle{transition:r 150ms ease,opacity 150ms ease,filter 0.3s;cursor:pointer;}
 .node-circle:hover{filter:brightness(1.15);}
 .node-group:hover .nc-main{filter:brightness(1.4) drop-shadow(0 0 14px var(--nc));}
-.branch-path{fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.branch-path{fill:none;stroke-linecap:round;stroke-linejoin:round;cursor:default;}
 .node-label-text{pointer-events:none;font-family:var(--font-body, 'Source Sans 3', sans-serif);font-size:14px;}
 .node-pulse{pointer-events:none;}
 
@@ -292,15 +292,16 @@ svg{width:100%;height:100%;}
 .zbtn:hover{background:rgba(200,136,58,0.14);border-color:var(--gold);color:var(--parchment);}
 
 /* ── TOOLTIP ── */
-#tooltip{position:fixed;z-index:1000;background:rgba(7,5,3,0.94);
-  border:1px solid rgba(200,136,58,0.28);border-radius:8px;padding:0.5rem 0.8rem;
-  font-size:0.75rem;color:var(--parchment);pointer-events:none !important;
-  opacity:0;visibility:hidden;transition:opacity 150ms ease,visibility 150ms ease;
-  max-width:220px;backdrop-filter:blur(10px);}
-#tooltip.show{opacity:1;visibility:visible;}
-.tip-name{font-family:var(--font-head);font-size:0.9rem;font-weight:600;}
-.tip-era{font-size:0.62rem;color:var(--gold);letter-spacing:0.1em;margin-top:0.15rem;}
-.tip-fact{font-size:0.65rem;color:rgba(242,232,208,0.65);margin-top:0.2rem;font-style:italic;}
+#tooltip{position:fixed;pointer-events:none !important;z-index:9999;
+  background:var(--color-panel-bg);border:1px solid var(--color-panel-border);
+  border-radius:8px;padding:8px 12px;font-family:'Source Sans 3',sans-serif;
+  font-size:13px;color:var(--color-text-primary);box-shadow:0 4px 12px rgba(0,0,0,0.15);
+  max-width:200px;line-height:1.4;opacity:0;visibility:hidden;
+  transition:opacity 150ms ease;transform:translate(16px,-50%);white-space:nowrap;}
+#tooltip.visible{opacity:1;visibility:visible;}
+.tree-node{cursor:pointer;}
+svg,#canvas-wrap{cursor:grab;}
+svg:active,#canvas-wrap:active{cursor:grabbing;}
 
 /* ── ANIMATIONS ── */
 @keyframes rootPulse{0%,100%{opacity:0.4;transform:scale(1)}50%{opacity:0.8;transform:scale(1.06)}}
@@ -354,7 +355,6 @@ svg{width:100%;height:100%;}
 [data-theme="light"] #search-input{background:rgba(248,242,230,0.95);color:var(--parchment);}
 [data-theme="light"] #search-results{background:rgba(248,242,230,0.98);}
 [data-theme="light"] #timeline{background:linear-gradient(to top,rgba(248,242,230,0.95) 50%,transparent);}
-[data-theme="light"] #tooltip{background:rgba(248,242,230,0.96);color:var(--parchment);}
 [data-theme="light"] .lang-btn{background:rgba(248,242,230,0.9);color:rgba(138,90,24,0.6);border-color:rgba(138,90,24,0.25);}
 [data-theme="light"] .lang-btn.active{background:rgba(138,90,24,0.18);border-color:var(--gold);color:var(--gold-light);}
 [data-theme="light"] #theme-btn{background:rgba(248,242,230,0.9);color:rgba(138,90,24,0.6);border-color:rgba(138,90,24,0.2);}
@@ -688,11 +688,7 @@ svg{width:100%;height:100%;}
 </div>
 
 <!-- TOOLTIP -->
-<div id="tooltip">
-  <div class="tip-name" id="tip-name"></div>
-  <div class="tip-era" id="tip-era"></div>
-  <div class="tip-fact" id="tip-fact"></div>
-</div>
+<div id="tooltip"></div>
 
 <!-- MAIN DETAIL PANEL -->
 <div id="panel">
@@ -1913,8 +1909,9 @@ function render(){
     c.style.setProperty('--nc',n.color);
     if(n.depth===0) c.setAttribute('filter','url(#strongGlow)');
     if(n.extinct){c.setAttribute('stroke-dasharray','4 2');c.setAttribute('opacity','0.6');}
-    c.addEventListener('mouseenter',function(){this.style.transform='scale(1.15)';this.style.transformOrigin='center';this.style.filter='brightness(1.2)';});
-    c.addEventListener('mouseleave',function(){this.style.transform='scale(1)';this.style.filter='';});
+    c.style.cursor = 'pointer';
+    c.addEventListener('mouseenter', function(){ this.style.transform='scale(1.15)';this.style.transformOrigin='center';this.style.filter='brightness(1.2)'; showTip(n.name, n.icon); });
+    c.addEventListener('mouseleave', function(){ this.style.transform='scale(1)';this.style.filter=''; hideTip(); });
     g.appendChild(c);
 
     // Icon
@@ -1980,8 +1977,6 @@ function render(){
     // Events
     g.addEventListener('click',e=>{e.stopPropagation();showMainPanel(n);});
     g.addEventListener('contextmenu',e=>{e.preventDefault();if(n.children?.length){n._collapsed=!n._collapsed;render();}});
-    g.addEventListener('mouseenter',e=>showTip(e,n));
-    g.addEventListener('mouseleave',hideTip);
     nodesLayer.appendChild(g);
   });
 }
@@ -2108,55 +2103,25 @@ function updateBreadcrumb(n){
 // ══════════════════════════════════════════════════════
 // TOOLTIP
 // ══════════════════════════════════════════════════════
-const tooltip=document.getElementById('tooltip');
-function showTooltip(node, x, y) {
-  const tip = document.getElementById('node-tooltip');
-  if (!tip) return;
-  clearTimeout(_tooltipHideTimer);
-  tip.style.opacity = '1';
-  tip.style.visibility = 'visible';
-  tip.innerHTML = `
-    <div style="font-weight:700;margin-bottom:2px;">${node.icon || ''} ${node.name}</div>
-    ${node.latin ? `<div style="font-style:italic;color:var(--color-text-secondary);font-size:11px;">${node.latin}</div>` : ''}
-    ${node.era ? `<div style="font-size:11px;color:var(--color-text-muted);margin-top:2px;">${node.era}</div>` : ''}
-    ${node.extinct ? `<div style="font-size:11px;color:#c0392b;font-weight:600;">† Extinct</div>` : ''}
-    ${node.tipFact ? `<div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px;border-top:1px solid var(--color-divider);padding-top:4px;">${node.tipFact}</div>` : ''}
-  `;
-  const tw = 220, th = 100;
-  const wx = window.innerWidth, wy = window.innerHeight;
-  tip.style.left = (x + 16 + tw > wx ? x - tw - 8 : x + 16) + 'px';
-  tip.style.top = (y + th > wy ? y - th : y) + 'px';
+const tooltipEl = document.getElementById('tooltip');
+let _tipTimer = null;
+document.addEventListener('mousemove', function(e) {
+  if (tooltipEl.classList.contains('visible')) {
+    tooltipEl.style.left = e.clientX + 'px';
+    tooltipEl.style.top = e.clientY + 'px';
+  }
+});
+function showTip(text, icon) {
+  clearTimeout(_tipTimer);
+  tooltipEl.innerHTML = (icon ? icon + ' ' : '') + text;
+  tooltipEl.classList.add('visible');
 }
-let _tooltipHideTimer = null;
-function hideTooltip() {
-  clearTimeout(_tooltipHideTimer);
-  _tooltipHideTimer = setTimeout(() => {
-    const tip = document.getElementById('node-tooltip');
-    if (tip) { tip.style.opacity = '0'; tip.style.visibility = 'hidden'; }
-    tooltip.style.opacity = '0';
-    tooltip.style.visibility = 'hidden';
-    tooltip.classList.remove('show');
-  }, 100);
+function hideTip() {
+  clearTimeout(_tipTimer);
+  _tipTimer = setTimeout(() => {
+    tooltipEl.classList.remove('visible');
+  }, 80);
 }
-function showTip(e,n){
-  clearTimeout(_tooltipHideTimer);
-  document.getElementById('tip-name').textContent=n.name;
-  document.getElementById('tip-era').textContent=n.era;
-  document.getElementById('tip-fact').textContent=n.tipFact||'';
-  moveTip(e);
-  tooltip.style.visibility = 'visible';
-  tooltip.classList.add('show');
-  showTooltip(n, e.clientX, e.clientY);
-}
-function moveTip(e){
-  let x = e.clientX + 16, y = e.clientY - 10;
-  if(x + 240 > window.innerWidth) x = e.clientX - 250;
-  if(y < 10) y = e.clientY + 20;
-  tooltip.style.left = x + 'px';
-  tooltip.style.top = y + 'px';
-}
-function hideTip(){hideTooltip();}
-window.addEventListener('mousemove',e=>{if(tooltip.classList.contains('show'))moveTip(e);});
 
 // ══════════════════════════════════════════════════════
 // ERA BROWSER
@@ -2990,7 +2955,6 @@ function init(){
 window.addEventListener('resize',()=>{layout();render();});
 init();
 </script>
-<div id="node-tooltip" style="position:fixed;opacity:0;visibility:hidden;background:var(--color-panel-bg);border:1px solid var(--color-panel-border);border-radius:8px;padding:8px 12px;font-family:'Source Sans 3',sans-serif;font-size:13px;color:var(--color-text-primary);pointer-events:none !important;z-index:1000;box-shadow:0 4px 16px rgba(60,45,20,0.12);max-width:220px;transition:opacity 150ms ease,visibility 150ms ease;"></div>
 <footer style="position:fixed;bottom:4px;right:8px;font-family:'Source Sans 3',sans-serif;font-size:10px;color:var(--color-text-muted);opacity:0.6;z-index:10;pointer-events:none;">
   Tree of Life · Images via Wikimedia Commons · Built with Claude
 </footer>

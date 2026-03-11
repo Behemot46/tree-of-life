@@ -145,7 +145,7 @@ svg{width:100%;height:100%;}
 .node-circle{transition:r 150ms ease,opacity 150ms ease,filter 0.3s;cursor:pointer;}
 .node-circle:hover{filter:brightness(1.15);}
 .node-group:hover .nc-main{filter:brightness(1.4) drop-shadow(0 0 14px var(--nc));}
-.branch-path{fill:none;stroke-linecap:round;stroke-linejoin:round;}
+.branch-path{fill:none;stroke-linecap:round;stroke-linejoin:round;cursor:default;}
 .node-label-text{pointer-events:none;font-family:var(--font-body, 'Source Sans 3', sans-serif);font-size:14px;}
 .node-pulse{pointer-events:none;}
 
@@ -292,15 +292,16 @@ svg{width:100%;height:100%;}
 .zbtn:hover{background:rgba(200,136,58,0.14);border-color:var(--gold);color:var(--parchment);}
 
 /* ── TOOLTIP ── */
-#tooltip{position:fixed;z-index:1000;background:rgba(7,5,3,0.94);
-  border:1px solid rgba(200,136,58,0.28);border-radius:8px;padding:0.5rem 0.8rem;
-  font-size:0.75rem;color:var(--parchment);pointer-events:none !important;
-  opacity:0;visibility:hidden;transition:opacity 150ms ease,visibility 150ms ease;
-  max-width:220px;backdrop-filter:blur(10px);}
-#tooltip.show{opacity:1;visibility:visible;}
-.tip-name{font-family:var(--font-head);font-size:0.9rem;font-weight:600;}
-.tip-era{font-size:0.62rem;color:var(--gold);letter-spacing:0.1em;margin-top:0.15rem;}
-.tip-fact{font-size:0.65rem;color:rgba(242,232,208,0.65);margin-top:0.2rem;font-style:italic;}
+#tooltip{position:fixed;pointer-events:none !important;z-index:9999;
+  background:var(--color-panel-bg);border:1px solid var(--color-panel-border);
+  border-radius:8px;padding:8px 12px;font-family:'Source Sans 3',sans-serif;
+  font-size:13px;color:var(--color-text-primary);box-shadow:0 4px 12px rgba(0,0,0,0.15);
+  max-width:200px;line-height:1.4;opacity:0;visibility:hidden;
+  transition:opacity 150ms ease;transform:translate(16px,-50%);white-space:nowrap;}
+#tooltip.visible{opacity:1;visibility:visible;}
+.tree-node{cursor:pointer;}
+svg,#canvas-wrap{cursor:grab;}
+svg:active,#canvas-wrap:active{cursor:grabbing;}
 
 /* ── ANIMATIONS ── */
 @keyframes rootPulse{0%,100%{opacity:0.4;transform:scale(1)}50%{opacity:0.8;transform:scale(1.06)}}
@@ -354,7 +355,6 @@ svg{width:100%;height:100%;}
 [data-theme="light"] #search-input{background:rgba(248,242,230,0.95);color:var(--parchment);}
 [data-theme="light"] #search-results{background:rgba(248,242,230,0.98);}
 [data-theme="light"] #timeline{background:linear-gradient(to top,rgba(248,242,230,0.95) 50%,transparent);}
-[data-theme="light"] #tooltip{background:rgba(248,242,230,0.96);color:var(--parchment);}
 [data-theme="light"] .lang-btn{background:rgba(248,242,230,0.9);color:rgba(138,90,24,0.6);border-color:rgba(138,90,24,0.25);}
 [data-theme="light"] .lang-btn.active{background:rgba(138,90,24,0.18);border-color:var(--gold);color:var(--gold-light);}
 [data-theme="light"] #theme-btn{background:rgba(248,242,230,0.9);color:rgba(138,90,24,0.6);border-color:rgba(138,90,24,0.2);}
@@ -688,11 +688,7 @@ svg{width:100%;height:100%;}
 </div>
 
 <!-- TOOLTIP -->
-<div id="tooltip">
-  <div class="tip-name" id="tip-name"></div>
-  <div class="tip-era" id="tip-era"></div>
-  <div class="tip-fact" id="tip-fact"></div>
-</div>
+<div id="tooltip"></div>
 
 <!-- MAIN DETAIL PANEL -->
 <div id="panel">
@@ -967,7 +963,7 @@ const TREE = {
           tags:['Radiation resistance','DNA repair','Extremophile'],tipFact:'The most radiation-resistant organism on Earth.',children:[]},
         {id:'bacteroides',icon:'🦠',color:lightenColor('#b85c4a','phylum'),r:14,
           appeared:0.1,extinct:null,
-          img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Bacteroides_fragilis.jpg/320px-Bacteroides_fragilis.jpg',imgCredit:'CDC, Public Domain',
+          img:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Bacteroides_fragilis_01.jpg/320px-Bacteroides_fragilis_01.jpg',imgCredit:'CDC, Public Domain',
           name:'Bacteroides fragilis',latin:'Bacteroides fragilis',era:'Modern',
           desc:'One of the dominant inhabitants of the human large intestine. Breaks down complex plant polysaccharides humans cannot digest and produces short-chain fatty acids that nourish colon cells.',
           detail:'Bacteroides species have co-evolved with mammals for tens of millions of years. Recent research shows specific strains regulate the immune system and influence brain chemistry.',
@@ -1027,7 +1023,7 @@ const TREE = {
           tags:['Acidophile','Thermophile','Early Earth'],tipFact:'This archaeon thrives in boiling acid identical to early Earth conditions.',children:[]},
         {id:'pyrolobus',icon:'🌋',color:lightenColor('#c49a4a','species'),r:11,
           appeared:3800,extinct:null,
-          img:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Hydrothermal_vent.jpg/320px-Hydrothermal_vent.jpg',imgCredit:'NOAA, Public Domain',
+          img:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Hydrothermal_vents_at_Galapagos_Rift_1977.jpg/320px-Hydrothermal_vents_at_Galapagos_Rift_1977.jpg',imgCredit:'NOAA, Public Domain',
           name:'Pyrolobus fumarii',latin:'Pyrolobus fumarii',era:'Hadean',
           desc:'Holds the record for the highest known growth temperature — thrives at 113°C. Discovered in deep-sea hydrothermal vent walls, it represents the absolute upper limit of known life.',
           detail:'At 121°C — standard autoclave sterilization temperature — Pyrolobus merely stops growing but remains viable, resuming when temperatures drop.',
@@ -1036,7 +1032,7 @@ const TREE = {
           tags:['Hyperthermophile','Temperature record','Extremophile'],tipFact:'The hottest-living organism known — survives being autoclaved.',children:[]},
         {id:'lokiarchaeota',icon:'🔬',color:lightenColor('#c49a4a','phylum'),r:14,
           appeared:2000,extinct:null,
-          img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Lokis_castle_2008.jpg/320px-Lokis_castle_2008.jpg',imgCredit:'Centre for Geobiology, CC BY-SA 3.0',
+          img:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Loki%27s_Castle_2008_location_map.jpg/320px-Loki%27s_Castle_2008_location_map.jpg',imgCredit:'Centre for Geobiology, CC BY-SA 3.0',
           name:'Lokiarchaeota',latin:'Candidatus Lokiarchaeota',era:'Proterozoic',
           desc:'Discovered in 2015 in deep sea sediment near Loki\'s Castle, Lokiarchaeota is the closest known living relative of the ancestor that gave rise to all eukaryotic life — every plant, animal, fungus, and protist.',
           detail:'Its genome contains genes previously exclusive to eukaryotes, including membrane remodeling genes that may have led to the engulfment of the bacterium that became mitochondria.',
@@ -1136,7 +1132,7 @@ const TREE = {
               children:[
                 {id:'batrachochytrium',icon:'🐸',color:lightenColor('#8a6a4a','species'),r:11,
                   appeared:0.1,extinct:null,
-                  img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Litoria_chloris_edit.jpg/320px-Litoria_chloris_edit.jpg',imgCredit:'LiquidGhoul, CC BY-SA 2.5',
+                  img:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Litoria_caerulea_White%27s_tree_frog.jpg/320px-Litoria_caerulea_White%27s_tree_frog.jpg',imgCredit:'LiquidGhoul, CC BY-SA 2.5',
                   name:'Batrachochytrium dendrobatidis',latin:'Batrachochytrium dendrobatidis',era:'Modern',
                   desc:'A chytrid fungus responsible for the worst infectious disease-driven vertebrate extinction in recorded history. Since its global spread it has driven at least 90 amphibian species to complete extinction.',
                   detail:'Bd infects amphibian skin, disrupting the ion transport they use to breathe. It was spread globally through the international trade of African clawed frogs used in 1950s pregnancy tests.',
@@ -1711,8 +1707,8 @@ const HOMININS = [
   {id:'h_erectus',group:'homo',name:'Homo erectus',short:'H. erectus',icon:'🔥',color:'#8BAA7A',status:'extinct',mya:[1.89,0.11],brain:[600,1100],height:'~145–185cm',weight:'~40–68kg',habitat:'Savanna, forest, coast — worldwide',tools:'Acheulean (Mode 2)',fire:'Controlled use ~1 Mya',language:'Proto-language likely',sites:['Trinil, Java','Peking, China','Dmanisi, Georgia'],desc:'The great traveler — the first hominin to leave Africa, spreading across Asia and possibly Europe. With a body essentially modern in proportions, control of fire, and the sophisticated Acheulean hand axe, erectus persisted for nearly 2 million years.',detail:'The Nariokotome Boy (1984) — near-complete skeleton of a 1.5 Ma adolescent — revealed H. erectus had a fully modern body below the neck. Erectus in Java may have survived until 108,000 years ago, potentially overlapping with H. sapiens.',facts:[{l:'Lived',v:'~1.89 Mya – 110 Kya'},{l:'Range',v:'Africa, Asia, possibly Europe'},{l:'Brain vol.',v:'~600–1,100 cm³'},{l:'Fire',v:'Controlled ~1 Mya'}],tags:['First out of Africa','Fire control','Acheulean tools','Longest-lived Homo','Turkana Boy'],dna:{note:'No ancient DNA recovered'}},
   {id:'neanderthal',group:'homo',name:'Homo neanderthalensis',short:'Neanderthal',icon:'🏔️',color:'#7A9BAA',status:'extinct',mya:[0.4,0.04],brain:[1200,1750],height:'~164–168cm',weight:'~64–82kg',habitat:'Cold steppe, tundra, forest — Europe & W. Asia',tools:'Mousterian (Mode 3), personal ornaments',fire:'Routine',language:'Complex — FOXP2 gene',sites:['Neander Valley, Germany','Shanidar, Iraq','El Sidrón, Spain'],desc:'Our closest known extinct relative — and part of us. Neanderthals were cold-adapted hunters with brains on average slightly larger than ours, burying their dead, creating art and jewelry, and caring for the sick. All people outside sub-Saharan Africa carry ~1–4% Neanderthal DNA.',detail:'The Shanidar 1 individual survived multiple severe injuries requiring group care for years — evidence of Neanderthal compassion. Neanderthal cave art in Spain (65,000 years ago) predates H. sapiens arrival in Europe.',facts:[{l:'Lived',v:'~400–40 Kya'},{l:'Brain vol.',v:'~1,200–1,750 cm³'},{l:'DNA in us',v:'~1–4% (non-African)'},{l:'FOXP2',v:'Modern speech gene'}],tags:['1–4% in all non-Africans','Mousterian tools','Burial of dead','Cold adapted','FOXP2 speech gene'],dna:{neanderthal:100,denisovan:0,note:'~1–4% in all non-African modern humans'}},
   {id:'denisovans',group:'homo',name:'Denisovans',short:'Denisovans',icon:'🧬',color:'#7A8BAA',status:'extinct',mya:[0.4,0.03],brain:[null,null],height:null,weight:null,habitat:'Cave and open environments, Siberia and Asia',tools:'Advanced (beads, jewelry)',fire:'Yes',language:'Likely complex',sites:['Denisova Cave, Siberia','Baishiya Karst Cave, Tibet'],desc:'The ghost lineage given flesh. Discovered not from bones but from DNA — a 2010 analysis of a pinky bone from Denisova Cave revealed a previously unknown human species. Despite almost no fossil record, we know their genome in exquisite detail. Sister group of Neanderthals, diverging ~400 Kya.',detail:'Denisovan DNA lives in living people today: Melanesians and Aboriginal Australians carry ~3–5%. The EPAS1 gene enabling Tibetan altitude adaptation was inherited from Denisovans.',facts:[{l:'Lived',v:'~400–30 Kya'},{l:'Discovered',v:'2010 (via DNA)'},{l:'DNA in living people',v:'3–5% in Melanesians'},{l:'Key gift',v:'EPAS1 altitude gene'}],tags:['Ghost lineage','DNA discovery','Melanesian introgression','Denny hybrid','Tibet EPAS1'],dna:{neanderthal:0,denisovan:100,note:'3–5% in Melanesians/Papuans/Aboriginals'}},
-  {id:'h_naledi',group:'homo',name:'Homo naledi',short:'H. naledi',icon:'⭐',color:'#AA9B7A',status:'extinct',mya:[0.335,0.236],brain:[465,610],height:'~143–150cm',weight:'~39–55kg',habitat:'Cave system, South Africa',tools:'Possible',fire:'Possible (cave torches?)',language:'Unknown',sites:['Rising Star Cave, South Africa'],desc:'The most astonishing paleoanthropological discovery of the 21st century. With a tiny australopith-sized brain (~500 cm³) yet modern-looking feet, wrists, and hands — and a geological age of only 236,000–335,000 years ago — naledi defies all expectations. It appears to have deliberately deposited its dead in a cave.',detail:'The 2022 discovery of possible fire use and engravings in the cave, if confirmed, would be revolutionary. Coexisting in South Africa with Homo sapiens at 250 Kya.',facts:[{l:'Lived',v:'~335–236 Kya'},{l:'Discovered',v:'2013 (Berger team)'},{l:'Brain vol.',v:'~465–610 cm³'},{l:'Behavior',v:'Possible deliberate burial'}],tags:['Rising Star Cave','Deliberate burial?','Mosaic anatomy','Tiny-brained late Homo'],dna:{note:'No DNA recovered from hot humid caves'}},
-  {id:'h_floresiensis',group:'homo',name:'Homo floresiensis',short:'H. floresiensis',icon:'🌴',color:'#8B7050',status:'extinct',mya:[0.1,0.05],brain:[380,417],height:'~106cm',weight:'~25–30kg',habitat:'Tropical forest, Flores Island, Indonesia',tools:'Sophisticated stone tools',fire:'Possible',language:'Unknown',sites:['Liang Bua Cave, Flores, Indonesia'],desc:'"The Hobbit." Discovered in 2003, had a brain the size of a grapefruit yet was associated with sophisticated stone tools. Island dwarfism likely explains the tiny body. Flores island folklore of the "Ebu Gogo" — small hairy people — may be a cultural memory of floresiensis.',detail:'May have survived until ~50,000 years ago — potentially coexisting with H. sapiens. Ancient DNA has not been recovered, leaving floresiensis\' exact ancestry unresolved.',facts:[{l:'Lived',v:'~100–50 Kya'},{l:'Brain vol.',v:'~380–417 cm³'},{l:'Height',v:'~106 cm'},{l:'Island',v:'Flores, Indonesia'}],tags:['The Hobbit','Island dwarfism','Tiny brain','Sophisticated tools','Ebu Gogo legend'],dna:{note:'No DNA recovered'}},
+  {id:'h_naledi',group:'homo',name:'Homo naledi',short:'H. naledi',icon:'⭐',color:'#AA9B7A',status:'extinct',mya:[0.335,0.236],brain:[465,610],height:'~143–150cm',weight:'~39–55kg',habitat:'Cave system, South Africa',tools:'Possible',fire:'Possible (cave torches?)',language:'Unknown',sites:['Rising Star Cave, South Africa'],img:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Homo_naledi_skull.jpg/320px-Homo_naledi_skull.jpg',imgCredit:'Lee Roger Berger research team, CC BY 4.0',desc:'The most astonishing paleoanthropological discovery of the 21st century. With a tiny australopith-sized brain (~500 cm³) yet modern-looking feet, wrists, and hands — and a geological age of only 236,000–335,000 years ago — naledi defies all expectations. It appears to have deliberately deposited its dead in a cave.',detail:'The 2022 discovery of possible fire use and engravings in the cave, if confirmed, would be revolutionary. Coexisting in South Africa with Homo sapiens at 250 Kya.',facts:[{l:'Lived',v:'~335–236 Kya'},{l:'Discovered',v:'2013 (Berger team)'},{l:'Brain vol.',v:'~465–610 cm³'},{l:'Behavior',v:'Possible deliberate burial'}],tags:['Rising Star Cave','Deliberate burial?','Mosaic anatomy','Tiny-brained late Homo'],dna:{note:'No DNA recovered from hot humid caves'}},
+  {id:'h_floresiensis',group:'homo',name:'Homo floresiensis',short:'H. floresiensis',icon:'🌴',color:'#8B7050',status:'extinct',mya:[0.1,0.05],brain:[380,417],height:'~106cm',weight:'~25–30kg',habitat:'Tropical forest, Flores Island, Indonesia',tools:'Sophisticated stone tools',fire:'Possible',language:'Unknown',sites:['Liang Bua Cave, Flores, Indonesia'],img:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Homo_floresiensis_cave.jpg/320px-Homo_floresiensis_cave.jpg',imgCredit:'Rosino, CC BY-SA 2.0',desc:'"The Hobbit." Discovered in 2003, had a brain the size of a grapefruit yet was associated with sophisticated stone tools. Island dwarfism likely explains the tiny body. Flores island folklore of the "Ebu Gogo" — small hairy people — may be a cultural memory of floresiensis.',detail:'May have survived until ~50,000 years ago — potentially coexisting with H. sapiens. Ancient DNA has not been recovered, leaving floresiensis\' exact ancestry unresolved.',facts:[{l:'Lived',v:'~100–50 Kya'},{l:'Brain vol.',v:'~380–417 cm³'},{l:'Height',v:'~106 cm'},{l:'Island',v:'Flores, Indonesia'}],tags:['The Hobbit','Island dwarfism','Tiny brain','Sophisticated tools','Ebu Gogo legend'],dna:{note:'No DNA recovered'}},
   {id:'au_bahrelghazali',group:'australopith',name:'Australopithecus bahrelghazali',short:'Au. bahrelghazali',icon:'🐒',color:'#a07040',status:'extinct',mya:[3.6,3.0],brain:[null,null],height:'~120cm',weight:'~30–40kg',habitat:'Savanna, Chad Basin',tools:'None known',fire:'No',language:'None',sites:['Bahr el Ghazal, Chad'],desc:'"Abel" - found in Chad in 1995, this species shattered the assumption that early australopiths lived only in East Africa. Its discovery in Chad, over 2,500 km west of the Rift Valley, suggests the hominin range in the Pliocene was far broader than previously imagined.',detail:'Abel consists mainly of a mandible fragment with teeth. The enamel structure and jaw morphology place it in Australopithecus, but its geographic isolation raises questions about migration routes across Plio-Pleistocene Africa.',facts:[{l:'Lived',v:'~3.6-3.0 Mya'},{l:'Discovered',v:'1995, Michel Brunet'},{l:'Region',v:'Chad, Central Africa'}],tags:['Abel','West Africa australopith','Shatters East Africa bias','Isolated mandible'],dna:{note:'Pre-DNA record'}},
   {id:'au_deyiremeda',group:'australopith',name:'Australopithecus deyiremeda',short:'Au. deyiremeda',icon:'🐒',color:'#b08048',status:'extinct',mya:[3.5,3.3],brain:[null,null],height:'~120cm',weight:'~30–45kg',habitat:'Woodland, Woranso-Mille, Ethiopia',tools:'None known',fire:'No',language:'None',sites:['Woranso-Mille, Ethiopia'],desc:'Named in 2015, Au. deyiremeda lived in the same region and at nearly the same time as Au. afarensis - overturning the notion that only one hominin existed per region per era. Its distinct jaw and tooth morphology identify it as a separate species coexisting with Lucy.',detail:'The coexistence of deyiremeda and afarensis in Woranso-Mille suggests the hominin family bush was genuinely bushy - multiple contemporaneous lineages competing or coexisting in the same habitat.',facts:[{l:'Lived',v:'~3.5-3.3 Mya'},{l:'Discovered',v:'2015 (Haile-Selassie)'},{l:'Key find',v:'Maxilla and mandible fragments'}],tags:['Contemporaneous with Lucy','Multi-species era','Woranso-Mille','New species 2015'],dna:{note:'Pre-DNA record'}},
   {id:'au_garhi',group:'australopith',name:'Australopithecus garhi',short:'Au. garhi',icon:'🐒',color:'#a87848',status:'extinct',mya:[2.5,2.5],brain:[450,null],height:'~130cm',weight:'~40–50kg',habitat:'Open savanna, Ethiopia',tools:'Associated with animal butchery',fire:'No',language:'None',sites:['Bouri, Ethiopia'],desc:'"Surprise" in the Afar language. Dated to 2.5 Mya - a critical transitional moment between Australopithecus and early Homo. Found with animal bones bearing cut marks, suggesting this species may have been butchering large mammals before H. habilis.',detail:'If garhi made stone tools, it would push the cognitive threshold for tool-use back into Australopithecus. The tools and hominin bones were found in the same deposit but not in direct association - the question remains open.',facts:[{l:'Lived',v:'~2.5 Mya'},{l:'Discovered',v:'1999 (Asfaw)'},{l:'Key association',v:'Cut-marked animal bones'}],tags:['Surprise species','Butchery evidence','2.5 Ma transition','Pre-Homo tools?'],dna:{note:'Pre-DNA record'}},
@@ -1724,7 +1720,7 @@ const HOMININS = [
   {id:'h_antecessor',group:'homo',name:'Homo antecessor',short:'H. antecessor',icon:'⚒️',color:'#7A8A6A',status:'extinct',mya:[1.2,0.8],brain:[1000,1100],height:'~170cm',weight:'~60–90kg',habitat:'Forest-savanna, Spain',tools:'Acheulean',fire:'Possible',language:'Proto-language',sites:['Atapuerca, Spain'],desc:'The oldest western European hominin, discovered at Atapuerca cave in 1994. H. antecessor may represent the common ancestor of both Neanderthals and Homo sapiens. Includes evidence of cannibalism - defleshing marks on juvenile bones at Gran Dolina.',detail:'The face of antecessor is strikingly modern, leading Bermudez de Castro to propose it as pioneer man who colonized Europe from Africa and gave rise to the Neanderthal lineage.',facts:[{l:'Lived',v:'~1.2-0.8 Mya'},{l:'Discovered',v:'1994, Atapuerca'},{l:'Brain vol.',v:'~1,000-1,100 cm3'},{l:'Evidence',v:'Cannibalism at Atapuerca'}],tags:['Pioneer Man','Atapuerca','Earliest W. European','Cannibalism evidence','Common ancestor?'],dna:{note:'Ancient protein analysis links to Neanderthal lineage'}},
   {id:'h_heidelbergensis',group:'homo',name:'Homo heidelbergensis',short:'H. heidelbergensis',icon:'⚒️',color:'#809070',status:'extinct',mya:[0.7,0.2],brain:[1100,1400],height:'~175cm',weight:'~60–80kg',habitat:'Forest, savanna, tundra - Africa and Europe',tools:'Advanced Acheulean, wooden spears',fire:'Routine',language:'Proto-language, likely advanced',sites:['Mauer, Germany','Bodo, Ethiopia'],desc:'A cosmopolitan hominin spanning Africa and Europe. The probable ancestor of Neanderthals in Europe and Homo sapiens in Africa. Notable for the Schoningen spears (400,000 years old) - the oldest complete hunting weapons ever found - indicating sophisticated planned hunting of wild horses.',detail:'Heidelbergensis represents the threshold where symbolic thought becomes plausible. Cave lion skulls show strategic use of topography to herd and ambush mega-fauna.',facts:[{l:'Lived',v:'~700-200 Kya'},{l:'Range',v:'Africa + Europe'},{l:'Brain vol.',v:'~1,100-1,400 cm3'},{l:'Key find',v:'Schoningen wooden spears'}],tags:['Schoningen spears','Neanderthal ancestor','Sapiens ancestor?','Strategic hunters','Both Africa & Europe'],dna:{note:'No DNA; protein analysis groups with Neanderthal clade'}},
   {id:'h_bodoensis',group:'homo',name:'Homo bodoensis',short:'H. bodoensis',icon:'⚒️',color:'#7A9060',status:'extinct',mya:[0.6,0.15],brain:[1250,null],height:'~175cm',weight:'~65kg',habitat:'Savanna and woodland, Africa',tools:'Acheulean',fire:'Yes',language:'Advanced proto-language',sites:['Bodo D\'ar, Ethiopia'],desc:'Described as a new species in 2021 to resolve confusion about African Middle Pleistocene hominins. H. bodoensis is proposed as the direct African ancestor of H. sapiens. Named for the Bodo skull which shows cut marks indicating deliberate defleshing.',detail:'The 2021 description by Roksandic et al. argues H. heidelbergensis should be restricted to Europe, and that the African Middle Pleistocene lineage deserves its own designation as our direct ancestors.',facts:[{l:'Lived',v:'~600-150 Kya'},{l:'Described',v:'2021 (Roksandic et al.)'},{l:'Brain vol.',v:'~1,250 cm3'},{l:'Key fossil',v:'Bodo skull'}],tags:['New species 2021','Sapiens direct ancestor?','African MPA','Bodo skull','Defleshing marks'],dna:{note:'No DNA; proposed direct sapiens ancestor'}},
-  {id:'h_luzonensis',group:'homo',name:'Homo luzonensis',short:'H. luzonensis',icon:'🏝️',color:'#7A6B50',status:'extinct',mya:[0.067,0.05],brain:[null,null],height:'~120cm',weight:'~25kg',habitat:'Tropical island, Luzon, Philippines',tools:'Stone tools',fire:'Unknown',language:'Unknown',sites:['Callao Cave, Luzon, Philippines'],img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Callao_Cave_Philippines.jpg/320px-Callao_Cave_Philippines.jpg',imgCredit:'Judgefloro, CC BY-SA 4.0',desc:'Announced in 2019 from Callao Cave - a tiny island hominin with a mosaic of features. Some foot and finger bones resemble Australopithecus rather than any Homo. With an age of 50-67 thousand years ago, it coexisted with Denisovans, H. sapiens, and floresiensis - the most crowded moment in hominin history.',detail:'The survival of primitive morphology in luzonensis may reflect island dwarfism or indicate an earlier migration to Southeast Asia than previously recognized.',facts:[{l:'Lived',v:'~67-50 Kya'},{l:'Announced',v:'2019'},{l:'Region',v:'Callao Cave, Luzon'},{l:'Features',v:'Mosaic Australopithecus + Homo'}],tags:['New species 2019','Philippine hominin','Mosaic anatomy','Island dwarf','Callao Cave'],dna:{note:'No DNA recovered from tropical site'}},
+  {id:'h_luzonensis',group:'homo',name:'Homo luzonensis',short:'H. luzonensis',icon:'🏝️',color:'#7A6B50',status:'extinct',mya:[0.067,0.05],brain:[null,null],height:'~120cm',weight:'~25kg',habitat:'Tropical island, Luzon, Philippines',tools:'Stone tools',fire:'Unknown',language:'Unknown',sites:['Callao Cave, Luzon, Philippines'],img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Callao_Cave_Entrance.jpg/320px-Callao_Cave_Entrance.jpg',imgCredit:'Judgefloro, CC BY-SA 4.0',desc:'Announced in 2019 from Callao Cave - a tiny island hominin with a mosaic of features. Some foot and finger bones resemble Australopithecus rather than any Homo. With an age of 50-67 thousand years ago, it coexisted with Denisovans, H. sapiens, and floresiensis - the most crowded moment in hominin history.',detail:'The survival of primitive morphology in luzonensis may reflect island dwarfism or indicate an earlier migration to Southeast Asia than previously recognized.',facts:[{l:'Lived',v:'~67-50 Kya'},{l:'Announced',v:'2019'},{l:'Region',v:'Callao Cave, Luzon'},{l:'Features',v:'Mosaic Australopithecus + Homo'}],tags:['New species 2019','Philippine hominin','Mosaic anatomy','Island dwarf','Callao Cave'],dna:{note:'No DNA recovered from tropical site'}},
   {id:'h_longi',group:'homo',name:'Homo longi',short:'H. longi (Dragon Man)',icon:'🐉',color:'#7A8090',status:'extinct',mya:[0.146,0.146],brain:[1420,null],height:'~180cm',weight:'~70kg',habitat:'Cold temperate Asia',tools:'Unknown',fire:'Possible',language:'Possible',sites:['Harbin, Heilongjiang, China'],desc:'"Dragon Man" - a massive skull found in Harbin, China, with a brain size matching Homo sapiens but archaic features. Described in 2021, it may be more closely related to H. sapiens than Neanderthals are - which would fundamentally reorganize the human family tree.',detail:'The Harbin skull was allegedly discovered in the 1930s, hidden in a well for 80+ years, and donated to researchers before the original discoverer death. Protein analysis supports placement near the sapiens lineage.',facts:[{l:'Lived',v:'~146 Kya'},{l:'Brain vol.',v:'~1,420 cm3'},{l:'Described',v:'2021'},{l:'Claim',v:'Closer to sapiens than Neanderthal'}],tags:['Dragon Man','Harbin skull','New species 2021','Paleoproteomics','Reorganizes family tree'],dna:{note:'No DNA; protein analysis places near sapiens lineage'}},
   {id:'h_sapiens',group:'homo',name:'Homo sapiens',short:'H. sapiens',icon:'🧠',color:'#E8B86D',status:'surviving',mya:[0.3,0],brain:[1350,1500],height:'~170cm avg',weight:'~62–80kg',habitat:'Universal — all continents',tools:'All technology in history',fire:'Total control',language:'Full language',sites:['Jebel Irhoud, Morocco','Omo Kibish, Ethiopia'],desc:'You. Emerged ~300,000 years ago in Africa. Behavioral modernity appeared ~70,000–50,000 years ago. We left Africa in multiple waves, interbreeding with Neanderthals, Denisovans, and possibly other archaic humans. We carry a mosaic of archaic DNA in our genomes today.',detail:'In 300,000 years we reshaped the biosphere, triggered a mass extinction, split the atom, walked on the moon, and began sequencing the genomes of every organism on this tree of life.',facts:[{l:'Appeared',v:'~300 Kya (Africa)'},{l:'Population',v:'~8.1 billion'},{l:'Brain vol.',v:'~1,350–1,500 cm³'},{l:'Neanderthal DNA',v:'~1–4% (non-African)'}],tags:['Language & art','Global dispersal','Archaic DNA legacy','Agriculture ~12 Kya','Space travel','FOXP2'],dna:{neanderthal:2,denisovan:1,note:'~1–4% Neanderthal + up to 5% Denisovan in some populations'}},
   {id:'homo-naledi',group:'Homo',name:'Homo naledi',short:'The Cave Puzzler',icon:'🧑',color:'#9a7055',status:'extinct',mya:[0.335,0.236],brain:[465,610],height:'~144cm',weight:'~40kg',habitat:'Cave systems, South Africa',tools:'Possible fire use',fire:'Possible',language:'Unknown',sites:['Rising Star Cave, South Africa'],img:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Homo_naledi_skull.jpg/320px-Homo_naledi_skull.jpg',imgCredit:'Lee Roger Berger research team, CC BY 4.0',desc:'Discovered in 2013 deep inside a nearly inaccessible cave system in South Africa. Has a baffling mix of primitive and modern features — small brain but human-like hands and feet.',detail:'Homo naledi may have deliberately disposed of their dead in these caves — which would be the earliest known mortuary behavior, previously thought uniquely human. The caves required squeezing through gaps as narrow as 17cm to access.',funFact:'Homo naledi apparently buried their dead in pitch-black caves requiring expert climbing through 17cm gaps — with a brain one third the size of ours.',facts:[{l:'Brain size',v:'465–610 cc'},{l:'Discovery',v:'2013, Rising Star Cave'},{l:'Access',v:'17cm gap to reach'}],tags:['Cave burial','Small brain','Mixed features'],dna:{haplogroup:'Unknown',neanderthal:'Unknown',denisovan:'Unknown'}},
@@ -1913,8 +1909,11 @@ function render(){
     c.style.setProperty('--nc',n.color);
     if(n.depth===0) c.setAttribute('filter','url(#strongGlow)');
     if(n.extinct){c.setAttribute('stroke-dasharray','4 2');c.setAttribute('opacity','0.6');}
-    c.addEventListener('mouseenter',function(){this.style.transform='scale(1.15)';this.style.transformOrigin='center';this.style.filter='brightness(1.2)';});
-    c.addEventListener('mouseleave',function(){this.style.transform='scale(1)';this.style.filter='';});
+    c.style.cursor = 'pointer';
+    c.style.pointerEvents = 'all';
+    c.addEventListener('mouseenter', function(){ this.style.transform='scale(1.15)';this.style.transformOrigin='center';this.style.filter='brightness(1.2)'; showTip(n.name, n.icon); });
+    c.addEventListener('mouseleave', function(){ this.style.transform='scale(1)';this.style.filter=''; hideTip(); });
+    c.addEventListener('click', e=>{ e.stopPropagation(); showMainPanel(n); });
     g.appendChild(c);
 
     // Icon
@@ -1980,8 +1979,6 @@ function render(){
     // Events
     g.addEventListener('click',e=>{e.stopPropagation();showMainPanel(n);});
     g.addEventListener('contextmenu',e=>{e.preventDefault();if(n.children?.length){n._collapsed=!n._collapsed;render();}});
-    g.addEventListener('mouseenter',e=>showTip(e,n));
-    g.addEventListener('mouseleave',hideTip);
     nodesLayer.appendChild(g);
   });
 }
@@ -2051,6 +2048,7 @@ function renderPanelContent(node) {
           🌿 ${node.tipFact}
         </div>
       ` : ''}
+      ${(()=>{const isHominin=node.tags&&(node.tags.includes('Hominin')||node.tags.includes('Human evolution'))||node.id==='homo-sapiens'||(node.id&&node.id.startsWith('h-'))||HOMININS.some(h=>h.id===node.id||h.name===node.name);return isHominin?`<button onclick="openHominins('${node.id}')" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--color-accent);color:white;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">🧬 Hominin Deep Dive</button>`:'';})()}
       <button onclick="closePanel()" style="margin-top:8px;padding:10px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:13px;color:var(--color-text-secondary);">
         Close
       </button>
@@ -2058,6 +2056,15 @@ function renderPanelContent(node) {
   `;
 }
 
+function openHominins(nodeId) {
+  const homininBtn = document.querySelector('[onclick*="HomininView"], [onclick*="openHominin"]') || document.getElementById('hominin-btn');
+  if (homininBtn) { homininBtn.click(); }
+  else { window.openHomininView && window.openHomininView(); }
+  setTimeout(() => {
+    const card = document.querySelector('[data-hominin-id="' + nodeId + '"]');
+    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, 300);
+}
 function showMainPanel(n){
   currentPanelNode=n;
   renderPanelContent(n);
@@ -2108,55 +2115,25 @@ function updateBreadcrumb(n){
 // ══════════════════════════════════════════════════════
 // TOOLTIP
 // ══════════════════════════════════════════════════════
-const tooltip=document.getElementById('tooltip');
-function showTooltip(node, x, y) {
-  const tip = document.getElementById('node-tooltip');
-  if (!tip) return;
-  clearTimeout(_tooltipHideTimer);
-  tip.style.opacity = '1';
-  tip.style.visibility = 'visible';
-  tip.innerHTML = `
-    <div style="font-weight:700;margin-bottom:2px;">${node.icon || ''} ${node.name}</div>
-    ${node.latin ? `<div style="font-style:italic;color:var(--color-text-secondary);font-size:11px;">${node.latin}</div>` : ''}
-    ${node.era ? `<div style="font-size:11px;color:var(--color-text-muted);margin-top:2px;">${node.era}</div>` : ''}
-    ${node.extinct ? `<div style="font-size:11px;color:#c0392b;font-weight:600;">† Extinct</div>` : ''}
-    ${node.tipFact ? `<div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px;border-top:1px solid var(--color-divider);padding-top:4px;">${node.tipFact}</div>` : ''}
-  `;
-  const tw = 220, th = 100;
-  const wx = window.innerWidth, wy = window.innerHeight;
-  tip.style.left = (x + 16 + tw > wx ? x - tw - 8 : x + 16) + 'px';
-  tip.style.top = (y + th > wy ? y - th : y) + 'px';
+const tooltipEl = document.getElementById('tooltip');
+let _tipTimer = null;
+document.addEventListener('mousemove', function(e) {
+  if (tooltipEl.classList.contains('visible')) {
+    tooltipEl.style.left = e.clientX + 'px';
+    tooltipEl.style.top = e.clientY + 'px';
+  }
+});
+function showTip(text, icon) {
+  clearTimeout(_tipTimer);
+  tooltipEl.innerHTML = (icon ? icon + ' ' : '') + text;
+  tooltipEl.classList.add('visible');
 }
-let _tooltipHideTimer = null;
-function hideTooltip() {
-  clearTimeout(_tooltipHideTimer);
-  _tooltipHideTimer = setTimeout(() => {
-    const tip = document.getElementById('node-tooltip');
-    if (tip) { tip.style.opacity = '0'; tip.style.visibility = 'hidden'; }
-    tooltip.style.opacity = '0';
-    tooltip.style.visibility = 'hidden';
-    tooltip.classList.remove('show');
-  }, 100);
+function hideTip() {
+  clearTimeout(_tipTimer);
+  _tipTimer = setTimeout(() => {
+    tooltipEl.classList.remove('visible');
+  }, 80);
 }
-function showTip(e,n){
-  clearTimeout(_tooltipHideTimer);
-  document.getElementById('tip-name').textContent=n.name;
-  document.getElementById('tip-era').textContent=n.era;
-  document.getElementById('tip-fact').textContent=n.tipFact||'';
-  moveTip(e);
-  tooltip.style.visibility = 'visible';
-  tooltip.classList.add('show');
-  showTooltip(n, e.clientX, e.clientY);
-}
-function moveTip(e){
-  let x = e.clientX + 16, y = e.clientY - 10;
-  if(x + 240 > window.innerWidth) x = e.clientX - 250;
-  if(y < 10) y = e.clientY + 20;
-  tooltip.style.left = x + 'px';
-  tooltip.style.top = y + 'px';
-}
-function hideTip(){hideTooltip();}
-window.addEventListener('mousemove',e=>{if(tooltip.classList.contains('show'))moveTip(e);});
 
 // ══════════════════════════════════════════════════════
 // ERA BROWSER
@@ -2380,7 +2357,7 @@ function showHominDetail(h){
 // ══════════════════════════════════════════════════════
 const svgEl=document.getElementById('svg');
 let panning=false,ps={x:0,y:0},ts={x:0,y:0};
-svgEl.addEventListener('mousedown',e=>{if(e.button!==0)return;panning=true;ps={x:e.clientX,y:e.clientY};ts={...transform};document.body.classList.add('dragging');});
+svgEl.addEventListener('mousedown',e=>{if(e.button!==0)return;if(e.target&&e.target.classList&&e.target.classList.contains('node-circle'))return;panning=true;ps={x:e.clientX,y:e.clientY};ts={...transform};document.body.classList.add('dragging');});
 window.addEventListener('mousemove',e=>{if(!panning)return;transform.x=ts.x+(e.clientX-ps.x);transform.y=ts.y+(e.clientY-ps.y);applyT();});
 window.addEventListener('mouseup',()=>{panning=false;document.body.classList.remove('dragging');});
 let lt=null;
@@ -2990,7 +2967,6 @@ function init(){
 window.addEventListener('resize',()=>{layout();render();});
 init();
 </script>
-<div id="node-tooltip" style="position:fixed;opacity:0;visibility:hidden;background:var(--color-panel-bg);border:1px solid var(--color-panel-border);border-radius:8px;padding:8px 12px;font-family:'Source Sans 3',sans-serif;font-size:13px;color:var(--color-text-primary);pointer-events:none !important;z-index:1000;box-shadow:0 4px 16px rgba(60,45,20,0.12);max-width:220px;transition:opacity 150ms ease,visibility 150ms ease;"></div>
 <footer style="position:fixed;bottom:4px;right:8px;font-family:'Source Sans 3',sans-serif;font-size:10px;color:var(--color-text-muted);opacity:0.6;z-index:10;pointer-events:none;">
   Tree of Life · Images via Wikimedia Commons · Built with Claude
 </footer>

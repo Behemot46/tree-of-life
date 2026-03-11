@@ -1567,13 +1567,22 @@ const TREE = {
                       tags:['Stereoscopic vision','Grasping hands','Extended childhood','Tool use','Cultural transmission'],
                       tipFact:'You share 99% of your DNA with a chimpanzee.',
                       children:[
-                        {id:'humans',icon:'🧠',color:'#e8b86d',r:14,appeared:0.3,extinct:null,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Human_evolution_scheme.svg/400px-Human_evolution_scheme.svg.png',imgCredit:'Human evolution: José-Manuel Benitos (Public Domain)',
-                          name:'Homo sapiens',latin:'Homo sapiens sapiens',era:'~300,000 Years Ago',
-                          desc:'The only surviving member of genus Homo — a genus that once included at least 8 other species. Anatomically modern humans emerged ~300,000 years ago in Africa. We carry ~2% Neanderthal DNA and ~5% Denisovan DNA in non-African populations.',
-                          detail:'Behavioral modernity — symbolic art, complex language, long-distance trade — emerged ~70,000–50,000 years ago. In 300,000 years we transformed the atmosphere, triggered a mass extinction, and launched spacecraft beyond the solar system.',
-                          facts:[{l:'Appeared',v:'~300,000 years ago'},{l:'Population',v:'~8.1 billion'},{l:'Genome',v:'3.2 billion base pairs'},{l:'Neanderthal DNA',v:'~2% (non-African)'}],
-                          tags:['Language','Symbolic art','Tool culture','Agriculture','Writing','Cities','Space travel'],
-                          tipFact:'You carry genetic memories of at least 3 other human species.',
+                        {id:'homo-sapiens',icon:'🧠',color:lightenColor('#9a7055','species'),r:14,appeared:0.3,extinct:null,
+                          img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Akha_woman.jpg/320px-Akha_woman.jpg',
+                          imgCredit:'Steve Evans, CC BY 2.0',
+                          name:'Homo sapiens',latin:'Homo sapiens',era:'Quaternary',
+                          desc:'The only surviving human species. Anatomically modern humans appeared in Africa around 300,000 years ago and spread across every continent. Our large prefrontal cortex enables abstract thought, language, art, and culture.',
+                          detail:'Homo sapiens have the largest brain relative to body size of any animal. We are the only species known to use symbolic language, create cumulative culture, and contemplate our own existence. Despite our diversity we are genetically one of the least variable large mammals — a genetic bottleneck around 70,000 years ago reduced our ancestors to perhaps 10,000 individuals.',
+                          funFact:'All 8 billion humans alive today descend from a population of perhaps 10,000 individuals who survived a near-extinction event 70,000 years ago — making us one of the least genetically diverse large mammals on Earth.',
+                          facts:[
+                            {l:'Appeared',v:'~300,000 years ago'},
+                            {l:'Brain volume',v:'1,200–1,700 cc'},
+                            {l:'Population',v:'8 billion'},
+                            {l:'Genetic bottleneck',v:'~70,000 years ago'},
+                            {l:'Continents inhabited',v:'All 7'}
+                          ],
+                          tags:['Modern human','Language','Culture','Tool use','Art'],
+                          tipFact:'You are a 300,000 year old African species looking at a screen.',
                           children:[]}
                       ]}
                   ]}
@@ -1865,7 +1874,7 @@ function render(){
     }
 
     // Living pulse ring for Homo sapiens
-    if(n.id==='humans'){
+    if(n.id==='homo-sapiens'){
       const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
       ring.setAttribute('cx',n._x);ring.setAttribute('cy',n._y);ring.setAttribute('r',n.r+10);
       ring.setAttribute('fill','none');ring.setAttribute('stroke',n.color);

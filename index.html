@@ -19,7 +19,8 @@
 <meta name="twitter:description" content="Interactive evolutionary tree featuring 200+ species.">
 <!-- Canonical -->
 <link rel="canonical" href="https://behemot46.github.io/tree-of-life/">
-<title>Tree of Life — 3.8 Billion Years</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+<title>Tree of Life — 3.8 Billion Years of Evolution</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;600&family=Noto+Serif+Hebrew:wght@400;600;700&family=Heebo:wght@300;400;600&display=swap" rel="stylesheet">
@@ -227,7 +228,7 @@ svg{width:100%;height:100%;}
 #panel{position:fixed;top:0;right:-500px;bottom:0;
   width:min(440px,92vw);background:var(--panel-bg);
   border-left:1px solid rgba(200,136,58,0.18);z-index:400;
-  transition:right 0.5s cubic-bezier(0.16,1,0.3,1);
+  transition:right 0.5s cubic-bezier(0.16,1,0.3,1),transform 300ms cubic-bezier(0.16,1,0.3,1),opacity 300ms ease;
   display:flex;flex-direction:column;
   box-shadow:-20px 0 60px rgba(0,0,0,0.7);backdrop-filter:blur(20px);}
 #panel.open{right:0;}
@@ -1991,7 +1992,13 @@ function showMainPanel(n){
     cs.style.display='block';
   } else cs.style.display='none';
 
+  panel.style.opacity = '0';
+  panel.style.transform = 'translateX(20px)';
   panel.classList.add('open');
+  requestAnimationFrame(() => {
+    panel.style.opacity = '1';
+    panel.style.transform = 'translateX(0)';
+  });
   updateBreadcrumb(n);
 }
 
@@ -2032,14 +2039,35 @@ function updateBreadcrumb(n){
 // TOOLTIP
 // ══════════════════════════════════════════════════════
 const tooltip=document.getElementById('tooltip');
+function showTooltip(node, x, y) {
+  const tip = document.getElementById('node-tooltip');
+  if (!tip) return;
+  tip.style.display = 'block';
+  tip.innerHTML = `
+    <div style="font-weight:700;margin-bottom:2px;">${node.icon || ''} ${node.name}</div>
+    ${node.latin ? `<div style="font-style:italic;color:var(--color-text-secondary);font-size:11px;">${node.latin}</div>` : ''}
+    ${node.era ? `<div style="font-size:11px;color:var(--color-text-muted);margin-top:2px;">${node.era}</div>` : ''}
+    ${node.extinct ? `<div style="font-size:11px;color:#c0392b;font-weight:600;">† Extinct</div>` : ''}
+    ${node.tipFact ? `<div style="font-size:11px;color:var(--color-text-secondary);margin-top:4px;border-top:1px solid var(--color-divider);padding-top:4px;">${node.tipFact}</div>` : ''}
+  `;
+  const tw = 220, th = 100;
+  const wx = window.innerWidth, wy = window.innerHeight;
+  tip.style.left = (x + 16 + tw > wx ? x - tw - 8 : x + 16) + 'px';
+  tip.style.top = (y + th > wy ? y - th : y) + 'px';
+}
+function hideTooltip() {
+  const tip = document.getElementById('node-tooltip');
+  if (tip) tip.style.display = 'none';
+}
 function showTip(e,n){
   document.getElementById('tip-name').textContent=n.name;
   document.getElementById('tip-era').textContent=n.era;
   document.getElementById('tip-fact').textContent=n.tipFact||'';
   moveTip(e);tooltip.classList.add('show');
+  showTooltip(n, e.clientX, e.clientY);
 }
 function moveTip(e){let x=e.clientX+16,y=e.clientY-12;if(x+240>window.innerWidth)x=e.clientX-250;if(y<10)y=e.clientY+20;tooltip.style.left=x+'px';tooltip.style.top=y+'px';}
-function hideTip(){tooltip.classList.remove('show');}
+function hideTip(){tooltip.classList.remove('show');hideTooltip();}
 window.addEventListener('mousemove',e=>{if(tooltip.classList.contains('show'))moveTip(e);});
 
 // ══════════════════════════════════════════════════════
@@ -2117,7 +2145,18 @@ const searchIndex=buildSearchIndex();
 
 searchInput.addEventListener('input',()=>{
   const q=searchInput.value.trim().toLowerCase();
-  if(!q){searchResults.classList.remove('show');searchInput.setAttribute('aria-expanded','false');return;}
+  if(!q){
+    searchResults.innerHTML=`
+      <div style="padding:16px;text-align:center;font-family:'Source Sans 3',sans-serif;">
+        <div style="font-size:24px;margin-bottom:8px;">🔍</div>
+        <div style="font-size:13px;color:var(--color-text-muted);">Try searching for a species name,<br>era, or keyword like "extinct"</div>
+      </div>
+    `;
+    searchResults.style.display='block';
+    searchResults.classList.add('show');
+    searchInput.setAttribute('aria-expanded','true');
+    return;
+  }
   const matches=searchIndex.filter(n=>n.name.toLowerCase().includes(q)||n.latin.toLowerCase().includes(q)||n.tags.toLowerCase().includes(q)).slice(0,10);
   searchResults.innerHTML=matches.map(m=>`<div class="sr-item" role="option" tabindex="-1" onclick="navigateTo('${m.id}')"><span class="sri-icon" aria-hidden="true">${m.icon}</span><span class="sri-name">${m.name}</span><span class="sri-sub">${m.era?m.era.replace('~','').split(' ').slice(0,3).join(' '):''}</span></div>`).join('');
   const show=matches.length>0;
@@ -2686,7 +2725,32 @@ function toggleTheme(){
 // ══════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════
+function showLoading() {
+  const loader = document.createElement('div');
+  loader.id = 'loader';
+  loader.style.cssText = `
+    position:fixed;top:0;left:0;right:0;bottom:0;
+    background:var(--color-canvas);
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    z-index:9999;font-family:'Playfair Display',serif;
+    transition:opacity 600ms ease;
+  `;
+  loader.innerHTML = `
+    <div style="font-size:48px;margin-bottom:16px;animation:spin 2s linear infinite;">🌿</div>
+    <div style="font-size:18px;color:var(--color-text-secondary);letter-spacing:0.05em;">Loading the Tree of Life...</div>
+    <style>@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}</style>
+  `;
+  document.body.appendChild(loader);
+  return loader;
+}
+function hideLoading(loader) {
+  if (!loader) return;
+  loader.style.opacity = '0';
+  setTimeout(() => loader.remove(), 600);
+}
+
 function init(){
+  const loader = showLoading();
   const _taglines = [
     "Every living thing is your cousin.",
     "You share 50% of your DNA with a banana.",
@@ -2716,6 +2780,7 @@ function init(){
   }
   assignDomains(TREE, 'luca');
   layout();render();applyT();
+  setTimeout(() => hideLoading(loader), 400);
   spawnParticles();
   buildExtinctionMarkers();
   const EXTINCTIONS = [
@@ -2799,5 +2864,9 @@ function init(){
 window.addEventListener('resize',()=>{layout();render();});
 init();
 </script>
+<div id="node-tooltip" style="display:none;position:fixed;background:var(--color-panel-bg);border:1px solid var(--color-panel-border);border-radius:8px;padding:8px 12px;font-family:'Source Sans 3',sans-serif;font-size:13px;color:var(--color-text-primary);pointer-events:none;z-index:500;box-shadow:0 4px 16px rgba(60,45,20,0.12);max-width:220px;"></div>
+<footer style="position:fixed;bottom:4px;right:8px;font-family:'Source Sans 3',sans-serif;font-size:10px;color:var(--color-text-muted);opacity:0.6;z-index:10;pointer-events:none;">
+  Tree of Life · Images via Wikimedia Commons · Built with Claude
+</footer>
 </body>
 </html>

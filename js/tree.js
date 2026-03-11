@@ -245,9 +245,10 @@ const Tree = (() => {
     /* Node circle */
     nodesEnter.append('circle')
       .attr('r', nodeRadius)
-      .attr('fill', d => d.data.is_extinct ? 'transparent' : getColor(d))
-      .attr('stroke', d => getColor(d))
+      .attr('fill', d => getColor(d) || '#888888')
       .attr('fill-opacity', d => d.data.is_extinct ? 0 : (d.children ? 0.85 : 1))
+      .attr('stroke', d => getColor(d) || '#888888')
+      .attr('stroke-width', 1.5)
       .attr('stroke-opacity', d => d.data.is_extinct ? 0.4 : 1)
       .attr('stroke-dasharray', d => d.data.is_extinct ? '3,2' : 'none');
 
@@ -292,8 +293,10 @@ const Tree = (() => {
     allNodes.select('circle:first-child')
       .transition().duration(dur)
       .attr('r', nodeRadius)
-      .attr('fill', d => getColor(d))
-      .attr('stroke', d => getColor(d));
+      .attr('fill', d => getColor(d) || '#888888')
+      .attr('fill-opacity', d => d.data.is_extinct ? 0 : (d.children ? 0.85 : 1))
+      .attr('stroke', d => getColor(d) || '#888888')
+      .attr('stroke-width', 1.5);
 
     /* Update label positions when layout changes */
     allNodes.select('text.node-label')

@@ -657,6 +657,9 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   <button id="extinct-toggle" onclick="toggleExtinct()" aria-label="Toggle visibility of extinct species" style="font-family:'Source Sans 3',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid #c8b99a;background:#f0ebe0;cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:#1c1a14;white-space:nowrap;flex-shrink:0;">
     <span>†</span><span id="extinct-label">Hide Extinct</span>
   </button>
+  <button id="hominins-tab" onclick="openHomininView()" aria-label="Open Hominin Evolution panel" style="font-family:'Source Sans 3',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid #c8b99a;background:#f0ebe0;cursor:pointer;color:#1c1a14;white-space:nowrap;flex-shrink:0;">
+    🧬 Hominins
+  </button>
 </div>
 
 <!-- BREADCRUMB -->
@@ -2443,7 +2446,8 @@ function showComparePanel(){
   const panel=document.getElementById('compare-panel');
   const grid=document.getElementById('compare-grid');
   const species=Array.from(compareSelected).map(id=>HOMININS.find(h=>h.id===id)).filter(Boolean);
-  panel.style.display='block';
+  panel.style.display='flex';
+  panel.style.flexDirection='column';
 
   const MAX_B=1750;
   const allBrains=species.map(h=>h.brain[1]||h.brain[0]).filter(Boolean);

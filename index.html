@@ -281,7 +281,7 @@ svg{width:100%;height:100%;}
   background:rgba(7,5,3,0.85);border:1px solid rgba(200,136,58,0.1);border-radius:9px;
   padding:0.7rem 0.9rem;backdrop-filter:blur(10px);pointer-events:auto;}
 .leg-title{font-size:0.56rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:0.25rem;}
-.leg-row{display:flex;align-items:center;gap:0.45rem;font-size:0.65rem;color:rgba(242,232,208,0.5);margin-top:0.2rem;}
+.leg-row{display:flex;align-items:center;gap:0.45rem;font-size:0.65rem;color:var(--color-text-primary);margin-top:0.2rem;}
 .leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 
 /* ── ZOOM CONTROLS ── */
@@ -294,7 +294,7 @@ svg{width:100%;height:100%;}
 /* ── TOOLTIP ── */
 #tooltip{position:fixed;z-index:300;background:rgba(7,5,3,0.94);
   border:1px solid rgba(200,136,58,0.28);border-radius:8px;padding:0.5rem 0.8rem;
-  font-size:0.75rem;color:var(--parchment);pointer-events:none;opacity:0;transition:opacity 0.2s;
+  font-size:0.75rem;color:var(--parchment);pointer-events:none !important;opacity:0;transition:opacity 0.2s;
   max-width:220px;backdrop-filter:blur(10px);}
 #tooltip.show{opacity:1;}
 .tip-name{font-family:var(--font-head);font-size:0.9rem;font-weight:600;}
@@ -491,6 +491,18 @@ svg{width:100%;height:100%;}
 .era-cenozoic    { background-color: rgba(60,100,80,0.06) !important; }
 
 /* ── DARK MODE POLISH ── */
+[data-theme="dark"]{
+  --color-text-primary:   #e8ead4;
+  --color-text-secondary: #b8c4a8;
+  --color-text-muted:     #7a8a6a;
+  --color-button-bg:      #1e2a1c;
+  --color-button-border:  #3a4a38;
+  --color-button-hover:   #2a3a28;
+  --color-panel-bg:       #121810;
+  --color-panel-border:   #2a3a28;
+  --color-canvas:         #0d110e;
+  --color-divider:        #2a3a28;
+}
 [data-theme="dark"] #search-results{background:#121810;border-color:#2a3a28;box-shadow:0 4px 16px rgba(0,0,0,0.4);}
 [data-theme="dark"] .search-result-item:hover{background:#1a2418;}
 [data-theme="dark"] .search-result-name{color:#e8ead4;}
@@ -1818,6 +1830,7 @@ function render(){
     const p=document.createElementNS('http://www.w3.org/2000/svg','path');
     p.setAttribute('d',branchPath(from._x,from._y,to._x,to._y));
     p.setAttribute('class','branch-path');
+    p.setAttribute('data-branch','true');
     const sw=Math.max(2,6-to.depth*0.5);
     const op=inEra?Math.max(0.4,0.95-to.depth*0.07):0.15;
     p.setAttribute('stroke',to.color);
@@ -1883,6 +1896,7 @@ function render(){
     const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
     c.setAttribute('cx',n._x);c.setAttribute('cy',n._y);c.setAttribute('r',Math.max(n.r,8));
     c.setAttribute('class','node-circle nc-main');
+    c.setAttribute('data-depth',n.depth||0);
     c.setAttribute('fill',n.depth===0?'url(#rootGrad)':n.color);
     c.setAttribute('fill-opacity',inEra?(n.depth===0?'1':n.depth<=1?'0.9':'0.8'):'0.15');
     c.style.stroke='var(--bg)';c.setAttribute('stroke-width','1.5');
@@ -2078,11 +2092,17 @@ function showTooltip(node, x, y) {
   tip.style.left = (x + 16 + tw > wx ? x - tw - 8 : x + 16) + 'px';
   tip.style.top = (y + th > wy ? y - th : y) + 'px';
 }
+let _tooltipHideTimer;
 function hideTooltip() {
-  const tip = document.getElementById('node-tooltip');
-  if (tip) tip.style.display = 'none';
+  _tooltipHideTimer = setTimeout(() => {
+    const tip = document.getElementById('node-tooltip');
+    if (tip) tip.style.display = 'none';
+    tooltip.style.opacity = '0';
+    tooltip.classList.remove('show');
+  }, 80);
 }
 function showTip(e,n){
+  clearTimeout(_tooltipHideTimer);
   document.getElementById('tip-name').textContent=n.name;
   document.getElementById('tip-era').textContent=n.era;
   document.getElementById('tip-fact').textContent=n.tipFact||'';
@@ -2090,7 +2110,7 @@ function showTip(e,n){
   showTooltip(n, e.clientX, e.clientY);
 }
 function moveTip(e){let x=e.clientX+16,y=e.clientY-12;if(x+240>window.innerWidth)x=e.clientX-250;if(y<10)y=e.clientY+20;tooltip.style.left=x+'px';tooltip.style.top=y+'px';}
-function hideTip(){tooltip.classList.remove('show');hideTooltip();}
+function hideTip(){hideTooltip();}
 window.addEventListener('mousemove',e=>{if(tooltip.classList.contains('show'))moveTip(e);});
 
 // ══════════════════════════════════════════════════════
@@ -2746,6 +2766,36 @@ function toggleTheme(){
 }
 
 // ══════════════════════════════════════════════════════
+// LUCA OPENING ANIMATION
+// ══════════════════════════════════════════════════════
+function animateTreeEntrance() {
+  const allNodes = document.querySelectorAll('.node-circle[data-depth]');
+  const allBranches = document.querySelectorAll('path[data-branch]');
+  allNodes.forEach(n => {
+    n.style.opacity = '0';
+    n.style.transform = 'scale(0)';
+    n.style.transformOrigin = 'center';
+    n.style.transition = 'opacity 400ms ease, transform 400ms ease';
+  });
+  allBranches.forEach(b => {
+    b.style.opacity = '0';
+    b.style.transition = 'opacity 300ms ease';
+  });
+  const depths = [0,1,2,3,4,5];
+  depths.forEach((depth,i) => {
+    setTimeout(() => {
+      document.querySelectorAll(`.node-circle[data-depth="${depth}"]`).forEach(el => {
+        el.style.opacity = '1';
+        el.style.transform = 'scale(1)';
+      });
+    }, i * 180);
+  });
+  setTimeout(() => {
+    allBranches.forEach(b => { b.style.opacity = '1'; });
+  }, 300);
+}
+
+// ══════════════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════════════
 function showLoading() {
@@ -2786,7 +2836,7 @@ function init(){
     _taglineEl.textContent = _taglines[Math.floor(Math.random() * _taglines.length)];
     const _dismissSplash = () => {
       _splash.style.opacity = '0';
-      setTimeout(() => { _splash.style.display = 'none'; }, 800);
+      setTimeout(() => { _splash.style.display = 'none'; animateTreeEntrance(); }, 800);
     };
     setTimeout(_dismissSplash, 2800);
     _splash.addEventListener('click', _dismissSplash);

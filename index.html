@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" dir="ltr" data-theme="light">
 <head>
@@ -1781,6 +1780,28 @@ const ERA_GROUPS = [
   {label:'Our Closest Relatives',filter:n=>['neanderthal','denisovans','h_sapiens'].includes(n.id)},
 ];
 
+/* ===========================
+   UNIFIED HOMININ MODEL
+   =========================== */
+const HOMININ_ID_ALIASES={
+  "homo-sapiens":"h_sapiens",
+  "homo-naledi":"h_naledi",
+  "denisovan":"denisovans",
+  "h_neanderthalensis":"neanderthal"
+};
+function canonicalHomininId(id){
+  return HOMININ_ID_ALIASES[id]||id;
+}
+function getHomininById(id){
+  const canonical=canonicalHomininId(id);
+  return HOMININS.find(h=>h.id===canonical)||null;
+}
+function resolveHomininTarget(id){
+  const canonical=canonicalHomininId(id);
+  if(getHomininById(canonical)) return canonical;
+  return null;
+}
+
 // ══════════════════════════════════════════════════════
 // NODE MAP + PREPROCESSING
 // ══════════════════════════════════════════════════════
@@ -1792,6 +1813,89 @@ function preprocess(n,parent=null,depth=0){
 }
 preprocess(TREE);
 window.getNodeById = id=>nodeMap[id];
+
+/* ===========================
+   PHOTO RELIABILITY LAYER
+   =========================== */
+const PHOTO_STATUS_CACHE=new Map();
+const PHOTO_VERIFY_PROMISES=new Map();
+function verifyPhotoUrl(url){
+  if(!url) return Promise.resolve(false);
+  const cached=PHOTO_STATUS_CACHE.get(url);
+  if(cached==="ok") return Promise.resolve(true);
+  if(cached==="bad") return Promise.resolve(false);
+  if(PHOTO_VERIFY_PROMISES.has(url))
+    return PHOTO_VERIFY_PROMISES.get(url);
+  const promise=new Promise(resolve=>{
+    const img=new Image();
+    img.onload=()=>{
+      PHOTO_STATUS_CACHE.set(url,"ok");
+      PHOTO_VERIFY_PROMISES.delete(url);
+      resolve(true);
+    };
+    img.onerror=()=>{
+      PHOTO_STATUS_CACHE.set(url,"bad");
+      PHOTO_VERIFY_PROMISES.delete(url);
+      resolve(false);
+    };
+    img.src=url;
+  });
+  PHOTO_VERIFY_PROMISES.set(url,promise);
+  return promise;
+}
+
+/* ===========================
+   SEARCH INDEX
+   =========================== */
+let searchIndex=null;
+function normalizeSearchText(str){
+  return String(str||"")
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .trim();
+}
+function buildSearchIndex(){
+  searchIndex=[];
+  Object.values(nodeMap).forEach(n=>{
+    searchIndex.push({
+      id:n.id,
+      name:n.name,
+      latin:n.latin||"",
+      era:n.era||"",
+      icon:n.icon,
+      depth:n.depth,
+      tags:(n.tags||[]).join(" "),
+      type:"tree",
+      haystack:normalizeSearchText(
+        [n.name,n.latin,(n.tags||[]).join(" "),n.id].join(" ")
+      )
+    });
+  });
+  HOMININS.forEach(h=>{
+    searchIndex.push({
+      id:"hom:"+h.id,
+      name:h.name,
+      latin:h.short||"",
+      era:h.mya[0]+"–"+h.mya[1]+" Mya",
+      icon:h.icon,
+      depth:0,
+      tags:(h.tags||[]).join(" "),
+      type:"hominin",
+      homId:h.id,
+      haystack:normalizeSearchText(
+        [h.name,h.short,(h.tags||[]).join(" "),h.id].join(" ")
+      )
+    });
+  });
+}
+function searchEntities(query){
+  const q=normalizeSearchText(query);
+  if(!q) return[];
+  return searchIndex
+    .filter(x=>x.haystack.includes(q))
+    .slice(0,12);
+}
 
 // ══════════════════════════════════════════════════════
 // SPECIES ENRICHMENT — alt facts + educational links
@@ -2473,6 +2577,24 @@ let highlightedId=null;
 
 function branchPath(x1,y1,x2,y2){const mx=(x1+x2)/2,my=(y1+y2)/2;return `M${x1},${y1} Q${mx+(my-y1)*0.28},${my-(mx-x1)*0.28} ${x2},${y2}`;}
 
+/* ===========================
+   RENDER SCHEDULER
+   =========================== */
+let renderQueued=false;
+function scheduleRender(force=false){
+  if(force){
+    renderQueued=false;
+    render();
+    return;
+  }
+  if(renderQueued) return;
+  renderQueued=true;
+  requestAnimationFrame(()=>{
+    renderQueued=false;
+    render();
+  });
+}
+
 function render(){
   branchLayer.innerHTML=''; nodesLayer.innerHTML='';
   const edges=getVisibleEdges(TREE);
@@ -2636,7 +2758,7 @@ function render(){
 
     // Events
     g.addEventListener('click',e=>{e.stopPropagation();showMainPanel(n);});
-    g.addEventListener('contextmenu',e=>{e.preventDefault();if(n.children?.length){n._collapsed=!n._collapsed;render();}});
+    g.addEventListener('contextmenu',e=>{e.preventDefault();if(n.children?.length){n._collapsed=!n._collapsed;scheduleRender();}});
     nodesLayer.appendChild(g);
   });
 }
@@ -3403,7 +3525,7 @@ eraSlider.addEventListener('input',()=>{
   eraFill.style.width=pct+'%';
   eraLabel.textContent=getEraName(currentEra);
   updateEraTint(currentEra);
-  render();
+  scheduleRender();
 });
 
 // ══════════════════════════════════════════════════════
@@ -3413,15 +3535,8 @@ const searchInput=document.getElementById('search-input');
 const searchResults=document.getElementById('search-results');
 const allNodes=Object.values(nodeMap);
 
-function buildSearchIndex(){
-  const treeItems=allNodes.map(n=>({id:n.id,name:n.name,latin:n.latin||'',era:n.era||'',icon:n.icon,depth:n.depth,tags:(n.tags||[]).join(' '),type:'tree'}));
-  const homItems=HOMININS.map(h=>({id:'hom:'+h.id,name:h.name,latin:h.short||'',era:h.mya[0]+'–'+h.mya[1]+' Mya',icon:h.icon,depth:0,tags:(h.tags||[]).join(' '),type:'hominin',homId:h.id}));
-  return [...treeItems,...homItems];
-}
-const searchIndex=buildSearchIndex();
-
 searchInput.addEventListener('input',()=>{
-  const q=searchInput.value.trim().toLowerCase();
+  const q=searchInput.value.trim();
   if(!q){
     searchResults.innerHTML=`
       <div style="padding:16px;text-align:center;font-family:'Source Sans 3',sans-serif;">
@@ -3434,7 +3549,7 @@ searchInput.addEventListener('input',()=>{
     searchInput.setAttribute('aria-expanded','true');
     return;
   }
-  const matches=searchIndex.filter(n=>n.name.toLowerCase().includes(q)||n.latin.toLowerCase().includes(q)||n.tags.toLowerCase().includes(q)).slice(0,10);
+  const matches=searchEntities(q);
   searchResults.innerHTML=matches.map(m=>`<div class="sr-item" role="option" tabindex="-1" onclick="navigateTo('${m.id}')"><span class="sri-icon" aria-hidden="true">${m.icon}</span><span class="sri-name">${m.name}</span><span class="sri-sub">${m.era?m.era.replace('~','').split(' ').slice(0,3).join(' '):''}</span></div>`).join('');
   const show=matches.length>0;
   searchResults.classList.toggle('show',show);
@@ -3568,46 +3683,39 @@ function showHominDetail(h){
 // PAN & ZOOM
 // ══════════════════════════════════════════════════════
 const svgEl=document.getElementById('svg');
-let panning=false,ps={x:0,y:0},ts={x:0,y:0};
-svgEl.addEventListener('mousedown',e=>{if(e.button!==0)return;if(e.target&&e.target.classList&&e.target.classList.contains('node-circle'))return;panning=true;ps={x:e.clientX,y:e.clientY};ts={...transform};document.body.classList.add('dragging');});
-window.addEventListener('mousemove',e=>{if(!panning)return;transform.x=ts.x+(e.clientX-ps.x);transform.y=ts.y+(e.clientY-ps.y);applyT();});
-window.addEventListener('mouseup',()=>{panning=false;document.body.classList.remove('dragging');});
-let lt=null;
-let pinchStartDist=0;
-let pinchStartScale=1;
-svgEl.addEventListener('touchstart',e=>{if(e.touches.length===1){panning=true;ps={x:e.touches[0].clientX,y:e.touches[0].clientY};ts={...transform};}else if(e.touches.length===2){panning=false;lt=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);}},{passive:true});
-svgEl.addEventListener('touchmove',e=>{if(e.touches.length===1&&panning){transform.x=ts.x+(e.touches[0].clientX-ps.x);transform.y=ts.y+(e.touches[0].clientY-ps.y);applyT();}else if(e.touches.length===2&&lt){const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);transform.s=Math.min(6,Math.max(0.12,transform.s*(d/lt)));lt=d;applyT();}},{passive:true});
-svgEl.addEventListener('touchend',()=>{panning=false;lt=null;});
-svgEl.addEventListener('touchstart',function(e){
-  if(e.touches.length===1){
-    const touch=e.touches[0];
-    const mouseEvent=new MouseEvent('mousedown',{clientX:touch.clientX,clientY:touch.clientY});
-    svgEl.dispatchEvent(mouseEvent);
+/* ===========================
+   POINTER EVENTS (REPLACE TOUCH)
+   =========================== */
+svgEl.style.touchAction="none";
+let isPointerPanning=false;
+let pointerStart={x:0,y:0};
+let transformStart={x:0,y:0};
+const activePointers=new Map();
+let pinchGesture=null;
+svgEl.addEventListener("pointerdown",e=>{
+  if(e.pointerType==="mouse" && e.button!==0) return;
+  activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(activePointers.size===1){
+    isPointerPanning=true;
+    pointerStart={x:e.clientX,y:e.clientY};
+    transformStart={...transform};
   }
-  if(e.touches.length===2){
-    e.preventDefault();
-    pinchStartDist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
-    pinchStartScale=transform.s;
-  }
-},{passive:false});
-svgEl.addEventListener('touchmove',function(e){
-  e.preventDefault();
-  if(e.touches.length===1){
-    const touch=e.touches[0];
-    const mouseEvent=new MouseEvent('mousemove',{clientX:touch.clientX,clientY:touch.clientY});
-    svgEl.dispatchEvent(mouseEvent);
-  }
-  if(e.touches.length===2){
-    const dist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
-    const scale=pinchStartScale*(dist/pinchStartDist);
-    transform.s=Math.min(Math.max(scale,0.2),5);
+});
+svgEl.addEventListener("pointermove",e=>{
+  if(!activePointers.has(e.pointerId)) return;
+  activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(activePointers.size===1 && isPointerPanning){
+    transform.x=transformStart.x+(e.clientX-pointerStart.x);
+    transform.y=transformStart.y+(e.clientY-pointerStart.y);
     applyT();
   }
-},{passive:false});
-svgEl.addEventListener('touchend',function(e){
-  const mouseEvent=new MouseEvent('mouseup',{});
-  svgEl.dispatchEvent(mouseEvent);
-},{passive:true});
+});
+svgEl.addEventListener("pointerup",e=>{
+  activePointers.delete(e.pointerId);
+  if(activePointers.size===0){
+    isPointerPanning=false;
+  }
+});
 svgEl.addEventListener('wheel',e=>{e.preventDefault();const f=e.deltaY<0?1.13:0.88;const rect=svgEl.getBoundingClientRect();const mx=e.clientX-rect.left,my=e.clientY-rect.top;const ns=Math.min(6,Math.max(0.12,transform.s*f));transform.x=mx-(mx-transform.x)*(ns/transform.s);transform.y=my-(my-transform.y)*(ns/transform.s);transform.s=ns;applyT();},{passive:false});
 document.getElementById('btn-in').addEventListener('click',()=>{transform.s=Math.min(6,transform.s*1.2);applyT();});
 document.getElementById('btn-out').addEventListener('click',()=>{transform.s=Math.max(0.12,transform.s*0.83);applyT();});
@@ -4090,6 +4198,7 @@ function init(){
   setTimeout(() => hideLoading(loader), 400);
   spawnParticles();
   buildExtinctionMarkers();
+  buildSearchIndex();
   const EXTINCTIONS = [
     { name: 'End-Ordovician', time: 443, short: '†' },
     { name: 'Late Devonian', time: 372, short: '†' },
@@ -4177,7 +4286,7 @@ function init(){
     }
   },3000);
 }
-window.addEventListener('resize',()=>{layout();render();});
+window.addEventListener('resize',()=>{layout();scheduleRender();});
 init();
 </script>
 <footer style="position:fixed;bottom:4px;right:8px;font-family:'Source Sans 3',sans-serif;font-size:10px;color:var(--color-text-muted);opacity:0.6;z-index:10;pointer-events:none;">

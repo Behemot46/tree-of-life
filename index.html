@@ -1604,23 +1604,21 @@ const TREE = {
                               funFact:'Different chimpanzee communities use different tools and techniques — a form of culture — and young chimps spend years being taught by their mothers, exactly as human children do.',
                               facts:[{l:'Diverged from humans',v:'~6–7 Mya'},{l:'DNA similarity',v:'98.7%'},{l:'Cultures documented',v:'40+'},{l:'Status',v:'Endangered'}],
                               tags:['Closest relative','Stone tools','Culture','Political alliances','Grief'],tipFact:'You share more DNA with a chimp than a mouse shares with a rat.',children:[]},
-                            {id:'homo-sapiens',icon:'🧠',color:'#9a5050',r:14,appeared:0.3,extinct:null,
-                              img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Akha_woman.jpg/320px-Akha_woman.jpg',
-                              imgCredit:'Steve Evans, CC BY 2.0',
-                              name:'Homo sapiens',latin:'Homo sapiens',era:'Quaternary',
-                              desc:'The only surviving human species. Anatomically modern humans appeared in Africa around 300,000 years ago and spread across every continent. Our large prefrontal cortex enables abstract thought, language, art, and culture.',
-                              detail:'Homo sapiens have the largest brain relative to body size of any animal. We are the only species known to use symbolic language, create cumulative culture, and contemplate our own existence. Despite our diversity we are genetically one of the least variable large mammals — a genetic bottleneck around 70,000 years ago reduced our ancestors to perhaps 10,000 individuals.',
-                              funFact:'All 8 billion humans alive today descend from a population of perhaps 10,000 individuals who survived a near-extinction event 70,000 years ago — making us one of the least genetically diverse large mammals on Earth.',
+                            {id:'hominini',icon:'🧬',color:'#b07a3e',r:12,appeared:7,extinct:null,
+                              name:'Human Lineage',latin:'Tribe Hominini',era:'~7 Mya',
+                              desc:'The human tribe — every species more closely related to us than to chimpanzees. From the earliest bipedal apes 7 million years ago to the sole surviving species today, this branch chronicles humanity\'s deep evolutionary journey.',
+                              detail:'The hominin fossil record reveals a "bushy" family tree — multiple species coexisting at any given time, not a neat ladder. At least five different human species walked the Earth simultaneously just 50,000 years ago.',
+                              funFact:'At least five different human species walked the Earth at the same time just 50,000 years ago — we are the only one left.',
                               facts:[
-                                {l:'Appeared',v:'~300,000 years ago'},
-                                {l:'Brain volume',v:'1,200–1,700 cc'},
-                                {l:'Population',v:'8 billion'},
-                                {l:'Genetic bottleneck',v:'~70,000 years ago'},
-                                {l:'Continents inhabited',v:'All 7'}
+                                {l:'Time span',v:'7 Mya – present'},
+                                {l:'Known species',v:'~25'},
+                                {l:'Surviving',v:'1 (H. sapiens)'},
+                                {l:'First tools',v:'~3.3 Mya'},
+                                {l:'First fire',v:'~1 Mya'}
                               ],
-                              tags:['Modern human','Language','Culture','Tool use','Art','Hominin'],
-                              tipFact:'You are a 300,000 year old African species looking at a screen.',
-                              children:[]}
+                              tags:['Bipedalism','Brain expansion','Tool use','Fire','Language','Hominin'],
+                              tipFact:'At least five human species coexisted 50,000 years ago — we are the only one left.',
+                              children:[] /* populated by buildHomininTree() */}
                           ]}
                       ]}
                   ]}
@@ -1765,9 +1763,6 @@ const HOMININS = [
   {id:'h_luzonensis',group:'homo',name:'Homo luzonensis',short:'H. luzonensis',icon:'🏝️',color:'#7A6B50',status:'extinct',mya:[0.067,0.05],brain:[null,null],height:'~120cm',weight:'~25kg',habitat:'Tropical island, Luzon, Philippines',tools:'Stone tools',fire:'Unknown',language:'Unknown',sites:['Callao Cave, Luzon, Philippines'],img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Callao_Cave_Entrance.jpg/320px-Callao_Cave_Entrance.jpg',imgCredit:'Judgefloro, CC BY-SA 4.0',desc:'Announced in 2019 from Callao Cave - a tiny island hominin with a mosaic of features. Some foot and finger bones resemble Australopithecus rather than any Homo. With an age of 50-67 thousand years ago, it coexisted with Denisovans, H. sapiens, and floresiensis - the most crowded moment in hominin history.',detail:'The survival of primitive morphology in luzonensis may reflect island dwarfism or indicate an earlier migration to Southeast Asia than previously recognized.',facts:[{l:'Lived',v:'~67-50 Kya'},{l:'Announced',v:'2019'},{l:'Region',v:'Callao Cave, Luzon'},{l:'Features',v:'Mosaic Australopithecus + Homo'}],tags:['New species 2019','Philippine hominin','Mosaic anatomy','Island dwarf','Callao Cave'],dna:{note:'No DNA recovered from tropical site'}},
   {id:'h_longi',group:'homo',name:'Homo longi',short:'H. longi (Dragon Man)',icon:'🐉',color:'#7A8090',status:'extinct',mya:[0.146,0.146],brain:[1420,null],height:'~180cm',weight:'~70kg',habitat:'Cold temperate Asia',tools:'Unknown',fire:'Possible',language:'Possible',sites:['Harbin, Heilongjiang, China'],desc:'"Dragon Man" - a massive skull found in Harbin, China, with a brain size matching Homo sapiens but archaic features. Described in 2021, it may be more closely related to H. sapiens than Neanderthals are - which would fundamentally reorganize the human family tree.',detail:'The Harbin skull was allegedly discovered in the 1930s, hidden in a well for 80+ years, and donated to researchers before the original discoverer death. Protein analysis supports placement near the sapiens lineage.',facts:[{l:'Lived',v:'~146 Kya'},{l:'Brain vol.',v:'~1,420 cm3'},{l:'Described',v:'2021'},{l:'Claim',v:'Closer to sapiens than Neanderthal'}],tags:['Dragon Man','Harbin skull','New species 2021','Paleoproteomics','Reorganizes family tree'],dna:{note:'No DNA; protein analysis places near sapiens lineage'}},
   {id:'h_sapiens',group:'homo',name:'Homo sapiens',short:'H. sapiens',icon:'🧠',color:'#E8B86D',status:'surviving',mya:[0.3,0],brain:[1350,1500],height:'~170cm avg',weight:'~62–80kg',habitat:'Universal — all continents',tools:'All technology in history',fire:'Total control',language:'Full language',sites:['Jebel Irhoud, Morocco','Omo Kibish, Ethiopia'],desc:'You. Emerged ~300,000 years ago in Africa. Behavioral modernity appeared ~70,000–50,000 years ago. We left Africa in multiple waves, interbreeding with Neanderthals, Denisovans, and possibly other archaic humans. We carry a mosaic of archaic DNA in our genomes today.',detail:'In 300,000 years we reshaped the biosphere, triggered a mass extinction, split the atom, walked on the moon, and began sequencing the genomes of every organism on this tree of life.',facts:[{l:'Appeared',v:'~300 Kya (Africa)'},{l:'Population',v:'~8.1 billion'},{l:'Brain vol.',v:'~1,350–1,500 cm³'},{l:'Neanderthal DNA',v:'~1–4% (non-African)'}],tags:['Language & art','Global dispersal','Archaic DNA legacy','Agriculture ~12 Kya','Space travel','FOXP2'],dna:{neanderthal:2,denisovan:1,note:'~1–4% Neanderthal + up to 5% Denisovan in some populations'}},
-  {id:'homo-naledi',group:'Homo',name:'Homo naledi',short:'The Cave Puzzler',icon:'🧑',color:'#9a7055',status:'extinct',mya:[0.335,0.236],brain:[465,610],height:'~144cm',weight:'~40kg',habitat:'Cave systems, South Africa',tools:'Possible fire use',fire:'Possible',language:'Unknown',sites:['Rising Star Cave, South Africa'],img:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Homo_naledi_skull.jpg/320px-Homo_naledi_skull.jpg',imgCredit:'Lee Roger Berger research team, CC BY 4.0',desc:'Discovered in 2013 deep inside a nearly inaccessible cave system in South Africa. Has a baffling mix of primitive and modern features — small brain but human-like hands and feet.',detail:'Homo naledi may have deliberately disposed of their dead in these caves — which would be the earliest known mortuary behavior, previously thought uniquely human. The caves required squeezing through gaps as narrow as 17cm to access.',funFact:'Homo naledi apparently buried their dead in pitch-black caves requiring expert climbing through 17cm gaps — with a brain one third the size of ours.',facts:[{l:'Brain size',v:'465–610 cc'},{l:'Discovery',v:'2013, Rising Star Cave'},{l:'Access',v:'17cm gap to reach'}],tags:['Cave burial','Small brain','Mixed features'],dna:{haplogroup:'Unknown',neanderthal:'Unknown',denisovan:'Unknown'}},
-  {id:'homo-floresiensis',group:'Homo',name:'Homo floresiensis',short:'The Hobbit',icon:'🧑',color:'#9a7055',status:'extinct',mya:[0.1,0.05],brain:[380,380],height:'~106cm',weight:'~25kg',habitat:'Tropical island forest, Flores',tools:'Stone tools',fire:'Evidence found',language:'Unknown',sites:['Liang Bua Cave, Flores, Indonesia'],img:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Homo_floresiensis_cave.jpg/320px-Homo_floresiensis_cave.jpg',imgCredit:'Rosino, CC BY-SA 2.0',desc:'A tiny human species standing just 1 meter tall that survived on the island of Flores until 50,000 years ago — possibly overlapping with modern humans. Nicknamed "The Hobbit."',detail:'Floresiensis used fire and made sophisticated stone tools despite a brain smaller than a chimpanzee\'s. Island dwarfism — the same process that shrinks elephants on islands — likely reduced their size from Homo erectus ancestors.',funFact:'Homo floresiensis stood 1 meter tall, had a brain smaller than a chimp, yet made sophisticated tools and used fire — possibly alive at the same time as modern humans just 50,000 years ago.',facts:[{l:'Height',v:'~1 meter'},{l:'Brain',v:'380 cc (smaller than chimp)'},{l:'Survived until',v:'~50,000 years ago'}],tags:['Island dwarfism','Hobbit','Tool use'],dna:{haplogroup:'Unknown',neanderthal:'Unknown',denisovan:'Unknown'}},
-  {id:'denisovan',group:'Archaic Homo',name:'Denisovans',short:'The Ghost Lineage',icon:'👤',color:'#7a6a55',status:'extinct',mya:[0.5,0.03],brain:[1200,1400],height:'Unknown',weight:'Unknown',habitat:'Asia — Siberia to Southeast Asia',tools:'Advanced stone and bone tools',fire:'Yes',language:'Possible',sites:['Denisova Cave, Siberia','Xiahe, Tibet','Tam Ngu Hao, Laos'],img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Denisova_Cave_main_gallery.jpg/320px-Denisova_Cave_main_gallery.jpg',imgCredit:'Демин Алексей Барнаул, CC BY-SA 3.0',desc:'Known almost entirely from DNA — only a finger bone, teeth, and jaw have been found. Yet their genome has been fully sequenced. Up to 6% of modern Melanesian DNA is Denisovan.',detail:'Denisovans interbred with modern humans in Asia. The gene variant allowing Tibetans to live at high altitude — EPAS1 — comes from Denisovans. They may have ranged from Siberia to Southeast Asia.',funFact:'We know an entire human species from a single finger bone — yet their DNA lives on in millions of people today, and gave Tibetans the gene allowing them to breathe at high altitude.',facts:[{l:'Known fossils',v:'Finger bone, teeth, jaw'},{l:'DNA in modern humans',v:'Up to 6% in Melanesians'},{l:'Gift to Tibetans',v:'High-altitude breathing gene'}],tags:['Ghost lineage','DNA only','Interbreeding'],dna:{haplogroup:'Unknown',neanderthal:'Interbred',denisovan:'100%'}}
 ];
 
 const MAX_BRAIN = 1750;
@@ -1786,6 +1781,7 @@ const ERA_GROUPS = [
 const HOMININ_ID_ALIASES={
   "homo-sapiens":"h_sapiens",
   "homo-naledi":"h_naledi",
+  "homo-floresiensis":"h_floresiensis",
   "denisovan":"denisovans",
   "h_neanderthalensis":"neanderthal"
 };
@@ -1803,6 +1799,85 @@ function resolveHomininTarget(id){
 }
 
 // ══════════════════════════════════════════════════════
+// BUILD HOMININ SUBTREE
+// ══════════════════════════════════════════════════════
+function homininToTreeNode(h){
+  const brainMax=h.brain[1]||h.brain[0]||0;
+  const r=brainMax?Math.round(7+(brainMax/MAX_BRAIN)*7):8;
+  return {
+    id:h.id, icon:h.icon, color:h.color, r:r,
+    appeared:h.mya[0],
+    extinct:h.status==='extinct'?true:null,
+    name:h.name, latin:h.name,
+    era:h.mya[1]===0?h.mya[0]+' Ma – present':h.mya[0]+'–'+h.mya[1]+' Ma',
+    desc:h.desc, detail:h.detail, funFact:h.funFact||null,
+    facts:h.facts||[], tags:h.tags||[],
+    img:h.img||null, imgCredit:h.imgCredit||null,
+    children:[],
+    _hominin:true,
+    _hominData:h
+  };
+}
+
+function buildHomininTree(){
+  // Find hominini node in the tree (under Great Apes)
+  let homininiNode=null;
+  (function walk(n){
+    if(n.id==='hominini'){homininiNode=n;return;}
+    if(n.children) n.children.forEach(walk);
+  })(TREE);
+  if(!homininiNode){console.warn('hominini node not found in TREE');return;}
+
+  // Define 4 group nodes
+  const groups=[
+    {id:'group-proto',icon:'🦴',color:'#8B5E3C',r:10,appeared:7,extinct:true,
+      name:'Proto-Hominins',latin:'Early Hominini',era:'7–3 Ma',
+      desc:'The earliest members of the human lineage — bipedal apes from Africa\'s forests and lakeshores. These species bridge the gap between the human-chimp common ancestor and the australopiths.',
+      detail:'Proto-hominins show the first signs of bipedalism while retaining many ape-like features. They are known from fragmentary fossils in Chad, Kenya, and Ethiopia.',
+      facts:[{l:'Time span',v:'7–3 Mya'},{l:'Key trait',v:'Early bipedalism'},{l:'Regions',v:'Chad, Kenya, Ethiopia'}],
+      tags:['Bipedalism origins','Forest dwellers','Human-chimp split'],
+      filter:'proto'},
+    {id:'group-australopith',icon:'🐒',color:'#b07840',r:10,appeared:4.2,extinct:true,
+      name:'Australopithecus',latin:'Genus Australopithecus',era:'4.2–1.8 Ma',
+      desc:'The "southern apes" — small-brained but fully bipedal hominins that dominated Africa for over 2 million years. Includes Lucy (Au. afarensis), the most famous fossil hominin.',
+      detail:'Australopiths were the first hominins to thrive in open savanna environments. Some species may have used simple tools before the emergence of Homo.',
+      facts:[{l:'Time span',v:'4.2–1.8 Mya'},{l:'Famous fossil',v:'Lucy (AL 288-1)'},{l:'Brain range',v:'370–500 cc'}],
+      tags:['Lucy','Bipedal','Savanna','Southern apes'],
+      filter:'australopith'},
+    {id:'group-paranthropus',icon:'💪',color:'#9B3A3A',r:9,appeared:2.7,extinct:true,
+      name:'Paranthropus',latin:'Genus Paranthropus',era:'2.7–1.2 Ma',
+      desc:'The "robust" hominins — with massive jaws, huge molars, and dramatic sagittal crests for anchoring powerful chewing muscles. A specialized side branch that coexisted with early Homo for over a million years.',
+      detail:'Paranthropus represents an evolutionary experiment in dietary specialization. While Homo invested in brains and tools, Paranthropus invested in jaw power.',
+      facts:[{l:'Time span',v:'2.7–1.2 Mya'},{l:'Key trait',v:'Massive jaws & molars'},{l:'Species',v:'3 known'}],
+      tags:['Robust hominins','Massive jaws','Sagittal crest','Dead-end lineage'],
+      filter:'paranthropus'},
+    {id:'group-homo',icon:'🧠',color:'#6B8B5E',r:11,appeared:2.4,extinct:null,
+      name:'Genus Homo',latin:'Genus Homo',era:'2.4 Ma – present',
+      desc:'Our own genus — from the first stone toolmakers to the species that split the atom. Homo is defined by increasing brain size, sophisticated tool use, fire control, and eventually language and symbolic thought.',
+      detail:'The genus Homo emerged in Africa around 2.4 million years ago and eventually spread across every continent. Only one species survives today.',
+      facts:[{l:'Time span',v:'2.4 Mya – present'},{l:'Living species',v:'1 (H. sapiens)'},{l:'Max brain',v:'~1,750 cc (Neanderthal)'}],
+      tags:['Tool makers','Fire','Language','Global dispersal'],
+      filter:'homo'}
+  ];
+
+  // Build group nodes with their children from HOMININS
+  const groupNodes=groups.map(g=>{
+    const species=HOMININS.filter(h=>h.group===g.filter).map(homininToTreeNode);
+    return {
+      id:g.id, icon:g.icon, color:g.color, r:g.r,
+      appeared:g.appeared, extinct:g.extinct,
+      name:g.name, latin:g.latin, era:g.era,
+      desc:g.desc, detail:g.detail,
+      facts:g.facts, tags:g.tags,
+      children:species
+    };
+  });
+
+  homininiNode.children=groupNodes;
+}
+buildHomininTree();
+
+// ══════════════════════════════════════════════════════
 // NODE MAP + PREPROCESSING
 // ══════════════════════════════════════════════════════
 const nodeMap = {};
@@ -1812,6 +1887,8 @@ function preprocess(n,parent=null,depth=0){
   if(n.children) n.children.forEach(c=>preprocess(c,n,depth+1));
 }
 preprocess(TREE);
+// Collapse hominini subtree by default so tree isn't visually overloaded
+if(nodeMap['hominini']) nodeMap['hominini']._collapsed=true;
 window.getNodeById = id=>nodeMap[id];
 
 /* ===========================
@@ -1873,6 +1950,8 @@ function buildSearchIndex(){
     });
   });
   HOMININS.forEach(h=>{
+    // Skip if this hominin is already in the tree (via buildHomininTree)
+    if(nodeMap[h.id]) return;
     searchIndex.push({
       id:"hom:"+h.id,
       name:h.name,
@@ -2326,7 +2405,7 @@ const ENRICHMENT = {
       {label:'WWF Chimpanzee', url:'https://www.worldwildlife.org/species/chimpanzee'},
     ]
   },
-  'homo-sapiens': {
+  'h_sapiens': {
     altFacts:[
       'Every non-African human alive today carries ~1–4% Neanderthal DNA from interbreeding that occurred ~50,000–60,000 years ago.',
       'The human brain uses ~20% of all the body\'s energy despite being only ~2% of its weight.',
@@ -2507,7 +2586,7 @@ Object.entries(ENRICHMENT).forEach(([id, data]) => {
 // ══════════════════════════════════════════════════════
 // LAYOUT
 // ══════════════════════════════════════════════════════
-const DEPTH_R=[0,225,412,578,725,853,965,1067,1152];
+const DEPTH_R=[0,225,412,578,725,853,965,1067,1152,1230,1300];
 function getVisible(n){let a=[n];if(n.children&&!n._collapsed)n.children.forEach(c=>a=a.concat(getVisible(c)));return a;}
 function getVisibleEdges(n){let a=[];if(n.children&&!n._collapsed){n.children.forEach(c=>{a.push({from:n,to:c});a=a.concat(getVisibleEdges(c));});}return a;}
 function assignAngles(n,a0,a1){n._a0=a0;n._a1=a1;n._angle=(a0+a1)/2;if(!n.children||!n.children.length||n._collapsed)return;const visible=n.children;const minAngleSep=0.15;const range=a1-a0;const minTotal=visible.length*minAngleSep;const effectiveRange=Math.max(range,minTotal);let a=a0-(effectiveRange-range)/2;visible.forEach(c=>{const share=effectiveRange/visible.length;assignAngles(c,a,a+share);a+=share;});}
@@ -2643,7 +2722,7 @@ function render(){
     }
 
     // Living pulse ring for Homo sapiens
-    if(n.id==='homo-sapiens'){
+    if(n.id==='h_sapiens'){
       const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
       ring.setAttribute('cx',n._x);ring.setAttribute('cy',n._y);ring.setAttribute('r',n.r+10);
       ring.setAttribute('fill','none');ring.setAttribute('stroke',n.color);
@@ -2957,7 +3036,7 @@ function generateSpeciesIllustration(node) {
   }
 
   // PRIMATES / GREAT APES / HUMANS
-  if (['primates','great-apes','chimpanzee','gorilla','orangutan','homo-sapiens'].includes(id)) {
+  if (['primates','great-apes','chimpanzee','gorilla','orangutan','hominini','h_sapiens'].includes(id) || (nodeMap[id] && nodeMap[id]._hominin)) {
     return wrap(darken(c,0.78),
       `<ellipse cx="${W/2}" cy="${H*0.38}" rx="38" ry="40" fill="${rgba(c,0.55)}" filter="url(#ig_glow)"/>
        <ellipse cx="${W/2}" cy="${H*0.38}" rx="26" ry="28" fill="${lighten(c,0.15)}" opacity="0.5"/>
@@ -3090,16 +3169,27 @@ function renderPanelContent(node) {
     'mammalia':'Mammal','cetaceans':'Cetacea','blue-whale':'Blue_whale',
     'naked-mole-rat':'Naked_mole-rat','platypus':'Platypus',
     'primates':'Primate','great-apes':'Hominidae','gorilla':'Western_gorilla',
-    'orangutan':'Orangutan','chimpanzee':'Chimpanzee','homo-sapiens':'Human',
+    'orangutan':'Orangutan','chimpanzee':'Chimpanzee',
+    'hominini':'Hominini','h_sapiens':'Human',
+    'group-proto':'Hominini','group-australopith':'Australopithecus',
+    'group-paranthropus':'Paranthropus','group-homo':'Homo_(genus)',
     'protists':'Protist','alveolates':'Alveolata','plasmodium':'Plasmodium_(biology)',
     'dinoflagellates':'Dinoflagellate','diatoms':'Diatom','phytophthora':'Phytophthora',
     'amoeba':'Amoeba','volvox':'Volvox',
     'h_naledi':'Homo_naledi','h_floresiensis':'Homo_floresiensis',
-    'h_luzonensis':'Homo_luzonensis','denisovan':'Denisovan',
-    'h_neanderthalensis':'Neanderthal','h_erectus':'Homo_erectus',
+    'h_luzonensis':'Homo_luzonensis','denisovans':'Denisovan',
+    'neanderthal':'Neanderthal','h_erectus':'Homo_erectus',
     'h_heidelbergensis':'Homo_heidelbergensis','h_habilis':'Homo_habilis',
+    'h_rudolfensis':'Homo_rudolfensis','h_antecessor':'Homo_antecessor',
+    'h_bodoensis':'Homo_heidelbergensis','h_longi':'Homo_longi',
     'au_afarensis':'Australopithecus_afarensis','au_africanus':'Australopithecus_africanus',
-    'sahelanthropus':'Sahelanthropus','ardipithecus_r':'Ardipithecus_ramidus',
+    'au_anamensis':'Australopithecus_anamensis','au_sediba':'Australopithecus_sediba',
+    'au_garhi':'Australopithecus_garhi','au_deyiremeda':'Australopithecus_deyiremeda',
+    'au_bahrelghazali':'Australopithecus_bahrelghazali','au_prometheus':'Australopithecus_africanus',
+    'par_boisei':'Paranthropus_boisei','par_robustus':'Paranthropus_robustus',
+    'par_aethiopicus':'Paranthropus_aethiopicus',
+    'sahelanthropus':'Sahelanthropus','orrorin':'Orrorin','ardipithecus_r':'Ardipithecus_ramidus',
+    'kenyanthropus':'Kenyanthropus',
   };
 
   // Cache for fetched photos
@@ -3232,7 +3322,12 @@ function renderPanelContent(node) {
     'gorilla':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Gorilla_gorilla_gorilla_-_Gorille_des_plaines_de_l%27ouest.jpg/640px-Gorilla_gorilla_gorilla_-_Gorille_des_plaines_de_l%27ouest.jpg', credit:'Brocken Inaglory, CC BY-SA 3.0'},
     'orangutan':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Orang_Utan%2C_Semenggok_Forest_Reserve%2C_Sarawak%2C_Borneo%2C_Malaysia.JPG/640px-Orang_Utan%2C_Semenggok_Forest_Reserve%2C_Sarawak%2C_Borneo%2C_Malaysia.JPG', credit:'Thorsten Bachner, CC BY-SA 3.0'},
     'chimpanzee':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/ChimpanzeeZoo.jpg/640px-ChimpanzeeZoo.jpg', credit:'Thomas Lersch, CC BY-SA 3.0'},
-    'homo-sapiens':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Akha_woman.jpg/640px-Akha_woman.jpg', credit:'Steve Evans, CC BY 2.0'},
+    'h_sapiens':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Akha_woman.jpg/640px-Akha_woman.jpg', credit:'Steve Evans, CC BY 2.0'},
+    'hominini':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Spreading_homo_sapiens_la.svg/640px-Spreading_homo_sapiens_la.svg.png', credit:'Wikimedia Commons, CC BY-SA 3.0'},
+    'group-homo':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Homo_erectus_adult_female_-_head_model_-_Smithsonian_Museum_of_Natural_History_-_2012-05-17.jpg/320px-Homo_erectus_adult_female_-_head_model_-_Smithsonian_Museum_of_Natural_History_-_2012-05-17.jpg', credit:'Tim Evanson, CC BY-SA 2.0'},
+    'group-australopith':    {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/02/Lucy_Mexico.jpg/320px-Lucy_Mexico.jpg', credit:'Museo Nacional de Antropología, CC BY 2.0'},
+    'group-paranthropus':    {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Paranthropus_boisei.JPG/320px-Paranthropus_boisei.JPG', credit:'Wikimedia Commons'},
+    'group-proto':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/61/Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg/320px-Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg', credit:'Didier Descouens, CC BY-SA 4.0'},
     // Protists
     'protists':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Diatoms_through_the_microscope.jpg/640px-Diatoms_through_the_microscope.jpg', credit:'Wipeter, CC BY-SA 3.0'},
     'alveolates':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Dinoflagellate_bloom.jpg/640px-Dinoflagellate_bloom.jpg', credit:'NOAA, Public Domain'},
@@ -3277,10 +3372,9 @@ function renderPanelContent(node) {
     </div>
     <div style="padding:20px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;flex:1;">
       ${(()=>{
-        const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','homo-sapiens'];
-        const HOMININ_IDS   = ['homo-sapiens','h_erectus','h_habilis','h_neanderthalensis','h_heidelbergensis','h_floresiensis','h_naledi','h_luzonensis','denisovan','au_afarensis','au_africanus','sahelanthropus','ardipithecus_r'];
-        const isGreatApe    = GREAT_APE_IDS.includes(node.id) || node.id === 'great-apes';
-        const isHuman       = HOMININ_IDS.includes(node.id) || (node.tags && (node.tags.includes('Hominin') || node.tags.includes('Human evolution')));
+        const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','hominini'];
+        const isGreatApe    = GREAT_APE_IDS.includes(node.id);
+        const isHuman       = node._hominin || node.id==='hominini' || node.id.startsWith('group-') || (node.tags && (node.tags.includes('Hominin') || node.tags.includes('Human evolution')));
         if (isHuman) return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b07a3e;font-family:'Source Sans 3',sans-serif;text-transform:uppercase;background:rgba(176,122,62,0.12);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,122,62,0.3);">🧬 Human Lineage</span></div>`;
         if (isGreatApe) return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b03535;font-family:'Source Sans 3',sans-serif;text-transform:uppercase;background:rgba(176,53,53,0.1);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,53,53,0.25);">🦍 Great Apes</span></div>`;
         return '';
@@ -3349,7 +3443,88 @@ function renderPanelContent(node) {
           </div>
         </div>
       ` : ''}
-      ${(()=>{const isHominin=node.tags&&(node.tags.includes('Hominin')||node.tags.includes('Human evolution'))||node.id==='homo-sapiens'||(node.id&&node.id.startsWith('h-'))||HOMININS.some(h=>h.id===node.id||h.name===node.name);return isHominin?`<button onclick="openHominins('${node.id}')" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--color-accent);color:white;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">🧬 Hominin Deep Dive</button>`:'';})()}
+      ${(()=>{
+        if(!node._hominin||!node._hominData) return '';
+        const hd=node._hominData;
+        const brainMax=hd.brain[1]||hd.brain[0]||0;
+        const brainMin=hd.brain[0]||0;
+        const brainPct=brainMax?Math.round((brainMax/MAX_BRAIN)*100):0;
+        let html='<div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">';
+        // Brain volume bar
+        if(brainMax){
+          html+=`<div>
+            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Source Sans 3',sans-serif;margin-bottom:4px;">🧠 BRAIN VOLUME</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;height:10px;background:var(--color-button-bg);border-radius:5px;overflow:hidden;">
+                <div style="width:${brainPct}%;height:100%;background:linear-gradient(90deg,var(--color-accent),#e8a838);border-radius:5px;"></div>
+              </div>
+              <span style="font-size:11px;color:var(--color-text-secondary);font-family:'Source Sans 3',sans-serif;white-space:nowrap;">${brainMin}–${brainMax} cc</span>
+            </div>
+          </div>`;
+        }
+        // Capabilities row
+        const caps=[];
+        if(hd.tools&&hd.tools!=='None'&&hd.tools!=='None known') caps.push({icon:'🔧',label:'Tools',val:hd.tools});
+        if(hd.fire&&hd.fire!=='No') caps.push({icon:'🔥',label:'Fire',val:hd.fire});
+        if(hd.language&&hd.language!=='None') caps.push({icon:'💬',label:'Language',val:hd.language});
+        if(caps.length){
+          html+=`<div style="display:flex;gap:6px;flex-wrap:wrap;">${caps.map(c=>
+            `<div style="flex:1;min-width:80px;padding:6px 8px;border-radius:8px;background:var(--color-button-bg);border:1px solid var(--color-button-border);text-align:center;">
+              <div style="font-size:16px;">${c.icon}</div>
+              <div style="font-size:10px;font-weight:700;color:var(--color-accent);letter-spacing:0.05em;font-family:'Source Sans 3',sans-serif;">${c.label}</div>
+              <div style="font-size:10px;color:var(--color-text-secondary);font-family:'Source Sans 3',sans-serif;">${c.val}</div>
+            </div>`).join('')}</div>`;
+        }
+        // Physical stats
+        const stats=[];
+        if(hd.height) stats.push({l:'Height',v:hd.height});
+        if(hd.weight) stats.push({l:'Weight',v:hd.weight});
+        if(hd.habitat) stats.push({l:'Habitat',v:hd.habitat});
+        if(stats.length){
+          html+=`<div style="display:flex;flex-wrap:wrap;gap:6px;">${stats.map(s=>
+            `<div style="flex:1;min-width:100px;padding:6px 8px;border-radius:8px;background:var(--color-button-bg);border:1px solid var(--color-button-border);">
+              <div style="font-size:10px;font-weight:700;color:var(--color-accent);letter-spacing:0.05em;font-family:'Source Sans 3',sans-serif;">${s.l}</div>
+              <div style="font-size:11px;color:var(--color-text-primary);font-family:'Source Sans 3',sans-serif;">${s.v}</div>
+            </div>`).join('')}</div>`;
+        }
+        // Fossil sites
+        if(hd.sites&&hd.sites.length){
+          html+=`<div>
+            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Source Sans 3',sans-serif;margin-bottom:3px;">📍 FOSSIL SITES</div>
+            <div style="font-size:11px;color:var(--color-text-secondary);font-family:'Source Sans 3',sans-serif;">${hd.sites.join(' · ')}</div>
+          </div>`;
+        }
+        // DNA introgression
+        if(hd.dna&&(typeof hd.dna.neanderthal==='number'||typeof hd.dna.denisovan==='number')){
+          html+=`<div>
+            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Source Sans 3',sans-serif;margin-bottom:4px;">🧬 DNA INTROGRESSION</div>`;
+          if(typeof hd.dna.neanderthal==='number'){
+            html+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+              <span style="font-size:10px;color:var(--color-text-secondary);width:70px;font-family:'Source Sans 3',sans-serif;">Neanderthal</span>
+              <div style="flex:1;height:8px;background:var(--color-button-bg);border-radius:4px;overflow:hidden;">
+                <div style="width:${Math.min(hd.dna.neanderthal,100)}%;height:100%;background:#7A9BAA;border-radius:4px;"></div>
+              </div>
+              <span style="font-size:10px;color:var(--color-text-secondary);font-family:'Source Sans 3',sans-serif;">${hd.dna.neanderthal}%</span>
+            </div>`;
+          }
+          if(typeof hd.dna.denisovan==='number'){
+            html+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+              <span style="font-size:10px;color:var(--color-text-secondary);width:70px;font-family:'Source Sans 3',sans-serif;">Denisovan</span>
+              <div style="flex:1;height:8px;background:var(--color-button-bg);border-radius:4px;overflow:hidden;">
+                <div style="width:${Math.min(hd.dna.denisovan,100)}%;height:100%;background:#7A8BAA;border-radius:4px;"></div>
+              </div>
+              <span style="font-size:10px;color:var(--color-text-secondary);font-family:'Source Sans 3',sans-serif;">${hd.dna.denisovan}%</span>
+            </div>`;
+          }
+          if(hd.dna.note){
+            html+=`<div style="font-size:10px;color:var(--color-text-secondary);font-style:italic;font-family:'Source Sans 3',sans-serif;">${hd.dna.note}</div>`;
+          }
+          html+=`</div>`;
+        }
+        html+=`</div>`;
+        return html;
+      })()}
+      ${(()=>{const isHominin=node._hominin||node.id==='hominini'||node.id.startsWith('group-')||(node.tags&&(node.tags.includes('Hominin')||node.tags.includes('Human evolution')))||HOMININS.some(h=>h.id===node.id||h.name===node.name);return isHominin?`<button onclick="openHominins('${node.id}')" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--color-accent);color:white;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">🧬 Hominin Deep Dive</button>`:'';})()}
       <button onclick="closePanel()" style="margin-top:8px;padding:10px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:13px;color:var(--color-text-secondary);">
         Close
       </button>
@@ -3379,13 +3554,14 @@ function renderPanelContent(node) {
 }
 
 function openHominins(nodeId) {
-  const homininBtn = document.querySelector('[onclick*="HomininView"], [onclick*="openHominin"]') || document.getElementById('hominin-btn');
-  if (homininBtn) { homininBtn.click(); }
-  else { window.openHomininView && window.openHomininView(); }
-  setTimeout(() => {
-    const card = document.querySelector('[data-hominin-id="' + nodeId + '"]');
-    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 300);
+  const canonId=canonicalHomininId(nodeId);
+  const h=getHomininById(canonId);
+  window.openHomininView && window.openHomininView();
+  if(h){
+    setTimeout(()=>{
+      selectedHominin=h.id;renderHominins();showHominDetail(h);
+    },150);
+  }
 }
 function showMainPanel(n){
   if(currentPanelNode && currentPanelNode.id !== n.id){
@@ -3562,9 +3738,16 @@ window.navigateTo=function(id){
   // Handle hominin items from search (prefixed with 'hom:')
   if(id.startsWith('hom:')){
     const homId=id.slice(4);
-    const h=HOMININS.find(x=>x.id===homId);
-    if(h){openHomininView();setTimeout(()=>{selectedHominin=homId;renderHominins();showHominDetail(h);},100);}
-    return;
+    const canonId=canonicalHomininId(homId);
+    // Try tree node first (hominins are now in the main tree)
+    if(nodeMap[canonId]){
+      id=canonId; // fall through to tree navigation below
+    } else {
+      // Fallback: open hominin overlay
+      const h=getHomininById(homId);
+      if(h){openHomininView();setTimeout(()=>{selectedHominin=h.id;renderHominins();showHominDetail(h);},100);}
+      return;
+    }
   }
   const n=nodeMap[id];if(!n)return;
   highlightedId=id;

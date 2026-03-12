@@ -2536,7 +2536,7 @@ function toggleExtinct() {
   showExtinct = !showExtinct;
   document.getElementById('extinct-label').textContent = showExtinct ? 'Hide Extinct' : 'Show Extinct';
   document.getElementById('extinct-toggle').style.opacity = showExtinct ? '1' : '0.6';
-  render();
+  scheduleRender();
 }
 
 // ══════════════════════════════════════════════════════
@@ -2553,7 +2553,7 @@ function toggleDomain(domain) {
     el.style.opacity = activeDomains.has(d) ? '1' : '0.35';
     el.style.fontWeight = activeDomains.has(d) ? '600' : '400';
   });
-  render();
+  scheduleRender();
 }
 
 function resetDomains() {
@@ -2562,7 +2562,7 @@ function resetDomains() {
     el.style.opacity = '1';
     el.style.fontWeight = '400';
   });
-  render();
+  scheduleRender();
 }
 
 // ══════════════════════════════════════════════════════
@@ -2597,7 +2597,8 @@ function scheduleRender(force=false){
 }
 
 function render(){
-  branchLayer.innerHTML=''; nodesLayer.innerHTML='';
+  const branchFrag=document.createDocumentFragment();
+  const nodesFrag=document.createDocumentFragment();
   const edges=getVisibleEdges(TREE);
   const nodes=getVisible(TREE);
 
@@ -2620,7 +2621,7 @@ function render(){
       p.style.transition=`stroke-dashoffset ${0.65+to.depth*0.14}s cubic-bezier(.4,0,.2,1) ${to.depth*0.09}s`;
       setTimeout(()=>{p.style.strokeDashoffset=0;},50);
     }
-    branchLayer.appendChild(p);
+    branchFrag.appendChild(p);
   });
 
   // Nodes
@@ -2760,8 +2761,12 @@ function render(){
     // Events
     g.addEventListener('click',e=>{e.stopPropagation();showMainPanel(n);});
     g.addEventListener('contextmenu',e=>{e.preventDefault();if(n.children?.length){n._collapsed=!n._collapsed;scheduleRender();}});
-    nodesLayer.appendChild(g);
+    nodesFrag.appendChild(g);
   });
+
+  // Swap in complete fragments atomically
+  branchLayer.replaceChildren(branchFrag);
+  nodesLayer.replaceChildren(nodesFrag);
 }
 
 // ══════════════════════════════════════════════════════
@@ -3103,15 +3108,20 @@ function renderPanelContent(node) {
     'sahelanthropus':'Sahelanthropus','ardipithecus_r':'Ardipithecus_ramidus',
   };
 
-  // Cache for fetched photos
+  // Cache for fetched photos + failed-photo suppression
   window._photoCache = window._photoCache || {};
+  window._failedPhotos = window._failedPhotos || new Set();
 
   // Fetch photo from Wikipedia API and update the panel image
   async function fetchWikiPhoto(nodeId, wikiTitle, imgEl, fallbackEl, creditEl) {
     const cacheKey = nodeId;
+    // Skip if previously failed — don't retry
+    if (window._failedPhotos.has(cacheKey)) return;
     if (window._photoCache[cacheKey]) {
       const cached = window._photoCache[cacheKey];
       imgEl.src = cached.url;
+      imgEl.style.display = 'block';
+      if (fallbackEl) fallbackEl.style.display = 'none';
       if (creditEl && cached.credit) creditEl.textContent = cached.credit;
       return;
     }
@@ -3128,12 +3138,13 @@ function renderPanelContent(node) {
         window._photoCache[cacheKey] = { url, credit: 'Wikipedia / Wikimedia Commons' };
         imgEl.src = url;
         imgEl.style.display = 'block';
-        fallbackEl.style.display = 'none';
+        if (fallbackEl) fallbackEl.style.display = 'none';
         if (creditEl) creditEl.textContent = 'Wikipedia / Wikimedia Commons';
       } else {
         throw new Error('No thumbnail');
       }
     } catch(e) {
+      window._failedPhotos.add(cacheKey);
       // fallback already showing
     }
   }
@@ -3261,9 +3272,13 @@ function renderPanelContent(node) {
   };
   // Merge data-level img with the lookup map; lookup takes priority
   const photoEntry = PHOTO_MAP[node.id];
-  const staticUrl = (photoEntry && photoEntry.url) || node.img || null;
+  let staticUrl = (photoEntry && photoEntry.url) || node.img || null;
   const staticCredit = (photoEntry && photoEntry.credit) || node.imgCredit || null;
   const wikiTitle = WIKI_TITLES[node.id] || null;
+  // Suppress if this static URL previously failed
+  if (staticUrl && window._failedPhotos && window._failedPhotos.has('static:' + node.id)) {
+    staticUrl = null;
+  }
   const panelImgId = 'panel-species-img-' + node.id.replace(/[^a-z0-9]/g,'_');
   const panelFbId  = 'panel-species-fb-'  + node.id.replace(/[^a-z0-9]/g,'_');
   const panelCrId  = 'panel-species-cr-'  + node.id.replace(/[^a-z0-9]/g,'_');
@@ -3271,7 +3286,7 @@ function renderPanelContent(node) {
     <div style="width:100%;aspect-ratio:16/9;background:#111;overflow:hidden;position:relative;flex-shrink:0;">
       <img id="${panelImgId}" src="${staticUrl || ''}" alt="${node.name}"
         style="width:100%;height:100%;object-fit:cover;display:${staticUrl ? 'block' : 'none'};"
-        onerror="this.style.display='none';document.getElementById('${panelFbId}').style.display='flex';"
+        onerror="this.style.display='none';document.getElementById('${panelFbId}').style.display='flex';(window._failedPhotos||(window._failedPhotos=new Set())).add('static:${node.id}');"
       />
       <div id="${panelFbId}" style="display:${staticUrl ? 'none' : 'flex'};width:100%;height:100%;align-items:center;justify-content:center;font-size:72px;background:#111;">${node.icon||'🌿'}</div>
       <div id="${panelCrId}" style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.65);font-family:'Source Sans 3',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.35);padding:1px 5px;border-radius:3px;">${staticCredit||''}</div>
@@ -3380,13 +3395,28 @@ function renderPanelContent(node) {
 }
 
 function openHominins(nodeId) {
-  const homininBtn = document.querySelector('[onclick*="HomininView"], [onclick*="openHominin"]') || document.getElementById('hominin-btn');
-  if (homininBtn) { homininBtn.click(); }
-  else { window.openHomininView && window.openHomininView(); }
-  setTimeout(() => {
-    const card = document.querySelector('[data-hominin-id="' + nodeId + '"]');
-    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 300);
+  // Open the hominin view directly
+  openHomininView();
+  // Resolve the hominin robustly: exact id, name, or fuzzy match on
+  // scientific name suffix (e.g. tree id 'h_neanderthalensis' → hominin name 'Homo neanderthalensis')
+  const nid = nodeId.toLowerCase().replace(/-/g, '_');
+  const h = HOMININS.find(x => x.id === nodeId || x.id === nid)
+         || HOMININS.find(x => x.name === nodeId)
+         || HOMININS.find(x => x.name.toLowerCase().split(' ').pop() === nid.split('_').pop())
+         || HOMININS.find(x => nid.includes(x.id) || x.id.includes(nid));
+  if (h) {
+    selectedHominin = h.id;
+    renderHominins();
+    showHominDetail(h);
+    // Scroll the card into view once the DOM has settled
+    requestAnimationFrame(() => {
+      const card = document.querySelector('[data-hominin-id="' + h.id + '"]');
+      if (card) {
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        card.classList.add('selected');
+      }
+    });
+  }
 }
 function showMainPanel(n){
   if(currentPanelNode && currentPanelNode.id !== n.id){
@@ -3571,7 +3601,7 @@ window.navigateTo=function(id){
   highlightedId=id;
   // Ensure path is not collapsed
   let c=n;while(c._parent){c._parent._collapsed=false;c=c._parent;}
-  layout();render();applyT();
+  layout();scheduleRender(true);applyT();
   // Pan to node
   const cx=window.innerWidth/2,cy=window.innerHeight/2;
   transform.x=cx-n._x*transform.s;
@@ -3579,7 +3609,7 @@ window.navigateTo=function(id){
   applyT();
   showMainPanel(n);
   history.replaceState(null,'','?node='+encodeURIComponent(id));
-  setTimeout(()=>{highlightedId=null;render();},2500);
+  setTimeout(()=>{highlightedId=null;scheduleRender();},2500);
 };
 
 // ══════════════════════════════════════════════════════
@@ -3623,6 +3653,7 @@ function renderHominins(){
     items.sort((a,b)=>b.mya[0]-a.mya[0]).forEach(h=>{
       const el=document.createElement('div');
       el.className=`hom-species hs-status-${h.status}${selectedHominin===h.id?' selected':''}${compareMode&&compareSelected.has(h.id)?' selected':''}`;
+      el.setAttribute('data-hominin-id', h.id);
       const brainMax=h.brain[1]||h.brain[0];
       const brainPct=brainMax?(brainMax/MAX_BRAIN*100):0;
       const hasTools=h.tools&&h.tools!=='None known'&&h.tools!=='None';
@@ -4100,7 +4131,7 @@ function applyTheme(){
     document.getElementById('theme-btn').textContent='\ud83c\udf19';
   }
   // Re-render SVG so stroke CSS vars pick up new --bg value
-  if(typeof render==='function') render();
+  scheduleRender();
 }
 
 function toggleTheme(){
@@ -4195,7 +4226,7 @@ function init(){
     }
   }
   assignDomains(TREE, 'luca');
-  layout();render();applyT();
+  layout();scheduleRender(true);applyT();
   setTimeout(() => hideLoading(loader), 400);
   spawnParticles();
   buildExtinctionMarkers();

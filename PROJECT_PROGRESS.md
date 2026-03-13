@@ -9,10 +9,10 @@
 | p3 | Main-tree hominin lineage access | **Done** | PR #35 (`claude/admiring-wiles`) |
 | p4 | Interactive geological timeline | Pending | — |
 | p5 | Offline fallback for API failures | Pending | — |
-| p6 | Hominin access improvements | **In Progress** | PR #39 (`feature/hominin-access`) |
-| p7 | Visual overhaul — font, buttons, icons, timeline, contrast | **In Progress** | `feature/hominin-access` (same branch) |
+| p6 | Hominin access improvements | **Done** | PR #39 (`feature/hominin-access`) |
+| p7 | Visual overhaul — font, buttons, icons, timeline, contrast | **Done** | `feature/hominin-access` (same branch) |
 | p8 | Dead CSS cleanup — delete `style.css` + remove dead inline rules | **Done** | `feature/hominin-access` (same branch) |
-| p9 | Legacy JS cleanup — delete 7 dead App B modules | **In Progress** | `feature/hominin-access` (same branch) |
+| p9 | Legacy JS cleanup — delete 7 dead App B modules | **Done** | `feature/hominin-access` (same branch) |
 
 ---
 

@@ -15,19 +15,21 @@
 
 ```
 tree-of-life/
-├── index.html          # Main SPA entry point; also contains embedded <style> block
-├── style.css           # Global CSS; theming via CSS custom properties
+├── index.html          # Main SPA — markup, inline <style>, inline <script> (all rendering logic)
 ├── serve.js            # Local dev server (port 5555): node serve.js
 ├── assets/
 │   └── placeholder.svg # Fallback image when taxon photo is unavailable
 └── js/
-    ├── main.js         # App orchestrator — wires all modules together
-    ├── api.js          # Data layer — Open Tree of Life, Wikipedia, iNaturalist APIs + LRU cache
-    ├── tree.js         # D3.js radial/cladogram tree renderer
-    ├── panel.js        # Slide-in detail panel (Overview / Evolution / Gallery / Science tabs)
-    ├── search.js       # Autocomplete search bar
-    ├── timeline.js     # Geological timeline bar (4.6 Gya → present)
-    └── i18n.js         # Internationalization (English, Hebrew/RTL, Russian)
+    ├── treeData.js     # TREE object — full phylogenetic tree data (~47 species/clades)
+    ├── speciesData.js  # PHOTO_MAP, WIKI_TITLES — species photos and Wikipedia mappings
+    ├── uiData.js       # UI translations, i18n keys (EN/HE/RU)
+    ├── main.js         # (Legacy) App orchestrator — not actively used by App A
+    ├── api.js          # (Legacy) Data layer — OTL/Wikipedia/iNaturalist APIs + LRU cache
+    ├── tree.js         # (Legacy) D3.js tree renderer
+    ├── panel.js        # (Legacy) Detail panel
+    ├── search.js       # (Legacy) Autocomplete search
+    ├── timeline.js     # (Legacy) Geological timeline bar
+    └── i18n.js         # (Legacy) i18n module
 ```
 
 ---
@@ -149,7 +151,7 @@ All APIs are public, require no API keys, and allow CORS from browsers.
 
 ### Inline Styles in index.html
 
-`index.html` contains a large `<style>` block in `<head>` with component-specific CSS alongside `style.css`. When modifying styles, check **both files**. `style.css` handles global/base styles; the inline block handles component-specific overrides and D3 SVG styles.
+All CSS lives in the `<style>` block inside `index.html`'s `<head>`. There is no external stylesheet — `style.css` was removed as dead code. When modifying styles, edit the inline `<style>` block in `index.html`.
 
 ---
 
@@ -208,7 +210,7 @@ Toggle via UI button; layout stored in module state, not persisted.
 
 1. Edit files directly — no build step required
 2. Test in browser at `http://localhost:5555` (run `node serve.js`)
-3. Check both `index.html` (inline styles) and `style.css` for CSS changes
+3. Edit CSS in `index.html`'s inline `<style>` block (no external stylesheet)
 4. Verify all three languages (`?lang=en`, `?lang=he`, `?lang=ru`) if touching UI text
 
 ### Adding a New Module

@@ -19,7 +19,7 @@ JS system) loads but crashes silently because its expected DOM elements do not e
 ```
 index.html          — 1,886 lines. Contains ALL of App A: inline <style>, HTML markup,
                       inline <script> with tree data, renderer, i18n, search, everything.
-style.css           — 757 lines. Targets App B's CSS classes. Mostly unused at runtime.
+                      (style.css was removed — all CSS is now inline in index.html)
 js/
   api.js            — App B data layer: OTL + Wikipedia + iNaturalist APIs + INITIAL_TREE
   i18n.js           — App B i18n module (data-i18n attribute system)
@@ -228,24 +228,6 @@ Separate from App A's system. ~40 keys per language (EN/HE/RU). Applied via
 `[data-i18n]` DOM attributes — a different mechanism than App A's imperative `applyI18n()`.
 Keys cover: navbar, legend, panel tabs/sections, info card labels, gallery, timeline, loading.
 
-### style.css Classes (App B, largely unused)
-
-Key classes defined but not used in the live page:
-- `.navbar`, `.nav-logo`, `.nav-search`, `.nav-controls`, `.nav-btn`
-- `.app-container`, `#tree-container`, `#tree-svg`
-- `.detail-panel`, `.panel-open`, `.panel-hero`, `.panel-tabs`, `.tab-btn`
-- `.timeline-container`, `.timeline-toggle`, `.timeline-inner`
-- `.loading-overlay`, `.skeleton`, `.minimap`
-- `.link`, `.node`, `.node-label`, `.expand-ring`
-
-CSS variables defined in `style.css` (App B palette):
-```css
---bg: #080d17       --accent: #4a9eff
---text: #e8eaf0     --font: 'Inter', system-ui, sans-serif
---col-bacteria: #e8a838    --col-plants: #27ae60
---col-fungi: #e67e22       --col-animals: #2980b9
-```
-
 CSS variables defined in `index.html` inline `<style>` (App A palette):
 ```css
 --bg: #070503           --parchment: #f2e8d0
@@ -266,7 +248,7 @@ CSS variables defined in `index.html` inline `<style>` (App A palette):
 
 ## Known Issues / Tech Debt
 
-1. **App B is dead code.** All 7 JS modules + style.css are loaded but non-functional.
+1. **App B is dead code.** All 7 JS modules are loaded but non-functional. (`style.css` was removed.)
 2. **Duplicate i18n.** Two separate translation systems with different keys and mechanisms.
 3. **Duplicate tree data.** `TREE` (App A) and `INITIAL_TREE` (App B/api.js) both define the
    tree but in different schemas.

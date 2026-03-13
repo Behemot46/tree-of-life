@@ -10,6 +10,7 @@
 | p4 | Interactive geological timeline | Pending | — |
 | p5 | Offline fallback for API failures | Pending | — |
 | p6 | Hominin access improvements | **In Progress** | PR #39 (`feature/hominin-access`) |
+| p7 | Visual overhaul — font, buttons, icons, timeline, contrast | **In Progress** | `feature/hominin-access` (same branch) |
 
 ---
 
@@ -84,3 +85,55 @@
 - Floating button visible and functional
 - Golden ring + badge on hominini node
 - Panel gateway card with gradient button
+
+---
+
+## p7 — Visual Overhaul
+
+**Branch:** `feature/hominin-access` (same PR #39)
+
+### What was changed
+
+**Phase 1 — Font Migration to Heebo**
+- Replaced ~52 `Source Sans 3` inline references → `Heebo`
+- Removed Lora and Noto Serif Hebrew from Google Fonts import
+- Updated CSS variables: `--font-body`, `--font-sans` → Heebo
+- Updated `style.css` font variables and Hebrew font rule
+- Heebo handles EN, HE, RU natively (no separate Hebrew font needed)
+
+**Phase 2 — Unified Back/Close Buttons**
+- Added `.btn-back` CSS class with dark/light theme variants
+- Applied to `#hom-close`, panel close button, panel back button
+- Consistent pill-shaped gold-border style across the app
+
+**Phase 3 — Node Icon Enhancement (Emoji → Photo Thumbnails)**
+- Nodes with `PHOTO_MAP` entries show circular photo thumbnails with golden border
+- Emoji fallback for nodes without photos or on image load error
+- `loading="lazy"` for performance
+
+**Phase 4 — Timeline Bar Fixes**
+- Slider now visible (`opacity:1`) with custom golden thumb (webkit + moz)
+- Taller hit target (18px) for easier interaction
+- Extinction markers given `z-index:2`
+- Tick labels given increased contrast
+
+**Phase 5 — Contrast Remediation (WCAG AA)**
+- Bumped ~20 light theme opacity values for WCAG AA (≥4.5:1) compliance
+- Fixed dark theme `.era-tick`, `.p-detail`, `.hp-detail` contrast
+- Improved node label opacity at deeper tree levels
+
+### Files changed
+
+| File | Changes |
+|------|---------|
+| `index.html` | Font refs (52 replacements), CSS variables, `.btn-back` class, photo icon rendering, timeline slider, contrast bumps |
+| `style.css` | Font variables (`--font`, `--font-sci`), Hebrew font rule |
+
+### Verified
+
+- Heebo font on all elements (inspected computed styles)
+- Photo thumbnails on PHOTO_MAP nodes, emoji fallback on others
+- Timeline slider visible and functional with golden thumb
+- `.btn-back` on hom-close and panel close buttons
+- Light theme, dark theme, Hebrew RTL, Russian — all working
+- Zero console errors

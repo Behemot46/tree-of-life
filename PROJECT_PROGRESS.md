@@ -1,48 +1,206 @@
 # Project Progress — Tree of Life
 
-## Completed Milestones
+## Milestones
 
-### p1 — Extract data to separate JS files (PR #38, merged)
-- Extracted TREE to js/treeData.js, HOMININS/PHOTO_MAP etc to js/speciesData.js, TRANSLATIONS etc to js/uiData.js
+| # | Milestone | Status | Branch / PR |
+|---|-----------|--------|-------------|
+| p1 | Extract tree + hominin data to `js/treeData.js` | **Done** | PR #38 (`claude/cool-pascal`) |
+| p2 | Fuzzy multilingual search (EN/HE/RU) | **Done** | `claude/inspiring-burnell` |
+| p3 | Main-tree hominin lineage access | **Done** | PR #35 (`claude/admiring-wiles`) |
+| p4 | Interactive geological timeline | Pending | — |
+| p5 | Offline fallback for API failures | Pending | — |
+| p6 | Hominin access improvements | **In Progress** | PR #39 (`feature/hominin-access`) |
+| p7 | Visual overhaul — font, buttons, icons, timeline, contrast | **In Progress** | `feature/hominin-access` (same branch) |
+| p8 | Dead CSS cleanup — delete `style.css` + remove dead inline rules | **Done** | `feature/hominin-access` (same branch) |
+| p9 | Legacy JS cleanup — delete 7 dead App B modules | **In Progress** | `feature/hominin-access` (same branch) |
 
-### p2 — Fuzzy Multilingual Search (merged)
-- Bigram fuzzy matching, TAXON_I18N dict, multilingual search index
+---
 
-### p3 — Main-Tree Hominin Lineage Access (PR #35, merged)
-- 28 hominin species as first-class tree nodes in 4 groups
+## p2 — Fuzzy Multilingual Search
 
-### p6 — Hominin Access Improvements (PR #39, merged)
-- Floating "Human Evolution" button, golden pulsing ring on hominini node
+**Branch:** `claude/inspiring-burnell`
+**Commit:** `33e87b7`
 
-### p7 — Visual Overhaul (merged with p6)
-- Font migration, unified buttons, photo thumbnails, timeline fixes, contrast remediation
+### What was added
 
-### p8 — Dead CSS Cleanup + style.css Consolidation (current)
-- **style.css**: Removed all 758 lines of dead "App B" CSS targeting non-existent DOM (`.navbar`, `.app-container`, `.detail-panel`, `.loading-overlay`, `.timeline-container`, etc.). Replaced with minimal stub + `.sr-only` utility.
-- **index.html inline `<style>`**: Removed ~20 dead rules:
-  - `[data-theme="dark"] .search-result-item:hover`, `.search-result-name`, `.search-result-meta` (never in DOM)
-  - `[data-theme="dark"] kbd` (overridden by inline styles)
-  - `[data-theme="dark"] #loader` (element doesn't exist)
-  - `[data-theme="light"] .tip-fact` (class never used)
-  - `[lang="he"] #info-panel`, `[lang="he"] .panel__fun-fact` (elements don't exist)
-  - `[lang="he"] .header` (class doesn't exist, only `#header` ID)
-  - `@media` rules for `#sidebar`, `.sidebar`, `#info-panel`, `.panel`, `.canvas-wrap`, `#timeline-bar`, `.timeline-container`, `#compare-content`
-- **serve.js**: Added `process.env.PORT` support for worktree compatibility
-- **Net CSS reduction**: ~735 lines removed from style.css, ~25 lines removed from inline CSS
-- **Zero functional risk**: all removed rules targeted non-existent DOM elements
+- **Bigram fuzzy matching** — `_bigramSet()` / `_fuzzyScore()` using Sorensen-Dice coefficient for typo tolerance (threshold 0.35)
+- **TAXON_I18N dictionary** — ~130 entries mapping node IDs to Hebrew and Russian translations
+- **Multilingual search index** — `buildSearchIndex()` includes Hebrew/Russian names in each entry's haystack
+- **Multilingual results display** — shows localized taxon name with English subtitle when searching in non-English language
+- **i18n keys** — `search_hint` and `search_no_results` added to inline TRANSLATIONS (en/he/ru)
+- **serve.js** — uses `process.env.PORT || 5555` for preview server compatibility
 
-## Remaining Milestones
+### Files changed
 
-### Panel Modularization (next priority)
-- `showMainPanel()` is a massive template literal (~200 lines)
-- Break into helper functions: renderPanelHeader(), renderFacts(), renderHomininBlock(), etc.
+| File | Lines | Summary |
+|------|-------|---------|
+| `index.html` | +228 | TAXON_I18N dict, fuzzy search algorithm, multilingual display, i18n keys |
+| `js/i18n.js` | +9 | Matching search_hint/search_no_results keys (for future external module use) |
+| `serve.js` | ~1 | PORT env variable support |
 
-### Mobile Responsiveness
-- Controls overlap on narrow screens
-- Panel doesn't adapt well below ~500px
-- Timeline ticks crowd together
+### Verified
 
-### Other Known Gaps
-- Timeline not fully interactive (no era highlighting/filtering)
-- No offline fallback for API failures
-- External JS modules (tree.js, panel.js, search.js, timeline.js) exist but are NOT loaded — all logic is inline in index.html
+- Fuzzy: "mammls" → Mammals, "fungl" → Fungi
+- Hebrew: "יונקים" → Mammals, "חיידקים" → Bacteria
+- Russian: "Грибы" → Fungi, "Бактерии" → Bacteria
+- Zero console errors on load and search interaction
+
+---
+
+## p3 — Main-Tree Hominin Lineage Access
+
+**Branch:** `claude/admiring-wiles` (PR #35, merged)
+
+### What was added
+
+- 28 hominin species connected to main D3.js tree as first-class nodes
+- Organized into 4 groups: Proto-Hominins, Australopithecus, Paranthropus, Genus Homo
+- Hominin-specific panel: brain volume bar, tools/fire/language badges, fossil sites, DNA introgression
+- Hominini branch collapsed by default; expands on click
+- Search integration for all hominin species
+
+---
+
+## p6 — Hominin Access Improvements
+
+**Branch:** `feature/hominin-access` (PR #39)
+
+### What was added
+
+1. **Hominini branch node** — added `hominini` node to TREE under great-apes, with homo-sapiens nested as child
+2. **Floating "Human Evolution" button** — persistent bottom-right button calling `openHomininView()` directly, with i18n (EN/HE/RU), RTL, light/dark theme support
+3. **Golden pulsing ring + "Explore →" badge** — special rendering on hominini node in `render()` with `@keyframes homininGlow`
+4. **Panel gateway card for hominini** — prominent gradient card with description + "Explore Human Evolution" button (replaces generic Deep Dive for the hominini node)
+5. **i18n keys** — `btn_hominin` added in EN/HE/RU
+
+### Files changed
+
+| File | Changes |
+|------|---------|
+| `index.html` | CSS (floating button + animation + light/RTL), HTML button, render() gateway, panel upgrade |
+| `js/treeData.js` | Added hominini branch node |
+| `js/uiData.js` | Added btn_hominin i18n key |
+
+### Verified
+
+- Dark theme, light theme, Hebrew RTL — all working
+- Floating button visible and functional
+- Golden ring + badge on hominini node
+- Panel gateway card with gradient button
+
+---
+
+## p7 — Visual Overhaul
+
+**Branch:** `feature/hominin-access` (same PR #39)
+
+### What was changed
+
+**Phase 1 — Font Migration to Heebo**
+- Replaced ~52 `Source Sans 3` inline references → `Heebo`
+- Removed Lora and Noto Serif Hebrew from Google Fonts import
+- Updated CSS variables: `--font-body`, `--font-sans` → Heebo
+- Updated `style.css` font variables and Hebrew font rule
+- Heebo handles EN, HE, RU natively (no separate Hebrew font needed)
+
+**Phase 2 — Unified Back/Close Buttons**
+- Added `.btn-back` CSS class with dark/light theme variants
+- Applied to `#hom-close`, panel close button, panel back button
+- Consistent pill-shaped gold-border style across the app
+
+**Phase 3 — Node Icon Enhancement (Emoji → Photo Thumbnails)**
+- Nodes with `PHOTO_MAP` entries show circular photo thumbnails with golden border
+- Emoji fallback for nodes without photos or on image load error
+- `loading="lazy"` for performance
+
+**Phase 4 — Timeline Bar Fixes**
+- Slider now visible (`opacity:1`) with custom golden thumb (webkit + moz)
+- Taller hit target (18px) for easier interaction
+- Extinction markers given `z-index:2`
+- Tick labels given increased contrast
+
+**Phase 5 — Contrast Remediation (WCAG AA)**
+- Bumped ~20 light theme opacity values for WCAG AA (≥4.5:1) compliance
+- Fixed dark theme `.era-tick`, `.p-detail`, `.hp-detail` contrast
+- Improved node label opacity at deeper tree levels
+
+### Files changed
+
+| File | Changes |
+|------|---------|
+| `index.html` | Font refs (52 replacements), CSS variables, `.btn-back` class, photo icon rendering, timeline slider, contrast bumps |
+
+### Verified
+
+- Heebo font on all elements (inspected computed styles)
+- Photo thumbnails on PHOTO_MAP nodes, emoji fallback on others
+- Timeline slider visible and functional with golden thumb
+- `.btn-back` on hom-close and panel close buttons
+- Light theme, dark theme, Hebrew RTL, Russian — all working
+- Zero console errors
+
+---
+
+## p8 — Dead CSS Cleanup
+
+**Branch:** `feature/hominin-access` (same PR #39)
+
+### What was changed
+
+1. **Deleted `style.css`** (757 lines) — file was never loaded by `index.html` (no `<link>` tag); entirely dead legacy "App B" code
+2. **Removed 17 dead inline CSS rules** from index.html `<style>` block:
+   - `.tip-fact` light theme override (no element exists)
+   - 9 `.era-*` tint classes (`.era-hadean` through `.era-cenozoic`) — never assigned to any HTML element
+   - `.search-result-item`, `.search-result-name`, `.search-result-meta` dark overrides — dead classes (actual search uses `.sr-item`)
+   - `#shortcuts-hint`, `kbd` dark overrides — overridden by inline `style=""`
+   - `#loader` dark override — no `#loader` element exists (splash uses `#splash`)
+3. **Updated `deploy-check.yml`** — removed `style.css`, `js/main.js`, `js/api.js`, `js/tree.js` from required files; added `js/treeData.js`, `js/speciesData.js`, `js/uiData.js`
+4. **Updated documentation** — CLAUDE.md (repo structure, CSS guidance), docs/ARCHITECTURE.md (removed App B CSS section), PROJECT_PROGRESS.md
+
+### Lines removed
+
+| Item | Lines |
+|------|-------|
+| `style.css` (deleted) | 757 |
+| Dead inline CSS rules | 17 |
+| **Total dead CSS eliminated** | **774** |
+
+### Verified
+
+- App loads identically (style.css was never loaded — no visual change)
+- Zero console errors
+- Dark/light theme toggle working
+- Hebrew RTL working
+
+---
+
+## p9 — Legacy JS Cleanup
+
+**Branch:** `feature/hominin-access` (same PR #39)
+
+### What was changed
+
+1. **Deleted 7 dead App B JS modules** — none were loaded by `<script>` tags in `index.html`:
+   - `js/main.js` — App B orchestrator
+   - `js/api.js` — OTL/Wikipedia/iNaturalist API layer + INITIAL_TREE
+   - `js/tree.js` — D3.js tree renderer
+   - `js/panel.js` — Detail panel with API data
+   - `js/search.js` — OTL API autocomplete search
+   - `js/timeline.js` — Geological timeline bar
+   - `js/i18n.js` — `[data-i18n]` attribute i18n system
+2. **Updated documentation** — CLAUDE.md (removed legacy entries from repo structure), docs/ARCHITECTURE.md (removed entire App B section, updated known issues), PROJECT_PROGRESS.md
+
+### Lines removed
+
+| Item | Approx lines |
+|------|-------------|
+| 7 dead JS modules | ~2,000+ |
+| Documentation cleanup (App B sections) | ~100 |
+
+Combined with p8: **~2,800+ lines** of dead code eliminated from the repo.
+
+### Verified
+
+- App loads identically (files were never loaded — no change)
+- Zero console errors
+- deploy-check.yml JS glob still finds 3 active data files

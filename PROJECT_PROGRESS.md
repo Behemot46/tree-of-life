@@ -11,7 +11,8 @@
 | p5 | Offline fallback for API failures | Pending | — |
 | p6 | Hominin access improvements | **In Progress** | PR #39 (`feature/hominin-access`) |
 | p7 | Visual overhaul — font, buttons, icons, timeline, contrast | **In Progress** | `feature/hominin-access` (same branch) |
-| p8 | Dead CSS cleanup — delete `style.css` + remove dead inline rules | **In Progress** | `feature/hominin-access` (same branch) |
+| p8 | Dead CSS cleanup — delete `style.css` + remove dead inline rules | **Done** | `feature/hominin-access` (same branch) |
+| p9 | Legacy JS cleanup — delete 7 dead App B modules | **In Progress** | `feature/hominin-access` (same branch) |
 
 ---
 
@@ -170,3 +171,36 @@
 - Zero console errors
 - Dark/light theme toggle working
 - Hebrew RTL working
+
+---
+
+## p9 — Legacy JS Cleanup
+
+**Branch:** `feature/hominin-access` (same PR #39)
+
+### What was changed
+
+1. **Deleted 7 dead App B JS modules** — none were loaded by `<script>` tags in `index.html`:
+   - `js/main.js` — App B orchestrator
+   - `js/api.js` — OTL/Wikipedia/iNaturalist API layer + INITIAL_TREE
+   - `js/tree.js` — D3.js tree renderer
+   - `js/panel.js` — Detail panel with API data
+   - `js/search.js` — OTL API autocomplete search
+   - `js/timeline.js` — Geological timeline bar
+   - `js/i18n.js` — `[data-i18n]` attribute i18n system
+2. **Updated documentation** — CLAUDE.md (removed legacy entries from repo structure), docs/ARCHITECTURE.md (removed entire App B section, updated known issues), PROJECT_PROGRESS.md
+
+### Lines removed
+
+| Item | Approx lines |
+|------|-------------|
+| 7 dead JS modules | ~2,000+ |
+| Documentation cleanup (App B sections) | ~100 |
+
+Combined with p8: **~2,800+ lines** of dead code eliminated from the repo.
+
+### Verified
+
+- App loads identically (files were never loaded — no change)
+- Zero console errors
+- deploy-check.yml JS glob still finds 3 active data files

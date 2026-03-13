@@ -22,14 +22,7 @@ tree-of-life/
 └── js/
     ├── treeData.js     # TREE object — full phylogenetic tree data (~47 species/clades)
     ├── speciesData.js  # PHOTO_MAP, WIKI_TITLES — species photos and Wikipedia mappings
-    ├── uiData.js       # UI translations, i18n keys (EN/HE/RU)
-    ├── main.js         # (Legacy) App orchestrator — not actively used by App A
-    ├── api.js          # (Legacy) Data layer — OTL/Wikipedia/iNaturalist APIs + LRU cache
-    ├── tree.js         # (Legacy) D3.js tree renderer
-    ├── panel.js        # (Legacy) Detail panel
-    ├── search.js       # (Legacy) Autocomplete search
-    ├── timeline.js     # (Legacy) Geological timeline bar
-    └── i18n.js         # (Legacy) i18n module
+    └── uiData.js       # UI translations, i18n keys (EN/HE/RU)
 ```
 
 ---

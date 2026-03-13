@@ -11,6 +11,7 @@
 | p5 | Offline fallback for API failures | Pending | — |
 | p6 | Hominin access improvements | **In Progress** | PR #39 (`feature/hominin-access`) |
 | p7 | Visual overhaul — font, buttons, icons, timeline, contrast | **In Progress** | `feature/hominin-access` (same branch) |
+| p8 | Dead CSS cleanup — delete `style.css` + remove dead inline rules | **In Progress** | `feature/hominin-access` (same branch) |
 
 ---
 
@@ -127,7 +128,6 @@
 | File | Changes |
 |------|---------|
 | `index.html` | Font refs (52 replacements), CSS variables, `.btn-back` class, photo icon rendering, timeline slider, contrast bumps |
-| `style.css` | Font variables (`--font`, `--font-sci`), Hebrew font rule |
 
 ### Verified
 
@@ -137,3 +137,36 @@
 - `.btn-back` on hom-close and panel close buttons
 - Light theme, dark theme, Hebrew RTL, Russian — all working
 - Zero console errors
+
+---
+
+## p8 — Dead CSS Cleanup
+
+**Branch:** `feature/hominin-access` (same PR #39)
+
+### What was changed
+
+1. **Deleted `style.css`** (757 lines) — file was never loaded by `index.html` (no `<link>` tag); entirely dead legacy "App B" code
+2. **Removed 17 dead inline CSS rules** from index.html `<style>` block:
+   - `.tip-fact` light theme override (no element exists)
+   - 9 `.era-*` tint classes (`.era-hadean` through `.era-cenozoic`) — never assigned to any HTML element
+   - `.search-result-item`, `.search-result-name`, `.search-result-meta` dark overrides — dead classes (actual search uses `.sr-item`)
+   - `#shortcuts-hint`, `kbd` dark overrides — overridden by inline `style=""`
+   - `#loader` dark override — no `#loader` element exists (splash uses `#splash`)
+3. **Updated `deploy-check.yml`** — removed `style.css`, `js/main.js`, `js/api.js`, `js/tree.js` from required files; added `js/treeData.js`, `js/speciesData.js`, `js/uiData.js`
+4. **Updated documentation** — CLAUDE.md (repo structure, CSS guidance), docs/ARCHITECTURE.md (removed App B CSS section), PROJECT_PROGRESS.md
+
+### Lines removed
+
+| Item | Lines |
+|------|-------|
+| `style.css` (deleted) | 757 |
+| Dead inline CSS rules | 17 |
+| **Total dead CSS eliminated** | **774** |
+
+### Verified
+
+- App loads identically (style.css was never loaded — no visual change)
+- Zero console errors
+- Dark/light theme toggle working
+- Hebrew RTL working

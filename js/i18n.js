@@ -9,7 +9,7 @@ const I18n = (() => {
     en: {
       /* Navbar */
       app_title:          'Tree of Life',
-      search_placeholder: 'Search species or clade…',
+      search_placeholder: 'Search species, clade, or keyword…',
       btn_discover:       'Discover',
       btn_layout_radial:  'Radial layout',
       btn_layout_clado:   'Cladogram layout',
@@ -58,6 +58,9 @@ const I18n = (() => {
       /* Loading */
       loading_text:       'Loading Tree of Life…',
       loading_sub:        'Connecting to Open Tree of Life database',
+      /* Search */
+      search_hint:        'Search by species name, keyword,<br>or in Hebrew / Russian',
+      search_no_results:  'No matching species found',
       /* Misc */
       extinct_label:      'Extinct',
       no_image:           'No image available',
@@ -107,6 +110,8 @@ const I18n = (() => {
       timeline_label:     'ציר הזמן הגיאולוגי',
       loading_text:       'טוען את עץ החיים...',
       loading_sub:        'מתחבר למסד נתוני Open Tree of Life',
+      search_hint:        'חיפוש לפי שם מין, מילת מפתח,<br>או בעברית / רוסית / אנגלית',
+      search_no_results:  'לא נמצאו מינים תואמים',
       extinct_label:      'נכחד',
       no_image:           'אין תמונה זמינה',
     },
@@ -155,6 +160,8 @@ const I18n = (() => {
       timeline_label:     'Геологическая шкала времени',
       loading_text:       'Загрузка Дерева жизни…',
       loading_sub:        'Подключение к базе данных Open Tree of Life',
+      search_hint:        'Поиск по названию вида, ключевому слову,<br>или на русском / иврите / английском',
+      search_no_results:  'Подходящие виды не найдены',
       extinct_label:      'Вымерший',
       no_image:           'Изображение отсутствует',
     }

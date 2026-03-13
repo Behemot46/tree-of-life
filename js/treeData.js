@@ -794,23 +794,33 @@ const TREE = {
                               funFact:'Different chimpanzee communities use different tools and techniques — a form of culture — and young chimps spend years being taught by their mothers, exactly as human children do.',
                               facts:[{l:'Diverged from humans',v:'~6–7 Mya'},{l:'DNA similarity',v:'98.7%'},{l:'Cultures documented',v:'40+'},{l:'Status',v:'Endangered'}],
                               tags:['Closest relative','Stone tools','Culture','Political alliances','Grief'],tipFact:'You share more DNA with a chimp than a mouse shares with a rat.',children:[]},
-                            {id:'homo-sapiens',icon:'🧠',color:'#9a5050',r:14,appeared:0.3,extinct:null,
-                              img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Akha_woman.jpg/320px-Akha_woman.jpg',
-                              imgCredit:'Steve Evans, CC BY 2.0',
-                              name:'Homo sapiens',latin:'Homo sapiens',era:'Quaternary',
-                              desc:'The only surviving human species. Anatomically modern humans appeared in Africa around 300,000 years ago and spread across every continent. Our large prefrontal cortex enables abstract thought, language, art, and culture.',
-                              detail:'Homo sapiens have the largest brain relative to body size of any animal. We are the only species known to use symbolic language, create cumulative culture, and contemplate our own existence. Despite our diversity we are genetically one of the least variable large mammals — a genetic bottleneck around 70,000 years ago reduced our ancestors to perhaps 10,000 individuals.',
-                              funFact:'All 8 billion humans alive today descend from a population of perhaps 10,000 individuals who survived a near-extinction event 70,000 years ago — making us one of the least genetically diverse large mammals on Earth.',
-                              facts:[
-                                {l:'Appeared',v:'~300,000 years ago'},
-                                {l:'Brain volume',v:'1,200–1,700 cc'},
-                                {l:'Population',v:'8 billion'},
-                                {l:'Genetic bottleneck',v:'~70,000 years ago'},
-                                {l:'Continents inhabited',v:'All 7'}
-                              ],
-                              tags:['Modern human','Language','Culture','Tool use','Art','Hominin'],
-                              tipFact:'You are a 300,000 year old African species looking at a screen.',
-                              children:[]}
+                            {id:'hominini',icon:'🧬',color:'#b07a3e',r:12,appeared:7,extinct:null,
+                              name:'Hominini',latin:'Tribe Hominini',era:'~7 Mya',
+                              desc:'The tribe that includes all species more closely related to humans than to chimpanzees. Defined by the human-chimpanzee split roughly 7 million years ago, this lineage produced at least 25 known species across multiple genera.',
+                              detail:'Hominini is defined by the human-chimpanzee split roughly 7 million years ago. It encompasses the genera Sahelanthropus, Orrorin, Ardipithecus, Australopithecus, Paranthropus, Kenyanthropus, and Homo. Key adaptations include habitual bipedalism, reduced canines, and eventually enlarged brains and stone tool use.',
+                              funFact:'At least 9 different human species coexisted on Earth as recently as 100,000 years ago — we are the sole survivor.',
+                              facts:[{l:'First appeared',v:'~7 Mya'},{l:'Known species',v:'25+'},{l:'Surviving species',v:'1 (Homo sapiens)'},{l:'Key trait',v:'Habitual bipedalism'}],
+                              tags:['Hominin','Human evolution','Bipedal','Tool use'],
+                              tipFact:'This tribe produced at least 25 species — we are the sole survivor.',
+                              children:[
+                                {id:'homo-sapiens',icon:'🧠',color:'#9a5050',r:14,appeared:0.3,extinct:null,
+                                  img:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Akha_woman.jpg/320px-Akha_woman.jpg',
+                                  imgCredit:'Steve Evans, CC BY 2.0',
+                                  name:'Homo sapiens',latin:'Homo sapiens',era:'Quaternary',
+                                  desc:'The only surviving human species. Anatomically modern humans appeared in Africa around 300,000 years ago and spread across every continent. Our large prefrontal cortex enables abstract thought, language, art, and culture.',
+                                  detail:'Homo sapiens have the largest brain relative to body size of any animal. We are the only species known to use symbolic language, create cumulative culture, and contemplate our own existence. Despite our diversity we are genetically one of the least variable large mammals — a genetic bottleneck around 70,000 years ago reduced our ancestors to perhaps 10,000 individuals.',
+                                  funFact:'All 8 billion humans alive today descend from a population of perhaps 10,000 individuals who survived a near-extinction event 70,000 years ago — making us one of the least genetically diverse large mammals on Earth.',
+                                  facts:[
+                                    {l:'Appeared',v:'~300,000 years ago'},
+                                    {l:'Brain volume',v:'1,200–1,700 cc'},
+                                    {l:'Population',v:'8 billion'},
+                                    {l:'Genetic bottleneck',v:'~70,000 years ago'},
+                                    {l:'Continents inhabited',v:'All 7'}
+                                  ],
+                                  tags:['Modern human','Language','Culture','Tool use','Art','Hominin'],
+                                  tipFact:'You are a 300,000 year old African species looking at a screen.',
+                                  children:[]}
+                              ]}
                           ]}
                       ]}
                   ]}

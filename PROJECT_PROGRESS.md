@@ -4,11 +4,12 @@
 
 | # | Milestone | Status | Branch / PR |
 |---|-----------|--------|-------------|
-| p1 | Extract tree + hominin data to `js/treeData.js` | Pending | — |
+| p1 | Extract tree + hominin data to `js/treeData.js` | **Done** | PR #38 (`claude/cool-pascal`) |
 | p2 | Fuzzy multilingual search (EN/HE/RU) | **Done** | `claude/inspiring-burnell` |
 | p3 | Main-tree hominin lineage access | **Done** | PR #35 (`claude/admiring-wiles`) |
 | p4 | Interactive geological timeline | Pending | — |
 | p5 | Offline fallback for API failures | Pending | — |
+| p6 | Hominin access improvements | **In Progress** | PR #39 (`feature/hominin-access`) |
 
 ---
 
@@ -54,3 +55,32 @@
 - Hominin-specific panel: brain volume bar, tools/fire/language badges, fossil sites, DNA introgression
 - Hominini branch collapsed by default; expands on click
 - Search integration for all hominin species
+
+---
+
+## p6 — Hominin Access Improvements
+
+**Branch:** `feature/hominin-access` (PR #39)
+
+### What was added
+
+1. **Hominini branch node** — added `hominini` node to TREE under great-apes, with homo-sapiens nested as child
+2. **Floating "Human Evolution" button** — persistent bottom-right button calling `openHomininView()` directly, with i18n (EN/HE/RU), RTL, light/dark theme support
+3. **Golden pulsing ring + "Explore →" badge** — special rendering on hominini node in `render()` with `@keyframes homininGlow`
+4. **Panel gateway card for hominini** — prominent gradient card with description + "Explore Human Evolution" button (replaces generic Deep Dive for the hominini node)
+5. **i18n keys** — `btn_hominin` added in EN/HE/RU
+
+### Files changed
+
+| File | Changes |
+|------|---------|
+| `index.html` | CSS (floating button + animation + light/RTL), HTML button, render() gateway, panel upgrade |
+| `js/treeData.js` | Added hominini branch node |
+| `js/uiData.js` | Added btn_hominin i18n key |
+
+### Verified
+
+- Dark theme, light theme, Hebrew RTL — all working
+- Floating button visible and functional
+- Golden ring + badge on hominini node
+- Panel gateway card with gradient button

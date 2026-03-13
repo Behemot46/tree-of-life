@@ -293,6 +293,12 @@ svg{width:100%;height:100%;}
   border-radius:8px;color:var(--sage);font-size:1rem;cursor:pointer;
   display:flex;align-items:center;justify-content:center;transition:all 0.2s;backdrop-filter:blur(10px);}
 .zbtn:hover{background:rgba(200,136,58,0.14);border-color:var(--gold);color:var(--parchment);}
+#btn-hominin{position:fixed;bottom:4.5rem;right:5rem;z-index:200;height:35px;padding:0 14px;
+  background:rgba(7,5,3,0.92);border:1px solid rgba(176,122,62,0.35);border-radius:8px;
+  color:#e8b86d;font-size:12px;font-weight:600;font-family:'Source Sans 3',sans-serif;
+  cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;
+  backdrop-filter:blur(10px);white-space:nowrap;}
+#btn-hominin:hover{background:rgba(176,122,62,0.18);border-color:#e8b86d;color:#f2e8d0;}
 
 /* ── TOOLTIP ── */
 #tooltip{position:fixed;pointer-events:none !important;z-index:9999;
@@ -312,6 +318,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 @keyframes livingPulse{0%,100%{opacity:0.25}50%{opacity:0.55}}
 @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 @keyframes searchHighlight{0%{stroke-width:0;opacity:0}50%{opacity:1}100%{stroke-width:0;opacity:0}}
+@keyframes homininGlow{0%,100%{opacity:0.3;stroke-width:1.5}50%{opacity:0.8;stroke-width:2.5}}
 
 /* ── LANGUAGE SWITCHER ── */
 #lang-switcher{position:fixed;top:1rem;right:1.2rem;z-index:400;display:flex;align-items:center;gap:0.25rem;pointer-events:all;}
@@ -355,6 +362,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 [data-theme="light"] #hominin-view{background:rgba(248,242,230,0.97);}
 [data-theme="light"] #legend{background:rgba(248,242,230,0.92);border-color:rgba(138,90,24,0.12);}
 [data-theme="light"] #zoom-ctrl .zbtn{background:rgba(248,242,230,0.92);border-color:rgba(138,90,24,0.22);}
+[data-theme="light"] #btn-hominin{background:rgba(248,242,230,0.92);border-color:rgba(176,122,62,0.3);color:#8a5a18;}
 [data-theme="light"] #search-input{background:rgba(248,242,230,0.95);color:var(--parchment);}
 [data-theme="light"] #search-results{background:rgba(248,242,230,0.98);}
 [data-theme="light"] #timeline{background:linear-gradient(to top,rgba(248,242,230,0.95) 50%,transparent);}
@@ -382,6 +390,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 [dir="rtl"] .panel-scroll{direction:rtl;}
 [dir="rtl"] #legend{left:auto;right:1.2rem;}
 [dir="rtl"] #zoom-ctrl{right:auto;left:1.2rem;}
+[dir="rtl"] #btn-hominin{right:auto;left:5rem;}
 [dir="rtl"] .p-top{flex-direction:row-reverse;}
 [dir="rtl"] .bc-sep{transform:scaleX(-1);display:inline-block;}
 [dir="rtl"] .hom-species{flex-direction:row-reverse;}
@@ -786,6 +795,9 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   <button class="zbtn" id="btn-out" aria-label="Zoom out">−</button>
   <button class="zbtn" id="btn-random" title="Random species" aria-label="Jump to random species" style="font-size:0.9rem;">🎲</button>
 </div>
+
+<!-- HUMAN EVOLUTION SHORTCUT -->
+<button id="btn-hominin" onclick="openHomininView()" aria-label="Open Human Evolution explorer" title="Human Evolution">🧬 <span id="i-btn-hominin">Human Evolution</span></button>
 
 <!-- ERA BROWSER -->
 <div id="timeline">
@@ -1355,6 +1367,25 @@ function render(){
       g.appendChild(ring);
     }
 
+    // Hominini gateway — golden pulsing ring + Explore badge
+    if(n.id==='hominini'){
+      const gw=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      gw.setAttribute('cx',n._x);gw.setAttribute('cy',n._y);gw.setAttribute('r',n.r+12);
+      gw.setAttribute('fill','none');gw.setAttribute('stroke','#e8b86d');
+      gw.setAttribute('stroke-width','2');gw.setAttribute('stroke-opacity','0.6');
+      gw.style.animation='homininGlow 2.5s ease-in-out infinite';
+      g.appendChild(gw);
+      const badgeFo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+      const bw=64,bh=18;
+      badgeFo.setAttribute('x',n._x-bw/2);badgeFo.setAttribute('y',n._y+n.r+6);
+      badgeFo.setAttribute('width',bw);badgeFo.setAttribute('height',bh);
+      badgeFo.style.pointerEvents='none';
+      const badge=document.createElement('div');
+      badge.style.cssText='font-size:9px;font-family:"Source Sans 3",sans-serif;color:#e8b86d;text-align:center;font-weight:700;letter-spacing:0.05em;opacity:0.85;';
+      badge.textContent='Explore \u2192';
+      badgeFo.appendChild(badge);g.appendChild(badgeFo);
+    }
+
     // Highlight ring
     if(isHighlighted){
       const hl=document.createElementNS('http://www.w3.org/2000/svg','circle');
@@ -1902,6 +1933,15 @@ function renderPanelContent(node) {
         </div>
       ` : ''}
       ${(()=>{
+        // Hominini gateway card
+        const isHominin=node.tags&&(node.tags.includes('Hominin')||node.tags.includes('Human evolution'))||node.id==='homo-sapiens'||node.id==='hominini'||(node.id&&node.id.startsWith('h-'))||HOMININS.some(h=>h.id===node.id||h.name===node.name);
+        if(!isHominin) return '';
+        if(node.id==='hominini'){
+          return `<div style="background:linear-gradient(135deg,rgba(176,122,62,0.15),rgba(176,122,62,0.05));border:1px solid rgba(176,122,62,0.3);border-radius:12px;padding:16px;margin-bottom:12px;">
+            <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:8px;line-height:1.5;font-family:'Source Sans 3',sans-serif;">Explore 32 hominin species spanning 7 million years of human evolution — from Sahelanthropus to Homo sapiens. Compare brain sizes, tool use, and DNA.</div>
+            <button onclick="openHomininView()" style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#b07a3e,#d4a04a);color:white;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:0.02em;box-shadow:0 2px 8px rgba(176,122,62,0.3);">🧬 Explore Human Evolution</button>
+          </div>`;
+        }
         if(!node._hominin||!node._hominData) return '';
         const hd=node._hominData;
         const brainMax=hd.brain[1]||hd.brain[0]||0;
@@ -2574,6 +2614,7 @@ function applyI18n(){
   set('i-p-traits',t('p_traits'));
   set('i-p-evo',t('p_evo'));
   set('i-p-sub',t('p_sub'));
+  set('i-btn-hominin',t('btn_hominin'));
   set('hom-title',t('hom_title'));
   set('hom-sub',t('hom_sub'));
   set('hom-close',t('hom_back'));

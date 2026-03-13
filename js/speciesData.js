@@ -633,16 +633,27 @@ const WIKI_TITLES = {
   'mammalia':'Mammal','cetaceans':'Cetacea','blue-whale':'Blue_whale',
   'naked-mole-rat':'Naked_mole-rat','platypus':'Platypus',
   'primates':'Primate','great-apes':'Hominidae','gorilla':'Western_gorilla',
-  'orangutan':'Orangutan','chimpanzee':'Chimpanzee','homo-sapiens':'Human',
+  'orangutan':'Orangutan','chimpanzee':'Chimpanzee',
+  'hominini':'Hominini','h_sapiens':'Human',
+  'group-proto':'Hominini','group-australopith':'Australopithecus',
+  'group-paranthropus':'Paranthropus','group-homo':'Homo_(genus)',
   'protists':'Protist','alveolates':'Alveolata','plasmodium':'Plasmodium_(biology)',
   'dinoflagellates':'Dinoflagellate','diatoms':'Diatom','phytophthora':'Phytophthora',
   'amoeba':'Amoeba','volvox':'Volvox',
   'h_naledi':'Homo_naledi','h_floresiensis':'Homo_floresiensis',
-  'h_luzonensis':'Homo_luzonensis','denisovan':'Denisovan',
-  'h_neanderthalensis':'Neanderthal','h_erectus':'Homo_erectus',
+  'h_luzonensis':'Homo_luzonensis','denisovans':'Denisovan',
+  'neanderthal':'Neanderthal','h_erectus':'Homo_erectus',
   'h_heidelbergensis':'Homo_heidelbergensis','h_habilis':'Homo_habilis',
+  'h_rudolfensis':'Homo_rudolfensis','h_antecessor':'Homo_antecessor',
+  'h_bodoensis':'Homo_heidelbergensis','h_longi':'Homo_longi',
   'au_afarensis':'Australopithecus_afarensis','au_africanus':'Australopithecus_africanus',
-  'sahelanthropus':'Sahelanthropus','ardipithecus_r':'Ardipithecus_ramidus',
+  'au_anamensis':'Australopithecus_anamensis','au_sediba':'Australopithecus_sediba',
+  'au_garhi':'Australopithecus_garhi','au_deyiremeda':'Australopithecus_deyiremeda',
+  'au_bahrelghazali':'Australopithecus_bahrelghazali','au_prometheus':'Australopithecus_africanus',
+  'par_boisei':'Paranthropus_boisei','par_robustus':'Paranthropus_robustus',
+  'par_aethiopicus':'Paranthropus_aethiopicus',
+  'sahelanthropus':'Sahelanthropus','orrorin':'Orrorin','ardipithecus_r':'Ardipithecus_ramidus',
+  'kenyanthropus':'Kenyanthropus',
 };
 
 const PHOTO_MAP = {
@@ -767,5 +778,5 @@ const PHOTO_MAP = {
   'ardipithecus_r':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Ardipithecus_ramidus_-_Scientific_reconstruction.jpg/640px-Ardipithecus_ramidus_-_Scientific_reconstruction.jpg', credit:'Science, Educational use'},
 };
 
-const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','homo-sapiens'];
+const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','hominini'];
 const HOMININ_IDS   = ['homo-sapiens','h_erectus','h_habilis','h_neanderthalensis','h_heidelbergensis','h_floresiensis','h_naledi','h_luzonensis','denisovan','au_afarensis','au_africanus','sahelanthropus','ardipithecus_r'];

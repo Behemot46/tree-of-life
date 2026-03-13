@@ -2,7 +2,7 @@
 // UI DATA — layout, eras, translations
 // ══════════════════════════════════════════════════════
 
-const DEPTH_R=[0,225,412,578,725,853,965,1067,1152];
+const DEPTH_R=[0,225,412,578,725,853,965,1067,1152,1230,1300];
 
 const ERA_NAMES={3800:'Eoarchean (3.8 Ga) — LUCA emerges',3500:'Paleoarchean (3.5 Ga) — First Bacteria',2700:'Neoarchean (2.7 Ga) — Cyanobacteria & Oxygen',2400:'Siderian (2.4 Ga) — Great Oxidation Event',2100:'Rhyacian (2.1 Ga) — First Eukaryotes',1000:'Tonian (1 Ga) — First Multicellular Life',541:'Cambrian (541 Ma) — Explosion of Animal Life',445:'Ordovician extinction (445 Ma)',420:'Silurian (420 Ma) — First Vascular Plants',370:'Late Devonian extinction (370 Ma)',252:'Permian–Triassic extinction (252 Ma) — Worst Ever',200:'Triassic–Jurassic extinction (200 Ma)',130:'Cretaceous (130 Ma) — Flowering Plants',66:'K–Pg extinction (66 Ma) — Dinosaurs End',50:'Eocene (50 Ma) — Whales Enter Sea',35:'Oligocene (35 Ma) — Grasslands Spread',23:'Miocene (23 Ma) — Apes Diversify',7:'Late Miocene (7 Ma) — Hominin Split',3:'Pliocene (3 Ma) — Lucy\'s World',1:'Pleistocene (1 Ma) — Ice Ages',0:'Present'};
 
@@ -70,6 +70,8 @@ const TRANSLATIONS = {
     cap_tools:'\ud83e\udea8 Tools',
     cap_fire:'\ud83d\udd25 Fire',
     cap_lang:'\ud83d\udcac Language',
+    search_hint:'Search by species name, keyword,<br>or in Hebrew / Russian',
+    search_no_results:'No matching species found',
   },
   he:{
     title:'\u05e2\u05e5 \u05d4\u05d7\u05d9\u05d9\u05dd',
@@ -117,6 +119,8 @@ const TRANSLATIONS = {
     cap_tools:'\ud83e\udea8 \u05db\u05dc\u05d9\u05dd',
     cap_fire:'\ud83d\udd25 \u05d0\u05e9',
     cap_lang:'\ud83d\udcac \u05e9\u05e4\u05d4',
+    search_hint:'\u05d7\u05d9\u05e4\u05d5\u05e9 \u05dc\u05e4\u05d9 \u05e9\u05dd \u05de\u05d9\u05df, \u05de\u05d9\u05dc\u05ea \u05de\u05e4\u05ea\u05d7,<br>\u05d0\u05d5 \u05d1\u05e2\u05d1\u05e8\u05d9\u05ea / \u05e8\u05d5\u05e1\u05d9\u05ea / \u05d0\u05e0\u05d2\u05dc\u05d9\u05ea',
+    search_no_results:'\u05dc\u05d0 \u05e0\u05de\u05e6\u05d0\u05d5 \u05de\u05d9\u05e0\u05d9\u05dd \u05ea\u05d5\u05d0\u05de\u05d9\u05dd',
   },
   ru:{
     title:'\u0414\u0435\u0440\u0435\u0432\u043e \u0436\u0438\u0437\u043d\u0438',
@@ -164,5 +168,7 @@ const TRANSLATIONS = {
     cap_tools:'\ud83e\udea8 \u041e\u0440\u0443\u0434\u0438\u044f',
     cap_fire:'\ud83d\udd25 \u041e\u0433\u043e\u043d\u044c',
     cap_lang:'\ud83d\udcac \u042f\u0437\u044b\u043a',
+    search_hint:'\u041f\u043e\u0438\u0441\u043a \u043f\u043e \u043d\u0430\u0437\u0432\u0430\u043d\u0438\u044e \u0432\u0438\u0434\u0430, \u043a\u043b\u044e\u0447\u0435\u0432\u043e\u043c\u0443 \u0441\u043b\u043e\u0432\u0443,<br>\u0438\u043b\u0438 \u043d\u0430 \u0440\u0443\u0441\u0441\u043a\u043e\u043c / \u0438\u0432\u0440\u0438\u0442\u0435 / \u0430\u043d\u0433\u043b\u0438\u0439\u0441\u043a\u043e\u043c',
+    search_no_results:'\u041f\u043e\u0434\u0445\u043e\u0434\u044f\u0449\u0438\u0435 \u0432\u0438\u0434\u044b \u043d\u0435 \u043d\u0430\u0439\u0434\u0435\u043d\u044b',
   }
 };

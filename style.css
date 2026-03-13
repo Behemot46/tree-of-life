@@ -23,8 +23,8 @@
   --radius:       8px;
   --radius-lg:    14px;
   --shadow:       0 8px 32px rgba(0,0,0,0.5);
-  --font:         'Inter', system-ui, sans-serif;
-  --font-sci:     'Lora', Georgia, serif;
+  --font:         'Heebo', system-ui, sans-serif;
+  --font-sci:     'Heebo', system-ui, sans-serif;
   /* Domain colours */
   --col-bacteria: #e8a838;
   --col-archaea:  #9b59b6;
@@ -750,8 +750,8 @@ img { display: block; }
 [dir="rtl"] .science-row     { flex-direction: row-reverse; }
 [dir="rtl"] .panel-close     { right: auto; left: 14px; }
 
-/* Hebrew font additions */
+/* Hebrew font — Heebo has native Hebrew support */
 [lang="he"], [lang="he"] * {
-  font-family: 'Inter', 'Arial Hebrew', 'David', Arial, sans-serif;
+  font-family: 'Heebo', system-ui, sans-serif;
 }
-/* Russian uses Inter fine — Cyrillic is included */
+/* Russian — Heebo includes Cyrillic glyphs */

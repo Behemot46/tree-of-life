@@ -24,7 +24,7 @@
 <title>Tree of Life — 3.8 Billion Years of Evolution</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Source+Sans+3:wght@300;400;600&family=Noto+Serif+Hebrew:wght@400;600;700&family=Heebo:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -38,8 +38,8 @@
   --terra:#b05050;
   --sage:#7ab860;
   --panel-bg:rgba(7,5,3,0.97);
-  --font-head:'Playfair Display','Noto Serif Hebrew',serif;
-  --font-body:'Lora','Noto Serif Hebrew',serif;
+  --font-head:'Playfair Display',Georgia,serif;
+  --font-body:'Heebo',system-ui,sans-serif;
   --color-canvas:         #f7f3ed;
   --color-canvas-alt:     #fdfaf5;
   --color-panel-bg:       #fdfaf5;
@@ -53,7 +53,7 @@
   --color-button-border:  #c8b99a;
   --color-button-hover:   #e0d8c8;
   --font-display:         'Playfair Display', Georgia, serif;
-  --font-sans:            'Source Sans 3', system-ui, sans-serif;
+  --font-sans:            'Heebo', system-ui, sans-serif;
 }
 html,body{width:100%;height:100%;overflow:hidden;background:#f7f3ed;color:var(--parchment);}
 body{font-family:var(--font-body);user-select:none;cursor:grab;}
@@ -135,10 +135,19 @@ body.dragging{cursor:grabbing;}
 #era-track{position:relative;height:6px;background:rgba(200,136,58,0.12);border-radius:3px;margin:0 0.5rem;}
 #era-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(to right,var(--gold),var(--gold-light));
   border-radius:3px;transition:width 0.1s;}
-#era-slider{width:100%;height:6px;opacity:0;position:absolute;top:0;left:0;cursor:pointer;margin:0;}
-.era-ticks{display:flex;justify-content:space-between;margin-top:0.4rem;}
-.era-tick{font-size:0.55rem;color:rgba(200,136,58,0.45);letter-spacing:0.04em;}
-#extinction-markers{position:absolute;top:0;left:0;right:0;height:100%;pointer-events:none;}
+#era-slider{width:100%;height:18px;opacity:1;position:absolute;top:-6px;left:0;
+  cursor:pointer;margin:0;-webkit-appearance:none;appearance:none;background:transparent;z-index:3;}
+#era-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
+  width:14px;height:14px;border-radius:50%;background:var(--gold-light);
+  border:2px solid var(--bg);box-shadow:0 0 6px rgba(200,136,58,0.5);cursor:grab;}
+#era-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
+  background:var(--gold-light);border:2px solid var(--bg);
+  box-shadow:0 0 6px rgba(200,136,58,0.5);cursor:grab;}
+#era-slider::-webkit-slider-runnable-track{height:6px;background:transparent;}
+#era-slider::-moz-range-track{height:6px;background:transparent;}
+.era-ticks{display:flex;justify-content:space-between;margin-top:0.6rem;}
+.era-tick{font-size:0.55rem;color:rgba(200,136,58,0.7);letter-spacing:0.04em;}
+#extinction-markers{position:absolute;top:0;left:0;right:0;height:100%;pointer-events:none;z-index:2;}
 .ext-line{position:absolute;top:-4px;width:2px;height:14px;background:rgba(176,80,80,0.7);border-radius:1px;}
 
 /* ── MAIN SVG ── */
@@ -149,7 +158,7 @@ svg{width:100%;height:100%;}
 .node-circle:hover{filter:brightness(1.15);}
 .node-group:hover .nc-main{filter:brightness(1.4) drop-shadow(0 0 14px var(--nc));}
 .branch-path{fill:none;stroke-linecap:round;stroke-linejoin:round;cursor:default;}
-.node-label-text{pointer-events:none;font-family:var(--font-body, 'Source Sans 3', sans-serif);font-size:14px;}
+.node-label-text{pointer-events:none;font-family:var(--font-body);font-size:14px;}
 .node-pulse{pointer-events:none;}
 
 /* ── HOMININ VIEW ── */
@@ -162,10 +171,9 @@ svg{width:100%;height:100%;}
   border-bottom:1px solid rgba(200,136,58,0.12);flex-shrink:0;}
 #hom-title{font-family:var(--font-head);font-size:1.5rem;font-weight:600;color:var(--parchment);}
 #hom-sub{font-size:0.65rem;color:var(--sage);letter-spacing:0.15em;text-transform:uppercase;margin-top:0.2rem;}
-#hom-close{padding:0.4rem 1rem;background:rgba(200,136,58,0.12);border:1px solid rgba(200,136,58,0.3);
-  border-radius:20px;color:var(--gold);font-size:0.72rem;cursor:pointer;transition:all 0.2s;
-  font-family:var(--font-body);letter-spacing:0.05em;}
-#hom-close:hover{background:rgba(200,136,58,0.25);color:var(--parchment);}
+/* #hom-close inherits from .btn-back — only overrides needed here */
+#hom-close{background:rgba(200,136,58,0.12);}
+#hom-close:hover{background:rgba(200,136,58,0.25);}
 #hom-filters{padding:0.6rem 2rem;display:flex;gap:0.5rem;border-bottom:1px solid rgba(200,136,58,0.08);flex-shrink:0;flex-wrap:wrap;}
 .hom-filter{padding:0.25rem 0.75rem;border:1px solid rgba(200,136,58,0.2);border-radius:14px;
   font-size:0.65rem;color:rgba(200,136,58,0.65);cursor:pointer;transition:all 0.2s;
@@ -218,7 +226,7 @@ svg{width:100%;height:100%;}
 .hp-fact-v{font-size:0.78rem;color:var(--parchment);}
 .hp-section{font-family:var(--font-head);font-size:0.8rem;color:var(--sage);letter-spacing:0.1em;
   text-transform:uppercase;margin:0.8rem 0 0.4rem;}
-.hp-detail{font-size:0.78rem;color:rgba(242,232,208,0.65);line-height:1.8;margin-bottom:0.8rem;}
+.hp-detail{font-size:0.78rem;color:rgba(242,232,208,0.75);line-height:1.8;margin-bottom:0.8rem;}
 .hp-dna{display:flex;gap:0.6rem;align-items:center;margin-bottom:0.3rem;font-size:0.72rem;}
 .dna-fill{flex:1;height:6px;background:rgba(200,136,58,0.08);border-radius:3px;overflow:hidden;}
 .dna-fill-inner{height:100%;border-radius:3px;}
@@ -245,6 +253,13 @@ svg{width:100%;height:100%;}
   color:rgba(122,184,96,0.7);font-size:0.85rem;cursor:pointer;
   display:flex;align-items:center;justify-content:center;transition:all 0.2s;z-index:5;}
 .p-close:hover{background:rgba(200,136,58,0.15);color:var(--parchment);}
+.btn-back{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;
+  border:1px solid rgba(200,136,58,0.3);border-radius:20px;background:transparent;
+  color:var(--gold);font-family:var(--font-sans);font-size:0.72rem;font-weight:600;
+  letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;}
+.btn-back:hover{background:rgba(200,136,58,0.15);border-color:var(--gold-light);color:var(--parchment);}
+[data-theme="light"] .btn-back{border-color:rgba(138,90,24,0.25);color:var(--gold);}
+[data-theme="light"] .btn-back:hover{background:rgba(138,90,24,0.1);}
 .p-top{display:flex;align-items:flex-start;gap:0.9rem;margin-bottom:1.1rem;}
 .p-icon-wrap{width:48px;height:48px;flex-shrink:0;border-radius:12px;
   display:flex;align-items:center;justify-content:center;font-size:1.6rem;
@@ -263,7 +278,7 @@ svg{width:100%;height:100%;}
 .fact-v{font-size:0.82rem;color:var(--parchment);font-weight:500;line-height:1.3;}
 .p-section{font-family:var(--font-head);font-size:0.85rem;color:var(--sage);letter-spacing:0.1em;
   text-transform:uppercase;margin-bottom:0.5rem;margin-top:0.2rem;}
-.p-detail{font-size:0.8rem;color:rgba(242,232,208,0.62);line-height:1.8;margin-bottom:0.75rem;}
+.p-detail{font-size:0.8rem;color:rgba(242,232,208,0.72);line-height:1.8;margin-bottom:0.75rem;}
 .p-tag{display:inline-block;background:rgba(122,184,96,0.1);border:1px solid rgba(122,184,96,0.22);
   border-radius:18px;padding:0.18rem 0.6rem;font-size:0.7rem;color:var(--sage);margin:0.2rem 0.15rem;}
 .p-children{list-style:none;margin-top:0.35rem;}
@@ -295,7 +310,7 @@ svg{width:100%;height:100%;}
 .zbtn:hover{background:rgba(200,136,58,0.14);border-color:var(--gold);color:var(--parchment);}
 #btn-hominin{position:fixed;bottom:4.5rem;right:5rem;z-index:200;height:35px;padding:0 14px;
   background:rgba(7,5,3,0.92);border:1px solid rgba(176,122,62,0.35);border-radius:8px;
-  color:#e8b86d;font-size:12px;font-weight:600;font-family:'Source Sans 3',sans-serif;
+  color:#e8b86d;font-size:12px;font-weight:600;font-family:'Heebo',sans-serif;
   cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;
   backdrop-filter:blur(10px);white-space:nowrap;}
 #btn-hominin:hover{background:rgba(176,122,62,0.18);border-color:#e8b86d;color:#f2e8d0;}
@@ -303,7 +318,7 @@ svg{width:100%;height:100%;}
 /* ── TOOLTIP ── */
 #tooltip{position:fixed;pointer-events:none !important;z-index:9999;
   background:var(--color-panel-bg);border:1px solid var(--color-panel-border);
-  border-radius:8px;padding:8px 12px;font-family:'Source Sans 3',sans-serif;
+  border-radius:8px;padding:8px 12px;font-family:'Heebo',sans-serif;
   font-size:13px;color:var(--color-text-primary);box-shadow:0 4px 12px rgba(0,0,0,0.15);
   max-width:200px;line-height:1.4;opacity:0;visibility:hidden;
   transition:opacity 150ms ease;transform:translate(16px,-50%);white-space:nowrap;}
@@ -398,7 +413,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 [dir="rtl"] #hom-body{flex-direction:row-reverse;}
 [dir="rtl"] #hom-filters{flex-direction:row-reverse;}
 [dir="rtl"] #hom-filters>div:last-child{margin-left:0;margin-right:auto;}
-[lang="he"],[lang="he"] *{font-family:'Noto Serif Hebrew','Playfair Display',serif;}
+[lang="he"],[lang="he"] *{font-family:'Heebo','Playfair Display',sans-serif;}
 [lang="he"] #breadcrumb {
   flex-direction: row-reverse;
 }
@@ -438,41 +453,41 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   --gold-text-dim:rgba(138,90,24,0.50);
 }
 
-/* ── LIGHT THEME: ELEMENT CONTRAST FIXES ── */
-[data-theme="light"] .hint-bar{color:rgba(30,14,2,0.45);}
-[data-theme="light"] .leg-row{color:rgba(30,14,2,0.65);}
-[data-theme="light"] .p-detail{color:rgba(30,14,2,0.6);}
-[data-theme="light"] .p-desc{color:rgba(30,14,2,0.72);}
-[data-theme="light"] .p-children li{color:rgba(30,14,2,0.65);}
-[data-theme="light"] .hp-desc{color:rgba(30,14,2,0.75);}
-[data-theme="light"] .hp-detail{color:rgba(30,14,2,0.65);}
-[data-theme="light"] .hp-fact-v{color:rgba(30,14,2,0.82);}
-[data-theme="light"] .tip-fact{color:rgba(30,14,2,0.6);}
-[data-theme="light"] .era-tick{color:rgba(30,14,2,0.45);}
-[data-theme="light"] #era-label{color:rgba(30,14,2,0.65);}
-[data-theme="light"] .hom-filter{color:rgba(30,14,2,0.55);}
+/* ── LIGHT THEME: ELEMENT CONTRAST FIXES (WCAG AA ≥ 4.5:1) ── */
+[data-theme="light"] .hint-bar{color:rgba(30,14,2,0.6);}
+[data-theme="light"] .leg-row{color:rgba(30,14,2,0.7);}
+[data-theme="light"] .p-detail{color:rgba(30,14,2,0.7);}
+[data-theme="light"] .p-desc{color:rgba(30,14,2,0.75);}
+[data-theme="light"] .p-children li{color:rgba(30,14,2,0.7);}
+[data-theme="light"] .hp-desc{color:rgba(30,14,2,0.78);}
+[data-theme="light"] .hp-detail{color:rgba(30,14,2,0.72);}
+[data-theme="light"] .hp-fact-v{color:rgba(30,14,2,0.85);}
+[data-theme="light"] .tip-fact{color:rgba(30,14,2,0.65);}
+[data-theme="light"] .era-tick{color:rgba(30,14,2,0.65);}
+[data-theme="light"] #era-label{color:rgba(30,14,2,0.75);}
+[data-theme="light"] .hom-filter{color:rgba(30,14,2,0.68);}
 [data-theme="light"] .hom-filter.active{color:var(--gold-light);}
-[data-theme="light"] .hs-mya{color:rgba(30,14,2,0.5);}
-[data-theme="light"] .hs-name{color:rgba(30,14,2,0.88);}
-[data-theme="light"] .brain-label{color:rgba(30,14,2,0.5);}
-[data-theme="light"] .hs-tag{color:rgba(30,50,10,0.72);background:rgba(60,100,20,0.08);border-color:rgba(60,100,20,0.15);}
-[data-theme="light"] .hp-tag{color:rgba(30,50,10,0.72);background:rgba(60,100,20,0.07);border-color:rgba(60,100,20,0.18);}
-[data-theme="light"] .p-tag{color:rgba(30,50,10,0.72);background:rgba(60,100,20,0.08);border-color:rgba(60,100,20,0.18);}
-[data-theme="light"] #hom-panel-empty{color:rgba(138,90,24,0.4);}
-[data-theme="light"] .node-label-text{fill:rgba(30,14,2,0.75);}
-[data-theme="light"] #compare-btn{color:rgba(30,14,2,0.6);}
-[data-theme="light"] .bc-item{color:rgba(138,90,24,0.65);}
+[data-theme="light"] .hs-mya{color:rgba(30,14,2,0.62);}
+[data-theme="light"] .hs-name{color:rgba(30,14,2,0.9);}
+[data-theme="light"] .brain-label{color:rgba(30,14,2,0.62);}
+[data-theme="light"] .hs-tag{color:rgba(30,50,10,0.78);background:rgba(60,100,20,0.08);border-color:rgba(60,100,20,0.18);}
+[data-theme="light"] .hp-tag{color:rgba(30,50,10,0.78);background:rgba(60,100,20,0.07);border-color:rgba(60,100,20,0.2);}
+[data-theme="light"] .p-tag{color:rgba(30,50,10,0.78);background:rgba(60,100,20,0.08);border-color:rgba(60,100,20,0.2);}
+[data-theme="light"] #hom-panel-empty{color:rgba(138,90,24,0.5);}
+[data-theme="light"] .node-label-text{fill:rgba(30,14,2,0.8);}
+[data-theme="light"] #compare-btn{color:rgba(30,14,2,0.65);}
+[data-theme="light"] .bc-item{color:rgba(138,90,24,0.72);}
 [data-theme="light"] .bc-item.active{color:var(--parchment);}
-[data-theme="light"] .fact-l{color:rgba(138,90,24,0.72);}
-[data-theme="light"] .fact-v{color:rgba(30,14,2,0.85);}
-[data-theme="light"] .hp-fact-l{color:rgba(138,90,24,0.72);}
-[data-theme="light"] .p-section{color:rgba(30,80,15,0.75);}
-[data-theme="light"] .hp-section{color:rgba(30,80,15,0.72);}
-[data-theme="light"] .hs-latin{color:rgba(138,90,24,0.72);}
-[data-theme="light"] .hom-era-title{color:rgba(138,90,24,0.85);}
-[data-theme="light"] #hom-sub{color:rgba(30,80,15,0.65);}
+[data-theme="light"] .fact-l{color:rgba(138,90,24,0.78);}
+[data-theme="light"] .fact-v{color:rgba(30,14,2,0.88);}
+[data-theme="light"] .hp-fact-l{color:rgba(138,90,24,0.78);}
+[data-theme="light"] .p-section{color:rgba(30,80,15,0.8);}
+[data-theme="light"] .hp-section{color:rgba(30,80,15,0.78);}
+[data-theme="light"] .hs-latin{color:rgba(138,90,24,0.78);}
+[data-theme="light"] .hom-era-title{color:rgba(138,90,24,0.88);}
+[data-theme="light"] #hom-sub{color:rgba(30,80,15,0.72);}
 [data-theme="light"] #hom-header{background:rgba(248,242,230,0.98);}
-[data-theme="light"] .hs-icons-row{color:rgba(138,90,24,0.65);}
+[data-theme="light"] .hs-icons-row{color:rgba(138,90,24,0.72);}
 
 /* ── SPECIES IMAGE ── */
 .p-img{width:100%;border-radius:10px;margin-bottom:0.6rem;object-fit:cover;max-height:175px;border:1px solid rgba(200,136,58,0.15);display:block;}
@@ -527,7 +542,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 /* ── SPLASH POLISH ── */
 #splash{animation:fadeIn 600ms ease forwards;}
 #splash h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,6vw,4rem);letter-spacing:-0.02em;margin-bottom:8px;}
-#splash .tagline{font-family:'Source Sans 3',sans-serif;font-size:clamp(0.9rem,2vw,1.1rem);opacity:0.75;max-width:480px;text-align:center;line-height:1.6;}
+#splash .tagline{font-family:'Heebo',sans-serif;font-size:clamp(0.9rem,2vw,1.1rem);opacity:0.75;max-width:480px;text-align:center;line-height:1.6;}
 
 /* ── PANEL ANIMATION ── */
 #panel,#info-panel{transition:transform 250ms ease,opacity 250ms ease,right 0.5s cubic-bezier(0.16,1,0.3,1);}
@@ -537,7 +552,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 [data-theme="light"] #panel{
   background:#fdfaf5;
   border-left:1px solid #e0d4bc;
-  font-family:'Source Sans 3',system-ui,sans-serif;
+  font-family:'Heebo',system-ui,sans-serif;
 }
 [data-theme="dark"] #panel{
   background:#121810;
@@ -633,7 +648,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 </head>
 <body>
 <div id="splash" style="position:fixed;inset:0;background:#0d110e;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px;transition:opacity 0.8s ease;">
-  <div style="font-family:'Source Sans 3',sans-serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:rgba(200,220,180,0.5);">3,800,000,000 years of evolution</div>
+  <div style="font-family:'Heebo',sans-serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:rgba(200,220,180,0.5);">3,800,000,000 years of evolution</div>
   <h1 style="font-family:'Playfair Display',serif;font-size:clamp(48px,8vw,96px);font-weight:700;color:#e8ead4;letter-spacing:-2px;line-height:1;margin:0;">Tree of Life</h1>
   <div style="width:60px;height:1px;background:rgba(200,220,180,0.3);"></div>
   <div id="splash-tagline" style="font-family:'Playfair Display',serif;font-style:italic;font-size:16px;color:rgba(200,220,180,0.6);"></div>
@@ -666,10 +681,10 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   <span id="search-icon" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:rgba(200,136,58,0.5);font-size:0.8rem;pointer-events:none;" aria-hidden="true">🔍</span>
   <input id="search-input" type="text" placeholder="Search species…" autocomplete="off" aria-label="Search species by name, latin name, or description" role="combobox" aria-expanded="false" aria-controls="search-results">
   <div id="search-results" role="listbox"></div>
-  <button id="extinct-toggle" onclick="toggleExtinct()" aria-label="Toggle visibility of extinct species" style="font-family:'Source Sans 3',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid #c8b99a;background:#f0ebe0;cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:#1c1a14;white-space:nowrap;flex-shrink:0;">
+  <button id="extinct-toggle" onclick="toggleExtinct()" aria-label="Toggle visibility of extinct species" style="font-family:'Heebo',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid #c8b99a;background:#f0ebe0;cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:#1c1a14;white-space:nowrap;flex-shrink:0;">
     <span>†</span><span id="extinct-label">Hide Extinct</span>
   </button>
-  <button id="hominins-tab" onclick="openHomininView()" aria-label="Open Hominin Evolution panel" style="font-family:'Source Sans 3',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid #c8b99a;background:#f0ebe0;cursor:pointer;color:#1c1a14;white-space:nowrap;flex-shrink:0;">
+  <button id="hominins-tab" onclick="openHomininView()" aria-label="Open Hominin Evolution panel" style="font-family:'Heebo',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid #c8b99a;background:#f0ebe0;cursor:pointer;color:#1c1a14;white-space:nowrap;flex-shrink:0;">
     🧬 Hominins
   </button>
 </div>
@@ -744,7 +759,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
       <div id="hom-title">Hominin Evolution</div>
       <div id="hom-sub">7 Million Years of the Human Journey</div>
     </div>
-    <button id="hom-close">← Back to Tree</button>
+    <button id="hom-close" class="btn-back">← Back to Tree</button>
 
   </div>
   <div id="hom-filters">
@@ -785,7 +800,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   <div class="leg-row" data-domain="animalia" onclick="toggleDomain('animalia')" style="cursor:pointer;"><div class="leg-dot" style="background:#4a7a9a"></div><span id="i-leg-anim">Animals</span></div>
   <div class="leg-row" data-domain="fungi" onclick="toggleDomain('fungi')" style="cursor:pointer;"><div class="leg-dot" style="background:#8a6a4a"></div><span id="i-leg-fungi">Fungi</span></div>
   <div class="leg-row" data-domain="protists" onclick="toggleDomain('protists')" style="cursor:pointer;"><div class="leg-dot" style="background:#7a6aaa"></div><span id="i-leg-prot">Protists</span></div>
-  <button onclick="resetDomains()" style="font-size:11px;padding:3px 10px;border-radius:9999px;border:1px solid #c8b99a;background:transparent;color:var(--parchment);cursor:pointer;margin-top:8px;font-family:'Source Sans 3',sans-serif;">Show All</button>
+  <button onclick="resetDomains()" style="font-size:11px;padding:3px 10px;border-radius:9999px;border:1px solid #c8b99a;background:transparent;color:var(--parchment);cursor:pointer;margin-top:8px;font-family:'Heebo',sans-serif;">Show All</button>
 </div>
 
 <!-- ZOOM -->
@@ -1381,7 +1396,7 @@ function render(){
       badgeFo.setAttribute('width',bw);badgeFo.setAttribute('height',bh);
       badgeFo.style.pointerEvents='none';
       const badge=document.createElement('div');
-      badge.style.cssText='font-size:9px;font-family:"Source Sans 3",sans-serif;color:#e8b86d;text-align:center;font-weight:700;letter-spacing:0.05em;opacity:0.85;';
+      badge.style.cssText='font-size:9px;font-family:"Heebo",sans-serif;color:#e8b86d;text-align:center;font-weight:700;letter-spacing:0.05em;opacity:0.85;';
       badge.textContent='Explore \u2192';
       badgeFo.appendChild(badge);g.appendChild(badgeFo);
     }
@@ -1430,15 +1445,28 @@ function render(){
     c.addEventListener('click', e=>{ e.stopPropagation(); showMainPanel(n); });
     g.appendChild(c);
 
-    // Icon
+    // Icon — photo thumbnail or emoji fallback
     if(inEra){
       const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
-      const iw=n.r*1.5,ih=n.r*1.5;
+      const iw=n.r*1.8,ih=n.r*1.8;
       fo.setAttribute('x',n._x-iw/2);fo.setAttribute('y',n._y-ih/2);
       fo.setAttribute('width',iw);fo.setAttribute('height',ih);fo.style.pointerEvents='none';
-      const d=document.createElement('div');
-      d.style.cssText=`width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:${Math.max(9,n.r*0.6)}px;line-height:1;`;
-      d.textContent=n.icon;fo.appendChild(d);g.appendChild(fo);
+      const photoEntry=typeof PHOTO_MAP!=='undefined'&&PHOTO_MAP[n.id];
+      if(photoEntry&&photoEntry.url){
+        const d=document.createElement('div');
+        d.style.cssText='width:100%;height:100%;border-radius:50%;overflow:hidden;border:1.5px solid rgba(200,136,58,0.3);box-shadow:0 1px 4px rgba(0,0,0,0.3);';
+        const img=document.createElement('img');
+        img.src=photoEntry.url;img.alt=n.name;
+        img.style.cssText='width:100%;height:100%;object-fit:cover;';
+        img.loading='lazy';
+        img.onerror=function(){this.parentElement.innerHTML=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:${Math.max(9,n.r*0.6)}px;line-height:1;border-radius:50%;">${n.icon}</div>`;};
+        d.appendChild(img);fo.appendChild(d);
+      }else{
+        const d=document.createElement('div');
+        d.style.cssText=`width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:${Math.max(9,n.r*0.6)}px;line-height:1;`;
+        d.textContent=n.icon;fo.appendChild(d);
+      }
+      g.appendChild(fo);
     }
 
     // Label — smart positioning to avoid overlap
@@ -1462,9 +1490,9 @@ function render(){
       svgText.setAttribute('x',lx);svgText.setAttribute('y',ly);
       svgText.setAttribute('text-anchor',cos<-0.15?'end':cos>0.15?'start':'middle');
       svgText.setAttribute('dominant-baseline','middle');
-      svgText.setAttribute('fill',n.depth===0?'#f2e8d0':n.depth<=1?'rgba(242,232,208,0.92)':'rgba(242,232,208,0.75)');
+      svgText.setAttribute('fill',n.depth===0?'#f2e8d0':n.depth<=1?'rgba(242,232,208,0.92)':'rgba(242,232,208,0.82)');
       svgText.setAttribute('font-size',n.depth===0?'14':n.depth===1?'12':'10');
-      svgText.setAttribute('font-family',"'Lora', serif");
+      svgText.setAttribute('font-family',"'Heebo', sans-serif");
       svgText.setAttribute('font-weight',n.depth<=1?'500':'400');
       svgText.setAttribute('class','node-label-text');
       svgText.textContent=n.name;
@@ -1793,7 +1821,7 @@ function renderPanelContent(node) {
   const p = document.getElementById('panel') || document.getElementById('info-panel');
   if (!p) return;
   const extinctBadge = node.extinct
-    ? '<span style="background:#c0392b;color:white;font-size:10px;padding:2px 8px;border-radius:9999px;font-family:Source Sans 3,sans-serif;font-weight:600;letter-spacing:0.05em;">† EXTINCT</span>'
+    ? '<span style="background:#c0392b;color:white;font-size:10px;padding:2px 8px;border-radius:9999px;font-family:Heebo,sans-serif;font-weight:600;letter-spacing:0.05em;">† EXTINCT</span>'
     : '';
   // WIKI_TITLES loaded from js/speciesData.js
   // PHOTO_MAP loaded from js/speciesData.js
@@ -1858,14 +1886,14 @@ function renderPanelContent(node) {
         onerror="this.style.display='none';document.getElementById('${panelFbId}').style.display='flex';(window._failedPhotos||(window._failedPhotos=new Set())).add('static:${node.id}');"
       />
       <div id="${panelFbId}" style="display:${staticUrl ? 'none' : 'flex'};width:100%;height:100%;align-items:center;justify-content:center;font-size:72px;background:#111;">${node.icon||'🌿'}</div>
-      <div id="${panelCrId}" style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.65);font-family:'Source Sans 3',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.35);padding:1px 5px;border-radius:3px;">${staticCredit||''}</div>
+      <div id="${panelCrId}" style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.65);font-family:'Heebo',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.35);padding:1px 5px;border-radius:3px;">${staticCredit||''}</div>
     </div>
     <div style="padding:20px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;flex:1;">
       ${(()=>{
         const isGreatApe    = GREAT_APE_IDS.includes(node.id);
         const isHuman       = node._hominin || node.id==='hominini' || node.id.startsWith('group-') || (node.tags && (node.tags.includes('Hominin') || node.tags.includes('Human evolution')));
-        if (isHuman) return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b07a3e;font-family:'Source Sans 3',sans-serif;text-transform:uppercase;background:rgba(176,122,62,0.12);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,122,62,0.3);">🧬 Human Lineage</span></div>`;
-        if (isGreatApe) return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b03535;font-family:'Source Sans 3',sans-serif;text-transform:uppercase;background:rgba(176,53,53,0.1);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,53,53,0.25);">🦍 Great Apes</span></div>`;
+        if (isHuman) return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b07a3e;font-family:'Heebo',sans-serif;text-transform:uppercase;background:rgba(176,122,62,0.12);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,122,62,0.3);">🧬 Human Lineage</span></div>`;
+        if (isGreatApe) return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b03535;font-family:'Heebo',sans-serif;text-transform:uppercase;background:rgba(176,53,53,0.1);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,53,53,0.25);">🦍 Great Apes</span></div>`;
         return '';
       })()}
       <div style="display:flex;flex-direction:column;gap:6px;">
@@ -1873,23 +1901,23 @@ function renderPanelContent(node) {
           <h2 style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--color-text-primary);margin:0;line-height:1.2;">${node.name}</h2>
           ${extinctBadge}
         </div>
-        ${node.latin ? `<div style="font-style:italic;font-size:13px;color:var(--color-text-muted);font-family:'Source Sans 3',sans-serif;">${node.latin}</div>` : ''}
-        ${node.era ? `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Source Sans 3',sans-serif;">📅 ${node.era}${node.appeared ? ' · ' + node.appeared + ' Mya' : ''}</div>` : ''}
+        ${node.latin ? `<div style="font-style:italic;font-size:13px;color:var(--color-text-muted);font-family:'Heebo',sans-serif;">${node.latin}</div>` : ''}
+        ${node.era ? `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Heebo',sans-serif;">📅 ${node.era}${node.appeared ? ' · ' + node.appeared + ' Mya' : ''}</div>` : ''}
       </div>
-      ${node.desc ? `<p style="font-size:14px;line-height:1.7;color:var(--color-text-secondary);font-family:'Source Sans 3',sans-serif;margin:0;">${node.desc}</p>` : ''}
+      ${node.desc ? `<p style="font-size:14px;line-height:1.7;color:var(--color-text-secondary);font-family:'Heebo',sans-serif;margin:0;">${node.desc}</p>` : ''}
       ${node.funFact ? `
         <div style="border-left:3px solid var(--color-accent);padding:12px 16px;background:rgba(46,125,50,0.06);border-radius:0 8px 8px 0;">
-          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;margin-bottom:6px;font-family:'Source Sans 3',sans-serif;">💡 DID YOU KNOW</div>
+          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;margin-bottom:6px;font-family:'Heebo',sans-serif;">💡 DID YOU KNOW</div>
           <p style="font-family:'Playfair Display',serif;font-style:italic;font-size:14px;line-height:1.6;color:var(--color-text-primary);margin:0;">${node.funFact}</p>
         </div>
       ` : ''}
-      ${node.detail ? `<p style="font-size:13px;line-height:1.7;color:var(--color-text-muted);font-family:'Source Sans 3',sans-serif;margin:0;">${node.detail}</p>` : ''}
+      ${node.detail ? `<p style="font-size:13px;line-height:1.7;color:var(--color-text-muted);font-family:'Heebo',sans-serif;margin:0;">${node.detail}</p>` : ''}
       ${node.facts && node.facts.length > 0 ? `
         <div style="display:flex;flex-direction:column;gap:1px;border-radius:8px;overflow:hidden;border:1px solid var(--color-divider);">
           ${node.facts.map((f, i) => `
             <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:${i % 2 === 0 ? 'var(--color-canvas-alt)' : 'var(--color-panel-bg)'};">
-              <span style="font-size:12px;color:var(--color-text-muted);font-family:'Source Sans 3',sans-serif;">${f.l}</span>
-              <span style="font-size:13px;font-weight:600;color:var(--color-text-primary);font-family:'Source Sans 3',sans-serif;text-align:right;max-width:60%;">${f.v}</span>
+              <span style="font-size:12px;color:var(--color-text-muted);font-family:'Heebo',sans-serif;">${f.l}</span>
+              <span style="font-size:13px;font-weight:600;color:var(--color-text-primary);font-family:'Heebo',sans-serif;text-align:right;max-width:60%;">${f.v}</span>
             </div>
           `).join('')}
         </div>
@@ -1897,33 +1925,33 @@ function renderPanelContent(node) {
       ${node.tags && node.tags.length > 0 ? `
         <div style="display:flex;flex-wrap:wrap;gap:6px;">
           ${node.tags.map(tag => `
-            <span style="font-size:11px;padding:3px 10px;border-radius:9999px;background:var(--color-button-bg);border:1px solid var(--color-button-border);color:var(--color-text-secondary);font-family:'Source Sans 3',sans-serif;">${tag}</span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:9999px;background:var(--color-button-bg);border:1px solid var(--color-button-border);color:var(--color-text-secondary);font-family:'Heebo',sans-serif;">${tag}</span>
           `).join('')}
         </div>
       ` : ''}
       ${node.tipFact ? `
-        <div style="padding:12px;background:var(--color-button-bg);border-radius:8px;font-size:12px;color:var(--color-text-muted);font-family:'Source Sans 3',sans-serif;font-style:italic;text-align:center;">
+        <div style="padding:12px;background:var(--color-button-bg);border-radius:8px;font-size:12px;color:var(--color-text-muted);font-family:'Heebo',sans-serif;font-style:italic;text-align:center;">
           🌿 ${node.tipFact}
         </div>
       ` : ''}
       ${node.altFacts && node.altFacts.length > 0 ? `
         <div style="display:flex;flex-direction:column;gap:6px;">
-          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Source Sans 3',sans-serif;">💡 MORE FASCINATING FACTS</div>
+          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Heebo',sans-serif;">💡 MORE FASCINATING FACTS</div>
           ${node.altFacts.map(f=>`
             <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 10px;background:var(--color-canvas-alt);border-radius:6px;border-left:2px solid var(--color-accent);">
               <span style="color:var(--color-accent);font-size:13px;flex-shrink:0;margin-top:1px;">▸</span>
-              <span style="font-size:13px;line-height:1.55;color:var(--color-text-secondary);font-family:'Source Sans 3',sans-serif;">${f}</span>
+              <span style="font-size:13px;line-height:1.55;color:var(--color-text-secondary);font-family:'Heebo',sans-serif;">${f}</span>
             </div>
           `).join('')}
         </div>
       ` : ''}
       ${node.links && node.links.length > 0 ? `
         <div style="display:flex;flex-direction:column;gap:6px;">
-          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Source Sans 3',sans-serif;">🔗 LEARN MORE</div>
+          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Heebo',sans-serif;">🔗 LEARN MORE</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px;">
             ${node.links.map(lnk=>`
               <a href="${lnk.url}" target="_blank" rel="noopener noreferrer"
-                style="font-size:12px;padding:5px 12px;border-radius:9999px;background:var(--color-button-bg);border:1px solid var(--color-button-border);color:var(--color-accent);font-family:'Source Sans 3',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:4px;"
+                style="font-size:12px;padding:5px 12px;border-radius:9999px;background:var(--color-button-bg);border:1px solid var(--color-button-border);color:var(--color-accent);font-family:'Heebo',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:4px;"
                 onmouseover="this.style.background='var(--color-accent)';this.style.color='white';"
                 onmouseout="this.style.background='var(--color-button-bg)';this.style.color='var(--color-accent)';">
                 ↗ ${lnk.label}
@@ -1938,8 +1966,8 @@ function renderPanelContent(node) {
         if(!isHominin) return '';
         if(node.id==='hominini'){
           return `<div style="background:linear-gradient(135deg,rgba(176,122,62,0.15),rgba(176,122,62,0.05));border:1px solid rgba(176,122,62,0.3);border-radius:12px;padding:16px;margin-bottom:12px;">
-            <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:8px;line-height:1.5;font-family:'Source Sans 3',sans-serif;">Explore 32 hominin species spanning 7 million years of human evolution — from Sahelanthropus to Homo sapiens. Compare brain sizes, tool use, and DNA.</div>
-            <button onclick="openHomininView()" style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#b07a3e,#d4a04a);color:white;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:0.02em;box-shadow:0 2px 8px rgba(176,122,62,0.3);">🧬 Explore Human Evolution</button>
+            <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:8px;line-height:1.5;font-family:'Heebo',sans-serif;">Explore 32 hominin species spanning 7 million years of human evolution — from Sahelanthropus to Homo sapiens. Compare brain sizes, tool use, and DNA.</div>
+            <button onclick="openHomininView()" style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#b07a3e,#d4a04a);color:white;cursor:pointer;font-family:'Heebo',sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:0.02em;box-shadow:0 2px 8px rgba(176,122,62,0.3);">🧬 Explore Human Evolution</button>
           </div>`;
         }
         if(!node._hominin||!node._hominData) return '';
@@ -1951,12 +1979,12 @@ function renderPanelContent(node) {
         // Brain volume bar
         if(brainMax){
           html+=`<div>
-            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Source Sans 3',sans-serif;margin-bottom:4px;">🧠 BRAIN VOLUME</div>
+            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Heebo',sans-serif;margin-bottom:4px;">🧠 BRAIN VOLUME</div>
             <div style="display:flex;align-items:center;gap:8px;">
               <div style="flex:1;height:10px;background:var(--color-button-bg);border-radius:5px;overflow:hidden;">
                 <div style="width:${brainPct}%;height:100%;background:linear-gradient(90deg,var(--color-accent),#e8a838);border-radius:5px;"></div>
               </div>
-              <span style="font-size:11px;color:var(--color-text-secondary);font-family:'Source Sans 3',sans-serif;white-space:nowrap;">${brainMin}–${brainMax} cc</span>
+              <span style="font-size:11px;color:var(--color-text-secondary);font-family:'Heebo',sans-serif;white-space:nowrap;">${brainMin}–${brainMax} cc</span>
             </div>
           </div>`;
         }
@@ -1969,8 +1997,8 @@ function renderPanelContent(node) {
           html+=`<div style="display:flex;gap:6px;flex-wrap:wrap;">${caps.map(c=>
             `<div style="flex:1;min-width:80px;padding:6px 8px;border-radius:8px;background:var(--color-button-bg);border:1px solid var(--color-button-border);text-align:center;">
               <div style="font-size:16px;">${c.icon}</div>
-              <div style="font-size:10px;font-weight:700;color:var(--color-accent);letter-spacing:0.05em;font-family:'Source Sans 3',sans-serif;">${c.label}</div>
-              <div style="font-size:10px;color:var(--color-text-secondary);font-family:'Source Sans 3',sans-serif;">${c.val}</div>
+              <div style="font-size:10px;font-weight:700;color:var(--color-accent);letter-spacing:0.05em;font-family:'Heebo',sans-serif;">${c.label}</div>
+              <div style="font-size:10px;color:var(--color-text-secondary);font-family:'Heebo',sans-serif;">${c.val}</div>
             </div>`).join('')}</div>`;
         }
         // Physical stats
@@ -1981,50 +2009,50 @@ function renderPanelContent(node) {
         if(stats.length){
           html+=`<div style="display:flex;flex-wrap:wrap;gap:6px;">${stats.map(s=>
             `<div style="flex:1;min-width:100px;padding:6px 8px;border-radius:8px;background:var(--color-button-bg);border:1px solid var(--color-button-border);">
-              <div style="font-size:10px;font-weight:700;color:var(--color-accent);letter-spacing:0.05em;font-family:'Source Sans 3',sans-serif;">${s.l}</div>
-              <div style="font-size:11px;color:var(--color-text-primary);font-family:'Source Sans 3',sans-serif;">${s.v}</div>
+              <div style="font-size:10px;font-weight:700;color:var(--color-accent);letter-spacing:0.05em;font-family:'Heebo',sans-serif;">${s.l}</div>
+              <div style="font-size:11px;color:var(--color-text-primary);font-family:'Heebo',sans-serif;">${s.v}</div>
             </div>`).join('')}</div>`;
         }
         // Fossil sites
         if(hd.sites&&hd.sites.length){
           html+=`<div>
-            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Source Sans 3',sans-serif;margin-bottom:3px;">📍 FOSSIL SITES</div>
-            <div style="font-size:11px;color:var(--color-text-secondary);font-family:'Source Sans 3',sans-serif;">${hd.sites.join(' · ')}</div>
+            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Heebo',sans-serif;margin-bottom:3px;">📍 FOSSIL SITES</div>
+            <div style="font-size:11px;color:var(--color-text-secondary);font-family:'Heebo',sans-serif;">${hd.sites.join(' · ')}</div>
           </div>`;
         }
         // DNA introgression
         if(hd.dna&&(typeof hd.dna.neanderthal==='number'||typeof hd.dna.denisovan==='number')){
           html+=`<div>
-            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Source Sans 3',sans-serif;margin-bottom:4px;">🧬 DNA INTROGRESSION</div>`;
+            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Heebo',sans-serif;margin-bottom:4px;">🧬 DNA INTROGRESSION</div>`;
           if(typeof hd.dna.neanderthal==='number'){
             html+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
-              <span style="font-size:10px;color:var(--color-text-secondary);width:70px;font-family:'Source Sans 3',sans-serif;">Neanderthal</span>
+              <span style="font-size:10px;color:var(--color-text-secondary);width:70px;font-family:'Heebo',sans-serif;">Neanderthal</span>
               <div style="flex:1;height:8px;background:var(--color-button-bg);border-radius:4px;overflow:hidden;">
                 <div style="width:${Math.min(hd.dna.neanderthal,100)}%;height:100%;background:#7A9BAA;border-radius:4px;"></div>
               </div>
-              <span style="font-size:10px;color:var(--color-text-secondary);font-family:'Source Sans 3',sans-serif;">${hd.dna.neanderthal}%</span>
+              <span style="font-size:10px;color:var(--color-text-secondary);font-family:'Heebo',sans-serif;">${hd.dna.neanderthal}%</span>
             </div>`;
           }
           if(typeof hd.dna.denisovan==='number'){
             html+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
-              <span style="font-size:10px;color:var(--color-text-secondary);width:70px;font-family:'Source Sans 3',sans-serif;">Denisovan</span>
+              <span style="font-size:10px;color:var(--color-text-secondary);width:70px;font-family:'Heebo',sans-serif;">Denisovan</span>
               <div style="flex:1;height:8px;background:var(--color-button-bg);border-radius:4px;overflow:hidden;">
                 <div style="width:${Math.min(hd.dna.denisovan,100)}%;height:100%;background:#7A8BAA;border-radius:4px;"></div>
               </div>
-              <span style="font-size:10px;color:var(--color-text-secondary);font-family:'Source Sans 3',sans-serif;">${hd.dna.denisovan}%</span>
+              <span style="font-size:10px;color:var(--color-text-secondary);font-family:'Heebo',sans-serif;">${hd.dna.denisovan}%</span>
             </div>`;
           }
           if(hd.dna.note){
-            html+=`<div style="font-size:10px;color:var(--color-text-secondary);font-style:italic;font-family:'Source Sans 3',sans-serif;">${hd.dna.note}</div>`;
+            html+=`<div style="font-size:10px;color:var(--color-text-secondary);font-style:italic;font-family:'Heebo',sans-serif;">${hd.dna.note}</div>`;
           }
           html+=`</div>`;
         }
         html+=`</div>`;
         return html;
       })()}
-      ${(()=>{const isHominin=node._hominin||node.id==='hominini'||node.id.startsWith('group-')||(node.tags&&(node.tags.includes('Hominin')||node.tags.includes('Human evolution')))||HOMININS.some(h=>h.id===node.id||h.name===node.name);return isHominin?`<button onclick="openHominins('${node.id}')" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--color-accent);color:white;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">🧬 Hominin Deep Dive</button>`:'';})()}
-      <button onclick="closePanel()" style="margin-top:8px;padding:10px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:13px;color:var(--color-text-secondary);">
-        Close
+      ${(()=>{const isHominin=node._hominin||node.id==='hominini'||node.id.startsWith('group-')||(node.tags&&(node.tags.includes('Hominin')||node.tags.includes('Human evolution')))||HOMININS.some(h=>h.id===node.id||h.name===node.name);return isHominin?`<button onclick="openHominins('${node.id}')" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--color-accent);color:white;cursor:pointer;font-family:'Heebo',sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">🧬 Hominin Deep Dive</button>`:'';})()}
+      <button class="btn-back" onclick="closePanel()" style="margin-top:8px;">
+        ✕ Close
       </button>
     </div>
   `;
@@ -2035,7 +2063,8 @@ function renderPanelContent(node) {
       const backBtn=document.createElement('button');
       backBtn.textContent='← Back';
       backBtn.onclick=panelBack;
-      backBtn.style.cssText='padding:6px 14px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:Source Sans 3,sans-serif;font-size:12px;color:var(--color-text-secondary);margin-bottom:4px;display:inline-flex;align-items:center;gap:4px;';
+      backBtn.className='btn-back';
+      backBtn.style.marginBottom='4px';
       scroll.insertBefore(backBtn,scroll.firstChild);
     }
   }
@@ -2214,7 +2243,7 @@ searchInput.addEventListener('input',()=>{
   const q=searchInput.value.trim();
   if(!q){
     searchResults.innerHTML=`
-      <div style="padding:16px;text-align:center;font-family:'Source Sans 3',sans-serif;">
+      <div style="padding:16px;text-align:center;font-family:'Heebo',sans-serif;">
         <div style="font-size:24px;margin-bottom:8px;">🔍</div>
         <div style="font-size:13px;color:var(--color-text-muted);">${t('search_hint')}</div>
       </div>
@@ -2236,7 +2265,7 @@ searchInput.addEventListener('input',()=>{
     return `<div class="sr-item" role="option" tabindex="-1" onclick="navigateTo('${m.id}')"><span class="sri-icon" aria-hidden="true">${m.icon}</span><span class="sri-name">${displayName}${subName?' <span style="font-size:0.8em;opacity:0.55;font-style:italic">'+subName+'</span>':''}</span><span class="sri-sub">${eraText}</span></div>`;
   }).join('');
   if(!matches.length){
-    searchResults.innerHTML=`<div style="padding:16px;text-align:center;font-size:13px;color:var(--color-text-muted);font-family:'Source Sans 3',sans-serif;">${t('search_no_results')}</div>`;
+    searchResults.innerHTML=`<div style="padding:16px;text-align:center;font-size:13px;color:var(--color-text-muted);font-family:'Heebo',sans-serif;">${t('search_no_results')}</div>`;
     searchResults.classList.add('show');
   } else {
     searchResults.classList.add('show');
@@ -2786,7 +2815,7 @@ function init(){
       marker.style.cssText = `position:absolute;left:${pct}%;top:0;bottom:0;width:2px;background:#c0392b;opacity:0.7;cursor:pointer;z-index:10;pointer-events:all;`;
       marker.title = ext.name + ' (' + ext.time + ' Ma)';
       const label = document.createElement('div');
-      label.style.cssText = `position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:10px;color:#c0392b;font-weight:700;white-space:nowrap;font-family:'Source Sans 3',sans-serif;`;
+      label.style.cssText = `position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:10px;color:#c0392b;font-weight:700;white-space:nowrap;font-family:'Heebo',sans-serif;`;
       label.textContent = '†';
       marker.appendChild(label);
       marker.addEventListener('mouseenter', () => { label.textContent = ext.name; });
@@ -2840,10 +2869,10 @@ function init(){
 window.addEventListener('resize',()=>{layout();scheduleRender();});
 init();
 </script>
-<footer style="position:fixed;bottom:4px;right:8px;font-family:'Source Sans 3',sans-serif;font-size:10px;color:var(--color-text-muted);opacity:0.6;z-index:10;pointer-events:none;">
+<footer style="position:fixed;bottom:4px;right:8px;font-family:'Heebo',sans-serif;font-size:10px;color:var(--color-text-muted);opacity:0.6;z-index:10;pointer-events:none;">
   Tree of Life · Images via Wikimedia Commons · Built with Claude
 </footer>
-<div id="shortcuts-hint" style="position:fixed;bottom:8px;right:8px;font-family:'Source Sans 3',sans-serif;font-size:11px;color:var(--color-text-muted);background:var(--color-canvas);border:1px solid var(--color-divider);border-radius:6px;padding:4px 10px;opacity:0;transition:opacity 300ms ease;pointer-events:none;z-index:50;">
+<div id="shortcuts-hint" style="position:fixed;bottom:8px;right:8px;font-family:'Heebo',sans-serif;font-size:11px;color:var(--color-text-muted);background:var(--color-canvas);border:1px solid var(--color-divider);border-radius:6px;padding:4px 10px;opacity:0;transition:opacity 300ms ease;pointer-events:none;z-index:50;">
   Press <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">/</kbd> to search &nbsp;·&nbsp; <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">D</kbd> dark mode &nbsp;·&nbsp; <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">Esc</kbd> close
 </div>
 </body>

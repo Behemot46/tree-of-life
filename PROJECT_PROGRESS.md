@@ -15,6 +15,7 @@
 | p9 | Legacy JS cleanup — delete 7 dead App B modules | **Done** | `feature/hominin-access` (same branch) |
 | p10 | Mobile Responsiveness | **Done** | `claude/inspiring-shockley` |
 | p11 | Interactive Timeline + Alternate Tree Views | **Done** | `claude/epic-mayer` |
+| p12 | Modern Scientific Visual Overhaul | **Done** | PR #48 (`claude/jovial-proskuriakova`) |
 
 ---
 
@@ -363,6 +364,79 @@ Combined with p8: **~2,800+ lines** of dead code eliminated from the repo.
 - Species count: updates with slider, shows visible/total
 - Light/dark theme: all new elements styled correctly
 - RTL support: view toggle flips position
+
+---
+
+## p12 — Modern Scientific Visual Overhaul
+
+**Branch:** `claude/jovial-proskuriakova` (PR #48)
+
+### What was changed
+
+**Color System — Modern Scientific Palette**
+- `:root` dark theme: `--bg:#1a1d23` (slate), `--accent-primary:#0ea5e9` (sky blue), `--accent-secondary:#8b5cf6` (violet)
+- `[data-theme="light"]`: cool slate/blue palette replacing warm earth tones
+- Domain colors: LUCA=#8b5cf6, Bacteria=#ef4444, Archaea=#f59e0b, Plants=#22c55e, Animals=#3b82f6, Fungi=#f97316, Protists=#a855f7
+- New CSS tokens: `--surface`, `--surface-raised`, `--text-primary/secondary/muted`, `--border`, `--divider`, `--radius-*`
+
+**Typography — Inter + JetBrains Mono**
+- Replaced Playfair Display/Source Sans 3/Lora with Inter (UI) + JetBrains Mono (data)
+- Kept Heebo for Hebrew/Cyrillic support
+- Updated all inline `font-family` references
+
+**SVG Silhouette Icons (replacing emojis)**
+- NODE_ICONS map with 20 SVG path silhouettes: bacteria, archaea, plant, fungus, animal, fish, bird, reptile, amphibian, insect, mollusk, cnidarian, sponge, echinoderm, worm, crustacean, primate, hominin, mammal, default
+- `getIconGroup(n)` maps nodes to icon categories based on ID and ancestry
+- Monochrome white (dark) / dark gray (light), 60% opacity, scales with node size
+
+**Label Overlap Fix**
+- Global bounding-box collision detection replacing per-sibling-only check
+- `pendingLabels` array with deferred rendering after all positions computed
+- Priority system: HUMAN_PATH nodes always visible, depth 0-1 forced, deeper nodes yield on overlap
+- Adaptive font sizing: siblings > 8 → 9px, > 12 → 8px
+- `minAngleSep` increased from 0.15 to 0.22 radians
+
+**Human Evolution Path Highlighting**
+- `HUMAN_PATH` Set: LUCA → eukaryota → animalia → vertebrates → mammals → primates → great-apes → homo-sapiens
+- Branches on path: 3px stroke, 0.9 opacity, `--accent-primary` color, drawn last (on top)
+- Nodes on path: accent ring, always-visible labels, font-weight 600
+
+**Loading Screen — Animated SVG Branching Tree**
+- Replaced spinning 🌿 emoji with animated SVG tree growing branches outward
+- Domain-colored dots at tips, staggered animation delays
+- `@keyframes branchGrow` and `@keyframes nodeAppear`
+
+**Background & Atmosphere Cleanup**
+- Removed noise overlay, floating particles
+- Removed `rootPulse`/`livingPulse` CSS animations → static rings
+- Solid backgrounds replacing glassmorphism blur
+- Clean borders, no glow filters
+
+**Dead Code Removal**
+- Removed ~925-line inline TREE constant (loaded from treeData.js)
+- Removed ~52-line duplicate HOMININS/MAX_BRAIN/ERA_GROUPS/HOMININ_ID_ALIASES (also in treeData.js)
+- Fixed `render()` fragment commit: added `branchLayer.replaceChildren(branchFrag)` + `nodesLayer.replaceChildren(nodesFrag)`
+
+### Files changed
+
+| File | Changes |
+|------|---------|
+| `index.html` | CSS palette, typography, SVG icons, label collision, human path, loading screen, background cleanup, dead code removal, render fix |
+| `js/treeData.js` | Domain colors updated to new palette, lightenColor base values updated |
+| `.claude/launch.json` | Added `autoPort: true` |
+
+### Merge Resolution
+- Merged with origin/main (36 conflicts resolved)
+- Key fix: removed duplicate `const` declarations that caused SyntaxError in browser global scope
+- Key fix: restored `replaceChildren()` calls lost during merge
+
+### Verified
+- Tree renders with nodes, labels, SVG icons — zero console errors
+- Dark/light theme toggle working
+- Human path highlighted from LUCA to Homo sapiens
+- Label collision prevents overlapping text
+- Loading screen shows animated branching tree
+- PR #48 — deploy check PASSED, MERGEABLE
 
 ---
 

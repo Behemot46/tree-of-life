@@ -7,7 +7,7 @@
 <meta name="description" content="Explore 3.8 billion years of evolution — an interactive Tree of Life visualization featuring 200+ species from bacteria to humans. Museum-quality, multilingual (EN/HE/RU).">
 <meta name="keywords" content="tree of life, evolution, interactive, species, biology, phylogenetic, museum, visualization">
 <meta name="author" content="Tree of Life Project">
-<meta name="theme-color" content="#f7f3ed">
+<meta name="theme-color" content="#1a1d23">
 <!-- Open Graph -->
 <meta property="og:title" content="Tree of Life — 3.8 Billion Years of Evolution">
 <meta property="og:description" content="Interactive evolutionary tree featuring 200+ species. Explore life from LUCA to Homo sapiens.">
@@ -24,51 +24,71 @@
 <title>Tree of Life — 3.8 Billion Years of Evolution</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Heebo:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Heebo:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#070503;
-  --parchment:#f2e8d0;
-  --gold:#c8883a;
-  --gold-light:#e8b86d;
-  --gold-dim:rgba(200,136,58,0.18);
-  --teal:#2dd4bf;
-  --teal-dim:rgba(45,212,191,0.15);
-  --terra:#b05050;
-  --sage:#7ab860;
-  --panel-bg:rgba(7,5,3,0.97);
-  --font-head:'Playfair Display',Georgia,serif;
-  --font-body:'Heebo',system-ui,sans-serif;
-  --color-canvas:         #f7f3ed;
-  --color-canvas-alt:     #fdfaf5;
-  --color-panel-bg:       #fdfaf5;
-  --color-panel-border:   #ddd4c0;
-  --color-text-primary:   #1c1a14;
-  --color-text-secondary: #5c5240;
-  --color-text-muted:     #8a7d65;
-  --color-accent:         #2e7d32;
-  --color-divider:        #e0d4bc;
-  --color-button-bg:      #f0ebe0;
-  --color-button-border:  #c8b99a;
-  --color-button-hover:   #e0d8c8;
-  --font-display:         'Playfair Display', Georgia, serif;
-  --font-sans:            'Heebo', system-ui, sans-serif;
+  /* Core surfaces */
+  --bg:#1a1d23;
+  --surface:#22262e;
+  --surface-raised:#2a2f38;
+  --surface-overlay:rgba(26,29,35,0.97);
+  /* Text hierarchy */
+  --parchment:#e8eaf0;
+  --text-primary:#e8eaf0;
+  --text-secondary:#a0a4b0;
+  /* Accent colors */
+  --gold:#0ea5e9;
+  --gold-light:#38bdf8;
+  --gold-dim:rgba(14,165,233,0.15);
+  --teal:#0ea5e9;
+  --teal-dim:rgba(14,165,233,0.12);
+  --terra:#ef4444;
+  --sage:#22c55e;
+  --accent-primary:#0ea5e9;
+  --accent-primary-dim:rgba(14,165,233,0.15);
+  --accent-secondary:#f97316;
+  --accent-secondary-dim:rgba(249,115,22,0.15);
+  --accent-success:#22c55e;
+  --accent-danger:#ef4444;
+  --panel-bg:rgba(26,29,35,0.97);
+  /* Borders */
+  --border:#2e3340;
+  --divider:#2e3340;
+  /* Typography */
+  --font-head:'Inter',system-ui,sans-serif;
+  --font-body:'Inter',system-ui,sans-serif;
+  --font-display:'Inter',system-ui,sans-serif;
+  --font-sans:'Inter',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono','Fira Code',monospace;
+  /* Semantic (legacy compat) */
+  --color-canvas:#1a1d23;
+  --color-canvas-alt:#22262e;
+  --color-panel-bg:#22262e;
+  --color-panel-border:#2e3340;
+  --color-text-primary:#e8eaf0;
+  --color-text-secondary:#a0a4b0;
+  --color-text-muted:#6b7080;
+  --color-accent:#0ea5e9;
+  --color-divider:#2e3340;
+  --color-button-bg:#2a2f38;
+  --color-button-border:#3a4050;
+  --color-button-hover:#353b48;
+  /* Spacing & radius */
+  --radius-sm:4px;
+  --radius-md:8px;
+  --radius-lg:12px;
+  --radius-full:9999px;
+  --transition-fast:150ms ease;
+  --transition-normal:250ms ease;
 }
-html,body{width:100%;height:100%;overflow:hidden;background:#f7f3ed;color:var(--parchment);}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--parchment);}
 body{font-family:var(--font-body);user-select:none;cursor:grab;}
 body.dragging{cursor:grabbing;}
 
-/* ── ATMOSPHERIC BACKGROUND ── */
-#bg{position:fixed;inset:0;z-index:0;pointer-events:none;
-  background:
-    radial-gradient(ellipse 120% 70% at 50% 120%,#1a0e05 0%,transparent 55%),
-    radial-gradient(ellipse 60% 50% at 15% 80%,#0a1205 0%,transparent 50%),
-    radial-gradient(ellipse 50% 40% at 85% 85%,#0d1308 0%,transparent 45%),
-    radial-gradient(ellipse 90% 60% at 50% 40%,#080604 0%,#070503 100%);}
-#bg::after{content:'';position:absolute;inset:0;
-  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
-  opacity:0.6;}
+/* ── BACKGROUND ── */
+#bg{position:fixed;inset:0;z-index:0;pointer-events:none;background:var(--bg);}
+#bg::after{display:none;}
 
 /* ── PARTICLES ── */
 .particle{position:fixed;border-radius:50%;pointer-events:none;z-index:0;}
@@ -76,79 +96,69 @@ body.dragging{cursor:grabbing;}
 
 /* ── HEADER ── */
 #header{position:fixed;top:0;left:0;right:0;z-index:200;padding:1rem 1.5rem 3rem;
-  background:linear-gradient(to bottom,rgba(7,5,3,0.98) 50%,transparent);
+  background:linear-gradient(to bottom,var(--bg) 40%,transparent);
   display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;}
 .title-wrap{pointer-events:none;}
-.title-main{font-family:var(--font-head);font-size:clamp(1.4rem,2.8vw,2.2rem);font-weight:700;
-  color:#f2e8d0;letter-spacing:0.03em;line-height:1;
-  text-shadow:0 2px 20px rgba(0,0,0,0.8),0 0 40px rgba(200,136,58,0.4);}
-.title-sub{font-size:clamp(0.6rem,1.1vw,0.72rem);color:#7ab860;letter-spacing:0.2em;
-  text-transform:uppercase;margin-top:0.35rem;font-style:italic;opacity:0.9;}
-[data-theme="light"] .title-main{color:#1e0e02 !important;text-shadow:0 1px 8px rgba(248,242,230,0.9);}
-[data-theme="light"] .title-sub{color:#2a5c18 !important;}
-.hint-bar{font-size:0.62rem;color:rgba(122,184,96,0.45);letter-spacing:0.06em;
-  line-height:2;text-align:right;pointer-events:none;}
+.title-main{font-family:var(--font-head);font-size:clamp(1.2rem,2.5vw,1.8rem);font-weight:700;
+  color:var(--text-primary);letter-spacing:-0.01em;line-height:1;}
+.title-sub{font-size:clamp(0.6rem,1vw,0.7rem);color:var(--text-secondary);letter-spacing:0.15em;
+  text-transform:uppercase;margin-top:0.35rem;opacity:0.9;}
+[data-theme="light"] .title-main{color:var(--text-primary) !important;}
+[data-theme="light"] .title-sub{color:var(--text-secondary) !important;}
+.hint-bar{font-size:0.62rem;color:var(--text-secondary);letter-spacing:0.06em;
+  line-height:2;text-align:right;pointer-events:none;opacity:0.6;}
 
 /* ── SEARCH BAR ── */
 #search-wrap{position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:300;
   display:flex;align-items:center;gap:0;pointer-events:all;}
-#search-input{background:rgba(7,5,3,0.9);border:1px solid rgba(200,136,58,0.25);
-  border-radius:20px;padding:0.45rem 1rem 0.45rem 2.2rem;color:var(--parchment);
-  font-family:var(--font-body);font-size:0.78rem;width:220px;outline:none;
-  transition:all 0.3s;backdrop-filter:blur(10px);}
-#search-input::placeholder{color:rgba(242,232,208,0.3);}
-#search-input:focus{border-color:rgba(200,136,58,0.6);width:280px;box-shadow:0 0 20px rgba(200,136,58,0.1);}
-#search-icon{position:absolute;left:1.35rem;color:rgba(200,136,58,0.5);font-size:0.75rem;pointer-events:none;}
+#search-input{background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-full);padding:0.45rem 1rem 0.45rem 2.2rem;color:var(--text-primary);
+  font-family:var(--font-sans);font-size:0.813rem;width:240px;outline:none;
+  transition:all 0.2s;}
+#search-input::placeholder{color:var(--text-secondary);opacity:0.5;}
+#search-input:focus{border-color:var(--accent-primary);width:300px;box-shadow:0 0 0 3px var(--accent-primary-dim);}
+#search-icon{position:absolute;left:1.35rem;color:var(--text-secondary);font-size:0.75rem;pointer-events:none;}
 #search-results{position:absolute;top:calc(100% + 8px);left:0;right:0;
-  background:rgba(7,5,3,0.97);border:1px solid rgba(200,136,58,0.2);border-radius:10px;
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);
   overflow:hidden;display:none;max-height:220px;overflow-y:auto;
-  box-shadow:0 8px 30px rgba(0,0,0,0.6);}
+  box-shadow:0 4px 16px rgba(0,0,0,0.2);}
 #search-results.show{display:block;}
-.sr-item{padding:0.5rem 0.9rem;cursor:pointer;font-size:0.78rem;color:rgba(242,232,208,0.75);
-  border-bottom:1px solid rgba(200,136,58,0.08);display:flex;align-items:center;gap:0.5rem;transition:background 0.15s;}
-.sr-item:hover{background:rgba(200,136,58,0.1);color:var(--parchment);}
+.sr-item{padding:0.5rem 0.9rem;cursor:pointer;font-size:0.813rem;color:var(--text-secondary);
+  border-bottom:1px solid var(--border);display:flex;align-items:center;gap:0.5rem;transition:background var(--transition-fast);}
+.sr-item:hover{background:var(--accent-primary-dim);color:var(--text-primary);}
 .sr-item:last-child{border-bottom:none;}
 .sr-item .sri-icon{font-size:1rem;}
 .sr-item .sri-name{font-weight:500;}
-.sr-item .sri-sub{font-size:0.68rem;color:rgba(200,136,58,0.7);margin-left:auto;}
+.sr-item .sri-sub{font-size:0.68rem;color:var(--text-secondary);margin-left:auto;}
 
 /* ── BREADCRUMB ── */
 #breadcrumb{position:fixed;top:4.2rem;left:50%;transform:translateX(-50%);z-index:200;
   display:flex;align-items:center;gap:0;pointer-events:all;
-  background:rgba(7,5,3,0.75);border:1px solid rgba(200,136,58,0.12);border-radius:20px;
-  padding:0.3rem 0.8rem;backdrop-filter:blur(10px);
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-full);
+  padding:0.3rem 0.8rem;
   max-width:min(600px,90vw);overflow:hidden;}
-.bc-item{font-size:0.65rem;color:rgba(200,136,58,0.7);cursor:pointer;white-space:nowrap;
+.bc-item{font-size:0.65rem;color:var(--text-secondary);cursor:pointer;white-space:nowrap;
   padding:0 0.1rem;transition:color 0.2s;letter-spacing:0.04em;}
-.bc-item:hover{color:var(--gold-light);}
-.bc-item.active{color:var(--parchment);cursor:default;}
-.bc-sep{font-size:0.55rem;color:rgba(200,136,58,0.3);padding:0 0.3rem;}
+.bc-item:hover{color:var(--accent-primary);}
+.bc-item.active{color:var(--text-primary);cursor:default;}
+.bc-sep{font-size:0.55rem;color:var(--text-secondary);opacity:0.4;padding:0 0.3rem;}
 #breadcrumb.hidden{display:none;}
 
 /* ── ERA BROWSER ── */
 #timeline{position:fixed;bottom:0;left:0;right:0;z-index:200;
   padding:0.6rem 1.5rem 1rem;
-  background:linear-gradient(to top,rgba(7,5,3,0.95) 50%,transparent);
+  background:linear-gradient(to top,var(--bg) 50%,transparent);
   pointer-events:all;}
-#era-label{font-size:0.62rem;color:var(--gold);letter-spacing:0.18em;text-transform:uppercase;
-  margin-bottom:0.4rem;text-align:center;}
-#era-track{position:relative;height:6px;background:rgba(200,136,58,0.12);border-radius:3px;margin:0 0.5rem;}
-#era-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(to right,var(--gold),var(--gold-light));
-  border-radius:3px;transition:width 0.1s;}
-#era-slider{width:100%;height:18px;opacity:1;position:absolute;top:-6px;left:0;
-  cursor:pointer;margin:0;-webkit-appearance:none;appearance:none;background:transparent;z-index:3;}
-#era-slider::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;
-  width:14px;height:14px;border-radius:50%;background:var(--gold-light);
-  border:2px solid var(--bg);box-shadow:0 0 6px rgba(200,136,58,0.5);cursor:grab;}
-#era-slider::-moz-range-thumb{width:14px;height:14px;border-radius:50%;
-  background:var(--gold-light);border:2px solid var(--bg);
-  box-shadow:0 0 6px rgba(200,136,58,0.5);cursor:grab;}
-#era-slider::-webkit-slider-runnable-track{height:6px;background:transparent;}
-#era-slider::-moz-range-track{height:6px;background:transparent;}
-.era-ticks{display:flex;justify-content:space-between;margin-top:0.6rem;}
-.era-tick{font-size:0.55rem;color:rgba(200,136,58,0.7);letter-spacing:0.04em;}
-#extinction-markers{position:absolute;top:0;left:0;right:0;height:100%;pointer-events:none;z-index:2;}
-.ext-line{position:absolute;top:-4px;width:2px;height:14px;background:rgba(176,80,80,0.7);border-radius:1px;}
+#era-label{font-size:0.625rem;color:var(--text-secondary);letter-spacing:0.12em;text-transform:uppercase;
+  margin-bottom:0.4rem;text-align:center;font-family:var(--font-mono);}
+#era-track{position:relative;height:4px;background:var(--border);border-radius:2px;margin:0 0.5rem;}
+#era-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(to right,var(--accent-primary),var(--accent-secondary));
+  border-radius:2px;transition:width 0.1s;}
+#era-slider{width:100%;height:6px;opacity:0;position:absolute;top:0;left:0;cursor:pointer;margin:0;}
+.era-ticks{display:flex;justify-content:space-between;margin-top:0.4rem;}
+.era-tick{font-size:0.55rem;color:var(--text-secondary);opacity:0.5;letter-spacing:0.04em;font-family:var(--font-mono);}
+#extinction-markers{position:absolute;top:0;left:0;right:0;height:100%;pointer-events:none;}
+.ext-line{position:absolute;top:-4px;width:2px;height:14px;background:rgba(239,68,68,0.7);border-radius:1px;}
 
 /* ── MAIN SVG ── */
 #canvas-wrap{position:fixed;inset:0;z-index:1;}
@@ -156,170 +166,186 @@ svg{width:100%;height:100%;}
 .node-group{cursor:pointer;}
 .node-circle{transition:r 150ms ease,opacity 150ms ease,filter 0.3s;cursor:pointer;}
 .node-circle:hover{filter:brightness(1.15);}
-.node-group:hover .nc-main{filter:brightness(1.4) drop-shadow(0 0 14px var(--nc));}
+.node-group:hover .nc-main{filter:brightness(1.2);}
 .branch-path{fill:none;stroke-linecap:round;stroke-linejoin:round;cursor:default;}
-.node-label-text{pointer-events:none;font-family:var(--font-body);font-size:14px;}
+.node-label-text{pointer-events:none;font-family:var(--font-sans);font-size:14px;}
 .node-pulse{pointer-events:none;}
 
 /* ── HOMININ VIEW ── */
 #hominin-view{position:fixed;inset:0;z-index:150;
-  background:rgba(7,5,3,0.96);backdrop-filter:blur(20px);
+  background:var(--surface-overlay);
   display:none;flex-direction:column;
-  border-left:1px solid rgba(200,136,58,0.15);}
+  border-left:1px solid var(--border);}
 #hominin-view.open{display:flex;}
 #hom-header{padding:1.5rem 2rem 1rem;display:flex;align-items:center;justify-content:space-between;
-  border-bottom:1px solid rgba(200,136,58,0.12);flex-shrink:0;}
-#hom-title{font-family:var(--font-head);font-size:1.5rem;font-weight:600;color:var(--parchment);}
-#hom-sub{font-size:0.65rem;color:var(--sage);letter-spacing:0.15em;text-transform:uppercase;margin-top:0.2rem;}
-/* #hom-close inherits from .btn-back — only overrides needed here */
-#hom-close{background:rgba(200,136,58,0.12);}
-#hom-close:hover{background:rgba(200,136,58,0.25);}
-#hom-filters{padding:0.6rem 2rem;display:flex;gap:0.5rem;border-bottom:1px solid rgba(200,136,58,0.08);flex-shrink:0;flex-wrap:wrap;}
-.hom-filter{padding:0.25rem 0.75rem;border:1px solid rgba(200,136,58,0.2);border-radius:14px;
-  font-size:0.65rem;color:rgba(200,136,58,0.65);cursor:pointer;transition:all 0.2s;
-  font-family:var(--font-body);letter-spacing:0.04em;}
-.hom-filter:hover{border-color:rgba(200,136,58,0.5);color:var(--gold);}
-.hom-filter.active{background:rgba(200,136,58,0.15);border-color:var(--gold);color:var(--gold-light);}
+  border-bottom:1px solid var(--border);flex-shrink:0;}
+#hom-title{font-family:var(--font-head);font-size:1.5rem;font-weight:700;color:var(--text-primary);}
+#hom-sub{font-size:0.65rem;color:var(--text-secondary);letter-spacing:0.15em;text-transform:uppercase;margin-top:0.2rem;}
+#hom-close{padding:0.4rem 1rem;background:transparent;border:1px solid var(--border);
+  border-radius:var(--radius-sm);color:var(--text-secondary);font-size:0.72rem;cursor:pointer;transition:all 0.2s;
+  font-family:var(--font-sans);letter-spacing:0.05em;}
+#hom-close:hover{background:var(--surface-raised);color:var(--text-primary);}
+#hom-filters{padding:0.6rem 2rem;display:flex;gap:0.5rem;border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;}
+.hom-filter{padding:0.25rem 0.75rem;border:1px solid var(--border);border-radius:var(--radius-full);
+  font-size:0.65rem;color:var(--text-secondary);cursor:pointer;transition:all 0.2s;
+  font-family:var(--font-sans);letter-spacing:0.04em;}
+.hom-filter:hover{border-color:var(--accent-primary);color:var(--accent-primary);}
+.hom-filter.active{background:var(--accent-primary-dim);border-color:var(--accent-primary);color:var(--accent-primary);}
 #hom-body{display:flex;flex:1;overflow:hidden;}
 #hom-timeline{flex:1;overflow-y:auto;padding:1.5rem 1.5rem 2rem;position:relative;}
 #hom-timeline::-webkit-scrollbar{width:4px;}
-#hom-timeline::-webkit-scrollbar-thumb{background:rgba(200,136,58,0.25);border-radius:2px;}
+#hom-timeline::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 .hom-era-group{margin-bottom:1.5rem;}
-.hom-era-title{font-family:var(--font-head);font-size:0.75rem;color:var(--gold);letter-spacing:0.15em;
-  text-transform:uppercase;padding:0.4rem 0.7rem;background:rgba(200,136,58,0.06);
-  border-left:2px solid var(--gold);border-radius:0 6px 6px 0;margin-bottom:0.8rem;}
+.hom-era-title{font-family:var(--font-head);font-size:0.75rem;color:var(--accent-primary);letter-spacing:0.15em;
+  text-transform:uppercase;padding:0.4rem 0.7rem;background:var(--accent-primary-dim);
+  border-left:2px solid var(--accent-primary);border-radius:0 6px 6px 0;margin-bottom:0.8rem;font-weight:600;}
 .hom-species{display:flex;align-items:flex-start;gap:0.9rem;padding:0.7rem 0.8rem;
-  border-radius:10px;cursor:pointer;transition:background 0.2s;border:1px solid transparent;margin-bottom:0.4rem;}
-.hom-species:hover{background:rgba(200,136,58,0.05);border-color:rgba(200,136,58,0.1);}
-.hom-species.selected{background:rgba(200,136,58,0.1);border-color:rgba(200,136,58,0.25);}
+  border-radius:var(--radius-md);cursor:pointer;transition:background 0.2s;border:1px solid transparent;margin-bottom:0.4rem;}
+.hom-species:hover{background:var(--surface-raised);border-color:var(--border);}
+.hom-species.selected{background:var(--accent-primary-dim);border-color:var(--accent-primary);}
 .hs-icon{font-size:1.5rem;flex-shrink:0;margin-top:0.1rem;}
 .hs-info{flex:1;min-width:0;}
-.hs-name{font-family:var(--font-head);font-size:0.88rem;font-weight:600;color:var(--parchment);}
-.hs-latin{font-style:italic;font-size:0.72rem;color:rgba(200,136,58,0.8);}
-.hs-mya{font-size:0.65rem;color:var(--sage);margin-top:0.15rem;}
+.hs-name{font-family:var(--font-head);font-size:0.88rem;font-weight:600;color:var(--text-primary);}
+.hs-latin{font-style:italic;font-size:0.72rem;color:var(--text-secondary);}
+.hs-mya{font-size:0.65rem;color:var(--text-secondary);margin-top:0.15rem;font-family:var(--font-mono);}
 .hs-brain{margin-top:0.4rem;display:flex;align-items:center;gap:0.5rem;}
-.brain-bar-wrap{flex:1;height:4px;background:rgba(200,136,58,0.1);border-radius:2px;overflow:hidden;}
+.brain-bar-wrap{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
 .brain-bar-fill{height:100%;border-radius:2px;transition:width 0.5s;}
-.brain-label{font-size:0.6rem;color:rgba(200,136,58,0.6);white-space:nowrap;}
+.brain-label{font-size:0.6rem;color:var(--text-secondary);white-space:nowrap;font-family:var(--font-mono);}
 .hs-tags{display:flex;flex-wrap:wrap;gap:0.3rem;margin-top:0.4rem;}
-.hs-tag{font-size:0.58rem;padding:0.15rem 0.4rem;border-radius:10px;
-  background:rgba(122,184,96,0.08);border:1px solid rgba(122,184,96,0.15);color:rgba(122,184,96,0.75);}
+.hs-tag{font-size:0.58rem;padding:0.15rem 0.4rem;border-radius:var(--radius-full);
+  background:var(--accent-primary-dim);border:1px solid rgba(14,165,233,0.2);color:var(--accent-primary);}
 .hs-status-extinct{opacity:0.7;}
-.hs-status-surviving .hs-name{color:var(--gold-light);}
-.hs-icons-row{display:flex;gap:0.5rem;margin-top:0.35rem;font-size:0.65rem;color:rgba(200,136,58,0.6);}
+.hs-status-surviving .hs-name{color:var(--accent-primary);}
+.hs-icons-row{display:flex;gap:0.5rem;margin-top:0.35rem;font-size:0.65rem;color:var(--text-secondary);}
 
 /* ── HOMININ DETAIL PANEL ── */
-#hom-panel{width:min(380px,40vw);border-left:1px solid rgba(200,136,58,0.12);
+#hom-panel{width:min(380px,40vw);border-left:1px solid var(--border);
   overflow-y:auto;padding:1.5rem;flex-shrink:0;}
 #hom-panel::-webkit-scrollbar{width:4px;}
-#hom-panel::-webkit-scrollbar-thumb{background:rgba(200,136,58,0.2);border-radius:2px;}
+#hom-panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 .hp-accent{height:3px;border-radius:2px;margin-bottom:1.2rem;margin:-1.5rem -1.5rem 1.2rem;}
 .hp-top{display:flex;gap:0.8rem;align-items:flex-start;margin-bottom:1rem;}
 .hp-icon{font-size:2rem;flex-shrink:0;}
-.hp-name{font-family:var(--font-head);font-size:1.1rem;font-weight:600;color:var(--parchment);line-height:1.2;}
-.hp-latin{font-style:italic;font-size:0.75rem;color:var(--gold);margin-top:0.2rem;}
-.hp-mya{font-size:0.62rem;color:var(--sage);letter-spacing:0.1em;}
-.hp-desc{font-size:0.82rem;color:rgba(242,232,208,0.8);line-height:1.85;margin-bottom:1rem;}
+.hp-name{font-family:var(--font-head);font-size:1.1rem;font-weight:600;color:var(--text-primary);line-height:1.2;}
+.hp-latin{font-style:italic;font-size:0.75rem;color:var(--text-secondary);margin-top:0.2rem;}
+.hp-mya{font-size:0.62rem;color:var(--text-secondary);letter-spacing:0.1em;font-family:var(--font-mono);}
+.hp-desc{font-size:0.82rem;color:var(--text-secondary);line-height:1.85;margin-bottom:1rem;}
 .hp-facts{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1rem;}
-.hp-fact{background:rgba(200,136,58,0.05);border:1px solid rgba(200,136,58,0.12);border-radius:8px;padding:0.6rem;}
-.hp-fact-l{font-size:0.56rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--gold);margin-bottom:0.2rem;}
-.hp-fact-v{font-size:0.78rem;color:var(--parchment);}
-.hp-section{font-family:var(--font-head);font-size:0.8rem;color:var(--sage);letter-spacing:0.1em;
-  text-transform:uppercase;margin:0.8rem 0 0.4rem;}
-.hp-detail{font-size:0.78rem;color:rgba(242,232,208,0.75);line-height:1.8;margin-bottom:0.8rem;}
+.hp-fact{background:var(--surface-raised);border:1px solid var(--border);border-radius:var(--radius-md);padding:0.6rem;}
+.hp-fact-l{font-size:0.56rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:0.2rem;}
+.hp-fact-v{font-size:0.78rem;color:var(--text-primary);font-family:var(--font-mono);}
+.hp-section{font-family:var(--font-head);font-size:0.8rem;color:var(--accent-primary);letter-spacing:0.1em;
+  text-transform:uppercase;margin:0.8rem 0 0.4rem;font-weight:600;}
+.hp-detail{font-size:0.78rem;color:var(--text-secondary);line-height:1.8;margin-bottom:0.8rem;}
 .hp-dna{display:flex;gap:0.6rem;align-items:center;margin-bottom:0.3rem;font-size:0.72rem;}
-.dna-fill{flex:1;height:6px;background:rgba(200,136,58,0.08);border-radius:3px;overflow:hidden;}
+.dna-fill{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
 .dna-fill-inner{height:100%;border-radius:3px;}
 .hp-tags{display:flex;flex-wrap:wrap;gap:0.3rem;}
-.hp-tag{font-size:0.6rem;padding:0.15rem 0.5rem;border-radius:10px;
-  background:rgba(122,184,96,0.07);border:1px solid rgba(122,184,96,0.18);color:rgba(122,184,96,0.8);}
+.hp-tag{font-size:0.6rem;padding:0.15rem 0.5rem;border-radius:var(--radius-full);
+  background:var(--accent-primary-dim);border:1px solid rgba(14,165,233,0.2);color:var(--accent-primary);}
 #hom-panel-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
-  height:100%;color:rgba(200,136,58,0.3);font-style:italic;font-size:0.85rem;text-align:center;padding:2rem;}
+  height:100%;color:var(--text-secondary);opacity:0.4;font-style:italic;font-size:0.85rem;text-align:center;padding:2rem;}
 
 /* ── MAIN DETAIL PANEL ── */
 #panel{position:fixed;top:0;right:-500px;bottom:0;
-  width:min(440px,92vw);background:var(--panel-bg);
-  border-left:1px solid rgba(200,136,58,0.18);z-index:400;
-  transition:right 0.5s cubic-bezier(0.16,1,0.3,1),transform 300ms cubic-bezier(0.16,1,0.3,1),opacity 300ms ease;
+  width:min(440px,92vw);background:var(--surface);
+  border-left:1px solid var(--border);z-index:400;
+  transition:right 0.3s cubic-bezier(0.16,1,0.3,1),transform 250ms ease,opacity 250ms ease;
   display:flex;flex-direction:column;
-  box-shadow:-20px 0 60px rgba(0,0,0,0.7);backdrop-filter:blur(20px);}
+  box-shadow:-4px 0 24px rgba(0,0,0,0.15);}
 #panel.open{right:0;}
-.panel-accent{height:4px;flex-shrink:0;transition:background 0.4s;}
+.panel-accent{height:3px;flex-shrink:0;transition:background 0.3s;}
 .panel-scroll{overflow-y:auto;flex:1;padding:1.4rem 1.6rem 2rem;}
 .panel-scroll::-webkit-scrollbar{width:4px;}
-.panel-scroll::-webkit-scrollbar-thumb{background:rgba(200,136,58,0.25);border-radius:2px;}
+.panel-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
 .p-close{position:absolute;top:1rem;right:1rem;width:28px;height:28px;
-  border:1px solid rgba(200,136,58,0.28);border-radius:50%;background:transparent;
-  color:rgba(122,184,96,0.7);font-size:0.85rem;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;transition:all 0.2s;z-index:5;}
-.p-close:hover{background:rgba(200,136,58,0.15);color:var(--parchment);}
+  border:1px solid var(--border);border-radius:var(--radius-sm);background:transparent;
+  color:var(--text-secondary);font-size:0.85rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);z-index:5;}
+.p-close:hover{background:var(--surface-raised);color:var(--text-primary);}
 .btn-back{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;
-  border:1px solid rgba(200,136,58,0.3);border-radius:20px;background:transparent;
-  color:var(--gold);font-family:var(--font-sans);font-size:0.72rem;font-weight:600;
+
+  border:1px solid var(--border);border-radius:var(--radius-full);background:transparent;
+
+  color:var(--accent-primary);font-family:var(--font-sans);font-size:0.72rem;font-weight:600;
+
   letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;}
-.btn-back:hover{background:rgba(200,136,58,0.15);border-color:var(--gold-light);color:var(--parchment);}
-[data-theme="light"] .btn-back{border-color:rgba(138,90,24,0.25);color:var(--gold);}
-[data-theme="light"] .btn-back:hover{background:rgba(138,90,24,0.1);}
+
+.btn-back:hover{background:var(--accent-primary-dim);border-color:var(--accent-primary);color:var(--text-primary);}
+
+[data-theme="light"] .btn-back{border-color:var(--border);color:var(--accent-primary);}
+
+[data-theme="light"] .btn-back:hover{background:var(--accent-primary-dim);}
+
 .p-top{display:flex;align-items:flex-start;gap:0.9rem;margin-bottom:1.1rem;}
-.p-icon-wrap{width:48px;height:48px;flex-shrink:0;border-radius:12px;
+.p-icon-wrap{width:48px;height:48px;flex-shrink:0;border-radius:var(--radius-md);
   display:flex;align-items:center;justify-content:center;font-size:1.6rem;
-  border:1px solid rgba(200,136,58,0.18);background:rgba(200,136,58,0.06);}
-.p-era{font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:0.2rem;}
+  border:1px solid var(--border);background:var(--surface-raised);}
+.p-era{font-size:0.6rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--accent-primary);margin-bottom:0.2rem;font-family:var(--font-mono);}
 .p-name{font-family:var(--font-head);font-size:clamp(1.2rem,2.5vw,1.6rem);font-weight:600;
-  color:var(--parchment);line-height:1.15;}
-.p-latin{font-style:italic;color:var(--sage);font-size:0.8rem;margin-top:0.15rem;}
-.p-divider{height:1px;margin:0.9rem 0;background:linear-gradient(to right,rgba(200,136,58,0.4),transparent);}
-.p-desc{font-size:0.85rem;color:rgba(242,232,208,0.78);line-height:1.85;margin-bottom:1.1rem;}
+  color:var(--text-primary);line-height:1.15;}
+.p-latin{font-style:italic;color:var(--text-secondary);font-size:0.8rem;margin-top:0.15rem;}
+.p-divider{height:1px;margin:0.9rem 0;background:var(--divider);}
+.p-desc{font-size:0.85rem;color:var(--text-secondary);line-height:1.85;margin-bottom:1.1rem;}
 .p-facts{display:grid;grid-template-columns:1fr 1fr;gap:0.55rem;margin-bottom:1.1rem;}
-.fact-card{background:rgba(200,136,58,0.05);border:1px solid rgba(200,136,58,0.12);
-  border-radius:9px;padding:0.65rem 0.75rem;transition:background 0.2s;}
-.fact-card:hover{background:rgba(200,136,58,0.09);}
-.fact-l{font-size:0.56rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:0.25rem;}
-.fact-v{font-size:0.82rem;color:var(--parchment);font-weight:500;line-height:1.3;}
-.p-section{font-family:var(--font-head);font-size:0.85rem;color:var(--sage);letter-spacing:0.1em;
-  text-transform:uppercase;margin-bottom:0.5rem;margin-top:0.2rem;}
-.p-detail{font-size:0.8rem;color:rgba(242,232,208,0.72);line-height:1.8;margin-bottom:0.75rem;}
-.p-tag{display:inline-block;background:rgba(122,184,96,0.1);border:1px solid rgba(122,184,96,0.22);
-  border-radius:18px;padding:0.18rem 0.6rem;font-size:0.7rem;color:var(--sage);margin:0.2rem 0.15rem;}
+.fact-card{background:var(--surface-raised);border:1px solid var(--border);
+  border-radius:var(--radius-md);padding:0.65rem 0.75rem;transition:background var(--transition-fast);}
+.fact-card:hover{background:var(--color-button-hover);}
+.fact-l{font-size:0.56rem;letter-spacing:0.16em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:0.25rem;}
+.fact-v{font-size:0.82rem;color:var(--text-primary);font-weight:500;line-height:1.3;font-family:var(--font-mono);}
+.p-section{font-family:var(--font-head);font-size:0.688rem;color:var(--text-secondary);letter-spacing:0.1em;
+  text-transform:uppercase;margin-bottom:0.5rem;margin-top:0.2rem;font-weight:600;}
+.p-detail{font-size:0.8rem;color:var(--text-secondary);line-height:1.8;margin-bottom:0.75rem;}
+.p-tag{display:inline-block;background:var(--accent-primary-dim);border:1px solid rgba(14,165,233,0.2);
+  border-radius:var(--radius-full);padding:0.18rem 0.6rem;font-size:0.7rem;color:var(--accent-primary);margin:0.2rem 0.15rem;}
 .p-children{list-style:none;margin-top:0.35rem;}
-.p-children li{padding:0.35rem 0.5rem;border-radius:6px;color:rgba(242,232,208,0.58);
-  font-size:0.78rem;display:flex;align-items:center;gap:0.45rem;cursor:pointer;transition:all 0.18s;}
-.p-children li:hover{background:rgba(200,136,58,0.07);color:var(--parchment);}
+.p-children li{padding:0.35rem 0.5rem;border-radius:var(--radius-sm);color:var(--text-secondary);
+  font-size:0.78rem;display:flex;align-items:center;gap:0.45rem;cursor:pointer;transition:all var(--transition-fast);}
+.p-children li:hover{background:var(--surface-raised);color:var(--text-primary);}
 .p-children li .pci{font-size:0.95rem;}
 
 /* ── HOMININ ENTER BUTTON ── */
 #hom-enter-btn{display:inline-flex;align-items:center;gap:0.5rem;margin-top:0.8rem;
-  padding:0.45rem 1rem;background:rgba(200,136,58,0.15);border:1px solid rgba(200,136,58,0.4);
-  border-radius:20px;color:var(--gold-light);font-size:0.73rem;cursor:pointer;transition:all 0.2s;
-  font-family:var(--font-body);letter-spacing:0.05em;}
-#hom-enter-btn:hover{background:rgba(200,136,58,0.28);color:var(--parchment);}
+  padding:0.45rem 1rem;background:var(--accent-primary-dim);border:1px solid rgba(14,165,233,0.3);
+  border-radius:var(--radius-full);color:var(--accent-primary);font-size:0.73rem;cursor:pointer;transition:all 0.2s;
+  font-family:var(--font-sans);letter-spacing:0.05em;}
+#hom-enter-btn:hover{background:rgba(14,165,233,0.25);color:var(--text-primary);}
 
 /* ── LEGEND ── */
 #legend{position:fixed;bottom:4.5rem;left:1.2rem;z-index:200;
-  background:rgba(7,5,3,0.85);border:1px solid rgba(200,136,58,0.1);border-radius:9px;
-  padding:0.7rem 0.9rem;backdrop-filter:blur(10px);pointer-events:auto;}
-.leg-title{font-size:0.56rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--gold);margin-bottom:0.25rem;}
-.leg-row{display:flex;align-items:center;gap:0.45rem;font-size:0.65rem;color:var(--color-text-primary);margin-top:0.2rem;}
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);
+  padding:0.7rem 0.9rem;pointer-events:auto;}
+.leg-title{font-size:0.56rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:0.25rem;font-weight:600;}
+.leg-row{display:flex;align-items:center;gap:0.45rem;font-size:0.65rem;color:var(--text-secondary);margin-top:0.2rem;}
 .leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
 
 /* ── ZOOM CONTROLS ── */
 #zoom-ctrl{position:fixed;bottom:4.5rem;right:1.2rem;z-index:200;display:flex;flex-direction:column;gap:0.35rem;}
-.zbtn{width:35px;height:35px;background:rgba(7,5,3,0.92);border:1px solid rgba(200,136,58,0.22);
-  border-radius:8px;color:var(--sage);font-size:1rem;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;transition:all 0.2s;backdrop-filter:blur(10px);}
-.zbtn:hover{background:rgba(200,136,58,0.14);border-color:var(--gold);color:var(--parchment);}
-#btn-hominin{position:fixed;bottom:4.5rem;right:5rem;z-index:200;height:35px;padding:0 14px;
-  background:rgba(7,5,3,0.92);border:1px solid rgba(176,122,62,0.35);border-radius:8px;
-  color:#e8b86d;font-size:12px;font-weight:600;font-family:'Heebo',sans-serif;
+.zbtn{width:32px;height:32px;background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);color:var(--text-secondary);font-size:1rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);}
+.zbtn:hover{background:var(--surface-raised);border-color:var(--accent-primary);color:var(--text-primary);}
+
+#btn-hominin{position:fixed;bottom:4.5rem;right:5rem;z-index:200;height:32px;padding:0 14px;
+
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
+
+  color:var(--accent-primary);font-size:12px;font-weight:600;font-family:'Inter',sans-serif;
+
   cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;
-  backdrop-filter:blur(10px);white-space:nowrap;}
-#btn-hominin:hover{background:rgba(176,122,62,0.18);border-color:#e8b86d;color:#f2e8d0;}
+
+  white-space:nowrap;}
+
+#btn-hominin:hover{background:var(--surface-raised);border-color:var(--accent-primary);color:var(--text-primary);}
+
+
 
 /* ── TOOLTIP ── */
 #tooltip{position:fixed;pointer-events:none !important;z-index:9999;
-  background:var(--color-panel-bg);border:1px solid var(--color-panel-border);
-  border-radius:8px;padding:8px 12px;font-family:'Heebo',sans-serif;
-  font-size:13px;color:var(--color-text-primary);box-shadow:0 4px 12px rgba(0,0,0,0.15);
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:8px 12px;font-family:var(--font-sans);
+  font-size:13px;color:var(--text-primary);box-shadow:0 4px 12px rgba(0,0,0,0.15);
   max-width:200px;line-height:1.4;opacity:0;visibility:hidden;
   transition:opacity 150ms ease;transform:translate(16px,-50%);white-space:nowrap;}
 #tooltip.visible{opacity:1;visibility:visible;}
@@ -337,61 +363,78 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 
 /* ── LANGUAGE SWITCHER ── */
 #lang-switcher{position:fixed;top:1rem;right:1.2rem;z-index:400;display:flex;align-items:center;gap:0.25rem;pointer-events:all;}
-.lang-btn{padding:0.22rem 0.5rem;border:1px solid rgba(200,136,58,0.25);border-radius:6px;
-  background:rgba(7,5,3,0.85);color:rgba(200,136,58,0.55);font-size:0.62rem;font-weight:700;
-  letter-spacing:0.06em;cursor:pointer;transition:all 0.2s;font-family:var(--font-body);
-  backdrop-filter:blur(10px);}
-.lang-btn:hover{color:var(--gold);border-color:rgba(200,136,58,0.5);}
-.lang-btn.active{background:rgba(200,136,58,0.18);border-color:var(--gold);color:var(--gold-light);}
+.lang-btn{padding:0.35rem 0.65rem;border:1px solid var(--border);border-radius:var(--radius-sm);
+  background:var(--surface);color:var(--text-secondary);font-size:0.688rem;font-weight:600;
+  letter-spacing:0.06em;cursor:pointer;transition:all var(--transition-fast);font-family:var(--font-sans);}
+.lang-btn:hover{color:var(--text-primary);border-color:var(--accent-primary);}
+.lang-btn.active{background:var(--accent-primary-dim);border-color:var(--accent-primary);color:var(--accent-primary);}
 
 /* ── THEME TOGGLE ── */
 #theme-btn{position:fixed;top:3rem;right:1.2rem;z-index:400;width:30px;height:30px;
-  border-radius:7px;background:rgba(7,5,3,0.85);border:1px solid rgba(200,136,58,0.2);
-  color:rgba(200,136,58,0.55);font-size:0.85rem;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;transition:all 0.2s;
-  backdrop-filter:blur(10px);}
-#theme-btn:hover{border-color:rgba(200,136,58,0.5);color:var(--gold);}
+  border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--border);
+  color:var(--text-secondary);font-size:0.85rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);}
+#theme-btn:hover{border-color:var(--accent-primary);color:var(--accent-primary);}
 
 /* ── LIGHT THEME ── */
 [data-theme="light"]{
-  --bg:#f8f2e6;
-  --parchment:#1e0e02;
-  --gold:#8a5a18;
-  --gold-light:#a06820;
-  --gold-dim:rgba(138,90,24,0.15);
-  --teal:#1a8a78;
-  --teal-dim:rgba(26,138,120,0.12);
-  --terra:#8a3030;
-  --sage:#2a5c18;
-  --panel-bg:rgba(248,242,230,0.98);
+  --bg:#ffffff;
+  --surface:#f8fafc;
+  --surface-raised:#f1f5f9;
+  --surface-overlay:rgba(255,255,255,0.98);
+  --parchment:#0f172a;
+  --text-primary:#0f172a;
+  --text-secondary:#475569;
+  --gold:#0284c7;
+  --gold-light:#0369a1;
+  --gold-dim:rgba(2,132,199,0.10);
+  --teal:#0284c7;
+  --teal-dim:rgba(2,132,199,0.10);
+  --terra:#dc2626;
+  --sage:#16a34a;
+  --accent-primary:#0284c7;
+  --accent-primary-dim:rgba(2,132,199,0.10);
+  --accent-secondary:#ea580c;
+  --accent-secondary-dim:rgba(234,88,12,0.10);
+  --accent-success:#16a34a;
+  --accent-danger:#dc2626;
+  --panel-bg:rgba(255,255,255,0.98);
+  --border:#e2e8f0;
+  --divider:#e2e8f0;
+  --color-canvas:#ffffff;
+  --color-canvas-alt:#f8fafc;
+  --color-panel-bg:#f8fafc;
+  --color-panel-border:#e2e8f0;
+  --color-text-primary:#0f172a;
+  --color-text-secondary:#475569;
+  --color-text-muted:#94a3b8;
+  --color-accent:#0284c7;
+  --color-divider:#e2e8f0;
+  --color-button-bg:#f1f5f9;
+  --color-button-border:#e2e8f0;
+  --color-button-hover:#e2e8f0;
 }
 [data-theme="light"] body{background:var(--bg);color:var(--parchment);}
-[data-theme="light"] #bg{
-  background:
-    radial-gradient(ellipse 120% 70% at 50% 120%,#e8d8b0 0%,transparent 55%),
-    radial-gradient(ellipse 60% 50% at 15% 80%,#dde8c8 0%,transparent 50%),
-    radial-gradient(ellipse 50% 40% at 85% 85%,#d5dfc0 0%,transparent 45%),
-    radial-gradient(ellipse 90% 60% at 50% 40%,#f0e5d0 0%,#f8f2e6 100%);}
-[data-theme="light"] #header{background:linear-gradient(to bottom,rgba(248,242,230,0.98) 35%,transparent);}
-[data-theme="light"] #panel{background:var(--panel-bg);border-left-color:rgba(138,90,24,0.18);}
-[data-theme="light"] #hominin-view{background:rgba(248,242,230,0.97);}
-[data-theme="light"] #legend{background:rgba(248,242,230,0.92);border-color:rgba(138,90,24,0.12);}
-[data-theme="light"] #zoom-ctrl .zbtn{background:rgba(248,242,230,0.92);border-color:rgba(138,90,24,0.22);}
-[data-theme="light"] #btn-hominin{background:rgba(248,242,230,0.92);border-color:rgba(176,122,62,0.3);color:#8a5a18;}
-[data-theme="light"] #search-input{background:rgba(248,242,230,0.95);color:var(--parchment);}
-[data-theme="light"] #search-results{background:rgba(248,242,230,0.98);}
-[data-theme="light"] #timeline{background:linear-gradient(to top,rgba(248,242,230,0.95) 50%,transparent);}
-[data-theme="light"] .lang-btn{background:rgba(248,242,230,0.9);color:rgba(138,90,24,0.6);border-color:rgba(138,90,24,0.25);}
-[data-theme="light"] .lang-btn.active{background:rgba(138,90,24,0.18);border-color:var(--gold);color:var(--gold-light);}
-[data-theme="light"] #theme-btn{background:rgba(248,242,230,0.9);color:rgba(138,90,24,0.6);border-color:rgba(138,90,24,0.2);}
-[data-theme="light"] .sr-item{background:rgba(248,242,230,0.5);color:rgba(30,14,2,0.75);}
-[data-theme="light"] .sr-item:hover{background:rgba(138,90,24,0.1);}
-[data-theme="light"] .hom-era-title{background:rgba(138,90,24,0.08);}
-[data-theme="light"] .hom-species:hover{background:rgba(138,90,24,0.06);}
-[data-theme="light"] #hom-panel{background:rgba(248,242,230,0.5);}
-[data-theme="light"] #breadcrumb{background:rgba(248,242,230,0.85);}
-[data-theme="light"] #hom-header{border-bottom-color:rgba(138,90,24,0.12);}
-[data-theme="light"] #hom-filters{border-bottom-color:rgba(138,90,24,0.08);}
+[data-theme="light"] #bg{background:var(--bg);}
+[data-theme="light"] #header{background:linear-gradient(to bottom,var(--bg) 40%,transparent);}
+[data-theme="light"] #panel{background:var(--surface);border-left-color:var(--border);}
+[data-theme="light"] #hominin-view{background:var(--surface-overlay);}
+[data-theme="light"] #legend{background:var(--surface);border-color:var(--border);}
+[data-theme="light"] #zoom-ctrl .zbtn{background:var(--surface);border-color:var(--border);}
+[data-theme="light"] #search-input{background:var(--surface);color:var(--text-primary);}
+[data-theme="light"] #search-results{background:var(--surface);border-color:var(--border);}
+[data-theme="light"] #timeline{background:linear-gradient(to top,var(--bg) 50%,transparent);}
+[data-theme="light"] .lang-btn{background:var(--surface);color:var(--text-secondary);border-color:var(--border);}
+[data-theme="light"] .lang-btn.active{background:var(--accent-primary-dim);border-color:var(--accent-primary);color:var(--accent-primary);}
+[data-theme="light"] #theme-btn{background:var(--surface);color:var(--text-secondary);border-color:var(--border);}
+[data-theme="light"] .sr-item{color:var(--text-secondary);}
+[data-theme="light"] .sr-item:hover{background:var(--accent-primary-dim);}
+[data-theme="light"] .hom-era-title{background:var(--accent-primary-dim);}
+[data-theme="light"] .hom-species:hover{background:var(--surface-raised);}
+[data-theme="light"] #hom-panel{background:var(--surface);}
+[data-theme="light"] #breadcrumb{background:var(--surface);}
+[data-theme="light"] #hom-header{border-bottom-color:var(--border);}
+[data-theme="light"] #hom-filters{border-bottom-color:var(--border);}
 
 /* ── RTL (Hebrew) ── */
 [dir="rtl"] #header{flex-direction:row-reverse;}
@@ -400,7 +443,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 [dir="rtl"] #theme-btn{right:auto;left:1.2rem;}
 [dir="rtl"] #search-wrap{left:auto;right:50%;transform:translateX(50%);}
 [dir="rtl"] #search-input{text-align:right;direction:rtl;}
-[dir="rtl"] #panel{right:auto;left:-500px;border-left:none;border-right:1px solid rgba(200,136,58,0.18);transition:left 0.5s cubic-bezier(0.16,1,0.3,1);}
+[dir="rtl"] #panel{right:auto;left:-500px;border-left:none;border-right:1px solid var(--border);transition:left 0.3s cubic-bezier(0.16,1,0.3,1);}
 [dir="rtl"] #panel.open{left:0;right:auto;}
 [dir="rtl"] .panel-scroll{direction:rtl;}
 [dir="rtl"] #legend{left:auto;right:1.2rem;}
@@ -413,109 +456,123 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 [dir="rtl"] #hom-body{flex-direction:row-reverse;}
 [dir="rtl"] #hom-filters{flex-direction:row-reverse;}
 [dir="rtl"] #hom-filters>div:last-child{margin-left:0;margin-right:auto;}
-[lang="he"],[lang="he"] *{font-family:'Heebo','Playfair Display',sans-serif;}
+[lang="he"],[lang="he"] *{font-family:'Heebo','Inter',sans-serif;}
 [lang="he"] #breadcrumb {
   flex-direction: row-reverse;
 }
 [lang="he"] {
   direction: rtl;
-  font-family: 'Heebo', sans-serif;
+  font-family: 'Heebo','Inter',sans-serif;
 }
 [lang="he"] #header {
   flex-direction: row-reverse;
 }
 [lang="he"] #panel {
   border-left: none;
-  border-right: 1px solid #e0d4bc;
+  border-right: 1px solid var(--border);
 }
+[lang="he"] .panel__fun-fact,
+[lang="he"] [style*="border-left:3px solid"] {
+  border-left: none !important;
+  border-right: 3px solid var(--accent-primary);
+  border-radius: 8px 0 0 8px;
+}
+
 /* ── SEMANTIC COLOR VARIABLES ── */
 :root{
-  --text-muted:rgba(242,232,208,0.72);
-  --text-dim:rgba(242,232,208,0.50);
-  --text-faint:rgba(242,232,208,0.38);
-  --gold-text:rgba(200,136,58,0.70);
-  --gold-text-dim:rgba(200,136,58,0.50);
+  --text-muted:#6b7080;
+  --text-dim:rgba(232,234,240,0.50);
+  --text-faint:rgba(232,234,240,0.30);
+  --gold-text:var(--text-secondary);
+  --gold-text-dim:var(--text-secondary);
 }
 [data-theme="light"]{
-  --text-muted:rgba(30,14,2,0.65);
-  --text-dim:rgba(30,14,2,0.50);
-  --text-faint:rgba(30,14,2,0.38);
-  --gold-text:rgba(138,90,24,0.72);
-  --gold-text-dim:rgba(138,90,24,0.50);
+  --text-muted:#94a3b8;
+  --text-dim:rgba(15,23,42,0.50);
+  --text-faint:rgba(15,23,42,0.30);
+  --gold-text:var(--text-secondary);
+  --gold-text-dim:var(--text-secondary);
 }
 
-/* ── LIGHT THEME: ELEMENT CONTRAST FIXES (WCAG AA ≥ 4.5:1) ── */
-[data-theme="light"] .hint-bar{color:rgba(30,14,2,0.6);}
-[data-theme="light"] .leg-row{color:rgba(30,14,2,0.7);}
-[data-theme="light"] .p-detail{color:rgba(30,14,2,0.7);}
-[data-theme="light"] .p-desc{color:rgba(30,14,2,0.75);}
-[data-theme="light"] .p-children li{color:rgba(30,14,2,0.7);}
-[data-theme="light"] .hp-desc{color:rgba(30,14,2,0.78);}
-[data-theme="light"] .hp-detail{color:rgba(30,14,2,0.72);}
-[data-theme="light"] .hp-fact-v{color:rgba(30,14,2,0.85);}
-[data-theme="light"] .era-tick{color:rgba(30,14,2,0.65);}
-[data-theme="light"] #era-label{color:rgba(30,14,2,0.75);}
-[data-theme="light"] .hom-filter{color:rgba(30,14,2,0.68);}
-[data-theme="light"] .hom-filter.active{color:var(--gold-light);}
-[data-theme="light"] .hs-mya{color:rgba(30,14,2,0.62);}
-[data-theme="light"] .hs-name{color:rgba(30,14,2,0.9);}
-[data-theme="light"] .brain-label{color:rgba(30,14,2,0.62);}
-[data-theme="light"] .hs-tag{color:rgba(30,50,10,0.78);background:rgba(60,100,20,0.08);border-color:rgba(60,100,20,0.18);}
-[data-theme="light"] .hp-tag{color:rgba(30,50,10,0.78);background:rgba(60,100,20,0.07);border-color:rgba(60,100,20,0.2);}
-[data-theme="light"] .p-tag{color:rgba(30,50,10,0.78);background:rgba(60,100,20,0.08);border-color:rgba(60,100,20,0.2);}
-[data-theme="light"] #hom-panel-empty{color:rgba(138,90,24,0.5);}
-[data-theme="light"] .node-label-text{fill:rgba(30,14,2,0.8);}
-[data-theme="light"] #compare-btn{color:rgba(30,14,2,0.65);}
-[data-theme="light"] .bc-item{color:rgba(138,90,24,0.72);}
-[data-theme="light"] .bc-item.active{color:var(--parchment);}
-[data-theme="light"] .fact-l{color:rgba(138,90,24,0.78);}
-[data-theme="light"] .fact-v{color:rgba(30,14,2,0.88);}
-[data-theme="light"] .hp-fact-l{color:rgba(138,90,24,0.78);}
-[data-theme="light"] .p-section{color:rgba(30,80,15,0.8);}
-[data-theme="light"] .hp-section{color:rgba(30,80,15,0.78);}
-[data-theme="light"] .hs-latin{color:rgba(138,90,24,0.78);}
-[data-theme="light"] .hom-era-title{color:rgba(138,90,24,0.88);}
-[data-theme="light"] #hom-sub{color:rgba(30,80,15,0.72);}
-[data-theme="light"] #hom-header{background:rgba(248,242,230,0.98);}
-[data-theme="light"] .hs-icons-row{color:rgba(138,90,24,0.72);}
+/* ── LIGHT THEME: ELEMENT CONTRAST FIXES ── */
+[data-theme="light"] .hint-bar{color:var(--text-secondary);}
+[data-theme="light"] .leg-row{color:var(--text-secondary);}
+[data-theme="light"] .p-detail{color:var(--text-secondary);}
+[data-theme="light"] .p-desc{color:var(--text-secondary);}
+[data-theme="light"] .p-children li{color:var(--text-secondary);}
+[data-theme="light"] .hp-desc{color:var(--text-secondary);}
+[data-theme="light"] .hp-detail{color:var(--text-secondary);}
+[data-theme="light"] .hp-fact-v{color:var(--text-primary);}
+[data-theme="light"] .tip-fact{color:var(--text-secondary);}
+[data-theme="light"] .era-tick{color:var(--text-secondary);}
+[data-theme="light"] #era-label{color:var(--text-secondary);}
+[data-theme="light"] .hom-filter{color:var(--text-secondary);}
+[data-theme="light"] .hom-filter.active{color:var(--accent-primary);}
+[data-theme="light"] .hs-mya{color:var(--text-secondary);}
+[data-theme="light"] .hs-name{color:var(--text-primary);}
+[data-theme="light"] .brain-label{color:var(--text-secondary);}
+[data-theme="light"] .hs-tag{color:var(--accent-primary);background:var(--accent-primary-dim);border-color:rgba(2,132,199,0.2);}
+[data-theme="light"] .hp-tag{color:var(--accent-primary);background:var(--accent-primary-dim);border-color:rgba(2,132,199,0.2);}
+[data-theme="light"] .p-tag{color:var(--accent-primary);background:var(--accent-primary-dim);border-color:rgba(2,132,199,0.2);}
+[data-theme="light"] #hom-panel-empty{color:var(--text-secondary);}
+[data-theme="light"] .node-label-text{fill:var(--text-secondary);}
+[data-theme="light"] #compare-btn{color:var(--text-secondary);}
+[data-theme="light"] .bc-item{color:var(--text-secondary);}
+[data-theme="light"] .bc-item.active{color:var(--text-primary);}
+[data-theme="light"] .fact-l{color:var(--text-secondary);}
+[data-theme="light"] .fact-v{color:var(--text-primary);}
+[data-theme="light"] .hp-fact-l{color:var(--text-secondary);}
+[data-theme="light"] .p-section{color:var(--text-secondary);}
+[data-theme="light"] .hp-section{color:var(--accent-primary);}
+[data-theme="light"] .hs-latin{color:var(--text-secondary);}
+[data-theme="light"] .hom-era-title{color:var(--accent-primary);}
+[data-theme="light"] #hom-sub{color:var(--text-secondary);}
+[data-theme="light"] #hom-header{background:var(--surface);}
+[data-theme="light"] .hs-icons-row{color:var(--text-secondary);}
 
 /* ── SPECIES IMAGE ── */
-.p-img{width:100%;border-radius:10px;margin-bottom:0.6rem;object-fit:cover;max-height:175px;border:1px solid rgba(200,136,58,0.15);display:block;}
-.p-img-attr{font-size:0.6rem;color:var(--gold-text-dim);margin-bottom:0.9rem;text-align:right;font-style:italic;}
-[data-theme="light"] .p-img{border-color:rgba(138,90,24,0.18);}
+.p-img{width:100%;border-radius:var(--radius-md);margin-bottom:0.6rem;object-fit:cover;max-height:175px;border:1px solid var(--border);display:block;}
+.p-img-attr{font-size:0.6rem;color:var(--text-secondary);margin-bottom:0.9rem;text-align:right;font-style:italic;}
+[data-theme="light"] .p-img{border-color:var(--border);}
 
 /* ── COMPARE CARD CSS CLASSES ── */
-.compare-card{border-radius:12px;padding:1.2rem;border:1px solid rgba(200,136,58,0.18);background:rgba(200,136,58,0.04);}
-[data-theme="light"] .compare-card{background:rgba(138,90,24,0.05);border-color:rgba(138,90,24,0.2);}
-.cc-sub{font-size:0.65rem;color:var(--text-dim);font-style:italic;margin-bottom:0.8rem;}
-.cc-lbl{font-size:0.7rem;color:var(--gold-text);margin-bottom:0.3rem;}
-.cc-val{font-size:0.75rem;color:var(--parchment);margin-bottom:0.5rem;}
-.cc-desc{font-size:0.7rem;color:var(--text-faint);line-height:1.6;margin-top:0.5rem;}
-.cc-bar-bg{height:6px;background:rgba(200,136,58,0.1);border-radius:3px;overflow:hidden;margin-bottom:0.8rem;}
-[data-theme="light"] .cc-bar-bg{background:rgba(138,90,24,0.12);}
-.cc-dna-bg{height:5px;background:rgba(200,136,58,0.08);border-radius:3px;overflow:hidden;margin-bottom:0.3rem;}
-[data-theme="light"] .cc-dna-bg{background:rgba(138,90,24,0.1);}
+.compare-card{border-radius:var(--radius-lg);padding:1.2rem;border:1px solid var(--border);background:var(--surface-raised);}
+[data-theme="light"] .compare-card{background:var(--surface-raised);border-color:var(--border);}
+.cc-sub{font-size:0.65rem;color:var(--text-secondary);font-style:italic;margin-bottom:0.8rem;}
+.cc-lbl{font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.3rem;}
+.cc-val{font-size:0.75rem;color:var(--text-primary);margin-bottom:0.5rem;font-family:var(--font-mono);}
+.cc-desc{font-size:0.7rem;color:var(--text-secondary);line-height:1.6;margin-top:0.5rem;}
+.cc-bar-bg{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:0.8rem;}
+[data-theme="light"] .cc-bar-bg{background:var(--border);}
+.cc-dna-bg{height:5px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:0.3rem;}
+[data-theme="light"] .cc-dna-bg{background:var(--border);}
 .cc-dna-label{font-size:0.65rem;margin-bottom:0.5rem;}
 
 /* ── DARK MODE POLISH ── */
 [data-theme="dark"]{
-  --color-text-primary:   #e8ead4;
-  --color-text-secondary: #b8c4a8;
-  --color-text-muted:     #7a8a6a;
-  --color-button-bg:      #1e2a1c;
-  --color-button-border:  #3a4a38;
-  --color-button-hover:   #2a3a28;
-  --color-panel-bg:       #121810;
-  --color-panel-border:   #2a3a28;
-  --color-canvas:         #0d110e;
-  --color-divider:        #2a3a28;
+  --color-text-primary:   #e8eaf0;
+  --color-text-secondary: #a0a4b0;
+  --color-text-muted:     #6b7080;
+  --color-button-bg:      #2a2f38;
+  --color-button-border:  #3a4050;
+  --color-button-hover:   #353b48;
+  --color-panel-bg:       #22262e;
+  --color-panel-border:   #2e3340;
+  --color-canvas:         #1a1d23;
+  --color-divider:        #2e3340;
 }
-[data-theme="dark"] #search-results{background:#121810;border-color:#2a3a28;box-shadow:0 4px 16px rgba(0,0,0,0.4);}
+[data-theme="dark"] #search-results{background:var(--surface);border-color:var(--border);box-shadow:0 4px 16px rgba(0,0,0,0.4);}
+[data-theme="dark"] .search-result-item:hover{background:var(--surface-raised);}
+[data-theme="dark"] .search-result-name{color:var(--text-primary);}
+[data-theme="dark"] .search-result-meta{color:var(--text-secondary);}
+[data-theme="dark"] #shortcuts-hint{background:var(--surface);border-color:var(--border);color:var(--text-secondary);}
+[data-theme="dark"] kbd{background:var(--surface-raised);border-color:var(--border);color:var(--text-primary);}
+[data-theme="dark"] #loader{background:var(--bg);}
 
 /* ── SPLASH POLISH ── */
 #splash{animation:fadeIn 600ms ease forwards;}
-#splash h1{font-family:'Playfair Display',serif;font-size:clamp(2rem,6vw,4rem);letter-spacing:-0.02em;margin-bottom:8px;}
-#splash .tagline{font-family:'Heebo',sans-serif;font-size:clamp(0.9rem,2vw,1.1rem);opacity:0.75;max-width:480px;text-align:center;line-height:1.6;}
+#splash h1{font-family:var(--font-head);font-size:clamp(2rem,6vw,4rem);letter-spacing:-0.02em;margin-bottom:8px;font-weight:700;}
+#splash .tagline{font-family:var(--font-sans);font-size:clamp(0.9rem,2vw,1.1rem);opacity:0.75;max-width:480px;text-align:center;line-height:1.6;}
 
 /* ── PANEL ANIMATION ── */
 #panel{transition:transform 250ms ease,opacity 250ms ease,right 0.5s cubic-bezier(0.16,1,0.3,1);}
@@ -523,13 +580,12 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 
 /* ── PANEL IMPROVEMENTS ── */
 [data-theme="light"] #panel{
-  background:#fdfaf5;
-  border-left:1px solid #e0d4bc;
-  font-family:'Heebo',system-ui,sans-serif;
+  background:var(--surface);
+  border-left:1px solid var(--border);
 }
 [data-theme="dark"] #panel{
-  background:#121810;
-  border-left:1px solid #2a3a28;
+  background:var(--surface);
+  border-left:1px solid var(--border);
 }
 
 /* ══════════════════════════════════════════════════════
@@ -891,11 +947,11 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 </style>
 </head>
 <body>
-<div id="splash" style="position:fixed;inset:0;background:#0d110e;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px;transition:opacity 0.8s ease;">
-  <div style="font-family:'Heebo',sans-serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:rgba(200,220,180,0.5);">3,800,000,000 years of evolution</div>
-  <h1 style="font-family:'Playfair Display',serif;font-size:clamp(48px,8vw,96px);font-weight:700;color:#e8ead4;letter-spacing:-2px;line-height:1;margin:0;">Tree of Life</h1>
-  <div style="width:60px;height:1px;background:rgba(200,220,180,0.3);"></div>
-  <div id="splash-tagline" style="font-family:'Playfair Display',serif;font-style:italic;font-size:16px;color:rgba(200,220,180,0.6);"></div>
+<div id="splash" style="position:fixed;inset:0;background:#1a1d23;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px;transition:opacity 0.8s ease;">
+  <div style="font-family:'Inter',sans-serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:rgba(160,164,176,0.6);">3,800,000,000 years of evolution</div>
+  <h1 style="font-family:'Inter',sans-serif;font-size:clamp(48px,8vw,96px);font-weight:700;color:#e8eaf0;letter-spacing:-2px;line-height:1;margin:0;">Tree of Life</h1>
+  <div style="width:60px;height:1px;background:rgba(14,165,233,0.4);"></div>
+  <div id="splash-tagline" style="font-family:'Inter',sans-serif;font-style:normal;font-size:16px;color:rgba(160,164,176,0.6);"></div>
 </div>
 <div id="bg"></div>
 <div id="era-tint-overlay"></div>
@@ -917,19 +973,19 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   </div>
   <div class="hint-bar" id="i-hints">
     Scroll to zoom &nbsp;|&nbsp; Drag to pan<br>
-    <strong style="color:rgba(122,184,96,0.75);">Click any node to explore</strong> &nbsp;|&nbsp; Right-click to collapse
+    <strong style="color:var(--accent-primary);opacity:0.8;">Click any node to explore</strong> &nbsp;|&nbsp; Right-click to collapse
   </div>
 </div>
 
 <!-- SEARCH -->
 <div id="search-wrap" style="position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:300;pointer-events:all;display:flex;align-items:center;gap:8px;">
-  <span id="search-icon" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:rgba(200,136,58,0.5);font-size:0.8rem;pointer-events:none;" aria-hidden="true">🔍</span>
+  <span id="search-icon" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--text-secondary);opacity:0.6;font-size:0.8rem;pointer-events:none;" aria-hidden="true">🔍</span>
   <input id="search-input" type="text" placeholder="Search species…" autocomplete="off" aria-label="Search species by name, latin name, or description" role="combobox" aria-expanded="false" aria-controls="search-results">
   <div id="search-results" role="listbox"></div>
-  <button id="extinct-toggle" onclick="toggleExtinct()" aria-label="Toggle visibility of extinct species" style="font-family:'Heebo',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid #c8b99a;background:#f0ebe0;cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:#1c1a14;white-space:nowrap;flex-shrink:0;">
+  <button id="extinct-toggle" onclick="toggleExtinct()" aria-label="Toggle visibility of extinct species" style="font-family:'Inter',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);white-space:nowrap;flex-shrink:0;">
     <span>†</span><span id="extinct-label">Hide Extinct</span>
   </button>
-  <button id="hominins-tab" onclick="openHomininView()" aria-label="Open Hominin Evolution panel" style="font-family:'Heebo',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid #c8b99a;background:#f0ebe0;cursor:pointer;color:#1c1a14;white-space:nowrap;flex-shrink:0;">
+  <button id="hominins-tab" onclick="openHomininView()" aria-label="Open Hominin Evolution panel" style="font-family:'Inter',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;color:var(--text-secondary);white-space:nowrap;flex-shrink:0;">
     🧬 Hominins
   </button>
 </div>
@@ -942,9 +998,9 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   <svg id="svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Interactive Tree of Life visualization showing evolutionary relationships">
     <defs>
       <radialGradient id="rootGrad" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stop-color="#f0a840"/>
-        <stop offset="55%" stop-color="#c8883a"/>
-        <stop offset="100%" stop-color="#7a4e18"/>
+        <stop offset="0%" stop-color="#a78bfa"/>
+        <stop offset="55%" stop-color="#8b5cf6"/>
+        <stop offset="100%" stop-color="#6d28d9"/>
       </radialGradient>
       <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
         <feGaussianBlur stdDeviation="4" result="blur"/>
@@ -1015,8 +1071,8 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
     <div class="hom-filter" data-filter="homo" id="i-hf-homo">Genus Homo</div>
     <div class="hom-filter" data-filter="surviving" id="i-hf-surv">Surviving</div>
     <div style="margin-left:auto;display:flex;gap:0.5rem;align-items:center;">
-      <button id="compare-btn" onclick="toggleCompareMode()" style="padding:0.25rem 0.85rem;border:1px solid rgba(200,136,58,0.3);border-radius:14px;background:transparent;color:rgba(242,232,208,0.6);font-size:0.7rem;font-family:var(--font-body);cursor:pointer;transition:all 0.2s;letter-spacing:0.05em;">⚖ Compare Mode</button>
-      <span id="compare-hint" style="display:none;font-size:0.65rem;color:rgba(200,136,58,0.6);font-style:italic;">Select 2–4 species</span>
+      <button id="compare-btn" onclick="toggleCompareMode()" style="padding:0.25rem 0.85rem;border:1px solid var(--border);border-radius:14px;background:transparent;color:var(--text-secondary);font-size:0.7rem;font-family:var(--font-sans);cursor:pointer;transition:all 0.2s;letter-spacing:0.05em;">⚖ Compare Mode</button>
+      <span id="compare-hint" style="display:none;font-size:0.65rem;color:var(--text-secondary);font-style:italic;">Select 2–4 species</span>
 
     </div>
   </div>
@@ -1024,7 +1080,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   <div id="compare-panel" style="display:none;position:absolute;inset:0;z-index:10;background:var(--bg);overflow-y:auto;padding:1.5rem 2rem;">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
       <div id="i-compare-title" style="font-family:var(--font-head);font-size:1.2rem;color:var(--gold);">Species Comparison</div>
-      <button id="i-compare-back" onclick="closeCompare()" style="padding:0.3rem 0.8rem;border:1px solid rgba(200,136,58,0.3);border-radius:12px;background:transparent;color:var(--parchment);font-size:0.75rem;cursor:pointer;font-family:var(--font-body);">← Back</button>
+      <button id="i-compare-back" onclick="closeCompare()" style="padding:0.3rem 0.8rem;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text-primary);font-size:0.75rem;cursor:pointer;font-family:var(--font-sans);">← Back</button>
     </div>
     <div id="compare-grid" style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));"></div>
   </div>
@@ -1038,21 +1094,28 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 <!-- LEGEND -->
 <div id="legend">
   <div class="leg-title" id="i-leg-title">Domains</div>
-  <div class="leg-row" data-domain="luca" onclick="toggleDomain('luca')" style="cursor:pointer;"><div class="leg-dot" style="background:#b8745a"></div><span id="i-leg-luca">LUCA / Root</span></div>
-  <div class="leg-row" data-domain="bacteria" onclick="toggleDomain('bacteria')" style="cursor:pointer;"><div class="leg-dot" style="background:#b85c4a"></div><span id="i-leg-bact">Bacteria</span></div>
-  <div class="leg-row" data-domain="archaea" onclick="toggleDomain('archaea')" style="cursor:pointer;"><div class="leg-dot" style="background:#c49a4a"></div><span id="i-leg-arch">Archaea</span></div>
-  <div class="leg-row" data-domain="plantae" onclick="toggleDomain('plantae')" style="cursor:pointer;"><div class="leg-dot" style="background:#6a8a5a"></div><span id="i-leg-plant">Plants</span></div>
-  <div class="leg-row" data-domain="animalia" onclick="toggleDomain('animalia')" style="cursor:pointer;"><div class="leg-dot" style="background:#4a7a9a"></div><span id="i-leg-anim">Animals</span></div>
-  <div class="leg-row" data-domain="fungi" onclick="toggleDomain('fungi')" style="cursor:pointer;"><div class="leg-dot" style="background:#8a6a4a"></div><span id="i-leg-fungi">Fungi</span></div>
-  <div class="leg-row" data-domain="protists" onclick="toggleDomain('protists')" style="cursor:pointer;"><div class="leg-dot" style="background:#7a6aaa"></div><span id="i-leg-prot">Protists</span></div>
-  <button onclick="resetDomains()" style="font-size:11px;padding:3px 10px;border-radius:9999px;border:1px solid #c8b99a;background:transparent;color:var(--parchment);cursor:pointer;margin-top:8px;font-family:'Heebo',sans-serif;">Show All</button>
+  <div class="leg-row" data-domain="luca" onclick="toggleDomain('luca')" style="cursor:pointer;"><div class="leg-dot" style="background:#8b5cf6"></div><span id="i-leg-luca">LUCA / Root</span></div>
+  <div class="leg-row" data-domain="bacteria" onclick="toggleDomain('bacteria')" style="cursor:pointer;"><div class="leg-dot" style="background:#ef4444"></div><span id="i-leg-bact">Bacteria</span></div>
+  <div class="leg-row" data-domain="archaea" onclick="toggleDomain('archaea')" style="cursor:pointer;"><div class="leg-dot" style="background:#f59e0b"></div><span id="i-leg-arch">Archaea</span></div>
+  <div class="leg-row" data-domain="plantae" onclick="toggleDomain('plantae')" style="cursor:pointer;"><div class="leg-dot" style="background:#22c55e"></div><span id="i-leg-plant">Plants</span></div>
+  <div class="leg-row" data-domain="animalia" onclick="toggleDomain('animalia')" style="cursor:pointer;"><div class="leg-dot" style="background:#3b82f6"></div><span id="i-leg-anim">Animals</span></div>
+  <div class="leg-row" data-domain="fungi" onclick="toggleDomain('fungi')" style="cursor:pointer;"><div class="leg-dot" style="background:#f97316"></div><span id="i-leg-fungi">Fungi</span></div>
+  <div class="leg-row" data-domain="protists" onclick="toggleDomain('protists')" style="cursor:pointer;"><div class="leg-dot" style="background:#a855f7"></div><span id="i-leg-prot">Protists</span></div>
+  <button onclick="resetDomains()" style="font-size:11px;padding:3px 10px;border-radius:9999px;border:1px solid #c8b99a;background:transparent;color:var(--parchment);cursor:pointer;margin-top:8px;font-family:'Inter',sans-serif;">Show All</button>
 </div>
 
+
+
 <!-- VIEW TOGGLE -->
+
 <div id="view-toggle" role="toolbar" aria-label="View mode selector">
+
   <button class="view-btn active" data-mode="radial" onclick="setViewMode('radial')">&#9673; Radial</button>
+
   <button class="view-btn" data-mode="chronological" onclick="setViewMode('chronological')">&#8594; Timeline</button>
+
   <button class="view-btn" data-mode="cladogram" onclick="setViewMode('cladogram')">&#9500; Cladogram</button>
+
 </div>
 
 <!-- ZOOM -->
@@ -1096,6 +1159,16 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 <script src="js/uiData.js"></script>
 <script src="js/factLibrary.js"></script>
 <script>
+// ══════════════════════════════════════════════════════
+// TREE DATA
+// ══════════════════════════════════════════════════════
+// TREE constant and lightenColor() loaded from js/treeData.js
+
+// ══════════════════════════════════════════════════════
+// HOMININS DATA — loaded from js/treeData.js
+// ══════════════════════════════════════════════════════
+
+// HOMININS, MAX_BRAIN, ERA_GROUPS, HOMININ_ID_ALIASES loaded from treeData.js
 function canonicalHomininId(id){
   return HOMININ_ID_ALIASES[id]||id;
 }
@@ -1500,7 +1573,7 @@ Object.entries(ENRICHMENT).forEach(([id, data]) => {
 let viewMode='radial';
 function getVisible(n){let a=[n];if(n.children&&!n._collapsed)n.children.forEach(c=>a=a.concat(getVisible(c)));return a;}
 function getVisibleEdges(n){let a=[];if(n.children&&!n._collapsed){n.children.forEach(c=>{a.push({from:n,to:c});a=a.concat(getVisibleEdges(c));});}return a;}
-function assignAngles(n,a0,a1){n._a0=a0;n._a1=a1;n._angle=(a0+a1)/2;if(!n.children||!n.children.length||n._collapsed)return;const visible=n.children;const minAngleSep=0.15;const range=a1-a0;const minTotal=visible.length*minAngleSep;const effectiveRange=Math.max(range,minTotal);let a=a0-(effectiveRange-range)/2;visible.forEach(c=>{const share=effectiveRange/visible.length;assignAngles(c,a,a+share);a+=share;});}
+function assignAngles(n,a0,a1){n._a0=a0;n._a1=a1;n._angle=(a0+a1)/2;if(!n.children||!n.children.length||n._collapsed)return;const visible=n.children;const minAngleSep=0.22;const range=a1-a0;const minTotal=visible.length*minAngleSep;const effectiveRange=Math.max(range,minTotal);let a=a0-(effectiveRange-range)/2;visible.forEach(c=>{const share=effectiveRange/visible.length;assignAngles(c,a,a+share);a+=share;});}
 function assignPositions(n,cx,cy){const r=DEPTH_R[n.depth]||(n.depth*65);n._x=cx+Math.cos(n._angle-Math.PI/2)*r;n._y=cy+Math.sin(n._angle-Math.PI/2)*r;if(n.children&&!n._collapsed)n.children.forEach(c=>assignPositions(c,cx,cy));}
 
 function layoutRadial(){const cx=window.innerWidth/2,cy=window.innerHeight/2+35;assignAngles(TREE,0,Math.PI*2);assignPositions(TREE,cx,cy);}
@@ -1608,6 +1681,106 @@ function resetDomains() {
 }
 
 // ══════════════════════════════════════════════════════
+// SVG SILHOUETTE ICONS (replace emojis)
+// ══════════════════════════════════════════════════════
+const NODE_ICONS = {
+  bacteria: 'M12 4c-1.5 0-3 .8-3 2.5v11c0 1.7 1.5 2.5 3 2.5s3-.8 3-2.5v-11C15 4.8 13.5 4 12 4z',
+  archaea: 'M12 3l-3 5.5 1.5 3-2.5 4.5L12 21l4-5-2.5-4.5L15 8.5 12 3z',
+  plant: 'M12 22V12m0 0c0-4-3-7-7-8 1 3 3.5 6 7 8zm0 0c0-4 3-7 7-8-1 3-3.5 6-7 8z',
+  fungus: 'M12 22v-8m0 0c-5 0-8-3-8-6s3-5 8-5 8 2 8 5-3 6-8 6z',
+  animal: 'M4 13c0-4.4 3.6-8 8-8s8 3.6 8 8c0 2-1.5 3-3 3h-2l-1 3h-4l-1-3H7c-1.5 0-3-1-3-3z',
+  fish: 'M2 12c3-4 7-6 11-6 2 0 4 1.5 5 3l4-3v6l-4-3c-1 1.5-3 3-5 3-4 0-8-2-11-6zm13-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
+  bird: 'M3 15c2-4 6-7 10-7h3l5-4-2 5c1 2 1 4 0 6l-4-1-3 3-2-3c-3 0-5 .5-7 1z',
+  reptile: 'M3 14c1-2 3-3 5-3h2l2-2h3l3 1 3-1 1 2-2 1v2l-2 1-3-1-3 1-2-1H8l-3 2-2-2z',
+  amphibian: 'M7 8a5 5 0 0 1 10 0c0 2-1 3-2 4v3c0 1-1 2-3 2s-3-1-3-2v-3c-1-1-2-2-2-4zm3-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
+  insect: 'M12 4a2 2 0 0 1 2 2c0 .5-.2 1-.5 1.3.9.5 1.5 1.4 1.5 2.7 0 1-.4 1.8-1 2.3.6.7 1 1.6 1 2.7 0 2-1.3 3-3 3s-3-1-3-3c0-1.1.4-2 1-2.7-.6-.5-1-1.3-1-2.3 0-1.3.6-2.2 1.5-2.7-.3-.3-.5-.8-.5-1.3a2 2 0 0 1 2-2zM8 9l-3-2m0 6l3-1m8-3l3-2m0 6l-3-1',
+  mollusk: 'M16 12a6 6 0 0 0-5-5.9c.6-1.2 1-2.1 1-2.1s-2 .5-3.5 2C5.5 8 4 11 6 14s5 4 8 3c1.5-.5 2.5-2 2.5-4-.2-.3-.3-.7-.5-1z',
+  cnidarian: 'M12 3c-3 0-6 3-6 7 0 2 1 3 2 3h8c1 0 2-1 2-3 0-4-3-7-6-7zm-4 12l-1 5m2-5v5m2-5l1 5m2-5v5m2-5l1 5',
+  sponge: 'M8 4c-2 1-3 4-3 8s1 7 3 8h8c2-1 3-4 3-8s-1-7-3-8H8zm1 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 2a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
+  primate: 'M8 6a4 4 0 0 1 8 0c0 1.5-1 3-2 3.5.6.5 1 1.3 1 2.5v4c0 1-1 2-3 2s-3-1-3-2v-4c0-1.2.4-2 1-2.5C9 9 8 7.5 8 6zm2 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
+  hominin: 'M12 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm-2 7c-1.5 0-2.5 1-2.5 2.5V15l-2 7h3l1.5-5 .5 1.5V22h3v-3.5l.5-1.5L15.5 22h3l-2-7v-3.5C16.5 10 15.5 9 14 9h-4z',
+  mammal: 'M4 11c0-3 2-5 5-5h1l2-2 2 2h1c3 0 5 2 5 5v2c0 2-1 3-2 3l-1 3h-2l-1-3h-4l-1 3H7l-1-3c-1 0-2-1-2-3v-2zm5 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm6 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
+  default: 'M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10z',
+  echinoderm: 'M12 2l2.5 6.5L21 10l-5 4.5 1.5 7L12 18l-5.5 3.5L8 14.5 3 10l6.5-1.5L12 2z',
+  worm: 'M6 8c0-2 2-3 4-3s3 1 3 3c0 1.5-1 2.5-2 3 1.5.5 3 2 3 4 0 2.5-2 4-4.5 4S5 17.5 5 15c0-2 1.5-3.5 3-4-1-.5-2-1.5-2-3z',
+  crustacean: 'M5 10c0-2 3-4 7-4s7 2 7 4c0 1.5-1 2.5-2.5 3l1.5 4h-3l-1-3h-4l-1 3H6l1.5-4C6 12.5 5 11.5 5 10zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm6 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z'
+};
+
+// Map node IDs to icon groups
+function getIconGroup(n) {
+  const id = n.id;
+  // Specific ID mappings
+  const ID_MAP = {
+    'luca': 'default',
+    'bacteria': 'bacteria', 'cyanobacteria': 'bacteria', 'proteobacteria': 'bacteria',
+    'firmicutes': 'bacteria', 'actinobacteria': 'bacteria', 'spirochetes': 'bacteria',
+    'deinococcus': 'bacteria', 'bacteroides': 'bacteria',
+    'prochlorococcus': 'bacteria', 'nostoc': 'bacteria', 'ecoli': 'bacteria',
+    'helicobacter': 'bacteria', 'vibrio-cholerae': 'bacteria',
+    'lactobacillus': 'bacteria', 'clostridium-botulinum': 'bacteria',
+    'streptomyces': 'bacteria', 'mycobacterium-tb': 'bacteria',
+    'archaea': 'archaea', 'euryarchaeota': 'archaea', 'asgard': 'archaea',
+    'halobacterium': 'archaea', 'sulfolobus': 'archaea', 'pyrolobus': 'archaea',
+    'lokiarchaeota': 'archaea', 'methanobacterium': 'archaea',
+    'eukaryota': 'default',
+    'fungi': 'fungus', 'ascomycetes': 'fungus', 'basidiomycetes': 'fungus', 'chytrids': 'fungus',
+    'saccharomyces': 'fungus', 'penicillium': 'fungus', 'amanita-muscaria': 'fungus',
+    'armillaria': 'fungus', 'psilocybe': 'fungus', 'batrachochytrium': 'fungus',
+    'plantae': 'plant', 'bryophytes': 'plant', 'angiosperms': 'plant',
+    'gymnosperms': 'plant', 'ferns': 'plant',
+    'sphagnum': 'plant', 'marchantia': 'plant', 'arabidopsis': 'plant',
+    'rafflesia': 'plant', 'titan-arum': 'plant', 'mimosa-pudica': 'plant',
+    'wollemia': 'plant', 'welwitschia': 'plant', 'sequoia': 'plant',
+    'tree-fern': 'plant', 'azolla': 'plant',
+    'animalia': 'animal',
+    'invertebrates': 'crustacean', 'insects': 'insect',
+    'horseshoe-crab': 'crustacean', 'mantis-shrimp': 'crustacean', 'honey-bee': 'insect',
+    'cephalopods': 'mollusk', 'octopus': 'mollusk', 'nautilus': 'mollusk',
+    'cnidarians': 'cnidarian', 'turritopsis': 'cnidarian', 'coral': 'cnidarian',
+    'echinoderms': 'echinoderm', 'annelids': 'worm',
+    'vertebrates': 'fish',
+    'fish': 'fish', 'coelacanth': 'fish', 'shark': 'fish',
+    'reptiles': 'reptile', 'komodo-dragon': 'reptile', 'tuatara': 'reptile',
+    'birds': 'bird', 'archaeopteryx': 'bird', 'peregrine-falcon': 'bird',
+    'amphibians': 'amphibian',
+    'mammals': 'mammal', 'cetaceans': 'mammal', 'blue-whale': 'mammal',
+    'naked-mole-rat': 'mammal', 'platypus': 'mammal',
+    'primates': 'primate', 'great-apes': 'primate',
+    'orangutan': 'primate', 'gorilla': 'primate', 'chimpanzee': 'primate',
+    'homo-sapiens': 'hominin', 'hominini': 'hominin',
+    'protists': 'default', 'alveolates': 'default', 'stramenopiles': 'default',
+    'amoebozoa': 'default',
+    'plasmodium': 'insect', 'paramecium': 'default', 'dinoflagellates': 'default',
+    'diatoms': 'default', 'phytophthora': 'default',
+    'amoeba-proteus': 'default', 'volvox': 'default',
+    'sponges': 'sponge',
+  };
+  if (ID_MAP[id]) return ID_MAP[id];
+  // Hominin species from HOMININS array — map by group
+  if (n.group) {
+    const HOMININ_GROUP_MAP = { 'homo': 'hominin', 'proto': 'primate', 'australopith': 'primate', 'paranthropus': 'primate' };
+    if (HOMININ_GROUP_MAP[n.group]) return HOMININ_GROUP_MAP[n.group];
+  }
+  // Group nodes (group-homo, group-proto, etc.)
+  if (id.startsWith('group-')) return id === 'group-homo' ? 'hominin' : 'primate';
+  // Fallback: check ancestry
+  let p = n._parent;
+  while (p) {
+    if (ID_MAP[p.id]) {
+      const pg = ID_MAP[p.id];
+      if (pg !== 'default') return pg;
+    }
+    p = p._parent;
+  }
+  return 'default';
+}
+
+// ══════════════════════════════════════════════════════
+// HUMAN EVOLUTION PATH (highlighted from root to Homo sapiens)
+// ══════════════════════════════════════════════════════
+const HUMAN_PATH=new Set(['luca','eukaryota','animalia','vertebrates','mammals','primates','great-apes','homo-sapiens']);
+
+// ══════════════════════════════════════════════════════
 // RENDER
 // ══════════════════════════════════════════════════════
 const branchLayer=document.getElementById('layer-branches');
@@ -1649,28 +1822,34 @@ function render(){
   const nodes=getVisible(TREE);
 
   // Branches
+  const humanPathEdges=[];
   edges.forEach(({from,to})=>{
     if(to._domain && to._domain!=='luca' && !activeDomains.has(to._domain)) return;
     if(!showExtinct && to.extinct) return;
     const inEra=nodeInEra(to);
+    const onHumanPath=HUMAN_PATH.has(from.id)&&HUMAN_PATH.has(to.id);
     const p=document.createElementNS('http://www.w3.org/2000/svg','path');
     p.setAttribute('d',branchPath(from._x,from._y,to._x,to._y));
     p.setAttribute('class','branch-path');
     p.setAttribute('data-branch','true');
-    const sw=Math.max(2,6-to.depth*0.5);
-    const op=inEra?Math.max(0.4,0.95-to.depth*0.07):0.15;
-    p.setAttribute('stroke',to.color);
+    const sw=onHumanPath?3:Math.max(1,3-to.depth*0.3);
+    const op=onHumanPath?0.9:(inEra?Math.max(0.25,0.7-to.depth*0.08):0.08);
+    p.setAttribute('stroke',onHumanPath?'var(--accent-primary)':to.color);
     p.setAttribute('stroke-width',sw);
     p.setAttribute('stroke-opacity',op);
     if(!animDone.has(to.id)){
       const len=300;p.style.strokeDasharray=len;p.style.strokeDashoffset=len;
-      p.style.transition=`stroke-dashoffset ${0.65+to.depth*0.14}s cubic-bezier(.4,0,.2,1) ${to.depth*0.09}s`;
+      p.style.transition=`stroke-dashoffset ${0.3+to.depth*0.05}s cubic-bezier(.4,0,.2,1) ${to.depth*0.04}s`;
       setTimeout(()=>{p.style.strokeDashoffset=0;},50);
     }
     branchFrag.appendChild(p);
+    if(onHumanPath) humanPathEdges.push(p);
   });
+  // Re-append human path edges on top so they draw over other branches
+  humanPathEdges.forEach(p=>branchFrag.appendChild(p));
 
   // Nodes
+  const pendingLabels=[];
   nodes.forEach(n=>{
     if(n._domain && n._domain!=='luca' && !activeDomains.has(n._domain)) return;
     if(!showExtinct && n.extinct) return;
@@ -1680,13 +1859,24 @@ function render(){
     g.setAttribute('class','node-group');
     g.style.cursor='pointer';
 
+    const onHumanPath=HUMAN_PATH.has(n.id);
+
+    // Human evolution path accent ring
+    if(onHumanPath&&n.depth>0){
+      const pathRing=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      pathRing.setAttribute('cx',n._x);pathRing.setAttribute('cy',n._y);pathRing.setAttribute('r',n.r+7);
+      pathRing.setAttribute('fill','none');pathRing.setAttribute('stroke','var(--accent-primary)');
+      pathRing.setAttribute('stroke-width','2');pathRing.setAttribute('stroke-opacity','0.5');
+      g.appendChild(pathRing);
+    }
+
     // Root pulse ring
     if(n.depth===0){
       const glow=document.createElementNS('http://www.w3.org/2000/svg','circle');
       glow.setAttribute('cx',n._x);glow.setAttribute('cy',n._y);glow.setAttribute('r',n.r+14);
       glow.setAttribute('fill','none');glow.setAttribute('stroke',n.color);
       glow.setAttribute('stroke-width','1.5');glow.setAttribute('stroke-opacity','0.4');
-      glow.style.animation='rootPulse 2.8s ease-in-out infinite';
+      glow.style.opacity='0.4';
       g.appendChild(glow);
     }
 
@@ -1696,7 +1886,7 @@ function render(){
       ring.setAttribute('cx',n._x);ring.setAttribute('cy',n._y);ring.setAttribute('r',n.r+10);
       ring.setAttribute('fill','none');ring.setAttribute('stroke',n.color);
       ring.setAttribute('stroke-width','1');ring.setAttribute('stroke-opacity','0.5');
-      ring.style.animation='livingPulse 2s ease-in-out infinite';
+      ring.style.opacity='0.5';
       g.appendChild(ring);
     }
 
@@ -1723,7 +1913,7 @@ function render(){
     if(isHighlighted){
       const hl=document.createElementNS('http://www.w3.org/2000/svg','circle');
       hl.setAttribute('cx',n._x);hl.setAttribute('cy',n._y);hl.setAttribute('r',n.r+9);
-      hl.setAttribute('fill','none');hl.setAttribute('stroke','#e8b86d');
+      hl.setAttribute('fill','none');hl.setAttribute('stroke','#0ea5e9');
       hl.setAttribute('stroke-width','2');hl.setAttribute('stroke-opacity','0.9');
       g.appendChild(hl);
     }
@@ -1754,7 +1944,7 @@ function render(){
     c.setAttribute('fill-opacity',inEra?(n.depth===0?'1':n.depth<=1?'0.9':'0.8'):'0.15');
     c.style.stroke='var(--bg)';c.setAttribute('stroke-width','1.5');
     c.style.setProperty('--nc',n.color);
-    if(n.depth===0) c.setAttribute('filter','url(#strongGlow)');
+    /* no glow filter on root */
     if(n.extinct){c.setAttribute('stroke-dasharray','4 2');c.setAttribute('opacity','0.6');}
     c.style.cursor = 'pointer';
     c.style.pointerEvents = 'all';
@@ -1763,71 +1953,40 @@ function render(){
     c.addEventListener('click', e=>{ e.stopPropagation(); showMainPanel(n); });
     g.appendChild(c);
 
-    // Icon — photo thumbnail or emoji fallback
+    // SVG silhouette icon
     if(inEra){
-      const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
-      const iw=n.r*1.8,ih=n.r*1.8;
-      fo.setAttribute('x',n._x-iw/2);fo.setAttribute('y',n._y-ih/2);
-      fo.setAttribute('width',iw);fo.setAttribute('height',ih);fo.style.pointerEvents='none';
-      const photoEntry=typeof PHOTO_MAP!=='undefined'&&PHOTO_MAP[n.id];
-      if(photoEntry&&photoEntry.url){
-        const d=document.createElement('div');
-        d.style.cssText='width:100%;height:100%;border-radius:50%;overflow:hidden;border:1.5px solid rgba(200,136,58,0.3);box-shadow:0 1px 4px rgba(0,0,0,0.3);';
-        const img=document.createElement('img');
-        img.src=photoEntry.url;img.alt=n.name;
-        img.style.cssText='width:100%;height:100%;object-fit:cover;';
-        img.loading='lazy';
-        img.onerror=function(){this.parentElement.innerHTML=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:${Math.max(9,n.r*0.6)}px;line-height:1;border-radius:50%;">${n.icon}</div>`;};
-        d.appendChild(img);fo.appendChild(d);
-      }else{
-        const d=document.createElement('div');
-        d.style.cssText=`width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:${Math.max(9,n.r*0.6)}px;line-height:1;`;
-        d.textContent=n.icon;fo.appendChild(d);
-      }
-      g.appendChild(fo);
+      const ig=getIconGroup(n);
+      const iconPath=NODE_ICONS[ig]||NODE_ICONS.default;
+      const s=Math.max(10,n.r*1.1);
+      const icon=document.createElementNS('http://www.w3.org/2000/svg','path');
+      icon.setAttribute('d',iconPath);
+      icon.setAttribute('fill',document.documentElement.getAttribute('data-theme')==='light'?'rgba(30,30,30,0.55)':'rgba(255,255,255,0.6)');
+      icon.setAttribute('transform',`translate(${n._x-s/2},${n._y-s/2}) scale(${s/24})`);
+      icon.style.pointerEvents='none';
+      g.appendChild(icon);
     }
 
-    // Label — smart positioning to avoid overlap
-    let showLabel=inEra&&n.depth<=5;
-    if(showLabel&&n._parent&&n._parent.children&&n._parent.children.length>1){
-      const siblings=n._parent.children.filter(s=>s!==n);
-      for(const sib of siblings){
-        if(sib._x===undefined)continue;
-        const dx=n._x-sib._x,dy=n._y-sib._y;
-        const dist=Math.sqrt(dx*dx+dy*dy);
-        if(dist<40&&n.r<=sib.r){showLabel=false;break;}
-      }
-    }
-    if(showLabel){
-      let lx,ly,anchor;
-      if(viewMode==='cladogram'){
-        const isRtl=document.documentElement.dir==='rtl';
-        lx=n._x+(isRtl?-(n.r+8):(n.r+8));ly=n._y;anchor=isRtl?'end':'start';
-      } else if(viewMode==='chronological'){
-        lx=n._x;ly=n._y-n.r-8;anchor='middle';
-      } else {
-        const angleRad=n._angle-Math.PI/2;const lDist=n.r+14;
-        lx=n._x+Math.cos(angleRad)*lDist;ly=n._y+Math.sin(angleRad)*lDist;
-        const cos=Math.cos(angleRad);anchor=cos<-0.15?'end':cos>0.15?'start':'middle';
-      }
-      const svgText=document.createElementNS('http://www.w3.org/2000/svg','text');
-      svgText.setAttribute('x',lx);svgText.setAttribute('y',ly);
-      svgText.setAttribute('text-anchor',anchor);
-      svgText.setAttribute('dominant-baseline','middle');
-      svgText.setAttribute('fill',n.depth===0?'#f2e8d0':n.depth<=1?'rgba(242,232,208,0.92)':'rgba(242,232,208,0.82)');
-      svgText.setAttribute('font-size',n.depth===0?'14':n.depth===1?'12':'10');
-      svgText.setAttribute('font-family',"'Heebo', sans-serif");
-      svgText.setAttribute('font-weight',n.depth<=1?'500':'400');
-      svgText.setAttribute('class','node-label-text');
-      svgText.textContent=n.name;
-      g.appendChild(svgText);
+    // Label — compute position and store for global collision pass
+    if(inEra&&n.depth<=6){
+      const sibCount=n._parent?.children?.length||1;
+      const angleRad=n._angle-Math.PI/2;
+      const lDist=n.r+14+Math.max(0,(n.depth-3)*4);
+      const lx=n._x+Math.cos(angleRad)*lDist;
+      const ly=n._y+Math.sin(angleRad)*lDist;
+      const cos=Math.cos(angleRad);
+      const fontSize=n.depth===0?14:n.depth===1?12:sibCount>12?8:sibCount>8?9:10;
+      const textW=n.name.length*fontSize*0.55;
+      const textH=fontSize+2;
+      const anchor=cos<-0.15?'end':cos>0.15?'start':'middle';
+      const bx=anchor==='end'?lx-textW:anchor==='start'?lx:lx-textW/2;
+      pendingLabels.push({n,lx,ly,cos,fontSize,textW,textH,bx,by:ly-textH/2,anchor,g});
     }
 
     // Collapse dot
     if(n.children?.length&&n.depth>0){
       const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
       dot.setAttribute('cx',n._x+n.r-3);dot.setAttribute('cy',n._y-n.r+3);dot.setAttribute('r','3.5');
-      dot.setAttribute('fill',n._collapsed?'#e8b86d':'#4a9c58');
+      dot.setAttribute('fill',n._collapsed?'#f97316':'#22c55e');
       dot.style.stroke='var(--bg)';dot.setAttribute('stroke-width','1');
       g.appendChild(dot);
     }
@@ -1848,7 +2007,43 @@ function render(){
     nodesFrag.appendChild(g);
   });
 
-  // Swap in complete fragments atomically
+  // Global label collision resolution
+  // Sort by priority: human path first, then depth 0-1, then by depth ascending
+  pendingLabels.sort((a,b)=>{
+    const aHP=HUMAN_PATH.has(a.n.id)?0:1;
+    const bHP=HUMAN_PATH.has(b.n.id)?0:1;
+    if(aHP!==bHP) return aHP-bHP;
+    if(a.n.depth<=1 && b.n.depth>1) return -1;
+    if(b.n.depth<=1 && a.n.depth>1) return 1;
+    return a.n.depth-b.n.depth;
+  });
+  const placedBoxes=[];
+  function boxesOverlap(a,b){
+    return a.bx<b.bx+b.textW && a.bx+a.textW>b.bx && a.by<b.by+b.textH && a.by+a.textH>b.by;
+  }
+  pendingLabels.forEach(lb=>{
+    const onPath=HUMAN_PATH.has(lb.n.id);
+    // Always show depth 0-1 and human path nodes
+    const forceShow=lb.n.depth<=1||onPath;
+    if(!forceShow){
+      for(const placed of placedBoxes){
+        if(boxesOverlap(lb,placed)){return;}
+      }
+    }
+    placedBoxes.push(lb);
+    const svgText=document.createElementNS('http://www.w3.org/2000/svg','text');
+    svgText.setAttribute('x',lb.lx);svgText.setAttribute('y',lb.ly);
+    svgText.setAttribute('text-anchor',lb.anchor);
+    svgText.setAttribute('dominant-baseline','middle');
+    svgText.setAttribute('fill',onPath?'var(--accent-primary)':lb.n.depth===0?'#e8eaf0':lb.n.depth<=1?'rgba(160,164,176,0.95)':'rgba(107,112,128,0.85)');
+    svgText.setAttribute('font-size',lb.fontSize);
+    svgText.setAttribute('font-family',"'Inter', sans-serif");
+    svgText.setAttribute('font-weight',onPath||lb.n.depth<=1?'600':'400');
+    svgText.setAttribute('class','node-label-text');
+    svgText.textContent=lb.n.name;
+    lb.g.appendChild(svgText);
+  });
+
   branchLayer.replaceChildren(branchFrag);
   nodesLayer.replaceChildren(nodesFrag);
 }
@@ -1863,7 +2058,7 @@ let panelHistory=[];  // navigation history stack
 
 function generateSpeciesIllustration(node) {
   const id = node.id || '';
-  const color = node.color || '#4a9eff';
+  const color = node.color || '#0ea5e9';
   const icon = node.icon || '🌿';
   const c = color;
   // Parse hex or rgb color to components for manipulation
@@ -1911,7 +2106,7 @@ function generateSpeciesIllustration(node) {
       `<ellipse cx="220" cy="100" rx="200" ry="90" fill="${rgba(c,0.06)}"/>
        ${cells.map(p=>`<ellipse cx="${p.x}" cy="${p.y}" rx="${p.rx}" ry="${p.ry}" fill="${rgba(c,p.op)}" transform="rotate(${p.rot},${p.x},${p.y})" filter="url(#ig_glow)"/>
          <ellipse cx="${p.x}" cy="${p.y}" rx="${p.rx*0.5}" ry="${p.ry*0.5}" fill="${lighten(c,0.5)}" opacity="0.4" transform="rotate(${p.rot},${p.x},${p.y})"/>`).join('')}
-       <text x="${W/2}" y="${H-14}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+       <text x="${W/2}" y="${H-14}" text-anchor="middle" font-family="'Inter',sans-serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
     );
   }
 
@@ -1924,7 +2119,7 @@ function generateSpeciesIllustration(node) {
        <circle cx="${W/2}" cy="${H/2}" r="9" fill="${lighten(c,0.6)}" opacity="0.9"/>
        ${Array.from({length:12},(_,i)=>{const a=i/12*Math.PI*2;return `<line x1="${W/2+Math.cos(a)*18}" y1="${H/2+Math.sin(a)*18}" x2="${W/2+Math.cos(a)*78}" y2="${H/2+Math.sin(a)*78}" stroke="${rgba(c,0.35)}" stroke-width="1.2"/>`}).join('')}
        ${Array.from({length:18},(_,i)=>{const a=i/18*Math.PI*2; const r2=38+Math.sin(i*2.3)*12; return `<circle cx="${W/2+Math.cos(a)*r2}" cy="${H/2+Math.sin(a)*r2}" r="3.5" fill="${rgba(c,0.6)}" filter="url(#ig_glow)"/>`}).join('')}
-       <text x="${W/2}" y="${H-14}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+       <text x="${W/2}" y="${H-14}" text-anchor="middle" font-family="'Inter',sans-serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
     );
   }
 
@@ -1940,7 +2135,7 @@ function generateSpeciesIllustration(node) {
          <ellipse cx="${s.x}" cy="${H*0.72-s.h}" rx="${s.cap}" ry="${s.cap*0.38}" fill="${rgba(c,0.75)}" filter="url(#ig_glow)"/>
          <ellipse cx="${s.x}" cy="${H*0.72-s.h-1}" rx="${s.cap*0.65}" ry="${s.cap*0.22}" fill="${lighten(c,0.35)}" opacity="0.5"/>
        `).join('')}
-       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Inter',sans-serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
     );
   }
 
@@ -1964,7 +2159,7 @@ function generateSpeciesIllustration(node) {
              return `<ellipse cx="${lx+Math.cos(la)*11}" cy="${ly+Math.sin(la)*11}" rx="11" ry="6" fill="${rgba(c,0.7)}" transform="rotate(${(b.a*180/Math.PI+90).toFixed(0)},${lx+Math.cos(la)*11},${ly+Math.sin(la)*11})" filter="url(#ig_glow)"/>`;
            }).join('')}`;
        }).join('')}
-       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Inter',sans-serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
     );
   }
 
@@ -1976,7 +2171,7 @@ function generateSpeciesIllustration(node) {
        <path d="M${W-90},${H/2} L${W-60},${H/2-22} L${W-60},${H/2+22} Z" fill="${rgba(c,0.7)}"/>
        <ellipse cx="118" cy="${H/2}" rx="9" ry="6" fill="${lighten(c,0.6)}" opacity="0.85"/>
        ${Array.from({length:18},(_,i)=>{const x=30+i*22, y=H/2+Math.sin(i*0.7+1)*18; return `<circle cx="${x}" cy="${y}" r="1.5" fill="${rgba(c,0.3)}"/>`}).join('')}
-       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Inter',sans-serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
     );
   }
 
@@ -1989,7 +2184,7 @@ function generateSpeciesIllustration(node) {
        <ellipse cx="${W/2}" cy="${H*0.45}" rx="9" ry="12" fill="${rgba(c,0.8)}"/>
        <ellipse cx="${W/2+4}" cy="${H*0.44}" rx="3.5" ry="3.5" fill="${lighten(c,0.7)}" opacity="0.9"/>
        ${Array.from({length:5},(_,i)=>{ const y=H*0.62+i*7; return `<path d="M${W/2-16},${y} L${W/2},${y-4} L${W/2+16},${y}" fill="${rgba(c,0.25+i*0.06)}" stroke="${rgba(c,0.3)}" stroke-width="0.8"/>`; }).join('')}
-       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Inter',sans-serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
     );
   }
 
@@ -1999,7 +2194,7 @@ function generateSpeciesIllustration(node) {
       `<path d="M60,${H*0.55} Q120,${H*0.3} ${W/2},${H*0.45} Q${W-120},${H*0.6} ${W-60},${H*0.5}" fill="${rgba(c,0.45)}" stroke="${rgba(c,0.7)}" stroke-width="2" filter="url(#ig_glow)"/>
        <path d="M60,${H*0.55} Q80,${H*0.5} 100,${H*0.55} Q80,${H*0.65} 60,${H*0.55}" fill="${rgba(c,0.7)}"/>
        ${Array.from({length:24},(_,i)=>{ const t=i/23; const x=60+(W-120)*t; const y=H*0.45+Math.sin(t*Math.PI*2.5)*18; return `<ellipse cx="${x}" cy="${y}" rx="${5+Math.sin(i)*2}" ry="${3.5+Math.cos(i)*1}" fill="${rgba(c,0.45+Math.sin(i*0.7)*0.25)}" transform="rotate(${t*20},${x},${y})"/>`;}).join('')}
-       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Inter',sans-serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
     );
   }
 
@@ -2017,7 +2212,7 @@ function generateSpeciesIllustration(node) {
            ${Array.from({length:5},(_,j)=>{const t=0.25+j*0.16; const sx=cx+(ex-cx)*t, sy=cy+(ey-cy)*t; return `<circle cx="${sx}" cy="${sy}" r="2.5" fill="${lighten(c,0.5)}" opacity="0.7"/>`;}).join('')}`;
        }).join('')}
        <circle cx="${W/2+11}" cy="${H/2-11}" r="5" fill="${lighten(c,0.8)}" opacity="0.9"/>
-       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Inter',sans-serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
     );
   }
 
@@ -2029,7 +2224,7 @@ function generateSpeciesIllustration(node) {
        <ellipse cx="${W/2}" cy="${H*0.28}" rx="14" ry="11" fill="${rgba(c,0.65)}"/>
        ${[-1,1].map(side=>Array.from({length:3},(_,i)=>`<path d="M${W/2+side*28},${H*0.35+i*14} Q${W/2+side*(60+i*18)},${H*0.3+i*12} ${W/2+side*(72+i*20)},${H*0.38+i*16}" fill="none" stroke="${rgba(c,0.55)}" stroke-width="1.8" stroke-linecap="round"/>`).join('')).join('')}
        ${[-1,1].map(side=>`<path d="M${W/2+side*11},${H*0.27} Q${W/2+side*22},${H*0.1} ${W/2+side*18},${H*0.12}" fill="none" stroke="${rgba(c,0.6)}" stroke-width="1.5" stroke-linecap="round"/>`).join('')}
-       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Inter',sans-serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
     );
   }
 
@@ -2042,7 +2237,7 @@ function generateSpeciesIllustration(node) {
        <ellipse cx="${W/2-72}" cy="${H*0.48}" rx="15" ry="10" fill="${rgba(c,0.4)}"/>
        <ellipse cx="${W/2+86}" cy="${H*0.43}" rx="9" ry="6" fill="${lighten(c,0.5)}" opacity="0.8"/>
        <circle cx="${W/2+92}" cy="${H*0.41}" r="3.5" fill="${lighten(c,0.8)}" opacity="0.9"/>
-       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Inter',sans-serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
     );
   }
 
@@ -2058,7 +2253,7 @@ function generateSpeciesIllustration(node) {
        ].join('')).join('')}
        ${[-1,1].map(side=>`<circle cx="${W/2+side*18}" cy="${H*0.34}" r="7" fill="${lighten(c,0.5)}" opacity="0.75"/>`).join('')}
        <ellipse cx="${W/2}" cy="${H*0.44}" rx="14" ry="8" fill="${rgba(c,0.35)}"/>
-       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Inter',sans-serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
     );
   }
 
@@ -2069,7 +2264,7 @@ function generateSpeciesIllustration(node) {
       `<ellipse cx="${W/2}" cy="${H*0.38}" rx="42" ry="28" fill="${rgba(c,0.55)}" filter="url(#ig_glow)"/>
        <ellipse cx="${W/2}" cy="${H*0.38}" rx="30" ry="18}" fill="${lighten(c,0.3)}" opacity="0.45"/>
        ${tendrils.map(t=>`<path d="M${W/2+Math.cos(t.a)*40},${H*0.38+Math.sin(t.a)*26} Q${W/2+Math.cos(t.a+0.4)*(t.len+18)},${H*0.38+Math.sin(t.a+0.4)*(t.len+18)} ${W/2+Math.cos(t.a+0.8)*t.len},${H*0.38+28+t.len*0.9}" fill="none" stroke="${rgba(c,0.4)}" stroke-width="1.5" stroke-linecap="round"/>`).join('')}
-       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Inter',sans-serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
     );
   }
 
@@ -2084,7 +2279,7 @@ function generateSpeciesIllustration(node) {
           <circle cx="${cx}" cy="${cy}" r="${r*0.55}" fill="${lighten(c,0.4)}" opacity="0.5"/>
           ${Array.from({length:8},(_,j)=>{const a=j/8*Math.PI*2; return `<line x1="${cx+Math.cos(a)*r}" y1="${cy+Math.sin(a)*r}" x2="${cx+Math.cos(a)*(r+12)}" y2="${cy+Math.sin(a)*(r+12)}" stroke="${rgba(c,0.35)}" stroke-width="1.2" stroke-linecap="round"/>`;}).join('')}`;
       }).join('')}
-      <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+      <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Inter',sans-serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
     );
   }
 
@@ -2103,7 +2298,7 @@ function generateSpeciesIllustration(node) {
        ${[H*0.52,H*0.58,H*0.64].map((y,i)=>`<rect x="${W/2-28+i*3}" y="${y}" width="${56-i*6}" height="4" rx="2" fill="${rgba(c,0.3+i*0.08)}"/>`).join('')}
        <line x1="${W/2}" y1="${H*0.68}" x2="${W/2}" y2="${H*0.72}" stroke="${rgba(c,0.4)}" stroke-width="6" stroke-linecap="round"/>
        ${[-1,1].map(side=>`<path d="M${W/2},${H*0.72} L${W/2+side*30},${H*0.72} L${W/2+side*32},${H*0.95}" fill="none" stroke="${rgba(c,0.4)}" stroke-width="5" stroke-linecap="round"/>`).join('')}
-       <text x="${W/2}" y="${H-6}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+       <text x="${W/2}" y="${H-6}" text-anchor="middle" font-family="'Inter',sans-serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
     );
   }
 
@@ -2114,7 +2309,7 @@ function generateSpeciesIllustration(node) {
        <circle cx="${W/2}" cy="${H/2}" r="22" fill="url(#ig_rg)" filter="url(#ig_glow)"/>
        ${Array.from({length:24},(_,i)=>{const a=i/24*Math.PI*2; const r1=22, r2=28+Math.sin(i*3)*6; return `<line x1="${W/2+Math.cos(a)*r1}" y1="${H/2+Math.sin(a)*r1}" x2="${W/2+Math.cos(a)*r2}" y2="${H/2+Math.sin(a)*r2}" stroke="${rgba(c,0.5)}" stroke-width="1.5"/>`}).join('')}
        ${Array.from({length:6},(_,i)=>{const a=i/6*Math.PI*2; return Array.from({length:3},(_,j)=>{const r=45+j*22; const bx=W/2+Math.cos(a)*r, by=H/2+Math.sin(a)*r; return `<circle cx="${bx}" cy="${by}" r="${4-j*0.8}" fill="${rgba(c,0.45-j*0.1)}" filter="url(#ig_glow)"/><line x1="${W/2+Math.cos(a)*(r-12)}" y1="${H/2+Math.sin(a)*(r-12)}" x2="${bx}" y2="${by}" stroke="${rgba(c,0.2)}" stroke-width="0.8"/>`;}).join('');}).join('')}
-       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.6)}" letter-spacing="3">Last Universal Common Ancestor</text>`
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Inter',sans-serif" font-style="italic" font-size="11" fill="${rgba(c,0.6)}" letter-spacing="3">Last Universal Common Ancestor</text>`
     );
   }
 
@@ -2125,7 +2320,7 @@ function generateSpeciesIllustration(node) {
       `<polygon points="${pts.map(p=>`${p.x},${p.y}`).join(' ')}" fill="${rgba(c,0.12)}" stroke="${rgba(c,0.3)}" stroke-width="1.5" filter="url(#ig_soft)"/>
        ${Array.from({length:5},(_,i)=>`<circle cx="${pts[i*4].x}" cy="${pts[i*4].y}" r="${6+i*2}" fill="${rgba(c,0.55+i*0.06)}" filter="url(#ig_glow)"/>`).join('')}
        <circle cx="${W/2}" cy="${H/2}" r="18" fill="${rgba(c,0.7)}" filter="url(#ig_glow)"/>
-       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
+       <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Inter',sans-serif" font-style="italic" font-size="11" fill="${rgba(c,0.55)}" letter-spacing="2">${node.latin||node.name}</text>`
     );
   }
 
@@ -2136,8 +2331,8 @@ function generateSpeciesIllustration(node) {
      ${spokes.map(s=>`<circle cx="${s.x}" cy="${s.y}" r="${4+Math.random()*3}" fill="${rgba(c,0.5)}" filter="url(#ig_glow)"/>`).join('')}
      ${Array.from({length:3},(_,i)=>`<circle cx="${W/2}" cy="${H/2}" r="${14+i*16}" fill="none" stroke="${rgba(c,0.14+i*0.06)}" stroke-width="1.2"/>`).join('')}
      <circle cx="${W/2}" cy="${H/2}" r="14" fill="${rgba(c,0.75)}" filter="url(#ig_glow)"/>
-     <text x="${W/2}" y="${H*0.85}" text-anchor="middle" font-family="'Playfair Display',serif" font-size="${Math.min(16,220/Math.max(node.name.length,1))}px" fill="${lighten(c,0.55)}" font-weight="600" opacity="0.9">${icon} ${node.name}</text>
-     <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Playfair Display',serif" font-style="italic" font-size="11" fill="${rgba(c,0.5)}" letter-spacing="2">${node.latin||''}</text>`
+     <text x="${W/2}" y="${H*0.85}" text-anchor="middle" font-family="'Inter',sans-serif" font-size="${Math.min(16,220/Math.max(node.name.length,1))}px" fill="${lighten(c,0.55)}" font-weight="600" opacity="0.9">${icon} ${node.name}</text>
+     <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Inter',sans-serif" font-style="italic" font-size="11" fill="${rgba(c,0.5)}" letter-spacing="2">${node.latin||''}</text>`
   );
 }
 
@@ -2145,7 +2340,7 @@ function renderPanelContent(node) {
   const p = document.getElementById('panel') || document.getElementById('info-panel');
   if (!p) return;
   const extinctBadge = node.extinct
-    ? '<span style="background:#c0392b;color:white;font-size:10px;padding:2px 8px;border-radius:9999px;font-family:Heebo,sans-serif;font-weight:600;letter-spacing:0.05em;">† EXTINCT</span>'
+    ? '<span style="background:#ef4444;color:white;font-size:10px;padding:2px 8px;border-radius:9999px;font-family:Inter,sans-serif;font-weight:600;letter-spacing:0.05em;">† EXTINCT</span>'
     : '';
   // WIKI_TITLES loaded from js/speciesData.js
   // PHOTO_MAP loaded from js/speciesData.js
@@ -2191,6 +2386,174 @@ function renderPanelContent(node) {
     }
   }
 
+  const PHOTO_MAP = {
+    // Bacteria & microbes
+    'luca':                  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Hydrothermal_vent_-_Lost_City_2005.jpg/640px-Hydrothermal_vent_-_Lost_City_2005.jpg', credit:'NOAA/Wikipedia, CC BY 2.0'},
+    'bacteria':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Bacteria_collage.jpg/640px-Bacteria_collage.jpg', credit:'Wikipedia, CC BY-SA 3.0'},
+    'cyanobacteria':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/AnabaenaFS.jpg/640px-AnabaenaFS.jpg', credit:'Kristian Peters, CC BY-SA 3.0'},
+    'proteobacteria':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/EscherichiaColi_NIAID.jpg/640px-EscherichiaColi_NIAID.jpg', credit:'NIAID, CC BY 2.0'},
+    'ecoli':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/EscherichiaColi_NIAID.jpg/640px-EscherichiaColi_NIAID.jpg', credit:'NIAID, CC BY 2.0'},
+    'helicobacter':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/EMpylori.jpg/640px-EMpylori.jpg', credit:'Yutaka Tsutsumi, CC BY 2.5'},
+    'vibrio-cholerae':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Cholera_bacteria_SEM.jpg/640px-Cholera_bacteria_SEM.jpg', credit:'Tom Kirn/Louisa Howard, Public Domain'},
+    'firmicutes':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Lactobacillus_acidophilus_SEM.jpg/640px-Lactobacillus_acidophilus_SEM.jpg', credit:'Bob Blaylock, CC BY-SA 3.0'},
+    'lactobacillus':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Lactobacillus_acidophilus_SEM.jpg/640px-Lactobacillus_acidophilus_SEM.jpg', credit:'Bob Blaylock, CC BY-SA 3.0'},
+    'clostridium-botulinum': {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Clostridium_botulinum.jpg/640px-Clostridium_botulinum.jpg', credit:'CDC, Public Domain'},
+    'actinobacteria':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Streptomyces_coelicolor.jpg/640px-Streptomyces_coelicolor.jpg', credit:'Ninjatacoshell, CC BY-SA 3.0'},
+    'streptomyces':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Streptomyces_coelicolor.jpg/640px-Streptomyces_coelicolor.jpg', credit:'Ninjatacoshell, CC BY-SA 3.0'},
+    'mycobacterium-tb':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/TB_Culture.jpg/640px-TB_Culture.jpg', credit:'CDC, Public Domain'},
+    'deinococcus':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Deinococcus_radiodurans.jpg/640px-Deinococcus_radiodurans.jpg', credit:'Michael Daly, Public Domain'},
+    'bacteroides':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Bacteroides_fragilis_01.jpg/640px-Bacteroides_fragilis_01.jpg', credit:'CDC, Public Domain'},
+    'prochlorococcus':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Prochlorococcus.jpg/640px-Prochlorococcus.jpg', credit:'Luke Thompson/Chisholm Lab, CC BY 2.5'},
+    // Archaea
+    'archaea':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Halobacterium_sp._NRC-1.jpg/640px-Halobacterium_sp._NRC-1.jpg', credit:'NASA, Public Domain'},
+    'halobacterium':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Halobacterium_sp._NRC-1.jpg/640px-Halobacterium_sp._NRC-1.jpg', credit:'NASA, Public Domain'},
+    'sulfolobus':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Sulfolobus_solfataricus_electron_micrograph.jpg/640px-Sulfolobus_solfataricus_electron_micrograph.jpg', credit:'Dr. Wolfram Zillig, Public Domain'},
+    'pyrolobus':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Hydrothermal_vent_-_Lost_City_2005.jpg/640px-Hydrothermal_vent_-_Lost_City_2005.jpg', credit:'NOAA, CC BY 2.0'},
+    'lokiarchaeota':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Halobacterium_sp._NRC-1.jpg/640px-Halobacterium_sp._NRC-1.jpg', credit:'NASA, Public Domain'},
+    // Fungi
+    'fungi':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Amanita_muscaria_3_vliegenzwammen_op_rij.jpg/640px-Amanita_muscaria_3_vliegenzwammen_op_rij.jpg', credit:'Onderwijsgek, CC BY-SA 3.0'},
+    'ascomycetes':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/S_cerevisiae_under_DIC_microscopy.jpg/640px-S_cerevisiae_under_DIC_microscopy.jpg', credit:'Masur, Public Domain'},
+    'saccharomyces':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/S_cerevisiae_under_DIC_microscopy.jpg/640px-S_cerevisiae_under_DIC_microscopy.jpg', credit:'Masur, Public Domain'},
+    'penicillium':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Penicillium_chrysogenum.jpg/640px-Penicillium_chrysogenum.jpg', credit:'Ajc1, CC BY-SA 3.0'},
+    'basidiomycetes':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Amanita_muscaria_3_vliegenzwammen_op_rij.jpg/640px-Amanita_muscaria_3_vliegenzwammen_op_rij.jpg', credit:'Onderwijsgek, CC BY-SA 3.0'},
+    'amanita-muscaria':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Amanita_muscaria_3_vliegenzwammen_op_rij.jpg/640px-Amanita_muscaria_3_vliegenzwammen_op_rij.jpg', credit:'Onderwijsgek, CC BY-SA 3.0'},
+    'armillaria':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Armillaria_ostoyae.jpg/640px-Armillaria_ostoyae.jpg', credit:'USFS, Public Domain'},
+    'psilocybe':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Psilocybe_cubensis_Maui.jpg/640px-Psilocybe_cubensis_Maui.jpg', credit:'Workman, CC BY-SA 3.0'},
+    'chytrids':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Litoria_caerulea_White%27s_tree_frog.jpg/640px-Litoria_caerulea_White%27s_tree_frog.jpg', credit:'LiquidGhoul, CC BY-SA 3.0'},
+    'batrachochytrium':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Litoria_caerulea_White%27s_tree_frog.jpg/640px-Litoria_caerulea_White%27s_tree_frog.jpg', credit:'LiquidGhoul, CC BY-SA 3.0'},
+    // Plants
+    'viridiplantae':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Sunflower_from_Silesia2.jpg/640px-Sunflower_from_Silesia2.jpg', credit:'Malcom Manners, CC BY 2.0'},
+    'mosses':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Sphagnum_Moss.jpg/640px-Sphagnum_Moss.jpg', credit:'Bff, CC BY-SA 3.0'},
+    'sphagnum':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Sphagnum_Moss.jpg/640px-Sphagnum_Moss.jpg', credit:'Bff, CC BY-SA 3.0'},
+    'liverworts':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Marchantia_polymorpha.jpg/640px-Marchantia_polymorpha.jpg', credit:'Hermann Schachner, CC0'},
+    'marchantia':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Marchantia_polymorpha.jpg/640px-Marchantia_polymorpha.jpg', credit:'Hermann Schachner, CC0'},
+    'angiosperms':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Sunflower_from_Silesia2.jpg/640px-Sunflower_from_Silesia2.jpg', credit:'Malcom Manners, CC BY 2.0'},
+    'sunflower':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Sunflower_from_Silesia2.jpg/640px-Sunflower_from_Silesia2.jpg', credit:'Malcom Manners, CC BY 2.0'},
+    'arabidopsis':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Arabidopsis_thaliana_inflorescens.jpg/640px-Arabidopsis_thaliana_inflorescens.jpg', credit:'Nikolai Sitnov, Public Domain'},
+    'rafflesia':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Rafflesia_arnoldii.jpg/640px-Rafflesia_arnoldii.jpg', credit:'Rendra Regen Rais, CC BY 2.0'},
+    'titan-arum':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Amorphophallus_titanum2.jpg/640px-Amorphophallus_titanum2.jpg', credit:'Rhett A. Butler, CC BY 2.5'},
+    'mimosa':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Mimosa_pudica_touch.jpg/640px-Mimosa_pudica_touch.jpg', credit:'Hrushikesh, CC BY-SA 3.0'},
+    'gymnosperms':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/General_Sherman_tree_looking_up.jpg/640px-General_Sherman_tree_looking_up.jpg', credit:'Jim Bahn, CC BY 2.0'},
+    'wollemi-pine':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Wollemi_Pine_in_habitat.jpg/640px-Wollemi_Pine_in_habitat.jpg', credit:'Brent Miller, CC BY 2.0'},
+    'welwitschia':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Welwitschia_mirabilis2.jpg/640px-Welwitschia_mirabilis2.jpg', credit:'Thomas Schoch, CC BY-SA 2.5'},
+    'sequoia':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/General_Sherman_tree_looking_up.jpg/640px-General_Sherman_tree_looking_up.jpg', credit:'Jim Bahn, CC BY 2.0'},
+    'ferns':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Cyathea_cooperi.jpg/640px-Cyathea_cooperi.jpg', credit:'Photohound, CC BY-SA 3.0'},
+    'tree-fern':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Cyathea_cooperi.jpg/640px-Cyathea_cooperi.jpg', credit:'Photohound, CC BY-SA 3.0'},
+    'azolla':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Azolla_caroliniana.jpg/640px-Azolla_caroliniana.jpg', credit:'Christian Fischer, CC BY-SA 3.0'},
+    // Animals
+    'metazoa':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Turritopsis_nutricula.jpg/640px-Turritopsis_nutricula.jpg', credit:'Bachware, Public Domain'},
+    'porifera':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Coral_reef_at_palmyra.jpg/640px-Coral_reef_at_palmyra.jpg', credit:'USFWS, Public Domain'},
+    'cnidaria':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Turritopsis_nutricula.jpg/640px-Turritopsis_nutricula.jpg', credit:'Bachware, Public Domain'},
+    'turritopsis':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Turritopsis_nutricula.jpg/640px-Turritopsis_nutricula.jpg', credit:'Bachware, Public Domain'},
+    'coral-reef':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Coral_reef_at_palmyra.jpg/640px-Coral_reef_at_palmyra.jpg', credit:'USFWS, Public Domain'},
+    'arthropoda':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Odontodactylus_scyllarus.jpg/640px-Odontodactylus_scyllarus.jpg', credit:'Roy Caldwell, Public Domain'},
+    'insecta':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Apis_mellifera_Western_honey_bee.jpg/640px-Apis_mellifera_Western_honey_bee.jpg', credit:'Charles J. Sharp, CC BY-SA 4.0'},
+    'honey-bee':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Apis_mellifera_Western_honey_bee.jpg/640px-Apis_mellifera_Western_honey_bee.jpg', credit:'Charles J. Sharp, CC BY-SA 4.0'},
+    'mantis-shrimp':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Odontodactylus_scyllarus.jpg/640px-Odontodactylus_scyllarus.jpg', credit:'Roy Caldwell, Public Domain'},
+    'horseshoe-crab':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Horseshoe_crab_dig.jpg/640px-Horseshoe_crab_dig.jpg', credit:'Steve Droter/CBF, CC BY 2.0'},
+    'mollusca':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Octopus3.jpg/640px-Octopus3.jpg', credit:'Albert Kok, CC BY-SA 3.0'},
+    'cephalopods':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Octopus3.jpg/640px-Octopus3.jpg', credit:'Albert Kok, CC BY-SA 3.0'},
+    'octopus':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Octopus3.jpg/640px-Octopus3.jpg', credit:'Albert Kok, CC BY-SA 3.0'},
+    'octopus-day':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Octopus3.jpg/640px-Octopus3.jpg', credit:'Albert Kok, CC BY-SA 3.0'},
+    'nautilus':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Nautilus_pompilius_%28head%29.jpg/640px-Nautilus_pompilius_%28head%29.jpg', credit:'Profberger, CC BY-SA 4.0'},
+    'echinodermata':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Coral_reef_at_palmyra.jpg/640px-Coral_reef_at_palmyra.jpg', credit:'USFWS, Public Domain'},
+    'chordata':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Coelacanth_cast.jpg/640px-Coelacanth_cast.jpg', credit:'Citron, CC BY-SA 3.0'},
+    'fish':                  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/White_shark.jpg/640px-White_shark.jpg', credit:'Pterantula, CC BY-SA 3.0'},
+    'sharks':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/White_shark.jpg/640px-White_shark.jpg', credit:'Pterantula, CC BY-SA 3.0'},
+    'white-shark':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/White_shark.jpg/640px-White_shark.jpg', credit:'Pterantula, CC BY-SA 3.0'},
+    'coelacanth':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Coelacanth_cast.jpg/640px-Coelacanth_cast.jpg', credit:'Citron, CC BY-SA 3.0'},
+    'amphibia':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Litoria_caerulea_White%27s_tree_frog.jpg/640px-Litoria_caerulea_White%27s_tree_frog.jpg', credit:'LiquidGhoul, CC BY-SA 3.0'},
+    'reptilia':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Komodo_dragon_%28Varanus_komodoensis%29_-edit2.jpg/640px-Komodo_dragon_%28Varanus_komodoensis%29_-edit2.jpg', credit:'Adhi Rachdian, CC BY 2.0'},
+    'komodo-dragon':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Komodo_dragon_%28Varanus_komodoensis%29_-edit2.jpg/640px-Komodo_dragon_%28Varanus_komodoensis%29_-edit2.jpg', credit:'Adhi Rachdian, CC BY 2.0'},
+    'tuatara':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Tuatara_%28Sphenodon_punctatus%29.jpg/640px-Tuatara_%28Sphenodon_punctatus%29.jpg', credit:'KeresH, CC BY-SA 3.0'},
+    'aves':                  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Falco_peregrinus_-_01.jpg/640px-Falco_peregrinus_-_01.jpg', credit:'Juan Lacruz, CC BY-SA 3.0'},
+    'birds':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Falco_peregrinus_-_01.jpg/640px-Falco_peregrinus_-_01.jpg', credit:'Juan Lacruz, CC BY-SA 3.0'},
+    'archaeopteryx':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Archaeopteryx_lithographica_%28Berlin_specimen%29.jpg/640px-Archaeopteryx_lithographica_%28Berlin_specimen%29.jpg', credit:'H. Raab, CC BY-SA 3.0'},
+    'peregrine-falcon':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Falco_peregrinus_-_01.jpg/640px-Falco_peregrinus_-_01.jpg', credit:'Juan Lacruz, CC BY-SA 3.0'},
+    'mammalia':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Humpback_whales_in_singing_position.jpg/640px-Humpback_whales_in_singing_position.jpg', credit:'NOAA, Public Domain'},
+    'cetaceans':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Humpback_whales_in_singing_position.jpg/640px-Humpback_whales_in_singing_position.jpg', credit:'NOAA, Public Domain'},
+    'blue-whale':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Humpback_whales_in_singing_position.jpg/640px-Humpback_whales_in_singing_position.jpg', credit:'NOAA, Public Domain'},
+    'naked-mole-rat':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Naked_mole_rat.jpg/640px-Naked_mole_rat.jpg', credit:'Jedimentat44, CC BY 2.0'},
+    'platypus':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Platypus.jpg/640px-Platypus.jpg', credit:'Stefan Kraft, CC BY-SA 3.0'},
+    // Primates & great apes
+    'primates':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/ChimpanzeeZoo.jpg/640px-ChimpanzeeZoo.jpg', credit:'Thomas Lersch, CC BY-SA 3.0'},
+    'great-apes':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Gorilla_gorilla_gorilla_-_Gorille_des_plaines_de_l%27ouest.jpg/640px-Gorilla_gorilla_gorilla_-_Gorille_des_plaines_de_l%27ouest.jpg', credit:'Brocken Inaglory, CC BY-SA 3.0'},
+    'gorilla':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Gorilla_gorilla_gorilla_-_Gorille_des_plaines_de_l%27ouest.jpg/640px-Gorilla_gorilla_gorilla_-_Gorille_des_plaines_de_l%27ouest.jpg', credit:'Brocken Inaglory, CC BY-SA 3.0'},
+    'orangutan':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Orang_Utan%2C_Semenggok_Forest_Reserve%2C_Sarawak%2C_Borneo%2C_Malaysia.JPG/640px-Orang_Utan%2C_Semenggok_Forest_Reserve%2C_Sarawak%2C_Borneo%2C_Malaysia.JPG', credit:'Thorsten Bachner, CC BY-SA 3.0'},
+    'chimpanzee':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/ChimpanzeeZoo.jpg/640px-ChimpanzeeZoo.jpg', credit:'Thomas Lersch, CC BY-SA 3.0'},
+    'homo-sapiens':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Akha_woman.jpg/640px-Akha_woman.jpg', credit:'Steve Evans, CC BY 2.0'},
+    // Protists
+    'protists':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Diatoms_through_the_microscope.jpg/640px-Diatoms_through_the_microscope.jpg', credit:'Wipeter, CC BY-SA 3.0'},
+    'alveolates':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Dinoflagellate_bloom.jpg/640px-Dinoflagellate_bloom.jpg', credit:'NOAA, Public Domain'},
+    'plasmodium':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Plasmodium_falciparum_01.png/640px-Plasmodium_falciparum_01.png', credit:'CDC, Public Domain'},
+    'dinoflagellates':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Dinoflagellate_bloom.jpg/640px-Dinoflagellate_bloom.jpg', credit:'NOAA, Public Domain'},
+    'diatoms':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Diatoms_through_the_microscope.jpg/640px-Diatoms_through_the_microscope.jpg', credit:'Wipeter, CC BY-SA 3.0'},
+    'phytophthora':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Phytophthora_infestans_on_tomato.jpg/640px-Phytophthora_infestans_on_tomato.jpg', credit:'Ninjatacoshell, CC BY-SA 3.0'},
+    'amoeba':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Amoeba_proteus_with_many_pseudopodia.jpg/640px-Amoeba_proteus_with_many_pseudopodia.jpg', credit:'Deuterostome, CC BY-SA 3.0'},
+    'volvox':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Volvox_aureus.jpg/640px-Volvox_aureus.jpg', credit:'Frank Fox, CC BY-SA 3.0'},
+    // Hominin fossils
+    'homo-naledi':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Homo_naledi_skull.jpg/640px-Homo_naledi_skull.jpg', credit:'Lee Roger Berger, CC BY 4.0'},
+    'h_naledi':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Homo_naledi_skull.jpg/640px-Homo_naledi_skull.jpg', credit:'Lee Roger Berger, CC BY 4.0'},
+    'homo-floresiensis':     {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Homo_floresiensis_cave.jpg/640px-Homo_floresiensis_cave.jpg', credit:'Rosino, CC BY-SA 2.0'},
+    'h_floresiensis':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Homo_floresiensis_cave.jpg/640px-Homo_floresiensis_cave.jpg', credit:'Rosino, CC BY-SA 2.0'},
+    'h_luzonensis':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Callao_Cave_Entrance.jpg/640px-Callao_Cave_Entrance.jpg', credit:'Judgefloro, CC0'},
+    'denisovan':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Denisova_Cave_main_gallery.jpg/640px-Denisova_Cave_main_gallery.jpg', credit:'Демин Алексей Барнаул, CC BY-SA 3.0'},
+    'h_neanderthalensis':    {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Homo_neanderthalensis.jpg/640px-Homo_neanderthalensis.jpg', credit:'Erich Ferdinand, CC BY 2.0'},
+    'h_erectus':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Turkana_Boy_1.JPG/640px-Turkana_Boy_1.JPG', credit:'Locutus Borg, CC BY-SA 3.0'},
+    'h_heidelbergensis':     {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Homo_heidelbergensis-male.jpg/640px-Homo_heidelbergensis-male.jpg', credit:'Cicero Moraes, CC BY-SA 3.0'},
+    'h_habilis':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Homo_habilis-2.JPG/640px-Homo_habilis-2.JPG', credit:'Lillyundfreya, CC BY-SA 2.5'},
+    'au_afarensis':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Lucy_Skeleton.jpg/640px-Lucy_Skeleton.jpg', credit:'Cleveland Museum, CC BY 4.0'},
+    'au_africanus':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Australopithecus_africanus_-_Cast_of_taung_child.jpg/640px-Australopithecus_africanus_-_Cast_of_taung_child.jpg', credit:'José Braga/Didier Descouens, CC BY-SA 4.0'},
+    'sahelanthropus':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg/640px-Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg', credit:'Didier Descouens, CC BY-SA 4.0'},
+    'ardipithecus_r':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Ardipithecus_ramidus_-_Scientific_reconstruction.jpg/640px-Ardipithecus_ramidus_-_Scientific_reconstruction.jpg', credit:'Science, Educational use'},
+    // Tree ID aliases (match PHOTO_MAP keys to actual tree node IDs)
+    'plantae':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Sunflower_from_Silesia2.jpg/640px-Sunflower_from_Silesia2.jpg', credit:'Malcom Manners, CC BY 2.0'},
+    'bryophytes':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Sphagnum_Moss.jpg/640px-Sphagnum_Moss.jpg', credit:'Bff, CC BY-SA 3.0'},
+    'animalia':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Biodiversity_in_FS.jpg/640px-Biodiversity_in_FS.jpg', credit:'Wikimedia, CC BY-SA 4.0'},
+    'invertebrates':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Odontodactylus_scyllarus.jpg/640px-Odontodactylus_scyllarus.jpg', credit:'Roy Caldwell, Public Domain'},
+    'insects':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Apis_mellifera_Western_honey_bee.jpg/640px-Apis_mellifera_Western_honey_bee.jpg', credit:'Charles J. Sharp, CC BY-SA 4.0'},
+    'cnidarians':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Turritopsis_nutricula.jpg/640px-Turritopsis_nutricula.jpg', credit:'Bachware, Public Domain'},
+    'echinoderms':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Fromia_monilis_%28Seastar%29.jpg/640px-Fromia_monilis_%28Seastar%29.jpg', credit:'Nhobgood, CC BY-SA 3.0'},
+    'annelids':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Regenwurm1.jpg/640px-Regenwurm1.jpg', credit:'Michael Linnenbach, CC BY-SA 3.0'},
+    'vertebrates':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Coelacanth_cast.jpg/640px-Coelacanth_cast.jpg', credit:'Citron, CC BY-SA 3.0'},
+    'shark':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/White_shark.jpg/640px-White_shark.jpg', credit:'Pterantula, CC BY-SA 3.0'},
+    'reptiles':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Komodo_dragon_%28Varanus_komodoensis%29_-edit2.jpg/640px-Komodo_dragon_%28Varanus_komodoensis%29_-edit2.jpg', credit:'Adhi Rachdian, CC BY 2.0'},
+    'amphibians':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Litoria_caerulea_White%27s_tree_frog.jpg/640px-Litoria_caerulea_White%27s_tree_frog.jpg', credit:'LiquidGhoul, CC BY-SA 3.0'},
+    'mammals':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Humpback_whales_in_singing_position.jpg/640px-Humpback_whales_in_singing_position.jpg', credit:'NOAA, Public Domain'},
+    'coral':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Coral_reef_at_palmyra.jpg/640px-Coral_reef_at_palmyra.jpg', credit:'USFWS, Public Domain'},
+    'mimosa-pudica':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Mimosa_pudica_touch.jpg/640px-Mimosa_pudica_touch.jpg', credit:'Hrushikesh, CC BY-SA 3.0'},
+    'wollemia':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Wollemi_Pine_in_habitat.jpg/640px-Wollemi_Pine_in_habitat.jpg', credit:'Brent Miller, CC BY 2.0'},
+    'amoeba-proteus':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Amoeba_proteus_with_many_pseudopodia.jpg/640px-Amoeba_proteus_with_many_pseudopodia.jpg', credit:'Deuterostome, CC BY-SA 3.0'},
+    // Missing nodes — newly added
+    'nostoc':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/AnabaenaFS.jpg/640px-AnabaenaFS.jpg', credit:'Kristian Peters, CC BY-SA 3.0'},
+    'spirochetes':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Treponema_pallidum.jpg/640px-Treponema_pallidum.jpg', credit:'CDC, Public Domain'},
+    'euryarchaeota':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Halobacterium_sp._NRC-1.jpg/640px-Halobacterium_sp._NRC-1.jpg', credit:'NASA, Public Domain'},
+    'methanobacterium':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Halobacterium_sp._NRC-1.jpg/640px-Halobacterium_sp._NRC-1.jpg', credit:'NASA, Public Domain'},
+    'asgard':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Hydrothermal_vent_-_Lost_City_2005.jpg/640px-Hydrothermal_vent_-_Lost_City_2005.jpg', credit:'NOAA, CC BY 2.0'},
+    'eukaryota':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Diatoms_through_the_microscope.jpg/640px-Diatoms_through_the_microscope.jpg', credit:'Wipeter, CC BY-SA 3.0'},
+    'stramenopiles':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Diatoms_through_the_microscope.jpg/640px-Diatoms_through_the_microscope.jpg', credit:'Wipeter, CC BY-SA 3.0'},
+    'amoebozoa':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Amoeba_proteus_with_many_pseudopodia.jpg/640px-Amoeba_proteus_with_many_pseudopodia.jpg', credit:'Deuterostome, CC BY-SA 3.0'},
+    'paramecium':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Paramecium_caudatum_Ehrenberg%2C_1833.jpg/640px-Paramecium_caudatum_Ehrenberg%2C_1833.jpg', credit:'Barfooz, CC BY-SA 3.0'},
+    // Additional hominin coverage
+    'par_boisei':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Paranthropus_boisei.JPG/640px-Paranthropus_boisei.JPG', credit:'Lillyundfreya, CC BY-SA 3.0'},
+    'par_robustus':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Paranthropus_boisei.JPG/640px-Paranthropus_boisei.JPG', credit:'Lillyundfreya, CC BY-SA 3.0'},
+    'h_antecessor':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Homo_heidelbergensis-male.jpg/640px-Homo_heidelbergensis-male.jpg', credit:'Cicero Moraes, CC BY-SA 3.0'},
+    'h_bodoensis':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Homo_heidelbergensis-male.jpg/640px-Homo_heidelbergensis-male.jpg', credit:'Cicero Moraes, CC BY-SA 3.0'},
+    'h_rudolfensis':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Homo_habilis-2.JPG/640px-Homo_habilis-2.JPG', credit:'Lillyundfreya, CC BY-SA 2.5'},
+    'h_longi':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Homo_heidelbergensis-male.jpg/640px-Homo_heidelbergensis-male.jpg', credit:'Cicero Moraes, CC BY-SA 3.0'},
+    'au_sediba':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Lucy_Skeleton.jpg/640px-Lucy_Skeleton.jpg', credit:'Cleveland Museum, CC BY 4.0'},
+    'au_anamensis':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Lucy_Skeleton.jpg/640px-Lucy_Skeleton.jpg', credit:'Cleveland Museum, CC BY 4.0'},
+    'kenyanthropus':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg/640px-Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg', credit:'Didier Descouens, CC BY-SA 4.0'},
+    'orrorin':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg/640px-Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg', credit:'Didier Descouens, CC BY-SA 4.0'},
+    'par_aethiopicus':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Paranthropus_boisei.JPG/640px-Paranthropus_boisei.JPG', credit:'Lillyundfreya, CC BY-SA 3.0'},
+    'au_bahrelghazali':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Lucy_Skeleton.jpg/640px-Lucy_Skeleton.jpg', credit:'Cleveland Museum, CC BY 4.0'},
+    'au_deyiremeda':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Lucy_Skeleton.jpg/640px-Lucy_Skeleton.jpg', credit:'Cleveland Museum, CC BY 4.0'},
+    'au_garhi':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Lucy_Skeleton.jpg/640px-Lucy_Skeleton.jpg', credit:'Cleveland Museum, CC BY 4.0'},
+    'au_prometheus':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Australopithecus_africanus_-_Cast_of_taung_child.jpg/640px-Australopithecus_africanus_-_Cast_of_taung_child.jpg', credit:'José Braga/Didier Descouens, CC BY-SA 4.0'},
+    'h_sapiens':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Akha_woman.jpg/640px-Akha_woman.jpg', credit:'Steve Evans, CC BY 2.0'},
+    'neanderthal':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Homo_neanderthalensis.jpg/640px-Homo_neanderthalensis.jpg', credit:'Erich Ferdinand, CC BY 2.0'},
+    'denisovans':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Denisova_Cave_main_gallery.jpg/640px-Denisova_Cave_main_gallery.jpg', credit:'Демин Алексей Барнаул, CC BY-SA 3.0'},
+  };
   // Merge data-level img with the lookup map; lookup takes priority
   const photoEntry = PHOTO_MAP[node.id];
   let staticUrl = (photoEntry && photoEntry.url) || node.img || null;
@@ -2210,38 +2573,40 @@ function renderPanelContent(node) {
         onerror="this.style.display='none';document.getElementById('${panelFbId}').style.display='flex';(window._failedPhotos||(window._failedPhotos=new Set())).add('static:${node.id}');"
       />
       <div id="${panelFbId}" style="display:${staticUrl ? 'none' : 'flex'};width:100%;height:100%;align-items:center;justify-content:center;font-size:72px;background:#111;">${node.icon||'🌿'}</div>
-      <div id="${panelCrId}" style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.65);font-family:'Heebo',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.35);padding:1px 5px;border-radius:3px;">${staticCredit||''}</div>
+      <div id="${panelCrId}" style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.65);font-family:'Inter',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.35);padding:1px 5px;border-radius:3px;">${staticCredit||''}</div>
     </div>
     <div style="padding:20px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;flex:1;">
       ${(()=>{
-        const isGreatApe    = GREAT_APE_IDS.includes(node.id);
-        const isHuman       = node._hominin || node.id==='hominini' || node.id.startsWith('group-') || (node.tags && (node.tags.includes('Hominin') || node.tags.includes('Human evolution')));
-        if (isHuman) return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b07a3e;font-family:'Heebo',sans-serif;text-transform:uppercase;background:rgba(176,122,62,0.12);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,122,62,0.3);">🧬 Human Lineage</span></div>`;
-        if (isGreatApe) return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b03535;font-family:'Heebo',sans-serif;text-transform:uppercase;background:rgba(176,53,53,0.1);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,53,53,0.25);">🦍 Great Apes</span></div>`;
+        const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','homo-sapiens'];
+        const HOMININ_IDS   = ['homo-sapiens','h_erectus','h_habilis','h_neanderthalensis','h_heidelbergensis','h_floresiensis','h_naledi','h_luzonensis','denisovan','au_afarensis','au_africanus','sahelanthropus','ardipithecus_r'];
+        const isGreatApe    = GREAT_APE_IDS.includes(node.id) || node.id === 'great-apes';
+        const isHuman       = HOMININ_IDS.includes(node.id) || (node.tags && (node.tags.includes('Hominin') || node.tags.includes('Human evolution')));
+        if (isHuman) return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b07a3e;font-family:'Inter',sans-serif;text-transform:uppercase;background:rgba(176,122,62,0.12);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,122,62,0.3);">🧬 Human Lineage</span></div>`;
+        if (isGreatApe) return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b03535;font-family:'Inter',sans-serif;text-transform:uppercase;background:rgba(176,53,53,0.1);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,53,53,0.25);">🦍 Great Apes</span></div>`;
         return '';
       })()}
       <div style="display:flex;flex-direction:column;gap:6px;">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <h2 style="font-family:'Playfair Display',serif;font-size:22px;font-weight:700;color:var(--color-text-primary);margin:0;line-height:1.2;">${node.name}</h2>
+          <h2 style="font-family:'Inter',sans-serif;font-size:22px;font-weight:700;color:var(--color-text-primary);margin:0;line-height:1.2;">${node.name}</h2>
           ${extinctBadge}
         </div>
-        ${node.latin ? `<div style="font-style:italic;font-size:13px;color:var(--color-text-muted);font-family:'Heebo',sans-serif;">${node.latin}</div>` : ''}
-        ${node.era ? `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Heebo',sans-serif;">📅 ${node.era}${node.appeared ? ' · ' + node.appeared + ' Mya' : ''}</div>` : ''}
+        ${node.latin ? `<div style="font-style:italic;font-size:13px;color:var(--color-text-muted);font-family:'Inter',sans-serif;">${node.latin}</div>` : ''}
+        ${node.era ? `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">📅 ${node.era}${node.appeared ? ' · ' + node.appeared + ' Mya' : ''}</div>` : ''}
       </div>
-      ${node.desc ? `<p style="font-size:14px;line-height:1.7;color:var(--color-text-secondary);font-family:'Heebo',sans-serif;margin:0;">${node.desc}</p>` : ''}
+      ${node.desc ? `<p style="font-size:14px;line-height:1.7;color:var(--color-text-secondary);font-family:'Inter',sans-serif;margin:0;">${node.desc}</p>` : ''}
       ${node.funFact ? `
         <div style="border-left:3px solid var(--color-accent);padding:12px 16px;background:rgba(46,125,50,0.06);border-radius:0 8px 8px 0;">
-          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;margin-bottom:6px;font-family:'Heebo',sans-serif;">💡 DID YOU KNOW</div>
-          <p style="font-family:'Playfair Display',serif;font-style:italic;font-size:14px;line-height:1.6;color:var(--color-text-primary);margin:0;">${node.funFact}</p>
+          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;margin-bottom:6px;font-family:'Inter',sans-serif;">💡 DID YOU KNOW</div>
+          <p style="font-family:'Inter',sans-serif;font-style:italic;font-size:14px;line-height:1.6;color:var(--color-text-primary);margin:0;">${node.funFact}</p>
         </div>
       ` : ''}
-      ${node.detail ? `<p style="font-size:13px;line-height:1.7;color:var(--color-text-muted);font-family:'Heebo',sans-serif;margin:0;">${node.detail}</p>` : ''}
+      ${node.detail ? `<p style="font-size:13px;line-height:1.7;color:var(--color-text-muted);font-family:'Inter',sans-serif;margin:0;">${node.detail}</p>` : ''}
       ${node.facts && node.facts.length > 0 ? `
         <div style="display:flex;flex-direction:column;gap:1px;border-radius:8px;overflow:hidden;border:1px solid var(--color-divider);">
           ${node.facts.map((f, i) => `
             <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:${i % 2 === 0 ? 'var(--color-canvas-alt)' : 'var(--color-panel-bg)'};">
-              <span style="font-size:12px;color:var(--color-text-muted);font-family:'Heebo',sans-serif;">${f.l}</span>
-              <span style="font-size:13px;font-weight:600;color:var(--color-text-primary);font-family:'Heebo',sans-serif;text-align:right;max-width:60%;">${f.v}</span>
+              <span style="font-size:12px;color:var(--color-text-muted);font-family:'Inter',sans-serif;">${f.l}</span>
+              <span style="font-size:13px;font-weight:600;color:var(--color-text-primary);font-family:'Inter',sans-serif;text-align:right;max-width:60%;">${f.v}</span>
             </div>
           `).join('')}
         </div>
@@ -2249,33 +2614,30 @@ function renderPanelContent(node) {
       ${node.tags && node.tags.length > 0 ? `
         <div style="display:flex;flex-wrap:wrap;gap:6px;">
           ${node.tags.map(tag => `
-            <span style="font-size:11px;padding:3px 10px;border-radius:9999px;background:var(--color-button-bg);border:1px solid var(--color-button-border);color:var(--color-text-secondary);font-family:'Heebo',sans-serif;">${tag}</span>
+            <span style="font-size:11px;padding:3px 10px;border-radius:9999px;background:var(--color-button-bg);border:1px solid var(--color-button-border);color:var(--color-text-secondary);font-family:'Inter',sans-serif;">${tag}</span>
           `).join('')}
         </div>
       ` : ''}
       ${node.tipFact ? `
-        <div style="padding:12px;background:var(--color-button-bg);border-radius:8px;font-size:12px;color:var(--color-text-muted);font-family:'Heebo',sans-serif;font-style:italic;text-align:center;">
+        <div style="padding:12px;background:var(--color-button-bg);border-radius:8px;font-size:12px;color:var(--color-text-muted);font-family:'Inter',sans-serif;font-style:italic;text-align:center;">
           🌿 ${node.tipFact}
         </div>
       ` : ''}
       ${node.altFacts && node.altFacts.length > 0 ? `
         <div style="display:flex;flex-direction:column;gap:6px;">
-          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Heebo',sans-serif;">💡 MORE FASCINATING FACTS</div>
+          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">📚 DID YOU KNOW?</div>
           ${node.altFacts.map(f=>`
-            <div style="display:flex;gap:10px;align-items:flex-start;padding:8px 10px;background:var(--color-canvas-alt);border-radius:6px;border-left:2px solid var(--color-accent);">
-              <span style="color:var(--color-accent);font-size:13px;flex-shrink:0;margin-top:1px;">▸</span>
-              <span style="font-size:13px;line-height:1.55;color:var(--color-text-secondary);font-family:'Heebo',sans-serif;">${f}</span>
-            </div>
+            <div style="padding:10px;background:var(--color-button-bg);border-radius:8px;font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">${f}</div>
           `).join('')}
         </div>
       ` : ''}
       ${node.links && node.links.length > 0 ? `
         <div style="display:flex;flex-direction:column;gap:6px;">
-          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Heebo',sans-serif;">🔗 LEARN MORE</div>
+          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">🔗 LEARN MORE</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px;">
             ${node.links.map(lnk=>`
               <a href="${lnk.url}" target="_blank" rel="noopener noreferrer"
-                style="font-size:12px;padding:5px 12px;border-radius:9999px;background:var(--color-button-bg);border:1px solid var(--color-button-border);color:var(--color-accent);font-family:'Heebo',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:4px;"
+                style="font-size:12px;padding:5px 12px;border-radius:9999px;background:var(--color-button-bg);border:1px solid var(--color-button-border);color:var(--color-accent);font-family:'Inter',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:4px;"
                 onmouseover="this.style.background='var(--color-accent)';this.style.color='white';"
                 onmouseout="this.style.background='var(--color-button-bg)';this.style.color='var(--color-accent)';">
                 ↗ ${lnk.label}
@@ -2284,99 +2646,9 @@ function renderPanelContent(node) {
           </div>
         </div>
       ` : ''}
-      ${(()=>{
-        // Hominini gateway card
-        const isHominin=node.tags&&(node.tags.includes('Hominin')||node.tags.includes('Human evolution'))||node.id==='homo-sapiens'||node.id==='hominini'||(node.id&&node.id.startsWith('h-'))||HOMININS.some(h=>h.id===node.id||h.name===node.name);
-        if(!isHominin) return '';
-        if(node.id==='hominini'){
-          return `<div style="background:linear-gradient(135deg,rgba(176,122,62,0.15),rgba(176,122,62,0.05));border:1px solid rgba(176,122,62,0.3);border-radius:12px;padding:16px;margin-bottom:12px;">
-            <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:8px;line-height:1.5;font-family:'Heebo',sans-serif;">Explore 32 hominin species spanning 7 million years of human evolution — from Sahelanthropus to Homo sapiens. Compare brain sizes, tool use, and DNA.</div>
-            <button onclick="openHomininView()" style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#b07a3e,#d4a04a);color:white;cursor:pointer;font-family:'Heebo',sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:10px;letter-spacing:0.02em;box-shadow:0 2px 8px rgba(176,122,62,0.3);">🧬 Explore Human Evolution</button>
-          </div>`;
-        }
-        if(!node._hominin||!node._hominData) return '';
-        const hd=node._hominData;
-        const brainMax=hd.brain[1]||hd.brain[0]||0;
-        const brainMin=hd.brain[0]||0;
-        const brainPct=brainMax?Math.round((brainMax/MAX_BRAIN)*100):0;
-        let html='<div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">';
-        // Brain volume bar
-        if(brainMax){
-          html+=`<div>
-            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Heebo',sans-serif;margin-bottom:4px;">🧠 BRAIN VOLUME</div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <div style="flex:1;height:10px;background:var(--color-button-bg);border-radius:5px;overflow:hidden;">
-                <div style="width:${brainPct}%;height:100%;background:linear-gradient(90deg,var(--color-accent),#e8a838);border-radius:5px;"></div>
-              </div>
-              <span style="font-size:11px;color:var(--color-text-secondary);font-family:'Heebo',sans-serif;white-space:nowrap;">${brainMin}–${brainMax} cc</span>
-            </div>
-          </div>`;
-        }
-        // Capabilities row
-        const caps=[];
-        if(hd.tools&&hd.tools!=='None'&&hd.tools!=='None known') caps.push({icon:'🔧',label:'Tools',val:hd.tools});
-        if(hd.fire&&hd.fire!=='No') caps.push({icon:'🔥',label:'Fire',val:hd.fire});
-        if(hd.language&&hd.language!=='None') caps.push({icon:'💬',label:'Language',val:hd.language});
-        if(caps.length){
-          html+=`<div style="display:flex;gap:6px;flex-wrap:wrap;">${caps.map(c=>
-            `<div style="flex:1;min-width:80px;padding:6px 8px;border-radius:8px;background:var(--color-button-bg);border:1px solid var(--color-button-border);text-align:center;">
-              <div style="font-size:16px;">${c.icon}</div>
-              <div style="font-size:10px;font-weight:700;color:var(--color-accent);letter-spacing:0.05em;font-family:'Heebo',sans-serif;">${c.label}</div>
-              <div style="font-size:10px;color:var(--color-text-secondary);font-family:'Heebo',sans-serif;">${c.val}</div>
-            </div>`).join('')}</div>`;
-        }
-        // Physical stats
-        const stats=[];
-        if(hd.height) stats.push({l:'Height',v:hd.height});
-        if(hd.weight) stats.push({l:'Weight',v:hd.weight});
-        if(hd.habitat) stats.push({l:'Habitat',v:hd.habitat});
-        if(stats.length){
-          html+=`<div style="display:flex;flex-wrap:wrap;gap:6px;">${stats.map(s=>
-            `<div style="flex:1;min-width:100px;padding:6px 8px;border-radius:8px;background:var(--color-button-bg);border:1px solid var(--color-button-border);">
-              <div style="font-size:10px;font-weight:700;color:var(--color-accent);letter-spacing:0.05em;font-family:'Heebo',sans-serif;">${s.l}</div>
-              <div style="font-size:11px;color:var(--color-text-primary);font-family:'Heebo',sans-serif;">${s.v}</div>
-            </div>`).join('')}</div>`;
-        }
-        // Fossil sites
-        if(hd.sites&&hd.sites.length){
-          html+=`<div>
-            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Heebo',sans-serif;margin-bottom:3px;">📍 FOSSIL SITES</div>
-            <div style="font-size:11px;color:var(--color-text-secondary);font-family:'Heebo',sans-serif;">${hd.sites.join(' · ')}</div>
-          </div>`;
-        }
-        // DNA introgression
-        if(hd.dna&&(typeof hd.dna.neanderthal==='number'||typeof hd.dna.denisovan==='number')){
-          html+=`<div>
-            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Heebo',sans-serif;margin-bottom:4px;">🧬 DNA INTROGRESSION</div>`;
-          if(typeof hd.dna.neanderthal==='number'){
-            html+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
-              <span style="font-size:10px;color:var(--color-text-secondary);width:70px;font-family:'Heebo',sans-serif;">Neanderthal</span>
-              <div style="flex:1;height:8px;background:var(--color-button-bg);border-radius:4px;overflow:hidden;">
-                <div style="width:${Math.min(hd.dna.neanderthal,100)}%;height:100%;background:#7A9BAA;border-radius:4px;"></div>
-              </div>
-              <span style="font-size:10px;color:var(--color-text-secondary);font-family:'Heebo',sans-serif;">${hd.dna.neanderthal}%</span>
-            </div>`;
-          }
-          if(typeof hd.dna.denisovan==='number'){
-            html+=`<div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
-              <span style="font-size:10px;color:var(--color-text-secondary);width:70px;font-family:'Heebo',sans-serif;">Denisovan</span>
-              <div style="flex:1;height:8px;background:var(--color-button-bg);border-radius:4px;overflow:hidden;">
-                <div style="width:${Math.min(hd.dna.denisovan,100)}%;height:100%;background:#7A8BAA;border-radius:4px;"></div>
-              </div>
-              <span style="font-size:10px;color:var(--color-text-secondary);font-family:'Heebo',sans-serif;">${hd.dna.denisovan}%</span>
-            </div>`;
-          }
-          if(hd.dna.note){
-            html+=`<div style="font-size:10px;color:var(--color-text-secondary);font-style:italic;font-family:'Heebo',sans-serif;">${hd.dna.note}</div>`;
-          }
-          html+=`</div>`;
-        }
-        html+=`</div>`;
-        return html;
-      })()}
-      ${(()=>{const isHominin=node._hominin||node.id==='hominini'||node.id.startsWith('group-')||(node.tags&&(node.tags.includes('Hominin')||node.tags.includes('Human evolution')))||HOMININS.some(h=>h.id===node.id||h.name===node.name);return isHominin?`<button onclick="openHominins('${node.id}')" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--color-accent);color:white;cursor:pointer;font-family:'Heebo',sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">🧬 Hominin Deep Dive</button>`:'';})()}
-      <button class="btn-back" onclick="closePanel()" style="margin-top:8px;">
-        ✕ Close
+      ${(()=>{const isHominin=node.tags&&(node.tags.includes('Hominin')||node.tags.includes('Human evolution'))||node.id==='homo-sapiens'||(node.id&&node.id.startsWith('h-'))||HOMININS.some(h=>h.id===node.id||h.name===node.name);return isHominin?`<button onclick="openHominins('${node.id}')" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--color-accent);color:white;cursor:pointer;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">🧬 Hominin Deep Dive</button>`:'';})()}
+      <button onclick="closePanel()" style="margin-top:8px;padding:10px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;color:var(--color-text-secondary);">
+        Close
       </button>
     </div>
   `;
@@ -2695,7 +2967,7 @@ searchInput.addEventListener('input',()=>{
   const q=searchInput.value.trim();
   if(!q){
     searchResults.innerHTML=`
-      <div style="padding:16px;text-align:center;font-family:'Heebo',sans-serif;">
+      <div style="padding:16px;text-align:center;font-family:'Inter',sans-serif;">
         <div style="font-size:24px;margin-bottom:8px;">🔍</div>
         <div style="font-size:13px;color:var(--color-text-muted);">${t('search_hint')}</div>
       </div>
@@ -2910,13 +3182,13 @@ function toggleCompareMode(){
   const btn=document.getElementById('compare-btn');
   const hint=document.getElementById('compare-hint');
   if(compareMode){
-    btn.style.borderColor='rgba(200,136,58,0.8)';
-    btn.style.color='var(--gold)';
-    btn.style.background='rgba(200,136,58,0.1)';
+    btn.style.borderColor='var(--accent-primary)';
+    btn.style.color='var(--accent-primary)';
+    btn.style.background='var(--accent-primary-dim)';
     hint.style.display='inline';
   } else {
-    btn.style.borderColor='rgba(200,136,58,0.3)';
-    btn.style.color='rgba(242,232,208,0.6)';
+    btn.style.borderColor='var(--border)';
+    btn.style.color='var(--text-secondary)';
     btn.style.background='transparent';
     hint.style.display='none';
     renderHominins();
@@ -3023,6 +3295,7 @@ document.addEventListener('keydown',e=>{
 // PARTICLES
 // ══════════════════════════════════════════════════════
 function spawnParticles(){
+  return; // Disabled in modern scientific theme
   const container=document.getElementById('particles');
   for(let i=0;i<22;i++){
     const p=document.createElement('div');
@@ -3043,7 +3316,7 @@ function showIntro(){
   const overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;transition:background 0s;';
   overlay.innerHTML=`
-    <div style="font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,3rem);color:var(--parchment);text-align:center;letter-spacing:0.05em;opacity:0;transition:opacity 1.5s" id="intro-text1">Tree of Life</div>
+    <div style="font-family:'Inter',sans-serif;font-size:clamp(1.8rem,4vw,3rem);color:var(--parchment);text-align:center;letter-spacing:0.05em;opacity:0;transition:opacity 1.5s" id="intro-text1">Tree of Life</div>
     <div style="font-size:clamp(0.75rem,1.5vw,0.9rem);color:var(--gold-text);text-align:center;letter-spacing:0.25em;text-transform:uppercase;margin-top:0.8rem;opacity:0;transition:opacity 1.5s 0.5s" id="intro-text2">3.8 Billion Years of Natural Selection</div>
     <div style="font-size:0.7rem;color:var(--sage);text-align:center;margin-top:1.5rem;opacity:0;transition:opacity 1.5s 1.2s;font-style:italic" id="intro-text3">Every living thing you have ever known is a cousin</div>`;
   document.body.appendChild(overlay);
@@ -3196,15 +3469,38 @@ function showLoading() {
   const loader = document.createElement('div');
   loader.id = 'loader';
   loader.style.cssText = `
-    position:fixed;top:0;left:0;right:0;bottom:0;
-    background:var(--color-canvas);
+    position:fixed;inset:0;
+    background:var(--bg, #1a1d23);
     display:flex;flex-direction:column;align-items:center;justify-content:center;
-    z-index:9999;font-family:'Playfair Display',serif;
+    z-index:9999;font-family:'Inter',system-ui,sans-serif;
     transition:opacity 600ms ease;
   `;
   loader.innerHTML = `
-    <div style="font-size:48px;margin-bottom:16px;animation:spin 2s linear infinite;">🌿</div>
-    <div style="font-size:18px;color:var(--color-text-secondary);letter-spacing:0.05em;">${t('loading_text')}</div>
+    <style>
+      @keyframes loadBranchGrow{from{stroke-dashoffset:60;opacity:0}to{stroke-dashoffset:0;opacity:1}}
+      @keyframes loadNodeAppear{from{r:0;opacity:0}to{opacity:1}}
+      .load-branch{stroke-dasharray:60;opacity:0;animation:loadBranchGrow 0.5s ease forwards}
+      .load-node{opacity:0;animation:loadNodeAppear 0.3s ease forwards}
+    </style>
+    <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+      <circle cx="60" cy="100" r="4" fill="#8b5cf6" class="load-node" style="animation-delay:0s"/>
+      <line x1="60" y1="96" x2="60" y2="70" stroke="#8b5cf6" stroke-width="2" class="load-branch" style="animation-delay:0.2s"/>
+      <line x1="60" y1="70" x2="30" y2="50" stroke="#ef4444" stroke-width="1.5" class="load-branch" style="animation-delay:0.4s"/>
+      <line x1="60" y1="70" x2="90" y2="50" stroke="#3b82f6" stroke-width="1.5" class="load-branch" style="animation-delay:0.4s"/>
+      <circle cx="30" cy="50" r="3" fill="#ef4444" class="load-node" style="animation-delay:0.6s"/>
+      <circle cx="90" cy="50" r="3" fill="#3b82f6" class="load-node" style="animation-delay:0.6s"/>
+      <line x1="30" y1="50" x2="15" y2="30" stroke="#22c55e" stroke-width="1" class="load-branch" style="animation-delay:0.8s"/>
+      <line x1="30" y1="50" x2="45" y2="30" stroke="#f59e0b" stroke-width="1" class="load-branch" style="animation-delay:0.8s"/>
+      <line x1="90" y1="50" x2="75" y2="30" stroke="#f97316" stroke-width="1" class="load-branch" style="animation-delay:0.8s"/>
+      <line x1="90" y1="50" x2="105" y2="30" stroke="#a855f7" stroke-width="1" class="load-branch" style="animation-delay:0.8s"/>
+      <circle cx="15" cy="30" r="2.5" fill="#22c55e" class="load-node" style="animation-delay:1s"/>
+      <circle cx="45" cy="30" r="2.5" fill="#f59e0b" class="load-node" style="animation-delay:1s"/>
+      <circle cx="75" cy="30" r="2.5" fill="#f97316" class="load-node" style="animation-delay:1s"/>
+      <circle cx="105" cy="30" r="2.5" fill="#a855f7" class="load-node" style="animation-delay:1s"/>
+    </svg>
+    <div style="margin-top:20px;font-size:13px;color:var(--text-secondary, #a0a4b0);letter-spacing:0.08em;">
+      Loading Tree of Life...
+    </div>
   `;
   document.body.appendChild(loader);
   return loader;
@@ -3246,6 +3542,65 @@ function init(){
   updateSpeciesCount();
   updateEraTint(currentEra);
   buildSearchIndex();
+  const EXTINCTIONS = [
+    { name: 'End-Ordovician', time: 443, short: '†' },
+    { name: 'Late Devonian', time: 372, short: '†' },
+    { name: 'The Great Dying', time: 252, short: '†' },
+    { name: 'End-Triassic', time: 201, short: '†' },
+    { name: 'K-Pg Extinction', time: 66, short: '†' }
+  ];
+  const INNOVATIONS = [
+    { name: 'First Photosynthesis', time: 3500, icon: '☀️' },
+    { name: 'First Eukaryotes', time: 2100, icon: '🔬' },
+    { name: 'Cambrian Explosion', time: 541, icon: '💥' },
+    { name: 'First Land Plants', time: 470, icon: '🌿' },
+    { name: 'First Flight', time: 150, icon: '🦅' },
+    { name: 'First Flowers', time: 130, icon: '🌸' }
+  ];
+  function addTimelineMarkers() {
+    const timeline = document.getElementById('timeline') ||
+      document.getElementById('era-bar') ||
+      document.getElementById('timeline-bar') ||
+      document.querySelector('.timeline') ||
+      document.querySelector('.era-bar') ||
+      document.querySelector('[class*="timeline"]');
+
+    if (!timeline) {
+      console.warn('Timeline element not found');
+      return;
+    }
+
+    timeline.id = 'timeline';
+    const totalTime = 3800;
+    EXTINCTIONS.forEach(ext => {
+      const pct = (1 - ext.time / totalTime) * 100;
+      const marker = document.createElement('div');
+      marker.style.cssText = `position:absolute;left:${pct}%;top:0;bottom:0;width:2px;background:#ef4444;opacity:0.7;cursor:pointer;z-index:10;pointer-events:all;`;
+      marker.title = ext.name + ' (' + ext.time + ' Ma)';
+      const label = document.createElement('div');
+      label.style.cssText = `position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:10px;color:#ef4444;font-weight:700;white-space:nowrap;font-family:'Inter',sans-serif;`;
+      label.textContent = '†';
+      marker.appendChild(label);
+      marker.addEventListener('mouseenter', () => { label.textContent = ext.name; });
+      marker.addEventListener('mouseleave', () => { label.textContent = '†'; });
+      timeline.appendChild(marker);
+    });
+    INNOVATIONS.forEach(inv => {
+      const pct = (1 - inv.time / totalTime) * 100;
+      const marker = document.createElement('div');
+      marker.style.cssText = `position:absolute;left:${pct}%;top:0;bottom:0;width:1px;background:#2e7d32;opacity:0.5;cursor:pointer;z-index:9;pointer-events:all;`;
+      marker.title = inv.name + ' (' + inv.time + ' Ma)';
+      const label = document.createElement('div');
+      label.style.cssText = `position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:11px;white-space:nowrap;transition:transform 150ms ease;`;
+      label.textContent = inv.icon;
+      label.title = inv.name;
+      marker.appendChild(label);
+      marker.addEventListener('mouseenter', () => { label.style.transform = 'translateX(-50%) scale(1.4)'; });
+      marker.addEventListener('mouseleave', () => { label.style.transform = 'translateX(-50%) scale(1)'; });
+      timeline.appendChild(marker);
+    });
+  }
+  setTimeout(addTimelineMarkers, 500);
   // Restore saved theme & language
   isDark=localStorage.getItem('theme')==='dark';
   applyTheme();
@@ -3394,10 +3749,10 @@ window.addEventListener('resize',()=>{layout();scheduleRender();});
 
 init();
 </script>
-<footer style="position:fixed;bottom:4px;right:8px;font-family:'Heebo',sans-serif;font-size:10px;color:var(--color-text-muted);opacity:0.6;z-index:10;pointer-events:none;">
+<footer style="position:fixed;bottom:4px;right:8px;font-family:'Inter',sans-serif;font-size:10px;color:var(--color-text-muted);opacity:0.6;z-index:10;pointer-events:none;">
   Tree of Life · Images via Wikimedia Commons · Built with Claude
 </footer>
-<div id="shortcuts-hint" style="position:fixed;bottom:8px;right:8px;font-family:'Heebo',sans-serif;font-size:11px;color:var(--color-text-muted);background:var(--color-canvas);border:1px solid var(--color-divider);border-radius:6px;padding:4px 10px;opacity:0;transition:opacity 300ms ease;pointer-events:none;z-index:50;">
+<div id="shortcuts-hint" style="position:fixed;bottom:8px;right:8px;font-family:'Inter',sans-serif;font-size:11px;color:var(--color-text-muted);background:var(--color-canvas);border:1px solid var(--color-divider);border-radius:6px;padding:4px 10px;opacity:0;transition:opacity 300ms ease;pointer-events:none;z-index:50;">
   Press <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">/</kbd> to search &nbsp;·&nbsp; <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">D</kbd> dark mode &nbsp;·&nbsp; <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">Esc</kbd> close
 </div>
 </body>

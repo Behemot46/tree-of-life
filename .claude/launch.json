@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Tree of Life",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["serve.js"],
+      "port": 5555,
+      "autoPort": true
+    }
+  ]
+}

@@ -149,6 +149,8 @@ svg{width:100%;height:100%;}
 .node-group:hover .nc-main{filter:brightness(1.4) drop-shadow(0 0 14px var(--nc));}
 .branch-path{fill:none;stroke-linecap:round;stroke-linejoin:round;cursor:default;}
 .node-label-text{pointer-events:none;font-family:var(--font-body, 'Source Sans 3', sans-serif);font-size:14px;}
+.node-species-img{pointer-events:none;opacity:0;transition:opacity 0.3s ease;}
+.node-species-img[href]{opacity:1;}
 .node-pulse{pointer-events:none;}
 
 /* ── HOMININ VIEW ── */
@@ -804,6 +806,8 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   </div>
 </div>
 
+<script src="js/imagePrompts.js"></script>
+<script src="js/imageLoader.js"></script>
 <script>
 // ══════════════════════════════════════════════════════
 // TREE DATA
@@ -2696,15 +2700,69 @@ function render(){
     c.addEventListener('click', e=>{ e.stopPropagation(); showMainPanel(n); });
     g.appendChild(c);
 
-    // Icon
+    // Species image or emoji icon
     if(inEra){
-      const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
-      const iw=n.r*1.5,ih=n.r*1.5;
-      fo.setAttribute('x',n._x-iw/2);fo.setAttribute('y',n._y-ih/2);
-      fo.setAttribute('width',iw);fo.setAttribute('height',ih);fo.style.pointerEvents='none';
-      const d=document.createElement('div');
-      d.style.cssText=`width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:${Math.max(9,n.r*0.6)}px;line-height:1;`;
-      d.textContent=n.icon;fo.appendChild(d);g.appendChild(fo);
+      const imgR=Math.max(n.r,8);
+      const imgSize=imgR*2;
+      let imageLoaded=false;
+
+      // Try species image first (via ImageLoader if available)
+      if(typeof ImageLoader!=='undefined'&&imgR>=8){
+        const best=ImageLoader.getBestUrl(n);
+        if(best.url){
+          // Create clipPath for circular crop
+          const clipId='nclip-'+n.id.replace(/[^a-zA-Z0-9_-]/g,'_');
+          const clipDef=document.createElementNS('http://www.w3.org/2000/svg','clipPath');
+          clipDef.setAttribute('id',clipId);
+          const clipCirc=document.createElementNS('http://www.w3.org/2000/svg','circle');
+          clipCirc.setAttribute('cx',n._x);clipCirc.setAttribute('cy',n._y);clipCirc.setAttribute('r',imgR-1);
+          clipDef.appendChild(clipCirc);
+          g.appendChild(clipDef);
+
+          const svgImg=document.createElementNS('http://www.w3.org/2000/svg','image');
+          svgImg.setAttribute('x',n._x-imgR);svgImg.setAttribute('y',n._y-imgR);
+          svgImg.setAttribute('width',imgSize);svgImg.setAttribute('height',imgSize);
+          svgImg.setAttribute('clip-path','url(#'+clipId+')');
+          svgImg.setAttribute('preserveAspectRatio','xMidYMid slice');
+          svgImg.style.pointerEvents='none';
+
+          ImageLoader.loadInto(n,svgImg,{
+            onLoad:function(){imageLoaded=true;},
+            onFallback:function(emoji){
+              // Remove failed image, show emoji instead
+              svgImg.remove();clipDef.remove();
+              if(emoji){
+                const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+                const iw=n.r*1.5,ih=n.r*1.5;
+                fo.setAttribute('x',n._x-iw/2);fo.setAttribute('y',n._y-ih/2);
+                fo.setAttribute('width',iw);fo.setAttribute('height',ih);fo.style.pointerEvents='none';
+                const d2=document.createElement('div');
+                d2.style.cssText=`width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:${Math.max(9,n.r*0.6)}px;line-height:1;`;
+                d2.textContent=emoji;fo.appendChild(d2);g.appendChild(fo);
+              }
+            }
+          });
+          g.appendChild(svgImg);
+        } else {
+          // No generated image — show emoji
+          const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+          const iw=n.r*1.5,ih=n.r*1.5;
+          fo.setAttribute('x',n._x-iw/2);fo.setAttribute('y',n._y-ih/2);
+          fo.setAttribute('width',iw);fo.setAttribute('height',ih);fo.style.pointerEvents='none';
+          const d2=document.createElement('div');
+          d2.style.cssText=`width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:${Math.max(9,n.r*0.6)}px;line-height:1;`;
+          d2.textContent=n.icon;fo.appendChild(d2);g.appendChild(fo);
+        }
+      } else {
+        // Fallback: original emoji rendering
+        const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+        const iw=n.r*1.5,ih=n.r*1.5;
+        fo.setAttribute('x',n._x-iw/2);fo.setAttribute('y',n._y-ih/2);
+        fo.setAttribute('width',iw);fo.setAttribute('height',ih);fo.style.pointerEvents='none';
+        const d2=document.createElement('div');
+        d2.style.cssText=`width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:${Math.max(9,n.r*0.6)}px;line-height:1;`;
+        d2.textContent=n.icon;fo.appendChild(d2);g.appendChild(fo);
+      }
     }
 
     // Label — smart positioning to avoid overlap
@@ -3258,10 +3316,11 @@ function renderPanelContent(node) {
     'sahelanthropus':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg/640px-Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg', credit:'Didier Descouens, CC BY-SA 4.0'},
     'ardipithecus_r':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Ardipithecus_ramidus_-_Scientific_reconstruction.jpg/640px-Ardipithecus_ramidus_-_Scientific_reconstruction.jpg', credit:'Science, Educational use'},
   };
-  // Merge data-level img with the lookup map; lookup takes priority
+  // Merge data-level img with the lookup map; ImageLoader generated images take top priority
   const photoEntry = PHOTO_MAP[node.id];
-  const staticUrl = (photoEntry && photoEntry.url) || node.img || null;
-  const staticCredit = (photoEntry && photoEntry.credit) || node.imgCredit || null;
+  const generatedUrl = (typeof ImageLoader!=='undefined') ? ImageLoader.getGeneratedUrl(node.id) : null;
+  const staticUrl = generatedUrl || (photoEntry && photoEntry.url) || node.img || null;
+  const staticCredit = generatedUrl ? 'AI-generated illustration' : (photoEntry && photoEntry.credit) || node.imgCredit || null;
   const wikiTitle = WIKI_TITLES[node.id] || null;
   const panelImgId = 'panel-species-img-' + node.id.replace(/[^a-z0-9]/g,'_');
   const panelFbId  = 'panel-species-fb-'  + node.id.replace(/[^a-z0-9]/g,'_');
@@ -3270,7 +3329,16 @@ function renderPanelContent(node) {
     <div style="width:100%;aspect-ratio:16/9;background:#111;overflow:hidden;position:relative;flex-shrink:0;">
       <img id="${panelImgId}" src="${staticUrl || ''}" alt="${node.name}"
         style="width:100%;height:100%;object-fit:cover;display:${staticUrl ? 'block' : 'none'};"
-        onerror="this.style.display='none';document.getElementById('${panelFbId}').style.display='flex';"
+        onerror="(function(el){
+          if(typeof ImageLoader!=='undefined'&&el.dataset.source==='generated'){
+            ImageLoader.markFailed('${node.id}');
+            var pe=window._photoCache&&window._photoCache['${node.id}'];
+            var fb=${photoEntry?`'${(photoEntry.url||'').replace(/'/g,"\\'")}'`:'null'}||'${(node.img||'').replace(/'/g,"\\'")}';
+            if(fb){el.dataset.source='fallback';el.src=fb;return;}
+          }
+          el.style.display='none';document.getElementById('${panelFbId}').style.display='flex';
+        })(this);"
+        data-source="${generatedUrl ? 'generated' : 'static'}"
       />
       <div id="${panelFbId}" style="display:${staticUrl ? 'none' : 'flex'};width:100%;height:100%;align-items:center;justify-content:center;font-size:72px;background:#111;">${node.icon||'🌿'}</div>
       <div id="${panelCrId}" style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.65);font-family:'Source Sans 3',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.35);padding:1px 5px;border-radius:3px;">${staticCredit||''}</div>

@@ -1,7 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const port = 5555;
+const port = process.env.PORT || 5555;
 const dir = __dirname;
 
 const mime = {
@@ -13,6 +13,7 @@ const mime = {
   '.jpg': 'image/jpeg',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
+  '.webp': 'image/webp',
 };
 
 http.createServer((req, res) => {

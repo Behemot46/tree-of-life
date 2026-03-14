@@ -820,6 +820,74 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   #timeline { padding: 0.3rem 0.6rem 0.5rem; }
   .era-tick { font-size: 0.4rem; }
 }
+
+/* ── ERA TINT OVERLAY ── */
+#era-tint-overlay{position:fixed;inset:0;z-index:0;pointer-events:none;transition:background 0.6s ease;}
+
+/* ── EXTINCTION TOOLTIP ── */
+.ext-marker{position:absolute;top:-4px;width:3px;height:14px;background:rgba(176,80,80,0.7);border-radius:1px;
+  cursor:pointer;pointer-events:all;transition:transform 0.2s;z-index:2;}
+.ext-marker:hover{transform:scaleY(1.5);background:rgba(176,80,80,1);}
+.ext-tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
+  background:var(--panel-bg);border:1px solid var(--gold);border-radius:8px;padding:0.5rem 0.7rem;
+  white-space:nowrap;font-size:0.65rem;color:var(--parchment);pointer-events:none;opacity:0;
+  transition:opacity 0.2s;z-index:100;min-width:140px;box-shadow:0 4px 16px rgba(0,0,0,0.4);}
+.ext-marker:hover .ext-tooltip{opacity:1;}
+.ext-tooltip-name{font-weight:600;color:var(--gold);margin-bottom:0.2rem;font-size:0.7rem;}
+.ext-tooltip-stat{color:rgba(176,80,80,0.9);font-weight:600;}
+.ext-tooltip-cause{color:var(--text-muted);margin-top:0.15rem;}
+.ext-tooltip-surv{color:var(--sage);margin-top:0.15rem;font-style:italic;}
+[data-theme="light"] .ext-tooltip{background:var(--panel-bg);border-color:var(--gold);}
+
+/* ── SPECIES COUNT ── */
+#era-species-count{font-size:0.58rem;color:var(--sage);letter-spacing:0.08em;opacity:0.8;}
+[data-theme="light"] #era-species-count{color:rgba(30,80,15,0.6);}
+
+/* ── ERA PLAY BUTTON ── */
+#era-play{position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:28px;height:28px;
+  border-radius:50%;background:rgba(200,136,58,0.12);border:1px solid rgba(200,136,58,0.3);
+  color:var(--gold);font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;z-index:5;}
+#era-play:hover{background:rgba(200,136,58,0.25);border-color:var(--gold);}
+#era-play.playing{background:rgba(200,136,58,0.2);border-color:var(--gold-light);color:var(--gold-light);}
+[data-theme="light"] #era-play{background:rgba(138,90,24,0.1);border-color:rgba(138,90,24,0.3);color:var(--gold);}
+
+/* ── ERA PRESETS ── */
+#era-presets{display:flex;justify-content:center;gap:0.35rem;margin-top:0.35rem;flex-wrap:wrap;}
+.era-preset{padding:0.15rem 0.5rem;border:1px solid rgba(200,136,58,0.2);border-radius:10px;
+  font-size:0.55rem;color:rgba(200,136,58,0.6);cursor:pointer;transition:all 0.2s;
+  font-family:var(--font-body);letter-spacing:0.04em;background:transparent;white-space:nowrap;}
+.era-preset:hover{border-color:rgba(200,136,58,0.5);color:var(--gold);}
+.era-preset.active{background:rgba(200,136,58,0.15);border-color:var(--gold);color:var(--gold-light);}
+[data-theme="light"] .era-preset{border-color:rgba(138,90,24,0.2);color:rgba(138,90,24,0.55);}
+[data-theme="light"] .era-preset:hover{border-color:rgba(138,90,24,0.5);color:var(--gold);}
+[data-theme="light"] .era-preset.active{background:rgba(138,90,24,0.12);border-color:var(--gold);color:var(--gold-light);}
+
+/* ── VIEW TOGGLE ── */
+#view-toggle{position:fixed;top:5.5rem;right:1.2rem;z-index:300;display:flex;gap:0;
+  background:rgba(7,5,3,0.85);border:1px solid rgba(200,136,58,0.15);border-radius:8px;
+  overflow:hidden;backdrop-filter:blur(10px);pointer-events:all;}
+.view-btn{padding:0.3rem 0.6rem;border:none;background:transparent;color:rgba(200,136,58,0.5);
+  font-size:0.6rem;cursor:pointer;transition:all 0.2s;font-family:var(--font-body);
+  display:flex;align-items:center;gap:0.3rem;letter-spacing:0.04em;white-space:nowrap;}
+.view-btn:hover{color:var(--gold);background:rgba(200,136,58,0.08);}
+.view-btn.active{background:rgba(200,136,58,0.15);color:var(--gold-light);}
+.view-btn+.view-btn{border-left:1px solid rgba(200,136,58,0.1);}
+[data-theme="light"] #view-toggle{background:rgba(248,242,230,0.92);border-color:rgba(138,90,24,0.15);}
+[data-theme="light"] .view-btn{color:rgba(138,90,24,0.5);}
+[data-theme="light"] .view-btn.active{background:rgba(138,90,24,0.15);color:var(--gold-light);}
+[dir="rtl"] #view-toggle{right:auto;left:1.2rem;}
+
+/* ── MOBILE FOR NEW ELEMENTS ── */
+@media (max-width: 768px) {
+  #view-toggle{top:auto;bottom:5rem;right:0.6rem;flex-direction:column;}
+  .view-btn+.view-btn{border-left:none;border-top:1px solid rgba(200,136,58,0.1);}
+  #era-presets{gap:0.25rem;}
+  .era-preset{font-size:0.5rem;padding:0.12rem 0.4rem;}
+  #era-play{right:-32px;width:24px;height:24px;font-size:0.65rem;}
+  #era-species-count{display:none;}
+  [dir="rtl"] #view-toggle{left:0.6rem;right:auto;}
+}
 </style>
 </head>
 <body>
@@ -830,6 +898,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   <div id="splash-tagline" style="font-family:'Playfair Display',serif;font-style:italic;font-size:16px;color:rgba(200,220,180,0.6);"></div>
 </div>
 <div id="bg"></div>
+<div id="era-tint-overlay"></div>
 <div id="particles"></div>
 
 <!-- LANGUAGE SWITCHER -->
@@ -979,6 +1048,13 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   <button onclick="resetDomains()" style="font-size:11px;padding:3px 10px;border-radius:9999px;border:1px solid #c8b99a;background:transparent;color:var(--parchment);cursor:pointer;margin-top:8px;font-family:'Heebo',sans-serif;">Show All</button>
 </div>
 
+<!-- VIEW TOGGLE -->
+<div id="view-toggle" role="toolbar" aria-label="View mode selector">
+  <button class="view-btn active" data-mode="radial" onclick="setViewMode('radial')">&#9673; Radial</button>
+  <button class="view-btn" data-mode="chronological" onclick="setViewMode('chronological')">&#8594; Timeline</button>
+  <button class="view-btn" data-mode="cladogram" onclick="setViewMode('cladogram')">&#9500; Cladogram</button>
+</div>
+
 <!-- ZOOM -->
 <div id="zoom-ctrl" role="toolbar" aria-label="Map controls">
   <button class="zbtn" id="btn-in" aria-label="Zoom in">+</button>
@@ -992,11 +1068,17 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 
 <!-- ERA BROWSER -->
 <div id="timeline">
-  <div id="era-label">PRESENT (0 Ma)</div>
-  <div id="era-track">
-    <div id="era-fill" style="width:100%"></div>
-    <div id="extinction-markers"></div>
-    <input id="era-slider" type="range" min="0" max="3800" value="3800" step="10">
+  <div style="display:flex;align-items:center;justify-content:center;gap:0.4rem;">
+    <div id="era-label">PRESENT (0 Ma)</div>
+    <span id="era-species-count"></span>
+  </div>
+  <div style="position:relative;margin-right:40px;">
+    <div id="era-track">
+      <div id="era-fill" style="width:100%"></div>
+      <div id="extinction-markers"></div>
+      <input id="era-slider" type="range" min="0" max="3800" value="3800" step="10">
+    </div>
+    <button id="era-play" onclick="toggleEraPlay()" title="Play timeline animation" aria-label="Play timeline animation">&#9654;</button>
   </div>
   <div class="era-ticks">
     <span class="era-tick">3,800 Ma (LUCA)</span>
@@ -1006,6 +1088,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
     <span class="era-tick">66 Ma (K-Pg)</span>
     <span class="era-tick">Present</span>
   </div>
+  <div id="era-presets"></div>
 </div>
 
 <script src="js/treeData.js"></script>
@@ -1413,11 +1496,65 @@ Object.entries(ENRICHMENT).forEach(([id, data]) => {
 // ══════════════════════════════════════════════════════
 // LAYOUT
 // ══════════════════════════════════════════════════════
+let viewMode='radial';
 function getVisible(n){let a=[n];if(n.children&&!n._collapsed)n.children.forEach(c=>a=a.concat(getVisible(c)));return a;}
 function getVisibleEdges(n){let a=[];if(n.children&&!n._collapsed){n.children.forEach(c=>{a.push({from:n,to:c});a=a.concat(getVisibleEdges(c));});}return a;}
 function assignAngles(n,a0,a1){n._a0=a0;n._a1=a1;n._angle=(a0+a1)/2;if(!n.children||!n.children.length||n._collapsed)return;const visible=n.children;const minAngleSep=0.15;const range=a1-a0;const minTotal=visible.length*minAngleSep;const effectiveRange=Math.max(range,minTotal);let a=a0-(effectiveRange-range)/2;visible.forEach(c=>{const share=effectiveRange/visible.length;assignAngles(c,a,a+share);a+=share;});}
 function assignPositions(n,cx,cy){const r=DEPTH_R[n.depth]||(n.depth*65);n._x=cx+Math.cos(n._angle-Math.PI/2)*r;n._y=cy+Math.sin(n._angle-Math.PI/2)*r;if(n.children&&!n._collapsed)n.children.forEach(c=>assignPositions(c,cx,cy));}
-function layout(){const cx=window.innerWidth/2,cy=window.innerHeight/2+35;assignAngles(TREE,0,Math.PI*2);assignPositions(TREE,cx,cy);}
+
+function layoutRadial(){const cx=window.innerWidth/2,cy=window.innerHeight/2+35;assignAngles(TREE,0,Math.PI*2);assignPositions(TREE,cx,cy);}
+
+function layoutCladogram(){
+  const isRtl=document.documentElement.dir==='rtl';
+  const W=window.innerWidth,H=window.innerHeight;
+  const margin=120;
+  const depthSpacing=Math.min(140,(W-margin*2)/8);
+  function countLeaves(n){if(!n.children||!n.children.length||n._collapsed)return 1;let c=0;n.children.forEach(ch=>c+=countLeaves(ch));return c;}
+  const totalLeaves=countLeaves(TREE);
+  const leafSpacing=Math.max(20,(H-margin*2)/totalLeaves);
+  let leafIdx=0;
+  function assign(n,depth){
+    if(!n.children||!n.children.length||n._collapsed){
+      const x=margin+depth*depthSpacing;
+      n._x=isRtl?W-x:x;n._y=margin+leafIdx*leafSpacing;n._angle=0;leafIdx++;
+    } else {
+      n.children.forEach(c=>assign(c,depth+1));
+      const ys=n.children.map(c=>c._y);
+      const x=margin+depth*depthSpacing;
+      n._x=isRtl?W-x:x;n._y=(Math.min(...ys)+Math.max(...ys))/2;n._angle=0;
+    }
+  }
+  assign(TREE,0);
+}
+
+function layoutChronological(){
+  const W=window.innerWidth,H=window.innerHeight;
+  const margin=100;const maxTime=3800;
+  function timeToX(mya){return margin+(1-mya/maxTime)*(W-margin*2);}
+  const domainOrder=['bacteria','archaea','protists','fungi','plantae','animalia'];
+  const laneH=(H-margin*2)/domainOrder.length;
+  function hashCode(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return h;}
+  function getDomainLane(n){const d=n._domain||'luca';const idx=domainOrder.indexOf(d);return idx>=0?idx:Math.floor(domainOrder.length/2);}
+  function assign(n){
+    const mya=n.appeared||3800;
+    n._x=timeToX(mya);
+    const lane=getDomainLane(n);
+    const laneTop=margin+lane*laneH;
+    const laneCenter=laneTop+laneH/2;
+    const jitter=((hashCode(n.id||'x')%100)-50)/50*laneH*0.35;
+    n._y=laneCenter+jitter;n._angle=0;
+    if(n.children&&!n._collapsed)n.children.forEach(c=>assign(c));
+  }
+  assign(TREE);
+}
+
+function layout(){
+  switch(viewMode){
+    case 'cladogram':layoutCladogram();break;
+    case 'chronological':layoutChronological();break;
+    default:layoutRadial();
+  }
+}
 
 // ══════════════════════════════════════════════════════
 // ERA FILTER
@@ -1480,7 +1617,11 @@ const applyT=()=>viewport.setAttribute('transform',`translate(${transform.x},${t
 const animDone=new Set();
 let highlightedId=null;
 
-function branchPath(x1,y1,x2,y2){const mx=(x1+x2)/2,my=(y1+y2)/2;return `M${x1},${y1} Q${mx+(my-y1)*0.28},${my-(mx-x1)*0.28} ${x2},${y2}`;}
+function branchPath(x1,y1,x2,y2){
+  if(viewMode==='cladogram'){return `M${x1},${y1} H${(x1+x2)/2} V${y2} H${x2}`;}
+  if(viewMode==='chronological'){return `M${x1},${y1} L${x2},${y2}`;}
+  const mx=(x1+x2)/2,my=(y1+y2)/2;return `M${x1},${y1} Q${mx+(my-y1)*0.28},${my-(mx-x1)*0.28} ${x2},${y2}`;
+}
 
 /* ===========================
    RENDER SCHEDULER
@@ -1657,14 +1798,20 @@ function render(){
       }
     }
     if(showLabel){
-      const angleRad=n._angle-Math.PI/2;
-      const lDist=n.r+14;
-      const lx=n._x+Math.cos(angleRad)*lDist;
-      const ly=n._y+Math.sin(angleRad)*lDist;
-      const cos=Math.cos(angleRad);
+      let lx,ly,anchor;
+      if(viewMode==='cladogram'){
+        const isRtl=document.documentElement.dir==='rtl';
+        lx=n._x+(isRtl?-(n.r+8):(n.r+8));ly=n._y;anchor=isRtl?'end':'start';
+      } else if(viewMode==='chronological'){
+        lx=n._x;ly=n._y-n.r-8;anchor='middle';
+      } else {
+        const angleRad=n._angle-Math.PI/2;const lDist=n.r+14;
+        lx=n._x+Math.cos(angleRad)*lDist;ly=n._y+Math.sin(angleRad)*lDist;
+        const cos=Math.cos(angleRad);anchor=cos<-0.15?'end':cos>0.15?'start':'middle';
+      }
       const svgText=document.createElementNS('http://www.w3.org/2000/svg','text');
       svgText.setAttribute('x',lx);svgText.setAttribute('y',ly);
-      svgText.setAttribute('text-anchor',cos<-0.15?'end':cos>0.15?'start':'middle');
+      svgText.setAttribute('text-anchor',anchor);
       svgText.setAttribute('dominant-baseline','middle');
       svgText.setAttribute('fill',n.depth===0?'#f2e8d0':n.depth<=1?'rgba(242,232,208,0.92)':'rgba(242,232,208,0.82)');
       svgText.setAttribute('font-size',n.depth===0?'14':n.depth===1?'12':'10');
@@ -2377,26 +2524,150 @@ function getEraName(v){
   return ERA_NAMES[best]||`${v} Ma`;
 }
 
+const EXTINCTION_DETAILS=[
+  {mya:445,key:'ext_ordovician',pct:85,causeKey:'ext_cause_ordovician',survKey:'ext_surv_ordovician'},
+  {mya:370,key:'ext_devonian',pct:75,causeKey:'ext_cause_devonian',survKey:'ext_surv_devonian'},
+  {mya:252,key:'ext_permian',pct:96,causeKey:'ext_cause_permian',survKey:'ext_surv_permian'},
+  {mya:200,key:'ext_triassic',pct:80,causeKey:'ext_cause_triassic',survKey:'ext_surv_triassic'},
+  {mya:66,key:'ext_kpg',pct:76,causeKey:'ext_cause_kpg',survKey:'ext_surv_kpg'}
+];
 function buildExtinctionMarkers(){
   const container=document.getElementById('extinction-markers');
-  EXTINCTIONS.forEach(mya=>{
-    const pct=(mya/3800)*100;
-    const line=document.createElement('div');
-    line.className='ext-line';
-    line.style.left=`${100-pct}%`;
-    line.title=`Mass extinction ~${mya} Ma`;
-    container.appendChild(line);
+  if(!container)return;
+  container.innerHTML='';
+  EXTINCTION_DETAILS.forEach(ext=>{
+    const pct=(ext.mya/3800)*100;
+    const marker=document.createElement('div');
+    marker.className='ext-marker';
+    marker.style.left=`${100-pct}%`;
+    marker.addEventListener('click',()=>animateSliderTo(ext.mya));
+    const tooltip=document.createElement('div');
+    tooltip.className='ext-tooltip';
+    tooltip.innerHTML=`<div class="ext-tooltip-name">${t(ext.key)}</div><div class="ext-tooltip-stat">${ext.pct}% ${t('ext_lost')}</div><div class="ext-tooltip-cause">${t(ext.causeKey)}</div><div class="ext-tooltip-surv">${t(ext.survKey)}</div>`;
+    marker.appendChild(tooltip);
+    container.appendChild(marker);
   });
 }
 
-const ALL_ERA_CLASSES=ERA_TINTS.map(e=>e.cls);
-
+const ERA_COLORS={
+  hadean:{dark:'rgba(120,50,30,0.12)',light:'rgba(120,50,30,0.08)'},
+  archean:{dark:'rgba(100,60,40,0.10)',light:'rgba(100,60,40,0.07)'},
+  proterozoic:{dark:'rgba(50,80,110,0.10)',light:'rgba(50,80,110,0.07)'},
+  cambrian:{dark:'rgba(30,100,100,0.10)',light:'rgba(30,100,100,0.07)'},
+  carboniferous:{dark:'rgba(20,80,30,0.12)',light:'rgba(20,80,30,0.09)'},
+  permian:{dark:'rgba(140,60,20,0.10)',light:'rgba(140,60,20,0.08)'},
+  triassic:{dark:'rgba(180,80,20,0.10)',light:'rgba(180,80,20,0.07)'},
+  cretaceous:{dark:'rgba(30,90,40,0.12)',light:'rgba(30,90,40,0.09)'},
+  cenozoic:{dark:'rgba(60,100,80,0.08)',light:'rgba(60,100,80,0.06)'}
+};
+const ERA_RANGES=[
+  {min:3800,max:4600,era:'hadean'},{min:2500,max:3800,era:'archean'},
+  {min:541,max:2500,era:'proterozoic'},{min:485,max:541,era:'cambrian'},
+  {min:299,max:359,era:'carboniferous'},{min:252,max:299,era:'permian'},
+  {min:200,max:252,era:'triassic'},{min:66,max:145,era:'cretaceous'},
+  {min:0,max:66,era:'cenozoic'}
+];
 function updateEraTint(mya){
-  const bg=document.getElementById('bg');
-  bg.classList.remove(...ALL_ERA_CLASSES);
-  for(const e of ERA_TINTS){
-    if(mya>=e.min&&mya<=e.max){bg.classList.add(e.cls);break;}
+  const overlay=document.getElementById('era-tint-overlay');
+  if(!overlay)return;
+  const isLight=document.documentElement.getAttribute('data-theme')==='light';
+  for(const e of ERA_RANGES){
+    if(mya>=e.min&&mya<=e.max){
+      const c=ERA_COLORS[e.era];overlay.style.background=isLight?c.light:c.dark;return;
+    }
   }
+  overlay.style.background='transparent';
+}
+
+let eraPlayId=null;
+
+function updateSpeciesCount(){
+  const all=Object.values(nodeMap);
+  const visible=all.filter(n=>nodeInEra(n));
+  const el=document.getElementById('era-species-count');
+  if(el)el.textContent=t('era_species_count').replace('{0}',visible.length).replace('{1}',all.length);
+}
+
+function toggleEraPlay(){
+  const btn=document.getElementById('era-play');
+  if(eraPlayId){
+    cancelAnimationFrame(eraPlayId);eraPlayId=null;
+    btn.textContent='\u25b6';btn.classList.remove('playing');btn.title=t('era_play');return;
+  }
+  btn.textContent='\u23f8';btn.classList.add('playing');btn.title=t('era_pause');
+  const startVal=parseInt(eraSlider.value);const startTime=performance.now();const duration=12000;
+  function step(now){
+    const elapsed=now-startTime;const progress=Math.min(1,elapsed/duration);
+    const newVal=Math.round(startVal*(1-progress));
+    eraSlider.value=newVal;currentEra=newVal;
+    eraFill.style.width=(newVal/3800*100)+'%';
+    eraLabel.textContent=getEraName(newVal);
+    updateEraTint(newVal);updateSpeciesCount();updatePresetHighlight(newVal);
+    scheduleRender();
+    if(progress<1){eraPlayId=requestAnimationFrame(step);}
+    else{eraPlayId=null;btn.textContent='\u25b6';btn.classList.remove('playing');btn.title=t('era_play');}
+  }
+  eraPlayId=requestAnimationFrame(step);
+}
+
+function animateSliderTo(target){
+  if(eraPlayId){cancelAnimationFrame(eraPlayId);eraPlayId=null;
+    const pb=document.getElementById('era-play');if(pb){pb.textContent='\u25b6';pb.classList.remove('playing');}}
+  const start=parseInt(eraSlider.value);const diff=target-start;
+  const startTime=performance.now();const duration=250;
+  function step(now){
+    const elapsed=now-startTime;const progress=Math.min(1,elapsed/duration);
+    const eased=progress<0.5?2*progress*progress:-1+(4-2*progress)*progress;
+    const newVal=Math.round(start+diff*eased);
+    eraSlider.value=newVal;currentEra=newVal;
+    eraFill.style.width=(newVal/3800*100)+'%';
+    eraLabel.textContent=getEraName(newVal);
+    updateEraTint(newVal);updateSpeciesCount();updatePresetHighlight(newVal);
+    scheduleRender();
+    if(progress<1)requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function updatePresetHighlight(mya){
+  document.querySelectorAll('.era-preset').forEach(btn=>{
+    const target=parseInt(btn.dataset.mya);
+    btn.classList.toggle('active',Math.abs(mya-target)<100);
+  });
+}
+
+function buildEraPresets(){
+  const container=document.getElementById('era-presets');if(!container)return;
+  const presets=[{mya:3800,key:'preset_luca'},{mya:2400,key:'preset_o2'},{mya:541,key:'preset_cambrian'},
+    {mya:200,key:'preset_dinos'},{mya:66,key:'preset_kpg'},{mya:0,key:'preset_now'}];
+  container.innerHTML='';
+  presets.forEach(p=>{
+    const btn=document.createElement('button');btn.className='era-preset';
+    btn.textContent=t(p.key);btn.dataset.mya=p.mya;
+    btn.addEventListener('click',()=>animateSliderTo(p.mya));
+    container.appendChild(btn);
+  });
+  updatePresetHighlight(currentEra);
+}
+
+function centerOnTree(scale){
+  const nodes=getVisible(TREE);
+  if(!nodes.length)return;
+  const xs=nodes.map(n=>n._x),ys=nodes.map(n=>n._y);
+  const cx=(Math.min(...xs)+Math.max(...xs))/2;
+  const cy=(Math.min(...ys)+Math.max(...ys))/2;
+  transform={x:window.innerWidth/2-cx*scale,y:window.innerHeight/2-cy*scale,s:scale};
+}
+function setViewMode(mode){
+  viewMode=mode;
+  document.querySelectorAll('.view-btn').forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.mode===mode);
+  });
+  layout();
+  if(mode==='radial'){centerOnTree(0.75);}
+  else if(mode==='cladogram'){centerOnTree(0.7);}
+  else if(mode==='chronological'){centerOnTree(0.65);}
+  scheduleRender(true);applyT();
 }
 
 eraSlider.addEventListener('input',()=>{
@@ -2405,6 +2676,10 @@ eraSlider.addEventListener('input',()=>{
   eraFill.style.width=pct+'%';
   eraLabel.textContent=getEraName(currentEra);
   updateEraTint(currentEra);
+  updateSpeciesCount();
+  updatePresetHighlight(currentEra);
+  if(eraPlayId){cancelAnimationFrame(eraPlayId);eraPlayId=null;
+    const pb=document.getElementById('era-play');if(pb){pb.textContent='\u25b6';pb.classList.remove('playing');}}
   scheduleRender();
 });
 
@@ -2782,6 +3057,10 @@ function showIntro(){
   },3200);
 }
 
+// ══════════════════════════════════════════════════════
+// i18n — EN / HE / RU  (TRANSLATIONS defined in js/uiData.js)
+// ══════════════════════════════════════════════════════
+
 
 let currentLang=localStorage.getItem('tol-lang')||'en';
 
@@ -2837,6 +3116,20 @@ function applyI18n(){
   if(hpe){const parts=t('hom_empty').split('\n');hpe.innerHTML=parts.join('<br>');}
   // Update page title
   document.title=t('title')+' \u2014 '+t('subtitle').split(' ').slice(0,3).join(' ')+'...';
+  // Update view toggle labels
+  document.querySelectorAll('.view-btn').forEach(btn=>{
+    const mode=btn.dataset.mode;
+    if(mode==='radial')btn.innerHTML='&#9673; '+t('view_radial');
+    else if(mode==='chronological')btn.innerHTML='&#8594; '+t('view_chrono');
+    else if(mode==='cladogram')btn.innerHTML='&#9500; '+t('view_clado');
+  });
+  // Update play button
+  const playBtn=document.getElementById('era-play');
+  if(playBtn)playBtn.title=eraPlayId?t('era_pause'):t('era_play');
+  // Rebuild era presets and extinction markers with translated labels
+  buildEraPresets();
+  buildExtinctionMarkers();
+  updateSpeciesCount();
 }
 
 // ══════════════════════════════════════════════════════
@@ -2954,66 +3247,10 @@ function init(){
   setTimeout(() => hideLoading(loader), 400);
   spawnParticles();
   buildExtinctionMarkers();
+  buildEraPresets();
+  updateSpeciesCount();
+  updateEraTint(currentEra);
   buildSearchIndex();
-  const EXTINCTIONS = [
-    { name: 'End-Ordovician', time: 443, short: '†' },
-    { name: 'Late Devonian', time: 372, short: '†' },
-    { name: 'The Great Dying', time: 252, short: '†' },
-    { name: 'End-Triassic', time: 201, short: '†' },
-    { name: 'K-Pg Extinction', time: 66, short: '†' }
-  ];
-  const INNOVATIONS = [
-    { name: 'First Photosynthesis', time: 3500, icon: '☀️' },
-    { name: 'First Eukaryotes', time: 2100, icon: '🔬' },
-    { name: 'Cambrian Explosion', time: 541, icon: '💥' },
-    { name: 'First Land Plants', time: 470, icon: '🌿' },
-    { name: 'First Flight', time: 150, icon: '🦅' },
-    { name: 'First Flowers', time: 130, icon: '🌸' }
-  ];
-  function addTimelineMarkers() {
-    const timeline = document.getElementById('timeline') ||
-      document.getElementById('era-bar') ||
-      document.getElementById('timeline-bar') ||
-      document.querySelector('.timeline') ||
-      document.querySelector('.era-bar') ||
-      document.querySelector('[class*="timeline"]');
-
-    if (!timeline) {
-      console.warn('Timeline element not found');
-      return;
-    }
-
-    timeline.id = 'timeline';
-    const totalTime = 3800;
-    EXTINCTIONS.forEach(ext => {
-      const pct = (1 - ext.time / totalTime) * 100;
-      const marker = document.createElement('div');
-      marker.style.cssText = `position:absolute;left:${pct}%;top:0;bottom:0;width:2px;background:#c0392b;opacity:0.7;cursor:pointer;z-index:10;pointer-events:all;`;
-      marker.title = ext.name + ' (' + ext.time + ' Ma)';
-      const label = document.createElement('div');
-      label.style.cssText = `position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:10px;color:#c0392b;font-weight:700;white-space:nowrap;font-family:'Heebo',sans-serif;`;
-      label.textContent = '†';
-      marker.appendChild(label);
-      marker.addEventListener('mouseenter', () => { label.textContent = ext.name; });
-      marker.addEventListener('mouseleave', () => { label.textContent = '†'; });
-      timeline.appendChild(marker);
-    });
-    INNOVATIONS.forEach(inv => {
-      const pct = (1 - inv.time / totalTime) * 100;
-      const marker = document.createElement('div');
-      marker.style.cssText = `position:absolute;left:${pct}%;top:0;bottom:0;width:1px;background:#2e7d32;opacity:0.5;cursor:pointer;z-index:9;pointer-events:all;`;
-      marker.title = inv.name + ' (' + inv.time + ' Ma)';
-      const label = document.createElement('div');
-      label.style.cssText = `position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:11px;white-space:nowrap;transition:transform 150ms ease;`;
-      label.textContent = inv.icon;
-      label.title = inv.name;
-      marker.appendChild(label);
-      marker.addEventListener('mouseenter', () => { label.style.transform = 'translateX(-50%) scale(1.4)'; });
-      marker.addEventListener('mouseleave', () => { label.style.transform = 'translateX(-50%) scale(1)'; });
-      timeline.appendChild(marker);
-    });
-  }
-  setTimeout(addTimelineMarkers, 500);
   // Restore saved theme & language
   isDark=localStorage.getItem('theme')==='dark';
   applyTheme();

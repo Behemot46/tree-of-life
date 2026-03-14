@@ -659,7 +659,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   <button id="extinct-toggle" onclick="toggleExtinct()" aria-label="Toggle visibility of extinct species" style="font-family:'Source Sans 3',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid #c8b99a;background:#f0ebe0;cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:#1c1a14;white-space:nowrap;flex-shrink:0;">
     <span>†</span><span id="extinct-label">Hide Extinct</span>
   </button>
-  <button id="hominins-tab" onclick="openHomininView()" aria-label="Open Hominin Evolution panel" style="font-family:'Source Sans 3',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid #c8b99a;background:#f0ebe0;cursor:pointer;color:#1c1a14;white-space:nowrap;flex-shrink:0;">
+  <button id="hominins-tab" onclick="navigateTo('hominini')" aria-label="Navigate to Hominin family tree" style="font-family:'Source Sans 3',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid #c8b99a;background:#f0ebe0;cursor:pointer;color:#1c1a14;white-space:nowrap;flex-shrink:0;">
     🧬 Hominins
   </button>
 </div>
@@ -1803,11 +1803,118 @@ function resolveHomininTarget(id){
 }
 
 // ══════════════════════════════════════════════════════
+// BUILD HOMININ SUBTREE INTO MAIN TREE
+// ══════════════════════════════════════════════════════
+// Canonical HOMININS IDs to skip (duplicates of entries with different IDs)
+const HOMININ_SKIP_IDS = new Set(['homo-naledi','homo-floresiensis','denisovan']);
+
+function buildHomininTree(){
+  // Find great-apes node
+  function findNode(n, id){ if(n.id===id) return n; if(n.children) for(const c of n.children){ const f=findNode(c,id); if(f) return f; } return null; }
+  const greatApes = findNode(TREE, 'great-apes');
+  if(!greatApes) return;
+
+  // Remove homo-sapiens from great-apes (will be placed under genus-homo)
+  const hsIdx = greatApes.children.findIndex(c=>c.id==='homo-sapiens');
+  let homoSapiensNode = null;
+  if(hsIdx>=0){
+    homoSapiensNode = greatApes.children.splice(hsIdx, 1)[0];
+  }
+
+  // Convert a HOMININS entry to a tree node
+  function homininToTreeNode(h){
+    return {
+      id: h.id,
+      icon: h.icon,
+      color: h.color,
+      r: h.id==='h_sapiens' ? 12 : 8,
+      appeared: h.mya[0],
+      extinct: h.status==='extinct' ? h.mya[1]+'Mya' : null,
+      name: h.short || h.name,
+      latin: h.name,
+      era: h.mya[0] > 1 ? '~'+h.mya[0]+' Mya' : '~'+(h.mya[0]*1000)+' Kya',
+      desc: h.desc,
+      detail: h.detail,
+      facts: h.facts,
+      tags: h.tags,
+      img: h.img || null,
+      imgCredit: h.imgCredit || null,
+      _homininData: h, // preserve full hominin data for panel
+      children: []
+    };
+  }
+
+  // Group definitions matching ERA_GROUPS structure
+  const groupDefs = [
+    {id:'hom-proto', name:'Proto-Hominins', latin:'Early Hominins (7–3 Ma)', icon:'🦴', color:'#8B5E3C', appeared:7, filter:'proto'},
+    {id:'hom-australopith', name:'Australopithecus', latin:'Southern Apes (4–1.7 Ma)', icon:'🐒', color:'#b07840', appeared:4.2, filter:'australopith'},
+    {id:'hom-paranthropus', name:'Paranthropus', latin:'Robust Australopiths (2.7–1.2 Ma)', icon:'💪', color:'#9B3A3A', appeared:2.7, filter:'paranthropus'},
+    {id:'hom-homo', name:'Genus Homo', latin:'True Humans (2.5 Ma–present)', icon:'🧠', color:'#6B8B5E', appeared:2.5, filter:'homo'}
+  ];
+
+  // Deduplicate HOMININS: skip duplicates and h_sapiens (use existing tree node)
+  const uniqueHominins = HOMININS.filter(h => !HOMININ_SKIP_IDS.has(h.id) && h.id !== 'h_sapiens');
+
+  // Build group nodes with children
+  const groupNodes = groupDefs.map(gd => {
+    const members = uniqueHominins.filter(h => h.group === gd.filter);
+    const children = members.map(homininToTreeNode);
+    // Add homo-sapiens to genus homo group
+    if(gd.filter === 'homo' && homoSapiensNode){
+      children.push(homoSapiensNode);
+    }
+    return {
+      id: gd.id,
+      icon: gd.icon,
+      color: gd.color,
+      r: 9,
+      appeared: gd.appeared,
+      extinct: null,
+      name: gd.name,
+      latin: gd.latin,
+      era: '~'+gd.appeared+' Mya',
+      desc: 'A group within the hominin family tree.',
+      children: children,
+      _collapsed: true // start collapsed to avoid visual overload
+    };
+  });
+
+  // Create hominini branch node
+  const homininiNode = {
+    id: 'hominini',
+    icon: '🧬',
+    color: '#9a5050',
+    r: 11,
+    appeared: 7,
+    extinct: null,
+    name: 'Hominini',
+    latin: 'Tribe Hominini',
+    era: '~7 Mya',
+    desc: 'The tribe encompassing all species more closely related to humans than to chimpanzees. From the earliest upright walkers 7 million years ago to modern Homo sapiens, the hominin family tree reveals a surprisingly bushy story of parallel lineages, dead ends, and interbreeding.',
+    detail: 'At least 25 hominin species are currently recognized. Multiple species frequently coexisted — our ancestors were never alone. DNA evidence shows Homo sapiens interbred with Neanderthals and Denisovans, carrying their genetic legacy today.',
+    facts: [
+      {l:'First appeared', v:'~7 Mya'},
+      {l:'Known species', v:'~25+'},
+      {l:'Surviving species', v:'1 (H. sapiens)'},
+      {l:'Key innovation', v:'Bipedalism'}
+    ],
+    tags: ['Bipedalism','Tool use','Fire','Language','Art','Interbreeding'],
+    children: groupNodes,
+    _collapsed: true
+  };
+
+  // Insert hominini into great-apes children
+  greatApes.children.push(homininiNode);
+}
+buildHomininTree();
+
+// ══════════════════════════════════════════════════════
 // NODE MAP + PREPROCESSING
 // ══════════════════════════════════════════════════════
 const nodeMap = {};
 function preprocess(n,parent=null,depth=0){
-  n._parent=parent; n.depth=depth; n._collapsed=false;
+  n._parent=parent; n.depth=depth;
+  if(n._collapsed === undefined) n._collapsed=false;
   nodeMap[n.id]=n;
   if(n.children) n.children.forEach(c=>preprocess(c,n,depth+1));
 }
@@ -1857,24 +1964,39 @@ function normalizeSearchText(str){
 }
 function buildSearchIndex(){
   searchIndex=[];
+  // Track IDs already added to prevent duplicates
+  const addedIds = new Set();
   Object.values(nodeMap).forEach(n=>{
+    if(addedIds.has(n.id)) return;
+    addedIds.add(n.id);
+    // For hominin tree nodes, include full latin name in haystack
+    const extraHaystack = n._homininData
+      ? [n._homininData.name, n._homininData.short, (n._homininData.tags||[]).join(" ")].join(" ")
+      : "";
     searchIndex.push({
       id:n.id,
-      name:n.name,
+      name:n._homininData ? n._homininData.name : n.name,
       latin:n.latin||"",
       era:n.era||"",
       icon:n.icon,
       depth:n.depth,
       tags:(n.tags||[]).join(" "),
-      type:"tree",
+      type:n._homininData ? "hominin" : "tree",
       haystack:normalizeSearchText(
-        [n.name,n.latin,(n.tags||[]).join(" "),n.id].join(" ")
+        [n.name,n.latin,(n.tags||[]).join(" "),n.id,extraHaystack].join(" ")
       )
     });
   });
+  // Also index HOMININS entries that aren't in the tree (e.g. h_sapiens maps to homo-sapiens)
   HOMININS.forEach(h=>{
+    if(HOMININ_SKIP_IDS.has(h.id)) return;
+    // h_sapiens is not in nodeMap directly — it maps to homo-sapiens
+    if(nodeMap[h.id] || addedIds.has(h.id)) return;
+    const treeId = h.id === 'h_sapiens' ? 'homo-sapiens' : h.id;
+    if(addedIds.has(treeId)) return;
+    addedIds.add(h.id);
     searchIndex.push({
-      id:"hom:"+h.id,
+      id:treeId,
       name:h.name,
       latin:h.short||"",
       era:h.mya[0]+"–"+h.mya[1]+" Mya",
@@ -1882,7 +2004,6 @@ function buildSearchIndex(){
       depth:0,
       tags:(h.tags||[]).join(" "),
       type:"hominin",
-      homId:h.id,
       haystack:normalizeSearchText(
         [h.name,h.short,(h.tags||[]).join(" "),h.id].join(" ")
       )
@@ -2507,7 +2628,7 @@ Object.entries(ENRICHMENT).forEach(([id, data]) => {
 // ══════════════════════════════════════════════════════
 // LAYOUT
 // ══════════════════════════════════════════════════════
-const DEPTH_R=[0,225,412,578,725,853,965,1067,1152];
+const DEPTH_R=[0,225,412,578,725,853,965,1067,1152,1230,1300,1365];
 function getVisible(n){let a=[n];if(n.children&&!n._collapsed)n.children.forEach(c=>a=a.concat(getVisible(c)));return a;}
 function getVisibleEdges(n){let a=[];if(n.children&&!n._collapsed){n.children.forEach(c=>{a.push({from:n,to:c});a=a.concat(getVisibleEdges(c));});}return a;}
 function assignAngles(n,a0,a1){n._a0=a0;n._a1=a1;n._angle=(a0+a1)/2;if(!n.children||!n.children.length||n._collapsed)return;const visible=n.children;const minAngleSep=0.15;const range=a1-a0;const minTotal=visible.length*minAngleSep;const effectiveRange=Math.max(range,minTotal);let a=a0-(effectiveRange-range)/2;visible.forEach(c=>{const share=effectiveRange/visible.length;assignAngles(c,a,a+share);a+=share;});}
@@ -3095,11 +3216,20 @@ function renderPanelContent(node) {
     'dinoflagellates':'Dinoflagellate','diatoms':'Diatom','phytophthora':'Phytophthora',
     'amoeba':'Amoeba','volvox':'Volvox',
     'h_naledi':'Homo_naledi','h_floresiensis':'Homo_floresiensis',
-    'h_luzonensis':'Homo_luzonensis','denisovan':'Denisovan',
-    'h_neanderthalensis':'Neanderthal','h_erectus':'Homo_erectus',
+    'h_luzonensis':'Homo_luzonensis','denisovans':'Denisovan','denisovan':'Denisovan',
+    'neanderthal':'Neanderthal','h_neanderthalensis':'Neanderthal','h_erectus':'Homo_erectus',
     'h_heidelbergensis':'Homo_heidelbergensis','h_habilis':'Homo_habilis',
+    'h_rudolfensis':'Homo_rudolfensis','h_antecessor':'Homo_antecessor',
+    'h_bodoensis':'Homo_bodoensis','h_longi':'Homo_longi','h_sapiens':'Human',
+    'au_anamensis':'Australopithecus_anamensis',
     'au_afarensis':'Australopithecus_afarensis','au_africanus':'Australopithecus_africanus',
-    'sahelanthropus':'Sahelanthropus','ardipithecus_r':'Ardipithecus_ramidus',
+    'au_garhi':'Australopithecus_garhi','au_sediba':'Australopithecus_sediba',
+    'au_bahrelghazali':'Australopithecus_bahrelghazali','au_deyiremeda':'Australopithecus_deyiremeda',
+    'au_prometheus':'Little_Foot_(Australopithecus)',
+    'par_aethiopicus':'Paranthropus_aethiopicus','par_boisei':'Paranthropus_boisei','par_robustus':'Paranthropus_robustus',
+    'sahelanthropus':'Sahelanthropus','orrorin':'Orrorin','ardipithecus_r':'Ardipithecus_ramidus',
+    'kenyanthropus':'Kenyanthropus',
+    'hominini':'Hominini',
   };
 
   // Cache for fetched photos
@@ -3349,7 +3479,55 @@ function renderPanelContent(node) {
           </div>
         </div>
       ` : ''}
-      ${(()=>{const isHominin=node.tags&&(node.tags.includes('Hominin')||node.tags.includes('Human evolution'))||node.id==='homo-sapiens'||(node.id&&node.id.startsWith('h-'))||HOMININS.some(h=>h.id===node.id||h.name===node.name);return isHominin?`<button onclick="openHominins('${node.id}')" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--color-accent);color:white;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">🧬 Hominin Deep Dive</button>`:'';})()}
+      ${(()=>{
+        const h = node._homininData;
+        if(!h) return '';
+        const brainMax = h.brain && (h.brain[1]||h.brain[0]);
+        const neanPct = h.dna && h.dna.neanderthal != null ? h.dna.neanderthal : null;
+        const denPct = h.dna && h.dna.denisovan != null ? h.dna.denisovan : null;
+        let html = '';
+        // Brain volume bar
+        if(brainMax){
+          html += `<div style="display:flex;flex-direction:column;gap:4px;">
+            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Source Sans 3',sans-serif;">🧠 BRAIN VOLUME</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;height:8px;background:var(--color-canvas-alt);border-radius:4px;overflow:hidden;">
+                <div style="width:${Math.round(brainMax/1750*100)}%;height:100%;background:${h.color};border-radius:4px;"></div>
+              </div>
+              <span style="font-size:12px;color:var(--color-text-secondary);font-family:'Source Sans 3',sans-serif;min-width:60px;">${brainMax} cm³</span>
+            </div>
+          </div>`;
+        }
+        // Capabilities row
+        const hasTools = h.tools && h.tools!=='None known' && h.tools!=='None';
+        const hasFire = h.fire && h.fire!=='No';
+        const hasLang = h.language && h.language!=='None';
+        if(hasTools || hasFire || hasLang){
+          html += `<div style="display:flex;gap:12px;flex-wrap:wrap;">`;
+          if(hasTools) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Source Sans 3',sans-serif;">🪨 ${h.tools}</div>`;
+          if(hasFire) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Source Sans 3',sans-serif;">🔥 ${h.fire}</div>`;
+          if(hasLang) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Source Sans 3',sans-serif;">🗣️ ${h.language}</div>`;
+          html += `</div>`;
+        }
+        // DNA introgression
+        if(neanPct != null || denPct != null){
+          html += `<div style="display:flex;flex-direction:column;gap:4px;">
+            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Source Sans 3',sans-serif;">🧬 DNA LEGACY</div>`;
+          if(neanPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary);font-family:'Source Sans 3',sans-serif;"><span style="min-width:80px;">Neanderthal</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,neanPct*25)}%;height:100%;background:#7A9BAA;border-radius:3px;"></div></div><span>${neanPct}%</span></div>`;
+          if(denPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary);font-family:'Source Sans 3',sans-serif;"><span style="min-width:80px;">Denisovan</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,denPct*20)}%;height:100%;background:#7A8BAA;border-radius:3px;"></div></div><span>${denPct}%</span></div>`;
+          if(h.dna && h.dna.note) html += `<div style="font-size:11px;color:var(--color-text-muted);font-style:italic;">${h.dna.note}</div>`;
+          html += `</div>`;
+        }
+        // Fossil sites
+        if(h.sites && h.sites.length){
+          html += `<div style="display:flex;flex-direction:column;gap:4px;">
+            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Source Sans 3',sans-serif;">📍 FOSSIL SITES</div>
+            <div style="font-size:12px;color:var(--color-text-secondary);font-family:'Source Sans 3',sans-serif;line-height:1.6;">${h.sites.join(' · ')}</div>
+          </div>`;
+        }
+        return html;
+      })()}
+      ${(()=>{const isHominin=node._homininData||node.id==='hominini'||(node.id&&node.id.startsWith('hom-'));return isHominin?`<button onclick="openHomininView()" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--color-accent);color:white;cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">🧬 Hominin Deep Dive</button>`:'';})()}
       <button onclick="closePanel()" style="margin-top:8px;padding:10px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:'Source Sans 3',sans-serif;font-size:13px;color:var(--color-text-secondary);">
         Close
       </button>
@@ -3379,13 +3557,21 @@ function renderPanelContent(node) {
 }
 
 function openHominins(nodeId) {
-  const homininBtn = document.querySelector('[onclick*="HomininView"], [onclick*="openHominin"]') || document.getElementById('hominin-btn');
-  if (homininBtn) { homininBtn.click(); }
-  else { window.openHomininView && window.openHomininView(); }
-  setTimeout(() => {
-    const card = document.querySelector('[data-hominin-id="' + nodeId + '"]');
-    if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }, 300);
+  // Navigate to the hominini branch in the main tree
+  const homininiNode = nodeMap['hominini'];
+  if(homininiNode){
+    // Uncollapse the path to hominini and hominini itself
+    let c = homininiNode;
+    while(c._parent){c._parent._collapsed = false; c = c._parent;}
+    homininiNode._collapsed = false;
+    layout(); render(); applyT();
+    // Pan to hominini
+    const cx=window.innerWidth/2, cy=window.innerHeight/2;
+    transform.x = cx - homininiNode._x * transform.s;
+    transform.y = cy - homininiNode._y * transform.s;
+    applyT();
+    showMainPanel(homininiNode);
+  }
 }
 function showMainPanel(n){
   if(currentPanelNode && currentPanelNode.id !== n.id){
@@ -3559,12 +3745,11 @@ searchInput.addEventListener('blur',()=>setTimeout(()=>{searchResults.classList.
 
 window.navigateTo=function(id){
   searchInput.value='';searchResults.classList.remove('show');searchInput.setAttribute('aria-expanded','false');
-  // Handle hominin items from search (prefixed with 'hom:')
+  // Handle legacy hom: prefixed IDs from old search entries
   if(id.startsWith('hom:')){
-    const homId=id.slice(4);
-    const h=HOMININS.find(x=>x.id===homId);
-    if(h){openHomininView();setTimeout(()=>{selectedHominin=homId;renderHominins();showHominDetail(h);},100);}
-    return;
+    id = id.slice(4);
+    // Map h_sapiens to its tree node ID
+    if(id === 'h_sapiens') id = 'homo-sapiens';
   }
   const n=nodeMap[id];if(!n)return;
   highlightedId=id;
@@ -3837,7 +4022,7 @@ document.addEventListener('keydown',e=>{
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.isContentEditable) return;
   if(e.key==='f'||e.key==='F'){searchInput.focus();e.preventDefault();}
   if(e.key==='/'){e.preventDefault();const search=document.getElementById('search-input');if(search)search.focus();}
-  if(e.key==='h'||e.key==='H'){openHomininView();}
+  if(e.key==='h'||e.key==='H'){navigateTo('hominini');}
   if(e.key==='r'||e.key==='R'){transform={x:0,y:0,s:1};applyT();}
   if(e.key==='d'){const toggle=document.getElementById('theme-btn');if(toggle)toggle.click();}
 });

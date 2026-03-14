@@ -1191,6 +1191,11 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 <script src="js/imagePrompts.js"></script>
 <script src="js/imageLoader.js"></script>
 <script>
+// Register PHOTO_MAP (from speciesData.js) with ImageLoader for tree node rendering
+if(typeof ImageLoader!=='undefined'&&typeof PHOTO_MAP!=='undefined'&&ImageLoader.registerPhotoMap){
+  ImageLoader.registerPhotoMap(PHOTO_MAP);
+}
+
 // ══════════════════════════════════════════════════════
 // TREE DATA
 // ══════════════════════════════════════════════════════
@@ -2003,38 +2008,33 @@ function render(){
         g.appendChild(icon);
       }
 
-      // Try species image first (via ImageLoader if available)
+      // Always show silhouette icon first
+      addSilhouette();
+
+      // Overlay species photo on top if available (via ImageLoader)
+      // Uses foreignObject + HTML img (SVG <image> fails cross-origin)
       if(typeof ImageLoader!=='undefined'&&imgR>=8){
         const best=ImageLoader.getBestUrl(n);
         if(best.url){
-          const clipId='nclip-'+n.id.replace(/[^a-zA-Z0-9_-]/g,'_');
-          const clipDef=document.createElementNS('http://www.w3.org/2000/svg','clipPath');
-          clipDef.setAttribute('id',clipId);
-          const clipCirc=document.createElementNS('http://www.w3.org/2000/svg','circle');
-          clipCirc.setAttribute('cx',n._x);clipCirc.setAttribute('cy',n._y);clipCirc.setAttribute('r',imgR-1);
-          clipDef.appendChild(clipCirc);
-          g.appendChild(clipDef);
-
-          const svgImg=document.createElementNS('http://www.w3.org/2000/svg','image');
-          svgImg.setAttribute('x',n._x-imgR);svgImg.setAttribute('y',n._y-imgR);
-          svgImg.setAttribute('width',imgSize);svgImg.setAttribute('height',imgSize);
-          svgImg.setAttribute('clip-path','url(#'+clipId+')');
-          svgImg.setAttribute('preserveAspectRatio','xMidYMid slice');
-          svgImg.style.pointerEvents='none';
-
-          ImageLoader.loadInto(n,svgImg,{
-            onLoad:function(){},
-            onFallback:function(){
-              svgImg.remove();clipDef.remove();
-              addSilhouette();
-            }
+          const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+          fo.setAttribute('x',n._x-imgR);fo.setAttribute('y',n._y-imgR);
+          fo.setAttribute('width',imgSize);fo.setAttribute('height',imgSize);
+          fo.style.pointerEvents='none';fo.style.overflow='hidden';
+          const wrap=document.createElement('div');
+          wrap.style.cssText=`width:${imgSize}px;height:${imgSize}px;border-radius:50%;overflow:hidden;`;
+          const htmlImg=document.createElement('img');
+          htmlImg.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
+          htmlImg.alt=n.name||'';
+          htmlImg.addEventListener('load',function(){
+            // Photo loaded — it naturally covers the silhouette underneath
           });
-          g.appendChild(svgImg);
-        } else {
-          addSilhouette();
+          htmlImg.addEventListener('error',function(){
+            if(fo.parentNode) fo.remove();
+            if(best.source==='generated') ImageLoader.markFailed(n.id);
+          });
+          htmlImg.src=best.url;
+          wrap.appendChild(htmlImg);fo.appendChild(wrap);g.appendChild(fo);
         }
-      } else {
-        addSilhouette();
       }
     }
 

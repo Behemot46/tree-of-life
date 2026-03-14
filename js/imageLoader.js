@@ -3,8 +3,9 @@
 
    Provides a unified image source for tree nodes, panel heroes,
    and search thumbnails. Implements:
-   - Stable URL pattern: assets/species/{id}.webp
-   - Graceful fallback: generated → node img → emoji
+   - Curated PHOTO_MAP (Wikimedia Commons) as primary source
+   - Stable URL pattern: assets/species/{id}.webp for AI-generated
+   - Graceful fallback: PHOTO_MAP → generated → node.img → emoji
    - Fail-once tracking (no retry loops per session)
    - Lazy, non-blocking loading
    ═══════════════════════════════════════════════════════════════ */
@@ -13,9 +14,20 @@ const ImageLoader = (() => {
   /* Set of node IDs whose generated image failed to load this session */
   const failedIds = new Set();
 
+  /* Registered PHOTO_MAP reference (set via registerPhotoMap) */
+  let photoMap = null;
+
   /* Base path for AI-generated species images */
   const SPECIES_IMAGE_BASE = 'assets/species/';
   const IMAGE_EXT = '.webp';
+
+  /**
+   * Register a PHOTO_MAP object for curated Wikimedia URLs.
+   * Called once after PHOTO_MAP is defined in inline script.
+   */
+  function registerPhotoMap(map) {
+    photoMap = map;
+  }
 
   /**
    * Get the generated image URL for a node ID.
@@ -28,26 +40,30 @@ const ImageLoader = (() => {
 
   /**
    * Get the best available image URL for a node, synchronously.
-   * Returns { url, source } where source is 'generated'|'node'|null.
-   * Does not attempt loading — just returns the URL to try.
+   * Returns { url, source, credit }.
+   * Priority: PHOTO_MAP → generated .webp → node.img → null.
    */
   function getBestUrl(nodeData) {
     const id = nodeData.id;
 
-    // 1. Generated image (if not already failed)
+    // 1. Curated PHOTO_MAP (Wikimedia Commons URLs) — highest priority
+    if (photoMap && photoMap[id]) {
+      return { url: photoMap[id].url, source: 'photomap', credit: photoMap[id].credit };
+    }
+
+    // 2. Generated image (if not already failed)
     const genUrl = getGeneratedUrl(id);
-    if (genUrl) return { url: genUrl, source: 'generated' };
+    if (genUrl) return { url: genUrl, source: 'generated', credit: 'AI-generated illustration' };
 
-    // 2. Node's existing img field (Wikipedia/Wikimedia URLs)
-    if (nodeData.img) return { url: nodeData.img, source: 'node' };
+    // 3. Node's existing img field
+    if (nodeData.img) return { url: nodeData.img, source: 'node', credit: nodeData.imgCredit || null };
 
-    // 3. No image available
-    return { url: null, source: null };
+    // 4. No image available
+    return { url: null, source: null, credit: null };
   }
 
   /**
    * Get the emoji icon for a node (final fallback).
-   * Returns the emoji string or null.
    */
   function getEmoji(nodeData) {
     return nodeData.icon || null;
@@ -55,7 +71,6 @@ const ImageLoader = (() => {
 
   /**
    * Mark a generated image as failed for this session.
-   * Future calls to getBestUrl will skip to the next fallback.
    */
   function markFailed(nodeId) {
     failedIds.add(nodeId);
@@ -65,20 +80,12 @@ const ImageLoader = (() => {
    * Check if a node has a potentially loadable image.
    */
   function hasImage(nodeData) {
-    return !failedIds.has(nodeData.id) || !!nodeData.img;
+    return (photoMap && !!photoMap[nodeData.id]) || !failedIds.has(nodeData.id) || !!nodeData.img;
   }
 
   /**
    * Load an image into an <img> or SVG <image> element with
    * the full fallback chain. Non-blocking.
-   *
-   * @param {Object} nodeData - The node data object
-   * @param {Element} imgEl - An <img> or SVG <image> element
-   * @param {Object} opts - Options
-   * @param {string} opts.size - 'thumb' (32px) | 'medium' (120px) | 'hero' (400px)
-   * @param {Function} opts.onLoad - Called when image loads successfully
-   * @param {Function} opts.onFallback - Called when falling back to emoji (receives emoji string)
-   * @param {Function} opts.onError - Called when all sources fail
    */
   function loadInto(nodeData, imgEl, opts = {}) {
     const isSvgImage = imgEl.tagName === 'image';
@@ -93,26 +100,45 @@ const ImageLoader = (() => {
     const best = getBestUrl(nodeData);
 
     if (!best.url) {
-      // No image URL available at all — use emoji fallback
       if (opts.onFallback) opts.onFallback(getEmoji(nodeData));
       return;
     }
 
-    // Try loading the best URL
     const onError = () => {
-      if (best.source === 'generated') {
-        // Mark as failed, try node img fallback
+      if (best.source === 'photomap') {
+        // Photomap failed, try generated
+        const genUrl = getGeneratedUrl(nodeData.id);
+        if (genUrl) {
+          setUrl(genUrl);
+          imgEl.removeEventListener('error', onError);
+          imgEl.addEventListener('error', onGenError, { once: true });
+        } else if (nodeData.img) {
+          setUrl(nodeData.img);
+          imgEl.removeEventListener('error', onError);
+          imgEl.addEventListener('error', onFinalError, { once: true });
+        } else {
+          if (opts.onFallback) opts.onFallback(getEmoji(nodeData));
+        }
+      } else if (best.source === 'generated') {
         markFailed(nodeData.id);
         if (nodeData.img) {
           setUrl(nodeData.img);
           imgEl.removeEventListener('error', onError);
           imgEl.addEventListener('error', onFinalError, { once: true });
         } else {
-          // No more image fallbacks — use emoji
           if (opts.onFallback) opts.onFallback(getEmoji(nodeData));
         }
       } else {
-        // Node img also failed
+        if (opts.onFallback) opts.onFallback(getEmoji(nodeData));
+      }
+    };
+
+    const onGenError = () => {
+      markFailed(nodeData.id);
+      if (nodeData.img) {
+        setUrl(nodeData.img);
+        imgEl.addEventListener('error', onFinalError, { once: true });
+      } else {
         if (opts.onFallback) opts.onFallback(getEmoji(nodeData));
       }
     };
@@ -133,11 +159,6 @@ const ImageLoader = (() => {
 
   /**
    * Create a complete image element (for use in panels, search, etc.)
-   * Returns an object with the img element and load promise.
-   *
-   * @param {Object} nodeData - The node data object
-   * @param {string} size - 'thumb' | 'medium' | 'hero'
-   * @returns {{ element: HTMLImageElement, promise: Promise }}
    */
   function createImage(nodeData, size = 'medium') {
     const img = document.createElement('img');
@@ -164,7 +185,6 @@ const ImageLoader = (() => {
 
   /**
    * Preload an image URL without attaching to DOM.
-   * Returns a promise that resolves to true/false.
    */
   function preload(nodeData) {
     const best = getBestUrl(nodeData);
@@ -182,6 +202,7 @@ const ImageLoader = (() => {
   }
 
   return {
+    registerPhotoMap,
     getBestUrl,
     getEmoji,
     getGeneratedUrl,

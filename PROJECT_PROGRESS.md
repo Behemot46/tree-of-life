@@ -16,6 +16,9 @@
 | p10 | Mobile Responsiveness | **Done** | `claude/inspiring-shockley` |
 | p11 | Interactive Timeline + Alternate Tree Views | **Done** | `claude/epic-mayer` |
 | p12 | Modern Scientific Visual Overhaul | **Done** | PR #48 (`claude/jovial-proskuriakova`) |
+| p13a | Back & Home Navigation Buttons | **Done** | PR #51 (`claude/compassionate-gagarin`) |
+| p13b | Species Image System | **Pending merge** | PR #52 (`claude/strange-dewdney`) |
+| p14 | Inline Hominin Family Tree | **Done** | PR #53 (`claude/strange-rosalind`) |
 
 ---
 
@@ -440,30 +443,82 @@ Combined with p8: **~2,800+ lines** of dead code eliminated from the repo.
 
 ---
 
+## p14 — Inline Hominin Family Tree
+
+**Branch:** `claude/strange-rosalind` (PR #53)
+
+### What was changed
+
+**Hominin Integration into Main Tree**
+- 28 hominin species render as first-class tree nodes under hominini branch (not separate overlay)
+- 4 group categories: Proto-Hominins (4), Australopithecus (8), Paranthropus (3), Genus Homo (13)
+- Hominini + all group nodes collapsed by default (`_collapsed: true`) to avoid visual overload
+- `buildHomininTree()` in treeData.js populates group nodes from HOMININS array via `homininToTreeNode()`
+- Each hominin node has `_hominin: true` and `_hominData` linking back to HOMININS entry
+
+**Panel Enrichment for Hominins**
+- Brain volume bar (gradient fill, normalized to MAX_BRAIN)
+- Capabilities badges: tools, fire, language (with i18n labels)
+- DNA introgression bars: Neanderthal % and Denisovan % (when present)
+- Fossil sites list
+- "Hominin Deep Dive" button navigates to tree node via `navigateTo()`
+
+**Search Integration**
+- All hominin species in search index with `_hominData` enrichment
+- `HOMININ_SKIP_IDS` deduplicates aliased entries (homo-naledi/h_naledi, homo-floresiensis/h_floresiensis, denisovan/denisovans)
+- `canonicalHomininId()` resolves between ID formats via `HOMININ_ID_ALIASES`
+
+**Navigation Changes**
+- `openHominins()` navigates to tree node via `navigateTo()` instead of opening overlay
+- "Human Evolution" button calls `navigateTo('hominini')`
+- Keyboard shortcut 'H' calls `navigateTo('hominini')`
+
+**Merge with Latest Design**
+- Merged with origin/main (p12 visual overhaul + p13a nav buttons)
+- Resolved 9 merge conflicts in index.html
+- Fixed duplicate `buildHomininTree()` (kept main's version)
+- Fixed duplicate `DEPTH_R` const (updated uiData.js with extended array for depth 10)
+- Replaced `_homininData` → `_hominData` naming (aligned with main)
+- Replaced `Source Sans 3` → `Inter` font references
+
+### Files changed
+
+| File | Changes |
+|------|---------|
+| `index.html` | Hominin panel enrichment, search dedup, navigation rewiring, merge conflict resolution |
+| `js/uiData.js` | Extended DEPTH_R to depth 10 (added 1365) |
+| `serve.js` | `process.env.PORT` support |
+
+### Verified
+- Tree renders with no console errors
+- Hominini node has 4 group children (28 species total)
+- "Human Evolution" button opens hominini panel with photo and description
+- Group nodes exist and are collapsed by default
+- Homo sapiens has `_hominData` with brain volume [1350, 1500]
+- Search index includes "neanderthal" (2 results — entry + alias)
+- Light/dark theme working
+
+---
+
 ## SESSION HANDOFF
 
-### What was done (p12 — Modern Scientific Visual Overhaul)
-Complete visual transformation from warm earth-tone "museum" look to modern scientific aesthetic:
-- New color palette: slate backgrounds (#1a1d23), sky-blue accents (#0ea5e9), vivid domain colors
-- Typography: Inter + JetBrains Mono + Heebo (replacing Playfair Display)
-- 20 SVG silhouette icons replacing emoji rendering
-- Global label collision detection with human-path priority
-- Human evolution path highlighting (LUCA → Homo sapiens)
-- Animated SVG branching tree loading screen
-- Removed noise overlays, particles, glow filters, pulsing animations
-- Removed ~1,000 lines of duplicate const declarations
-- Merged with origin/main (36 conflicts resolved)
-- Fixed critical render bug: `replaceChildren()` calls were missing
+### What was done (p14 — Inline Hominin Family Tree)
+Integrated 28 hominin species as first-class inline tree nodes, replacing the separate overlay approach:
+- 4 group categories under hominini branch, all collapsed by default
+- Panel enrichment: brain volume, capabilities, DNA introgression, fossil sites
+- Search integration with deduplication
+- Merged with p12 design overhaul + p13a nav buttons (9 conflicts resolved)
 
 ### Current state
-- **Branch:** `claude/jovial-proskuriakova`
-- **PR:** #48 — OPEN, MERGEABLE, deploy check PASSED
-- **URL:** https://github.com/Behemot46/tree-of-life/pull/48
-- **Working tree:** clean, no uncommitted changes
+- **Branch:** `claude/strange-rosalind`
+- **PR:** #53 — OPEN
+- **URL:** https://github.com/Behemot46/tree-of-life/pull/53
+- **Working tree:** clean (only `.claude/settings.local.json` untracked)
 
 ### Known Issues / Follow-up
 1. CLAUDE.md has stale references to deleted modules and old architecture
 2. Legend is decorative only (domain highlight not implemented)
 3. No offline fallback for API failures
 4. Panel HTML template string is very long — modularization opportunity
-5. Hebrew RTL menu may need additional testing with new layout
+5. `panelHistory` and `navStack` are two parallel stacks (could be unified)
+6. Mobile nav button positioning may need refinement for overlap with bottom panel

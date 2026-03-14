@@ -804,6 +804,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   </div>
 </div>
 
+<script src="js/factLibrary.js"></script>
 <script>
 // ══════════════════════════════════════════════════════
 // TREE DATA
@@ -3931,6 +3932,7 @@ const TRANSLATIONS = {
     cap_tools:'\ud83e\udea8 Tools',
     cap_fire:'\ud83d\udd25 Fire',
     cap_lang:'\ud83d\udcac Language',
+    loading_text:'Growing the tree\u2026',
   },
   he:{
     title:'\u05e2\u05e5 \u05d4\u05d7\u05d9\u05d9\u05dd',
@@ -3978,6 +3980,7 @@ const TRANSLATIONS = {
     cap_tools:'\ud83e\udea8 \u05db\u05dc\u05d9\u05dd',
     cap_fire:'\ud83d\udd25 \u05d0\u05e9',
     cap_lang:'\ud83d\udcac \u05e9\u05e4\u05d4',
+    loading_text:'\u05de\u05e6\u05de\u05d9\u05d7 \u05d0\u05ea \u05d4\u05e2\u05e5\u2026',
   },
   ru:{
     title:'\u0414\u0435\u0440\u0435\u0432\u043e \u0436\u0438\u0437\u043d\u0438',
@@ -4025,6 +4028,7 @@ const TRANSLATIONS = {
     cap_tools:'\ud83e\udea8 \u041e\u0440\u0443\u0434\u0438\u044f',
     cap_fire:'\ud83d\udd25 \u041e\u0433\u043e\u043d\u044c',
     cap_lang:'\ud83d\udcac \u042f\u0437\u044b\u043a',
+    loading_text:'\u0412\u044b\u0440\u0430\u0449\u0438\u0432\u0430\u0435\u043c \u0434\u0435\u0440\u0435\u0432\u043e\u2026',
   }
 };
 
@@ -4153,7 +4157,7 @@ function showLoading() {
   `;
   loader.innerHTML = `
     <div style="font-size:48px;margin-bottom:16px;animation:spin 2s linear infinite;">🌿</div>
-    <div style="font-size:18px;color:var(--color-text-secondary);letter-spacing:0.05em;">Growing the tree...</div>
+    <div style="font-size:18px;color:var(--color-text-secondary);letter-spacing:0.05em;">${t('loading_text')}</div>
   `;
   document.body.appendChild(loader);
   return loader;
@@ -4166,17 +4170,10 @@ function hideLoading(loader) {
 
 function init(){
   const loader = showLoading();
-  const _taglines = [
-    "Every living thing is your cousin.",
-    "You share 50% of your DNA with a banana.",
-    "Life found a way — 3.8 billion years ago.",
-    "From a single cell to 8 billion humans.",
-    "The tree is real. You are a leaf."
-  ];
   const _splash = document.getElementById('splash');
   const _taglineEl = document.getElementById('splash-tagline');
   if (_splash && _taglineEl) {
-    _taglineEl.textContent = _taglines[Math.floor(Math.random() * _taglines.length)];
+    _taglineEl.textContent = FACTS.getLoadingFact(currentLang);
     const _dismissSplash = () => {
       _splash.style.opacity = '0';
       setTimeout(() => { _splash.style.display = 'none'; animateTreeEntrance(); }, 800);

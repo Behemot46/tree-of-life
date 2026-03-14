@@ -1009,7 +1009,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   <button id="extinct-toggle" onclick="toggleExtinct()" aria-label="Toggle visibility of extinct species" style="font-family:'Inter',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);white-space:nowrap;flex-shrink:0;">
     <span>†</span><span id="extinct-label">Hide Extinct</span>
   </button>
-  <button id="hominins-tab" onclick="openHomininView()" aria-label="Open Hominin Evolution panel" style="font-family:'Inter',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;color:var(--text-secondary);white-space:nowrap;flex-shrink:0;">
+  <button id="hominins-tab" onclick="navigateTo('hominini')" aria-label="Navigate to Hominin family tree" style="font-family:'Inter',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;color:var(--text-secondary);white-space:nowrap;flex-shrink:0;">
     🧬 Hominins
   </button>
 </div>
@@ -1444,18 +1444,25 @@ function buildHomininTree(){
 }
 buildHomininTree();
 
+// Canonical HOMININS IDs to skip in search (duplicates with different IDs)
+const HOMININ_SKIP_IDS = new Set(['homo-naledi','homo-floresiensis','denisovan']);
+
 // ══════════════════════════════════════════════════════
 // NODE MAP + PREPROCESSING
 // ══════════════════════════════════════════════════════
 const nodeMap = {};
 function preprocess(n,parent=null,depth=0){
-  n._parent=parent; n.depth=depth; n._collapsed=false;
+  n._parent=parent; n.depth=depth;
+  if(n._collapsed === undefined) n._collapsed=false;
   nodeMap[n.id]=n;
   if(n.children) n.children.forEach(c=>preprocess(c,n,depth+1));
 }
 preprocess(TREE);
 // Collapse hominini subtree by default so tree isn't visually overloaded
 if(nodeMap['hominini']) nodeMap['hominini']._collapsed=true;
+['group-proto','group-australopith','group-paranthropus','group-homo'].forEach(id=>{
+  if(nodeMap[id]) nodeMap[id]._collapsed=true;
+});
 window.getNodeById = id=>nodeMap[id];
 
 /* ===========================
@@ -1516,12 +1523,20 @@ function _fuzzyScore(a,b){
 
 function buildSearchIndex(){
   searchIndex=[];
+  // Track IDs already added to prevent duplicates
+  const addedIds = new Set();
   Object.values(nodeMap).forEach(n=>{
+    if(addedIds.has(n.id)) return;
+    addedIds.add(n.id);
     const i18n=TAXON_I18N[n.id];
     const extra=i18n?[i18n.he||'',i18n.ru||'']:[];
+    // For hominin tree nodes, include full latin name in haystack
+    const extraHaystack = n._hominData
+      ? [n._hominData.name, n._hominData.short, (n._hominData.tags||[]).join(" ")].join(" ")
+      : "";
     searchIndex.push({
       id:n.id,
-      name:n.name,
+      name:n._hominData ? n._hominData.name : n.name,
       nameHe:i18n?.he||'',
       nameRu:i18n?.ru||'',
       latin:n.latin||"",
@@ -1529,19 +1544,24 @@ function buildSearchIndex(){
       icon:n.icon,
       depth:n.depth,
       tags:(n.tags||[]).join(" "),
-      type:"tree",
+      type:n._hominData ? "hominin" : "tree",
       haystack:normalizeSearchText(
-        [n.name,n.latin,(n.tags||[]).join(" "),n.id,...extra].join(" ")
+        [n.name,n.latin,(n.tags||[]).join(" "),n.id,...extra,extraHaystack].join(" ")
       )
     });
   });
+  // Also index HOMININS entries that aren't in the tree (e.g. h_sapiens maps to homo-sapiens)
   HOMININS.forEach(h=>{
+    if(HOMININ_SKIP_IDS.has(h.id)) return;
     // Skip if this hominin is already in the tree (via buildHomininTree)
-    if(nodeMap[h.id]) return;
+    if(nodeMap[h.id] || addedIds.has(h.id)) return;
+    const treeId = h.id === 'h_sapiens' ? 'homo-sapiens' : h.id;
+    if(addedIds.has(treeId)) return;
+    addedIds.add(h.id);
     const i18n=TAXON_I18N[h.id];
     const extra=i18n?[i18n.he||'',i18n.ru||'']:[];
     searchIndex.push({
-      id:"hom:"+h.id,
+      id:treeId,
       name:h.name,
       nameHe:i18n?.he||'',
       nameRu:i18n?.ru||'',
@@ -1551,7 +1571,6 @@ function buildSearchIndex(){
       depth:0,
       tags:(h.tags||[]).join(" "),
       type:"hominin",
-      homId:h.id,
       haystack:normalizeSearchText(
         [h.name,h.short,(h.tags||[]).join(" "),h.id,...extra].join(" ")
       )
@@ -2819,7 +2838,55 @@ function renderPanelContent(node) {
           </div>
         </div>
       ` : ''}
-      ${(()=>{const isHominin=node.tags&&(node.tags.includes('Hominin')||node.tags.includes('Human evolution'))||node.id==='homo-sapiens'||(node.id&&node.id.startsWith('h-'))||HOMININS.some(h=>h.id===node.id||h.name===node.name);return isHominin?`<button onclick="openHominins('${node.id}')" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--color-accent);color:white;cursor:pointer;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">🧬 Hominin Deep Dive</button>`:'';})()}
+      ${(()=>{
+        const h = node._hominData;
+        if(!h) return '';
+        const brainMax = h.brain && (h.brain[1]||h.brain[0]);
+        const neanPct = h.dna && h.dna.neanderthal != null ? h.dna.neanderthal : null;
+        const denPct = h.dna && h.dna.denisovan != null ? h.dna.denisovan : null;
+        let html = '';
+        // Brain volume bar
+        if(brainMax){
+          html += `<div style="display:flex;flex-direction:column;gap:4px;">
+            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">🧠 BRAIN VOLUME</div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:1;height:8px;background:var(--color-canvas-alt);border-radius:4px;overflow:hidden;">
+                <div style="width:${Math.round(brainMax/1750*100)}%;height:100%;background:${h.color};border-radius:4px;"></div>
+              </div>
+              <span style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;min-width:60px;">${brainMax} cm³</span>
+            </div>
+          </div>`;
+        }
+        // Capabilities row
+        const hasTools = h.tools && h.tools!=='None known' && h.tools!=='None';
+        const hasFire = h.fire && h.fire!=='No';
+        const hasLang = h.language && h.language!=='None';
+        if(hasTools || hasFire || hasLang){
+          html += `<div style="display:flex;gap:12px;flex-wrap:wrap;">`;
+          if(hasTools) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">🪨 ${h.tools}</div>`;
+          if(hasFire) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">🔥 ${h.fire}</div>`;
+          if(hasLang) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">🗣️ ${h.language}</div>`;
+          html += `</div>`;
+        }
+        // DNA introgression
+        if(neanPct != null || denPct != null){
+          html += `<div style="display:flex;flex-direction:column;gap:4px;">
+            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">🧬 DNA LEGACY</div>`;
+          if(neanPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;"><span style="min-width:80px;">Neanderthal</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,neanPct*25)}%;height:100%;background:#7A9BAA;border-radius:3px;"></div></div><span>${neanPct}%</span></div>`;
+          if(denPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;"><span style="min-width:80px;">Denisovan</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,denPct*20)}%;height:100%;background:#7A8BAA;border-radius:3px;"></div></div><span>${denPct}%</span></div>`;
+          if(h.dna && h.dna.note) html += `<div style="font-size:11px;color:var(--color-text-muted);font-style:italic;">${h.dna.note}</div>`;
+          html += `</div>`;
+        }
+        // Fossil sites
+        if(h.sites && h.sites.length){
+          html += `<div style="display:flex;flex-direction:column;gap:4px;">
+            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">📍 FOSSIL SITES</div>
+            <div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;line-height:1.6;">${h.sites.join(' · ')}</div>
+          </div>`;
+        }
+        return html;
+      })()}
+      ${(()=>{const isHominin=node._hominData||node.id==='hominini'||(node.id&&node.id.startsWith('hom-'));return isHominin?`<button onclick="openHomininView()" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--color-accent);color:white;cursor:pointer;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">🧬 Hominin Deep Dive</button>`:'';})()}
       <button onclick="closePanel()" style="margin-top:8px;padding:10px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;color:var(--color-text-secondary);">
         Close
       </button>
@@ -2850,27 +2917,17 @@ function renderPanelContent(node) {
 }
 
 function openHominins(nodeId) {
-  // Resolve via canonical alias first, then robust fuzzy matching
+  // Try to navigate to the hominin in the main tree first
   const canonId = canonicalHomininId(nodeId);
-  const nid = (canonId || nodeId).toLowerCase().replace(/-/g, '_');
-  const h = getHomininById(canonId)
-         || HOMININS.find(x => x.id === nodeId || x.id === nid)
-         || HOMININS.find(x => x.name === nodeId)
-         || HOMININS.find(x => x.name.toLowerCase().split(' ').pop() === nid.split('_').pop())
-         || HOMININS.find(x => nid.includes(x.id) || x.id.includes(nid));
-  openHomininView();
-  if (h) {
-    selectedHominin = h.id;
-    renderHominins();
-    showHominDetail(h);
-    // Scroll the card into view once the DOM has settled
-    requestAnimationFrame(() => {
-      const card = document.querySelector('[data-hominin-id="' + h.id + '"]');
-      if (card) {
-        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        card.classList.add('selected');
-      }
-    });
+  const treeNode = nodeMap[canonId] || nodeMap[nodeId];
+  if(treeNode){
+    navigateTo(treeNode.id);
+    return;
+  }
+  // Fallback: navigate to hominini branch
+  const homininiNode = nodeMap['hominini'];
+  if(homininiNode){
+    navigateTo('hominini');
   }
 }
 function showMainPanel(n){
@@ -3181,18 +3238,18 @@ searchInput.addEventListener('blur',()=>setTimeout(()=>{searchResults.classList.
 
 window.navigateTo=function(id){
   searchInput.value='';searchResults.classList.remove('show');searchInput.setAttribute('aria-expanded','false');
-  // Handle hominin items from search (prefixed with 'hom:')
+  // Handle legacy hom: prefixed IDs from old search entries
   if(id.startsWith('hom:')){
     const homId=id.slice(4);
     const canonId=canonicalHomininId(homId);
     // Try tree node first (hominins are now in the main tree)
     if(nodeMap[canonId]){
-      id=canonId; // fall through to tree navigation below
+      id=canonId;
+    } else if(nodeMap[homId]){
+      id=homId;
     } else {
-      // Fallback: open hominin overlay
-      const h=getHomininById(homId);
-      if(h){openHomininView();setTimeout(()=>{selectedHominin=h.id;renderHominins();showHominDetail(h);},100);}
-      return;
+      // Map h_sapiens to its tree node ID
+      if(homId === 'h_sapiens') id = 'homo-sapiens';
     }
   }
   const n=nodeMap[id];if(!n)return;
@@ -3474,7 +3531,7 @@ document.addEventListener('keydown',e=>{
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.isContentEditable) return;
   if(e.key==='f'||e.key==='F'){searchInput.focus();e.preventDefault();}
   if(e.key==='/'){e.preventDefault();const search=document.getElementById('search-input');if(search)search.focus();}
-  if(e.key==='h'||e.key==='H'){openHomininView();}
+  if(e.key==='h'||e.key==='H'){navigateTo('hominini');}
   if(e.key==='r'||e.key==='R'){transform={x:0,y:0,s:1};applyT();}
   if(e.key==='d'){const toggle=document.getElementById('theme-btn');if(toggle)toggle.click();}
 });

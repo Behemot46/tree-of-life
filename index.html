@@ -144,6 +144,22 @@ body.dragging{cursor:grabbing;}
 .bc-sep{font-size:0.55rem;color:var(--text-secondary);opacity:0.4;padding:0 0.3rem;}
 #breadcrumb.hidden{display:none;}
 
+/* ── NAV CONTROLS (Back / Home) ── */
+#nav-ctrl{position:fixed;top:4.2rem;left:1.2rem;z-index:250;display:flex;align-items:center;gap:0.35rem;
+  pointer-events:all;opacity:0;transform:translateY(-6px);transition:opacity 0.25s ease,transform 0.25s ease;visibility:hidden;}
+#nav-ctrl.visible{opacity:1;transform:translateY(0);visibility:visible;}
+.nav-btn{padding:0.3rem 0.7rem;background:rgba(7,5,3,0.85);border:1px solid rgba(200,136,58,0.22);
+  border-radius:8px;color:rgba(200,136,58,0.7);font-size:0.7rem;font-family:var(--font-body);
+  cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;transition:all 0.2s;
+  backdrop-filter:blur(10px);letter-spacing:0.03em;white-space:nowrap;}
+.nav-btn:hover{background:rgba(200,136,58,0.14);border-color:var(--gold);color:var(--parchment);}
+.nav-btn:disabled{opacity:0.3;cursor:default;pointer-events:none;}
+.nav-btn .nav-arrow{display:inline-block;font-size:0.75rem;line-height:1;}
+[data-theme="light"] .nav-btn{background:rgba(248,242,230,0.92);border-color:rgba(138,90,24,0.2);color:rgba(138,90,24,0.7);}
+[data-theme="light"] .nav-btn:hover{background:rgba(138,90,24,0.1);border-color:rgba(138,90,24,0.4);color:var(--parchment);}
+[dir="rtl"] #nav-ctrl{left:auto;right:1.2rem;flex-direction:row-reverse;}
+[dir="rtl"] .nav-arrow{transform:scaleX(-1);}
+
 /* ── ERA BROWSER ── */
 #timeline{position:fixed;bottom:0;left:0;right:0;z-index:200;
   padding:0.6rem 1.5rem 1rem;
@@ -607,6 +623,12 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   /* ── BREADCRUMB: hide on mobile ── */
   #breadcrumb { display: none !important; }
 
+  /* ── NAV CTRL: center bottom on mobile ── */
+  #nav-ctrl{top:auto;bottom:5rem;left:50%;transform:translateX(-50%);right:auto;}
+  #nav-ctrl.visible{transform:translateX(-50%) translateY(0);}
+  [dir="rtl"] #nav-ctrl{left:50%;right:auto;transform:translateX(50%);}
+  [dir="rtl"] #nav-ctrl.visible{transform:translateX(50%) translateY(0);}
+
   /* ── SEARCH BAR: full-width, below header ── */
   #search-wrap {
     top: 0.55rem !important;
@@ -988,6 +1010,12 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   <button id="hominins-tab" onclick="openHomininView()" aria-label="Open Hominin Evolution panel" style="font-family:'Inter',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;color:var(--text-secondary);white-space:nowrap;flex-shrink:0;">
     🧬 Hominins
   </button>
+</div>
+
+<!-- NAV CONTROLS -->
+<div id="nav-ctrl">
+  <button class="nav-btn" id="nav-back" aria-label="Go back"><span class="nav-arrow">←</span> <span id="nav-back-label">Back</span></button>
+  <button class="nav-btn" id="nav-home" aria-label="Go to root"><span class="nav-arrow">⌂</span> <span id="nav-home-label">Home</span></button>
 </div>
 
 <!-- BREADCRUMB -->
@@ -2054,7 +2082,98 @@ function render(){
 const panel=document.getElementById('panel');
 const panelAccent=document.getElementById('panel-accent');
 let currentPanelNode=null;
-let panelHistory=[];  // navigation history stack
+let panelHistory=[];  // legacy panel-to-panel history (used by dynamic back btn inside panel)
+
+// ── Unified Navigation Stack ──
+// Records state snapshots before each transition so Back can restore them.
+// Each entry: {type:'tree'|'panel'|'hominin'|'hominin-detail', nodeId?, homininId?}
+const navStack=[];
+function currentNavState(){
+  const homView=document.getElementById('hominin-view');
+  const isHomOpen=homView&&homView.classList.contains('open');
+  if(isHomOpen&&selectedHominin) return {type:'hominin-detail',homininId:selectedHominin};
+  if(isHomOpen) return {type:'hominin'};
+  if(currentPanelNode) return {type:'panel',nodeId:currentPanelNode.id};
+  return {type:'tree'};
+}
+function pushNav(){
+  const s=currentNavState();
+  // Avoid duplicate consecutive states
+  if(navStack.length>0){
+    const top=navStack[navStack.length-1];
+    if(top.type===s.type&&top.nodeId===s.nodeId&&top.homininId===s.homininId) return;
+  }
+  navStack.push(s);
+  if(navStack.length>30) navStack.shift();
+  updateNavButtons();
+}
+function restoreNavState(s){
+  // Close everything first without pushing to stack
+  const homView=document.getElementById('hominin-view');
+  if(homView) homView.classList.remove('open');
+  panel.classList.remove('open');
+  currentPanelNode=null;
+  panelHistory=[];
+
+  if(s.type==='tree'){
+    updateBreadcrumb(null);
+  } else if(s.type==='panel'){
+    const node=getNodeById(s.nodeId);
+    if(node){
+      currentPanelNode=node;
+      renderPanelContent(node);
+      panel.classList.add('open');
+      updateBreadcrumb(node);
+    }
+  } else if(s.type==='hominin'){
+    homView.classList.add('open');
+    selectedHominin=null;
+    renderHominins();
+  } else if(s.type==='hominin-detail'){
+    homView.classList.add('open');
+    selectedHominin=s.homininId;
+    renderHominins();
+    const hom=HOMININS.find(h=>h.id===s.homininId);
+    if(hom) showHominDetail(hom);
+  }
+}
+function navBack(){
+  if(navStack.length===0) return;
+  const prev=navStack.pop();
+  restoreNavState(prev);
+  updateNavButtons();
+}
+function navHome(){
+  navStack.length=0;
+  panelHistory=[];
+  currentPanelNode=null;
+  const homView=document.getElementById('hominin-view');
+  if(homView) homView.classList.remove('open');
+  panel.classList.remove('open');
+  updateBreadcrumb(null);
+  // Reset zoom/pan
+  transform={x:0,y:0,s:1};applyT();
+  history.replaceState(null,'',location.pathname);
+  updateNavButtons();
+}
+function updateNavButtons(){
+  const ctrl=document.getElementById('nav-ctrl');
+  if(!ctrl) return;
+  const backBtn=document.getElementById('nav-back');
+  if(navStack.length>0){
+    ctrl.classList.add('visible');
+    if(backBtn) backBtn.disabled=false;
+  } else {
+    // Still show Home if we're not at root state
+    const s=currentNavState();
+    if(s.type!=='tree'){
+      ctrl.classList.add('visible');
+      if(backBtn) backBtn.disabled=true;
+    } else {
+      ctrl.classList.remove('visible');
+    }
+  }
+}
 
 function generateSpeciesIllustration(node) {
   const id = node.id || '';
@@ -2701,9 +2820,10 @@ function openHominins(nodeId) {
   }
 }
 function showMainPanel(n){
+  pushNav(); // record state before transition
   if(currentPanelNode && currentPanelNode.id !== n.id){
     panelHistory.push(currentPanelNode);
-    if(panelHistory.length>20) panelHistory.shift(); // cap history
+    if(panelHistory.length>20) panelHistory.shift();
   }
   currentPanelNode=n;
   renderPanelContent(n);
@@ -2715,6 +2835,7 @@ function showMainPanel(n){
     panel.style.transform = '';
   });
   updateBreadcrumb(n);
+  updateNavButtons();
 }
 
 function panelBack(){
@@ -2725,7 +2846,13 @@ function panelBack(){
   updateBreadcrumb(prev);
 }
 
-function closePanel(){const p=document.getElementById('panel')||document.getElementById('info-panel');if(p){p.classList.remove('open');p.style.transform='';p.style.transition='';}updateBreadcrumb(null);panelHistory=[];history.replaceState(null,'',location.pathname);}
+function closePanel(){
+  const p=document.getElementById('panel')||document.getElementById('info-panel');
+  if(p){p.classList.remove('open');p.style.transform='';p.style.transition='';}
+  updateBreadcrumb(null);panelHistory=[];currentPanelNode=null;
+  history.replaceState(null,'',location.pathname);
+  updateNavButtons();
+}
 document.getElementById('panel-close').addEventListener('click',closePanel);
 document.getElementById('svg').addEventListener('click',closePanel);
 
@@ -3036,13 +3163,20 @@ let currentHomFilter='all';
 let selectedHominin=null;
 
 window.openHomininView=function(){
+  pushNav(); // record state before entering hominin view
   document.getElementById('hominin-view').classList.add('open');
   panel.classList.remove('open');
   renderHominins();
+  updateNavButtons();
 };
 document.getElementById('hom-close').addEventListener('click',()=>{
   document.getElementById('hominin-view').classList.remove('open');
+  updateNavButtons();
 });
+
+// ── Nav button click handlers ──
+document.getElementById('nav-back').addEventListener('click',navBack);
+document.getElementById('nav-home').addEventListener('click',navHome);
 
 document.querySelectorAll('.hom-filter').forEach(btn=>{
   btn.addEventListener('click',()=>{
@@ -3088,7 +3222,7 @@ function renderHominins(){
         </div>`;
       el.addEventListener('click',()=>{
         if(compareMode){toggleCompareSelect(h.id);}
-        else{selectedHominin=h.id;renderHominins();showHominDetail(h);}
+        else{pushNav();selectedHominin=h.id;renderHominins();showHominDetail(h);updateNavButtons();}
       });
       group.appendChild(el);
     });
@@ -3337,6 +3471,7 @@ function showIntro(){
 
 
 
+
 let currentLang=localStorage.getItem('tol-lang')||'en';
 
 function t(key){return(TRANSLATIONS[currentLang]&&TRANSLATIONS[currentLang][key])||TRANSLATIONS.en[key]||key;}
@@ -3389,6 +3524,13 @@ function applyI18n(){
   set('i-compare-back',t('compare_back'));
   const hpe=el('hom-panel-empty');
   if(hpe){const parts=t('hom_empty').split('\n');hpe.innerHTML=parts.join('<br>');}
+  // Nav buttons
+  set('nav-back-label',t('nav_back'));
+  set('nav-home-label',t('nav_home'));
+  const navBackBtn=el('nav-back');
+  if(navBackBtn) navBackBtn.setAttribute('aria-label',t('nav_back'));
+  const navHomeBtn=el('nav-home');
+  if(navHomeBtn) navHomeBtn.setAttribute('aria-label',t('nav_home'));
   // Update page title
   document.title=t('title')+' \u2014 '+t('subtitle').split(' ').slice(0,3).join(' ')+'...';
   // Update view toggle labels

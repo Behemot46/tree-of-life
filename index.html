@@ -1842,11 +1842,11 @@ function render(){
       p.style.transition=`stroke-dashoffset ${0.3+to.depth*0.05}s cubic-bezier(.4,0,.2,1) ${to.depth*0.04}s`;
       setTimeout(()=>{p.style.strokeDashoffset=0;},50);
     }
-    branchLayer.appendChild(p);
+    branchFrag.appendChild(p);
     if(onHumanPath) humanPathEdges.push(p);
   });
   // Re-append human path edges on top so they draw over other branches
-  humanPathEdges.forEach(p=>branchLayer.appendChild(p));
+  humanPathEdges.forEach(p=>branchFrag.appendChild(p));
 
   // Nodes
   const pendingLabels=[];
@@ -2043,6 +2043,9 @@ function render(){
     svgText.textContent=lb.n.name;
     lb.g.appendChild(svgText);
   });
+
+  branchLayer.replaceChildren(branchFrag);
+  nodesLayer.replaceChildren(nodesFrag);
 }
 
 // ══════════════════════════════════════════════════════

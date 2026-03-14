@@ -86,6 +86,7 @@ const TRANSLATIONS = {
     preset_luca:'LUCA',preset_o2:'O\u2082 Crisis',preset_cambrian:'Cambrian',
     preset_dinos:'Dinosaurs',preset_kpg:'K-Pg',preset_now:'Now',
     view_radial:'Radial',view_chrono:'Timeline',view_clado:'Cladogram',
+    loading_text:'Growing the tree\u2026',
   },
   he:{
     title:'\u05e2\u05e5 \u05d4\u05d7\u05d9\u05d9\u05dd',
@@ -149,6 +150,7 @@ const TRANSLATIONS = {
     preset_luca:'LUCA',preset_o2:'\u05de\u05e9\u05d1\u05e8 O\u2082',preset_cambrian:'\u05e7\u05de\u05d1\u05e8\u05d9\u05d5\u05df',
     preset_dinos:'\u05d3\u05d9\u05e0\u05d5\u05d6\u05d0\u05d5\u05e8\u05d9\u05dd',preset_kpg:'K-Pg',preset_now:'\u05d4\u05d9\u05d5\u05dd',
     view_radial:'\u05e8\u05d3\u05d9\u05d0\u05dc\u05d9',view_chrono:'\u05e6\u05d9\u05e8 \u05d6\u05de\u05df',view_clado:'\u05e7\u05dc\u05d3\u05d5\u05d2\u05e8\u05de\u05d4',
+    loading_text:'\u05de\u05e6\u05de\u05d9\u05d7 \u05d0\u05ea \u05d4\u05e2\u05e5\u2026',
   },
   ru:{
     title:'\u0414\u0435\u0440\u0435\u0432\u043e \u0436\u0438\u0437\u043d\u0438',
@@ -212,5 +214,6 @@ const TRANSLATIONS = {
     preset_luca:'LUCA',preset_o2:'O\u2082 \u043a\u0440\u0438\u0437\u0438\u0441',preset_cambrian:'\u041a\u0435\u043c\u0431\u0440\u0438\u0439',
     preset_dinos:'\u0414\u0438\u043d\u043e\u0437\u0430\u0432\u0440\u044b',preset_kpg:'K-Pg',preset_now:'\u0421\u0435\u0439\u0447\u0430\u0441',
     view_radial:'\u0420\u0430\u0434\u0438\u0430\u043b\u044c\u043d\u044b\u0439',view_chrono:'\u0425\u0440\u043e\u043d\u043e\u043b\u043e\u0433\u0438\u044f',view_clado:'\u041a\u043b\u0430\u0434\u043e\u0433\u0440\u0430\u043c\u043c\u0430',
+    loading_text:'\u0412\u044b\u0440\u0430\u0449\u0438\u0432\u0430\u0435\u043c \u0434\u0435\u0440\u0435\u0432\u043e\u2026',
   }
 };

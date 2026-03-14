@@ -1094,6 +1094,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 <script src="js/treeData.js"></script>
 <script src="js/speciesData.js"></script>
 <script src="js/uiData.js"></script>
+<script src="js/factLibrary.js"></script>
 <script>
 function canonicalHomininId(id){
   return HOMININ_ID_ALIASES[id]||id;
@@ -3062,6 +3063,7 @@ function showIntro(){
 // ══════════════════════════════════════════════════════
 
 
+
 let currentLang=localStorage.getItem('tol-lang')||'en';
 
 function t(key){return(TRANSLATIONS[currentLang]&&TRANSLATIONS[currentLang][key])||TRANSLATIONS.en[key]||key;}
@@ -3202,7 +3204,7 @@ function showLoading() {
   `;
   loader.innerHTML = `
     <div style="font-size:48px;margin-bottom:16px;animation:spin 2s linear infinite;">🌿</div>
-    <div style="font-size:18px;color:var(--color-text-secondary);letter-spacing:0.05em;">Growing the tree...</div>
+    <div style="font-size:18px;color:var(--color-text-secondary);letter-spacing:0.05em;">${t('loading_text')}</div>
   `;
   document.body.appendChild(loader);
   return loader;
@@ -3215,17 +3217,10 @@ function hideLoading(loader) {
 
 function init(){
   const loader = showLoading();
-  const _taglines = [
-    "Every living thing is your cousin.",
-    "You share 50% of your DNA with a banana.",
-    "Life found a way — 3.8 billion years ago.",
-    "From a single cell to 8 billion humans.",
-    "The tree is real. You are a leaf."
-  ];
   const _splash = document.getElementById('splash');
   const _taglineEl = document.getElementById('splash-tagline');
   if (_splash && _taglineEl) {
-    _taglineEl.textContent = _taglines[Math.floor(Math.random() * _taglines.length)];
+    _taglineEl.textContent = FACTS.getLoadingFact(currentLang);
     const _dismissSplash = () => {
       _splash.style.opacity = '0';
       setTimeout(() => { _splash.style.display = 'none'; animateTreeEntrance(); }, 800);

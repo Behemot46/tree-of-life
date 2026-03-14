@@ -3,105 +3,174 @@
 **Status: done**
 
 ## 1. Session Goal
-Replace species icon emojis with AI-generated photorealistic images: build the image prompt library, image loading infrastructure, and graceful fallback chain.
+Add persistent Back and Home navigation buttons across all views and states, with a unified client-side navigation history stack.
 
 ## 2. What I Changed
-
-### New Files
-- **`js/imagePrompts.js`** — AI image generation prompt library for all 131 TREE nodes + HOMININS entries. Each entry has `prompt` (text for image generation), `style` (photo/micro/fossil/illustration), and `tags` (reusable metadata).
-- **`js/imageLoader.js`** — `ImageLoader` IIFE module implementing:
-  - URL pattern: `assets/species/{id}.webp`
-  - Fallback chain: generated image → node `img` field → emoji
-  - Session-scoped fail-once tracking (no retry loops)
-  - `loadInto()` for SVG `<image>` and HTML `<img>` elements
-  - `getBestUrl()`, `createImage()`, `preload()` public API
-- **`assets/species/.gitkeep`** — Directory for future AI-generated species images
-
-### Modified Files
-- **`index.html`**:
-  - Added `<script src>` tags for imagePrompts.js and imageLoader.js (before inline script)
-  - Modified tree node rendering (lines ~2700): tries ImageLoader species image first, clips to circle via SVG `<clipPath>`, falls back to emoji `foreignObject` on error
-  - Modified panel hero image: ImageLoader generated URL tried first, then PHOTO_MAP, then node.img, then emoji
-  - Added `.node-species-img` CSS class with fade-in transition
-- **`serve.js`**: Uses `process.env.PORT || 5555` for port (preview compatibility), added `.webp` MIME type
+- Added `#nav-ctrl` container with Back and Home buttons (HTML, positioned fixed top-left)
+- Added unified `navStack[]` with `pushNav()`, `navBack()`, `navHome()`, `restoreNavState()`, `updateNavButtons()`, `currentNavState()`
+- Hooked `pushNav()` into `showMainPanel()`, `openHomininView()`, and hominin species selection
+- `navBack()` pops the stack and restores the previous state (tree, panel, hominin, or hominin-detail)
+- `navHome()` clears everything: stack, panel, hominin view, zoom/pan reset
+- Buttons auto-show when history exists, auto-hide at root with no history
+- Back button disables (but Home stays) when at a non-root state with empty stack
+- Added i18n keys: `nav_back` / `nav_home` for EN ("Back"/"Home"), HE ("חזרה"/"בית"), RU ("Назад"/"Главная")
+- RTL support: buttons mirror to top-right, back arrow flips direction via `scaleX(-1)`
+- Mobile layout: buttons move to `bottom:5rem; left:50%` centered
+- Light/dark theme styling for buttons
+- `applyI18n()` updates button labels and aria-labels on language switch
+- `serve.js`: made port configurable via `process.env.PORT || 5555`
 
 ## 3. Why These Changes Were Made
-- The prompt library enables future AI image generation for every species node
-- The ImageLoader provides a single source of truth for images across tree, panel, and search
-- The fallback chain ensures no broken nodes: generated → curated → emoji
-- Fail-once tracking prevents retry loops on missing images
+Users had no reliable way to step back through navigation states or return to the root tree view without reloading the page. The only "back" existed as a dynamically injected button inside the panel content (panel-to-panel only). This feature adds a consistent, persistent navigation layer across all views.
 
 ## 4. Files Touched
-- `js/imagePrompts.js` (new, ~500 lines)
-- `js/imageLoader.js` (new, ~160 lines)
-- `assets/species/.gitkeep` (new)
-- `index.html` (modified, +82 -13 lines)
-- `serve.js` (modified, +2 -1 lines)
+- `index.html` — CSS (nav-ctrl styles, light/dark/RTL/mobile), HTML (nav buttons), JS (navStack logic, hooks, i18n keys, applyI18n update)
+- `serve.js` — `process.env.PORT` support (minor adjacent improvement)
+- `.claude/launch.json` — `autoPort: true` for dev server
 
 ## 5. Key Implementation Notes
-- The external `js/tree.js`, `js/panel.js`, etc. are **dead code** — not loaded by any `<script>` tag. All rendering logic is inline in the single `<script>` block in `index.html`.
-- ImageLoader is designed to work with or without imagePrompts.js — it only uses node data's `id` and `img` fields
-- SVG images use `<clipPath>` with `<circle>` for circular cropping, matching node radius
-- Panel hero `onerror` handler has multi-stage fallback: generated → PHOTO_MAP → node.img → emoji div
-- No actual AI-generated images exist yet — the system gracefully falls back to existing behavior
+- `navStack` is separate from the legacy `panelHistory` — panelHistory still powers the dynamic "← Back" button inside panel content for panel-to-panel jumps; navStack tracks cross-view transitions
+- `pushNav()` is called **before** state transitions (records current state before change)
+- `restoreNavState()` first closes everything, then re-opens to the target state — avoids stale UI
+- `closePanel()` does NOT push to navStack (closing is a deliberate forward action, not something you'd "back" into)
+- The `currentNavState()` function reads live DOM/state to build snapshot objects
+- All functions referenced in navStack code (`getNodeById`, `renderPanelContent`, `HOMININS`, `showHominDetail`, `transform`, `applyT`) are defined before navStack in execution order
 
 ## 6. Risks / Caveats
-- When actual .webp images are placed in `assets/species/`, they will load automatically (no code change needed)
-- The first render with no images will briefly attempt to load each `assets/species/{id}.webp`, get 404s, and cache failures for the session. This is by design and has no visible impact.
-- `js/tree.js` and `js/panel.js` are dead code but were not deleted (out of scope for this session)
+- The mobile `bottom:5rem` positioning may overlap with the timeline or legend on very short viewports — monitor in real device testing
+- The panel's `panel-enter` animation class is not re-applied during `restoreNavState` (panel just opens without entrance animation) — acceptable tradeoff for simplicity
+- `panelHistory` (legacy) and `navStack` are two parallel stacks — could be unified in future if complexity warrants it
+- `closePanel` sets `currentPanelNode=null` which I added; previously it was not cleared, which could leave stale state
 
 ## 7. Tests Performed
-- Verified tree renders correctly with emoji fallback (screenshot)
-- Verified panel opens with correct content for LUCA node
-- Verified Hebrew (RTL) language switch works without regression
-- Verified zero console errors and warnings
-- Verified JS syntax of new files with `node -c`
+- Syntax check: `new Function()` on inline script — passes
+- Page load: no console errors
+- **Back navigation chain**: Tree → Bacteria → Eukaryota → Animals → Back → Back → Back → root. Verified: correct node restored at each step, panel opens/closes correctly, stack grows/shrinks correctly, buttons hide at root
+- **Home from deep nav**: 3-deep navigation → Home → everything reset (stack=0, panel closed, hominin closed, zoom/pan to identity)
+- **Hominin view**: Open hominin → Back → hominin closes, tree restored
+- **Home from hominin+zoom**: Panel → Hominin → manual zoom change → Home → all reset including zoom
+- **Hebrew RTL**: Labels show "חזרה"/"בית", buttons mirror to right side, arrow flips via `scaleX(-1)` (matrix confirmed)
+- **Russian**: Labels show "Назад"/"Главная", LTR layout
+- **English**: Labels "Back"/"Home"
+- **Desktop 1400x900**: buttons visible top-left below title
 
 ## 8. Not Tested
-- Russian language
-- Mobile responsive layout
-- Search functionality with image thumbnails (not yet implemented)
-- Actual .webp image loading (no images generated yet)
-- Cladogram layout toggle
+- Real mobile device / touch interaction with nav buttons
+- Mobile bottom-positioned buttons with open panel (potential overlap)
+- Keyboard navigation / screen reader with nav buttons
+- Hominin species detail → Back → correct hominin state restoration (tested programmatically but not via real click)
+- Dark theme visual appearance of nav buttons (CSS is there, not visually verified)
 
 ## 9. Known Issues Still Open
-- Search results don't show thumbnails yet (planned next step)
-- Dead JS modules (tree.js, panel.js, etc.) still in repository
-- Breadcrumb still uses emoji (`n.icon`) — could use images in future
-- Tooltip still uses emoji (`showTip(n.name, n.icon)`)
+- Mobile nav button positioning may need refinement for overlap with bottom panel
+- `panelHistory` and `navStack` are two parallel stacks (could be unified)
+- Panel content text is still English-only (not i18n) — pre-existing, not introduced by this session
 
 ## 10. Recommended Next Step
-1. Generate actual .webp images using the prompt library — place in `assets/species/{id}.webp`
-2. Add image thumbnails to search results
-3. Clean up dead JS modules (tree.js, panel.js, api.js, etc.)
+- Visual polish pass on nav buttons: fine-tune position/size for mobile, test dark theme appearance
+- Consider adding keyboard shortcut (e.g. Escape for Back, Shift+Escape for Home)
+- Test on real mobile devices
 
 ## 11. Suggested Commit Message
-```
-feat: add species image system with AI prompt library, loader, and fallback chain
-```
+feat: add persistent Back and Home navigation buttons with unified history stack
 
 ## 12. Suggested PR Title
-`feat: species image system with AI prompt library and graceful fallback`
+feat: add Back and Home navigation with cross-view history stack
 
 ## 13. Suggested PR Description
-```
 ## Summary
-- Add AI image generation prompt library (131 species) in `js/imagePrompts.js`
-- Add `ImageLoader` module with fail-once tracking and 3-tier fallback chain
-- Integrate species images into tree nodes (SVG circular crop) and panel hero
-- Graceful degradation: generated image → curated photo → emoji icon
+- Adds persistent Back and Home buttons visible across all views (tree, panel, hominin, compare)
+- Back steps to previous navigation state using a client-side history stack
+- Home resets to root: closes all panels, resets zoom, clears history
+- Fully localized labels in EN, HE, RU with correct RTL arrow mirroring
 
 ## Test plan
-- [ ] Verify tree renders with emoji fallback (no generated images yet)
-- [ ] Verify panel opens correctly with image/emoji hero
-- [ ] Verify Hebrew RTL still works
+- [ ] Click nodes to open panels, verify Back/Home buttons appear
+- [ ] Navigate through multiple nodes, click Back to step through each
+- [ ] Click Home from deep navigation — verify full reset
+- [ ] Open hominin view, click Back — verify return to tree
+- [ ] Switch to Hebrew — verify RTL mirroring and Hebrew labels
+- [ ] Switch to Russian — verify Russian labels
 - [ ] Verify no console errors
-- [ ] Drop a test .webp into assets/species/ and verify it loads
-```
 
-## Branch
-`claude/strange-dewdney`
+---
 
-## Next Session Starting Point
-- Image prompt library and loader infrastructure are complete
-- Generate actual images using prompts, or add search result thumbnails
+**Branch:** `claude/compassionate-gagarin`
+**Worktree:** `C:\Users\GAMER\tree-of-life\.claude\worktrees\compassionate-gagarin`
+
+---
+
+# Session Handoff — Fact Library (prior session)
+
+**Branch:** `claude/tender-greider`
+**Status:** done
+
+## 1. Session goal
+Implement a structured, reusable loading-subtitle system. Curate a production-ready loading pool from an approved fact library. Wire it into the splash screen with full i18n support.
+
+## 2. What I changed
+- Created `js/factLibrary.js` — new IIFE module (`FACTS`) with 18 curated trilingual loading facts
+- Added `<script src="js/factLibrary.js">` to `index.html` before the main `<script>` block
+- Replaced 5 hardcoded English-only splash taglines in `init()` with `FACTS.getLoadingFact(currentLang)`
+- Localized "Growing the tree…" loading spinner text via new `loading_text` translation key (EN/HE/RU)
+- Made `serve.js` respect `PORT` env var for dev tooling compatibility
+
+## 3. Why these changes were made
+- Loading taglines were English-only (i18n gap for HE/RU users)
+- No structured source for facts — scattered inline strings with no IDs, tags, or filtering
+- Need a reusable fact pool for future surfaces (discovery cards, quiz, tooltips, timeline)
+
+## 4. Files touched
+| File | Change |
+|------|--------|
+| `js/factLibrary.js` | **NEW** — structured fact library with 18 trilingual loading-safe facts |
+| `index.html` | Added script tag; wired splash to FACTS module; localized loader text; added `loading_text` to EN/HE/RU translations |
+| `serve.js` | `const port = process.env.PORT \|\| 5555` (was hardcoded 5555) |
+| `.claude/launch.json` | Added `autoPort: true` for dev tooling |
+
+## 5. Key implementation notes
+- `FACTS` module follows project IIFE pattern with public API: `getLoadingFact(lang)`, `getById(id)`, `getByTag(tag)`, `getLoadingPool()`, `getAll()`
+- Each fact has: stable `id` (e.g. `load_01`), `en`/`he`/`ru` text, `tags` array, `loading` boolean
+- `currentLang` is already set from localStorage before `init()` runs, so language-aware splash works on first load
+- Node `funFact` strings in TREE data are untouched — no duplication, no migration
+- The fact library is additive and safe to extend
+
+## 6. Risks / caveats
+- Hebrew and Russian translations for the 18 loading facts should be reviewed by native speakers
+- The splash header text "3,800,000,000 years of evolution" (line 626) remains English-only hardcoded — not part of this task but worth localizing later
+- `showIntro()` function (line 3863) has hardcoded English text — not called in current flow, but should be localized if reactivated
+
+## 7. Tests performed
+- App loads without console errors
+- FACTS module verified: 18 facts in pool, all 3 languages return correct strings
+- Language switching EN → HE → RU → EN: all UI text updates correctly
+- Hebrew RTL layout confirmed working
+- Russian translation confirmed working
+- Search tested ("octopus") — fuzzy search returns correct result
+- Tree rendering verified — no visual regressions
+
+## 8. Not tested
+- Mobile/touch behavior
+- Splash screen tagline visual rendering (splash auto-dismisses in 2.8s, screenshots captured after)
+- Offline/cached behavior
+- GitHub Pages deployment
+
+## 9. Known issues still open
+- `showIntro()` has hardcoded English (not in current flow)
+- Splash header "3,800,000,000 years of evolution" not localized
+- Node funFacts are English-only (future i18n task)
+- Timeline not fully interactive (pre-existing)
+
+## 10. Recommended next step
+- Native speaker review of HE/RU loading fact translations
+- Extend fact library with domain-tagged facts for discovery cards / node tooltips
+- Localize remaining hardcoded English strings (splash header, showIntro)
+
+## 11. Suggested commit message
+feat: add structured fact library with trilingual loading subtitles
+
+## 12. Suggested PR title
+feat: structured fact library with trilingual loading subtitles
+
+## 13. Suggested PR description
+Add a structured, reusable fact library (`js/factLibrary.js`) with 18 curated trilingual facts for the splash screen loading tagline. Replaces 5 hardcoded English-only taglines with language-aware random selection. Also localizes the "Growing the tree…" loading spinner text for EN/HE/RU.

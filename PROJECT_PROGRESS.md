@@ -442,44 +442,28 @@ Combined with p8: **~2,800+ lines** of dead code eliminated from the repo.
 
 ## SESSION HANDOFF
 
-### What was done
-Implemented the full Interactive Timeline (p11 Phase 1) and Alternate Tree Views (p11 Phase 2) milestone. This adds:
-- 6 era preset quick-jump buttons with smooth animation
-- Interactive extinction markers with rich tooltips (name, % lost, cause, survivors)
-- Species count indicator that updates in real-time with the slider
-- Play/animate button for a 12-second timeline sweep
-- Era tint background overlay that changes color per geological period
-- Three tree view modes: Radial (default), Cladogram (left-to-right), Chronological (time-axis)
-- Full i18n support for all new features (EN/HE/RU)
+### What was done (p12 — Modern Scientific Visual Overhaul)
+Complete visual transformation from warm earth-tone "museum" look to modern scientific aesthetic:
+- New color palette: slate backgrounds (#1a1d23), sky-blue accents (#0ea5e9), vivid domain colors
+- Typography: Inter + JetBrains Mono + Heebo (replacing Playfair Display)
+- 20 SVG silhouette icons replacing emoji rendering
+- Global label collision detection with human-path priority
+- Human evolution path highlighting (LUCA → Homo sapiens)
+- Animated SVG branching tree loading screen
+- Removed noise overlays, particles, glow filters, pulsing animations
+- Removed ~1,000 lines of duplicate const declarations
+- Merged with origin/main (36 conflicts resolved)
+- Fixed critical render bug: `replaceChildren()` calls were missing
 
-### What was NOT done
-- Chronological view auto-pan with slider (slider filters by opacity in all modes — more useful than auto-pan)
-- Domain lane labels in chronological view (labels exist on nodes, adding lane headers felt cluttered)
-- Collision nudging in chronological view (deterministic hash jitter handles most overlap well)
+### Current state
+- **Branch:** `claude/jovial-proskuriakova`
+- **PR:** #48 — OPEN, MERGEABLE, deploy check PASSED
+- **URL:** https://github.com/Behemot46/tree-of-life/pull/48
+- **Working tree:** clean, no uncommitted changes
 
 ### Known Issues / Follow-up
-1. The old `.era-*` CSS classes (lines 486-494) are now unused — safe to remove in a future cleanup
-2. Chronological view could benefit from vertical domain lane separator lines
-3. View mode is not persisted to localStorage (intentional — always starts in radial)
-4. The species count uses `nodeInEra()` which counts all nodes in `nodeMap`, including internal branch nodes — could be refined to count only leaf species
-
-### Key Functions Added
-| Function | Purpose |
-|----------|---------|
-| `layoutRadial()` | Existing radial layout, extracted from `layout()` |
-| `layoutCladogram()` | Left-to-right tree with depth-based X, leaf-distributed Y |
-| `layoutChronological()` | Time-axis X, domain-lane Y with hash jitter |
-| `centerOnTree(scale)` | Auto-centers viewport on tree bounding box |
-| `setViewMode(mode)` | Switches view mode, re-layouts, centers |
-| `buildExtinctionMarkers()` | Creates interactive extinction marker DOM |
-| `updateSpeciesCount()` | Updates species visible counter |
-| `toggleEraPlay()` | Play/pause timeline animation |
-| `animateSliderTo(target)` | Smooth 250ms slider animation |
-| `buildEraPresets()` | Creates era preset pill buttons |
-| `updatePresetHighlight(mya)` | Highlights active preset |
-| `updateEraTint(mya)` | Sets era overlay background color |
-
-### Commit/Push/Merge Status
-- Branch: `claude/epic-mayer`
-- Base: `main`
-- Status: Ready for PR
+1. CLAUDE.md has stale references to deleted modules and old architecture
+2. Legend is decorative only (domain highlight not implemented)
+3. No offline fallback for API failures
+4. Panel HTML template string is very long — modularization opportunity
+5. Hebrew RTL menu may need additional testing with new layout

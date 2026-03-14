@@ -185,6 +185,8 @@ svg{width:100%;height:100%;}
 .node-group:hover .nc-main{filter:brightness(1.2);}
 .branch-path{fill:none;stroke-linecap:round;stroke-linejoin:round;cursor:default;}
 .node-label-text{pointer-events:none;font-family:var(--font-sans);font-size:14px;}
+.node-species-img{pointer-events:none;opacity:0;transition:opacity 0.3s ease;}
+.node-species-img[href]{opacity:1;}
 .node-pulse{pointer-events:none;}
 
 /* ── HOMININ VIEW ── */
@@ -1186,6 +1188,8 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 <script src="js/speciesData.js"></script>
 <script src="js/uiData.js"></script>
 <script src="js/factLibrary.js"></script>
+<script src="js/imagePrompts.js"></script>
+<script src="js/imageLoader.js"></script>
 <script>
 // ══════════════════════════════════════════════════════
 // TREE DATA
@@ -1981,17 +1985,57 @@ function render(){
     c.addEventListener('click', e=>{ e.stopPropagation(); showMainPanel(n); });
     g.appendChild(c);
 
-    // SVG silhouette icon
+    // Species image (ImageLoader) or SVG silhouette icon fallback
     if(inEra){
-      const ig=getIconGroup(n);
-      const iconPath=NODE_ICONS[ig]||NODE_ICONS.default;
-      const s=Math.max(10,n.r*1.1);
-      const icon=document.createElementNS('http://www.w3.org/2000/svg','path');
-      icon.setAttribute('d',iconPath);
-      icon.setAttribute('fill',document.documentElement.getAttribute('data-theme')==='light'?'rgba(30,30,30,0.55)':'rgba(255,255,255,0.6)');
-      icon.setAttribute('transform',`translate(${n._x-s/2},${n._y-s/2}) scale(${s/24})`);
-      icon.style.pointerEvents='none';
-      g.appendChild(icon);
+      const imgR=Math.max(n.r,8);
+      const imgSize=imgR*2;
+
+      // Helper to render SVG silhouette icon (used as fallback)
+      function addSilhouette(){
+        const ig=getIconGroup(n);
+        const iconPath=NODE_ICONS[ig]||NODE_ICONS.default;
+        const s=Math.max(10,n.r*1.1);
+        const icon=document.createElementNS('http://www.w3.org/2000/svg','path');
+        icon.setAttribute('d',iconPath);
+        icon.setAttribute('fill',document.documentElement.getAttribute('data-theme')==='light'?'rgba(30,30,30,0.55)':'rgba(255,255,255,0.6)');
+        icon.setAttribute('transform',`translate(${n._x-s/2},${n._y-s/2}) scale(${s/24})`);
+        icon.style.pointerEvents='none';
+        g.appendChild(icon);
+      }
+
+      // Try species image first (via ImageLoader if available)
+      if(typeof ImageLoader!=='undefined'&&imgR>=8){
+        const best=ImageLoader.getBestUrl(n);
+        if(best.url){
+          const clipId='nclip-'+n.id.replace(/[^a-zA-Z0-9_-]/g,'_');
+          const clipDef=document.createElementNS('http://www.w3.org/2000/svg','clipPath');
+          clipDef.setAttribute('id',clipId);
+          const clipCirc=document.createElementNS('http://www.w3.org/2000/svg','circle');
+          clipCirc.setAttribute('cx',n._x);clipCirc.setAttribute('cy',n._y);clipCirc.setAttribute('r',imgR-1);
+          clipDef.appendChild(clipCirc);
+          g.appendChild(clipDef);
+
+          const svgImg=document.createElementNS('http://www.w3.org/2000/svg','image');
+          svgImg.setAttribute('x',n._x-imgR);svgImg.setAttribute('y',n._y-imgR);
+          svgImg.setAttribute('width',imgSize);svgImg.setAttribute('height',imgSize);
+          svgImg.setAttribute('clip-path','url(#'+clipId+')');
+          svgImg.setAttribute('preserveAspectRatio','xMidYMid slice');
+          svgImg.style.pointerEvents='none';
+
+          ImageLoader.loadInto(n,svgImg,{
+            onLoad:function(){},
+            onFallback:function(){
+              svgImg.remove();clipDef.remove();
+              addSilhouette();
+            }
+          });
+          g.appendChild(svgImg);
+        } else {
+          addSilhouette();
+        }
+      } else {
+        addSilhouette();
+      }
     }
 
     // Label — compute position and store for global collision pass
@@ -2673,10 +2717,11 @@ function renderPanelContent(node) {
     'neanderthal':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Homo_neanderthalensis.jpg/640px-Homo_neanderthalensis.jpg', credit:'Erich Ferdinand, CC BY 2.0'},
     'denisovans':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Denisova_Cave_main_gallery.jpg/640px-Denisova_Cave_main_gallery.jpg', credit:'Демин Алексей Барнаул, CC BY-SA 3.0'},
   };
-  // Merge data-level img with the lookup map; lookup takes priority
+  // Merge data-level img with the lookup map; ImageLoader generated images take top priority
   const photoEntry = PHOTO_MAP[node.id];
-  let staticUrl = (photoEntry && photoEntry.url) || node.img || null;
-  const staticCredit = (photoEntry && photoEntry.credit) || node.imgCredit || null;
+  const generatedUrl = (typeof ImageLoader!=='undefined') ? ImageLoader.getGeneratedUrl(node.id) : null;
+  let staticUrl = generatedUrl || (photoEntry && photoEntry.url) || node.img || null;
+  const staticCredit = generatedUrl ? 'AI-generated illustration' : (photoEntry && photoEntry.credit) || node.imgCredit || null;
   const wikiTitle = WIKI_TITLES[node.id] || null;
   // Suppress if this static URL previously failed
   if (staticUrl && window._failedPhotos && window._failedPhotos.has('static:' + node.id)) {
@@ -2689,7 +2734,16 @@ function renderPanelContent(node) {
     <div style="width:100%;aspect-ratio:16/9;background:#111;overflow:hidden;position:relative;flex-shrink:0;">
       <img id="${panelImgId}" src="${staticUrl || ''}" alt="${node.name}"
         style="width:100%;height:100%;object-fit:cover;display:${staticUrl ? 'block' : 'none'};"
-        onerror="this.style.display='none';document.getElementById('${panelFbId}').style.display='flex';(window._failedPhotos||(window._failedPhotos=new Set())).add('static:${node.id}');"
+        onerror="(function(el){
+          if(typeof ImageLoader!=='undefined'&&el.dataset.source==='generated'){
+            ImageLoader.markFailed('${node.id}');
+            var fb=${photoEntry?`'${(photoEntry.url||'').replace(/'/g,"\\'")}'`:'null'}||'${(node.img||'').replace(/'/g,"\\'")}';
+            if(fb){el.dataset.source='fallback';el.src=fb;return;}
+          }
+          (window._failedPhotos||(window._failedPhotos=new Set())).add('static:${node.id}');
+          el.style.display='none';document.getElementById('${panelFbId}').style.display='flex';
+        })(this);"
+        data-source="${generatedUrl ? 'generated' : 'static'}"
       />
       <div id="${panelFbId}" style="display:${staticUrl ? 'none' : 'flex'};width:100%;height:100%;align-items:center;justify-content:center;font-size:72px;background:#111;">${node.icon||'🌿'}</div>
       <div id="${panelCrId}" style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.65);font-family:'Inter',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.35);padding:1px 5px;border-radius:3px;">${staticCredit||''}</div>

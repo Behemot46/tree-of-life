@@ -31,6 +31,7 @@
 | p24 | Always-visible hominin branch — expanded by default, golden path, label priority | `claude/strange-tharp` |
 | p25 | Interactive legend & domain highlighting — filter, dim, visual feedback | `claude/stupefied-leakey` |
 | p26a | 130+ facts pack — expanded library, panel/tooltip/discovery integration | `claude/compassionate-poitras` |
+| p27 | i18n completeness — translate all hardcoded English strings to HE/RU | PR #69 |
 
 ### Upcoming
 

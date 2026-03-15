@@ -16,6 +16,13 @@
 | p10 | Mobile Responsiveness | **Done** | `claude/inspiring-shockley` |
 | p11 | Interactive Timeline + Alternate Tree Views | **Done** | `claude/epic-mayer` |
 | p12 | Modern Scientific Visual Overhaul | **Done** | PR #48 (`claude/jovial-proskuriakova`) |
+| p13a | Back & Home Navigation Buttons | **Done** | PR #51 (`claude/compassionate-gagarin`) |
+| p13b | Species Image System | **Done** | PR #52 |
+| p14 | Inline Hominin Family Tree | **Done** | PR #53 |
+| p15 | Stabilization & Docs | **Done** | PR #54 (`claude/p15-stabilization`) |
+| p16 | Inline Hominin Subtree Fixes | **Done** | PR #55 (`claude/elated-hofstadter`) |
+| p17 | Subtree-Weighted Radial Spacing | **Done** | PR #56 (`claude/goofy-bartik`) |
+| p18 | Fix Overlapping Header Controls | **Done** | PR #57 (`claude/sad-keller`) |
 
 ---
 

@@ -30,8 +30,8 @@ This project uses vanilla HTML/CSS/JS and deploys via GitHub Pages. No build ste
 ```bash
 git clone https://github.com/behemot46/tree-of-life.git
 cd tree-of-life
-# Open index.html in a browser, or use a local server:
-npx serve .
+node serve.js
+# Opens at http://localhost:5555
 ```
 
 ### Deployment

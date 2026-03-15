@@ -16,13 +16,14 @@
 | p10 | Mobile Responsiveness | **Done** | `claude/inspiring-shockley` |
 | p11 | Interactive Timeline + Alternate Tree Views | **Done** | `claude/epic-mayer` |
 | p12 | Modern Scientific Visual Overhaul | **Done** | PR #48 (`claude/jovial-proskuriakova`) |
-| p13a | Back & Home Navigation Buttons | **Done** | PR #51 (`claude/compassionate-gagarin`) |
-| p13b | Species Image System | **Done** | PR #52 |
-| p14 | Inline Hominin Family Tree | **Done** | PR #53 |
-| p15 | Stabilization & Docs | **Done** | PR #54 (`claude/p15-stabilization`) |
+| p13a | Back & Home navigation buttons | **Done** | PR #51 (`claude/compassionate-gagarin`) |
+| p13b | Species image system (ImageLoader + prompts + PHOTO_MAP) | **Done** | PR #52 (`claude/strange-dewdney`) |
+| p14 | Inline hominin family tree (28 species as tree nodes) | **Done** | PR #53 (`claude/strange-rosalind`) |
+| p15 | Stabilization & docs (dedup, scope fixes, fact library) | **Done** | PR #54 (`claude/p15-stabilization`) |
 | p16 | Inline Hominin Subtree Fixes | **Done** | PR #55 (`claude/elated-hofstadter`) |
 | p17 | Subtree-Weighted Radial Spacing | **Done** | PR #56 (`claude/goofy-bartik`) |
 | p18 | Fix Overlapping Header Controls | **Done** | PR #57 (`claude/sad-keller`) |
+| p19 | Roadmap & project health | **Done** | `claude/keen-easley` |
 
 ---
 
@@ -447,30 +448,92 @@ Combined with p8: **~2,800+ lines** of dead code eliminated from the repo.
 
 ---
 
-## SESSION HANDOFF
+## p13a — Back & Home Navigation Buttons
 
-### What was done (p12 — Modern Scientific Visual Overhaul)
-Complete visual transformation from warm earth-tone "museum" look to modern scientific aesthetic:
-- New color palette: slate backgrounds (#1a1d23), sky-blue accents (#0ea5e9), vivid domain colors
-- Typography: Inter + JetBrains Mono + Heebo (replacing Playfair Display)
-- 20 SVG silhouette icons replacing emoji rendering
-- Global label collision detection with human-path priority
-- Human evolution path highlighting (LUCA → Homo sapiens)
-- Animated SVG branching tree loading screen
-- Removed noise overlays, particles, glow filters, pulsing animations
-- Removed ~1,000 lines of duplicate const declarations
-- Merged with origin/main (36 conflicts resolved)
-- Fixed critical render bug: `replaceChildren()` calls were missing
+**Branch:** `claude/compassionate-gagarin` (PR #51, merged)
 
-### Current state
-- **Branch:** `claude/jovial-proskuriakova`
-- **PR:** #48 — OPEN, MERGEABLE, deploy check PASSED
-- **URL:** https://github.com/Behemot46/tree-of-life/pull/48
-- **Working tree:** clean, no uncommitted changes
+### What was added
 
-### Known Issues / Follow-up
-1. CLAUDE.md has stale references to deleted modules and old architecture
-2. Legend is decorative only (domain highlight not implemented)
-3. No offline fallback for API failures
-4. Panel HTML template string is very long — modularization opportunity
-5. Hebrew RTL menu may need additional testing with new layout
+- Persistent Back and Home buttons (`#nav-ctrl`) across all views
+- Unified `navStack[]` with `pushNav()`, `navBack()`, `navHome()`
+- Buttons auto-show when history exists, auto-hide at root
+- i18n: `nav_back` / `nav_home` for EN/HE/RU
+- RTL support: buttons mirror to top-right, back arrow flips
+- Mobile layout: buttons centered at bottom
+- Dark/light theme styling
+
+### Files changed
+
+| File | Changes |
+|------|---------|
+| `index.html` | CSS (nav-ctrl), HTML (nav buttons), JS (navStack, i18n hooks) |
+| `serve.js` | `process.env.PORT` support |
+
+---
+
+## p13b — Species Image System
+
+**Branch:** `claude/strange-dewdney` (PR #52, merged)
+
+### What was added
+
+- `js/imageLoader.js` — ImageLoader with fallback chain (generated → PHOTO_MAP → emoji)
+- `js/imagePrompts.js` — AI image prompt library for species illustrations
+- `PHOTO_MAP` expanded to 228 Wikimedia entries in `js/speciesData.js`
+- `assets/species/.gitkeep` for future AI-generated images
+
+### Files changed
+
+| File | Changes |
+|------|---------|
+| `js/imageLoader.js` | **NEW** — 215 lines |
+| `js/imagePrompts.js` | **NEW** — 694 lines |
+| `js/speciesData.js` | PHOTO_MAP expanded to 228 entries |
+| `index.html` | `<script>` tag + ImageLoader registration |
+
+---
+
+## p14 — Inline Hominin Family Tree
+
+**Branch:** `claude/strange-rosalind` (PR #53, merged)
+
+### What was added
+
+- 28 hominin species rendered as inline tree nodes (4 groups: Proto-Hominins, Australopithecus, Paranthropus, Genus Homo)
+- Panel enrichment with paleoanthropology data (brain volume, tools, fossil sites)
+- Hominin nodes integrated with search, navigation, and photo system
+
+### Files changed
+
+| File | Changes |
+|------|---------|
+| `index.html` | `buildHomininTree()` rewrite, panel enrichment, hominin rendering |
+
+---
+
+## p15 — Stabilization & Docs
+
+**Branch:** `claude/p15-stabilization` (PR #54)
+
+### What was changed
+
+- Removed 168-line duplicate inline PHOTO_MAP (was shadowing speciesData.js global)
+- Hoisted `fetchWikiPhoto()` and photo cache to module scope
+- Renamed `EXTINCTIONS` → `EXTINCTION_EVENTS` inside init() to fix shadowing
+- Updated CLAUDE.md with 3 missing JS files, fixed stale font refs, corrected counts
+- Created `js/factLibrary.js` — structured fact library with 18 trilingual loading facts
+- Wired splash screen to `FACTS.getLoadingFact(currentLang)`
+
+### Files changed
+
+| File | Changes |
+|------|---------|
+| `index.html` | Duplicate removal, scope fixes, fact library integration |
+| `js/factLibrary.js` | **NEW** — 179 lines |
+| `CLAUDE.md` | Updated to reflect current architecture |
+
+---
+
+## p19 — Roadmap & Project Health (2026-03-15)
+
+See [ROADMAP.md](ROADMAP.md) for the full development roadmap with phases p16+.

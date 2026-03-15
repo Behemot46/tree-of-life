@@ -972,8 +972,8 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 </head>
 <body>
 <div id="splash" style="position:fixed;inset:0;background:#1a1d23;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px;transition:opacity 0.8s ease;">
-  <div style="font-family:'Inter',sans-serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:rgba(160,164,176,0.6);">3,800,000,000 years of evolution</div>
-  <h1 style="font-family:'Inter',sans-serif;font-size:clamp(48px,8vw,96px);font-weight:700;color:#e8eaf0;letter-spacing:-2px;line-height:1;margin:0;">Tree of Life</h1>
+  <div id="splash-years" style="font-family:'Inter',sans-serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:rgba(160,164,176,0.6);">3,800,000,000 years of evolution</div>
+  <h1 id="splash-title" style="font-family:'Inter',sans-serif;font-size:clamp(48px,8vw,96px);font-weight:700;color:#e8eaf0;letter-spacing:-2px;line-height:1;margin:0;">Tree of Life</h1>
   <div style="width:60px;height:1px;background:rgba(14,165,233,0.4);"></div>
   <div id="splash-tagline" style="font-family:'Inter',sans-serif;font-style:normal;font-size:16px;color:rgba(160,164,176,0.6);"></div>
 </div>
@@ -3428,9 +3428,9 @@ function showIntro(){
   const overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;transition:background 0s;';
   overlay.innerHTML=`
-    <div style="font-family:'Inter',sans-serif;font-size:clamp(1.8rem,4vw,3rem);color:var(--parchment);text-align:center;letter-spacing:0.05em;opacity:0;transition:opacity 1.5s" id="intro-text1">Tree of Life</div>
-    <div style="font-size:clamp(0.75rem,1.5vw,0.9rem);color:var(--gold-text);text-align:center;letter-spacing:0.25em;text-transform:uppercase;margin-top:0.8rem;opacity:0;transition:opacity 1.5s 0.5s" id="intro-text2">3.8 Billion Years of Natural Selection</div>
-    <div style="font-size:0.7rem;color:var(--sage);text-align:center;margin-top:1.5rem;opacity:0;transition:opacity 1.5s 1.2s;font-style:italic" id="intro-text3">Every living thing you have ever known is a cousin</div>`;
+    <div style="font-family:'Inter',sans-serif;font-size:clamp(1.8rem,4vw,3rem);color:var(--parchment);text-align:center;letter-spacing:0.05em;opacity:0;transition:opacity 1.5s" id="intro-text1">${t('title')}</div>
+    <div style="font-size:clamp(0.75rem,1.5vw,0.9rem);color:var(--gold-text);text-align:center;letter-spacing:0.25em;text-transform:uppercase;margin-top:0.8rem;opacity:0;transition:opacity 1.5s 0.5s" id="intro-text2">${t('subtitle')}</div>
+    <div style="font-size:0.7rem;color:var(--sage);text-align:center;margin-top:1.5rem;opacity:0;transition:opacity 1.5s 1.2s;font-style:italic" id="intro-text3">${t('intro_quote')}</div>`;
   document.body.appendChild(overlay);
   requestAnimationFrame(()=>{
     document.getElementById('intro-text1').style.opacity='1';
@@ -3473,6 +3473,8 @@ function applyI18n(){
   const set=(id,v)=>{const e=el(id);if(e)e.textContent=v;};
   set('i-title',t('title'));
   set('i-subtitle',t('subtitle'));
+  set('splash-title',t('title'));
+  set('splash-years',t('splash_years'));
   const hints=el('i-hints');if(hints)hints.innerHTML=t('hint1')+'<br>'+t('hint2');
   const si=el('search-input');if(si)si.placeholder=t('search_ph');
   set('i-leg-title',t('leg_title'));
@@ -3637,6 +3639,10 @@ function init(){
   const _taglineEl = document.getElementById('splash-tagline');
   if (_splash && _taglineEl) {
     _taglineEl.textContent = FACTS.getLoadingFact(currentLang);
+    const _splashTitle = document.getElementById('splash-title');
+    const _splashYears = document.getElementById('splash-years');
+    if(_splashTitle) _splashTitle.textContent = t('title');
+    if(_splashYears) _splashYears.textContent = t('splash_years');
     const _dismissSplash = () => {
       _splash.style.opacity = '0';
       setTimeout(() => { _splash.style.display = 'none'; animateTreeEntrance(); }, 800);

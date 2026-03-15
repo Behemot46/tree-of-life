@@ -296,6 +296,39 @@ svg{width:100%;height:100%;}
 
 [data-theme="light"] .btn-back:hover{background:var(--accent-primary-dim);}
 
+/* ── PANEL HERO IMAGE ── */
+.panel-hero{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;flex-shrink:0;background:var(--color-canvas-alt);}
+.panel-hero-img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity 0.3s ease;}
+.panel-hero-img.loaded{opacity:1;}
+.panel-hero-gradient{position:absolute;bottom:0;left:0;right:0;height:60%;background:linear-gradient(to top,rgba(0,0,0,0.55),transparent);pointer-events:none;}
+.panel-hero-fallback{display:flex;align-items:center;justify-content:center;width:100%;height:100%;position:absolute;top:0;left:0;}
+.panel-hero-fallback svg{width:64px;height:64px;opacity:0.45;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));}
+.panel-hero-credit{position:absolute;bottom:6px;right:8px;font-size:10px;color:rgba(255,255,255,0.7);
+  font-family:var(--font-sans);text-shadow:0 1px 3px rgba(0,0,0,0.8);background:rgba(0,0,0,0.35);
+  padding:1px 6px;border-radius:3px;z-index:2;}
+.panel-hero-skeleton{position:absolute;top:0;left:0;width:100%;height:100%;
+  background:linear-gradient(90deg,var(--color-canvas-alt) 25%,var(--color-button-bg) 50%,var(--color-canvas-alt) 75%);
+  background-size:200% 100%;animation:shimmer 1.5s infinite;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+.panel-hero.has-image .panel-hero-fallback{display:none;}
+.panel-hero.has-image .panel-hero-skeleton{display:none;}
+
+/* Panel header (below hero) */
+.panel-header{display:flex;flex-direction:column;gap:4px;}
+.panel-header h2{font-family:var(--font-head);font-size:1.35rem;font-weight:700;color:var(--color-text-primary);margin:0;line-height:1.2;}
+.panel-header .panel-latin{font-style:italic;font-size:13px;color:var(--color-text-muted);font-family:var(--font-sans);}
+.panel-header .panel-era{font-size:12px;color:var(--color-text-secondary);font-family:var(--font-sans);}
+.panel-lineage-badge{display:inline-flex;font-size:10px;font-weight:700;letter-spacing:0.1em;
+  font-family:var(--font-sans);text-transform:uppercase;padding:3px 10px;border-radius:9999px;}
+
+[data-theme="light"] .panel-hero{background:#e8ecf0;}
+[data-theme="light"] .panel-hero-gradient{background:linear-gradient(to top,rgba(255,255,255,0.5),transparent);}
+[data-theme="light"] .panel-hero-credit{color:rgba(0,0,0,0.6);background:rgba(255,255,255,0.5);text-shadow:none;}
+
+@media (max-width:768px){
+  .panel-hero{aspect-ratio:2/1;max-height:150px;}
+}
+
 .p-top{display:flex;align-items:flex-start;gap:0.9rem;margin-bottom:1.1rem;}
 .p-icon-wrap{width:48px;height:48px;flex-shrink:0;border-radius:var(--radius-md);
   display:flex;align-items:center;justify-content:center;font-size:1.6rem;
@@ -323,6 +356,46 @@ svg{width:100%;height:100%;}
 .p-children li:hover{background:var(--surface-raised);color:var(--text-primary);}
 .p-children li .pci{font-size:0.95rem;}
 
+/* ── RICH PANEL SECTIONS (p22) ── */
+.panel-section{border-bottom:1px solid var(--border);padding-bottom:4px;}
+.panel-section:last-of-type{border-bottom:none;}
+.panel-section-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;
+  padding:10px 0;user-select:none;transition:opacity 0.15s;}
+.panel-section-header:hover{opacity:0.8;}
+.panel-section-header span:first-child{font-size:12px;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--text-secondary);font-family:var(--font-sans);}
+.panel-chevron{font-size:10px;color:var(--text-secondary);transition:transform 0.25s ease;display:inline-block;}
+.panel-section.collapsed .panel-chevron{transform:rotate(-90deg);}
+[dir="rtl"] .panel-section.collapsed .panel-chevron{transform:rotate(90deg);}
+.panel-section-body{overflow:hidden;transition:max-height 0.3s ease;display:flex;flex-direction:column;gap:12px;
+  padding-bottom:8px;}
+.panel-section.collapsed .panel-section-body{display:none;}
+
+/* Timeline bar */
+.panel-timeline{width:100%;position:relative;}
+.panel-timeline-track{width:100%;height:6px;background:var(--surface-raised);border-radius:3px;position:relative;
+  border:1px solid var(--border);}
+.panel-timeline-fill{height:100%;border-radius:3px;opacity:0.35;position:absolute;left:0;top:0;}
+.panel-timeline-marker{width:10px;height:10px;border-radius:50%;position:absolute;top:50%;
+  transform:translate(-50%,-50%);border:2px solid var(--surface);box-shadow:0 0 4px rgba(0,0,0,0.3);}
+.panel-timeline-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text-secondary);
+  font-family:var(--font-mono);margin-top:4px;}
+
+/* Radar chart */
+.panel-radar{display:flex;justify-content:center;padding:8px 0;}
+
+/* Enrichment cards */
+.panel-enrich-card{padding:10px 14px;background:var(--surface-raised);border-radius:8px;
+  font-size:13px;line-height:1.65;color:var(--text-secondary);font-family:var(--font-body);
+  border-left:3px solid var(--accent-primary);}
+[dir="rtl"] .panel-enrich-card{border-left:none;border-right:3px solid var(--accent-primary);}
+
+/* Link pills */
+.panel-link-pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:5px 12px;
+  border-radius:9999px;background:var(--surface-raised);border:1px solid var(--border);
+  color:var(--accent-primary);font-family:var(--font-sans);text-decoration:none;transition:all 0.2s;}
+.panel-link-pill:hover{background:var(--accent-primary);color:white;border-color:var(--accent-primary);}
+
 /* ── HOMININ ENTER BUTTON ── */
 #hom-enter-btn{display:inline-flex;align-items:center;gap:0.5rem;margin-top:0.8rem;
   padding:0.45rem 1rem;background:var(--accent-primary-dim);border:1px solid rgba(14,165,233,0.3);
@@ -335,8 +408,17 @@ svg{width:100%;height:100%;}
   background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);
   padding:0.7rem 0.9rem;pointer-events:auto;}
 .leg-title{font-size:0.56rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:0.25rem;font-weight:600;}
-.leg-row{display:flex;align-items:center;gap:0.45rem;font-size:0.65rem;color:var(--text-secondary);margin-top:0.2rem;}
-.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.leg-row{display:flex;align-items:center;gap:0.45rem;font-size:0.65rem;color:var(--text-secondary);margin-top:0.2rem;
+  padding:3px 6px;border-radius:6px;transition:opacity 0.3s ease,background 0.3s ease,font-weight 0.15s ease;}
+.leg-row.active{background:rgba(255,255,255,0.08);font-weight:600;color:var(--text-primary);}
+.leg-row.dimmed{opacity:0.35;}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;transition:box-shadow 0.3s ease;}
+.leg-row.active .leg-dot{box-shadow:0 0 6px 2px currentColor;}
+#leg-show-all{font-size:11px;padding:3px 10px;border-radius:9999px;border:1px solid var(--border);
+  background:transparent;color:var(--text-secondary);cursor:pointer;margin-top:8px;
+  font-family:var(--font-sans);transition:all 0.3s ease;}
+#leg-show-all:hover{border-color:var(--accent-primary);color:var(--text-primary);}
+#leg-show-all.filtering{border-color:var(--accent-primary);color:var(--accent-primary);font-weight:600;}
 
 /* ── ZOOM CONTROLS ── */
 #zoom-ctrl{position:fixed;bottom:4.5rem;right:1.2rem;z-index:200;display:flex;flex-direction:column;gap:0.35rem;}
@@ -364,8 +446,23 @@ svg{width:100%;height:100%;}
   background:var(--surface);border:1px solid var(--border);
   border-radius:var(--radius-sm);padding:8px 12px;font-family:var(--font-sans);
   font-size:13px;color:var(--text-primary);box-shadow:0 4px 12px rgba(0,0,0,0.15);
-  max-width:200px;line-height:1.4;opacity:0;visibility:hidden;
+  max-width:280px;line-height:1.4;opacity:0;visibility:hidden;
   transition:opacity 150ms ease;transform:translate(16px,-50%);white-space:nowrap;}
+.tip-fact-line{font-size:11px;font-style:italic;color:var(--text-secondary);margin-top:4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;}
+
+/* ── DISCOVERY FACT TOAST ── */
+#fact-toast{position:fixed;top:5rem;left:50%;transform:translateX(-50%) translateY(-20px);
+  z-index:500;background:var(--surface);border:1px solid var(--accent-primary, var(--gold));
+  border-radius:12px;padding:14px 20px;max-width:420px;width:90vw;
+  box-shadow:0 8px 32px rgba(0,0,0,0.25);font-family:var(--font-sans);
+  opacity:0;visibility:hidden;transition:opacity 300ms ease,transform 300ms ease,visibility 300ms;}
+#fact-toast.visible{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);}
+#fact-toast .ft-label{font-size:10px;font-weight:700;color:var(--accent-primary, var(--gold));
+  letter-spacing:0.1em;margin-bottom:6px;}
+#fact-toast .ft-text{font-size:13px;line-height:1.5;color:var(--text-primary);font-style:italic;}
+#fact-toast .ft-link{font-size:11px;color:var(--accent-primary, var(--gold));cursor:pointer;
+  margin-top:6px;display:inline-block;text-decoration:underline;}
 #tooltip.visible{opacity:1;visibility:visible;}
 .tree-node{cursor:pointer;}
 svg,#canvas-wrap{cursor:grab;}
@@ -515,6 +612,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 /* ── LIGHT THEME: ELEMENT CONTRAST FIXES ── */
 [data-theme="light"] .hint-bar{color:var(--text-secondary);}
 [data-theme="light"] .leg-row{color:var(--text-secondary);}
+[data-theme="light"] .leg-row.active{background:rgba(0,0,0,0.06);color:var(--text-primary);}
 [data-theme="light"] .p-detail{color:var(--text-secondary);}
 [data-theme="light"] .p-desc{color:var(--text-secondary);}
 [data-theme="light"] .p-children li{color:var(--text-secondary);}
@@ -1081,9 +1179,54 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   .dna-vs{transform:rotate(90deg);}
   .dna-presets{justify-content:center;}
 }
+
+/* ── ACCESSIBILITY ── */
+
+/* Skip-to-content link */
+.skip-link{
+  position:fixed;top:-100%;left:50%;transform:translateX(-50%);
+  z-index:10000;padding:0.6rem 1.2rem;
+  background:var(--accent-primary);color:#fff;
+  font-family:var(--font-sans);font-size:0.85rem;font-weight:600;
+  border-radius:0 0 var(--radius-md) var(--radius-md);
+  text-decoration:none;outline:none;
+  transition:top 0.15s ease;
+}
+.skip-link:focus{top:0;}
+
+/* Focus-visible rings */
+:focus-visible{outline:2px solid var(--accent-primary);outline-offset:2px;}
+button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
+.lang-btn:focus-visible,.view-btn:focus-visible,.hom-filter:focus-visible,
+.era-preset:focus-visible,.dna-preset:focus-visible,.dna-slot:focus-visible,
+.p-close:focus-visible,#theme-btn:focus-visible,.btn-back:focus-visible,
+#extinct-toggle:focus-visible,#hominins-tab:focus-visible,#btn-hominin:focus-visible,
+#btn-dna-calc:focus-visible,.leg-row:focus-visible{
+  outline:2px solid var(--accent-primary);outline-offset:2px;
+  box-shadow:0 0 0 4px var(--accent-primary-dim);
+}
+/* SVG node focus ring — outline doesn't work on SVG, use stroke */
+.node-group:focus-visible{outline:none;}
+.node-group:focus-visible .nc-main{
+  stroke:var(--accent-primary) !important;stroke-width:3 !important;stroke-opacity:1 !important;
+}
+
+/* Search result keyboard highlight */
+.sr-item.a11y-active{background:var(--accent-primary-dim);color:var(--text-primary);}
+
+/* Reduced motion */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:0.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:0.01ms !important;
+    scroll-behavior:auto !important;
+  }
+}
 </style>
 </head>
 <body>
+<a href="#svg" class="skip-link">Skip to Tree</a>
 <div id="splash" style="position:fixed;inset:0;background:#1a1d23;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px;transition:opacity 0.8s ease;">
   <div id="splash-years" style="font-family:'Inter',sans-serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:rgba(160,164,176,0.6);">3,800,000,000 years of evolution</div>
   <h1 id="splash-title" style="font-family:'Inter',sans-serif;font-size:clamp(48px,8vw,96px);font-weight:700;color:#e8eaf0;letter-spacing:-2px;line-height:1;margin:0;">Tree of Life</h1>
@@ -1134,11 +1277,11 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 </div>
 
 <!-- BREADCRUMB -->
-<div id="breadcrumb" class="hidden"></div>
+<nav id="breadcrumb" class="hidden" role="navigation" aria-label="Breadcrumb"></nav>
 
 <!-- SVG CANVAS -->
 <div id="canvas-wrap">
-  <svg id="svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Interactive Tree of Life visualization showing evolutionary relationships">
+  <svg id="svg" xmlns="http://www.w3.org/2000/svg" role="tree" aria-label="Interactive Tree of Life visualization showing evolutionary relationships" tabindex="0">
     <defs>
       <radialGradient id="rootGrad" cx="50%" cy="50%" r="50%">
         <stop offset="0%" stop-color="#a78bfa"/>
@@ -1164,8 +1307,14 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 <!-- TOOLTIP -->
 <div id="tooltip"></div>
 
+<!-- DISCOVERY FACT TOAST -->
+<div id="fact-toast" role="status" aria-live="polite">
+  <div class="ft-label">💡 DID YOU KNOW</div>
+  <div class="ft-text" id="ft-text"></div>
+</div>
+
 <!-- MAIN DETAIL PANEL -->
-<div id="panel">
+<div id="panel" role="dialog" aria-label="Species detail panel" aria-modal="false">
   <div class="panel-accent" id="panel-accent"></div>
   <button class="p-close" id="panel-close" aria-label="Close panel">✕</button>
   <div class="panel-scroll">
@@ -1197,7 +1346,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 </div>
 
 <!-- HOMININ VIEW -->
-<div id="hominin-view">
+<div id="hominin-view" role="dialog" aria-label="Hominin Evolution explorer" aria-modal="true">
   <div id="hom-header">
     <div>
       <div id="hom-title">Hominin Evolution</div>
@@ -1206,13 +1355,13 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
     <button id="hom-close" class="btn-back">← Back to Tree</button>
 
   </div>
-  <div id="hom-filters">
-    <div class="hom-filter active" data-filter="all" id="i-hf-all">All Species</div>
-    <div class="hom-filter" data-filter="proto" id="i-hf-proto">Proto-Hominins</div>
-    <div class="hom-filter" data-filter="australopith" id="i-hf-australo">Australopithecus</div>
-    <div class="hom-filter" data-filter="paranthropus" id="i-hf-paranth">Paranthropus</div>
-    <div class="hom-filter" data-filter="homo" id="i-hf-homo">Genus Homo</div>
-    <div class="hom-filter" data-filter="surviving" id="i-hf-surv">Surviving</div>
+  <div id="hom-filters" role="tablist" aria-label="Hominin species filters">
+    <div class="hom-filter active" data-filter="all" id="i-hf-all" role="tab" tabindex="0" aria-selected="true">All Species</div>
+    <div class="hom-filter" data-filter="proto" id="i-hf-proto" role="tab" tabindex="-1" aria-selected="false">Proto-Hominins</div>
+    <div class="hom-filter" data-filter="australopith" id="i-hf-australo" role="tab" tabindex="-1" aria-selected="false">Australopithecus</div>
+    <div class="hom-filter" data-filter="paranthropus" id="i-hf-paranth" role="tab" tabindex="-1" aria-selected="false">Paranthropus</div>
+    <div class="hom-filter" data-filter="homo" id="i-hf-homo" role="tab" tabindex="-1" aria-selected="false">Genus Homo</div>
+    <div class="hom-filter" data-filter="surviving" id="i-hf-surv" role="tab" tabindex="-1" aria-selected="false">Surviving</div>
     <div style="margin-left:auto;display:flex;gap:0.5rem;align-items:center;">
       <button id="compare-btn" onclick="toggleCompareMode()" style="padding:0.25rem 0.85rem;border:1px solid var(--border);border-radius:14px;background:transparent;color:var(--text-secondary);font-size:0.7rem;font-family:var(--font-sans);cursor:pointer;transition:all 0.2s;letter-spacing:0.05em;">⚖ Compare Mode</button>
       <span id="compare-hint" style="display:none;font-size:0.65rem;color:var(--text-secondary);font-style:italic;">Select 2–4 species</span>
@@ -1237,14 +1386,14 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 <!-- LEGEND -->
 <div id="legend">
   <div class="leg-title" id="i-leg-title">Domains</div>
-  <div class="leg-row" data-domain="luca" onclick="toggleDomain('luca')" style="cursor:pointer;"><div class="leg-dot" style="background:#8b5cf6"></div><span id="i-leg-luca">LUCA / Root</span></div>
-  <div class="leg-row" data-domain="bacteria" onclick="toggleDomain('bacteria')" style="cursor:pointer;"><div class="leg-dot" style="background:#ef4444"></div><span id="i-leg-bact">Bacteria</span></div>
-  <div class="leg-row" data-domain="archaea" onclick="toggleDomain('archaea')" style="cursor:pointer;"><div class="leg-dot" style="background:#f59e0b"></div><span id="i-leg-arch">Archaea</span></div>
-  <div class="leg-row" data-domain="plantae" onclick="toggleDomain('plantae')" style="cursor:pointer;"><div class="leg-dot" style="background:#22c55e"></div><span id="i-leg-plant">Plants</span></div>
-  <div class="leg-row" data-domain="animalia" onclick="toggleDomain('animalia')" style="cursor:pointer;"><div class="leg-dot" style="background:#3b82f6"></div><span id="i-leg-anim">Animals</span></div>
-  <div class="leg-row" data-domain="fungi" onclick="toggleDomain('fungi')" style="cursor:pointer;"><div class="leg-dot" style="background:#f97316"></div><span id="i-leg-fungi">Fungi</span></div>
-  <div class="leg-row" data-domain="protists" onclick="toggleDomain('protists')" style="cursor:pointer;"><div class="leg-dot" style="background:#a855f7"></div><span id="i-leg-prot">Protists</span></div>
-  <button id="i-show-all" onclick="resetDomains()" style="font-size:11px;padding:3px 10px;border-radius:9999px;border:1px solid #c8b99a;background:transparent;color:var(--parchment);cursor:pointer;margin-top:8px;font-family:'Inter',sans-serif;">Show All</button>
+  <div class="leg-row" data-domain="luca" onclick="toggleDomain('luca')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#8b5cf6"></div><span id="i-leg-luca">LUCA / Root</span></div>
+  <div class="leg-row" data-domain="bacteria" onclick="toggleDomain('bacteria')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#ef4444"></div><span id="i-leg-bact">Bacteria</span></div>
+  <div class="leg-row" data-domain="archaea" onclick="toggleDomain('archaea')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#f59e0b"></div><span id="i-leg-arch">Archaea</span></div>
+  <div class="leg-row" data-domain="plantae" onclick="toggleDomain('plantae')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#22c55e"></div><span id="i-leg-plant">Plants</span></div>
+  <div class="leg-row" data-domain="animalia" onclick="toggleDomain('animalia')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#3b82f6"></div><span id="i-leg-anim">Animals</span></div>
+  <div class="leg-row" data-domain="fungi" onclick="toggleDomain('fungi')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#f97316"></div><span id="i-leg-fungi">Fungi</span></div>
+  <div class="leg-row" data-domain="protists" onclick="toggleDomain('protists')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#a855f7"></div><span id="i-leg-prot">Protists</span></div>
+  <button id="leg-show-all" onclick="resetDomains()"><span id="i-leg-show-all">Show All</span></button>
 </div>
 
 
@@ -1276,7 +1425,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 <button id="btn-dna-calc" onclick="openDnaCalc()" aria-label="Open DNA Similarity Calculator" title="DNA Compare">🧬 <span id="i-btn-dna-calc">DNA Compare</span></button>
 
 <!-- DNA SIMILARITY CALCULATOR PANEL -->
-<div id="dna-panel" class="dna-panel" aria-hidden="true">
+<div id="dna-panel" class="dna-panel" role="dialog" aria-label="DNA Similarity Calculator" aria-modal="true" aria-hidden="true">
   <div class="dna-panel-inner">
     <div class="dna-panel-header">
       <div id="i-dna-title" class="dna-panel-title">DNA Similarity Calculator</div>
@@ -1364,6 +1513,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 <script src="js/imagePrompts.js"></script>
 <script src="js/imageLoader.js"></script>
 <script src="js/dnaSimilarity.js"></script>
+<script src="js/nodeIcons.js"></script>
 <script>
 // Register PHOTO_MAP (from speciesData.js) with ImageLoader for tree node rendering
 if(typeof ImageLoader!=='undefined'&&typeof PHOTO_MAP!=='undefined'&&ImageLoader.registerPhotoMap){
@@ -1632,10 +1782,10 @@ function preprocess(n,parent=null,depth=0){
   if(n.children) n.children.forEach(c=>preprocess(c,n,depth+1));
 }
 preprocess(TREE);
-// Collapse hominini subtree by default so tree isn't visually overloaded
-if(nodeMap['hominini']) nodeMap['hominini']._collapsed=true;
+// Hominini branch starts expanded so users see the full hominin family tree
+if(nodeMap['hominini']) nodeMap['hominini']._collapsed=false;
 ['group-proto','group-australopith','group-paranthropus','group-homo'].forEach(id=>{
-  if(nodeMap[id]) nodeMap[id]._collapsed=true;
+  if(nodeMap[id]) nodeMap[id]._collapsed=false;
 });
 window.getNodeById = id=>nodeMap[id];
 
@@ -1927,128 +2077,57 @@ function toggleExtinct() {
 // ══════════════════════════════════════════════════════
 // DOMAIN FILTER
 // ══════════════════════════════════════════════════════
+const ALL_DOMAINS = ['luca','bacteria','archaea','eukaryota','protists','fungi','plantae','animalia'];
+
+function isAllDomainsActive() {
+  return activeDomains.size >= ALL_DOMAINS.length;
+}
+
+function updateLegendUI() {
+  const allActive = isAllDomainsActive();
+  document.querySelectorAll('#legend [data-domain]').forEach(el => {
+    const d = el.getAttribute('data-domain');
+    const active = activeDomains.has(d);
+    el.classList.toggle('active', active && !allActive);
+    el.classList.toggle('dimmed', !active);
+    el.style.opacity = '';
+    el.style.fontWeight = '';
+  });
+  const showAllBtn = document.getElementById('leg-show-all');
+  if (showAllBtn) showAllBtn.classList.toggle('filtering', !allActive);
+}
+
 function toggleDomain(domain) {
-  if (activeDomains.has(domain)) {
-    if (activeDomains.size > 2) activeDomains.delete(domain);
+  if (isAllDomainsActive()) {
+    // Solo this domain: deactivate all others
+    activeDomains = new Set(['luca', domain]);
+    if (domain !== 'luca') activeDomains.add(domain);
+  } else if (activeDomains.has(domain)) {
+    // Deactivate — but don't allow removing the last non-luca domain
+    if (domain === 'luca') {
+      // Allow toggling LUCA off if others are active
+      if (activeDomains.size > 1) activeDomains.delete(domain);
+    } else {
+      const nonLuca = [...activeDomains].filter(d => d !== 'luca');
+      if (nonLuca.length > 1) activeDomains.delete(domain);
+    }
   } else {
     activeDomains.add(domain);
   }
-  document.querySelectorAll('[data-domain]').forEach(el => {
-    const d = el.getAttribute('data-domain');
-    el.style.opacity = activeDomains.has(d) ? '1' : '0.35';
-    el.style.fontWeight = activeDomains.has(d) ? '600' : '400';
-  });
+  updateLegendUI();
   scheduleRender();
 }
 
 function resetDomains() {
-  activeDomains = new Set(['luca','bacteria','archaea','eukaryota','protists','fungi','plantae','animalia']);
-  document.querySelectorAll('[data-domain]').forEach(el => {
-    el.style.opacity = '1';
-    el.style.fontWeight = '400';
-  });
+  activeDomains = new Set(ALL_DOMAINS);
+  updateLegendUI();
   scheduleRender();
-}
-
-// ══════════════════════════════════════════════════════
-// SVG SILHOUETTE ICONS (replace emojis)
-// ══════════════════════════════════════════════════════
-const NODE_ICONS = {
-  bacteria: 'M12 4c-1.5 0-3 .8-3 2.5v11c0 1.7 1.5 2.5 3 2.5s3-.8 3-2.5v-11C15 4.8 13.5 4 12 4z',
-  archaea: 'M12 3l-3 5.5 1.5 3-2.5 4.5L12 21l4-5-2.5-4.5L15 8.5 12 3z',
-  plant: 'M12 22V12m0 0c0-4-3-7-7-8 1 3 3.5 6 7 8zm0 0c0-4 3-7 7-8-1 3-3.5 6-7 8z',
-  fungus: 'M12 22v-8m0 0c-5 0-8-3-8-6s3-5 8-5 8 2 8 5-3 6-8 6z',
-  animal: 'M4 13c0-4.4 3.6-8 8-8s8 3.6 8 8c0 2-1.5 3-3 3h-2l-1 3h-4l-1-3H7c-1.5 0-3-1-3-3z',
-  fish: 'M2 12c3-4 7-6 11-6 2 0 4 1.5 5 3l4-3v6l-4-3c-1 1.5-3 3-5 3-4 0-8-2-11-6zm13-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
-  bird: 'M3 15c2-4 6-7 10-7h3l5-4-2 5c1 2 1 4 0 6l-4-1-3 3-2-3c-3 0-5 .5-7 1z',
-  reptile: 'M3 14c1-2 3-3 5-3h2l2-2h3l3 1 3-1 1 2-2 1v2l-2 1-3-1-3 1-2-1H8l-3 2-2-2z',
-  amphibian: 'M7 8a5 5 0 0 1 10 0c0 2-1 3-2 4v3c0 1-1 2-3 2s-3-1-3-2v-3c-1-1-2-2-2-4zm3-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
-  insect: 'M12 4a2 2 0 0 1 2 2c0 .5-.2 1-.5 1.3.9.5 1.5 1.4 1.5 2.7 0 1-.4 1.8-1 2.3.6.7 1 1.6 1 2.7 0 2-1.3 3-3 3s-3-1-3-3c0-1.1.4-2 1-2.7-.6-.5-1-1.3-1-2.3 0-1.3.6-2.2 1.5-2.7-.3-.3-.5-.8-.5-1.3a2 2 0 0 1 2-2zM8 9l-3-2m0 6l3-1m8-3l3-2m0 6l-3-1',
-  mollusk: 'M16 12a6 6 0 0 0-5-5.9c.6-1.2 1-2.1 1-2.1s-2 .5-3.5 2C5.5 8 4 11 6 14s5 4 8 3c1.5-.5 2.5-2 2.5-4-.2-.3-.3-.7-.5-1z',
-  cnidarian: 'M12 3c-3 0-6 3-6 7 0 2 1 3 2 3h8c1 0 2-1 2-3 0-4-3-7-6-7zm-4 12l-1 5m2-5v5m2-5l1 5m2-5v5m2-5l1 5',
-  sponge: 'M8 4c-2 1-3 4-3 8s1 7 3 8h8c2-1 3-4 3-8s-1-7-3-8H8zm1 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 2a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
-  primate: 'M8 6a4 4 0 0 1 8 0c0 1.5-1 3-2 3.5.6.5 1 1.3 1 2.5v4c0 1-1 2-3 2s-3-1-3-2v-4c0-1.2.4-2 1-2.5C9 9 8 7.5 8 6zm2 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
-  hominin: 'M12 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm-2 7c-1.5 0-2.5 1-2.5 2.5V15l-2 7h3l1.5-5 .5 1.5V22h3v-3.5l.5-1.5L15.5 22h3l-2-7v-3.5C16.5 10 15.5 9 14 9h-4z',
-  mammal: 'M4 11c0-3 2-5 5-5h1l2-2 2 2h1c3 0 5 2 5 5v2c0 2-1 3-2 3l-1 3h-2l-1-3h-4l-1 3H7l-1-3c-1 0-2-1-2-3v-2zm5 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm6 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
-  default: 'M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10z',
-  echinoderm: 'M12 2l2.5 6.5L21 10l-5 4.5 1.5 7L12 18l-5.5 3.5L8 14.5 3 10l6.5-1.5L12 2z',
-  worm: 'M6 8c0-2 2-3 4-3s3 1 3 3c0 1.5-1 2.5-2 3 1.5.5 3 2 3 4 0 2.5-2 4-4.5 4S5 17.5 5 15c0-2 1.5-3.5 3-4-1-.5-2-1.5-2-3z',
-  crustacean: 'M5 10c0-2 3-4 7-4s7 2 7 4c0 1.5-1 2.5-2.5 3l1.5 4h-3l-1-3h-4l-1 3H6l1.5-4C6 12.5 5 11.5 5 10zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm6 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z'
-};
-
-// Map node IDs to icon groups
-function getIconGroup(n) {
-  const id = n.id;
-  // Specific ID mappings
-  const ID_MAP = {
-    'luca': 'default',
-    'bacteria': 'bacteria', 'cyanobacteria': 'bacteria', 'proteobacteria': 'bacteria',
-    'firmicutes': 'bacteria', 'actinobacteria': 'bacteria', 'spirochetes': 'bacteria',
-    'deinococcus': 'bacteria', 'bacteroides': 'bacteria',
-    'prochlorococcus': 'bacteria', 'nostoc': 'bacteria', 'ecoli': 'bacteria',
-    'helicobacter': 'bacteria', 'vibrio-cholerae': 'bacteria',
-    'lactobacillus': 'bacteria', 'clostridium-botulinum': 'bacteria',
-    'streptomyces': 'bacteria', 'mycobacterium-tb': 'bacteria',
-    'archaea': 'archaea', 'euryarchaeota': 'archaea', 'asgard': 'archaea',
-    'halobacterium': 'archaea', 'sulfolobus': 'archaea', 'pyrolobus': 'archaea',
-    'lokiarchaeota': 'archaea', 'methanobacterium': 'archaea',
-    'eukaryota': 'default',
-    'fungi': 'fungus', 'ascomycetes': 'fungus', 'basidiomycetes': 'fungus', 'chytrids': 'fungus',
-    'saccharomyces': 'fungus', 'penicillium': 'fungus', 'amanita-muscaria': 'fungus',
-    'armillaria': 'fungus', 'psilocybe': 'fungus', 'batrachochytrium': 'fungus',
-    'plantae': 'plant', 'bryophytes': 'plant', 'angiosperms': 'plant',
-    'gymnosperms': 'plant', 'ferns': 'plant',
-    'sphagnum': 'plant', 'marchantia': 'plant', 'arabidopsis': 'plant',
-    'rafflesia': 'plant', 'titan-arum': 'plant', 'mimosa-pudica': 'plant',
-    'wollemia': 'plant', 'welwitschia': 'plant', 'sequoia': 'plant',
-    'tree-fern': 'plant', 'azolla': 'plant',
-    'animalia': 'animal',
-    'invertebrates': 'crustacean', 'insects': 'insect',
-    'horseshoe-crab': 'crustacean', 'mantis-shrimp': 'crustacean', 'honey-bee': 'insect',
-    'cephalopods': 'mollusk', 'octopus': 'mollusk', 'nautilus': 'mollusk',
-    'cnidarians': 'cnidarian', 'turritopsis': 'cnidarian', 'coral': 'cnidarian',
-    'echinoderms': 'echinoderm', 'annelids': 'worm',
-    'vertebrates': 'fish',
-    'fish': 'fish', 'coelacanth': 'fish', 'shark': 'fish',
-    'reptiles': 'reptile', 'komodo-dragon': 'reptile', 'tuatara': 'reptile',
-    'birds': 'bird', 'archaeopteryx': 'bird', 'peregrine-falcon': 'bird',
-    'amphibians': 'amphibian',
-    'mammals': 'mammal', 'cetaceans': 'mammal', 'blue-whale': 'mammal',
-    'naked-mole-rat': 'mammal', 'platypus': 'mammal',
-    'primates': 'primate', 'great-apes': 'primate',
-    'orangutan': 'primate', 'gorilla': 'primate', 'chimpanzee': 'primate',
-    'homo-sapiens': 'hominin', 'hominini': 'hominin',
-    'protists': 'default', 'alveolates': 'default', 'stramenopiles': 'default',
-    'amoebozoa': 'default',
-    'plasmodium': 'insect', 'paramecium': 'default', 'dinoflagellates': 'default',
-    'diatoms': 'default', 'phytophthora': 'default',
-    'amoeba-proteus': 'default', 'volvox': 'default',
-    'sponges': 'sponge',
-  };
-  if (ID_MAP[id]) return ID_MAP[id];
-  // Hominin species from HOMININS array — map by group
-  if (n.group) {
-    const HOMININ_GROUP_MAP = { 'homo': 'hominin', 'proto': 'primate', 'australopith': 'primate', 'paranthropus': 'primate' };
-    if (HOMININ_GROUP_MAP[n.group]) return HOMININ_GROUP_MAP[n.group];
-  }
-  // Group nodes (group-homo, group-proto, etc.)
-  if (id.startsWith('group-')) return id === 'group-homo' ? 'hominin' : 'primate';
-  // Fallback: check ancestry
-  let p = n._parent;
-  while (p) {
-    if (ID_MAP[p.id]) {
-      const pg = ID_MAP[p.id];
-      if (pg !== 'default') return pg;
-    }
-    p = p._parent;
-  }
-  return 'default';
 }
 
 // ══════════════════════════════════════════════════════
 // HUMAN EVOLUTION PATH (highlighted from root to Homo sapiens)
 // ══════════════════════════════════════════════════════
-const HUMAN_PATH=new Set(['luca','eukaryota','animalia','vertebrates','mammals','primates','great-apes','homo-sapiens']);
+const HUMAN_PATH=new Set(['luca','eukaryota','animalia','vertebrates','mammals','primates','great-apes','hominini','group-homo','h_sapiens']);
 
 // ══════════════════════════════════════════════════════
 // RENDER
@@ -2060,6 +2139,8 @@ let transform={x:0,y:0,s:0.6};
 const applyT=()=>viewport.setAttribute('transform',`translate(${transform.x},${transform.y}) scale(${transform.s})`);
 const animDone=new Set();
 let highlightedId=null;
+let focusedNodeId='luca'; // currently keyboard-focused tree node
+const prefersReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 
 function branchPath(x1,y1,x2,y2){
   if(viewMode==='cladogram'){return `M${x1},${y1} H${(x1+x2)/2} V${y2} H${x2}`;}
@@ -2093,21 +2174,24 @@ function render(){
 
   // Branches
   const humanPathEdges=[];
+  const domainFiltering = !isAllDomainsActive();
   edges.forEach(({from,to})=>{
-    if(to._domain && to._domain!=='luca' && !activeDomains.has(to._domain)) return;
     if(!showExtinct && to.extinct) return;
+    const domainActive = !to._domain || to._domain==='luca' || activeDomains.has(to._domain);
+    const domainDimmed = domainFiltering && !domainActive;
     const inEra=nodeInEra(to);
     const onHumanPath=HUMAN_PATH.has(from.id)&&HUMAN_PATH.has(to.id);
     const p=document.createElementNS('http://www.w3.org/2000/svg','path');
     p.setAttribute('d',branchPath(from._x,from._y,to._x,to._y));
     p.setAttribute('class','branch-path');
     p.setAttribute('data-branch','true');
-    const sw=onHumanPath?3:Math.max(1,3-to.depth*0.3);
-    const op=onHumanPath?0.9:(inEra?Math.max(0.25,0.7-to.depth*0.08):0.08);
-    p.setAttribute('stroke',onHumanPath?'var(--accent-primary)':to.color);
+    const sw=onHumanPath&&!domainDimmed?3:Math.max(1,3-to.depth*0.3);
+    let op=onHumanPath&&!domainDimmed?0.9:(inEra?Math.max(0.25,0.7-to.depth*0.08):0.08);
+    if(domainDimmed) op=0.06;
+    p.setAttribute('stroke',onHumanPath&&!domainDimmed?'var(--accent-primary)':to.color);
     p.setAttribute('stroke-width',sw);
     p.setAttribute('stroke-opacity',op);
-    if(!animDone.has(to.id)){
+    if(!animDone.has(to.id)&&!prefersReducedMotion.matches){
       const len=300;p.style.strokeDasharray=len;p.style.strokeDashoffset=len;
       p.style.transition=`stroke-dashoffset ${0.3+to.depth*0.05}s cubic-bezier(.4,0,.2,1) ${to.depth*0.04}s`;
       setTimeout(()=>{p.style.strokeDashoffset=0;},50);
@@ -2121,13 +2205,23 @@ function render(){
   // Nodes
   const pendingLabels=[];
   nodes.forEach(n=>{
-    if(n._domain && n._domain!=='luca' && !activeDomains.has(n._domain)) return;
     if(!showExtinct && n.extinct) return;
+    const nodeDomainActive = !n._domain || n._domain==='luca' || activeDomains.has(n._domain);
+    const nodeDimmed = domainFiltering && !nodeDomainActive;
     const inEra=nodeInEra(n);
     const isHighlighted=highlightedId===n.id;
     const g=document.createElementNS('http://www.w3.org/2000/svg','g');
     g.setAttribute('class','node-group');
     g.style.cursor='pointer';
+    // ARIA tree item attributes
+    g.setAttribute('role','treeitem');
+    g.setAttribute('aria-label',n.name+(n.latin?' ('+n.latin+')':'')+(n.era?', '+n.era:''));
+    g.setAttribute('data-node-id',n.id);
+    g.setAttribute('tabindex',focusedNodeId===n.id?'0':'-1');
+    if(n.children&&n.children.length){
+      g.setAttribute('aria-expanded',n._collapsed?'false':'true');
+    }
+    if(nodeDimmed) g.style.opacity='0.15';
 
     const onHumanPath=HUMAN_PATH.has(n.id);
 
@@ -2160,23 +2254,13 @@ function render(){
       g.appendChild(ring);
     }
 
-    // Hominini gateway — golden pulsing ring + Explore badge
+    // Hominini — subtle golden ring (branch is expanded by default)
     if(n.id==='hominini'){
       const gw=document.createElementNS('http://www.w3.org/2000/svg','circle');
       gw.setAttribute('cx',n._x);gw.setAttribute('cy',n._y);gw.setAttribute('r',n.r+12);
       gw.setAttribute('fill','none');gw.setAttribute('stroke','#e8b86d');
-      gw.setAttribute('stroke-width','2');gw.setAttribute('stroke-opacity','0.6');
-      gw.style.animation='homininGlow 2.5s ease-in-out infinite';
+      gw.setAttribute('stroke-width','1.5');gw.setAttribute('stroke-opacity','0.5');
       g.appendChild(gw);
-      const badgeFo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
-      const bw=64,bh=18;
-      badgeFo.setAttribute('x',n._x-bw/2);badgeFo.setAttribute('y',n._y+n.r+6);
-      badgeFo.setAttribute('width',bw);badgeFo.setAttribute('height',bh);
-      badgeFo.style.pointerEvents='none';
-      const badge=document.createElement('div');
-      badge.style.cssText='font-size:9px;font-family:"Heebo",sans-serif;color:#e8b86d;text-align:center;font-weight:700;letter-spacing:0.05em;opacity:0.85;';
-      badge.textContent=t('explore_badge');
-      badgeFo.appendChild(badge);g.appendChild(badgeFo);
     }
 
     // Highlight ring
@@ -2218,7 +2302,7 @@ function render(){
     if(n.extinct){c.setAttribute('stroke-dasharray','4 2');c.setAttribute('opacity','0.6');}
     c.style.cursor = 'pointer';
     c.style.pointerEvents = 'all';
-    c.addEventListener('mouseenter', function(){ this.style.transform='scale(1.15)';this.style.transformOrigin='center';this.style.filter='brightness(1.2)'; showTip(n.name, n.icon); });
+    c.addEventListener('mouseenter', function(){ this.style.transform='scale(1.15)';this.style.transformOrigin='center';this.style.filter='brightness(1.2)'; showTip(n.name, n.icon, n.id); });
     c.addEventListener('mouseleave', function(){ this.style.transform='scale(1)';this.style.filter=''; hideTip(); });
     c.addEventListener('click', e=>{ e.stopPropagation(); showMainPanel(n); });
     g.appendChild(c);
@@ -2272,19 +2356,23 @@ function render(){
     }
 
     // Label — compute position and store for global collision pass
-    if(inEra&&n.depth<=6){
+    const isHominin=n._hominin||n.id==='hominini'||n.id?.startsWith('group-');
+    if(inEra&&(n.depth<=6||isHominin)){
       const sibCount=n._parent?.children?.length||1;
       const angleRad=n._angle-Math.PI/2;
       const lDist=n.r+18+Math.max(0,(n.depth-3)*4);
       const lx=n._x+Math.cos(angleRad)*lDist;
       const ly=n._y+Math.sin(angleRad)*lDist;
       const cos=Math.cos(angleRad);
-      const fontSize=n.depth===0?14:n.depth===1?12:sibCount>12?8:sibCount>8?9:10;
-      const textW=n.name.length*fontSize*0.55;
+      // Hominin species get 10px labels; group nodes get 11px
+      const fontSize=n.depth===0?14:n.depth===1?12:isHominin?(n.children?.length?11:10):sibCount>12?8:sibCount>8?9:10;
+      // Use short name for hominin species (e.g. "H. sapiens" instead of "Homo sapiens")
+      const labelText=n._hominData?.short||n.name;
+      const textW=labelText.length*fontSize*0.55;
       const textH=fontSize+2;
       const anchor=cos<-0.15?'end':cos>0.15?'start':'middle';
       const bx=anchor==='end'?lx-textW:anchor==='start'?lx:lx-textW/2;
-      pendingLabels.push({n,lx,ly,cos,fontSize,textW,textH,bx,by:ly-textH/2,anchor,g});
+      pendingLabels.push({n,lx,ly,cos,fontSize,textW,textH,bx,by:ly-textH/2,anchor,g,labelText});
     }
 
     // Collapse dot
@@ -2296,14 +2384,18 @@ function render(){
       g.appendChild(dot);
     }
 
-    // Animate in
+    // Animate in (skip if reduced motion)
     if(!animDone.has(n.id)){
-      g.style.opacity='0';g.style.transformOrigin=`${n._x}px ${n._y}px`;g.style.transform='scale(0.2)';
-      setTimeout(()=>{
-        g.style.transition=`opacity 0.45s ease ${n.depth*0.09}s, transform 0.45s cubic-bezier(.34,1.56,.64,1) ${n.depth*0.09}s`;
-        g.style.opacity='1';g.style.transform='scale(1)';
-        setTimeout(()=>animDone.add(n.id),550+n.depth*90);
-      },40);
+      if(prefersReducedMotion.matches){
+        animDone.add(n.id);
+      } else {
+        g.style.opacity='0';g.style.transformOrigin=`${n._x}px ${n._y}px`;g.style.transform='scale(0.2)';
+        setTimeout(()=>{
+          g.style.transition=`opacity 0.45s ease ${n.depth*0.09}s, transform 0.45s cubic-bezier(.34,1.56,.64,1) ${n.depth*0.09}s`;
+          g.style.opacity='1';g.style.transform='scale(1)';
+          setTimeout(()=>animDone.add(n.id),550+n.depth*90);
+        },40);
+      }
     }
 
     // Events
@@ -2313,10 +2405,11 @@ function render(){
   });
 
   // Global label collision resolution
-  // Sort by priority: human path first, then depth 0-1, then by depth ascending
+  // Sort by priority: human path first, then hominin groups, then depth 0-1, then by depth ascending
+  const HOMININ_PRIORITY=new Set(['hominini','group-proto','group-australopith','group-paranthropus','group-homo']);
   pendingLabels.sort((a,b)=>{
-    const aHP=HUMAN_PATH.has(a.n.id)?0:1;
-    const bHP=HUMAN_PATH.has(b.n.id)?0:1;
+    const aHP=HUMAN_PATH.has(a.n.id)?0:HOMININ_PRIORITY.has(a.n.id)?0.5:1;
+    const bHP=HUMAN_PATH.has(b.n.id)?0:HOMININ_PRIORITY.has(b.n.id)?0.5:1;
     if(aHP!==bHP) return aHP-bHP;
     if(a.n.depth<=1 && b.n.depth>1) return -1;
     if(b.n.depth<=1 && a.n.depth>1) return 1;
@@ -2328,8 +2421,9 @@ function render(){
   }
   pendingLabels.forEach(lb=>{
     const onPath=HUMAN_PATH.has(lb.n.id);
-    // Always show depth 0-1 and human path nodes
-    const forceShow=lb.n.depth<=1||onPath;
+    const isHominGroup=HOMININ_PRIORITY.has(lb.n.id);
+    // Always show depth 0-1, human path nodes, and hominin group nodes
+    const forceShow=lb.n.depth<=1||onPath||isHominGroup;
     if(!forceShow){
       for(const placed of placedBoxes){
         if(boxesOverlap(lb,placed)){return;}
@@ -2340,12 +2434,12 @@ function render(){
     svgText.setAttribute('x',lb.lx);svgText.setAttribute('y',lb.ly);
     svgText.setAttribute('text-anchor',lb.anchor);
     svgText.setAttribute('dominant-baseline','middle');
-    svgText.setAttribute('fill',onPath?'var(--accent-primary)':lb.n.depth===0?'#e8eaf0':lb.n.depth<=1?'rgba(160,164,176,0.95)':'rgba(107,112,128,0.85)');
+    svgText.setAttribute('fill',onPath?'var(--accent-primary)':isHominGroup?'#e8b86d':lb.n.depth===0?'#e8eaf0':lb.n.depth<=1?'rgba(160,164,176,0.95)':'rgba(107,112,128,0.85)');
     svgText.setAttribute('font-size',lb.fontSize);
     svgText.setAttribute('font-family',"'Inter', sans-serif");
-    svgText.setAttribute('font-weight',onPath||lb.n.depth<=1?'600':'400');
+    svgText.setAttribute('font-weight',onPath||isHominGroup||lb.n.depth<=1?'600':'400');
     svgText.setAttribute('class','node-label-text');
-    svgText.textContent=lb.n.name;
+    svgText.textContent=lb.labelText||lb.n.name;
     lb.g.appendChild(svgText);
   });
 
@@ -2741,8 +2835,7 @@ async function fetchWikiPhoto(nodeId, wikiTitle, imgEl, fallbackEl, creditEl) {
   if (window._failedPhotos.has(cacheKey)) return;
   if (window._photoCache[cacheKey]) {
     const cached = window._photoCache[cacheKey];
-    imgEl.src = cached.url;
-    imgEl.style.display = 'block';
+    if (imgEl) { imgEl.src = cached.url; imgEl.style.display = 'block'; }
     if (fallbackEl) fallbackEl.style.display = 'none';
     if (creditEl && cached.credit) creditEl.textContent = cached.credit;
     return;
@@ -2757,8 +2850,7 @@ async function fetchWikiPhoto(nodeId, wikiTitle, imgEl, fallbackEl, creditEl) {
     if (thumb && thumb.source) {
       const url = thumb.source.replace(/\/\d+px-/, '/640px-');
       window._photoCache[cacheKey] = { url, credit: t('photo_credit') };
-      imgEl.src = url;
-      imgEl.style.display = 'block';
+      if (imgEl) { imgEl.src = url; imgEl.style.display = 'block'; }
       if (fallbackEl) fallbackEl.style.display = 'none';
       if (creditEl) creditEl.textContent = t('photo_credit');
     } else {
@@ -2776,159 +2868,285 @@ function renderPanelContent(node) {
   const extinctBadge = node.extinct
     ? '<span style="background:#ef4444;color:white;font-size:10px;padding:2px 8px;border-radius:9999px;font-family:Inter,sans-serif;font-weight:600;letter-spacing:0.05em;">† EXTINCT</span>'
     : '';
-  // WIKI_TITLES and PHOTO_MAP loaded from js/speciesData.js
-  // Merge data-level img with the lookup map; ImageLoader generated images take top priority
-  const photoEntry = PHOTO_MAP[node.id];
-  const generatedUrl = (typeof ImageLoader!=='undefined') ? ImageLoader.getGeneratedUrl(node.id) : null;
-  let staticUrl = generatedUrl || (photoEntry && photoEntry.url) || node.img || null;
-  const staticCredit = generatedUrl ? 'AI-generated illustration' : (photoEntry && photoEntry.credit) || node.imgCredit || null;
+  // Image sourcing: ImageLoader → PHOTO_MAP → Wikipedia API → styled fallback
+  const best = (typeof ImageLoader !== 'undefined') ? ImageLoader.getBestUrl(node) : { url: null, source: null, credit: null };
   const wikiTitle = WIKI_TITLES[node.id] || null;
-  // Suppress if this static URL previously failed
-  if (staticUrl && window._failedPhotos && window._failedPhotos.has('static:' + node.id)) {
-    staticUrl = null;
+  if (best.url && window._failedPhotos && window._failedPhotos.has('static:' + node.id)) {
+    best.url = null;
   }
-  const panelImgId = 'panel-species-img-' + node.id.replace(/[^a-z0-9]/g,'_');
-  const panelFbId  = 'panel-species-fb-'  + node.id.replace(/[^a-z0-9]/g,'_');
-  const panelCrId  = 'panel-species-cr-'  + node.id.replace(/[^a-z0-9]/g,'_');
+  const panelImgId = 'panel-hero-img-' + node.id.replace(/[^a-z0-9]/g,'_');
+  const panelHeroId = 'panel-hero-' + node.id.replace(/[^a-z0-9]/g,'_');
+  const panelCrId  = 'panel-hero-cr-' + node.id.replace(/[^a-z0-9]/g,'_');
+  const panelSkeletonId = 'panel-hero-skel-' + node.id.replace(/[^a-z0-9]/g,'_');
+  const domainColor = node.color || '#888';
+  // Build SVG fallback icon from NODE_ICONS
+  const iconGroup = (typeof getIconGroup === 'function') ? getIconGroup(node) : 'default';
+  const iconPath = (typeof NODE_ICONS !== 'undefined') ? (NODE_ICONS[iconGroup] || NODE_ICONS.default) : '';
+  const nodeColor = node.color || '#555';
+  const fallbackSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="${nodeColor}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="${iconPath}"/></svg>`;
+
+  // ── Helper: build timeline position bar ──
+  function buildTimelineBar() {
+    if (node.appeared == null) return '';
+    const pct = Math.max(1, Math.min(99, (1 - node.appeared / 3800) * 100));
+    return `<div class="panel-timeline" style="margin:4px 0;">
+      <div class="panel-timeline-track">
+        <div class="panel-timeline-fill" style="width:${pct}%;background:${domainColor};"></div>
+        <div class="panel-timeline-marker" style="left:${pct}%;background:${domainColor};"></div>
+      </div>
+      <div class="panel-timeline-labels">
+        <span>3.8 Bya</span>
+        <span style="position:absolute;left:${pct}%;transform:translateX(-50%);font-weight:600;color:${domainColor};">~${node.appeared >= 1000 ? (node.appeared/1000).toFixed(1)+' Bya' : node.appeared+' Mya'}</span>
+        <span>Now</span>
+      </div>
+    </div>`;
+  }
+
+  // ── Helper: build radar chart from numeric facts ──
+  function buildRadarChart() {
+    if (!node.facts || node.facts.length < 3) return '';
+    const numFacts = node.facts.map(f => {
+      const m = String(f.v).replace(/[,~≈>< ]/g,'').match(/^[\d.]+/);
+      return m ? { label: f.l, val: parseFloat(m[0]) } : null;
+    }).filter(Boolean);
+    if (numFacts.length < 3) return '';
+    const items = numFacts.slice(0, 6);
+    const maxVal = Math.max(...items.map(d => d.val));
+    if (maxVal === 0) return '';
+    const cx = 60, cy = 60, R = 48;
+    const n = items.length;
+    const angleStep = (2 * Math.PI) / n;
+    // Grid circles
+    let gridSvg = '';
+    [0.33, 0.66, 1].forEach(s => {
+      const r = R * s;
+      gridSvg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--border)" stroke-width="0.5" opacity="0.5"/>`;
+    });
+    // Axes
+    let axesSvg = '';
+    let labelsSvg = '';
+    const points = [];
+    items.forEach((d, i) => {
+      const angle = -Math.PI / 2 + i * angleStep;
+      const ax = cx + R * Math.cos(angle);
+      const ay = cy + R * Math.sin(angle);
+      axesSvg += `<line x1="${cx}" y1="${cy}" x2="${ax}" y2="${ay}" stroke="var(--border)" stroke-width="0.5" opacity="0.5"/>`;
+      // Label position
+      const lx = cx + (R + 14) * Math.cos(angle);
+      const ly = cy + (R + 14) * Math.sin(angle);
+      const anchor = Math.abs(Math.cos(angle)) < 0.1 ? 'middle' : (Math.cos(angle) > 0 ? 'start' : 'end');
+      const shortLabel = d.label.length > 10 ? d.label.slice(0, 9) + '…' : d.label;
+      labelsSvg += `<text x="${lx}" y="${ly}" text-anchor="${anchor}" dominant-baseline="middle" font-size="8" fill="var(--text-secondary)" font-family="Inter,sans-serif">${shortLabel}</text>`;
+      // Data point
+      const ratio = d.val / maxVal;
+      const px = cx + R * ratio * Math.cos(angle);
+      const py = cy + R * ratio * Math.sin(angle);
+      points.push(`${px},${py}`);
+    });
+    const polygon = `<polygon points="${points.join(' ')}" fill="${domainColor}" fill-opacity="0.2" stroke="${domainColor}" stroke-width="1.5"/>`;
+    const dots = points.map(pt => {
+      const [x,y] = pt.split(',');
+      return `<circle cx="${x}" cy="${y}" r="2.5" fill="${domainColor}"/>`;
+    }).join('');
+    return `<div class="panel-radar"><svg width="150" height="150" viewBox="0 0 120 120">${gridSvg}${axesSvg}${polygon}${dots}${labelsSvg}</svg></div>`;
+  }
+
+  // ── Helper: hominin data section ──
+  function buildHomininSection() {
+    const h = node._hominData;
+    if (!h) return '';
+    const brainMax = h.brain && (h.brain[1] || h.brain[0]);
+    const neanPct = h.dna && h.dna.neanderthal != null ? h.dna.neanderthal : null;
+    const denPct = h.dna && h.dna.denisovan != null ? h.dna.denisovan : null;
+    let inner = '';
+    if (brainMax) {
+      inner += `<div style="display:flex;flex-direction:column;gap:4px;">
+        <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:Inter,sans-serif;">\ud83e\udde0 ${t('brain_volume')}</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="flex:1;height:8px;background:var(--color-canvas-alt);border-radius:4px;overflow:hidden;">
+            <div style="width:${Math.round(brainMax/1750*100)}%;height:100%;background:${h.color};border-radius:4px;"></div>
+          </div>
+          <span style="font-size:13px;color:var(--color-text-secondary);font-family:JetBrains Mono,monospace;min-width:60px;">${brainMax} cm³</span>
+        </div>
+      </div>`;
+    }
+    const hasTools = h.tools && h.tools !== 'None known' && h.tools !== 'None';
+    const hasFire = h.fire && h.fire !== 'No';
+    const hasLang = h.language && h.language !== 'None';
+    if (hasTools || hasFire || hasLang) {
+      inner += `<div style="display:flex;gap:12px;flex-wrap:wrap;">`;
+      if (hasTools) inner += `<div style="font-size:13px;color:var(--color-text-secondary);font-family:Inter,sans-serif;">🪨 ${h.tools}</div>`;
+      if (hasFire) inner += `<div style="font-size:13px;color:var(--color-text-secondary);font-family:Inter,sans-serif;">🔥 ${h.fire}</div>`;
+      if (hasLang) inner += `<div style="font-size:13px;color:var(--color-text-secondary);font-family:Inter,sans-serif;">🗣️ ${h.language}</div>`;
+      inner += `</div>`;
+    }
+    if (neanPct != null || denPct != null) {
+      inner += `<div style="display:flex;flex-direction:column;gap:4px;">
+        <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:Inter,sans-serif;">\ud83e\uddec ${t('dna_legacy')}</div>`;
+      if (neanPct != null) inner += `<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-secondary);font-family:Inter,sans-serif;"><span style="min-width:80px;">${t('lbl_neanderthal')}</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,neanPct*25)}%;height:100%;background:#7A9BAA;border-radius:3px;"></div></div><span style="font-family:JetBrains Mono,monospace;">${neanPct}%</span></div>`;
+      if (denPct != null) inner += `<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-secondary);font-family:Inter,sans-serif;"><span style="min-width:80px;">${t('lbl_denisovan')}</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,denPct*20)}%;height:100%;background:#7A8BAA;border-radius:3px;"></div></div><span style="font-family:JetBrains Mono,monospace;">${denPct}%</span></div>`;
+      if (h.dna && h.dna.note) inner += `<div style="font-size:12px;color:var(--color-text-muted);font-style:italic;">${h.dna.note}</div>`;
+      inner += `</div>`;
+    }
+    if (h.sites && h.sites.length) {
+      inner += `<div style="display:flex;flex-direction:column;gap:4px;">
+        <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:Inter,sans-serif;">\ud83d\udccd ${t('fossil_sites')}</div>
+        <div style="font-size:13px;color:var(--color-text-secondary);font-family:Inter,sans-serif;line-height:1.6;">${h.sites.join(' · ')}</div>
+      </div>`;
+    }
+    if (!inner) return '';
+    return `<div class="panel-section">
+      <div class="panel-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+        <span>🦴 Hominin Data</span><span class="panel-chevron">▾</span>
+      </div>
+      <div class="panel-section-body">${inner}</div>
+    </div>`;
+  }
+
+  // ── Build panel HTML (merged: origin/main hero + p22 sections) ──
+  // Lineage badge
+  const lineageBadge = (()=>{
+    const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','homo-sapiens'];
+    const HOMININ_IDS   = ['homo-sapiens','h_erectus','h_habilis','h_neanderthalensis','h_heidelbergensis','h_floresiensis','h_naledi','h_luzonensis','denisovan','au_afarensis','au_africanus','sahelanthropus','ardipithecus_r'];
+    const isHuman  = HOMININ_IDS.includes(node.id) || (node.tags && (node.tags.includes('Hominin') || node.tags.includes('Human evolution')));
+    const isGreatApe = GREAT_APE_IDS.includes(node.id);
+    if (isHuman) return `<span class="panel-lineage-badge" style="color:#b07a3e;background:rgba(176,122,62,0.12);border:1px solid rgba(176,122,62,0.3);">Human Lineage</span>`;
+    if (isGreatApe) return `<span class="panel-lineage-badge" style="color:#b03535;background:rgba(176,53,53,0.1);border:1px solid rgba(176,53,53,0.25);">Great Apes</span>`;
+    return '';
+  })();
   p.innerHTML = `
-    <div style="width:100%;aspect-ratio:16/9;background:#111;overflow:hidden;position:relative;flex-shrink:0;">
-      <img id="${panelImgId}" src="${staticUrl || ''}" alt="${node.name}"
-        style="width:100%;height:100%;object-fit:cover;display:${staticUrl ? 'block' : 'none'};"
-        onerror="(function(el){
-          if(typeof ImageLoader!=='undefined'&&el.dataset.source==='generated'){
-            ImageLoader.markFailed('${node.id}');
-            var fb=${photoEntry?`'${(photoEntry.url||'').replace(/'/g,"\\'")}'`:'null'}||'${(node.img||'').replace(/'/g,"\\'")}';
-            if(fb){el.dataset.source='fallback';el.src=fb;return;}
-          }
-          (window._failedPhotos||(window._failedPhotos=new Set())).add('static:${node.id}');
-          el.style.display='none';document.getElementById('${panelFbId}').style.display='flex';
-        })(this);"
-        data-source="${generatedUrl ? 'generated' : 'static'}"
-      />
-      <div id="${panelFbId}" style="display:${staticUrl ? 'none' : 'flex'};width:100%;height:100%;align-items:center;justify-content:center;font-size:72px;background:#111;">${node.icon||'🌿'}</div>
-      <div id="${panelCrId}" style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.65);font-family:'Inter',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.35);padding:1px 5px;border-radius:3px;">${staticCredit||''}</div>
+    <div id="${panelHeroId}" class="panel-hero${best.url ? ' has-image' : ''}" style="background:linear-gradient(135deg,${nodeColor}22,${nodeColor}44);">
+      <div id="${panelSkeletonId}" class="panel-hero-skeleton" style="${best.url ? '' : 'display:none;'}"></div>
+      <img id="${panelImgId}" class="panel-hero-img" alt="${node.name}"
+        data-source="${best.source || 'none'}" />
+      <div class="panel-hero-fallback">${fallbackSvg}</div>
+      <div class="panel-hero-gradient"></div>
+      <div id="${panelCrId}" class="panel-hero-credit" style="display:none;"></div>
     </div>
-    <div style="padding:20px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;flex:1;">
-      ${(()=>{
-        const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','homo-sapiens'];
-        const HOMININ_IDS   = ['homo-sapiens','h_erectus','h_habilis','h_neanderthalensis','h_heidelbergensis','h_floresiensis','h_naledi','h_luzonensis','denisovan','au_afarensis','au_africanus','sahelanthropus','ardipithecus_r'];
-        const isGreatApe    = GREAT_APE_IDS.includes(node.id) || node.id === 'great-apes';
-        const isHuman       = HOMININ_IDS.includes(node.id) || (node.tags && (node.tags.includes('Hominin') || node.tags.includes('Human evolution')));
-        if (isHuman) return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b07a3e;font-family:'Inter',sans-serif;text-transform:uppercase;background:rgba(176,122,62,0.12);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,122,62,0.3);">🧬 Human Lineage</span></div>`;
-        if (isGreatApe) return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b03535;font-family:'Inter',sans-serif;text-transform:uppercase;background:rgba(176,53,53,0.1);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,53,53,0.25);">🦍 Great Apes</span></div>`;
-        return '';
-      })()}
-      <div style="display:flex;flex-direction:column;gap:6px;">
+    <div style="padding:20px;display:flex;flex-direction:column;gap:20px;overflow-y:auto;flex:1;">
+      ${lineageBadge ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;">${lineageBadge}</div>` : ''}
+      <div class="panel-header">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <h2 style="font-family:'Inter',sans-serif;font-size:22px;font-weight:700;color:var(--color-text-primary);margin:0;line-height:1.2;">${node.name}</h2>
+          <h2>${node.name}</h2>
           ${extinctBadge}
         </div>
-        ${node.latin ? `<div style="font-style:italic;font-size:13px;color:var(--color-text-muted);font-family:'Inter',sans-serif;">${node.latin}</div>` : ''}
-        ${node.era ? `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">\ud83d\udcc5 ${node.era}${node.appeared ? ' \u00b7 ' + node.appeared + ' ' + t('unit_mya') : ''}</div>` : ''}
+        ${node.latin ? `<div class="panel-latin">${node.latin}</div>` : ''}
+        ${node.era ? `<div class="panel-era"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${domainColor};flex-shrink:0;vertical-align:middle;margin-right:6px;"></span>${node.era}${node.appeared ? ' \u00b7 ' + node.appeared + ' ' + t('unit_mya') : ''}</div>` : ''}
       </div>
-      ${node.desc ? `<p style="font-size:14px;line-height:1.7;color:var(--color-text-secondary);font-family:'Inter',sans-serif;margin:0;">${node.desc}</p>` : ''}
-      ${node.funFact ? `
-        <div style="border-left:3px solid var(--color-accent);padding:12px 16px;background:rgba(46,125,50,0.06);border-radius:0 8px 8px 0;">
-          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;margin-bottom:6px;font-family:'Inter',sans-serif;">\ud83d\udca1 ${t('did_you_know')}</div>
-          <p style="font-family:'Inter',sans-serif;font-style:italic;font-size:14px;line-height:1.6;color:var(--color-text-primary);margin:0;">${node.funFact}</p>
+
+      <!-- Overview Section (always open) -->
+      <div class="panel-section">
+        <div class="panel-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>Overview</span><span class="panel-chevron">▾</span>
         </div>
-      ` : ''}
-      ${node.detail ? `<p style="font-size:13px;line-height:1.7;color:var(--color-text-muted);font-family:'Inter',sans-serif;margin:0;">${node.detail}</p>` : ''}
-      ${node.facts && node.facts.length > 0 ? `
-        <div style="display:flex;flex-direction:column;gap:1px;border-radius:8px;overflow:hidden;border:1px solid var(--color-divider);">
-          ${node.facts.map((f, i) => `
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:${i % 2 === 0 ? 'var(--color-canvas-alt)' : 'var(--color-panel-bg)'};">
-              <span style="font-size:12px;color:var(--color-text-muted);font-family:'Inter',sans-serif;">${f.l}</span>
-              <span style="font-size:13px;font-weight:600;color:var(--color-text-primary);font-family:'Inter',sans-serif;text-align:right;max-width:60%;">${f.v}</span>
+        <div class="panel-section-body">
+          ${node.desc ? `<p style="font-size:15px;line-height:1.8;color:var(--color-text-secondary);font-family:Inter,sans-serif;margin:0;">${node.desc}</p>` : ''}
+          ${(() => {
+            const _panelFact = node.funFact || FACTS.getPanelFact(node.id, currentLang);
+            return _panelFact ? `
+            <div style="border-left:3px solid var(--color-accent);padding:12px 16px;background:rgba(46,125,50,0.06);border-radius:0 8px 8px 0;">
+              <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;margin-bottom:6px;font-family:Inter,sans-serif;">💡 DID YOU KNOW</div>
+              <p style="font-family:Inter,sans-serif;font-style:italic;font-size:14px;line-height:1.6;color:var(--color-text-primary);margin:0;">${_panelFact}</p>
             </div>
-          `).join('')}
+          ` : '';
+          })()}
+          ${node.detail ? `<p style="font-size:14px;line-height:1.8;color:var(--color-text-muted);font-family:Inter,sans-serif;margin:0;">${node.detail}</p>` : ''}
+          ${node.tipFact ? `<div style="padding:12px;background:var(--color-button-bg);border-radius:8px;font-size:13px;color:var(--color-text-muted);font-family:Inter,sans-serif;font-style:italic;text-align:center;">🌿 ${node.tipFact}</div>` : ''}
         </div>
-      ` : ''}
-      ${node.tags && node.tags.length > 0 ? `
-        <div style="display:flex;flex-wrap:wrap;gap:6px;">
-          ${node.tags.map(tag => `
-            <span style="font-size:11px;padding:3px 10px;border-radius:9999px;background:var(--color-button-bg);border:1px solid var(--color-button-border);color:var(--color-text-secondary);font-family:'Inter',sans-serif;">${tag}</span>
-          `).join('')}
+      </div>
+
+      <!-- Key Facts Section -->
+      ${node.facts && node.facts.length > 0 ? `
+      <div class="panel-section">
+        <div class="panel-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>Key Facts</span><span class="panel-chevron">▾</span>
         </div>
-      ` : ''}
-      ${node.tipFact ? `
-        <div style="padding:12px;background:var(--color-button-bg);border-radius:8px;font-size:12px;color:var(--color-text-muted);font-family:'Inter',sans-serif;font-style:italic;text-align:center;">
-          🌿 ${node.tipFact}
+        <div class="panel-section-body">
+          <div style="display:flex;flex-direction:column;gap:1px;border-radius:8px;overflow:hidden;border:1px solid var(--color-divider);">
+            ${node.facts.map((f, i) => `
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:${i % 2 === 0 ? 'var(--color-canvas-alt)' : 'var(--color-panel-bg)'};">
+                <span style="font-size:12px;color:var(--color-text-muted);font-family:Inter,sans-serif;">${f.l}</span>
+                <span style="font-size:14px;font-weight:600;color:var(--color-text-primary);font-family:JetBrains Mono,monospace;text-align:right;max-width:60%;">${f.v}</span>
+              </div>
+            `).join('')}
+          </div>
+          ${buildRadarChart()}
+          ${node.tags && node.tags.length > 0 ? `
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              ${node.tags.map(tag => `
+                <span style="font-size:11px;padding:3px 10px;border-radius:9999px;background:var(--color-button-bg);border:1px solid var(--color-button-border);color:var(--color-text-secondary);font-family:Inter,sans-serif;">${tag}</span>
+              `).join('')}
+            </div>
+          ` : ''}
         </div>
-      ` : ''}
-      ${node.altFacts && node.altFacts.length > 0 ? `
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">\ud83d\udcda ${t('did_you_know_q')}</div>
-          ${node.altFacts.map(f=>`
-            <div style="padding:10px;background:var(--color-button-bg);border-radius:8px;font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">${f}</div>
-          `).join('')}
+      </div>
+      ` : (node.tags && node.tags.length > 0 ? `
+      <div class="panel-section">
+        <div class="panel-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>Traits</span><span class="panel-chevron">▾</span>
         </div>
-      ` : ''}
-      ${node.links && node.links.length > 0 ? `
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">\ud83d\udd17 ${t('learn_more')}</div>
+        <div class="panel-section-body">
           <div style="display:flex;flex-wrap:wrap;gap:6px;">
-            ${node.links.map(lnk=>`
-              <a href="${lnk.url}" target="_blank" rel="noopener noreferrer"
-                style="font-size:12px;padding:5px 12px;border-radius:9999px;background:var(--color-button-bg);border:1px solid var(--color-button-border);color:var(--color-accent);font-family:'Inter',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:4px;"
-                onmouseover="this.style.background='var(--color-accent)';this.style.color='white';"
-                onmouseout="this.style.background='var(--color-button-bg)';this.style.color='var(--color-accent)';">
-                ↗ ${lnk.label}
-              </a>
+            ${node.tags.map(tag => `
+              <span style="font-size:11px;padding:3px 10px;border-radius:9999px;background:var(--color-button-bg);border:1px solid var(--color-button-border);color:var(--color-text-secondary);font-family:Inter,sans-serif;">${tag}</span>
             `).join('')}
           </div>
         </div>
-      ` : ''}
-      ${(()=>{
-        const h = node._hominData;
-        if(!h) return '';
-        const brainMax = h.brain && (h.brain[1]||h.brain[0]);
-        const neanPct = h.dna && h.dna.neanderthal != null ? h.dna.neanderthal : null;
-        const denPct = h.dna && h.dna.denisovan != null ? h.dna.denisovan : null;
-        let html = '';
-        // Brain volume bar
-        if(brainMax){
-          html += `<div style="display:flex;flex-direction:column;gap:4px;">
-            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">\ud83e\udde0 ${t('brain_volume')}</div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <div style="flex:1;height:8px;background:var(--color-canvas-alt);border-radius:4px;overflow:hidden;">
-                <div style="width:${Math.round(brainMax/1750*100)}%;height:100%;background:${h.color};border-radius:4px;"></div>
-              </div>
-              <span style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;min-width:60px;">${brainMax} cm³</span>
+      </div>
+      ` : '')}
+
+      <!-- Evolutionary Context Section -->
+      <div class="panel-section">
+        <div class="panel-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>Evolutionary Context</span><span class="panel-chevron">▾</span>
+        </div>
+        <div class="panel-section-body">
+          ${buildTimelineBar()}
+          ${node.altFacts && node.altFacts.length > 0 ? `
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:Inter,sans-serif;">\ud83d\udcda ${t('did_you_know_q')}</div>
+              ${node.altFacts.map(f => `<div class="panel-enrich-card">${f}</div>`).join('')}
             </div>
-          </div>`;
-        }
-        // Capabilities row
-        const hasTools = h.tools && h.tools!=='None known' && h.tools!=='None';
-        const hasFire = h.fire && h.fire!=='No';
-        const hasLang = h.language && h.language!=='None';
-        if(hasTools || hasFire || hasLang){
-          html += `<div style="display:flex;gap:12px;flex-wrap:wrap;">`;
-          if(hasTools) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">🪨 ${h.tools}</div>`;
-          if(hasFire) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">🔥 ${h.fire}</div>`;
-          if(hasLang) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">🗣️ ${h.language}</div>`;
-          html += `</div>`;
-        }
-        // DNA introgression
-        if(neanPct != null || denPct != null){
-          html += `<div style="display:flex;flex-direction:column;gap:4px;">
-            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">\ud83e\uddec ${t('dna_legacy')}</div>`;
-          if(neanPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;"><span style="min-width:80px;">${t('lbl_neanderthal')}</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,neanPct*25)}%;height:100%;background:#7A9BAA;border-radius:3px;"></div></div><span>${neanPct}%</span></div>`;
-          if(denPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;"><span style="min-width:80px;">${t('lbl_denisovan')}</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,denPct*20)}%;height:100%;background:#7A8BAA;border-radius:3px;"></div></div><span>${denPct}%</span></div>`;
-          if(h.dna && h.dna.note) html += `<div style="font-size:11px;color:var(--color-text-muted);font-style:italic;">${h.dna.note}</div>`;
-          html += `</div>`;
-        }
-        // Fossil sites
-        if(h.sites && h.sites.length){
-          html += `<div style="display:flex;flex-direction:column;gap:4px;">
-            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">\ud83d\udccd ${t('fossil_sites')}</div>
-            <div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;line-height:1.6;">${h.sites.join(' · ')}</div>
-          </div>`;
-        }
-        return html;
-      })()}
-      ${(()=>{const isHominin=node._hominData||node.id==='hominini'||(node.id&&node.id.startsWith('hom-'));return isHominin?`<button onclick="openHomininView()" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--color-accent);color:white;cursor:pointer;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">${t('hominin_deep_dive')}</button>`:'';})()}
-      <button onclick="closePanel()" style="margin-top:8px;padding:10px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;color:var(--color-text-secondary);">
+          ` : ''}
+          ${node.links && node.links.length > 0 ? `
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:Inter,sans-serif;">\ud83d\udd17 ${t('learn_more')}</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                ${node.links.map(lnk => `<a href="${lnk.url}" target="_blank" rel="noopener noreferrer" class="panel-link-pill">\u2197 ${lnk.label}</a>`).join('')}
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+
+      <!-- Hominin Data Section -->
+      ${buildHomininSection()}
+
+      <!-- Sub-groups Section -->
+      ${node.children && node.children.length > 0 ? `
+      <div class="panel-section collapsed">
+        <div class="panel-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>Sub-groups (${node.children.length})</span><span class="panel-chevron">▾</span>
+        </div>
+        <div class="panel-section-body">
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            ${node.children.map(c => `
+              <div onclick="navigateTo('${c.id}')" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;cursor:pointer;transition:background 0.15s;font-family:Inter,sans-serif;" onmouseover="this.style.background='var(--color-button-bg)'" onmouseout="this.style.background='transparent'">
+                <span style="font-size:18px;">${c.icon||'\ud83c\udf3f'}</span>
+                <div style="flex:1;">
+                  <div style="font-size:14px;color:var(--color-text-primary);font-weight:500;">${c.name}</div>
+                  ${c.latin ? `<div style="font-size:11px;color:var(--color-text-muted);font-style:italic;">${c.latin}</div>` : ''}
+                </div>
+                <span style="font-size:12px;color:var(--color-text-muted);">\u2192</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+      ` : ''}
+
+      ${(()=>{const isHominin=node._hominData||node.id==='hominini'||(node.id&&node.id.startsWith('hom-'));return isHominin?`<button onclick="openHomininView()" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--color-accent);color:white;cursor:pointer;font-family:Inter,sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">${t('hominin_deep_dive')}</button>`:'';})()}
+      <button onclick="closePanel()" style="margin-top:4px;padding:10px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:Inter,sans-serif;font-size:13px;color:var(--color-text-secondary);">
         ${t('panel_close')}
       </button>
     </div>
@@ -2945,14 +3163,50 @@ function renderPanelContent(node) {
       scroll.insertBefore(backBtn,scroll.firstChild);
     }
   }
-  // Fetch real photo from Wikipedia API (runs in browser after HTML is set)
-  if (wikiTitle) {
-    const imgEl = document.getElementById(panelImgId);
-    const fbEl  = document.getElementById(panelFbId);
-    const crEl  = document.getElementById(panelCrId);
-    if (imgEl && fbEl) {
-      // If static URL already loaded, still try API for a better/larger photo
-      fetchWikiPhoto(node.id, wikiTitle, imgEl, fbEl, crEl);
+  // Hero image loading — non-blocking, with full fallback chain
+  const heroEl = document.getElementById(panelHeroId);
+  const imgEl = document.getElementById(panelImgId);
+  const crEl = document.getElementById(panelCrId);
+  const skelEl = document.getElementById(panelSkeletonId);
+  if (imgEl && heroEl) {
+    const showCredit = (text) => {
+      if (crEl && text) { crEl.textContent = text; crEl.style.display = ''; }
+    };
+    const markLoaded = () => {
+      imgEl.classList.add('loaded');
+      heroEl.classList.add('has-image');
+      if (skelEl) skelEl.style.display = 'none';
+    };
+    const showFallback = () => {
+      imgEl.style.display = 'none';
+      heroEl.classList.remove('has-image');
+      if (skelEl) skelEl.style.display = 'none';
+    };
+    if (best.url) {
+      imgEl.addEventListener('load', () => { markLoaded(); showCredit(best.credit); }, { once: true });
+      imgEl.addEventListener('error', () => {
+        if (best.source === 'generated') ImageLoader.markFailed(node.id);
+        (window._failedPhotos || (window._failedPhotos = new Set())).add('static:' + node.id);
+        if (wikiTitle) {
+          fetchWikiPhoto(node.id, wikiTitle, imgEl, null, null).then(() => {
+            if (imgEl.src && imgEl.naturalWidth > 0) { markLoaded(); showCredit('Wikipedia / Wikimedia Commons'); }
+            else showFallback();
+          }).catch(() => showFallback());
+        } else {
+          showFallback();
+        }
+      }, { once: true });
+      imgEl.src = best.url;
+    } else if (wikiTitle) {
+      fetchWikiPhoto(node.id, wikiTitle, imgEl, null, null).then(() => {
+        if (window._photoCache[node.id]) {
+          imgEl.src = window._photoCache[node.id].url;
+          imgEl.addEventListener('load', () => { markLoaded(); showCredit('Wikipedia / Wikimedia Commons'); }, { once: true });
+          imgEl.addEventListener('error', () => showFallback(), { once: true });
+        } else { showFallback(); }
+      }).catch(() => showFallback());
+    } else {
+      showFallback();
     }
   }
 }
@@ -3049,9 +3303,14 @@ document.addEventListener('mousemove', function(e) {
     tooltipEl.style.top = e.clientY + 'px';
   }
 });
-function showTip(text, icon) {
+function showTip(text, icon, nodeId) {
   clearTimeout(_tipTimer);
-  tooltipEl.innerHTML = (icon ? icon + ' ' : '') + text;
+  let html = (icon ? icon + ' ' : '') + text;
+  if (nodeId) {
+    const tipFact = FACTS.getTooltipFact(nodeId, currentLang);
+    if (tipFact) html += '<div class="tip-fact-line">' + tipFact + '</div>';
+  }
+  tooltipEl.innerHTML = html;
   tooltipEl.classList.add('visible');
 }
 function hideTip() {
@@ -3733,7 +3992,24 @@ document.getElementById('btn-random').addEventListener('click',()=>{
     const pick=leaves[Math.floor(Math.random()*leaves.length)];
     navigateTo(pick.id);
     setTimeout(()=>showMainPanel(pick),300);
+    // Show a discovery fact toast about the picked species
+    const disc = FACTS.getDiscoveryFact(currentLang);
+    if (disc) showFactToast(disc.text);
   }
+});
+
+// ── Discovery fact toast ──
+let _factToastTimer = null;
+function showFactToast(text) {
+  clearTimeout(_factToastTimer);
+  const toast = document.getElementById('fact-toast');
+  document.getElementById('ft-text').textContent = text;
+  toast.classList.add('visible');
+  _factToastTimer = setTimeout(() => toast.classList.remove('visible'), 7000);
+}
+document.getElementById('fact-toast').addEventListener('click', () => {
+  clearTimeout(_factToastTimer);
+  document.getElementById('fact-toast').classList.remove('visible');
 });
 
 // ══════════════════════════════════════════════════════
@@ -3760,6 +4036,212 @@ document.addEventListener('keydown',e=>{
 });
 
 // ══════════════════════════════════════════════════════
+// ACCESSIBILITY — Tree Keyboard Nav, Focus Trapping, Search Arrow Keys
+// ══════════════════════════════════════════════════════
+
+// --- Tree keyboard navigation ---
+function getVisibleChildren(n){
+  if(!n.children||!n.children.length||n._collapsed) return [];
+  return n.children.filter(c=>{
+    if(c._domain&&c._domain!=='luca'&&!activeDomains.has(c._domain)) return false;
+    if(!showExtinct&&c.extinct) return false;
+    return true;
+  });
+}
+
+function moveFocusToNode(n){
+  if(!n) return;
+  // Update tabindex on old focused node
+  const oldEl=nodesLayer.querySelector(`[data-node-id="${focusedNodeId}"]`);
+  if(oldEl) oldEl.setAttribute('tabindex','-1');
+  focusedNodeId=n.id;
+  const newEl=nodesLayer.querySelector(`[data-node-id="${n.id}"]`);
+  if(newEl){newEl.setAttribute('tabindex','0');newEl.focus();}
+  // Pan viewport to center on focused node
+  const cx=window.innerWidth/2,cy=window.innerHeight/2;
+  transform.x=cx-n._x*transform.s;
+  transform.y=cy-n._y*transform.s;
+  applyT();
+}
+
+function moveFocusToSibling(n,dir){
+  if(!n._parent) return;
+  const siblings=getVisibleChildren(n._parent);
+  const idx=siblings.indexOf(n);
+  if(idx<0) return;
+  const next=siblings[idx+dir];
+  if(next) moveFocusToNode(next);
+}
+
+document.getElementById('svg').addEventListener('keydown',function(e){
+  // Only handle when a node or the SVG itself has focus
+  const nodeGroup=e.target.closest('.node-group');
+  if(!nodeGroup&&e.target!==this) return;
+  const n=focusedNodeId?nodeMap[focusedNodeId]:TREE;
+  if(!n) return;
+  switch(e.key){
+    case 'ArrowRight':
+      e.preventDefault();
+      if(n.children&&n.children.length){
+        if(n._collapsed){n._collapsed=false;layout();scheduleRender(true);applyT();setTimeout(()=>moveFocusToNode(n),60);}
+        else{const vc=getVisibleChildren(n);if(vc.length)moveFocusToNode(vc[0]);}
+      }
+      break;
+    case 'ArrowLeft':
+      e.preventDefault();
+      if(n.children&&n.children.length&&!n._collapsed){n._collapsed=true;layout();scheduleRender(true);applyT();setTimeout(()=>moveFocusToNode(n),60);}
+      else if(n._parent){moveFocusToNode(n._parent);}
+      break;
+    case 'ArrowDown':
+      e.preventDefault();moveFocusToSibling(n,1);break;
+    case 'ArrowUp':
+      e.preventDefault();moveFocusToSibling(n,-1);break;
+    case 'Enter':case ' ':
+      e.preventDefault();showMainPanel(n);break;
+    case 'Home':
+      e.preventDefault();moveFocusToNode(TREE);break;
+  }
+});
+
+// --- Search results arrow-key navigation ---
+let searchActiveIdx=-1;
+searchInput.addEventListener('keydown',function(e){
+  const items=searchResults.querySelectorAll('.sr-item');
+  if(!items.length) return;
+  if(e.key==='ArrowDown'){
+    e.preventDefault();
+    searchActiveIdx=Math.min(searchActiveIdx+1,items.length-1);
+    highlightSearchItem(items,searchActiveIdx);
+  } else if(e.key==='ArrowUp'){
+    e.preventDefault();
+    searchActiveIdx=Math.max(searchActiveIdx-1,0);
+    highlightSearchItem(items,searchActiveIdx);
+  } else if(e.key==='Enter'&&searchActiveIdx>=0&&items[searchActiveIdx]){
+    e.preventDefault();items[searchActiveIdx].click();searchActiveIdx=-1;
+  }
+});
+// Reset search highlight index on new input
+searchInput.addEventListener('input',function(){searchActiveIdx=-1;});
+
+function highlightSearchItem(items,idx){
+  items.forEach(el=>el.classList.remove('a11y-active'));
+  if(items[idx]){
+    items[idx].classList.add('a11y-active');
+    items[idx].scrollIntoView({block:'nearest'});
+    // aria-activedescendant requires an id
+    if(!items[idx].id) items[idx].id='sr-'+idx;
+    searchInput.setAttribute('aria-activedescendant',items[idx].id);
+  }
+}
+
+// --- Focus trapping utility ---
+function trapFocus(container){
+  function getFocusable(){
+    return container.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])');
+  }
+  function handler(e){
+    if(e.key!=='Tab') return;
+    const focusable=getFocusable();
+    if(!focusable.length) return;
+    const first=focusable[0],last=focusable[focusable.length-1];
+    if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+    else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+  }
+  container.addEventListener('keydown',handler);
+  return ()=>container.removeEventListener('keydown',handler);
+}
+
+// --- Focus management for panels ---
+let _panelFocusTrap=null;
+let _panelPrevFocus=null;
+const _origShowMainPanel=showMainPanel;
+showMainPanel=function(n){
+  _panelPrevFocus=document.activeElement;
+  _origShowMainPanel(n);
+  // Set focus to panel close button after panel opens
+  requestAnimationFrame(()=>{
+    const closeBtn=document.getElementById('panel-close');
+    if(closeBtn) closeBtn.focus();
+    if(_panelFocusTrap) _panelFocusTrap();
+    _panelFocusTrap=trapFocus(panel);
+  });
+};
+const _origClosePanel=closePanel;
+closePanel=function(){
+  _origClosePanel();
+  if(_panelFocusTrap){_panelFocusTrap();_panelFocusTrap=null;}
+  if(_panelPrevFocus&&_panelPrevFocus.focus){_panelPrevFocus.focus();_panelPrevFocus=null;}
+};
+// Re-bind close button since closePanel was re-assigned
+document.getElementById('panel-close').removeEventListener('click',_origClosePanel);
+document.getElementById('panel-close').addEventListener('click',closePanel);
+
+// Hominin view focus management
+let _homFocusTrap=null;
+let _homPrevFocus=null;
+const _origOpenHomininView=window.openHomininView;
+window.openHomininView=function(){
+  _homPrevFocus=document.activeElement;
+  _origOpenHomininView();
+  requestAnimationFrame(()=>{
+    const closeBtn=document.getElementById('hom-close');
+    if(closeBtn) closeBtn.focus();
+    if(_homFocusTrap) _homFocusTrap();
+    _homFocusTrap=trapFocus(document.getElementById('hominin-view'));
+  });
+};
+document.getElementById('hom-close').addEventListener('click',()=>{
+  if(_homFocusTrap){_homFocusTrap();_homFocusTrap=null;}
+  if(_homPrevFocus&&_homPrevFocus.focus){_homPrevFocus.focus();_homPrevFocus=null;}
+});
+
+// DNA calc focus management
+let _dnaFocusTrap=null;
+let _dnaPrevFocus=null;
+const _origOpenDnaCalc=openDnaCalc;
+openDnaCalc=function(){
+  _dnaPrevFocus=document.activeElement;
+  _origOpenDnaCalc();
+  requestAnimationFrame(()=>{
+    const dnaPanel=document.getElementById('dna-panel');
+    const closeBtn=dnaPanel.querySelector('.btn-back');
+    if(closeBtn) closeBtn.focus();
+    if(_dnaFocusTrap) _dnaFocusTrap();
+    _dnaFocusTrap=trapFocus(dnaPanel.querySelector('.dna-panel-inner'));
+  });
+};
+const _origCloseDnaCalc=closeDnaCalc;
+closeDnaCalc=function(){
+  _origCloseDnaCalc();
+  if(_dnaFocusTrap){_dnaFocusTrap();_dnaFocusTrap=null;}
+  if(_dnaPrevFocus&&_dnaPrevFocus.focus){_dnaPrevFocus.focus();_dnaPrevFocus=null;}
+};
+
+// --- Legend & hominin filter keyboard activation ---
+document.querySelectorAll('.leg-row[tabindex="0"]').forEach(row=>{
+  row.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();row.click();}
+  });
+});
+document.querySelectorAll('.hom-filter[role="tab"]').forEach(tab=>{
+  tab.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();tab.click();}
+    const tabs=Array.from(document.querySelectorAll('.hom-filter[role="tab"]'));
+    const idx=tabs.indexOf(tab);
+    if(e.key==='ArrowRight'||e.key==='ArrowDown'){
+      e.preventDefault();const next=tabs[(idx+1)%tabs.length];
+      tabs.forEach(t=>{t.setAttribute('tabindex','-1');t.setAttribute('aria-selected','false');});
+      next.setAttribute('tabindex','0');next.setAttribute('aria-selected','true');next.focus();next.click();
+    }
+    if(e.key==='ArrowLeft'||e.key==='ArrowUp'){
+      e.preventDefault();const prev=tabs[(idx-1+tabs.length)%tabs.length];
+      tabs.forEach(t=>{t.setAttribute('tabindex','-1');t.setAttribute('aria-selected','false');});
+      prev.setAttribute('tabindex','0');prev.setAttribute('aria-selected','true');prev.focus();prev.click();
+    }
+  });
+});
+
+// ══════════════════════════════════════════════════════
 // PARTICLES
 // ══════════════════════════════════════════════════════
 function spawnParticles(){
@@ -3779,8 +4261,9 @@ function spawnParticles(){
 // INTRO ANIMATION
 // ══════════════════════════════════════════════════════
 function showIntro(){
-  // Skip intro if loading a specific node from URL
+  // Skip intro if loading a specific node from URL or reduced motion preferred
   if(new URLSearchParams(location.search).get('node')) return;
+  if(prefersReducedMotion.matches) return;
   const overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;transition:background 0s;';
   overlay.innerHTML=`
@@ -3834,6 +4317,7 @@ function applyI18n(){
   const hints=el('i-hints');if(hints)hints.innerHTML=t('hint1')+'<br>'+t('hint2');
   const si=el('search-input');if(si)si.placeholder=t('search_ph');
   set('i-leg-title',t('leg_title'));
+  set('i-leg-show-all',t('leg_show_all'));
   set('i-leg-luca',t('leg_luca'));
   set('i-leg-bact',t('leg_bact'));
   set('i-leg-arch',t('leg_arch'));
@@ -3886,6 +4370,13 @@ function applyI18n(){
     else if(mode==='chronological')btn.innerHTML='&#8594; '+t('view_chrono');
     else if(mode==='cladogram')btn.innerHTML='&#9500; '+t('view_clado');
   });
+  // Accessibility labels
+  const skipLink=document.querySelector('.skip-link');if(skipLink)skipLink.textContent=t('skip_to_tree');
+  const svgEl=document.getElementById('svg');if(svgEl)svgEl.setAttribute('aria-label',t('a11y_tree_label'));
+  panel.setAttribute('aria-label',t('a11y_panel_label'));
+  const homView=document.getElementById('hominin-view');if(homView)homView.setAttribute('aria-label',t('a11y_hominin_label'));
+  const dnaP=document.getElementById('dna-panel');if(dnaP)dnaP.setAttribute('aria-label',t('a11y_dna_label'));
+  const bcEl=document.getElementById('breadcrumb');if(bcEl)bcEl.setAttribute('aria-label',t('a11y_breadcrumb'));
   // Update play button
   const playBtn=document.getElementById('era-play');
   if(playBtn)playBtn.title=eraPlayId?t('era_pause'):t('era_play');
@@ -3895,7 +4386,7 @@ function applyI18n(){
   // Hominins tab button
   set('i-btn-hominins',t('btn_hominins'));
   // Legend "Show All"
-  set('i-show-all',t('show_all'));
+  set('i-leg-show-all',t('show_all'));
   // DNA vs label
   set('i-dna-vs',t('dna_vs'));
   // Footer

@@ -97,7 +97,7 @@ body.dragging{cursor:grabbing;}
 /* ── HEADER ── */
 #header{position:fixed;top:0;left:0;right:0;z-index:200;padding:1rem 1.5rem 3rem;
   background:linear-gradient(to bottom,var(--bg) 40%,transparent);
-  display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;}
+  display:flex;flex-direction:column;align-items:flex-start;pointer-events:none;}
 .title-wrap{pointer-events:none;}
 .title-main{font-family:var(--font-head);font-size:clamp(1.2rem,2.5vw,1.8rem);font-weight:700;
   color:var(--text-primary);letter-spacing:-0.01em;line-height:1;}
@@ -106,7 +106,7 @@ body.dragging{cursor:grabbing;}
 [data-theme="light"] .title-main{color:var(--text-primary) !important;}
 [data-theme="light"] .title-sub{color:var(--text-secondary) !important;}
 .hint-bar{font-size:0.62rem;color:var(--text-secondary);letter-spacing:0.06em;
-  line-height:2;text-align:right;pointer-events:none;opacity:0.6;}
+  line-height:1.6;text-align:left;pointer-events:none;margin-top:0.2rem;opacity:0.6;}
 
 /* ── SEARCH BAR ── */
 #search-wrap{position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:300;
@@ -380,7 +380,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 @keyframes homininGlow{0%,100%{opacity:0.3;stroke-width:1.5}50%{opacity:0.8;stroke-width:2.5}}
 
 /* ── LANGUAGE SWITCHER ── */
-#lang-switcher{position:fixed;top:1rem;right:1.2rem;z-index:400;display:flex;align-items:center;gap:0.25rem;pointer-events:all;}
+#lang-switcher{position:fixed;top:3.2rem;right:1.2rem;z-index:400;display:flex;align-items:center;gap:0.25rem;pointer-events:all;}
 .lang-btn{padding:0.35rem 0.65rem;border:1px solid var(--border);border-radius:var(--radius-sm);
   background:var(--surface);color:var(--text-secondary);font-size:0.688rem;font-weight:600;
   letter-spacing:0.06em;cursor:pointer;transition:all var(--transition-fast);font-family:var(--font-sans);}
@@ -388,7 +388,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 .lang-btn.active{background:var(--accent-primary-dim);border-color:var(--accent-primary);color:var(--accent-primary);}
 
 /* ── THEME TOGGLE ── */
-#theme-btn{position:fixed;top:3rem;right:1.2rem;z-index:400;width:30px;height:30px;
+#theme-btn{position:fixed;top:5.2rem;right:1.2rem;z-index:400;width:30px;height:30px;
   border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--border);
   color:var(--text-secondary);font-size:0.85rem;cursor:pointer;
   display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);}
@@ -1002,7 +1002,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 </div>
 
 <!-- SEARCH -->
-<div id="search-wrap" style="position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:300;pointer-events:all;display:flex;align-items:center;gap:8px;">
+<div id="search-wrap" style="position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:300;pointer-events:all;display:flex;align-items:center;gap:8px;max-width:calc(100% - 10rem);">
   <span id="search-icon" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--text-secondary);opacity:0.6;font-size:0.8rem;pointer-events:none;" aria-hidden="true">🔍</span>
   <input id="search-input" type="text" placeholder="Search species…" autocomplete="off" aria-label="Search species by name, latin name, or description" role="combobox" aria-expanded="false" aria-controls="search-results">
   <div id="search-results" role="listbox"></div>

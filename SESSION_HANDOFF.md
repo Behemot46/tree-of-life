@@ -1,3 +1,63 @@
+# Session Handoff — 2026-03-15 (p18: Fix Overlapping Header Controls)
+
+**Status: done**
+**PR:** https://github.com/Behemot46/tree-of-life/pull/57
+**Branch:** `claude/sad-keller`
+
+## 1. Session Goal
+Fix overlapping UI controls in the top-right corner — hint text, language switcher (EN/עב/РУ), search bar buttons, and theme toggle were all competing for the same space.
+
+## 2. What I Changed
+
+### index.html (CSS changes only)
+- **Header layout** — changed `#header` from `display:flex; justify-content:space-between` to `flex-direction:column; align-items:flex-start` so hint-bar renders below the title instead of beside it
+- **Hint-bar repositioned** — `text-align:left` (was `right`), `line-height:1.6` (was `2`), added `margin-top:0.2rem`
+- **Language switcher moved down** — `top:3.2rem` (was `1rem`) to sit below the search bar row
+- **Theme toggle moved down** — `top:5.2rem` (was `3rem`) to sit below the lang-switcher
+- **Search-wrap constrained** — added `max-width:calc(100% - 10rem)` to prevent buttons from bleeding into controls area
+
+## 3. Why These Changes Were Made
+- The header hint text ("Scroll to zoom | Drag to pan") was `text-align:right` in a flex row, overlapping with the language buttons
+- The search bar buttons (Hide Extinct, Hominins) extended into the lang-switcher at `top:1rem`
+- All three layers (z-index 200, 300, 400) occupied the same visual space in the top-right corner
+
+## 4. Files Touched
+- `index.html` — CSS only (5 properties changed across 4 selectors)
+
+## 5. Merge Conflicts Resolved
+- **3 conflict zones** in index.html from upstream CSS variable migration (PR #56 merged to main):
+  1. **Header/hint-bar block** — kept main's CSS variables (`var(--bg)`, `var(--text-primary)`, etc.), applied flex-direction:column and hint-bar repositioning
+  2. **Lang-switcher/theme-btn block** — kept main's CSS variable styling, applied position offsets (top:3.2rem, top:5.2rem)
+  3. **Search-wrap inline style** — kept main's CSS variable for icon color, applied max-width constraint
+
+## 6. Risks / Caveats
+- Moving lang-switcher to `top:3.2rem` means it sits lower than before — may overlap with tree content on very small viewports
+- The hint-bar is now left-aligned below the title; the right side of the header gradient area is empty
+
+## 7. Tests Performed
+- Visual verification via preview screenshot: hint text no longer overlaps lang buttons
+- Lang-switcher buttons fully visible and separated from search bar
+- Theme toggle accessible below lang-switcher
+
+## 8. Not Tested
+- Light theme
+- RTL (Hebrew) layout
+- Mobile responsiveness
+- Russian language switching
+
+## 9. Known Issues Still Open
+1. Hominin overlay HTML still in index.html (dead code from p16)
+2. Timeline not fully interactive
+3. Panel modularization opportunity
+4. `panelHistory` and `navStack` are parallel stacks
+
+## 10. Recommended Next Steps
+- Test mobile layout — lang-switcher at 3.2rem may need responsive adjustment
+- Test RTL layout — hint-bar left-alignment may need to flip for Hebrew
+- Consider hiding hint-bar after first interaction (it's guidance text)
+
+---
+
 # Session Handoff — 2026-03-15 (p17: Subtree-Weighted Radial Spacing)
 
 **Status: done**

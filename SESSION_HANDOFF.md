@@ -1,3 +1,35 @@
+# Session Handoff — 2026-03-15 (p20 — Naturalist Node Artwork)
+
+**Status: done**
+**Branch:** `claude/agitated-hawking`
+
+## 1. Session Goal
+Expand the tree node icon library from 20 monochrome SVG silhouettes to 37 distinct categories, improve node-to-icon mapping accuracy, and extract icon code to a standalone module.
+
+## 2. What I Changed
+- Created `js/nodeIcons.js` — new module with 37 SVG icon paths and `getIconGroup()` mapping function
+- Removed inline `NODE_ICONS` map and `getIconGroup()` from `index.html` (~95 lines removed)
+- Added `<script src="js/nodeIcons.js"></script>` to index.html
+- 17 new icon categories: spirochete, protist, amoeba, diatom, dinoflagellate, algae, yeast, moss, fern, conifer, flower, jellyfish, octopus, butterfly, spider, shark, whale, turtle, dinosaur, rodent, bat
+- Improved mapping: protists, plants, and specific animals now get distinct icons instead of generic fallbacks
+
+## 3. New Icon Categories Added
+spirochete, protist, amoeba, diatom, dinoflagellate, algae, yeast, moss, fern, conifer, flower, jellyfish, octopus, butterfly, spider, shark, whale, turtle, dinosaur, rodent, bat
+
+## 4. Known Issues / Follow-ups
+- `platypus` — uses generic mammal, could have unique silhouette
+- Some deep species nodes inherit parent icon via ancestry walk — acceptable but could be refined
+
+## 5. Files Touched
+| File | Change |
+|------|--------|
+| `js/nodeIcons.js` | **NEW** — 37 icon SVG paths + getIconGroup() (~180 lines) |
+| `index.html` | Removed inline NODE_ICONS + getIconGroup(), added script tag |
+| `PROJECT_PROGRESS.md` | Added p20 milestone entry |
+| `SESSION_HANDOFF.md` | This file |
+
+---
+
 # Session Handoff — 2026-03-15 (p21 — Species Panel Visual Identity)
 
 **Status: done**
@@ -56,19 +88,6 @@ Replace emoji-based species panel headers with hero images and styled SVG fallba
 
 **Status: done**
 **Branch:** `claude/crazy-villani`
-
-## 1. Session Goal
-Build a DNA similarity calculator: users pick two species and see estimated DNA similarity %, divergence time, shared ancestor, and educational context.
-
-## 2. What I Changed
-
-### js/dnaSimilarity.js (NEW — ~130 lines)
-- `DNA_KNOWN` — 35 curated DNA similarity pairs with published sources (Nature, Science) where available
-- `estimateFromDivergence(mya)` — piecewise linear model mapping divergence time to estimated DNA similarity %
-- `findLCA(nodeA, nodeB)` — walks `_parent` chains to find lowest common ancestor
-- `estimateDnaSimilarity(nodeA, nodeB)` — main function: checks known lookup, falls back to estimation
-- `DNA_FUN_FACTS` — 8 educational facts by similarity threshold
-- `getDnaFunFact(percent, speciesName)` — returns relevant fun fact
 
 ### index.html
 - **HTML**: DNA Compare button (`#btn-dna-calc`), modal panel (`#dna-panel`) with species selectors, search overlay, results display, 4 quick presets

@@ -2518,224 +2518,51 @@ function generateSpeciesIllustration(node) {
   );
 }
 
+// ── Photo cache + Wikipedia photo fetcher (module scope) ──
+window._photoCache = window._photoCache || {};
+window._failedPhotos = window._failedPhotos || new Set();
+
+async function fetchWikiPhoto(nodeId, wikiTitle, imgEl, fallbackEl, creditEl) {
+  const cacheKey = nodeId;
+  if (window._failedPhotos.has(cacheKey)) return;
+  if (window._photoCache[cacheKey]) {
+    const cached = window._photoCache[cacheKey];
+    imgEl.src = cached.url;
+    imgEl.style.display = 'block';
+    if (fallbackEl) fallbackEl.style.display = 'none';
+    if (creditEl && cached.credit) creditEl.textContent = cached.credit;
+    return;
+  }
+  try {
+    const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wikiTitle)}`, {
+      headers: { 'Accept': 'application/json' }
+    });
+    if (!res.ok) throw new Error('API error');
+    const data = await res.json();
+    const thumb = data.thumbnail;
+    if (thumb && thumb.source) {
+      const url = thumb.source.replace(/\/\d+px-/, '/640px-');
+      window._photoCache[cacheKey] = { url, credit: 'Wikipedia / Wikimedia Commons' };
+      imgEl.src = url;
+      imgEl.style.display = 'block';
+      if (fallbackEl) fallbackEl.style.display = 'none';
+      if (creditEl) creditEl.textContent = 'Wikipedia / Wikimedia Commons';
+    } else {
+      throw new Error('No thumbnail');
+    }
+  } catch(e) {
+    window._failedPhotos.add(cacheKey);
+  }
+}
+
+// ── Panel rendering ──
 function renderPanelContent(node) {
   const p = document.getElementById('panel') || document.getElementById('info-panel');
   if (!p) return;
   const extinctBadge = node.extinct
     ? '<span style="background:#ef4444;color:white;font-size:10px;padding:2px 8px;border-radius:9999px;font-family:Inter,sans-serif;font-weight:600;letter-spacing:0.05em;">† EXTINCT</span>'
     : '';
-  // WIKI_TITLES loaded from js/speciesData.js
-  // PHOTO_MAP loaded from js/speciesData.js
-
-  // Cache for fetched photos + failed-photo suppression
-  window._photoCache = window._photoCache || {};
-  window._failedPhotos = window._failedPhotos || new Set();
-
-  // Fetch photo from Wikipedia API and update the panel image
-  async function fetchWikiPhoto(nodeId, wikiTitle, imgEl, fallbackEl, creditEl) {
-    const cacheKey = nodeId;
-    // Skip if previously failed — don't retry
-    if (window._failedPhotos.has(cacheKey)) return;
-    if (window._photoCache[cacheKey]) {
-      const cached = window._photoCache[cacheKey];
-      imgEl.src = cached.url;
-      imgEl.style.display = 'block';
-      if (fallbackEl) fallbackEl.style.display = 'none';
-      if (creditEl && cached.credit) creditEl.textContent = cached.credit;
-      return;
-    }
-    try {
-      const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wikiTitle)}`, {
-        headers: { 'Accept': 'application/json' }
-      });
-      if (!res.ok) throw new Error('API error');
-      const data = await res.json();
-      const thumb = data.thumbnail;
-      if (thumb && thumb.source) {
-        // Request a larger version by replacing width
-        const url = thumb.source.replace(/\/\d+px-/, '/640px-');
-        window._photoCache[cacheKey] = { url, credit: 'Wikipedia / Wikimedia Commons' };
-        imgEl.src = url;
-        imgEl.style.display = 'block';
-        if (fallbackEl) fallbackEl.style.display = 'none';
-        if (creditEl) creditEl.textContent = 'Wikipedia / Wikimedia Commons';
-      } else {
-        throw new Error('No thumbnail');
-      }
-    } catch(e) {
-      window._failedPhotos.add(cacheKey);
-      // fallback already showing
-    }
-  }
-
-  const PHOTO_MAP = {
-    // Bacteria & microbes
-    'luca':                  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Hydrothermal_vent_-_Lost_City_2005.jpg/640px-Hydrothermal_vent_-_Lost_City_2005.jpg', credit:'NOAA/Wikipedia, CC BY 2.0'},
-    'bacteria':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Bacteria_collage.jpg/640px-Bacteria_collage.jpg', credit:'Wikipedia, CC BY-SA 3.0'},
-    'cyanobacteria':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/AnabaenaFS.jpg/640px-AnabaenaFS.jpg', credit:'Kristian Peters, CC BY-SA 3.0'},
-    'proteobacteria':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/EscherichiaColi_NIAID.jpg/640px-EscherichiaColi_NIAID.jpg', credit:'NIAID, CC BY 2.0'},
-    'ecoli':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/EscherichiaColi_NIAID.jpg/640px-EscherichiaColi_NIAID.jpg', credit:'NIAID, CC BY 2.0'},
-    'helicobacter':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d9/EMpylori.jpg/640px-EMpylori.jpg', credit:'Yutaka Tsutsumi, CC BY 2.5'},
-    'vibrio-cholerae':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Cholera_bacteria_SEM.jpg/640px-Cholera_bacteria_SEM.jpg', credit:'Tom Kirn/Louisa Howard, Public Domain'},
-    'firmicutes':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Lactobacillus_acidophilus_SEM.jpg/640px-Lactobacillus_acidophilus_SEM.jpg', credit:'Bob Blaylock, CC BY-SA 3.0'},
-    'lactobacillus':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Lactobacillus_acidophilus_SEM.jpg/640px-Lactobacillus_acidophilus_SEM.jpg', credit:'Bob Blaylock, CC BY-SA 3.0'},
-    'clostridium-botulinum': {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Clostridium_botulinum.jpg/640px-Clostridium_botulinum.jpg', credit:'CDC, Public Domain'},
-    'actinobacteria':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Streptomyces_coelicolor.jpg/640px-Streptomyces_coelicolor.jpg', credit:'Ninjatacoshell, CC BY-SA 3.0'},
-    'streptomyces':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Streptomyces_coelicolor.jpg/640px-Streptomyces_coelicolor.jpg', credit:'Ninjatacoshell, CC BY-SA 3.0'},
-    'mycobacterium-tb':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/TB_Culture.jpg/640px-TB_Culture.jpg', credit:'CDC, Public Domain'},
-    'deinococcus':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Deinococcus_radiodurans.jpg/640px-Deinococcus_radiodurans.jpg', credit:'Michael Daly, Public Domain'},
-    'bacteroides':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Bacteroides_fragilis_01.jpg/640px-Bacteroides_fragilis_01.jpg', credit:'CDC, Public Domain'},
-    'prochlorococcus':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Prochlorococcus.jpg/640px-Prochlorococcus.jpg', credit:'Luke Thompson/Chisholm Lab, CC BY 2.5'},
-    // Archaea
-    'archaea':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Halobacterium_sp._NRC-1.jpg/640px-Halobacterium_sp._NRC-1.jpg', credit:'NASA, Public Domain'},
-    'halobacterium':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Halobacterium_sp._NRC-1.jpg/640px-Halobacterium_sp._NRC-1.jpg', credit:'NASA, Public Domain'},
-    'sulfolobus':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Sulfolobus_solfataricus_electron_micrograph.jpg/640px-Sulfolobus_solfataricus_electron_micrograph.jpg', credit:'Dr. Wolfram Zillig, Public Domain'},
-    'pyrolobus':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Hydrothermal_vent_-_Lost_City_2005.jpg/640px-Hydrothermal_vent_-_Lost_City_2005.jpg', credit:'NOAA, CC BY 2.0'},
-    'lokiarchaeota':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Halobacterium_sp._NRC-1.jpg/640px-Halobacterium_sp._NRC-1.jpg', credit:'NASA, Public Domain'},
-    // Fungi
-    'fungi':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Amanita_muscaria_3_vliegenzwammen_op_rij.jpg/640px-Amanita_muscaria_3_vliegenzwammen_op_rij.jpg', credit:'Onderwijsgek, CC BY-SA 3.0'},
-    'ascomycetes':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/S_cerevisiae_under_DIC_microscopy.jpg/640px-S_cerevisiae_under_DIC_microscopy.jpg', credit:'Masur, Public Domain'},
-    'saccharomyces':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/S_cerevisiae_under_DIC_microscopy.jpg/640px-S_cerevisiae_under_DIC_microscopy.jpg', credit:'Masur, Public Domain'},
-    'penicillium':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Penicillium_chrysogenum.jpg/640px-Penicillium_chrysogenum.jpg', credit:'Ajc1, CC BY-SA 3.0'},
-    'basidiomycetes':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Amanita_muscaria_3_vliegenzwammen_op_rij.jpg/640px-Amanita_muscaria_3_vliegenzwammen_op_rij.jpg', credit:'Onderwijsgek, CC BY-SA 3.0'},
-    'amanita-muscaria':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Amanita_muscaria_3_vliegenzwammen_op_rij.jpg/640px-Amanita_muscaria_3_vliegenzwammen_op_rij.jpg', credit:'Onderwijsgek, CC BY-SA 3.0'},
-    'armillaria':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Armillaria_ostoyae.jpg/640px-Armillaria_ostoyae.jpg', credit:'USFS, Public Domain'},
-    'psilocybe':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Psilocybe_cubensis_Maui.jpg/640px-Psilocybe_cubensis_Maui.jpg', credit:'Workman, CC BY-SA 3.0'},
-    'chytrids':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Litoria_caerulea_White%27s_tree_frog.jpg/640px-Litoria_caerulea_White%27s_tree_frog.jpg', credit:'LiquidGhoul, CC BY-SA 3.0'},
-    'batrachochytrium':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Litoria_caerulea_White%27s_tree_frog.jpg/640px-Litoria_caerulea_White%27s_tree_frog.jpg', credit:'LiquidGhoul, CC BY-SA 3.0'},
-    // Plants
-    'viridiplantae':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Sunflower_from_Silesia2.jpg/640px-Sunflower_from_Silesia2.jpg', credit:'Malcom Manners, CC BY 2.0'},
-    'mosses':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Sphagnum_Moss.jpg/640px-Sphagnum_Moss.jpg', credit:'Bff, CC BY-SA 3.0'},
-    'sphagnum':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Sphagnum_Moss.jpg/640px-Sphagnum_Moss.jpg', credit:'Bff, CC BY-SA 3.0'},
-    'liverworts':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Marchantia_polymorpha.jpg/640px-Marchantia_polymorpha.jpg', credit:'Hermann Schachner, CC0'},
-    'marchantia':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Marchantia_polymorpha.jpg/640px-Marchantia_polymorpha.jpg', credit:'Hermann Schachner, CC0'},
-    'angiosperms':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Sunflower_from_Silesia2.jpg/640px-Sunflower_from_Silesia2.jpg', credit:'Malcom Manners, CC BY 2.0'},
-    'sunflower':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Sunflower_from_Silesia2.jpg/640px-Sunflower_from_Silesia2.jpg', credit:'Malcom Manners, CC BY 2.0'},
-    'arabidopsis':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Arabidopsis_thaliana_inflorescens.jpg/640px-Arabidopsis_thaliana_inflorescens.jpg', credit:'Nikolai Sitnov, Public Domain'},
-    'rafflesia':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Rafflesia_arnoldii.jpg/640px-Rafflesia_arnoldii.jpg', credit:'Rendra Regen Rais, CC BY 2.0'},
-    'titan-arum':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Amorphophallus_titanum2.jpg/640px-Amorphophallus_titanum2.jpg', credit:'Rhett A. Butler, CC BY 2.5'},
-    'mimosa':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Mimosa_pudica_touch.jpg/640px-Mimosa_pudica_touch.jpg', credit:'Hrushikesh, CC BY-SA 3.0'},
-    'gymnosperms':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/General_Sherman_tree_looking_up.jpg/640px-General_Sherman_tree_looking_up.jpg', credit:'Jim Bahn, CC BY 2.0'},
-    'wollemi-pine':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Wollemi_Pine_in_habitat.jpg/640px-Wollemi_Pine_in_habitat.jpg', credit:'Brent Miller, CC BY 2.0'},
-    'welwitschia':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Welwitschia_mirabilis2.jpg/640px-Welwitschia_mirabilis2.jpg', credit:'Thomas Schoch, CC BY-SA 2.5'},
-    'sequoia':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/General_Sherman_tree_looking_up.jpg/640px-General_Sherman_tree_looking_up.jpg', credit:'Jim Bahn, CC BY 2.0'},
-    'ferns':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Cyathea_cooperi.jpg/640px-Cyathea_cooperi.jpg', credit:'Photohound, CC BY-SA 3.0'},
-    'tree-fern':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Cyathea_cooperi.jpg/640px-Cyathea_cooperi.jpg', credit:'Photohound, CC BY-SA 3.0'},
-    'azolla':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Azolla_caroliniana.jpg/640px-Azolla_caroliniana.jpg', credit:'Christian Fischer, CC BY-SA 3.0'},
-    // Animals
-    'metazoa':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Turritopsis_nutricula.jpg/640px-Turritopsis_nutricula.jpg', credit:'Bachware, Public Domain'},
-    'porifera':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Coral_reef_at_palmyra.jpg/640px-Coral_reef_at_palmyra.jpg', credit:'USFWS, Public Domain'},
-    'cnidaria':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Turritopsis_nutricula.jpg/640px-Turritopsis_nutricula.jpg', credit:'Bachware, Public Domain'},
-    'turritopsis':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Turritopsis_nutricula.jpg/640px-Turritopsis_nutricula.jpg', credit:'Bachware, Public Domain'},
-    'coral-reef':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Coral_reef_at_palmyra.jpg/640px-Coral_reef_at_palmyra.jpg', credit:'USFWS, Public Domain'},
-    'arthropoda':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Odontodactylus_scyllarus.jpg/640px-Odontodactylus_scyllarus.jpg', credit:'Roy Caldwell, Public Domain'},
-    'insecta':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Apis_mellifera_Western_honey_bee.jpg/640px-Apis_mellifera_Western_honey_bee.jpg', credit:'Charles J. Sharp, CC BY-SA 4.0'},
-    'honey-bee':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Apis_mellifera_Western_honey_bee.jpg/640px-Apis_mellifera_Western_honey_bee.jpg', credit:'Charles J. Sharp, CC BY-SA 4.0'},
-    'mantis-shrimp':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Odontodactylus_scyllarus.jpg/640px-Odontodactylus_scyllarus.jpg', credit:'Roy Caldwell, Public Domain'},
-    'horseshoe-crab':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Horseshoe_crab_dig.jpg/640px-Horseshoe_crab_dig.jpg', credit:'Steve Droter/CBF, CC BY 2.0'},
-    'mollusca':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Octopus3.jpg/640px-Octopus3.jpg', credit:'Albert Kok, CC BY-SA 3.0'},
-    'cephalopods':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Octopus3.jpg/640px-Octopus3.jpg', credit:'Albert Kok, CC BY-SA 3.0'},
-    'octopus':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Octopus3.jpg/640px-Octopus3.jpg', credit:'Albert Kok, CC BY-SA 3.0'},
-    'octopus-day':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Octopus3.jpg/640px-Octopus3.jpg', credit:'Albert Kok, CC BY-SA 3.0'},
-    'nautilus':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Nautilus_pompilius_%28head%29.jpg/640px-Nautilus_pompilius_%28head%29.jpg', credit:'Profberger, CC BY-SA 4.0'},
-    'echinodermata':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Coral_reef_at_palmyra.jpg/640px-Coral_reef_at_palmyra.jpg', credit:'USFWS, Public Domain'},
-    'chordata':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Coelacanth_cast.jpg/640px-Coelacanth_cast.jpg', credit:'Citron, CC BY-SA 3.0'},
-    'fish':                  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/White_shark.jpg/640px-White_shark.jpg', credit:'Pterantula, CC BY-SA 3.0'},
-    'sharks':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/White_shark.jpg/640px-White_shark.jpg', credit:'Pterantula, CC BY-SA 3.0'},
-    'white-shark':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/White_shark.jpg/640px-White_shark.jpg', credit:'Pterantula, CC BY-SA 3.0'},
-    'coelacanth':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Coelacanth_cast.jpg/640px-Coelacanth_cast.jpg', credit:'Citron, CC BY-SA 3.0'},
-    'amphibia':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Litoria_caerulea_White%27s_tree_frog.jpg/640px-Litoria_caerulea_White%27s_tree_frog.jpg', credit:'LiquidGhoul, CC BY-SA 3.0'},
-    'reptilia':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Komodo_dragon_%28Varanus_komodoensis%29_-edit2.jpg/640px-Komodo_dragon_%28Varanus_komodoensis%29_-edit2.jpg', credit:'Adhi Rachdian, CC BY 2.0'},
-    'komodo-dragon':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Komodo_dragon_%28Varanus_komodoensis%29_-edit2.jpg/640px-Komodo_dragon_%28Varanus_komodoensis%29_-edit2.jpg', credit:'Adhi Rachdian, CC BY 2.0'},
-    'tuatara':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Tuatara_%28Sphenodon_punctatus%29.jpg/640px-Tuatara_%28Sphenodon_punctatus%29.jpg', credit:'KeresH, CC BY-SA 3.0'},
-    'aves':                  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Falco_peregrinus_-_01.jpg/640px-Falco_peregrinus_-_01.jpg', credit:'Juan Lacruz, CC BY-SA 3.0'},
-    'birds':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Falco_peregrinus_-_01.jpg/640px-Falco_peregrinus_-_01.jpg', credit:'Juan Lacruz, CC BY-SA 3.0'},
-    'archaeopteryx':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Archaeopteryx_lithographica_%28Berlin_specimen%29.jpg/640px-Archaeopteryx_lithographica_%28Berlin_specimen%29.jpg', credit:'H. Raab, CC BY-SA 3.0'},
-    'peregrine-falcon':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Falco_peregrinus_-_01.jpg/640px-Falco_peregrinus_-_01.jpg', credit:'Juan Lacruz, CC BY-SA 3.0'},
-    'mammalia':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Humpback_whales_in_singing_position.jpg/640px-Humpback_whales_in_singing_position.jpg', credit:'NOAA, Public Domain'},
-    'cetaceans':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Humpback_whales_in_singing_position.jpg/640px-Humpback_whales_in_singing_position.jpg', credit:'NOAA, Public Domain'},
-    'blue-whale':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Humpback_whales_in_singing_position.jpg/640px-Humpback_whales_in_singing_position.jpg', credit:'NOAA, Public Domain'},
-    'naked-mole-rat':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Naked_mole_rat.jpg/640px-Naked_mole_rat.jpg', credit:'Jedimentat44, CC BY 2.0'},
-    'platypus':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Platypus.jpg/640px-Platypus.jpg', credit:'Stefan Kraft, CC BY-SA 3.0'},
-    // Primates & great apes
-    'primates':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/ChimpanzeeZoo.jpg/640px-ChimpanzeeZoo.jpg', credit:'Thomas Lersch, CC BY-SA 3.0'},
-    'great-apes':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Gorilla_gorilla_gorilla_-_Gorille_des_plaines_de_l%27ouest.jpg/640px-Gorilla_gorilla_gorilla_-_Gorille_des_plaines_de_l%27ouest.jpg', credit:'Brocken Inaglory, CC BY-SA 3.0'},
-    'gorilla':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Gorilla_gorilla_gorilla_-_Gorille_des_plaines_de_l%27ouest.jpg/640px-Gorilla_gorilla_gorilla_-_Gorille_des_plaines_de_l%27ouest.jpg', credit:'Brocken Inaglory, CC BY-SA 3.0'},
-    'orangutan':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Orang_Utan%2C_Semenggok_Forest_Reserve%2C_Sarawak%2C_Borneo%2C_Malaysia.JPG/640px-Orang_Utan%2C_Semenggok_Forest_Reserve%2C_Sarawak%2C_Borneo%2C_Malaysia.JPG', credit:'Thorsten Bachner, CC BY-SA 3.0'},
-    'chimpanzee':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/ChimpanzeeZoo.jpg/640px-ChimpanzeeZoo.jpg', credit:'Thomas Lersch, CC BY-SA 3.0'},
-    'homo-sapiens':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Akha_woman.jpg/640px-Akha_woman.jpg', credit:'Steve Evans, CC BY 2.0'},
-    // Protists
-    'protists':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Diatoms_through_the_microscope.jpg/640px-Diatoms_through_the_microscope.jpg', credit:'Wipeter, CC BY-SA 3.0'},
-    'alveolates':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Dinoflagellate_bloom.jpg/640px-Dinoflagellate_bloom.jpg', credit:'NOAA, Public Domain'},
-    'plasmodium':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Plasmodium_falciparum_01.png/640px-Plasmodium_falciparum_01.png', credit:'CDC, Public Domain'},
-    'dinoflagellates':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a8/Dinoflagellate_bloom.jpg/640px-Dinoflagellate_bloom.jpg', credit:'NOAA, Public Domain'},
-    'diatoms':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Diatoms_through_the_microscope.jpg/640px-Diatoms_through_the_microscope.jpg', credit:'Wipeter, CC BY-SA 3.0'},
-    'phytophthora':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Phytophthora_infestans_on_tomato.jpg/640px-Phytophthora_infestans_on_tomato.jpg', credit:'Ninjatacoshell, CC BY-SA 3.0'},
-    'amoeba':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Amoeba_proteus_with_many_pseudopodia.jpg/640px-Amoeba_proteus_with_many_pseudopodia.jpg', credit:'Deuterostome, CC BY-SA 3.0'},
-    'volvox':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Volvox_aureus.jpg/640px-Volvox_aureus.jpg', credit:'Frank Fox, CC BY-SA 3.0'},
-    // Hominin fossils
-    'homo-naledi':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Homo_naledi_skull.jpg/640px-Homo_naledi_skull.jpg', credit:'Lee Roger Berger, CC BY 4.0'},
-    'h_naledi':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Homo_naledi_skull.jpg/640px-Homo_naledi_skull.jpg', credit:'Lee Roger Berger, CC BY 4.0'},
-    'homo-floresiensis':     {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Homo_floresiensis_cave.jpg/640px-Homo_floresiensis_cave.jpg', credit:'Rosino, CC BY-SA 2.0'},
-    'h_floresiensis':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Homo_floresiensis_cave.jpg/640px-Homo_floresiensis_cave.jpg', credit:'Rosino, CC BY-SA 2.0'},
-    'h_luzonensis':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/44/Callao_Cave_Entrance.jpg/640px-Callao_Cave_Entrance.jpg', credit:'Judgefloro, CC0'},
-    'denisovan':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Denisova_Cave_main_gallery.jpg/640px-Denisova_Cave_main_gallery.jpg', credit:'Демин Алексей Барнаул, CC BY-SA 3.0'},
-    'h_neanderthalensis':    {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Homo_neanderthalensis.jpg/640px-Homo_neanderthalensis.jpg', credit:'Erich Ferdinand, CC BY 2.0'},
-    'h_erectus':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Turkana_Boy_1.JPG/640px-Turkana_Boy_1.JPG', credit:'Locutus Borg, CC BY-SA 3.0'},
-    'h_heidelbergensis':     {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Homo_heidelbergensis-male.jpg/640px-Homo_heidelbergensis-male.jpg', credit:'Cicero Moraes, CC BY-SA 3.0'},
-    'h_habilis':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Homo_habilis-2.JPG/640px-Homo_habilis-2.JPG', credit:'Lillyundfreya, CC BY-SA 2.5'},
-    'au_afarensis':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Lucy_Skeleton.jpg/640px-Lucy_Skeleton.jpg', credit:'Cleveland Museum, CC BY 4.0'},
-    'au_africanus':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Australopithecus_africanus_-_Cast_of_taung_child.jpg/640px-Australopithecus_africanus_-_Cast_of_taung_child.jpg', credit:'José Braga/Didier Descouens, CC BY-SA 4.0'},
-    'sahelanthropus':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg/640px-Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg', credit:'Didier Descouens, CC BY-SA 4.0'},
-    'ardipithecus_r':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Ardipithecus_ramidus_-_Scientific_reconstruction.jpg/640px-Ardipithecus_ramidus_-_Scientific_reconstruction.jpg', credit:'Science, Educational use'},
-    // Tree ID aliases (match PHOTO_MAP keys to actual tree node IDs)
-    'plantae':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Sunflower_from_Silesia2.jpg/640px-Sunflower_from_Silesia2.jpg', credit:'Malcom Manners, CC BY 2.0'},
-    'bryophytes':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Sphagnum_Moss.jpg/640px-Sphagnum_Moss.jpg', credit:'Bff, CC BY-SA 3.0'},
-    'animalia':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Biodiversity_in_FS.jpg/640px-Biodiversity_in_FS.jpg', credit:'Wikimedia, CC BY-SA 4.0'},
-    'invertebrates':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Odontodactylus_scyllarus.jpg/640px-Odontodactylus_scyllarus.jpg', credit:'Roy Caldwell, Public Domain'},
-    'insects':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Apis_mellifera_Western_honey_bee.jpg/640px-Apis_mellifera_Western_honey_bee.jpg', credit:'Charles J. Sharp, CC BY-SA 4.0'},
-    'cnidarians':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Turritopsis_nutricula.jpg/640px-Turritopsis_nutricula.jpg', credit:'Bachware, Public Domain'},
-    'echinoderms':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Fromia_monilis_%28Seastar%29.jpg/640px-Fromia_monilis_%28Seastar%29.jpg', credit:'Nhobgood, CC BY-SA 3.0'},
-    'annelids':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Regenwurm1.jpg/640px-Regenwurm1.jpg', credit:'Michael Linnenbach, CC BY-SA 3.0'},
-    'vertebrates':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Coelacanth_cast.jpg/640px-Coelacanth_cast.jpg', credit:'Citron, CC BY-SA 3.0'},
-    'shark':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/White_shark.jpg/640px-White_shark.jpg', credit:'Pterantula, CC BY-SA 3.0'},
-    'reptiles':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Komodo_dragon_%28Varanus_komodoensis%29_-edit2.jpg/640px-Komodo_dragon_%28Varanus_komodoensis%29_-edit2.jpg', credit:'Adhi Rachdian, CC BY 2.0'},
-    'amphibians':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Litoria_caerulea_White%27s_tree_frog.jpg/640px-Litoria_caerulea_White%27s_tree_frog.jpg', credit:'LiquidGhoul, CC BY-SA 3.0'},
-    'mammals':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1c/Humpback_whales_in_singing_position.jpg/640px-Humpback_whales_in_singing_position.jpg', credit:'NOAA, Public Domain'},
-    'coral':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Coral_reef_at_palmyra.jpg/640px-Coral_reef_at_palmyra.jpg', credit:'USFWS, Public Domain'},
-    'mimosa-pudica':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Mimosa_pudica_touch.jpg/640px-Mimosa_pudica_touch.jpg', credit:'Hrushikesh, CC BY-SA 3.0'},
-    'wollemia':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Wollemi_Pine_in_habitat.jpg/640px-Wollemi_Pine_in_habitat.jpg', credit:'Brent Miller, CC BY 2.0'},
-    'amoeba-proteus':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Amoeba_proteus_with_many_pseudopodia.jpg/640px-Amoeba_proteus_with_many_pseudopodia.jpg', credit:'Deuterostome, CC BY-SA 3.0'},
-    // Missing nodes — newly added
-    'nostoc':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/AnabaenaFS.jpg/640px-AnabaenaFS.jpg', credit:'Kristian Peters, CC BY-SA 3.0'},
-    'spirochetes':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Treponema_pallidum.jpg/640px-Treponema_pallidum.jpg', credit:'CDC, Public Domain'},
-    'euryarchaeota':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Halobacterium_sp._NRC-1.jpg/640px-Halobacterium_sp._NRC-1.jpg', credit:'NASA, Public Domain'},
-    'methanobacterium':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Halobacterium_sp._NRC-1.jpg/640px-Halobacterium_sp._NRC-1.jpg', credit:'NASA, Public Domain'},
-    'asgard':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/Hydrothermal_vent_-_Lost_City_2005.jpg/640px-Hydrothermal_vent_-_Lost_City_2005.jpg', credit:'NOAA, CC BY 2.0'},
-    'eukaryota':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Diatoms_through_the_microscope.jpg/640px-Diatoms_through_the_microscope.jpg', credit:'Wipeter, CC BY-SA 3.0'},
-    'stramenopiles':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Diatoms_through_the_microscope.jpg/640px-Diatoms_through_the_microscope.jpg', credit:'Wipeter, CC BY-SA 3.0'},
-    'amoebozoa':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8e/Amoeba_proteus_with_many_pseudopodia.jpg/640px-Amoeba_proteus_with_many_pseudopodia.jpg', credit:'Deuterostome, CC BY-SA 3.0'},
-    'paramecium':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/Paramecium_caudatum_Ehrenberg%2C_1833.jpg/640px-Paramecium_caudatum_Ehrenberg%2C_1833.jpg', credit:'Barfooz, CC BY-SA 3.0'},
-    // Additional hominin coverage
-    'par_boisei':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Paranthropus_boisei.JPG/640px-Paranthropus_boisei.JPG', credit:'Lillyundfreya, CC BY-SA 3.0'},
-    'par_robustus':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Paranthropus_boisei.JPG/640px-Paranthropus_boisei.JPG', credit:'Lillyundfreya, CC BY-SA 3.0'},
-    'h_antecessor':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Homo_heidelbergensis-male.jpg/640px-Homo_heidelbergensis-male.jpg', credit:'Cicero Moraes, CC BY-SA 3.0'},
-    'h_bodoensis':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Homo_heidelbergensis-male.jpg/640px-Homo_heidelbergensis-male.jpg', credit:'Cicero Moraes, CC BY-SA 3.0'},
-    'h_rudolfensis':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/Homo_habilis-2.JPG/640px-Homo_habilis-2.JPG', credit:'Lillyundfreya, CC BY-SA 2.5'},
-    'h_longi':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Homo_heidelbergensis-male.jpg/640px-Homo_heidelbergensis-male.jpg', credit:'Cicero Moraes, CC BY-SA 3.0'},
-    'au_sediba':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Lucy_Skeleton.jpg/640px-Lucy_Skeleton.jpg', credit:'Cleveland Museum, CC BY 4.0'},
-    'au_anamensis':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Lucy_Skeleton.jpg/640px-Lucy_Skeleton.jpg', credit:'Cleveland Museum, CC BY 4.0'},
-    'kenyanthropus':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg/640px-Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg', credit:'Didier Descouens, CC BY-SA 4.0'},
-    'orrorin':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg/640px-Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg', credit:'Didier Descouens, CC BY-SA 4.0'},
-    'par_aethiopicus':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Paranthropus_boisei.JPG/640px-Paranthropus_boisei.JPG', credit:'Lillyundfreya, CC BY-SA 3.0'},
-    'au_bahrelghazali':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Lucy_Skeleton.jpg/640px-Lucy_Skeleton.jpg', credit:'Cleveland Museum, CC BY 4.0'},
-    'au_deyiremeda':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Lucy_Skeleton.jpg/640px-Lucy_Skeleton.jpg', credit:'Cleveland Museum, CC BY 4.0'},
-    'au_garhi':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Lucy_Skeleton.jpg/640px-Lucy_Skeleton.jpg', credit:'Cleveland Museum, CC BY 4.0'},
-    'au_prometheus':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Australopithecus_africanus_-_Cast_of_taung_child.jpg/640px-Australopithecus_africanus_-_Cast_of_taung_child.jpg', credit:'José Braga/Didier Descouens, CC BY-SA 4.0'},
-    'h_sapiens':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Akha_woman.jpg/640px-Akha_woman.jpg', credit:'Steve Evans, CC BY 2.0'},
-    'neanderthal':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Homo_neanderthalensis.jpg/640px-Homo_neanderthalensis.jpg', credit:'Erich Ferdinand, CC BY 2.0'},
-    'denisovans':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Denisova_Cave_main_gallery.jpg/640px-Denisova_Cave_main_gallery.jpg', credit:'Демин Алексей Барнаул, CC BY-SA 3.0'},
-  };
+  // WIKI_TITLES and PHOTO_MAP loaded from js/speciesData.js
   // Merge data-level img with the lookup map; ImageLoader generated images take top priority
   const photoEntry = PHOTO_MAP[node.id];
   const generatedUrl = (typeof ImageLoader!=='undefined') ? ImageLoader.getGeneratedUrl(node.id) : null;
@@ -3795,7 +3622,7 @@ function init(){
   updateSpeciesCount();
   updateEraTint(currentEra);
   buildSearchIndex();
-  const EXTINCTIONS = [
+  const EXTINCTION_EVENTS = [
     { name: 'End-Ordovician', time: 443, short: '†' },
     { name: 'Late Devonian', time: 372, short: '†' },
     { name: 'The Great Dying', time: 252, short: '†' },
@@ -3825,7 +3652,7 @@ function init(){
 
     timeline.id = 'timeline';
     const totalTime = 3800;
-    EXTINCTIONS.forEach(ext => {
+    EXTINCTION_EVENTS.forEach(ext => {
       const pct = (1 - ext.time / totalTime) * 100;
       const marker = document.createElement('div');
       marker.style.cssText = `position:absolute;left:${pct}%;top:0;bottom:0;width:2px;background:#ef4444;opacity:0.7;cursor:pointer;z-index:10;pointer-events:all;`;

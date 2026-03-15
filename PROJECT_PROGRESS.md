@@ -25,6 +25,7 @@
 | p18 | Fix overlapping header controls | PR #57 |
 | p19 | Roadmap & project health | `claude/keen-easley` |
 | p23 | DNA similarity calculator — species comparator with known + estimated data | `claude/crazy-villani` |
+| p25 | Interactive legend & domain highlighting — filter, dim, visual feedback | `claude/stupefied-leakey` |
 
 ### Upcoming
 
@@ -35,7 +36,7 @@
 | p22 | Rich data panels & infographics | Increase fonts, add descriptive paragraphs, layered data sections (habitat, diet, morphology, fossil record). Inline mini-infographics: size comparisons, range maps, trait radar charts. | Pending |
 | p23 | DNA similarity calculator | Two-species comparator: pick any two species, display estimated DNA similarity %. Visual output with divergence timeline, shared traits, "you share X% DNA with a banana" UX. | Done |
 | p24 | Always-visible hominin branch | Show full hominin family tree as expanded branch with twigs on main canvas — no "explore deeper" required. Auto-layout to avoid crowding, golden path emphasis, larger labels. | Pending |
-| p25 | Interactive legend & domain highlighting | Clicking a domain in the legend highlights/filters that subtree on the canvas. Visual feedback, toggle behavior. | Pending |
+| p25 | Interactive legend & domain highlighting | Clicking a domain in the legend highlights/filters that subtree on the canvas. Visual feedback, toggle behavior. | Done |
 | p26 | Accessibility & navigation cleanup | Keyboard nav, ARIA labels, focus management, screen reader support, reduced-motion. Unify `panelHistory`/`navStack` into single model. | Pending |
 | p27 | Performance & offline resilience | Viewport culling (render only visible nodes), lazy expansion, service worker caching, offline fallbacks, connection status indicator. | Pending |
 | p28 | Guided tours & educational mode | Walkthrough overlays narrating key evolutionary milestones (Great Oxidation, Cambrian Explosion, K-Pg). Step-by-step discovery paths for educational use. | Pending |

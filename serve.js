@@ -1,7 +1,7 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const port = 5555;
+const port = process.env.PORT || 5555;
 const dir = __dirname;
 
 const mime = {
@@ -13,10 +13,12 @@ const mime = {
   '.jpg': 'image/jpeg',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
+  '.webp': 'image/webp',
 };
 
 http.createServer((req, res) => {
-  let filePath = path.join(dir, req.url === '/' ? 'index.html' : req.url);
+  const urlPath = req.url.split('?')[0];
+  let filePath = path.join(dir, urlPath === '/' ? 'index.html' : urlPath);
   const ext = path.extname(filePath);
   fs.readFile(filePath, (err, data) => {
     if (err) {

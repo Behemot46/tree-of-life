@@ -14,7 +14,7 @@ jobs:
 
       - name: Check for required files
         run: |
-          required=("index.html" "README.md" "CHANGELOG.md" "style.css" "js/main.js" "js/api.js" "js/tree.js")
+          required=("index.html" "README.md" "CHANGELOG.md" "js/treeData.js" "js/speciesData.js" "js/uiData.js")
           all_ok=true
           for file in "${required[@]}"; do
             if [ -f "$file" ]; then

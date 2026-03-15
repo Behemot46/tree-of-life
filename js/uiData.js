@@ -105,6 +105,13 @@ const TRANSLATIONS = {
     dna_preset_banana:'You & a Banana',
     dna_preset_mushroom:'You & a Mushroom',
     dna_preset_bacterium:'You & a Bacterium',
+    // Accessibility
+    skip_to_tree:'Skip to Tree',
+    a11y_tree_label:'Interactive phylogenetic tree',
+    a11y_panel_label:'Species detail panel',
+    a11y_hominin_label:'Hominin Evolution explorer',
+    a11y_dna_label:'DNA Similarity Calculator',
+    a11y_breadcrumb:'Breadcrumb',
   },
   he:{
     title:'\u05e2\u05e5 \u05d4\u05d7\u05d9\u05d9\u05dd',
@@ -186,6 +193,12 @@ const TRANSLATIONS = {
     dna_preset_banana:'\u05d0\u05ea\u05d4 \u05d5\u05d1\u05e0\u05e0\u05d4',
     dna_preset_mushroom:'\u05d0\u05ea\u05d4 \u05d5\u05e4\u05d8\u05e8\u05d9\u05d4',
     dna_preset_bacterium:'\u05d0\u05ea\u05d4 \u05d5\u05d7\u05d9\u05d9\u05d3\u05e7',
+    skip_to_tree:'\u05d3\u05dc\u05d2 \u05dc\u05e2\u05e5',
+    a11y_tree_label:'\u05e2\u05e5 \u05e4\u05d9\u05dc\u05d5\u05d2\u05e0\u05d8\u05d9 \u05d0\u05d9\u05e0\u05d8\u05e8\u05d0\u05e7\u05d8\u05d9\u05d1\u05d9',
+    a11y_panel_label:'\u05e4\u05e0\u05dc \u05e4\u05e8\u05d8\u05d9 \u05de\u05d9\u05df',
+    a11y_hominin_label:'\u05d7\u05d5\u05e7\u05e8 \u05d0\u05d1\u05d5\u05dc\u05d5\u05e6\u05d9\u05d4 \u05d0\u05e0\u05d5\u05e9\u05d9\u05ea',
+    a11y_dna_label:'\u05de\u05d7\u05e9\u05d1\u05d5\u05df \u05d3\u05de\u05d9\u05d5\u05df DNA',
+    a11y_breadcrumb:'\u05e0\u05ea\u05d9\u05d1 \u05e0\u05d9\u05d5\u05d5\u05d8',
   },
   ru:{
     title:'\u0414\u0435\u0440\u0435\u0432\u043e \u0436\u0438\u0437\u043d\u0438',
@@ -267,5 +280,11 @@ const TRANSLATIONS = {
     dna_preset_banana:'\u0412\u044b \u0438 \u0431\u0430\u043d\u0430\u043d',
     dna_preset_mushroom:'\u0412\u044b \u0438 \u0433\u0440\u0438\u0431',
     dna_preset_bacterium:'\u0412\u044b \u0438 \u0431\u0430\u043a\u0442\u0435\u0440\u0438\u044f',
+    skip_to_tree:'\u041f\u0435\u0440\u0435\u0439\u0442\u0438 \u043a \u0434\u0435\u0440\u0435\u0432\u0443',
+    a11y_tree_label:'\u0418\u043d\u0442\u0435\u0440\u0430\u043a\u0442\u0438\u0432\u043d\u043e\u0435 \u0444\u0438\u043b\u043e\u0433\u0435\u043d\u0435\u0442\u0438\u0447\u0435\u0441\u043a\u043e\u0435 \u0434\u0435\u0440\u0435\u0432\u043e',
+    a11y_panel_label:'\u041f\u0430\u043d\u0435\u043b\u044c \u0438\u043d\u0444\u043e\u0440\u043c\u0430\u0446\u0438\u0438 \u043e \u0432\u0438\u0434\u0435',
+    a11y_hominin_label:'\u042d\u0432\u043e\u043b\u044e\u0446\u0438\u044f \u0433\u043e\u043c\u0438\u043d\u0438\u043d',
+    a11y_dna_label:'\u041a\u0430\u043b\u044c\u043a\u0443\u043b\u044f\u0442\u043e\u0440 \u0441\u0445\u043e\u0434\u0441\u0442\u0432\u0430 \u0414\u041d\u041a',
+    a11y_breadcrumb:'\u0425\u043b\u0435\u0431\u043d\u044b\u0435 \u043a\u0440\u043e\u0448\u043a\u0438',
   }
 };

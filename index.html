@@ -1081,9 +1081,54 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   .dna-vs{transform:rotate(90deg);}
   .dna-presets{justify-content:center;}
 }
+
+/* ── ACCESSIBILITY ── */
+
+/* Skip-to-content link */
+.skip-link{
+  position:fixed;top:-100%;left:50%;transform:translateX(-50%);
+  z-index:10000;padding:0.6rem 1.2rem;
+  background:var(--accent-primary);color:#fff;
+  font-family:var(--font-sans);font-size:0.85rem;font-weight:600;
+  border-radius:0 0 var(--radius-md) var(--radius-md);
+  text-decoration:none;outline:none;
+  transition:top 0.15s ease;
+}
+.skip-link:focus{top:0;}
+
+/* Focus-visible rings */
+:focus-visible{outline:2px solid var(--accent-primary);outline-offset:2px;}
+button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
+.lang-btn:focus-visible,.view-btn:focus-visible,.hom-filter:focus-visible,
+.era-preset:focus-visible,.dna-preset:focus-visible,.dna-slot:focus-visible,
+.p-close:focus-visible,#theme-btn:focus-visible,.btn-back:focus-visible,
+#extinct-toggle:focus-visible,#hominins-tab:focus-visible,#btn-hominin:focus-visible,
+#btn-dna-calc:focus-visible,.leg-row:focus-visible{
+  outline:2px solid var(--accent-primary);outline-offset:2px;
+  box-shadow:0 0 0 4px var(--accent-primary-dim);
+}
+/* SVG node focus ring — outline doesn't work on SVG, use stroke */
+.node-group:focus-visible{outline:none;}
+.node-group:focus-visible .nc-main{
+  stroke:var(--accent-primary) !important;stroke-width:3 !important;stroke-opacity:1 !important;
+}
+
+/* Search result keyboard highlight */
+.sr-item.a11y-active{background:var(--accent-primary-dim);color:var(--text-primary);}
+
+/* Reduced motion */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:0.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:0.01ms !important;
+    scroll-behavior:auto !important;
+  }
+}
 </style>
 </head>
 <body>
+<a href="#svg" class="skip-link">Skip to Tree</a>
 <div id="splash" style="position:fixed;inset:0;background:#1a1d23;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px;transition:opacity 0.8s ease;">
   <div id="splash-years" style="font-family:'Inter',sans-serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:rgba(160,164,176,0.6);">3,800,000,000 years of evolution</div>
   <h1 id="splash-title" style="font-family:'Inter',sans-serif;font-size:clamp(48px,8vw,96px);font-weight:700;color:#e8eaf0;letter-spacing:-2px;line-height:1;margin:0;">Tree of Life</h1>
@@ -1134,11 +1179,11 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 </div>
 
 <!-- BREADCRUMB -->
-<div id="breadcrumb" class="hidden"></div>
+<nav id="breadcrumb" class="hidden" role="navigation" aria-label="Breadcrumb"></nav>
 
 <!-- SVG CANVAS -->
 <div id="canvas-wrap">
-  <svg id="svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Interactive Tree of Life visualization showing evolutionary relationships">
+  <svg id="svg" xmlns="http://www.w3.org/2000/svg" role="tree" aria-label="Interactive Tree of Life visualization showing evolutionary relationships" tabindex="0">
     <defs>
       <radialGradient id="rootGrad" cx="50%" cy="50%" r="50%">
         <stop offset="0%" stop-color="#a78bfa"/>
@@ -1165,7 +1210,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 <div id="tooltip"></div>
 
 <!-- MAIN DETAIL PANEL -->
-<div id="panel">
+<div id="panel" role="dialog" aria-label="Species detail panel" aria-modal="false">
   <div class="panel-accent" id="panel-accent"></div>
   <button class="p-close" id="panel-close" aria-label="Close panel">✕</button>
   <div class="panel-scroll">
@@ -1197,7 +1242,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 </div>
 
 <!-- HOMININ VIEW -->
-<div id="hominin-view">
+<div id="hominin-view" role="dialog" aria-label="Hominin Evolution explorer" aria-modal="true">
   <div id="hom-header">
     <div>
       <div id="hom-title">Hominin Evolution</div>
@@ -1206,13 +1251,13 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
     <button id="hom-close" class="btn-back">← Back to Tree</button>
 
   </div>
-  <div id="hom-filters">
-    <div class="hom-filter active" data-filter="all" id="i-hf-all">All Species</div>
-    <div class="hom-filter" data-filter="proto" id="i-hf-proto">Proto-Hominins</div>
-    <div class="hom-filter" data-filter="australopith" id="i-hf-australo">Australopithecus</div>
-    <div class="hom-filter" data-filter="paranthropus" id="i-hf-paranth">Paranthropus</div>
-    <div class="hom-filter" data-filter="homo" id="i-hf-homo">Genus Homo</div>
-    <div class="hom-filter" data-filter="surviving" id="i-hf-surv">Surviving</div>
+  <div id="hom-filters" role="tablist" aria-label="Hominin species filters">
+    <div class="hom-filter active" data-filter="all" id="i-hf-all" role="tab" tabindex="0" aria-selected="true">All Species</div>
+    <div class="hom-filter" data-filter="proto" id="i-hf-proto" role="tab" tabindex="-1" aria-selected="false">Proto-Hominins</div>
+    <div class="hom-filter" data-filter="australopith" id="i-hf-australo" role="tab" tabindex="-1" aria-selected="false">Australopithecus</div>
+    <div class="hom-filter" data-filter="paranthropus" id="i-hf-paranth" role="tab" tabindex="-1" aria-selected="false">Paranthropus</div>
+    <div class="hom-filter" data-filter="homo" id="i-hf-homo" role="tab" tabindex="-1" aria-selected="false">Genus Homo</div>
+    <div class="hom-filter" data-filter="surviving" id="i-hf-surv" role="tab" tabindex="-1" aria-selected="false">Surviving</div>
     <div style="margin-left:auto;display:flex;gap:0.5rem;align-items:center;">
       <button id="compare-btn" onclick="toggleCompareMode()" style="padding:0.25rem 0.85rem;border:1px solid var(--border);border-radius:14px;background:transparent;color:var(--text-secondary);font-size:0.7rem;font-family:var(--font-sans);cursor:pointer;transition:all 0.2s;letter-spacing:0.05em;">⚖ Compare Mode</button>
       <span id="compare-hint" style="display:none;font-size:0.65rem;color:var(--text-secondary);font-style:italic;">Select 2–4 species</span>
@@ -1237,13 +1282,13 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 <!-- LEGEND -->
 <div id="legend">
   <div class="leg-title" id="i-leg-title">Domains</div>
-  <div class="leg-row" data-domain="luca" onclick="toggleDomain('luca')" style="cursor:pointer;"><div class="leg-dot" style="background:#8b5cf6"></div><span id="i-leg-luca">LUCA / Root</span></div>
-  <div class="leg-row" data-domain="bacteria" onclick="toggleDomain('bacteria')" style="cursor:pointer;"><div class="leg-dot" style="background:#ef4444"></div><span id="i-leg-bact">Bacteria</span></div>
-  <div class="leg-row" data-domain="archaea" onclick="toggleDomain('archaea')" style="cursor:pointer;"><div class="leg-dot" style="background:#f59e0b"></div><span id="i-leg-arch">Archaea</span></div>
-  <div class="leg-row" data-domain="plantae" onclick="toggleDomain('plantae')" style="cursor:pointer;"><div class="leg-dot" style="background:#22c55e"></div><span id="i-leg-plant">Plants</span></div>
-  <div class="leg-row" data-domain="animalia" onclick="toggleDomain('animalia')" style="cursor:pointer;"><div class="leg-dot" style="background:#3b82f6"></div><span id="i-leg-anim">Animals</span></div>
-  <div class="leg-row" data-domain="fungi" onclick="toggleDomain('fungi')" style="cursor:pointer;"><div class="leg-dot" style="background:#f97316"></div><span id="i-leg-fungi">Fungi</span></div>
-  <div class="leg-row" data-domain="protists" onclick="toggleDomain('protists')" style="cursor:pointer;"><div class="leg-dot" style="background:#a855f7"></div><span id="i-leg-prot">Protists</span></div>
+  <div class="leg-row" data-domain="luca" onclick="toggleDomain('luca')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#8b5cf6"></div><span id="i-leg-luca">LUCA / Root</span></div>
+  <div class="leg-row" data-domain="bacteria" onclick="toggleDomain('bacteria')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#ef4444"></div><span id="i-leg-bact">Bacteria</span></div>
+  <div class="leg-row" data-domain="archaea" onclick="toggleDomain('archaea')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#f59e0b"></div><span id="i-leg-arch">Archaea</span></div>
+  <div class="leg-row" data-domain="plantae" onclick="toggleDomain('plantae')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#22c55e"></div><span id="i-leg-plant">Plants</span></div>
+  <div class="leg-row" data-domain="animalia" onclick="toggleDomain('animalia')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#3b82f6"></div><span id="i-leg-anim">Animals</span></div>
+  <div class="leg-row" data-domain="fungi" onclick="toggleDomain('fungi')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#f97316"></div><span id="i-leg-fungi">Fungi</span></div>
+  <div class="leg-row" data-domain="protists" onclick="toggleDomain('protists')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#a855f7"></div><span id="i-leg-prot">Protists</span></div>
   <button onclick="resetDomains()" style="font-size:11px;padding:3px 10px;border-radius:9999px;border:1px solid #c8b99a;background:transparent;color:var(--parchment);cursor:pointer;margin-top:8px;font-family:'Inter',sans-serif;">Show All</button>
 </div>
 
@@ -1276,7 +1321,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 <button id="btn-dna-calc" onclick="openDnaCalc()" aria-label="Open DNA Similarity Calculator" title="DNA Compare">🧬 <span id="i-btn-dna-calc">DNA Compare</span></button>
 
 <!-- DNA SIMILARITY CALCULATOR PANEL -->
-<div id="dna-panel" class="dna-panel" aria-hidden="true">
+<div id="dna-panel" class="dna-panel" role="dialog" aria-label="DNA Similarity Calculator" aria-modal="true" aria-hidden="true">
   <div class="dna-panel-inner">
     <div class="dna-panel-header">
       <div id="i-dna-title" class="dna-panel-title">DNA Similarity Calculator</div>
@@ -2060,6 +2105,8 @@ let transform={x:0,y:0,s:0.6};
 const applyT=()=>viewport.setAttribute('transform',`translate(${transform.x},${transform.y}) scale(${transform.s})`);
 const animDone=new Set();
 let highlightedId=null;
+let focusedNodeId='luca'; // currently keyboard-focused tree node
+const prefersReducedMotion=window.matchMedia('(prefers-reduced-motion: reduce)');
 
 function branchPath(x1,y1,x2,y2){
   if(viewMode==='cladogram'){return `M${x1},${y1} H${(x1+x2)/2} V${y2} H${x2}`;}
@@ -2107,7 +2154,7 @@ function render(){
     p.setAttribute('stroke',onHumanPath?'var(--accent-primary)':to.color);
     p.setAttribute('stroke-width',sw);
     p.setAttribute('stroke-opacity',op);
-    if(!animDone.has(to.id)){
+    if(!animDone.has(to.id)&&!prefersReducedMotion.matches){
       const len=300;p.style.strokeDasharray=len;p.style.strokeDashoffset=len;
       p.style.transition=`stroke-dashoffset ${0.3+to.depth*0.05}s cubic-bezier(.4,0,.2,1) ${to.depth*0.04}s`;
       setTimeout(()=>{p.style.strokeDashoffset=0;},50);
@@ -2128,6 +2175,14 @@ function render(){
     const g=document.createElementNS('http://www.w3.org/2000/svg','g');
     g.setAttribute('class','node-group');
     g.style.cursor='pointer';
+    // ARIA tree item attributes
+    g.setAttribute('role','treeitem');
+    g.setAttribute('aria-label',n.name+(n.latin?' ('+n.latin+')':'')+(n.era?', '+n.era:''));
+    g.setAttribute('data-node-id',n.id);
+    g.setAttribute('tabindex',focusedNodeId===n.id?'0':'-1');
+    if(n.children&&n.children.length){
+      g.setAttribute('aria-expanded',n._collapsed?'false':'true');
+    }
 
     const onHumanPath=HUMAN_PATH.has(n.id);
 
@@ -2296,14 +2351,18 @@ function render(){
       g.appendChild(dot);
     }
 
-    // Animate in
+    // Animate in (skip if reduced motion)
     if(!animDone.has(n.id)){
-      g.style.opacity='0';g.style.transformOrigin=`${n._x}px ${n._y}px`;g.style.transform='scale(0.2)';
-      setTimeout(()=>{
-        g.style.transition=`opacity 0.45s ease ${n.depth*0.09}s, transform 0.45s cubic-bezier(.34,1.56,.64,1) ${n.depth*0.09}s`;
-        g.style.opacity='1';g.style.transform='scale(1)';
-        setTimeout(()=>animDone.add(n.id),550+n.depth*90);
-      },40);
+      if(prefersReducedMotion.matches){
+        animDone.add(n.id);
+      } else {
+        g.style.opacity='0';g.style.transformOrigin=`${n._x}px ${n._y}px`;g.style.transform='scale(0.2)';
+        setTimeout(()=>{
+          g.style.transition=`opacity 0.45s ease ${n.depth*0.09}s, transform 0.45s cubic-bezier(.34,1.56,.64,1) ${n.depth*0.09}s`;
+          g.style.opacity='1';g.style.transform='scale(1)';
+          setTimeout(()=>animDone.add(n.id),550+n.depth*90);
+        },40);
+      }
     }
 
     // Events
@@ -3760,6 +3819,212 @@ document.addEventListener('keydown',e=>{
 });
 
 // ══════════════════════════════════════════════════════
+// ACCESSIBILITY — Tree Keyboard Nav, Focus Trapping, Search Arrow Keys
+// ══════════════════════════════════════════════════════
+
+// --- Tree keyboard navigation ---
+function getVisibleChildren(n){
+  if(!n.children||!n.children.length||n._collapsed) return [];
+  return n.children.filter(c=>{
+    if(c._domain&&c._domain!=='luca'&&!activeDomains.has(c._domain)) return false;
+    if(!showExtinct&&c.extinct) return false;
+    return true;
+  });
+}
+
+function moveFocusToNode(n){
+  if(!n) return;
+  // Update tabindex on old focused node
+  const oldEl=nodesLayer.querySelector(`[data-node-id="${focusedNodeId}"]`);
+  if(oldEl) oldEl.setAttribute('tabindex','-1');
+  focusedNodeId=n.id;
+  const newEl=nodesLayer.querySelector(`[data-node-id="${n.id}"]`);
+  if(newEl){newEl.setAttribute('tabindex','0');newEl.focus();}
+  // Pan viewport to center on focused node
+  const cx=window.innerWidth/2,cy=window.innerHeight/2;
+  transform.x=cx-n._x*transform.s;
+  transform.y=cy-n._y*transform.s;
+  applyT();
+}
+
+function moveFocusToSibling(n,dir){
+  if(!n._parent) return;
+  const siblings=getVisibleChildren(n._parent);
+  const idx=siblings.indexOf(n);
+  if(idx<0) return;
+  const next=siblings[idx+dir];
+  if(next) moveFocusToNode(next);
+}
+
+document.getElementById('svg').addEventListener('keydown',function(e){
+  // Only handle when a node or the SVG itself has focus
+  const nodeGroup=e.target.closest('.node-group');
+  if(!nodeGroup&&e.target!==this) return;
+  const n=focusedNodeId?nodeMap[focusedNodeId]:TREE;
+  if(!n) return;
+  switch(e.key){
+    case 'ArrowRight':
+      e.preventDefault();
+      if(n.children&&n.children.length){
+        if(n._collapsed){n._collapsed=false;layout();scheduleRender(true);applyT();setTimeout(()=>moveFocusToNode(n),60);}
+        else{const vc=getVisibleChildren(n);if(vc.length)moveFocusToNode(vc[0]);}
+      }
+      break;
+    case 'ArrowLeft':
+      e.preventDefault();
+      if(n.children&&n.children.length&&!n._collapsed){n._collapsed=true;layout();scheduleRender(true);applyT();setTimeout(()=>moveFocusToNode(n),60);}
+      else if(n._parent){moveFocusToNode(n._parent);}
+      break;
+    case 'ArrowDown':
+      e.preventDefault();moveFocusToSibling(n,1);break;
+    case 'ArrowUp':
+      e.preventDefault();moveFocusToSibling(n,-1);break;
+    case 'Enter':case ' ':
+      e.preventDefault();showMainPanel(n);break;
+    case 'Home':
+      e.preventDefault();moveFocusToNode(TREE);break;
+  }
+});
+
+// --- Search results arrow-key navigation ---
+let searchActiveIdx=-1;
+searchInput.addEventListener('keydown',function(e){
+  const items=searchResults.querySelectorAll('.sr-item');
+  if(!items.length) return;
+  if(e.key==='ArrowDown'){
+    e.preventDefault();
+    searchActiveIdx=Math.min(searchActiveIdx+1,items.length-1);
+    highlightSearchItem(items,searchActiveIdx);
+  } else if(e.key==='ArrowUp'){
+    e.preventDefault();
+    searchActiveIdx=Math.max(searchActiveIdx-1,0);
+    highlightSearchItem(items,searchActiveIdx);
+  } else if(e.key==='Enter'&&searchActiveIdx>=0&&items[searchActiveIdx]){
+    e.preventDefault();items[searchActiveIdx].click();searchActiveIdx=-1;
+  }
+});
+// Reset search highlight index on new input
+searchInput.addEventListener('input',function(){searchActiveIdx=-1;});
+
+function highlightSearchItem(items,idx){
+  items.forEach(el=>el.classList.remove('a11y-active'));
+  if(items[idx]){
+    items[idx].classList.add('a11y-active');
+    items[idx].scrollIntoView({block:'nearest'});
+    // aria-activedescendant requires an id
+    if(!items[idx].id) items[idx].id='sr-'+idx;
+    searchInput.setAttribute('aria-activedescendant',items[idx].id);
+  }
+}
+
+// --- Focus trapping utility ---
+function trapFocus(container){
+  function getFocusable(){
+    return container.querySelectorAll('button,[href],input,select,textarea,[tabindex]:not([tabindex="-1"])');
+  }
+  function handler(e){
+    if(e.key!=='Tab') return;
+    const focusable=getFocusable();
+    if(!focusable.length) return;
+    const first=focusable[0],last=focusable[focusable.length-1];
+    if(e.shiftKey&&document.activeElement===first){e.preventDefault();last.focus();}
+    else if(!e.shiftKey&&document.activeElement===last){e.preventDefault();first.focus();}
+  }
+  container.addEventListener('keydown',handler);
+  return ()=>container.removeEventListener('keydown',handler);
+}
+
+// --- Focus management for panels ---
+let _panelFocusTrap=null;
+let _panelPrevFocus=null;
+const _origShowMainPanel=showMainPanel;
+showMainPanel=function(n){
+  _panelPrevFocus=document.activeElement;
+  _origShowMainPanel(n);
+  // Set focus to panel close button after panel opens
+  requestAnimationFrame(()=>{
+    const closeBtn=document.getElementById('panel-close');
+    if(closeBtn) closeBtn.focus();
+    if(_panelFocusTrap) _panelFocusTrap();
+    _panelFocusTrap=trapFocus(panel);
+  });
+};
+const _origClosePanel=closePanel;
+closePanel=function(){
+  _origClosePanel();
+  if(_panelFocusTrap){_panelFocusTrap();_panelFocusTrap=null;}
+  if(_panelPrevFocus&&_panelPrevFocus.focus){_panelPrevFocus.focus();_panelPrevFocus=null;}
+};
+// Re-bind close button since closePanel was re-assigned
+document.getElementById('panel-close').removeEventListener('click',_origClosePanel);
+document.getElementById('panel-close').addEventListener('click',closePanel);
+
+// Hominin view focus management
+let _homFocusTrap=null;
+let _homPrevFocus=null;
+const _origOpenHomininView=window.openHomininView;
+window.openHomininView=function(){
+  _homPrevFocus=document.activeElement;
+  _origOpenHomininView();
+  requestAnimationFrame(()=>{
+    const closeBtn=document.getElementById('hom-close');
+    if(closeBtn) closeBtn.focus();
+    if(_homFocusTrap) _homFocusTrap();
+    _homFocusTrap=trapFocus(document.getElementById('hominin-view'));
+  });
+};
+document.getElementById('hom-close').addEventListener('click',()=>{
+  if(_homFocusTrap){_homFocusTrap();_homFocusTrap=null;}
+  if(_homPrevFocus&&_homPrevFocus.focus){_homPrevFocus.focus();_homPrevFocus=null;}
+});
+
+// DNA calc focus management
+let _dnaFocusTrap=null;
+let _dnaPrevFocus=null;
+const _origOpenDnaCalc=openDnaCalc;
+openDnaCalc=function(){
+  _dnaPrevFocus=document.activeElement;
+  _origOpenDnaCalc();
+  requestAnimationFrame(()=>{
+    const dnaPanel=document.getElementById('dna-panel');
+    const closeBtn=dnaPanel.querySelector('.btn-back');
+    if(closeBtn) closeBtn.focus();
+    if(_dnaFocusTrap) _dnaFocusTrap();
+    _dnaFocusTrap=trapFocus(dnaPanel.querySelector('.dna-panel-inner'));
+  });
+};
+const _origCloseDnaCalc=closeDnaCalc;
+closeDnaCalc=function(){
+  _origCloseDnaCalc();
+  if(_dnaFocusTrap){_dnaFocusTrap();_dnaFocusTrap=null;}
+  if(_dnaPrevFocus&&_dnaPrevFocus.focus){_dnaPrevFocus.focus();_dnaPrevFocus=null;}
+};
+
+// --- Legend & hominin filter keyboard activation ---
+document.querySelectorAll('.leg-row[tabindex="0"]').forEach(row=>{
+  row.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();row.click();}
+  });
+});
+document.querySelectorAll('.hom-filter[role="tab"]').forEach(tab=>{
+  tab.addEventListener('keydown',e=>{
+    if(e.key==='Enter'||e.key===' '){e.preventDefault();tab.click();}
+    const tabs=Array.from(document.querySelectorAll('.hom-filter[role="tab"]'));
+    const idx=tabs.indexOf(tab);
+    if(e.key==='ArrowRight'||e.key==='ArrowDown'){
+      e.preventDefault();const next=tabs[(idx+1)%tabs.length];
+      tabs.forEach(t=>{t.setAttribute('tabindex','-1');t.setAttribute('aria-selected','false');});
+      next.setAttribute('tabindex','0');next.setAttribute('aria-selected','true');next.focus();next.click();
+    }
+    if(e.key==='ArrowLeft'||e.key==='ArrowUp'){
+      e.preventDefault();const prev=tabs[(idx-1+tabs.length)%tabs.length];
+      tabs.forEach(t=>{t.setAttribute('tabindex','-1');t.setAttribute('aria-selected','false');});
+      prev.setAttribute('tabindex','0');prev.setAttribute('aria-selected','true');prev.focus();prev.click();
+    }
+  });
+});
+
+// ══════════════════════════════════════════════════════
 // PARTICLES
 // ══════════════════════════════════════════════════════
 function spawnParticles(){
@@ -3779,8 +4044,9 @@ function spawnParticles(){
 // INTRO ANIMATION
 // ══════════════════════════════════════════════════════
 function showIntro(){
-  // Skip intro if loading a specific node from URL
+  // Skip intro if loading a specific node from URL or reduced motion preferred
   if(new URLSearchParams(location.search).get('node')) return;
+  if(prefersReducedMotion.matches) return;
   const overlay=document.createElement('div');
   overlay.style.cssText='position:fixed;inset:0;z-index:999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;transition:background 0s;';
   overlay.innerHTML=`
@@ -3886,6 +4152,13 @@ function applyI18n(){
     else if(mode==='chronological')btn.innerHTML='&#8594; '+t('view_chrono');
     else if(mode==='cladogram')btn.innerHTML='&#9500; '+t('view_clado');
   });
+  // Accessibility labels
+  const skipLink=document.querySelector('.skip-link');if(skipLink)skipLink.textContent=t('skip_to_tree');
+  const svgEl=document.getElementById('svg');if(svgEl)svgEl.setAttribute('aria-label',t('a11y_tree_label'));
+  panel.setAttribute('aria-label',t('a11y_panel_label'));
+  const homView=document.getElementById('hominin-view');if(homView)homView.setAttribute('aria-label',t('a11y_hominin_label'));
+  const dnaP=document.getElementById('dna-panel');if(dnaP)dnaP.setAttribute('aria-label',t('a11y_dna_label'));
+  const bcEl=document.getElementById('breadcrumb');if(bcEl)bcEl.setAttribute('aria-label',t('a11y_breadcrumb'));
   // Update play button
   const playBtn=document.getElementById('era-play');
   if(playBtn)playBtn.title=eraPlayId?t('era_pause'):t('era_play');

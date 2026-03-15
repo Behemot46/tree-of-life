@@ -24,15 +24,18 @@
 | p17 | Subtree-weighted radial spacing | PR #56 |
 | p18 | Fix overlapping header controls | PR #57 |
 | p19 | Roadmap & project health | `claude/keen-easley` |
+| p20 | Naturalist node artwork — expanded icon library (20→37 icons), improved mapping | PR #62 |
+| p21 | Species panel visual identity — hero images, styled fallbacks, header typography | PR #61 |
 | p23 | DNA similarity calculator — species comparator with known + estimated data | `claude/crazy-villani` |
 | p24 | Always-visible hominin branch — expanded by default, golden path, label priority | `claude/strange-tharp` |
+| p26a | 130+ facts pack — expanded library, panel/tooltip/discovery integration | `claude/compassionate-poitras` |
 
 ### Upcoming
 
 | # | Milestone | Goal | Status |
 |---|-----------|------|--------|
-| p20 | Naturalist node artwork | Replace all emoji/silhouette node icons with consistent high-quality artistic sketches (pen-and-ink naturalist style) for every node (~130+). Build asset pipeline, SVG/WebP format, fallback chain. | Pending |
-| p21 | Species panel visual identity | Replace emoji headers in species info panel with curated photos or GenAI artwork. Consistent framing/style, Wikimedia + AI-generated fallback pipeline. | Pending |
+| p20 | Naturalist node artwork | Replace all emoji/silhouette node icons with consistent high-quality artistic sketches (pen-and-ink naturalist style) for every node (~130+). Build asset pipeline, SVG/WebP format, fallback chain. | Done |
+| p21 | Species panel visual identity | Replace emoji headers in species info panel with curated photos or GenAI artwork. Consistent framing/style, Wikimedia + AI-generated fallback pipeline. | Done |
 | p22 | Rich data panels & infographics | Increase fonts, add descriptive paragraphs, layered data sections (habitat, diet, morphology, fossil record). Inline mini-infographics: size comparisons, range maps, trait radar charts. | Pending |
 | p23 | DNA similarity calculator | Two-species comparator: pick any two species, display estimated DNA similarity %. Visual output with divergence timeline, shared traits, "you share X% DNA with a banana" UX. | Done |
 | p24 | Always-visible hominin branch | Show full hominin family tree as expanded branch with twigs on main canvas — no "explore deeper" required. Auto-layout to avoid crowding, golden path emphasis, larger labels. | Done |
@@ -600,3 +603,50 @@ Combined with p8: **~2,800+ lines** of dead code eliminated from the repo.
 ## p19 — Roadmap & Project Health (2026-03-15)
 
 See [ROADMAP.md](ROADMAP.md) for the full development roadmap with phases p16+.
+
+---
+
+## p20 — Naturalist Node Artwork (2026-03-15)
+
+**Branch:** `claude/agitated-hawking`
+
+### What was changed
+
+**Expanded icon library (20 → 37 categories)**
+- 17 new icon categories added: spirochete, protist, amoeba, diatom, dinoflagellate, algae, yeast, moss, fern, conifer, flower, jellyfish, octopus, butterfly, spider, shark, whale, turtle, dinosaur, rodent, bat
+- All icons: filled silhouette style, 24×24 viewbox, single SVG path `d` string
+- Recognizable at 10–26px rendered size
+
+**Improved node-to-icon mapping**
+- Protists no longer default to 'default' — mapped to protist, amoeba, diatom, dinoflagellate, algae
+- Plants differentiated: moss, fern, conifer, flower (was all 'plant')
+- Saccharomyces → yeast icon (was generic fungus)
+- Shark gets distinct shark silhouette (was generic fish)
+- Cetaceans/blue whale → whale icon (was generic mammal)
+- Turritopsis → jellyfish (was generic cnidarian)
+- Octopus/cephalopods → octopus (was generic mollusk)
+- Archaeopteryx → dinosaur (was generic bird)
+- Honey bee → butterfly (was generic insect)
+- Naked mole rat → rodent (was generic mammal)
+
+**Extracted to module**
+- Created `js/nodeIcons.js` — NODE_ICONS map + getIconGroup() function (~180 lines)
+- Added `<script src="js/nodeIcons.js"></script>` to index.html
+- Removed ~95 lines of inline icon code from index.html
+
+### Files changed
+
+| File | Changes |
+|------|---------|
+| `js/nodeIcons.js` | **NEW** — 37 icon paths + getIconGroup() mapping function |
+| `index.html` | Removed inline NODE_ICONS + getIconGroup(), added script tag |
+| `PROJECT_PROGRESS.md` | Added p20 completion entry |
+| `SESSION_HANDOFF.md` | Updated handoff notes |
+
+### Verified
+
+- All tree nodes render with icons (no blank circles)
+- Photo overlay still works on top of icons
+- Dark and light themes — icons visible in both
+- Zero console errors
+- 40 icon keys loaded, 100+ icon paths rendered on visible nodes

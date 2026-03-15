@@ -27,3 +27,4 @@ This directory stores implementation prompts for each development phase.
 - `PROMPT_P32_DATA_ENRICHMENT.md` — Data enrichment (300+ species)
 - `PROMPT_P33_GUIDED_TOURS.md` — Guided tours & educational mode
 - `PROMPT_P34_AI_ILLUSTRATIONS.md` — AI-generated species illustrations
+- `PROMPT_P35_PHOTO_UPGRADE.md` — High-quality PHOTO_MAP upgrade (all species photos)

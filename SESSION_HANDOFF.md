@@ -1,3 +1,68 @@
+# Session Handoff — 2026-03-15 (p25 — Interactive Legend & Domain Highlighting)
+
+**Status: done**
+**Branch:** `claude/stupefied-leakey`
+
+## 1. Session Goal
+Make the legend fully interactive — clicking a domain highlights that subtree while dimming everything else, with clear visual feedback.
+
+## 2. What I Changed
+
+### index.html
+- **CSS**: Added `.leg-row.active` / `.leg-row.dimmed` classes with transitions (opacity, background, font-weight). Added `#leg-show-all` button styling with `.filtering` state. Light theme variant for `.leg-row.active`.
+- **HTML**: Replaced inline-styled Show All `<button>` with `<button id="leg-show-all">` using CSS classes. Added `<span id="i-leg-show-all">` for i18n.
+- **JS — `toggleDomain()`**: Rewrote with smart single-click logic:
+  - All domains active + click one → solo that domain (deactivate all others)
+  - Some active + click inactive → add it
+  - Some active + click active → remove it (unless last non-luca domain)
+- **JS — `resetDomains()`**: Resets to full set, updates legend UI via `updateLegendUI()`.
+- **JS — `updateLegendUI()`**: New helper that applies `active`/`dimmed` CSS classes to legend rows and `filtering` class to Show All button.
+- **JS — `ALL_DOMAINS` constant**: Array of all 8 domain IDs.
+- **JS — `isAllDomainsActive()`**: Helper to check if filtering is active.
+- **JS — `render()` changes**: Inactive domain nodes/branches are dimmed (opacity 0.15/0.06) instead of hidden. Tree structure always visible. Dimmed nodes still clickable (panels open normally).
+- **JS — `applyI18n()`**: Added `i-leg-show-all` translation.
+
+### js/uiData.js
+- Added `leg_show_all` translation key: EN "Show All", HE "הצג הכל", RU "Показать все".
+
+### PROJECT_PROGRESS.md
+- Added p25 to Completed table, marked Done in Upcoming table.
+
+## 3. How Toggle Behavior Works
+- **Solo mode**: When all domains active, clicking one solos it (only that domain + LUCA visible)
+- **Add mode**: When filtering, clicking an inactive domain adds it
+- **Remove mode**: When filtering, clicking an active domain removes it (minimum 1 non-luca domain enforced)
+- **Reset**: Show All button restores all domains
+
+## 4. How Dimming Works
+- Dimming uses inline `g.style.opacity='0.15'` on node groups and `stroke-opacity=0.06` on branches
+- Legend rows use CSS classes `.active` (highlight with background) and `.dimmed` (opacity 0.35) with 0.3s transitions
+- Show All button gets `.filtering` class when domains are filtered (accent border/color)
+- All domains active = no dimming applied, no active/dimmed classes on legend rows
+
+## 5. Tests Performed
+- Toggle logic: solo → add → remove → reset flow verified programmatically
+- Domain filtering: 82 nodes correctly dimmed when bacteria solo'd, 18 active
+- Legend row classes correctly applied (active/dimmed)
+- Show All button `.filtering` class toggles correctly
+- Zero console errors
+- Dimmed nodes remain clickable (panel opens)
+
+## 6. Not Tested
+- Visual rendering at desktop width (preview browser viewport was narrow)
+- Mobile layout
+- Hebrew RTL layout
+- Russian language
+- Dark theme
+- Cladogram/chronological view modes
+- Search across dimmed domains
+
+## 7. Known Issues
+- Legend is positioned off-screen on narrow viewports due to `bottom: 5rem` mobile CSS (pre-existing, not introduced by this change)
+- The 480px breakpoint hides the legend entirely (pre-existing)
+
+---
+
 # Session Handoff — 2026-03-15 (p24 — Always-Visible Hominin Branch)
 
 **Status: done**

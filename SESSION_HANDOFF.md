@@ -1,3 +1,73 @@
+# Session Handoff — 2026-03-15 (p27 — i18n Completeness)
+
+**Status: done**
+**Branch:** `claude/suspicious-murdock`
+**PR:** https://github.com/Behemot46/tree-of-life/pull/69
+
+## 1. Session Goal
+Translate all remaining hardcoded English strings in the UI to Hebrew (HE) and Russian (RU), achieving full trilingual coverage.
+
+## 2. What I Changed
+
+### js/uiData.js — 25 new translation keys (EN/HE/RU)
+- Toggle buttons: `hide_extinct`, `show_extinct`, `btn_hominins`, `show_all`
+- Node badge: `explore_badge`
+- Photo credit: `photo_credit`
+- Section headers: `did_you_know`, `did_you_know_q`, `learn_more`, `brain_volume`, `dna_legacy`, `fossil_sites`
+- Labels: `lbl_neanderthal`, `lbl_denisovan`
+- Panel buttons: `hominin_deep_dive`, `panel_close`, `panel_back`
+- DNA calculator: `dna_source_prefix`, `dna_vs`
+- Time units: `unit_ma_ago`, `unit_mya`
+- Chrome: `loading_init`, `footer_text`, `shortcut_hint`
+
+### index.html — Hardcoded strings → t() calls
+- `renderPanelContent()`: all section headers, labels, buttons now use `t()`
+- `buildHomininSection()`: brain volume, DNA legacy, Neanderthal/Denisovan labels, fossil sites translated
+- `fetchWikiPhoto()`: credit string uses `t('photo_credit')`
+- `applyI18n()`: updated to use `i-leg-show-all` ID (from main's a11y refactor)
+- Extinct toggle, loading screen, footer, shortcut hint all translated
+
+### Merge resolution
+- Resolved 10 conflicts (7 in index.html, 3 in js/uiData.js) when merging with main
+- Main had added: a11y attributes (tabindex, role, ARIA labels), collapsible panel sections, `buildHomininSection()`, `buildTimelineBar()`, CSS classes (`panel-latin`, `panel-era`, `panel-enrich-card`, etc.)
+- Kept main's structural changes + applied p27 `t()` translations on top
+
+## 3. Conflict Resolution Details
+- **Legend**: Took main's `tabindex="0" role="button"` + new `leg-show-all` button structure
+- **Explore badge**: Main removed it (no longer needed with p24 always-visible hominins) — accepted removal
+- **Photo credit**: Kept our `t('photo_credit')` + main's null-safety `if (imgEl)` check
+- **Panel template**: Took main's collapsible sections + CSS classes, applied `t()` to all labels
+- **buildHomininSection()**: Translated all hardcoded strings in main's new extracted function
+- **Back button**: Kept our `t('panel_back')` over main's hardcoded string
+
+## 4. Files Touched
+| File | Change |
+|------|--------|
+| `js/uiData.js` | 25 new keys × 3 languages + merged a11y keys from main |
+| `index.html` | ~77 lines changed — t() wrappers + merge resolution |
+| `PROJECT_PROGRESS.md` | Added p27 entry |
+| `SESSION_HANDOFF.md` | This handoff |
+
+## 5. Tests Performed
+- Zero conflict markers remaining in all files
+- Merge commit pushed successfully to PR #69
+
+## 6. Not Tested (recommend manual verification)
+- `?lang=he` — zero English strings in full UI flow
+- `?lang=ru` — zero English strings in full UI flow
+- Panel content with translated section headers
+- buildHomininSection() translated labels for brain volume, DNA legacy, fossil sites
+- Mobile viewport with translated text (overflow check)
+
+## 7. Known Remaining i18n Gaps
+- `node.desc`, `node.detail`, `node.facts` in treeData.js still English-only (would need NODE_TRANSLATIONS layer per prompt)
+- Panel section headers ("Overview", "Evolutionary Context", "Traits", "Hominin Data", "Sub-groups") from main's refactor are still hardcoded — need new translation keys
+- ENRICHMENT `altFacts` (English only) not translated
+- Number formatting by locale (3,800,000,000 vs 3.800.000.000) not implemented
+- Splash screen locale-specific number formatting not implemented
+
+---
+
 # Session Handoff — 2026-03-15 (p22 — Rich Data Panels & Infographics)
 
 **Status: done**

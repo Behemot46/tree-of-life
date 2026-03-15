@@ -1263,10 +1263,10 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
   <input id="search-input" type="text" placeholder="Search species…" autocomplete="off" aria-label="Search species by name, latin name, or description" role="combobox" aria-expanded="false" aria-controls="search-results">
   <div id="search-results" role="listbox"></div>
   <button id="extinct-toggle" onclick="toggleExtinct()" aria-label="Toggle visibility of extinct species" style="font-family:'Inter',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);white-space:nowrap;flex-shrink:0;">
-    <span>†</span><span id="extinct-label">Hide Extinct</span>
+    <span>†</span><span id="extinct-label"></span>
   </button>
   <button id="hominins-tab" onclick="navigateTo('hominini')" aria-label="Navigate to Hominin family tree" style="font-family:'Inter',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;color:var(--text-secondary);white-space:nowrap;flex-shrink:0;">
-    🧬 Hominins
+    🧬 <span id="i-btn-hominins">Hominins</span>
   </button>
 </div>
 
@@ -1446,7 +1446,7 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
         <div class="dna-slot-icon" id="dna-icon-a">?</div>
         <div class="dna-slot-label" id="dna-label-a">Select a species</div>
       </div>
-      <div class="dna-vs">vs</div>
+      <div class="dna-vs" id="i-dna-vs">vs</div>
       <div class="dna-slot" id="dna-slot-b" onclick="openDnaSearch('b')">
         <div class="dna-slot-icon" id="dna-icon-b">?</div>
         <div class="dna-slot-label" id="dna-label-b">Select a species</div>
@@ -2069,7 +2069,7 @@ function nodeInEra(n){
 // ══════════════════════════════════════════════════════
 function toggleExtinct() {
   showExtinct = !showExtinct;
-  document.getElementById('extinct-label').textContent = showExtinct ? 'Hide Extinct' : 'Show Extinct';
+  document.getElementById('extinct-label').textContent = showExtinct ? t('hide_extinct') : t('show_extinct');
   document.getElementById('extinct-toggle').style.opacity = showExtinct ? '1' : '0.6';
   scheduleRender();
 }
@@ -2849,10 +2849,10 @@ async function fetchWikiPhoto(nodeId, wikiTitle, imgEl, fallbackEl, creditEl) {
     const thumb = data.thumbnail;
     if (thumb && thumb.source) {
       const url = thumb.source.replace(/\/\d+px-/, '/640px-');
-      window._photoCache[cacheKey] = { url, credit: 'Wikipedia / Wikimedia Commons' };
+      window._photoCache[cacheKey] = { url, credit: t('photo_credit') };
       if (imgEl) { imgEl.src = url; imgEl.style.display = 'block'; }
       if (fallbackEl) fallbackEl.style.display = 'none';
-      if (creditEl) creditEl.textContent = 'Wikipedia / Wikimedia Commons';
+      if (creditEl) creditEl.textContent = t('photo_credit');
     } else {
       throw new Error('No thumbnail');
     }
@@ -2961,7 +2961,7 @@ function renderPanelContent(node) {
     let inner = '';
     if (brainMax) {
       inner += `<div style="display:flex;flex-direction:column;gap:4px;">
-        <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:Inter,sans-serif;">🧠 BRAIN VOLUME</div>
+        <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:Inter,sans-serif;">\ud83e\udde0 ${t('brain_volume')}</div>
         <div style="display:flex;align-items:center;gap:8px;">
           <div style="flex:1;height:8px;background:var(--color-canvas-alt);border-radius:4px;overflow:hidden;">
             <div style="width:${Math.round(brainMax/1750*100)}%;height:100%;background:${h.color};border-radius:4px;"></div>
@@ -2982,15 +2982,15 @@ function renderPanelContent(node) {
     }
     if (neanPct != null || denPct != null) {
       inner += `<div style="display:flex;flex-direction:column;gap:4px;">
-        <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:Inter,sans-serif;">🧬 DNA LEGACY</div>`;
-      if (neanPct != null) inner += `<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-secondary);font-family:Inter,sans-serif;"><span style="min-width:80px;">Neanderthal</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,neanPct*25)}%;height:100%;background:#7A9BAA;border-radius:3px;"></div></div><span style="font-family:JetBrains Mono,monospace;">${neanPct}%</span></div>`;
-      if (denPct != null) inner += `<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-secondary);font-family:Inter,sans-serif;"><span style="min-width:80px;">Denisovan</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,denPct*20)}%;height:100%;background:#7A8BAA;border-radius:3px;"></div></div><span style="font-family:JetBrains Mono,monospace;">${denPct}%</span></div>`;
+        <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:Inter,sans-serif;">\ud83e\uddec ${t('dna_legacy')}</div>`;
+      if (neanPct != null) inner += `<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-secondary);font-family:Inter,sans-serif;"><span style="min-width:80px;">${t('lbl_neanderthal')}</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,neanPct*25)}%;height:100%;background:#7A9BAA;border-radius:3px;"></div></div><span style="font-family:JetBrains Mono,monospace;">${neanPct}%</span></div>`;
+      if (denPct != null) inner += `<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-secondary);font-family:Inter,sans-serif;"><span style="min-width:80px;">${t('lbl_denisovan')}</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,denPct*20)}%;height:100%;background:#7A8BAA;border-radius:3px;"></div></div><span style="font-family:JetBrains Mono,monospace;">${denPct}%</span></div>`;
       if (h.dna && h.dna.note) inner += `<div style="font-size:12px;color:var(--color-text-muted);font-style:italic;">${h.dna.note}</div>`;
       inner += `</div>`;
     }
     if (h.sites && h.sites.length) {
       inner += `<div style="display:flex;flex-direction:column;gap:4px;">
-        <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:Inter,sans-serif;">📍 FOSSIL SITES</div>
+        <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:Inter,sans-serif;">\ud83d\udccd ${t('fossil_sites')}</div>
         <div style="font-size:13px;color:var(--color-text-secondary);font-family:Inter,sans-serif;line-height:1.6;">${h.sites.join(' · ')}</div>
       </div>`;
     }
@@ -3031,7 +3031,7 @@ function renderPanelContent(node) {
           ${extinctBadge}
         </div>
         ${node.latin ? `<div class="panel-latin">${node.latin}</div>` : ''}
-        ${node.era ? `<div class="panel-era"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${domainColor};flex-shrink:0;vertical-align:middle;margin-right:6px;"></span>${node.era}${node.appeared ? ' \u00b7 ' + node.appeared + ' Mya' : ''}</div>` : ''}
+        ${node.era ? `<div class="panel-era"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${domainColor};flex-shrink:0;vertical-align:middle;margin-right:6px;"></span>${node.era}${node.appeared ? ' \u00b7 ' + node.appeared + ' ' + t('unit_mya') : ''}</div>` : ''}
       </div>
 
       <!-- Overview Section (always open) -->
@@ -3104,15 +3104,15 @@ function renderPanelContent(node) {
           ${buildTimelineBar()}
           ${node.altFacts && node.altFacts.length > 0 ? `
             <div style="display:flex;flex-direction:column;gap:8px;">
-              <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:Inter,sans-serif;">📚 DID YOU KNOW?</div>
+              <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:Inter,sans-serif;">\ud83d\udcda ${t('did_you_know_q')}</div>
               ${node.altFacts.map(f => `<div class="panel-enrich-card">${f}</div>`).join('')}
             </div>
           ` : ''}
           ${node.links && node.links.length > 0 ? `
             <div style="display:flex;flex-direction:column;gap:8px;">
-              <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:Inter,sans-serif;">🔗 LEARN MORE</div>
+              <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:Inter,sans-serif;">\ud83d\udd17 ${t('learn_more')}</div>
               <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                ${node.links.map(lnk => `<a href="${lnk.url}" target="_blank" rel="noopener noreferrer" class="panel-link-pill">↗ ${lnk.label}</a>`).join('')}
+                ${node.links.map(lnk => `<a href="${lnk.url}" target="_blank" rel="noopener noreferrer" class="panel-link-pill">\u2197 ${lnk.label}</a>`).join('')}
               </div>
             </div>
           ` : ''}
@@ -3132,12 +3132,12 @@ function renderPanelContent(node) {
           <div style="display:flex;flex-direction:column;gap:2px;">
             ${node.children.map(c => `
               <div onclick="navigateTo('${c.id}')" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;cursor:pointer;transition:background 0.15s;font-family:Inter,sans-serif;" onmouseover="this.style.background='var(--color-button-bg)'" onmouseout="this.style.background='transparent'">
-                <span style="font-size:18px;">${c.icon||'🌿'}</span>
+                <span style="font-size:18px;">${c.icon||'\ud83c\udf3f'}</span>
                 <div style="flex:1;">
                   <div style="font-size:14px;color:var(--color-text-primary);font-weight:500;">${c.name}</div>
                   ${c.latin ? `<div style="font-size:11px;color:var(--color-text-muted);font-style:italic;">${c.latin}</div>` : ''}
                 </div>
-                <span style="font-size:12px;color:var(--color-text-muted);">→</span>
+                <span style="font-size:12px;color:var(--color-text-muted);">\u2192</span>
               </div>
             `).join('')}
           </div>
@@ -3145,9 +3145,9 @@ function renderPanelContent(node) {
       </div>
       ` : ''}
 
-      ${(()=>{const isHominin=node._hominData||node.id==='hominini'||(node.id&&node.id.startsWith('hom-'));return isHominin?`<button onclick="openHomininView()" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--color-accent);color:white;cursor:pointer;font-family:Inter,sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">🧬 Hominin Deep Dive</button>`:'';})()}
+      ${(()=>{const isHominin=node._hominData||node.id==='hominini'||(node.id&&node.id.startsWith('hom-'));return isHominin?`<button onclick="openHomininView()" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--color-accent);color:white;cursor:pointer;font-family:Inter,sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">${t('hominin_deep_dive')}</button>`:'';})()}
       <button onclick="closePanel()" style="margin-top:4px;padding:10px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:Inter,sans-serif;font-size:13px;color:var(--color-text-secondary);">
-        Close
+        ${t('panel_close')}
       </button>
     </div>
   `;
@@ -3156,7 +3156,7 @@ function renderPanelContent(node) {
     const scroll=p.querySelector('[style*="padding:20px"]');
     if(scroll){
       const backBtn=document.createElement('button');
-      backBtn.textContent='\u2190 Back';
+      backBtn.textContent=t('panel_back');
       backBtn.onclick=panelBack;
       backBtn.className='btn-back';
       backBtn.style.marginBottom='4px';
@@ -3653,7 +3653,7 @@ function showHominDetail(h){
       <div>
         <div class="hp-name">${h.short}</div>
         <div class="hp-latin">${h.name}</div>
-        <div class="hp-mya">${h.mya[0]}–${h.mya[1]} Ma ago</div>
+        <div class="hp-mya">${h.mya[0]}\u2013${h.mya[1]} ${t('unit_ma_ago')}</div>
       </div>
     </div>
     <div class="hp-desc">${h.desc}</div>
@@ -3826,7 +3826,7 @@ function closeDnaCalc() {
 }
 
 function resetDnaUI() {
-  const selectText = t('dna_select_species') || 'Select a species';
+  const selectText = t('dna_select_species');
   document.getElementById('dna-icon-a').textContent = '?';
   document.getElementById('dna-label-a').textContent = selectText;
   document.getElementById('dna-icon-b').textContent = '?';
@@ -3843,7 +3843,7 @@ function openDnaSearch(slot) {
   overlay.style.display = 'block';
   const input = document.getElementById('dna-search-input');
   input.value = '';
-  input.placeholder = t('dna_search_placeholder') || 'Search species...';
+  input.placeholder = t('dna_search_placeholder');
   input.focus();
   document.getElementById('dna-search-results').innerHTML = '';
 }
@@ -3925,7 +3925,7 @@ function showDnaResults() {
   // Divergence
   const divEl = document.getElementById('dna-divergence');
   if (result.divergenceMya != null) {
-    const tmpl = t('dna_divergence') || 'Diverged ~{mya} million years ago';
+    const tmpl = t('dna_divergence');
     divEl.textContent = tmpl.replace('{mya}', result.divergenceMya.toLocaleString());
   } else {
     divEl.textContent = '';
@@ -3935,21 +3935,21 @@ function showDnaResults() {
   const badge = document.getElementById('dna-method-badge');
   badge.className = 'dna-method-badge ' + result.method;
   if (result.method === 'known') {
-    badge.textContent = t('dna_method_known') || 'Published data';
+    badge.textContent = t('dna_method_known');
   } else if (result.method === 'estimated') {
-    badge.textContent = t('dna_method_estimated') || 'Estimated from phylogeny';
+    badge.textContent = t('dna_method_estimated');
   } else {
     badge.textContent = result.method;
   }
 
   // Source
   const sourceEl = document.getElementById('dna-source');
-  sourceEl.textContent = result.source ? 'Source: ' + result.source : '';
+  sourceEl.textContent = result.source ? t('dna_source_prefix') + result.source : '';
 
   // Shared ancestor
   const ancEl = document.getElementById('dna-ancestor');
   if (result.lca) {
-    const label = t('dna_shared_ancestor') || 'Shared ancestor';
+    const label = t('dna_shared_ancestor');
     ancEl.innerHTML = label + ': <a onclick="closeDnaCalc();navigateTo(\'' + result.lca.id + '\');setTimeout(()=>showMainPanel(nodeMap[\'' + result.lca.id + '\']),300)">' + result.lca.name + '</a>';
   } else {
     ancEl.textContent = '';
@@ -4380,6 +4380,21 @@ function applyI18n(){
   // Update play button
   const playBtn=document.getElementById('era-play');
   if(playBtn)playBtn.title=eraPlayId?t('era_pause'):t('era_play');
+  // Extinct toggle
+  const extLabel=el('extinct-label');
+  if(extLabel) extLabel.textContent=showExtinct?t('hide_extinct'):t('show_extinct');
+  // Hominins tab button
+  set('i-btn-hominins',t('btn_hominins'));
+  // Legend "Show All"
+  set('i-leg-show-all',t('show_all'));
+  // DNA vs label
+  set('i-dna-vs',t('dna_vs'));
+  // Footer
+  set('i-footer',t('footer_text'));
+  // Keyboard shortcuts hint
+  const kbdStyle='background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;';
+  const shortEl=el('i-shortcuts-hint');
+  if(shortEl) shortEl.innerHTML=t('shortcut_hint').replace('{kbd}',`<kbd style="${kbdStyle}">/</kbd>`).replace('{kbd2}',`<kbd style="${kbdStyle}">D</kbd>`).replace('{kbd3}',`<kbd style="${kbdStyle}">Esc</kbd>`);
   // Rebuild era presets and extinction markers with translated labels
   buildEraPresets();
   buildExtinctionMarkers();
@@ -4478,7 +4493,7 @@ function showLoading() {
       <circle cx="105" cy="30" r="2.5" fill="#a855f7" class="load-node" style="animation-delay:1s"/>
     </svg>
     <div style="margin-top:20px;font-size:13px;color:var(--text-secondary, #a0a4b0);letter-spacing:0.08em;">
-      Loading Tree of Life...
+      ${t('loading_init')}
     </div>
   `;
   document.body.appendChild(loader);
@@ -4732,11 +4747,11 @@ window.addEventListener('resize',()=>{layout();scheduleRender();});
 
 init();
 </script>
-<footer style="position:fixed;bottom:4px;right:8px;font-family:'Inter',sans-serif;font-size:10px;color:var(--color-text-muted);opacity:0.6;z-index:10;pointer-events:none;">
+<footer id="i-footer" style="position:fixed;bottom:4px;right:8px;font-family:'Inter',sans-serif;font-size:10px;color:var(--color-text-muted);opacity:0.6;z-index:10;pointer-events:none;">
   Tree of Life · Images via Wikimedia Commons · Built with Claude
 </footer>
 <div id="shortcuts-hint" style="position:fixed;bottom:8px;right:8px;font-family:'Inter',sans-serif;font-size:11px;color:var(--color-text-muted);background:var(--color-canvas);border:1px solid var(--color-divider);border-radius:6px;padding:4px 10px;opacity:0;transition:opacity 300ms ease;pointer-events:none;z-index:50;">
-  Press <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">/</kbd> to search &nbsp;·&nbsp; <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">D</kbd> dark mode &nbsp;·&nbsp; <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">Esc</kbd> close
+  <span id="i-shortcuts-hint">Press <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">/</kbd> to search &nbsp;·&nbsp; <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">D</kbd> dark mode &nbsp;·&nbsp; <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">Esc</kbd> close</span>
 </div>
 </body>
 </html>

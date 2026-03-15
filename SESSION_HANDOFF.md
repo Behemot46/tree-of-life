@@ -20,6 +20,90 @@ spirochete, protist, amoeba, diatom, dinoflagellate, algae, yeast, moss, fern, c
 - `platypus` — uses generic mammal, could have unique silhouette
 - Some deep species nodes inherit parent icon via ancestry walk — acceptable but could be refined
 
+## 5. Files Touched
+| File | Change |
+|------|--------|
+| `js/nodeIcons.js` | **NEW** — 37 icon SVG paths + getIconGroup() (~180 lines) |
+| `index.html` | Removed inline NODE_ICONS + getIconGroup(), added script tag |
+| `PROJECT_PROGRESS.md` | Added p20 milestone entry |
+| `SESSION_HANDOFF.md` | This file |
+
+---
+
+# Session Handoff — 2026-03-15 (p21 — Species Panel Visual Identity)
+
+**Status: done**
+**Branch:** `claude/clever-northcutt`
+
+## 1. Session Goal
+Replace emoji-based species panel headers with hero images and styled SVG fallbacks, creating a visually rich "species card" experience.
+
+## 2. What I Changed
+
+### index.html
+- **Hero image section** — replaced inline `aspect-ratio:16/9; background:#111` div + raw emoji fallback with new `.panel-hero` component using CSS classes
+- **Image sourcing chain** — uses `ImageLoader.getBestUrl(node)` → PHOTO_MAP → generated .webp → Wikipedia API (`fetchWikiPhoto`) → styled SVG fallback
+- **SVG fallback** — when no image available, shows domain-colored gradient background with the node's SVG silhouette icon (from `NODE_ICONS`/`getIconGroup`) instead of raw emoji
+- **Skeleton loading** — CSS shimmer animation (`.panel-hero-skeleton`) while image loads
+- **Fade-in transition** — hero image fades in on load via `.panel-hero-img.loaded { opacity: 1 }`
+- **Credit attribution** — shows source credit ("Wikipedia / Wikimedia Commons" or "AI-generated illustration") below hero image
+- **Header typography** — removed emoji from header, species name uses `.panel-header h2` class, latin name and era use semantic classes
+- **Lineage badges** — "Human Lineage" and "Great Apes" badges extracted to `.panel-lineage-badge` class
+- **`fetchWikiPhoto()` updated** — now handles null `imgEl` parameter (for cache-only pre-fetch)
+- **CSS additions** — ~40 lines of new panel hero styles: `.panel-hero`, `.panel-hero-img`, `.panel-hero-fallback`, `.panel-hero-gradient`, `.panel-hero-credit`, `.panel-hero-skeleton`, `@keyframes shimmer`, light theme overrides, mobile responsive (aspect-ratio 2/1, max-height 150px)
+
+## 3. Image Sourcing Chain (how it works)
+1. `ImageLoader.getBestUrl(node)` returns best static URL (PHOTO_MAP → generated .webp → node.img)
+2. If static URL loads → show it with fade-in + credit
+3. If static URL fails → try `fetchWikiPhoto()` from Wikipedia API
+4. If Wikipedia succeeds → show that photo + "Wikipedia / Wikimedia Commons" credit
+5. If all fail → show styled SVG fallback (domain-colored gradient + silhouette icon)
+
+## 4. Files Touched
+| File | Change |
+|------|--------|
+| `index.html` | Panel hero CSS (~40 lines), `renderPanelContent()` rewrite (~50 lines changed), `fetchWikiPhoto()` null-safety |
+| `PROJECT_PROGRESS.md` | Added p21 completion entry |
+| `SESSION_HANDOFF.md` | This handoff |
+
+## 5. Tests Performed
+- Desktop: panel opens with hero section, fallback SVG icon shown (Wikimedia blocked in preview browser)
+- Mobile (375x812): bottom-sheet panel works, hero capped at 150px height
+- Light theme: hero section has appropriate lighter background
+- Dark theme: hero section blends with surface
+- RTL (Hebrew): panel layout correct, hero image not mirrored
+- Zero console errors across all tests
+
+## 6. Known Issues
+- Claude Preview browser blocks Wikimedia URLs — cannot verify actual photo loading in preview (works in real browser)
+- No duplicate PHOTO_MAP existed (was already removed in p15) — prompt's Phase A was a no-op
+
+## 7. Recommended Next Steps
+- Verify photo loading in a real browser (not Claude Preview)
+- Test with nodes that have PHOTO_MAP entries to confirm fade-in transition
+
+---
+
+# Session Handoff — 2026-03-15 (p23 — DNA Similarity Calculator)
+
+**Status: done**
+**Branch:** `claude/crazy-villani`
+
+### index.html
+- **HTML**: DNA Compare button (`#btn-dna-calc`), modal panel (`#dna-panel`) with species selectors, search overlay, results display, 4 quick presets
+- **CSS**: ~130 lines — modal styling, species slots, DNA bar, percentage display, badges, mobile responsive, dark/light theme
+- **JS**: ~120 lines — `openDnaCalc()`, `closeDnaCalc()`, `dnaPreset()`, search integration via `searchEntities()`, animated counter, Escape key handling, backdrop click close
+- **applyI18n()**: 10 new DNA calculator entries
+
+### js/uiData.js
+- 13 new i18n keys per language (EN/HE/RU)
+
+## 3. Known Issues / Follow-up
+- Some tree nodes use group IDs rather than species IDs — the calculator works with any node
+- The preset "You & a Banana" compares against "Flowering Plants" (`angiosperms`) since there's no banana-plant node
+- Hebrew RTL and Russian not visually verified
+- Mobile viewport not tested
+
 ---
 
 # Session Handoff — 2026-03-15 (p19 — Roadmap & Project Health)

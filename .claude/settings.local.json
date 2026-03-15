@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l \"C:\\\\Users\\\\GAMER\\\\tree-of-life\\\\.claude\\\\worktrees\\\\keen-brown\\\\js\"/*.js)",
+      "Bash(grep -c \"^  ''[a-z]\" \"C:\\\\Users\\\\GAMER\\\\tree-of-life\\\\.claude\\\\worktrees\\\\keen-brown\\\\js\\\\speciesData.js\")",
+      "Bash(grep -c \"^  ''en'':\\\\|^  ''he'':\\\\|^  ''ru'':\" \"C:\\\\Users\\\\GAMER\\\\tree-of-life\\\\.claude\\\\worktrees\\\\keen-brown\\\\js\\\\uiData.js\")",
+      "Bash(node -e \"const fs=require\\(''fs''\\); const code=fs.readFileSync\\(''js/uiData.js'',''utf8''\\); const m=code.match\\(/const TRANSLATIONS = \\\\{\\([\\\\s\\\\S]*?\\)\\\\n\\\\};/\\); const lines = m[1].split\\(''\\\\n''\\).filter\\(l => l.match\\(/:/\\)\\).length; console.log\\(''Translation keys:'', lines\\);\")",
+      "Bash(cp C:/Users/GAMER/tree-of-life/.claude/worktrees/keen-brown/docs/PROMPTS/PROMPT_P16_NODE_ARTWORK.md C:/Users/GAMER/tree-of-life/docs/PROMPTS/PROMPT_P16_NODE_ARTWORK.md)",
+      "Bash(cp C:/Users/GAMER/tree-of-life/.claude/worktrees/keen-brown/docs/PROMPTS/PROMPT_P17_PANEL_VISUALS.md C:/Users/GAMER/tree-of-life/docs/PROMPTS/PROMPT_P17_PANEL_VISUALS.md)",
+      "Bash(cp C:/Users/GAMER/tree-of-life/.claude/worktrees/keen-brown/docs/PROMPTS/PROMPT_P19_DNA_CALCULATOR.md C:/Users/GAMER/tree-of-life/docs/PROMPTS/PROMPT_P19_DNA_CALCULATOR.md)",
+      "Bash(gh pr:*)",
+      "Bash(grep -n:*)",
+      "Bash(sed -i 's/phase p16/phase p20/g; s/p16 + p17 + p19/p20 + p21 + p23/g; s/p17''''s scope/p21''''s scope/g; s/p19''''s scope/p23''''s scope/g; s/# P16/# P20/g' docs/PROMPTS/PROMPT_P16_NODE_ARTWORK.md)",
+      "Bash(sed -i 's/| p16 |/| p20 |/g' docs/PROMPTS/PROMPT_P16_NODE_ARTWORK.md)",
+      "Bash(mv docs/PROMPTS/PROMPT_P16_NODE_ARTWORK.md docs/PROMPTS/PROMPT_P20_NODE_ARTWORK.md)",
+      "Bash(sed -i 's/phase p17/phase p21/g; s/p16 + p17 + p19/p20 + p21 + p23/g; s/p16''''s scope/p20''''s scope/g; s/p19''''s scope/p23''''s scope/g; s/# P17/# P21/g' docs/PROMPTS/PROMPT_P17_PANEL_VISUALS.md)",
+      "Bash(sed -i 's/| p17 |/| p21 |/g' docs/PROMPTS/PROMPT_P17_PANEL_VISUALS.md)",
+      "Bash(mv docs/PROMPTS/PROMPT_P17_PANEL_VISUALS.md docs/PROMPTS/PROMPT_P21_PANEL_VISUALS.md)",
+      "Bash(sed -i 's/phase p19/phase p23/g; s/p16 + p17 + p19/p20 + p21 + p23/g; s/p16''''s scope/p20''''s scope/g; s/p17''''s scope/p21''''s scope/g; s/# P19/# P23/g' docs/PROMPTS/PROMPT_P19_DNA_CALCULATOR.md)",
+      "Bash(sed -i 's/| p19 |/| p23 |/g' docs/PROMPTS/PROMPT_P19_DNA_CALCULATOR.md)",
+      "Bash(mv docs/PROMPTS/PROMPT_P19_DNA_CALCULATOR.md docs/PROMPTS/PROMPT_P23_DNA_CALCULATOR.md)"
+    ]
+  }
+}

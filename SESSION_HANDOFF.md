@@ -1,3 +1,79 @@
+# Session Handoff — 2026-03-15 (p26a — 130+ Facts Pack Integration)
+
+**Status: done**
+**Branch:** `claude/compassionate-poitras`
+
+## 1. Session Goal
+Expand the fact library from 18 to 130+ trilingual facts and wire them into 5 UI surfaces: loading screen, species panel, node tooltip, discovery toast, and random species button.
+
+## 2. What I Changed
+
+### js/factLibrary.js (complete rewrite — ~320 lines)
+- **148 trilingual facts** (EN/HE/RU) — up from 18
+- Each fact has metadata: `species` (node ID linkage), `loading`, `panel`, `tooltip`, `discovery` flags
+- **New API methods**: `getForSpecies(nodeId)`, `getPanelFact(nodeId, lang)`, `getTooltipFact(nodeId, lang)`, `getDiscoveryFact(lang)` with session dedup
+- Fact breakdown by domain:
+  - Bacteria & Archaea: 15 facts
+  - Protists: 8 facts
+  - Fungi: 10 facts
+  - Plants: 15 facts
+  - Invertebrates: 15 facts
+  - Fish & Amphibians: 10 facts
+  - Reptiles & Birds: 12 facts
+  - Mammals: 15 facts
+  - Human evolution: 15 facts
+  - General/cross-domain: 15 facts
+  - Original 18 loading facts (enhanced with species linkage)
+
+### index.html
+- **Panel DID YOU KNOW** (~line 2830): Enhanced to show trilingual `FACTS.getPanelFact()` when no `node.funFact` exists
+- **Tooltip** (~line 363): Added `.tip-fact-line` CSS class for italic fact line below node name; `showTip()` now accepts `nodeId` param, calls `FACTS.getTooltipFact()`
+- **Discovery fact toast** (~line 1167): New `#fact-toast` element with CSS animation, auto-shows after random species jump, auto-dismisses after 7s, clickable to dismiss
+- **Random button** (~line 3739): Wired to `showFactToast()` after `navigateTo()`
+
+## 3. Surfaces Wired
+
+| Surface | Source | Status |
+|---------|--------|--------|
+| Loading screen | `FACTS.getLoadingFact(lang)` | Already existed, now draws from 72 loading-safe facts |
+| Species panel | `FACTS.getPanelFact(nodeId, lang)` | NEW — trilingual fact in DID YOU KNOW box |
+| Node hover tooltip | `FACTS.getTooltipFact(nodeId, lang)` | NEW — italic one-liner below node name |
+| Discovery toast | `FACTS.getDiscoveryFact(lang)` | NEW — top-center toast after random jump |
+| Random button | Triggers discovery toast | NEW — auto-shows fact on 🎲 click |
+
+## 4. ENRICHMENT Migration (Phase F)
+Not completed — left as-is. ENRICHMENT altFacts still display in their own "DID YOU KNOW?" section (English only). The FACTS library provides trilingual facts via the separate "DID YOU KNOW" section above it.
+
+## 5. Files Touched
+| File | Change |
+|------|--------|
+| `js/factLibrary.js` | Complete rewrite — 148 facts + 6 new API methods |
+| `index.html` | Panel fact integration, tooltip fact line, discovery toast HTML/CSS/JS |
+| `PROJECT_PROGRESS.md` | Added p26a to completed table |
+| `SESSION_HANDOFF.md` | This handoff |
+
+## 6. Tests Performed
+- `FACTS.getAll().length` → 148
+- `FACTS.getLoadingPool().length` → 72
+- Panel shows trilingual fact for E. coli (verified EN + HE)
+- Toast appears on random button click with correct fact text
+- Hebrew RTL: toast and panel facts display correctly in Hebrew
+- Zero console errors
+- Discovery dedup: `getDiscoveryFact()` tracks shown IDs per session
+
+## 7. Not Tested
+- Russian language (translations added but not visually verified)
+- Mobile viewport layout for toast
+- Tooltip fact on desktop hover (verified code path, not visual)
+- All 148 facts individually for accuracy
+
+## 8. Known Issues / Follow-up
+- ENRICHMENT altFacts (English only) still display separately from FACTS library facts — could be unified in a future pass
+- Toast positioning may need adjustment on very narrow mobile viewports
+- `node.funFact` (from treeData.js) takes priority over FACTS library — some nodes show English-only funFact even when FACTS has trilingual version
+
+---
+
 # Session Handoff — 2026-03-15 (p20 — Naturalist Node Artwork)
 
 **Status: done**

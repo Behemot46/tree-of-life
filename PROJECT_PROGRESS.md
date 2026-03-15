@@ -27,6 +27,7 @@
 | p20 | Naturalist node artwork — expanded icon library (20→37 icons), improved mapping | PR #62 |
 | p21 | Species panel visual identity — hero images, styled fallbacks, header typography | PR #61 |
 | p23 | DNA similarity calculator — species comparator with known + estimated data | `claude/crazy-villani` |
+| p26a | 130+ facts pack — expanded library, panel/tooltip/discovery integration | `claude/compassionate-poitras` |
 
 ### Upcoming
 

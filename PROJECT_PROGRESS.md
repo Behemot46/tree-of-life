@@ -25,6 +25,7 @@
 | p18 | Fix overlapping header controls | PR #57 |
 | p19 | Roadmap & project health | `claude/keen-easley` |
 | p23 | DNA similarity calculator — species comparator with known + estimated data | `claude/crazy-villani` |
+| p22 | Rich data panels & infographics — sections, timeline bar, radar chart, typography | `claude/charming-einstein` |
 
 ### Upcoming
 
@@ -32,7 +33,7 @@
 |---|-----------|------|--------|
 | p20 | Naturalist node artwork | Replace all emoji/silhouette node icons with consistent high-quality artistic sketches (pen-and-ink naturalist style) for every node (~130+). Build asset pipeline, SVG/WebP format, fallback chain. | Pending |
 | p21 | Species panel visual identity | Replace emoji headers in species info panel with curated photos or GenAI artwork. Consistent framing/style, Wikimedia + AI-generated fallback pipeline. | Pending |
-| p22 | Rich data panels & infographics | Increase fonts, add descriptive paragraphs, layered data sections (habitat, diet, morphology, fossil record). Inline mini-infographics: size comparisons, range maps, trait radar charts. | Pending |
+| p22 | Rich data panels & infographics | Increase fonts, add descriptive paragraphs, layered data sections (habitat, diet, morphology, fossil record). Inline mini-infographics: size comparisons, range maps, trait radar charts. | Done |
 | p23 | DNA similarity calculator | Two-species comparator: pick any two species, display estimated DNA similarity %. Visual output with divergence timeline, shared traits, "you share X% DNA with a banana" UX. | Done |
 | p24 | Always-visible hominin branch | Show full hominin family tree as expanded branch with twigs on main canvas — no "explore deeper" required. Auto-layout to avoid crowding, golden path emphasis, larger labels. | Pending |
 | p25 | Interactive legend & domain highlighting | Clicking a domain in the legend highlights/filters that subtree on the canvas. Visual feedback, toggle behavior. | Pending |

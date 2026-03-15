@@ -986,6 +986,7 @@ const ERA_GROUPS = [
 const HOMININ_ID_ALIASES={
   "homo-sapiens":"h_sapiens",
   "homo-naledi":"h_naledi",
+  "homo-floresiensis":"h_floresiensis",
   "denisovan":"denisovans",
   "h_neanderthalensis":"neanderthal"
 };

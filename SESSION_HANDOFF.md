@@ -1,3 +1,88 @@
+# Session Handoff — 2026-03-15 (p17: Subtree-Weighted Radial Spacing)
+
+**Status: done**
+**PR:** https://github.com/Behemot46/tree-of-life/pull/56
+**Branch:** `claude/goofy-bartik`
+
+## 1. Session Goal
+Improve the spatial quality of the radial tree layout so branches feel open, breathing, and museum-quality rather than compressed or mechanical.
+
+## 2. What I Changed
+
+### index.html (+46 lines, -5 lines)
+- **Replaced `assignAngles()`** — was equal-share (each sibling gets `range/N`); now uses `sqrt(leafCount)` weighting so larger subtrees get proportionally more angular room
+- **Added `leafCount()` helper** — recursively counts visible leaves in a subtree, used by `assignAngles` for proportional weighting
+- **Replaced `assignPositions()`** — improved DEPTH_R fallback from `depth*65` to `DEPTH_R[last] + (overflow)*120` for graceful handling of deep trees
+- **Increased label offset** — from `r+14` to `r+18` base (with upstream's depth-adaptive `+Math.max(0,(depth-3)*4)` bonus preserved)
+- **Reduced initial zoom** — from `s:0.75` to `s:0.6` to accommodate expanded canvas
+
+### js/uiData.js (+2 lines, -1 line)
+- **Updated DEPTH_R array** — old: `[0,225,412,578,725,853,965,1067,1152,1230,1300,1365]`, new: `[0,240,440,620,790,950,1100,1240,1370,1490,1600]`
+- Inter-ring gaps are now more consistent (200→180→170→160→150→140→130→120→110) instead of shrinking rapidly at deeper levels
+
+## 3. Why These Changes Were Made
+- Equal angular allocation gave leaf nodes (Porifera) the same arc as massive subtrees (Animals with 40+ descendants), crowding the dense regions
+- DEPTH_R gaps shrank from 225px at depth 1 to just 65px at depth 8+, causing label overlap at the deepest levels where the most species live
+- The tree read as mechanically uniform — subtree-weighted angles create natural, organic variation
+
+## 4. Files Touched
+- `index.html` — layout functions (`assignAngles`, `assignPositions`, `leafCount`), label offset, initial zoom
+- `js/uiData.js` — DEPTH_R spacing array
+
+## 5. Key Implementation Notes
+- `sqrt(leafCount)` dampens extreme weight ratios — Eukaryota (100+ leaves) gets ~3x the angle of Bacteria (5 leaves), not 20x
+- `MIN_ANGLE_SEP=0.22` (already present in upstream) ensures even small subtrees get minimum breathing room
+- Upstream's multi-view layout system (radial/cladogram/chronological) was preserved intact — changes only affect `assignAngles`, `assignPositions`, and `DEPTH_R`, which are used by `layoutRadial()`
+- Cladogram view has its own independent `countLeaves` function — unaffected
+
+## 6. Risks / Caveats
+- The expanded DEPTH_R means the tree is ~17% larger overall; initial zoom reduced to compensate but users may need to zoom out more on small screens
+- 3 label pairs still overlap out of 93 visible labels — the upstream global collision system handles most cases
+
+## 7. Tests Performed
+- Tree renders without JS errors
+- Minimum sibling distance at all depths verified (≥83px at depth 2, ≥129px at deeper levels)
+- 93 labels visible, only 3 overlapping pairs
+- Hebrew RTL language switch works correctly
+- Panel open/close works
+- Pan and zoom reach all nodes
+- Cladogram and chronological view modes unaffected (upstream code preserved through merge conflict resolution)
+
+## 8. Not Tested
+- Russian language switching
+- Mobile layout
+- Extinct toggle (attempted but preview browser disconnected)
+- Deep zoom with all subtrees expanded
+- Node click → expand children flow
+
+## 9. Known Issues Still Open
+1. Hominin overlay HTML still in index.html (dead code from p16)
+2. Timeline not fully interactive
+3. Panel modularization opportunity
+4. `panelHistory` and `navStack` are parallel stacks
+
+## 10. Recommended Next Steps
+- Test mobile layout with expanded radii — may need responsive DEPTH_R scaling
+- Consider making DEPTH_R dynamically computed based on viewport size
+- Remove dead hominin overlay code
+
+## 11. Suggested Commit Message
+`feat: subtree-weighted radial layout with generous spacing`
+
+## 12. Suggested PR Title
+`feat: subtree-weighted radial layout with generous spacing`
+
+## 13. Suggested PR Description
+See PR #56
+
+## Merge Conflicts Resolved
+- **index.html** had 3 conflict zones:
+  1. **Layout section** (lines ~1629–1743): Upstream added cladogram + chronological views; stash had subtree-weighted radial. **Resolution:** kept upstream's multi-view structure, applied subtree-weighted `assignAngles`/`assignPositions`/`leafCount` to the radial path only.
+  2. **Image rendering** (lines ~2074–2126): Upstream added SVG silhouette + ImageLoader; stash had old label overlap code. **Resolution:** kept upstream's silhouette/ImageLoader code entirely, discarded stale label overlap code (upstream has better global collision pass).
+  3. **Label distance** (lines ~2133–2137): Upstream had `r+14+depth_bonus`; stash had `r+20`. **Resolution:** merged to `r+18+depth_bonus` — larger base offset with depth adaptation.
+
+---
+
 # Session Handoff — 2026-03-15 (p16: Inline Hominin Subtree Fixes)
 
 **Status: done**

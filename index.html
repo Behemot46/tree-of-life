@@ -356,6 +356,46 @@ svg{width:100%;height:100%;}
 .p-children li:hover{background:var(--surface-raised);color:var(--text-primary);}
 .p-children li .pci{font-size:0.95rem;}
 
+/* ── RICH PANEL SECTIONS (p22) ── */
+.panel-section{border-bottom:1px solid var(--border);padding-bottom:4px;}
+.panel-section:last-of-type{border-bottom:none;}
+.panel-section-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;
+  padding:10px 0;user-select:none;transition:opacity 0.15s;}
+.panel-section-header:hover{opacity:0.8;}
+.panel-section-header span:first-child{font-size:12px;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--text-secondary);font-family:var(--font-sans);}
+.panel-chevron{font-size:10px;color:var(--text-secondary);transition:transform 0.25s ease;display:inline-block;}
+.panel-section.collapsed .panel-chevron{transform:rotate(-90deg);}
+[dir="rtl"] .panel-section.collapsed .panel-chevron{transform:rotate(90deg);}
+.panel-section-body{overflow:hidden;transition:max-height 0.3s ease;display:flex;flex-direction:column;gap:12px;
+  padding-bottom:8px;}
+.panel-section.collapsed .panel-section-body{display:none;}
+
+/* Timeline bar */
+.panel-timeline{width:100%;position:relative;}
+.panel-timeline-track{width:100%;height:6px;background:var(--surface-raised);border-radius:3px;position:relative;
+  border:1px solid var(--border);}
+.panel-timeline-fill{height:100%;border-radius:3px;opacity:0.35;position:absolute;left:0;top:0;}
+.panel-timeline-marker{width:10px;height:10px;border-radius:50%;position:absolute;top:50%;
+  transform:translate(-50%,-50%);border:2px solid var(--surface);box-shadow:0 0 4px rgba(0,0,0,0.3);}
+.panel-timeline-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text-secondary);
+  font-family:var(--font-mono);margin-top:4px;}
+
+/* Radar chart */
+.panel-radar{display:flex;justify-content:center;padding:8px 0;}
+
+/* Enrichment cards */
+.panel-enrich-card{padding:10px 14px;background:var(--surface-raised);border-radius:8px;
+  font-size:13px;line-height:1.65;color:var(--text-secondary);font-family:var(--font-body);
+  border-left:3px solid var(--accent-primary);}
+[dir="rtl"] .panel-enrich-card{border-left:none;border-right:3px solid var(--accent-primary);}
+
+/* Link pills */
+.panel-link-pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:5px 12px;
+  border-radius:9999px;background:var(--surface-raised);border:1px solid var(--border);
+  color:var(--accent-primary);font-family:var(--font-sans);text-decoration:none;transition:all 0.2s;}
+.panel-link-pill:hover{background:var(--accent-primary);color:white;border-color:var(--accent-primary);}
+
 /* ── HOMININ ENTER BUTTON ── */
 #hom-enter-btn{display:inline-flex;align-items:center;gap:0.5rem;margin-top:0.8rem;
   padding:0.45rem 1rem;background:var(--accent-primary-dim);border:1px solid rgba(14,165,233,0.3);
@@ -2772,7 +2812,6 @@ function renderPanelContent(node) {
   // Image sourcing: ImageLoader → PHOTO_MAP → Wikipedia API → styled fallback
   const best = (typeof ImageLoader !== 'undefined') ? ImageLoader.getBestUrl(node) : { url: null, source: null, credit: null };
   const wikiTitle = WIKI_TITLES[node.id] || null;
-  // Suppress if this static URL previously failed
   if (best.url && window._failedPhotos && window._failedPhotos.has('static:' + node.id)) {
     best.url = null;
   }
@@ -2780,11 +2819,132 @@ function renderPanelContent(node) {
   const panelHeroId = 'panel-hero-' + node.id.replace(/[^a-z0-9]/g,'_');
   const panelCrId  = 'panel-hero-cr-' + node.id.replace(/[^a-z0-9]/g,'_');
   const panelSkeletonId = 'panel-hero-skel-' + node.id.replace(/[^a-z0-9]/g,'_');
+  const domainColor = node.color || '#888';
   // Build SVG fallback icon from NODE_ICONS
   const iconGroup = (typeof getIconGroup === 'function') ? getIconGroup(node) : 'default';
   const iconPath = (typeof NODE_ICONS !== 'undefined') ? (NODE_ICONS[iconGroup] || NODE_ICONS.default) : '';
   const nodeColor = node.color || '#555';
   const fallbackSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="${nodeColor}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="${iconPath}"/></svg>`;
+
+  // ── Helper: build timeline position bar ──
+  function buildTimelineBar() {
+    if (node.appeared == null) return '';
+    const pct = Math.max(1, Math.min(99, (1 - node.appeared / 3800) * 100));
+    return `<div class="panel-timeline" style="margin:4px 0;">
+      <div class="panel-timeline-track">
+        <div class="panel-timeline-fill" style="width:${pct}%;background:${domainColor};"></div>
+        <div class="panel-timeline-marker" style="left:${pct}%;background:${domainColor};"></div>
+      </div>
+      <div class="panel-timeline-labels">
+        <span>3.8 Bya</span>
+        <span style="position:absolute;left:${pct}%;transform:translateX(-50%);font-weight:600;color:${domainColor};">~${node.appeared >= 1000 ? (node.appeared/1000).toFixed(1)+' Bya' : node.appeared+' Mya'}</span>
+        <span>Now</span>
+      </div>
+    </div>`;
+  }
+
+  // ── Helper: build radar chart from numeric facts ──
+  function buildRadarChart() {
+    if (!node.facts || node.facts.length < 3) return '';
+    const numFacts = node.facts.map(f => {
+      const m = String(f.v).replace(/[,~≈>< ]/g,'').match(/^[\d.]+/);
+      return m ? { label: f.l, val: parseFloat(m[0]) } : null;
+    }).filter(Boolean);
+    if (numFacts.length < 3) return '';
+    const items = numFacts.slice(0, 6);
+    const maxVal = Math.max(...items.map(d => d.val));
+    if (maxVal === 0) return '';
+    const cx = 60, cy = 60, R = 48;
+    const n = items.length;
+    const angleStep = (2 * Math.PI) / n;
+    // Grid circles
+    let gridSvg = '';
+    [0.33, 0.66, 1].forEach(s => {
+      const r = R * s;
+      gridSvg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--border)" stroke-width="0.5" opacity="0.5"/>`;
+    });
+    // Axes
+    let axesSvg = '';
+    let labelsSvg = '';
+    const points = [];
+    items.forEach((d, i) => {
+      const angle = -Math.PI / 2 + i * angleStep;
+      const ax = cx + R * Math.cos(angle);
+      const ay = cy + R * Math.sin(angle);
+      axesSvg += `<line x1="${cx}" y1="${cy}" x2="${ax}" y2="${ay}" stroke="var(--border)" stroke-width="0.5" opacity="0.5"/>`;
+      // Label position
+      const lx = cx + (R + 14) * Math.cos(angle);
+      const ly = cy + (R + 14) * Math.sin(angle);
+      const anchor = Math.abs(Math.cos(angle)) < 0.1 ? 'middle' : (Math.cos(angle) > 0 ? 'start' : 'end');
+      const shortLabel = d.label.length > 10 ? d.label.slice(0, 9) + '…' : d.label;
+      labelsSvg += `<text x="${lx}" y="${ly}" text-anchor="${anchor}" dominant-baseline="middle" font-size="8" fill="var(--text-secondary)" font-family="Inter,sans-serif">${shortLabel}</text>`;
+      // Data point
+      const ratio = d.val / maxVal;
+      const px = cx + R * ratio * Math.cos(angle);
+      const py = cy + R * ratio * Math.sin(angle);
+      points.push(`${px},${py}`);
+    });
+    const polygon = `<polygon points="${points.join(' ')}" fill="${domainColor}" fill-opacity="0.2" stroke="${domainColor}" stroke-width="1.5"/>`;
+    const dots = points.map(pt => {
+      const [x,y] = pt.split(',');
+      return `<circle cx="${x}" cy="${y}" r="2.5" fill="${domainColor}"/>`;
+    }).join('');
+    return `<div class="panel-radar"><svg width="150" height="150" viewBox="0 0 120 120">${gridSvg}${axesSvg}${polygon}${dots}${labelsSvg}</svg></div>`;
+  }
+
+  // ── Helper: hominin data section ──
+  function buildHomininSection() {
+    const h = node._hominData;
+    if (!h) return '';
+    const brainMax = h.brain && (h.brain[1] || h.brain[0]);
+    const neanPct = h.dna && h.dna.neanderthal != null ? h.dna.neanderthal : null;
+    const denPct = h.dna && h.dna.denisovan != null ? h.dna.denisovan : null;
+    let inner = '';
+    if (brainMax) {
+      inner += `<div style="display:flex;flex-direction:column;gap:4px;">
+        <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:Inter,sans-serif;">🧠 BRAIN VOLUME</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div style="flex:1;height:8px;background:var(--color-canvas-alt);border-radius:4px;overflow:hidden;">
+            <div style="width:${Math.round(brainMax/1750*100)}%;height:100%;background:${h.color};border-radius:4px;"></div>
+          </div>
+          <span style="font-size:13px;color:var(--color-text-secondary);font-family:JetBrains Mono,monospace;min-width:60px;">${brainMax} cm³</span>
+        </div>
+      </div>`;
+    }
+    const hasTools = h.tools && h.tools !== 'None known' && h.tools !== 'None';
+    const hasFire = h.fire && h.fire !== 'No';
+    const hasLang = h.language && h.language !== 'None';
+    if (hasTools || hasFire || hasLang) {
+      inner += `<div style="display:flex;gap:12px;flex-wrap:wrap;">`;
+      if (hasTools) inner += `<div style="font-size:13px;color:var(--color-text-secondary);font-family:Inter,sans-serif;">🪨 ${h.tools}</div>`;
+      if (hasFire) inner += `<div style="font-size:13px;color:var(--color-text-secondary);font-family:Inter,sans-serif;">🔥 ${h.fire}</div>`;
+      if (hasLang) inner += `<div style="font-size:13px;color:var(--color-text-secondary);font-family:Inter,sans-serif;">🗣️ ${h.language}</div>`;
+      inner += `</div>`;
+    }
+    if (neanPct != null || denPct != null) {
+      inner += `<div style="display:flex;flex-direction:column;gap:4px;">
+        <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:Inter,sans-serif;">🧬 DNA LEGACY</div>`;
+      if (neanPct != null) inner += `<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-secondary);font-family:Inter,sans-serif;"><span style="min-width:80px;">Neanderthal</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,neanPct*25)}%;height:100%;background:#7A9BAA;border-radius:3px;"></div></div><span style="font-family:JetBrains Mono,monospace;">${neanPct}%</span></div>`;
+      if (denPct != null) inner += `<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-secondary);font-family:Inter,sans-serif;"><span style="min-width:80px;">Denisovan</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,denPct*20)}%;height:100%;background:#7A8BAA;border-radius:3px;"></div></div><span style="font-family:JetBrains Mono,monospace;">${denPct}%</span></div>`;
+      if (h.dna && h.dna.note) inner += `<div style="font-size:12px;color:var(--color-text-muted);font-style:italic;">${h.dna.note}</div>`;
+      inner += `</div>`;
+    }
+    if (h.sites && h.sites.length) {
+      inner += `<div style="display:flex;flex-direction:column;gap:4px;">
+        <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:Inter,sans-serif;">📍 FOSSIL SITES</div>
+        <div style="font-size:13px;color:var(--color-text-secondary);font-family:Inter,sans-serif;line-height:1.6;">${h.sites.join(' · ')}</div>
+      </div>`;
+    }
+    if (!inner) return '';
+    return `<div class="panel-section">
+      <div class="panel-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+        <span>🦴 Hominin Data</span><span class="panel-chevron">▾</span>
+      </div>
+      <div class="panel-section-body">${inner}</div>
+    </div>`;
+  }
+
+  // ── Build panel HTML (merged: origin/main hero + p22 sections) ──
   // Lineage badge
   const lineageBadge = (()=>{
     const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','homo-sapiens'];
@@ -2804,7 +2964,7 @@ function renderPanelContent(node) {
       <div class="panel-hero-gradient"></div>
       <div id="${panelCrId}" class="panel-hero-credit" style="display:none;"></div>
     </div>
-    <div style="padding:20px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;flex:1;">
+    <div style="padding:20px;display:flex;flex-direction:column;gap:20px;overflow-y:auto;flex:1;">
       ${lineageBadge ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;">${lineageBadge}</div>` : ''}
       <div class="panel-header">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -2812,114 +2972,122 @@ function renderPanelContent(node) {
           ${extinctBadge}
         </div>
         ${node.latin ? `<div class="panel-latin">${node.latin}</div>` : ''}
-        ${node.era ? `<div class="panel-era">${node.era}${node.appeared ? ' \u00b7 ' + node.appeared + ' Mya' : ''}</div>` : ''}
+        ${node.era ? `<div class="panel-era"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${domainColor};flex-shrink:0;vertical-align:middle;margin-right:6px;"></span>${node.era}${node.appeared ? ' \u00b7 ' + node.appeared + ' Mya' : ''}</div>` : ''}
       </div>
-      ${node.desc ? `<p style="font-size:14px;line-height:1.7;color:var(--color-text-secondary);font-family:'Inter',sans-serif;margin:0;">${node.desc}</p>` : ''}
-      ${(() => {
-        const _panelFact = node.funFact || FACTS.getPanelFact(node.id, currentLang);
-        return _panelFact ? `
-        <div style="border-left:3px solid var(--color-accent);padding:12px 16px;background:rgba(46,125,50,0.06);border-radius:0 8px 8px 0;">
-          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;margin-bottom:6px;font-family:'Inter',sans-serif;">💡 DID YOU KNOW</div>
-          <p style="font-family:'Inter',sans-serif;font-style:italic;font-size:14px;line-height:1.6;color:var(--color-text-primary);margin:0;">${_panelFact}</p>
+
+      <!-- Overview Section (always open) -->
+      <div class="panel-section">
+        <div class="panel-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>Overview</span><span class="panel-chevron">▾</span>
         </div>
-      ` : '';
-      })()}
-      ${node.detail ? `<p style="font-size:13px;line-height:1.7;color:var(--color-text-muted);font-family:'Inter',sans-serif;margin:0;">${node.detail}</p>` : ''}
-      ${node.facts && node.facts.length > 0 ? `
-        <div style="display:flex;flex-direction:column;gap:1px;border-radius:8px;overflow:hidden;border:1px solid var(--color-divider);">
-          ${node.facts.map((f, i) => `
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:${i % 2 === 0 ? 'var(--color-canvas-alt)' : 'var(--color-panel-bg)'};">
-              <span style="font-size:12px;color:var(--color-text-muted);font-family:'Inter',sans-serif;">${f.l}</span>
-              <span style="font-size:13px;font-weight:600;color:var(--color-text-primary);font-family:'Inter',sans-serif;text-align:right;max-width:60%;">${f.v}</span>
+        <div class="panel-section-body">
+          ${node.desc ? `<p style="font-size:15px;line-height:1.8;color:var(--color-text-secondary);font-family:Inter,sans-serif;margin:0;">${node.desc}</p>` : ''}
+          ${(() => {
+            const _panelFact = node.funFact || FACTS.getPanelFact(node.id, currentLang);
+            return _panelFact ? `
+            <div style="border-left:3px solid var(--color-accent);padding:12px 16px;background:rgba(46,125,50,0.06);border-radius:0 8px 8px 0;">
+              <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;margin-bottom:6px;font-family:Inter,sans-serif;">💡 DID YOU KNOW</div>
+              <p style="font-family:Inter,sans-serif;font-style:italic;font-size:14px;line-height:1.6;color:var(--color-text-primary);margin:0;">${_panelFact}</p>
             </div>
-          `).join('')}
+          ` : '';
+          })()}
+          ${node.detail ? `<p style="font-size:14px;line-height:1.8;color:var(--color-text-muted);font-family:Inter,sans-serif;margin:0;">${node.detail}</p>` : ''}
+          ${node.tipFact ? `<div style="padding:12px;background:var(--color-button-bg);border-radius:8px;font-size:13px;color:var(--color-text-muted);font-family:Inter,sans-serif;font-style:italic;text-align:center;">🌿 ${node.tipFact}</div>` : ''}
         </div>
-      ` : ''}
-      ${node.tags && node.tags.length > 0 ? `
-        <div style="display:flex;flex-wrap:wrap;gap:6px;">
-          ${node.tags.map(tag => `
-            <span style="font-size:11px;padding:3px 10px;border-radius:9999px;background:var(--color-button-bg);border:1px solid var(--color-button-border);color:var(--color-text-secondary);font-family:'Inter',sans-serif;">${tag}</span>
-          `).join('')}
+      </div>
+
+      <!-- Key Facts Section -->
+      ${node.facts && node.facts.length > 0 ? `
+      <div class="panel-section">
+        <div class="panel-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>Key Facts</span><span class="panel-chevron">▾</span>
         </div>
-      ` : ''}
-      ${node.tipFact ? `
-        <div style="padding:12px;background:var(--color-button-bg);border-radius:8px;font-size:12px;color:var(--color-text-muted);font-family:'Inter',sans-serif;font-style:italic;text-align:center;">
-          🌿 ${node.tipFact}
+        <div class="panel-section-body">
+          <div style="display:flex;flex-direction:column;gap:1px;border-radius:8px;overflow:hidden;border:1px solid var(--color-divider);">
+            ${node.facts.map((f, i) => `
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:${i % 2 === 0 ? 'var(--color-canvas-alt)' : 'var(--color-panel-bg)'};">
+                <span style="font-size:12px;color:var(--color-text-muted);font-family:Inter,sans-serif;">${f.l}</span>
+                <span style="font-size:14px;font-weight:600;color:var(--color-text-primary);font-family:JetBrains Mono,monospace;text-align:right;max-width:60%;">${f.v}</span>
+              </div>
+            `).join('')}
+          </div>
+          ${buildRadarChart()}
+          ${node.tags && node.tags.length > 0 ? `
+            <div style="display:flex;flex-wrap:wrap;gap:6px;">
+              ${node.tags.map(tag => `
+                <span style="font-size:11px;padding:3px 10px;border-radius:9999px;background:var(--color-button-bg);border:1px solid var(--color-button-border);color:var(--color-text-secondary);font-family:Inter,sans-serif;">${tag}</span>
+              `).join('')}
+            </div>
+          ` : ''}
         </div>
-      ` : ''}
-      ${node.altFacts && node.altFacts.length > 0 ? `
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">📚 DID YOU KNOW?</div>
-          ${node.altFacts.map(f=>`
-            <div style="padding:10px;background:var(--color-button-bg);border-radius:8px;font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">${f}</div>
-          `).join('')}
+      </div>
+      ` : (node.tags && node.tags.length > 0 ? `
+      <div class="panel-section">
+        <div class="panel-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>Traits</span><span class="panel-chevron">▾</span>
         </div>
-      ` : ''}
-      ${node.links && node.links.length > 0 ? `
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">🔗 LEARN MORE</div>
+        <div class="panel-section-body">
           <div style="display:flex;flex-wrap:wrap;gap:6px;">
-            ${node.links.map(lnk=>`
-              <a href="${lnk.url}" target="_blank" rel="noopener noreferrer"
-                style="font-size:12px;padding:5px 12px;border-radius:9999px;background:var(--color-button-bg);border:1px solid var(--color-button-border);color:var(--color-accent);font-family:'Inter',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:4px;"
-                onmouseover="this.style.background='var(--color-accent)';this.style.color='white';"
-                onmouseout="this.style.background='var(--color-button-bg)';this.style.color='var(--color-accent)';">
-                ↗ ${lnk.label}
-              </a>
+            ${node.tags.map(tag => `
+              <span style="font-size:11px;padding:3px 10px;border-radius:9999px;background:var(--color-button-bg);border:1px solid var(--color-button-border);color:var(--color-text-secondary);font-family:Inter,sans-serif;">${tag}</span>
             `).join('')}
           </div>
         </div>
-      ` : ''}
-      ${(()=>{
-        const h = node._hominData;
-        if(!h) return '';
-        const brainMax = h.brain && (h.brain[1]||h.brain[0]);
-        const neanPct = h.dna && h.dna.neanderthal != null ? h.dna.neanderthal : null;
-        const denPct = h.dna && h.dna.denisovan != null ? h.dna.denisovan : null;
-        let html = '';
-        // Brain volume bar
-        if(brainMax){
-          html += `<div style="display:flex;flex-direction:column;gap:4px;">
-            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">🧠 BRAIN VOLUME</div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <div style="flex:1;height:8px;background:var(--color-canvas-alt);border-radius:4px;overflow:hidden;">
-                <div style="width:${Math.round(brainMax/1750*100)}%;height:100%;background:${h.color};border-radius:4px;"></div>
-              </div>
-              <span style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;min-width:60px;">${brainMax} cm³</span>
+      </div>
+      ` : '')}
+
+      <!-- Evolutionary Context Section -->
+      <div class="panel-section">
+        <div class="panel-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>Evolutionary Context</span><span class="panel-chevron">▾</span>
+        </div>
+        <div class="panel-section-body">
+          ${buildTimelineBar()}
+          ${node.altFacts && node.altFacts.length > 0 ? `
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:Inter,sans-serif;">📚 DID YOU KNOW?</div>
+              ${node.altFacts.map(f => `<div class="panel-enrich-card">${f}</div>`).join('')}
             </div>
-          </div>`;
-        }
-        // Capabilities row
-        const hasTools = h.tools && h.tools!=='None known' && h.tools!=='None';
-        const hasFire = h.fire && h.fire!=='No';
-        const hasLang = h.language && h.language!=='None';
-        if(hasTools || hasFire || hasLang){
-          html += `<div style="display:flex;gap:12px;flex-wrap:wrap;">`;
-          if(hasTools) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">🪨 ${h.tools}</div>`;
-          if(hasFire) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">🔥 ${h.fire}</div>`;
-          if(hasLang) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">🗣️ ${h.language}</div>`;
-          html += `</div>`;
-        }
-        // DNA introgression
-        if(neanPct != null || denPct != null){
-          html += `<div style="display:flex;flex-direction:column;gap:4px;">
-            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">🧬 DNA LEGACY</div>`;
-          if(neanPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;"><span style="min-width:80px;">Neanderthal</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,neanPct*25)}%;height:100%;background:#7A9BAA;border-radius:3px;"></div></div><span>${neanPct}%</span></div>`;
-          if(denPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;"><span style="min-width:80px;">Denisovan</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,denPct*20)}%;height:100%;background:#7A8BAA;border-radius:3px;"></div></div><span>${denPct}%</span></div>`;
-          if(h.dna && h.dna.note) html += `<div style="font-size:11px;color:var(--color-text-muted);font-style:italic;">${h.dna.note}</div>`;
-          html += `</div>`;
-        }
-        // Fossil sites
-        if(h.sites && h.sites.length){
-          html += `<div style="display:flex;flex-direction:column;gap:4px;">
-            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">📍 FOSSIL SITES</div>
-            <div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;line-height:1.6;">${h.sites.join(' · ')}</div>
-          </div>`;
-        }
-        return html;
-      })()}
-      ${(()=>{const isHominin=node._hominData||node.id==='hominini'||(node.id&&node.id.startsWith('hom-'));return isHominin?`<button onclick="openHomininView()" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--color-accent);color:white;cursor:pointer;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">🧬 Hominin Deep Dive</button>`:'';})()}
-      <button onclick="closePanel()" style="margin-top:8px;padding:10px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;color:var(--color-text-secondary);">
+          ` : ''}
+          ${node.links && node.links.length > 0 ? `
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:Inter,sans-serif;">🔗 LEARN MORE</div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                ${node.links.map(lnk => `<a href="${lnk.url}" target="_blank" rel="noopener noreferrer" class="panel-link-pill">↗ ${lnk.label}</a>`).join('')}
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+
+      <!-- Hominin Data Section -->
+      ${buildHomininSection()}
+
+      <!-- Sub-groups Section -->
+      ${node.children && node.children.length > 0 ? `
+      <div class="panel-section collapsed">
+        <div class="panel-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span>Sub-groups (${node.children.length})</span><span class="panel-chevron">▾</span>
+        </div>
+        <div class="panel-section-body">
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            ${node.children.map(c => `
+              <div onclick="navigateTo('${c.id}')" style="display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;cursor:pointer;transition:background 0.15s;font-family:Inter,sans-serif;" onmouseover="this.style.background='var(--color-button-bg)'" onmouseout="this.style.background='transparent'">
+                <span style="font-size:18px;">${c.icon||'🌿'}</span>
+                <div style="flex:1;">
+                  <div style="font-size:14px;color:var(--color-text-primary);font-weight:500;">${c.name}</div>
+                  ${c.latin ? `<div style="font-size:11px;color:var(--color-text-muted);font-style:italic;">${c.latin}</div>` : ''}
+                </div>
+                <span style="font-size:12px;color:var(--color-text-muted);">→</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+      ` : ''}
+
+      ${(()=>{const isHominin=node._hominData||node.id==='hominini'||(node.id&&node.id.startsWith('hom-'));return isHominin?`<button onclick="openHomininView()" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--color-accent);color:white;cursor:pointer;font-family:Inter,sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">🧬 Hominin Deep Dive</button>`:'';})()}
+      <button onclick="closePanel()" style="margin-top:4px;padding:10px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:Inter,sans-serif;font-size:13px;color:var(--color-text-secondary);">
         Close
       </button>
     </div>
@@ -2956,12 +3124,10 @@ function renderPanelContent(node) {
       if (skelEl) skelEl.style.display = 'none';
     };
     if (best.url) {
-      // Try primary URL from ImageLoader
       imgEl.addEventListener('load', () => { markLoaded(); showCredit(best.credit); }, { once: true });
       imgEl.addEventListener('error', () => {
         if (best.source === 'generated') ImageLoader.markFailed(node.id);
         (window._failedPhotos || (window._failedPhotos = new Set())).add('static:' + node.id);
-        // Try Wikipedia API as secondary source
         if (wikiTitle) {
           fetchWikiPhoto(node.id, wikiTitle, imgEl, null, null).then(() => {
             if (imgEl.src && imgEl.naturalWidth > 0) { markLoaded(); showCredit('Wikipedia / Wikimedia Commons'); }
@@ -2973,7 +3139,6 @@ function renderPanelContent(node) {
       }, { once: true });
       imgEl.src = best.url;
     } else if (wikiTitle) {
-      // No static URL — try Wikipedia API directly
       fetchWikiPhoto(node.id, wikiTitle, imgEl, null, null).then(() => {
         if (window._photoCache[node.id]) {
           imgEl.src = window._photoCache[node.id].url;
@@ -2982,7 +3147,6 @@ function renderPanelContent(node) {
         } else { showFallback(); }
       }).catch(() => showFallback());
     } else {
-      // No image source at all — show styled fallback
       showFallback();
     }
   }

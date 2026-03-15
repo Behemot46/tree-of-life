@@ -1,3 +1,77 @@
+# Session Handoff — 2026-03-15 (p22 — Rich Data Panels & Infographics)
+
+**Status: done**
+**Branch:** `claude/charming-einstein`
+
+## 1. Session Goal
+Enhance the species detail panel with richer data, larger fonts, collapsible sections, and inline mini-infographics.
+
+## 2. What I Changed
+
+### index.html — CSS (~40 lines added)
+- `.panel-section`, `.panel-section-header`, `.panel-section-body` — collapsible section pattern with chevron rotation
+- `.panel-timeline`, `.panel-timeline-track`, `.panel-timeline-marker`, `.panel-timeline-labels` — horizontal timeline bar
+- `.panel-radar` — SVG radar chart container
+- `.panel-enrich-card` — styled enrichment fact cards with accent border
+- `.panel-link-pill` — external link pill buttons with hover state
+- RTL support: chevron rotation flips, enrichment card border flips
+
+### index.html — renderPanelContent() rewritten
+- **Typography enlarged**: species name 22px→26px (weight 800), latin 13px→15px, body text 14px→15px, facts values use JetBrains Mono
+- **Section gap**: 16px→20px between sections
+- **Era line**: colored domain dot added
+- **Collapsible sections**: Overview (always open), Key Facts (open), Evolutionary Context (open), Hominin Data (if applicable), Sub-groups (collapsed by default)
+- **Timeline position bar**: horizontal bar showing when species appeared relative to 3.8 Bya, with marker dot and domain color
+- **Radar chart**: SVG spider chart for nodes with ≥3 numeric facts, translucent polygon fill
+- **Enrichment cards**: `node.altFacts` rendered as styled cards with accent left-border
+- **Link pills**: `node.links` rendered as pill buttons with hover animation (uses CSS class instead of inline hover handlers)
+- **Sub-groups section**: clickable list with icon, name, latin name, and arrow
+
+### PROJECT_PROGRESS.md
+- Added p22 to Completed table
+- Changed p22 status from Pending to Done in Upcoming table
+
+## 3. New Panel Section Structure
+1. **Hero image** (16:9, unchanged)
+2. **Lineage badge** (Human Lineage / Great Apes, unchanged)
+3. **Title block** (name 26px/800, latin 15px, era with domain color dot)
+4. **Overview** section: desc (15px), fun fact, detail, tip fact
+5. **Key Facts** section: facts grid (JetBrains Mono values), radar chart (if ≥3 numeric facts), trait tags
+6. **Evolutionary Context** section: timeline position bar, enrichment cards (altFacts), link pills
+7. **Hominin Data** section (if applicable): brain volume, tools/fire/language, DNA legacy, fossil sites
+8. **Sub-groups** section (collapsed by default): clickable child list
+9. Close button
+
+## 4. Infographics Implemented
+- **Timeline position bar**: renders for every species with `appeared` data. Shows position on 3.8 Bya→Now axis.
+- **Radar/spider chart**: renders when node has ≥3 facts with numeric values. SVG 120×120, grid circles, axis lines, filled polygon.
+- Size comparison was noted as optional in the prompt and was not implemented (insufficient structured size data in current tree nodes).
+
+## 5. Tests Performed
+- 7 species tested via eval (luca, bacteria, fungi, archaea, ecoli, prochlorococcus, sahelanthropus)
+- All sections render correctly: Overview (4/4), Key Facts (4/4), Evolutionary Context (4/4), Sub-groups (where applicable)
+- Timeline bar renders for all species with `appeared` data
+- Radar chart renders for prochlorococcus (4 numeric facts)
+- Enrichment cards render for ENRICHMENT species (bacteria: 5 cards, 3 link pills)
+- Hominin section renders with brain volume bar for sahelanthropus
+- Light theme verified — polished appearance
+- Dark theme verified — zero contrast issues
+- Zero console errors throughout all testing
+- JetBrains Mono confirmed on facts values and DNA percentages
+
+## 6. Not Tested
+- Hebrew RTL layout (CSS rules added but not visually verified)
+- Russian language
+- Mobile bottom-sheet (preview viewport triggers bottom-sheet; swipe-down-to-close may interfere with scrolling)
+- Collapsible section click interaction (CSS works but preview touch handling is unreliable)
+
+## 7. Known Issues / Follow-up
+- Size comparison infographic not implemented (optional per prompt — needs structured height/length data)
+- Preview tool viewport is narrow, making desktop side-panel layout hard to verify visually
+- Radar chart only appears for species with ≥3 parseable numeric fact values
+
+---
+
 # Session Handoff — 2026-03-15 (p25 — Interactive Legend & Domain Highlighting)
 
 **Status: done**

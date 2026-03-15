@@ -968,6 +968,119 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   #era-species-count{display:none;}
   [dir="rtl"] #view-toggle{left:0.6rem;right:auto;}
 }
+
+/* ══════════════════════════════════════════════════════ */
+/* DNA SIMILARITY CALCULATOR                              */
+/* ══════════════════════════════════════════════════════ */
+#btn-dna-calc{
+  position:fixed;bottom:5.5rem;left:1.2rem;z-index:200;
+  padding:0.5rem 1rem;border-radius:var(--radius-full);
+  border:1px solid var(--border);background:var(--surface);
+  color:var(--text-primary);font-family:var(--font-sans);font-size:0.75rem;
+  cursor:pointer;transition:all var(--transition-normal);
+  box-shadow:0 2px 8px rgba(0,0,0,0.2);pointer-events:all;
+}
+#btn-dna-calc:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim);}
+[data-theme="light"] #btn-dna-calc{background:rgba(248,242,230,0.92);border-color:rgba(138,90,24,0.2);color:var(--text-secondary);box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+[data-theme="light"] #btn-dna-calc:hover{border-color:var(--gold);color:var(--gold);}
+[dir="rtl"] #btn-dna-calc{left:auto;right:1.2rem;}
+
+.dna-panel{
+  position:fixed;inset:0;z-index:1100;display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);
+}
+.dna-panel.open{display:flex;}
+.dna-panel-inner{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  width:min(440px,92vw);max-height:90vh;overflow-y:auto;padding:1.5rem;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+[data-theme="light"] .dna-panel-inner{background:#fff;box-shadow:0 8px 32px rgba(0,0,0,0.12);}
+.dna-panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;}
+.dna-panel-title{font-family:var(--font-head);font-size:1.1rem;font-weight:600;color:var(--gold);}
+.dna-panel-header .btn-back{font-size:1rem;width:28px;height:28px;display:flex;align-items:center;justify-content:center;}
+
+/* Presets */
+.dna-presets{display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1.2rem;}
+.dna-preset{
+  padding:0.3rem 0.7rem;border-radius:var(--radius-full);
+  border:1px solid var(--border);background:transparent;
+  color:var(--text-secondary);font-family:var(--font-sans);font-size:0.65rem;
+  cursor:pointer;transition:all var(--transition-fast);
+}
+.dna-preset:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim);}
+
+/* Species selectors */
+.dna-selectors{display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem;}
+.dna-slot{
+  flex:1;padding:0.8rem;border-radius:var(--radius-md);
+  border:1px dashed var(--border);cursor:pointer;text-align:center;
+  transition:all var(--transition-fast);
+}
+.dna-slot:hover{border-color:var(--gold);background:var(--gold-dim);}
+.dna-slot.filled{border-style:solid;border-color:var(--gold);background:var(--gold-dim);}
+.dna-slot-icon{font-size:1.6rem;margin-bottom:0.3rem;}
+.dna-slot-label{font-size:0.7rem;color:var(--text-secondary);font-family:var(--font-sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dna-vs{font-family:var(--font-mono);font-size:0.7rem;color:var(--text-secondary);font-weight:600;}
+
+/* Search overlay */
+.dna-search-overlay{margin-bottom:1rem;}
+#dna-search-input{
+  width:100%;padding:0.5rem 0.8rem;border-radius:var(--radius-md);
+  border:1px solid var(--border);background:var(--surface-raised);
+  color:var(--text-primary);font-family:var(--font-sans);font-size:0.8rem;
+  outline:none;margin-bottom:0.4rem;
+}
+#dna-search-input:focus{border-color:var(--gold);}
+.dna-search-results{max-height:180px;overflow-y:auto;}
+.dna-search-item{
+  padding:0.4rem 0.6rem;cursor:pointer;display:flex;align-items:center;gap:0.5rem;
+  border-radius:var(--radius-sm);font-size:0.75rem;color:var(--text-primary);
+  font-family:var(--font-sans);transition:background var(--transition-fast);
+}
+.dna-search-item:hover{background:var(--gold-dim);}
+.dna-search-item-icon{font-size:1rem;flex-shrink:0;}
+.dna-search-item-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.dna-search-item-latin{font-size:0.65rem;color:var(--text-secondary);font-style:italic;}
+
+/* Results */
+.dna-results{text-align:center;padding:0.5rem 0;}
+.dna-percent-display{font-family:var(--font-mono);font-weight:700;line-height:1;}
+.dna-percent-num{font-size:3.2rem;color:var(--gold);transition:color 0.3s;}
+.dna-percent-sign{font-size:1.6rem;color:var(--gold);opacity:0.7;}
+.dna-similarity-label{font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.8rem;font-family:var(--font-sans);text-transform:uppercase;letter-spacing:0.08em;}
+.dna-bar-wrapper{margin:0 auto 1rem;max-width:300px;}
+.dna-bar-track{height:8px;background:var(--surface-raised);border-radius:var(--radius-full);overflow:hidden;}
+.dna-bar-fill{height:100%;border-radius:var(--radius-full);background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary));transition:width 1s ease-out;}
+.dna-meta{display:flex;flex-wrap:wrap;justify-content:center;gap:0.6rem;margin-bottom:0.6rem;}
+.dna-divergence{font-size:0.75rem;color:var(--text-secondary);font-family:var(--font-sans);}
+.dna-method-badge{
+  font-size:0.6rem;padding:0.15rem 0.5rem;border-radius:var(--radius-full);
+  font-family:var(--font-sans);font-weight:500;
+}
+.dna-method-badge.known{background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.3);}
+.dna-method-badge.estimated{background:rgba(249,115,22,0.15);color:#f97316;border:1px solid rgba(249,115,22,0.3);}
+.dna-method-badge.identical{background:rgba(14,165,233,0.15);color:#0ea5e9;border:1px solid rgba(14,165,233,0.3);}
+.dna-source{font-size:0.65rem;color:var(--text-secondary);margin-bottom:0.4rem;font-style:italic;}
+.dna-ancestor{font-size:0.7rem;color:var(--text-secondary);margin-bottom:0.6rem;}
+.dna-ancestor a{color:var(--gold);cursor:pointer;text-decoration:underline;}
+.dna-ancestor a:hover{color:var(--gold-light);}
+.dna-fun-fact{
+  font-size:0.75rem;color:var(--text-primary);background:var(--gold-dim);
+  border-radius:var(--radius-md);padding:0.6rem 0.8rem;
+  font-family:var(--font-sans);line-height:1.4;margin-top:0.4rem;
+}
+
+/* Mobile */
+@media(max-width:600px){
+  #btn-dna-calc{bottom:4.5rem;left:0.6rem;padding:0.4rem 0.7rem;font-size:0.65rem;}
+  [dir="rtl"] #btn-dna-calc{left:auto;right:0.6rem;}
+  .dna-panel-inner{padding:1rem;width:96vw;max-height:95vh;}
+  .dna-percent-num{font-size:2.4rem;}
+  .dna-selectors{flex-direction:column;gap:0.3rem;}
+  .dna-vs{transform:rotate(90deg);}
+  .dna-presets{justify-content:center;}
+}
 </style>
 </head>
 <body>
@@ -1159,6 +1272,66 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 <!-- HUMAN EVOLUTION SHORTCUT -->
 <button id="btn-hominin" onclick="openHomininView()" aria-label="Open Human Evolution explorer" title="Human Evolution">🧬 <span id="i-btn-hominin">Human Evolution</span></button>
 
+<!-- DNA SIMILARITY CALCULATOR BUTTON -->
+<button id="btn-dna-calc" onclick="openDnaCalc()" aria-label="Open DNA Similarity Calculator" title="DNA Compare">🧬 <span id="i-btn-dna-calc">DNA Compare</span></button>
+
+<!-- DNA SIMILARITY CALCULATOR PANEL -->
+<div id="dna-panel" class="dna-panel" aria-hidden="true">
+  <div class="dna-panel-inner">
+    <div class="dna-panel-header">
+      <div id="i-dna-title" class="dna-panel-title">DNA Similarity Calculator</div>
+      <button class="btn-back" onclick="closeDnaCalc()" aria-label="Close">✕</button>
+    </div>
+
+    <!-- Quick Presets -->
+    <div class="dna-presets">
+      <button class="dna-preset" onclick="dnaPreset('h_sapiens','chimpanzee')"><span id="i-dna-preset-chimp">You &amp; a Chimp</span></button>
+      <button class="dna-preset" onclick="dnaPreset('h_sapiens','angiosperms')"><span id="i-dna-preset-banana">You &amp; a Banana</span></button>
+      <button class="dna-preset" onclick="dnaPreset('h_sapiens','fungi')"><span id="i-dna-preset-mushroom">You &amp; a Mushroom</span></button>
+      <button class="dna-preset" onclick="dnaPreset('h_sapiens','ecoli')"><span id="i-dna-preset-bacterium">You &amp; a Bacterium</span></button>
+    </div>
+
+    <!-- Species Selectors -->
+    <div class="dna-selectors">
+      <div class="dna-slot" id="dna-slot-a" onclick="openDnaSearch('a')">
+        <div class="dna-slot-icon" id="dna-icon-a">?</div>
+        <div class="dna-slot-label" id="dna-label-a">Select a species</div>
+      </div>
+      <div class="dna-vs">vs</div>
+      <div class="dna-slot" id="dna-slot-b" onclick="openDnaSearch('b')">
+        <div class="dna-slot-icon" id="dna-icon-b">?</div>
+        <div class="dna-slot-label" id="dna-label-b">Select a species</div>
+      </div>
+    </div>
+
+    <!-- Search overlay (shown when picking a species) -->
+    <div class="dna-search-overlay" id="dna-search-overlay" style="display:none;">
+      <input type="text" id="dna-search-input" placeholder="Search species..." autocomplete="off" aria-label="Search species for DNA comparison">
+      <div id="dna-search-results" class="dna-search-results"></div>
+    </div>
+
+    <!-- Results (shown after both selected) -->
+    <div id="dna-results" class="dna-results" style="display:none;">
+      <div class="dna-percent-display">
+        <span class="dna-percent-num" id="dna-percent">0</span><span class="dna-percent-sign">%</span>
+      </div>
+      <div id="i-dna-similarity-label" class="dna-similarity-label">DNA Similarity</div>
+      <div class="dna-bar-wrapper">
+        <div class="dna-bar-track">
+          <div class="dna-bar-fill" id="dna-bar-fill" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="dna-meta">
+        <div class="dna-divergence" id="dna-divergence"></div>
+        <div class="dna-method-badge" id="dna-method-badge"></div>
+      </div>
+      <div class="dna-source" id="dna-source"></div>
+      <div class="dna-ancestor" id="dna-ancestor"></div>
+      <div class="dna-fun-fact" id="dna-fun-fact"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ERA BROWSER -->
 <div id="timeline">
   <div style="display:flex;align-items:center;justify-content:center;gap:0.4rem;">
@@ -1190,6 +1363,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 <script src="js/factLibrary.js"></script>
 <script src="js/imagePrompts.js"></script>
 <script src="js/imageLoader.js"></script>
+<script src="js/dnaSimilarity.js"></script>
 <script>
 // Register PHOTO_MAP (from speciesData.js) with ImageLoader for tree node rendering
 if(typeof ImageLoader!=='undefined'&&typeof PHOTO_MAP!=='undefined'&&ImageLoader.registerPhotoMap){
@@ -3369,6 +3543,187 @@ function closeCompare(){
 }
 
 // ══════════════════════════════════════════════════════
+// DNA SIMILARITY CALCULATOR
+// ══════════════════════════════════════════════════════
+let dnaSlotA = null; // { id, name, icon }
+let dnaSlotB = null;
+let dnaSearchTarget = null; // 'a' or 'b'
+
+function openDnaCalc() {
+  dnaSlotA = null;
+  dnaSlotB = null;
+  dnaSearchTarget = null;
+  resetDnaUI();
+  const panel = document.getElementById('dna-panel');
+  panel.classList.add('open');
+  panel.setAttribute('aria-hidden', 'false');
+}
+
+function closeDnaCalc() {
+  const panel = document.getElementById('dna-panel');
+  panel.classList.remove('open');
+  panel.setAttribute('aria-hidden', 'true');
+  document.getElementById('dna-search-overlay').style.display = 'none';
+}
+
+function resetDnaUI() {
+  const selectText = t('dna_select_species') || 'Select a species';
+  document.getElementById('dna-icon-a').textContent = '?';
+  document.getElementById('dna-label-a').textContent = selectText;
+  document.getElementById('dna-icon-b').textContent = '?';
+  document.getElementById('dna-label-b').textContent = selectText;
+  document.getElementById('dna-slot-a').classList.remove('filled');
+  document.getElementById('dna-slot-b').classList.remove('filled');
+  document.getElementById('dna-results').style.display = 'none';
+  document.getElementById('dna-search-overlay').style.display = 'none';
+}
+
+function openDnaSearch(slot) {
+  dnaSearchTarget = slot;
+  const overlay = document.getElementById('dna-search-overlay');
+  overlay.style.display = 'block';
+  const input = document.getElementById('dna-search-input');
+  input.value = '';
+  input.placeholder = t('dna_search_placeholder') || 'Search species...';
+  input.focus();
+  document.getElementById('dna-search-results').innerHTML = '';
+}
+
+document.getElementById('dna-search-input').addEventListener('input', function() {
+  const q = this.value.trim();
+  const container = document.getElementById('dna-search-results');
+  if (q.length < 1) { container.innerHTML = ''; return; }
+  const matches = searchEntities(q).slice(0, 12);
+  container.innerHTML = matches.map(m => {
+    const node = nodeMap[m.id];
+    const icon = node ? node.icon : m.icon || '🔬';
+    const name = m.name || (node && node.name) || m.id;
+    const latin = m.latin || (node && node.latin) || '';
+    return `<div class="dna-search-item" onclick="selectDnaSpecies('${m.id}')">
+      <span class="dna-search-item-icon">${icon}</span>
+      <span class="dna-search-item-name">${name}</span>
+      <span class="dna-search-item-latin">${latin}</span>
+    </div>`;
+  }).join('');
+});
+
+function selectDnaSpecies(id) {
+  const node = nodeMap[id];
+  if (!node) return;
+  const data = { id: node.id, name: node.name, icon: node.icon };
+  if (dnaSearchTarget === 'a') {
+    dnaSlotA = data;
+    document.getElementById('dna-icon-a').textContent = data.icon;
+    document.getElementById('dna-label-a').textContent = data.name;
+    document.getElementById('dna-slot-a').classList.add('filled');
+  } else {
+    dnaSlotB = data;
+    document.getElementById('dna-icon-b').textContent = data.icon;
+    document.getElementById('dna-label-b').textContent = data.name;
+    document.getElementById('dna-slot-b').classList.add('filled');
+  }
+  document.getElementById('dna-search-overlay').style.display = 'none';
+  if (dnaSlotA && dnaSlotB) {
+    showDnaResults();
+  }
+}
+
+function dnaPreset(idA, idB) {
+  const nodeA = nodeMap[idA];
+  const nodeB = nodeMap[idB];
+  if (!nodeA || !nodeB) return;
+  dnaSlotA = { id: nodeA.id, name: nodeA.name, icon: nodeA.icon };
+  dnaSlotB = { id: nodeB.id, name: nodeB.name, icon: nodeB.icon };
+  document.getElementById('dna-icon-a').textContent = nodeA.icon;
+  document.getElementById('dna-label-a').textContent = nodeA.name;
+  document.getElementById('dna-slot-a').classList.add('filled');
+  document.getElementById('dna-icon-b').textContent = nodeB.icon;
+  document.getElementById('dna-label-b').textContent = nodeB.name;
+  document.getElementById('dna-slot-b').classList.add('filled');
+  document.getElementById('dna-search-overlay').style.display = 'none';
+  showDnaResults();
+}
+
+function showDnaResults() {
+  if (!dnaSlotA || !dnaSlotB) return;
+  const nodeA = nodeMap[dnaSlotA.id];
+  const nodeB = nodeMap[dnaSlotB.id];
+  const result = estimateDnaSimilarity(nodeA, nodeB);
+  if (!result) return;
+
+  const resultsEl = document.getElementById('dna-results');
+  resultsEl.style.display = 'block';
+
+  // Animate percentage counter
+  const percentEl = document.getElementById('dna-percent');
+  animateCounter(percentEl, result.percent);
+
+  // Fill bar
+  setTimeout(() => {
+    document.getElementById('dna-bar-fill').style.width = result.percent + '%';
+  }, 100);
+
+  // Divergence
+  const divEl = document.getElementById('dna-divergence');
+  if (result.divergenceMya != null) {
+    const tmpl = t('dna_divergence') || 'Diverged ~{mya} million years ago';
+    divEl.textContent = tmpl.replace('{mya}', result.divergenceMya.toLocaleString());
+  } else {
+    divEl.textContent = '';
+  }
+
+  // Method badge
+  const badge = document.getElementById('dna-method-badge');
+  badge.className = 'dna-method-badge ' + result.method;
+  if (result.method === 'known') {
+    badge.textContent = t('dna_method_known') || 'Published data';
+  } else if (result.method === 'estimated') {
+    badge.textContent = t('dna_method_estimated') || 'Estimated from phylogeny';
+  } else {
+    badge.textContent = result.method;
+  }
+
+  // Source
+  const sourceEl = document.getElementById('dna-source');
+  sourceEl.textContent = result.source ? 'Source: ' + result.source : '';
+
+  // Shared ancestor
+  const ancEl = document.getElementById('dna-ancestor');
+  if (result.lca) {
+    const label = t('dna_shared_ancestor') || 'Shared ancestor';
+    ancEl.innerHTML = label + ': <a onclick="closeDnaCalc();navigateTo(\'' + result.lca.id + '\');setTimeout(()=>showMainPanel(nodeMap[\'' + result.lca.id + '\']),300)">' + result.lca.name + '</a>';
+  } else {
+    ancEl.textContent = '';
+  }
+
+  // Fun fact
+  const factEl = document.getElementById('dna-fun-fact');
+  const fact = getDnaFunFact(result.percent, dnaSlotB.name);
+  factEl.textContent = result.note || fact;
+}
+
+function animateCounter(el, target) {
+  const duration = 800;
+  const start = performance.now();
+  const from = 0;
+  function step(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+    const current = from + (target - from) * eased;
+    el.textContent = current.toFixed(1);
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+// Close DNA panel on Escape (extend existing handler)
+// Also close on backdrop click
+document.getElementById('dna-panel').addEventListener('click', function(e) {
+  if (e.target === this) closeDnaCalc();
+});
+
+// ══════════════════════════════════════════════════════
 // RANDOM SPECIES
 // ══════════════════════════════════════════════════════
 document.getElementById('btn-random').addEventListener('click',()=>{
@@ -3386,6 +3741,7 @@ document.getElementById('btn-random').addEventListener('click',()=>{
 // ══════════════════════════════════════════════════════
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
+    if(document.getElementById('dna-panel').classList.contains('open')){closeDnaCalc();return;}
     panel.classList.remove('open');
     updateBreadcrumb(null);
     document.getElementById('hominin-view').classList.remove('open');
@@ -3499,6 +3855,16 @@ function applyI18n(){
   set('i-hf-homo',t('hom_homo'));
   set('i-hf-surv',t('hom_surv'));
   const cb=el('compare-btn');if(cb)cb.textContent=t('compare_btn');
+  // DNA Calculator i18n
+  set('i-dna-title',t('dna_calc_title'));
+  set('i-btn-dna-calc',t('dna_calc_btn'));
+  set('i-dna-similarity-label',t('dna_similarity'));
+  set('i-dna-preset-chimp',t('dna_preset_chimp'));
+  set('i-dna-preset-banana',t('dna_preset_banana'));
+  set('i-dna-preset-mushroom',t('dna_preset_mushroom'));
+  set('i-dna-preset-bacterium',t('dna_preset_bacterium'));
+  const dnaLabelA=el('dna-label-a');if(dnaLabelA&&!document.getElementById('dna-slot-a').classList.contains('filled'))dnaLabelA.textContent=t('dna_select_species');
+  const dnaLabelB=el('dna-label-b');if(dnaLabelB&&!document.getElementById('dna-slot-b').classList.contains('filled'))dnaLabelB.textContent=t('dna_select_species');
   const ch=el('compare-hint');if(ch)ch.textContent=t('compare_hint');
   set('i-compare-title',t('compare_title'));
   set('i-compare-back',t('compare_back'));

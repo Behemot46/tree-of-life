@@ -118,14 +118,38 @@ Create a new data module with:
 
 ### Phase B: DNA Calculator UI
 
-1. **Entry point — toolbar button:**
-   - Add a `<button id="dna-calc-btn">` near the existing compare button or in the controls area
-   - Icon: 🧬 or a simple DNA helix SVG
-   - Label: "DNA Compare" (translated)
-   - Click opens the DNA calculator panel/modal
+**UI placement rules — CRITICAL to avoid overlap with existing fixed elements:**
 
-2. **Calculator panel — `<div id="dna-panel">`:**
-   - Overlay panel (similar to compare-panel) or modal
+The current layout has these fixed-position elements:
+```
+TOP-LEFT:      #nav-ctrl (back/home buttons) — top:4.2rem, left:1.2rem, z:250
+TOP-CENTER:    #search-wrap — top:1rem, center, z:300
+TOP-RIGHT:     #lang-switcher — top:3.2rem, right:1.2rem, z:400
+               #theme-btn — top:5.2rem, right:1.2rem, z:400
+               #view-toggle — top:5.5rem, right:1.2rem, z:300
+BOTTOM-LEFT:   #legend — bottom:4.5rem, left:1.2rem, z:200
+BOTTOM-RIGHT:  #zoom-ctrl — bottom:4.5rem, right:1.2rem, z:200
+               #btn-hominin — bottom:4.5rem, right:5rem, z:200
+BOTTOM-FULL:   #timeline — bottom:0, full-width, z:200
+RIGHT-SIDE:    #panel — slides from right, z:500
+```
+
+1. **Entry point — button `#btn-dna-calc`:**
+   - Place at `bottom:5.5rem; left:1.2rem` (above the legend, which is at bottom:4.5rem)
+   - z-index: 200 (same level as other controls)
+   - RTL: flip to `right:1.2rem`
+   - Mobile (< 768px): `bottom:4.5rem; left:0.6rem` with smaller padding
+   - Icon: 🧬 + "DNA Compare" label (translated)
+   - Do NOT place in top-right (occupied by lang/theme/view-toggle) or bottom-right (occupied by zoom/hominin)
+
+2. **Calculator panel — `<div class="dna-panel">`:**
+   - **Center-screen modal overlay** (NOT a side panel — #panel already uses the right side)
+   - `position:fixed; inset:0; z-index:1100` with dark backdrop (`rgba(0,0,0,0.6); backdrop-filter:blur(4px)`)
+   - Inner card: `width:min(440px, 92vw); max-height:90vh; overflow-y:auto` centered with flexbox
+   - This ensures it floats above ALL other elements and doesn't collide
+   - Close button in top-right corner of the inner card
+
+3. **Species picker slots:**
    - Two species picker slots: "Species A" and "Species B"
    - Each slot: click to search/select a species (reuse the existing search infrastructure — `searchEntities()`)
    - After both selected: show results

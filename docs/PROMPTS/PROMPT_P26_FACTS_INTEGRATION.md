@@ -172,15 +172,42 @@ The tooltip element (`#tooltip`, index.html ~line 1135 area) currently shows nod
 3. Keep tooltip compact — fact text in smaller font (11px), italic, max 1 line with ellipsis
 4. Only show if a relevant fact exists (don't force generic facts into every tooltip)
 
-### Phase E: Discovery carousel / random fact button
+### Phase E: Discovery fact toast
 
-1. **Random fact button** (`#btn-random` at ~line 1156, currently "🎲 Jump to random species"):
-   - Add a secondary action or a new small button nearby: "💡" for random fact
-   - Click shows a brief toast/overlay with a random discovery fact
-   - Includes species link: "Learn more about [Species Name] →" that navigates to that node
-   - Session dedup: track shown fact IDs in a Set, avoid repeats
+Show a random "Did You Know?" toast when users click a discovery button or after jumping to a random species.
 
-2. **Or**: Integrate into the existing random button — after jumping to a random species, show a fact about it in the panel
+**UI placement rules — CRITICAL to avoid overlap with existing fixed elements:**
+
+The current layout has these fixed-position elements:
+```
+TOP-LEFT:      #nav-ctrl (back/home buttons) — top:4.2rem, left:1.2rem, z:250
+TOP-CENTER:    #search-wrap — top:1rem, center, z:300
+TOP-RIGHT:     #lang-switcher — top:3.2rem, right:1.2rem, z:400
+               #theme-btn — top:5.2rem, right:1.2rem, z:400
+               #view-toggle — top:5.5rem, right:1.2rem, z:300
+BOTTOM-LEFT:   #legend — bottom:4.5rem, left:1.2rem, z:200
+               #btn-dna-calc — bottom:5.5rem, left:1.2rem, z:200
+BOTTOM-RIGHT:  #zoom-ctrl — bottom:4.5rem, right:1.2rem, z:200
+               #btn-hominin — bottom:4.5rem, right:5rem, z:200
+BOTTOM-FULL:   #timeline — bottom:0, full-width, z:200
+```
+
+**The discovery fact toast MUST:**
+1. Appear as a **top-center toast** (below search bar, ~top:5rem) — the only safe zone that doesn't collide
+2. OR appear as a **center-screen overlay** with backdrop (like the DNA panel at z:1100)
+3. Auto-dismiss after 6-8 seconds or on click
+4. NOT be a fixed button in corners — all corners are occupied
+5. z-index: at least 500 (above most controls, below DNA panel's 1100)
+
+**Trigger options (pick one, don't add a new corner button):**
+- Option A: After `#btn-random` (🎲) jumps to a random species, auto-show a fact toast about that species above the panel
+- Option B: Add the 💡 icon as a 4th button INSIDE `#zoom-ctrl` (it's a flex column, adding one more button is safe)
+- Option C: Show a fact in the panel's "DID YOU KNOW" section when navigating to any species (no new UI element needed)
+
+**Mobile (< 768px):**
+- Toast should be full-width with padding, centered, max-width:90vw
+- Must not overlap with the bottom timeline or top search bar
+- Safe zone: vertical center of screen
 
 ### Phase F: Migrate ENRICHMENT altFacts to factLibrary (optional stretch)
 

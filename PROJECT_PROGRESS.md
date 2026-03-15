@@ -27,6 +27,7 @@
 | p20 | Naturalist node artwork — expanded icon library (20→37 icons), improved mapping | PR #62 |
 | p21 | Species panel visual identity — hero images, styled fallbacks, header typography | PR #61 |
 | p23 | DNA similarity calculator — species comparator with known + estimated data | `claude/crazy-villani` |
+| p24 | Always-visible hominin branch — expanded by default, golden path, label priority | `claude/strange-tharp` |
 | p26a | 130+ facts pack — expanded library, panel/tooltip/discovery integration | `claude/compassionate-poitras` |
 
 ### Upcoming
@@ -37,7 +38,7 @@
 | p21 | Species panel visual identity | Replace emoji headers in species info panel with curated photos or GenAI artwork. Consistent framing/style, Wikimedia + AI-generated fallback pipeline. | Done |
 | p22 | Rich data panels & infographics | Increase fonts, add descriptive paragraphs, layered data sections (habitat, diet, morphology, fossil record). Inline mini-infographics: size comparisons, range maps, trait radar charts. | Pending |
 | p23 | DNA similarity calculator | Two-species comparator: pick any two species, display estimated DNA similarity %. Visual output with divergence timeline, shared traits, "you share X% DNA with a banana" UX. | Done |
-| p24 | Always-visible hominin branch | Show full hominin family tree as expanded branch with twigs on main canvas — no "explore deeper" required. Auto-layout to avoid crowding, golden path emphasis, larger labels. | Pending |
+| p24 | Always-visible hominin branch | Show full hominin family tree as expanded branch with twigs on main canvas — no "explore deeper" required. Auto-layout to avoid crowding, golden path emphasis, larger labels. | Done |
 | p25 | Interactive legend & domain highlighting | Clicking a domain in the legend highlights/filters that subtree on the canvas. Visual feedback, toggle behavior. | Pending |
 | p26 | Accessibility & navigation cleanup | Keyboard nav, ARIA labels, focus management, screen reader support, reduced-motion. Unify `panelHistory`/`navStack` into single model. | Pending |
 | p27 | Performance & offline resilience | Viewport culling (render only visible nodes), lazy expansion, service worker caching, offline fallbacks, connection status indicator. | Pending |
@@ -549,6 +550,53 @@ Combined with p8: **~2,800+ lines** of dead code eliminated from the repo.
 | `index.html` | Duplicate removal, scope fixes, fact library integration |
 | `js/factLibrary.js` | **NEW** — 179 lines |
 | `CLAUDE.md` | Updated to reflect current architecture |
+
+---
+
+## p24 — Always-Visible Hominin Branch
+
+**Branch:** `claude/strange-tharp`
+
+### What was changed
+
+**Hominini expanded by default**
+- Changed `hominini._collapsed` from `true` to `false` at init time
+- Changed all 4 group nodes (`group-proto`, `group-australopith`, `group-paranthropus`, `group-homo`) from collapsed to expanded
+- 28 hominin species now visible as tree twigs on load — no user action required
+
+**HUMAN_PATH extended**
+- Added `hominini`, `group-homo`, `h_sapiens` to the golden path set
+- Removed stale `homo-sapiens` (replaced by `h_sapiens` after `buildHomininTree()`)
+- Golden path now traces LUCA → eukaryota → animalia → vertebrates → mammals → primates → great-apes → hominini → group-homo → h_sapiens (9 accent-colored segments)
+
+**Label visibility for hominins**
+- Increased depth filter from `depth<=6` to include all hominin nodes (`_hominin` flag, `hominini` ID, `group-*` IDs)
+- Hominin species use abbreviated short names (e.g. "H. sapiens", "H. erectus") to reduce collision
+- Group nodes get 11px font, species get 10px (vs default 8-9px for deep nodes)
+- All 4 group nodes and HUMAN_PATH hominins force-shown in label collision resolution
+- Group labels rendered in golden color (`#e8b86d`) with font-weight 600
+
+**Hominini node rendering toned down**
+- Removed "Explore →" badge (no longer needed as branch is visible)
+- Removed `homininGlow` pulsing animation
+- Kept static golden ring (1.5px, 50% opacity) as subtle visual anchor
+
+### Files changed
+
+| File | Changes |
+|------|---------|
+| `index.html` | Collapse defaults, HUMAN_PATH, label depth/priority/sizing, hominini rendering |
+| `PROJECT_PROGRESS.md` | Added p24 completion entry |
+| `SESSION_HANDOFF.md` | Written handoff notes |
+
+### Verified
+
+- Zero console errors
+- 131 branches, 132 nodes rendered (28 extra from hominins)
+- 9 golden path segments (accent-colored, 3px stroke)
+- Hominin labels visible: Hominini, Proto-Hominins, Australopithecus, Paranthropus, Genus Homo, H. habilis, H. erectus, H. antecessor, H. sapiens
+- Subtree-weighted radial spacing (p17) automatically allocates angular room
+- "Human Evolution" button and dedicated hominin panel view still functional
 
 ---
 

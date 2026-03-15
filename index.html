@@ -1632,10 +1632,10 @@ function preprocess(n,parent=null,depth=0){
   if(n.children) n.children.forEach(c=>preprocess(c,n,depth+1));
 }
 preprocess(TREE);
-// Collapse hominini subtree by default so tree isn't visually overloaded
-if(nodeMap['hominini']) nodeMap['hominini']._collapsed=true;
+// Hominini branch starts expanded so users see the full hominin family tree
+if(nodeMap['hominini']) nodeMap['hominini']._collapsed=false;
 ['group-proto','group-australopith','group-paranthropus','group-homo'].forEach(id=>{
-  if(nodeMap[id]) nodeMap[id]._collapsed=true;
+  if(nodeMap[id]) nodeMap[id]._collapsed=false;
 });
 window.getNodeById = id=>nodeMap[id];
 
@@ -2048,7 +2048,7 @@ function getIconGroup(n) {
 // ══════════════════════════════════════════════════════
 // HUMAN EVOLUTION PATH (highlighted from root to Homo sapiens)
 // ══════════════════════════════════════════════════════
-const HUMAN_PATH=new Set(['luca','eukaryota','animalia','vertebrates','mammals','primates','great-apes','homo-sapiens']);
+const HUMAN_PATH=new Set(['luca','eukaryota','animalia','vertebrates','mammals','primates','great-apes','hominini','group-homo','h_sapiens']);
 
 // ══════════════════════════════════════════════════════
 // RENDER
@@ -2160,23 +2160,13 @@ function render(){
       g.appendChild(ring);
     }
 
-    // Hominini gateway — golden pulsing ring + Explore badge
+    // Hominini — subtle golden ring (branch is expanded by default)
     if(n.id==='hominini'){
       const gw=document.createElementNS('http://www.w3.org/2000/svg','circle');
       gw.setAttribute('cx',n._x);gw.setAttribute('cy',n._y);gw.setAttribute('r',n.r+12);
       gw.setAttribute('fill','none');gw.setAttribute('stroke','#e8b86d');
-      gw.setAttribute('stroke-width','2');gw.setAttribute('stroke-opacity','0.6');
-      gw.style.animation='homininGlow 2.5s ease-in-out infinite';
+      gw.setAttribute('stroke-width','1.5');gw.setAttribute('stroke-opacity','0.5');
       g.appendChild(gw);
-      const badgeFo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
-      const bw=64,bh=18;
-      badgeFo.setAttribute('x',n._x-bw/2);badgeFo.setAttribute('y',n._y+n.r+6);
-      badgeFo.setAttribute('width',bw);badgeFo.setAttribute('height',bh);
-      badgeFo.style.pointerEvents='none';
-      const badge=document.createElement('div');
-      badge.style.cssText='font-size:9px;font-family:"Heebo",sans-serif;color:#e8b86d;text-align:center;font-weight:700;letter-spacing:0.05em;opacity:0.85;';
-      badge.textContent='Explore \u2192';
-      badgeFo.appendChild(badge);g.appendChild(badgeFo);
     }
 
     // Highlight ring
@@ -2272,19 +2262,23 @@ function render(){
     }
 
     // Label — compute position and store for global collision pass
-    if(inEra&&n.depth<=6){
+    const isHominin=n._hominin||n.id==='hominini'||n.id?.startsWith('group-');
+    if(inEra&&(n.depth<=6||isHominin)){
       const sibCount=n._parent?.children?.length||1;
       const angleRad=n._angle-Math.PI/2;
       const lDist=n.r+18+Math.max(0,(n.depth-3)*4);
       const lx=n._x+Math.cos(angleRad)*lDist;
       const ly=n._y+Math.sin(angleRad)*lDist;
       const cos=Math.cos(angleRad);
-      const fontSize=n.depth===0?14:n.depth===1?12:sibCount>12?8:sibCount>8?9:10;
-      const textW=n.name.length*fontSize*0.55;
+      // Hominin species get 10px labels; group nodes get 11px
+      const fontSize=n.depth===0?14:n.depth===1?12:isHominin?(n.children?.length?11:10):sibCount>12?8:sibCount>8?9:10;
+      // Use short name for hominin species (e.g. "H. sapiens" instead of "Homo sapiens")
+      const labelText=n._hominData?.short||n.name;
+      const textW=labelText.length*fontSize*0.55;
       const textH=fontSize+2;
       const anchor=cos<-0.15?'end':cos>0.15?'start':'middle';
       const bx=anchor==='end'?lx-textW:anchor==='start'?lx:lx-textW/2;
-      pendingLabels.push({n,lx,ly,cos,fontSize,textW,textH,bx,by:ly-textH/2,anchor,g});
+      pendingLabels.push({n,lx,ly,cos,fontSize,textW,textH,bx,by:ly-textH/2,anchor,g,labelText});
     }
 
     // Collapse dot
@@ -2313,10 +2307,11 @@ function render(){
   });
 
   // Global label collision resolution
-  // Sort by priority: human path first, then depth 0-1, then by depth ascending
+  // Sort by priority: human path first, then hominin groups, then depth 0-1, then by depth ascending
+  const HOMININ_PRIORITY=new Set(['hominini','group-proto','group-australopith','group-paranthropus','group-homo']);
   pendingLabels.sort((a,b)=>{
-    const aHP=HUMAN_PATH.has(a.n.id)?0:1;
-    const bHP=HUMAN_PATH.has(b.n.id)?0:1;
+    const aHP=HUMAN_PATH.has(a.n.id)?0:HOMININ_PRIORITY.has(a.n.id)?0.5:1;
+    const bHP=HUMAN_PATH.has(b.n.id)?0:HOMININ_PRIORITY.has(b.n.id)?0.5:1;
     if(aHP!==bHP) return aHP-bHP;
     if(a.n.depth<=1 && b.n.depth>1) return -1;
     if(b.n.depth<=1 && a.n.depth>1) return 1;
@@ -2328,8 +2323,9 @@ function render(){
   }
   pendingLabels.forEach(lb=>{
     const onPath=HUMAN_PATH.has(lb.n.id);
-    // Always show depth 0-1 and human path nodes
-    const forceShow=lb.n.depth<=1||onPath;
+    const isHominGroup=HOMININ_PRIORITY.has(lb.n.id);
+    // Always show depth 0-1, human path nodes, and hominin group nodes
+    const forceShow=lb.n.depth<=1||onPath||isHominGroup;
     if(!forceShow){
       for(const placed of placedBoxes){
         if(boxesOverlap(lb,placed)){return;}
@@ -2340,12 +2336,12 @@ function render(){
     svgText.setAttribute('x',lb.lx);svgText.setAttribute('y',lb.ly);
     svgText.setAttribute('text-anchor',lb.anchor);
     svgText.setAttribute('dominant-baseline','middle');
-    svgText.setAttribute('fill',onPath?'var(--accent-primary)':lb.n.depth===0?'#e8eaf0':lb.n.depth<=1?'rgba(160,164,176,0.95)':'rgba(107,112,128,0.85)');
+    svgText.setAttribute('fill',onPath?'var(--accent-primary)':isHominGroup?'#e8b86d':lb.n.depth===0?'#e8eaf0':lb.n.depth<=1?'rgba(160,164,176,0.95)':'rgba(107,112,128,0.85)');
     svgText.setAttribute('font-size',lb.fontSize);
     svgText.setAttribute('font-family',"'Inter', sans-serif");
-    svgText.setAttribute('font-weight',onPath||lb.n.depth<=1?'600':'400');
+    svgText.setAttribute('font-weight',onPath||isHominGroup||lb.n.depth<=1?'600':'400');
     svgText.setAttribute('class','node-label-text');
-    svgText.textContent=lb.n.name;
+    svgText.textContent=lb.labelText||lb.n.name;
     lb.g.appendChild(svgText);
   });
 

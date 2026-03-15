@@ -15,14 +15,18 @@
 
 ```
 tree-of-life/
-├── index.html          # Main SPA — markup, inline <style>, inline <script> (all rendering logic)
-├── serve.js            # Local dev server (port 5555): node serve.js
+├── index.html           # Main SPA — markup, inline <style>, inline <script> (all rendering logic)
+├── serve.js             # Local dev server (port 5555): node serve.js
 ├── assets/
-│   └── placeholder.svg # Fallback image when taxon photo is unavailable
+│   ├── placeholder.svg  # Fallback image when taxon photo is unavailable
+│   └── species/.gitkeep # Directory for future AI-generated species images
 └── js/
-    ├── treeData.js     # TREE object — full phylogenetic tree data (~130+ nodes)
-    ├── speciesData.js  # PHOTO_MAP, WIKI_TITLES, HOMININS, NODE_EXTRAS, HOMININ_ID_ALIASES
-    └── uiData.js       # DEPTH_R, ERA_NAMES, EXTINCTIONS, ERA_TINTS, TRANSLATIONS (en/he/ru)
+    ├── treeData.js      # TREE object — full phylogenetic tree data (~130+ nodes)
+    ├── speciesData.js   # PHOTO_MAP, WIKI_TITLES, HOMININS, GREAT_APE_IDS, HOMININ_IDS
+    ├── uiData.js        # DEPTH_R, ERA_NAMES, EXTINCTIONS, ERA_TINTS, TRANSLATIONS (en/he/ru)
+    ├── factLibrary.js   # FACTS constant — random facts for discovery feature
+    ├── imagePrompts.js  # AI image prompt library for species illustrations
+    └── imageLoader.js   # Image loader with fallback chain (generated → PHOTO_MAP → emoji)
 ```
 
 ---
@@ -41,15 +45,18 @@ No install step needed. Open `http://localhost:5555` in a browser. Alternatively
 
 ### Single-File Application
 
-All rendering logic, CSS, and HTML live in `index.html` (~2,860 lines). Data constants are extracted to 3 JS files loaded via `<script>` tags. There are no external CSS files.
+All rendering logic, CSS, and HTML live in `index.html` (~3,800 lines). Data constants are extracted to 6 JS files loaded via `<script>` tags. There are no external CSS files.
 
 ### Data Files
 
 | File | Contents |
 |------|----------|
 | `js/treeData.js` | `TREE` object (nested phylogenetic tree, ~130+ nodes), `lightenColor()` |
-| `js/speciesData.js` | `PHOTO_MAP`, `WIKI_TITLES`, `HOMININS` (28 species), `NODE_EXTRAS`, `HOMININ_ID_ALIASES` |
+| `js/speciesData.js` | `PHOTO_MAP`, `WIKI_TITLES`, `HOMININS` (28 species), `GREAT_APE_IDS`, `HOMININ_IDS` |
 | `js/uiData.js` | `DEPTH_R`, `ERA_NAMES`, `EXTINCTIONS`, `ERA_TINTS`, `TRANSLATIONS` (en/he/ru) |
+| `js/factLibrary.js` | `FACTS` — random facts for the "Discover" feature |
+| `js/imagePrompts.js` | AI image prompt library for future species illustration generation |
+| `js/imageLoader.js` | `ImageLoader` — fallback chain: generated .webp → PHOTO_MAP → node.img → emoji |
 
 ### Rendering
 
@@ -104,15 +111,16 @@ All rendering logic, CSS, and HTML live in `index.html` (~2,860 lines). Data con
 --text          /* Primary text */
 --parchment     /* Secondary text */
 --gold          /* Primary accent */
---font-head     /* 'Playfair Display' — headings */
---font-body     /* 'Heebo' — body text */
---font-sans     /* 'Heebo' — UI elements */
+--font-head     /* 'Inter', 'Heebo' — headings */
+--font-body     /* 'Inter', 'Heebo' — body text */
+--font-sans     /* 'Inter' — UI elements */
 ```
 
 ### Fonts
 
-- **Heebo** — body, UI, Hebrew, Cyrillic (all non-heading text)
-- **Playfair Display** — headings only
+- **Inter** — all UI text, headings, labels
+- **JetBrains Mono** — data values, monospaced displays
+- **Heebo** — Hebrew and Cyrillic text support
 
 ---
 
@@ -136,7 +144,7 @@ All rendering logic, CSS, and HTML live in `index.html` (~2,860 lines). Data con
 
 1. **No tests** — verify changes by running locally and testing in browser.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
-3. **index.html is large** (~2,860 lines). Be careful with edits; search for context before modifying.
+3. **index.html is large** (~3,800 lines). Be careful with edits; search for context before modifying.
 4. **Global scope** — data constants (`TREE`, `PHOTO_MAP`, `TRANSLATIONS`, etc.) are globals loaded via `<script>` tags.
 5. **D3.js** — loaded from CDN but not actively used by the current renderer.
 6. **CORS** — all APIs permit browser-side calls. Do not add a server proxy unless needed.

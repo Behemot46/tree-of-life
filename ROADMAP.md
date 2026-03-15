@@ -21,23 +21,27 @@
 | p13b | Species image system (ImageLoader + AI prompt library + PHOTO_MAP 228 entries) | PR #52 |
 | p14 | Inline hominin family tree (28 hominins as tree nodes) | PR #53 |
 | p15 | Stabilization & docs (duplicate removal, scope fixes, doc updates) | PR #54 |
+| p16 | Inline hominin subtree fixes | PR #55 |
+| p17 | Subtree-weighted radial spacing | PR #56 |
+| p18 | Fix overlapping header controls | PR #57 |
+| p19 | Roadmap, project health, splash/intro i18n | PR #58 (`claude/keen-easley`) |
 
 ---
 
 ## Upcoming Phases
 
-### p16 — i18n Completeness & Polish
+### p20 — i18n Completeness & Polish
 **Priority:** High — gaps are user-facing
 **Effort:** Small–Medium
 
-- [ ] Localize splash screen text ("3,800,000,000 years of evolution", "Tree of Life")
-- [ ] Localize `showIntro()` overlay (3 hardcoded English strings)
+- [x] Localize splash screen text ("3,800,000,000 years of evolution", "Tree of Life") — done in p19
+- [x] Localize `showIntro()` overlay (3 hardcoded English strings) — done in p19
 - [ ] Localize splash header number formatting (comma vs period by locale)
 - [ ] Audit remaining hardcoded English in panel content template
 - [ ] Native speaker review of HE/RU translations (especially loading facts)
 - [ ] Localize node `desc` / `detail` / `facts` in treeData.js (large effort — may be its own phase)
 
-### p17 — Legend Interactivity
+### p21 — Legend Interactivity
 **Priority:** Medium — decorative-only legend is a UX gap
 **Effort:** Small
 
@@ -46,7 +50,7 @@
 - [ ] "Show all" reset behavior
 - [ ] Ensure highlight works across all 3 view modes (radial, cladogram, chronological)
 
-### p18 — Navigation Stack Unification
+### p22 — Navigation Stack Unification
 **Priority:** Medium — two parallel stacks is technical debt
 **Effort:** Small
 
@@ -55,7 +59,7 @@
 - [ ] Add keyboard shortcuts: Escape → Back, Shift+Escape → Home
 - [ ] Test all navigation paths after unification
 
-### p19 — Offline Resilience
+### p23 — Offline Resilience
 **Priority:** Medium — GitHub Pages users on flaky connections
 **Effort:** Medium
 
@@ -65,7 +69,7 @@
 - [ ] Add offline indicator in UI
 - [ ] Ensure service worker doesn't break GitHub Pages deployment
 
-### p20 — Performance & Code Organization
+### p24 — Performance & Code Organization
 **Priority:** Medium — index.html at 4,012 lines is maintenance risk
 **Effort:** Medium–Large
 
@@ -78,7 +82,7 @@
 - [ ] Profile rendering performance (130+ nodes, DocumentFragment pattern)
 - [ ] Lazy-load hominin data only when needed
 
-### p21 — Accessibility (a11y)
+### p25 — Accessibility (a11y)
 **Priority:** Medium — partially addressed in p7/p10
 **Effort:** Medium
 
@@ -90,7 +94,7 @@
 - [ ] Reduced motion: respect `prefers-reduced-motion` for all animations
 - [ ] High contrast mode testing
 
-### p22 — Discovery & Engagement Features
+### p26 — Discovery & Engagement Features
 **Priority:** Low — nice-to-have, extends fact library
 **Effort:** Medium
 
@@ -100,7 +104,7 @@
 - [ ] Achievement system: "You've explored 50% of the tree"
 - [ ] Share a species card (generate image or link)
 
-### p23 — Data Enrichment
+### p27 — Data Enrichment
 **Priority:** Low — content quality improvement
 **Effort:** Large
 
@@ -111,7 +115,7 @@
 - [ ] Add fossil record data for extinct species
 - [ ] Localize node descriptions to HE/RU (large translation effort)
 
-### p24 — AI-Generated Species Illustrations
+### p28 — AI-Generated Species Illustrations
 **Priority:** Low — infrastructure exists (imagePrompts.js), needs execution
 **Effort:** Large (generation + review + hosting)
 
@@ -143,5 +147,5 @@
 | 2026-03-11 | Use Inter + JetBrains Mono + Heebo | Modern scientific look; Heebo covers EN/HE/RU |
 | 2026-03-12 | SVG silhouette icons over emojis | Consistent cross-platform rendering, professional aesthetic |
 | 2026-03-13 | ImageLoader fallback chain | Generated → PHOTO_MAP → emoji; graceful degradation |
-| 2026-03-14 | Separate navStack from panelHistory | Quick ship; unification deferred to p18 |
+| 2026-03-14 | Separate navStack from panelHistory | Quick ship; unification deferred to p22 |
 | 2026-03-15 | Roadmap created | Formalize priorities, reduce ad-hoc scope creep |

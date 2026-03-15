@@ -1,4 +1,4 @@
-# Session Handoff — 2026-03-15 (p16 — Roadmap & Project Health)
+# Session Handoff — 2026-03-15 (p19 — Roadmap & Project Health)
 
 **Status: done**
 
@@ -104,179 +104,306 @@ feat: development roadmap, project health fixes, splash i18n
 
 ---
 
-# Session Handoff — 2026-03-14
+# Session Handoff — 2026-03-15 (p18: Fix Overlapping Header Controls)
 
 **Status: done**
+**PR:** https://github.com/Behemot46/tree-of-life/pull/57
+**Branch:** `claude/sad-keller`
 
 ## 1. Session Goal
-Add persistent Back and Home navigation buttons across all views and states, with a unified client-side navigation history stack.
+Fix overlapping UI controls in the top-right corner — hint text, language switcher (EN/עב/РУ), search bar buttons, and theme toggle were all competing for the same space.
 
 ## 2. What I Changed
-- Added `#nav-ctrl` container with Back and Home buttons (HTML, positioned fixed top-left)
-- Added unified `navStack[]` with `pushNav()`, `navBack()`, `navHome()`, `restoreNavState()`, `updateNavButtons()`, `currentNavState()`
-- Hooked `pushNav()` into `showMainPanel()`, `openHomininView()`, and hominin species selection
-- `navBack()` pops the stack and restores the previous state (tree, panel, hominin, or hominin-detail)
-- `navHome()` clears everything: stack, panel, hominin view, zoom/pan reset
-- Buttons auto-show when history exists, auto-hide at root with no history
-- Back button disables (but Home stays) when at a non-root state with empty stack
-- Added i18n keys: `nav_back` / `nav_home` for EN ("Back"/"Home"), HE ("חזרה"/"בית"), RU ("Назад"/"Главная")
-- RTL support: buttons mirror to top-right, back arrow flips direction via `scaleX(-1)`
-- Mobile layout: buttons move to `bottom:5rem; left:50%` centered
-- Light/dark theme styling for buttons
-- `applyI18n()` updates button labels and aria-labels on language switch
-- `serve.js`: made port configurable via `process.env.PORT || 5555`
+
+### index.html (CSS changes only)
+- **Header layout** — changed `#header` from `display:flex; justify-content:space-between` to `flex-direction:column; align-items:flex-start` so hint-bar renders below the title instead of beside it
+- **Hint-bar repositioned** — `text-align:left` (was `right`), `line-height:1.6` (was `2`), added `margin-top:0.2rem`
+- **Language switcher moved down** — `top:3.2rem` (was `1rem`) to sit below the search bar row
+- **Theme toggle moved down** — `top:5.2rem` (was `3rem`) to sit below the lang-switcher
+- **Search-wrap constrained** — added `max-width:calc(100% - 10rem)` to prevent buttons from bleeding into controls area
 
 ## 3. Why These Changes Were Made
-Users had no reliable way to step back through navigation states or return to the root tree view without reloading the page. The only "back" existed as a dynamically injected button inside the panel content (panel-to-panel only). This feature adds a consistent, persistent navigation layer across all views.
+- The header hint text ("Scroll to zoom | Drag to pan") was `text-align:right` in a flex row, overlapping with the language buttons
+- The search bar buttons (Hide Extinct, Hominins) extended into the lang-switcher at `top:1rem`
+- All three layers (z-index 200, 300, 400) occupied the same visual space in the top-right corner
 
 ## 4. Files Touched
-- `index.html` — CSS (nav-ctrl styles, light/dark/RTL/mobile), HTML (nav buttons), JS (navStack logic, hooks, i18n keys, applyI18n update)
-- `serve.js` — `process.env.PORT` support (minor adjacent improvement)
-- `.claude/launch.json` — `autoPort: true` for dev server
+- `index.html` — CSS only (5 properties changed across 4 selectors)
 
-## 5. Key Implementation Notes
-- `navStack` is separate from the legacy `panelHistory` — panelHistory still powers the dynamic "← Back" button inside panel content for panel-to-panel jumps; navStack tracks cross-view transitions
-- `pushNav()` is called **before** state transitions (records current state before change)
-- `restoreNavState()` first closes everything, then re-opens to the target state — avoids stale UI
-- `closePanel()` does NOT push to navStack (closing is a deliberate forward action, not something you'd "back" into)
-- The `currentNavState()` function reads live DOM/state to build snapshot objects
-- All functions referenced in navStack code (`getNodeById`, `renderPanelContent`, `HOMININS`, `showHominDetail`, `transform`, `applyT`) are defined before navStack in execution order
+## 5. Merge Conflicts Resolved
+- **3 conflict zones** in index.html from upstream CSS variable migration (PR #56 merged to main):
+  1. **Header/hint-bar block** — kept main's CSS variables (`var(--bg)`, `var(--text-primary)`, etc.), applied flex-direction:column and hint-bar repositioning
+  2. **Lang-switcher/theme-btn block** — kept main's CSS variable styling, applied position offsets (top:3.2rem, top:5.2rem)
+  3. **Search-wrap inline style** — kept main's CSS variable for icon color, applied max-width constraint
 
 ## 6. Risks / Caveats
-- The mobile `bottom:5rem` positioning may overlap with the timeline or legend on very short viewports — monitor in real device testing
-- The panel's `panel-enter` animation class is not re-applied during `restoreNavState` (panel just opens without entrance animation) — acceptable tradeoff for simplicity
-- `panelHistory` (legacy) and `navStack` are two parallel stacks — could be unified in future if complexity warrants it
-- `closePanel` sets `currentPanelNode=null` which I added; previously it was not cleared, which could leave stale state
+- Moving lang-switcher to `top:3.2rem` means it sits lower than before — may overlap with tree content on very small viewports
+- The hint-bar is now left-aligned below the title; the right side of the header gradient area is empty
 
 ## 7. Tests Performed
-- Syntax check: `new Function()` on inline script — passes
-- Page load: no console errors
-- **Back navigation chain**: Tree → Bacteria → Eukaryota → Animals → Back → Back → Back → root. Verified: correct node restored at each step, panel opens/closes correctly, stack grows/shrinks correctly, buttons hide at root
-- **Home from deep nav**: 3-deep navigation → Home → everything reset (stack=0, panel closed, hominin closed, zoom/pan to identity)
-- **Hominin view**: Open hominin → Back → hominin closes, tree restored
-- **Home from hominin+zoom**: Panel → Hominin → manual zoom change → Home → all reset including zoom
-- **Hebrew RTL**: Labels show "חזרה"/"בית", buttons mirror to right side, arrow flips via `scaleX(-1)` (matrix confirmed)
-- **Russian**: Labels show "Назад"/"Главная", LTR layout
-- **English**: Labels "Back"/"Home"
-- **Desktop 1400x900**: buttons visible top-left below title
+- Visual verification via preview screenshot: hint text no longer overlaps lang buttons
+- Lang-switcher buttons fully visible and separated from search bar
+- Theme toggle accessible below lang-switcher
 
 ## 8. Not Tested
-- Real mobile device / touch interaction with nav buttons
-- Mobile bottom-positioned buttons with open panel (potential overlap)
-- Keyboard navigation / screen reader with nav buttons
-- Hominin species detail → Back → correct hominin state restoration (tested programmatically but not via real click)
-- Dark theme visual appearance of nav buttons (CSS is there, not visually verified)
+- Light theme
+- RTL (Hebrew) layout
+- Mobile responsiveness
+- Russian language switching
 
 ## 9. Known Issues Still Open
-- Mobile nav button positioning may need refinement for overlap with bottom panel
-- `panelHistory` and `navStack` are two parallel stacks (could be unified)
-- Panel content text is still English-only (not i18n) — pre-existing, not introduced by this session
+1. Hominin overlay HTML still in index.html (dead code from p16)
+2. Timeline not fully interactive
+3. Panel modularization opportunity
+4. `panelHistory` and `navStack` are parallel stacks
 
-## 10. Recommended Next Step
-- Visual polish pass on nav buttons: fine-tune position/size for mobile, test dark theme appearance
-- Consider adding keyboard shortcut (e.g. Escape for Back, Shift+Escape for Home)
-- Test on real mobile devices
+## 10. Recommended Next Steps
+- Test mobile layout — lang-switcher at 3.2rem may need responsive adjustment
+- Test RTL layout — hint-bar left-alignment may need to flip for Hebrew
+- Consider hiding hint-bar after first interaction (it's guidance text)
+
+---
+
+# Session Handoff — 2026-03-15 (p17: Subtree-Weighted Radial Spacing)
+
+**Status: done**
+**PR:** https://github.com/Behemot46/tree-of-life/pull/56
+**Branch:** `claude/goofy-bartik`
+
+## 1. Session Goal
+Improve the spatial quality of the radial tree layout so branches feel open, breathing, and museum-quality rather than compressed or mechanical.
+
+## 2. What I Changed
+
+### index.html (+46 lines, -5 lines)
+- **Replaced `assignAngles()`** — was equal-share (each sibling gets `range/N`); now uses `sqrt(leafCount)` weighting so larger subtrees get proportionally more angular room
+- **Added `leafCount()` helper** — recursively counts visible leaves in a subtree, used by `assignAngles` for proportional weighting
+- **Replaced `assignPositions()`** — improved DEPTH_R fallback from `depth*65` to `DEPTH_R[last] + (overflow)*120` for graceful handling of deep trees
+- **Increased label offset** — from `r+14` to `r+18` base (with upstream's depth-adaptive `+Math.max(0,(depth-3)*4)` bonus preserved)
+- **Reduced initial zoom** — from `s:0.75` to `s:0.6` to accommodate expanded canvas
+
+### js/uiData.js (+2 lines, -1 line)
+- **Updated DEPTH_R array** — old: `[0,225,412,578,725,853,965,1067,1152,1230,1300,1365]`, new: `[0,240,440,620,790,950,1100,1240,1370,1490,1600]`
+- Inter-ring gaps are now more consistent (200→180→170→160→150→140→130→120→110) instead of shrinking rapidly at deeper levels
+
+## 3. Why These Changes Were Made
+- Equal angular allocation gave leaf nodes (Porifera) the same arc as massive subtrees (Animals with 40+ descendants), crowding the dense regions
+- DEPTH_R gaps shrank from 225px at depth 1 to just 65px at depth 8+, causing label overlap at the deepest levels where the most species live
+- The tree read as mechanically uniform — subtree-weighted angles create natural, organic variation
+
+## 4. Files Touched
+- `index.html` — layout functions (`assignAngles`, `assignPositions`, `leafCount`), label offset, initial zoom
+- `js/uiData.js` — DEPTH_R spacing array
+
+## 5. Key Implementation Notes
+- `sqrt(leafCount)` dampens extreme weight ratios — Eukaryota (100+ leaves) gets ~3x the angle of Bacteria (5 leaves), not 20x
+- `MIN_ANGLE_SEP=0.22` (already present in upstream) ensures even small subtrees get minimum breathing room
+- Upstream's multi-view layout system (radial/cladogram/chronological) was preserved intact — changes only affect `assignAngles`, `assignPositions`, and `DEPTH_R`, which are used by `layoutRadial()`
+- Cladogram view has its own independent `countLeaves` function — unaffected
+
+## 6. Risks / Caveats
+- The expanded DEPTH_R means the tree is ~17% larger overall; initial zoom reduced to compensate but users may need to zoom out more on small screens
+- 3 label pairs still overlap out of 93 visible labels — the upstream global collision system handles most cases
+
+## 7. Tests Performed
+- Tree renders without JS errors
+- Minimum sibling distance at all depths verified (≥83px at depth 2, ≥129px at deeper levels)
+- 93 labels visible, only 3 overlapping pairs
+- Hebrew RTL language switch works correctly
+- Panel open/close works
+- Pan and zoom reach all nodes
+- Cladogram and chronological view modes unaffected (upstream code preserved through merge conflict resolution)
+
+## 8. Not Tested
+- Russian language switching
+- Mobile layout
+- Extinct toggle (attempted but preview browser disconnected)
+- Deep zoom with all subtrees expanded
+- Node click → expand children flow
+
+## 9. Known Issues Still Open
+1. Hominin overlay HTML still in index.html (dead code from p16)
+2. Timeline not fully interactive
+3. Panel modularization opportunity
+4. `panelHistory` and `navStack` are parallel stacks
+
+## 10. Recommended Next Steps
+- Test mobile layout with expanded radii — may need responsive DEPTH_R scaling
+- Consider making DEPTH_R dynamically computed based on viewport size
+- Remove dead hominin overlay code
 
 ## 11. Suggested Commit Message
-feat: add persistent Back and Home navigation buttons with unified history stack
+`feat: subtree-weighted radial layout with generous spacing`
 
 ## 12. Suggested PR Title
-feat: add Back and Home navigation with cross-view history stack
+`feat: subtree-weighted radial layout with generous spacing`
 
 ## 13. Suggested PR Description
-## Summary
-- Adds persistent Back and Home buttons visible across all views (tree, panel, hominin, compare)
-- Back steps to previous navigation state using a client-side history stack
-- Home resets to root: closes all panels, resets zoom, clears history
-- Fully localized labels in EN, HE, RU with correct RTL arrow mirroring
+See PR #56
 
-## Test plan
-- [ ] Click nodes to open panels, verify Back/Home buttons appear
-- [ ] Navigate through multiple nodes, click Back to step through each
-- [ ] Click Home from deep navigation — verify full reset
-- [ ] Open hominin view, click Back — verify return to tree
-- [ ] Switch to Hebrew — verify RTL mirroring and Hebrew labels
-- [ ] Switch to Russian — verify Russian labels
-- [ ] Verify no console errors
+## Merge Conflicts Resolved
+- **index.html** had 3 conflict zones:
+  1. **Layout section** (lines ~1629–1743): Upstream added cladogram + chronological views; stash had subtree-weighted radial. **Resolution:** kept upstream's multi-view structure, applied subtree-weighted `assignAngles`/`assignPositions`/`leafCount` to the radial path only.
+  2. **Image rendering** (lines ~2074–2126): Upstream added SVG silhouette + ImageLoader; stash had old label overlap code. **Resolution:** kept upstream's silhouette/ImageLoader code entirely, discarded stale label overlap code (upstream has better global collision pass).
+  3. **Label distance** (lines ~2133–2137): Upstream had `r+14+depth_bonus`; stash had `r+20`. **Resolution:** merged to `r+18+depth_bonus` — larger base offset with depth adaptation.
 
 ---
 
-**Branch:** `claude/compassionate-gagarin`
-**Worktree:** `C:\Users\GAMER\tree-of-life\.claude\worktrees\compassionate-gagarin`
+# Session Handoff — 2026-03-15 (p16: Inline Hominin Subtree Fixes)
+
+**Status: done**
+**PR:** https://github.com/Behemot46/tree-of-life/pull/55
+**Branch:** `claude/elated-hofstadter`
+
+## 1. Session Goal
+Expand the human lineage so that all 28 hominin species (4 groups) are rendered as real branches in the main tree.
+
+## 2. What I Changed
+
+### js/treeData.js
+- **Added `homo-floresiensis` to `HOMININ_ID_ALIASES`** — the alias map was missing this entry, so `canonicalHomininId('homo-floresiensis')` returned the raw ID instead of resolving to `h_floresiensis`
+
+### serve.js
+- **Fixed query string handling** — `req.url` now has query params stripped before file lookup, preventing 404 when the page is reloaded with `?node=...` URL params
+
+## 3. Why These Changes Were Made
+- The inline hominin subtree was already implemented in PRs #53/#54. This session discovered two remaining bugs during testing:
+  1. `homo-floresiensis` wasn't aliased, making `canonicalHomininId()` and `getHomininById()` unable to resolve this duplicate ID
+  2. `navigateTo()` sets `?node=...` via `history.replaceState`, but serve.js tried to serve this as a file path
+
+## 4. Files Touched
+- `js/treeData.js` — added 1 alias line
+- `serve.js` — added query string stripping (1 line change)
+
+## 5. Key Implementation Notes
+- `HOMININ_SKIP_IDS` in index.html already prevents duplicate search entries for `homo-floresiensis`, but the alias fix ensures `canonicalHomininId()` resolves correctly across all code paths
+- The serve.js fix uses `req.url.split('?')[0]` — simple and safe for a static file server
+
+## 6. Risks / Caveats
+- None — both changes are minimal and isolated
+
+## 7. Tests Performed
+- Tree renders without JS errors on page load
+- All 28 species confirmed present across 4 groups (4+8+3+13), no duplicates
+- Expanding groups shows species with correct labels, icons, and layout
+- Panel shows brain volume bar, DNA introgression, capabilities, fossil sites
+- Search finds hominin species as regular tree nodes
+- `navigateTo` uncollapse the full path and pans to species
+- Extinct toggle correctly hides 27 extinct species, keeps H. sapiens
+- Hebrew RTL renders correctly
+- Page reload with `?node=...` URL works with fixed serve.js
+
+## 8. Not Tested
+- Russian language switching
+- Mobile layout with expanded hominin subtree
+- Deep zoom levels with all groups expanded simultaneously
+
+## 9. Known Issues Still Open
+1. The hominin overlay (`#hominin-view`) HTML is still in index.html — could be removed since the button now navigates to the tree instead
+2. The `openHomininView` function in main still opens the overlay (only the button's `onclick` was changed to `navigateTo('hominini')`)
+3. Timeline not fully interactive
+4. Panel modularization opportunity remains
+5. `panelHistory` and `navStack` are still parallel stacks
+
+## 10. Recommended Next Steps
+- Remove the hominin overlay HTML/CSS/JS (~200 lines of dead code)
+- Update `openHomininView()` to navigate to tree (currently still opens overlay in main)
+- Test mobile layout with expanded hominin subtree
+- Consider making group nodes start expanded by default (currently all collapsed)
+
+## 11. Suggested Commit Message
+`fix: add homo-floresiensis alias, fix serve.js query string handling`
+
+## 12. Suggested PR Title
+`fix: add homo-floresiensis alias, fix serve.js query string handling`
+
+## 13. Suggested PR Description
+See PR #55
 
 ---
 
-# Session Handoff — Fact Library (prior session)
+# Previous Session Handoff — 2026-03-15 (p15)
 
-**Branch:** `claude/tender-greider`
-**Status:** done
+**Status: done**
+**PR:** https://github.com/Behemot46/tree-of-life/pull/54
+**Branch:** `claude/p15-stabilization`
 
-## 1. Session goal
-Implement a structured, reusable loading-subtitle system. Curate a production-ready loading pool from an approved fact library. Wire it into the splash screen with full i18n support.
+## 1. Session Goal
+Audit the codebase for accumulated drift, fix bugs, remove dead code, and update documentation to match reality.
 
-## 2. What I changed
-- Created `js/factLibrary.js` — new IIFE module (`FACTS`) with 18 curated trilingual loading facts
-- Added `<script src="js/factLibrary.js">` to `index.html` before the main `<script>` block
-- Replaced 5 hardcoded English-only splash taglines in `init()` with `FACTS.getLoadingFact(currentLang)`
-- Localized "Growing the tree…" loading spinner text via new `loading_text` translation key (EN/HE/RU)
-- Made `serve.js` respect `PORT` env var for dev tooling compatibility
+## 2. What I Changed
 
-## 3. Why these changes were made
-- Loading taglines were English-only (i18n gap for HE/RU users)
-- No structured source for facts — scattered inline strings with no IDs, tags, or filtering
-- Need a reusable fact pool for future surfaces (discovery cards, quiz, tooltips, timeline)
+### index.html (~165 lines removed)
+- **Removed duplicate inline PHOTO_MAP** (168 lines) from inside `renderPanelContent()` — was shadowing the more complete global constant from `js/speciesData.js` (228 entries)
+- **Hoisted `fetchWikiPhoto()` and photo cache init** (`window._photoCache`, `window._failedPhotos`) from inside `renderPanelContent()` to module scope — were re-declared on every panel open
+- **Renamed `EXTINCTIONS` → `EXTINCTION_EVENTS`** inside `init()` to stop shadowing the global `EXTINCTIONS` array from `js/uiData.js` (different data shape: objects vs simple numbers)
 
-## 4. Files touched
-| File | Change |
-|------|--------|
-| `js/factLibrary.js` | **NEW** — structured fact library with 18 trilingual loading-safe facts |
-| `index.html` | Added script tag; wired splash to FACTS module; localized loader text; added `loading_text` to EN/HE/RU translations |
-| `serve.js` | `const port = process.env.PORT \|\| 5555` (was hardcoded 5555) |
-| `.claude/launch.json` | Added `autoPort: true` for dev tooling |
+### CLAUDE.md (updated)
+- Added 3 missing JS files to repository structure: `factLibrary.js`, `imagePrompts.js`, `imageLoader.js`
+- Fixed stale Playfair Display font references → Inter/JetBrains Mono/Heebo
+- Updated `speciesData.js` exports list (`GREAT_APE_IDS`, `HOMININ_IDS` instead of stale names)
+- Corrected index.html line count (~3,800 not ~2,860)
+- Corrected JS file count (6 not 3)
 
-## 5. Key implementation notes
-- `FACTS` module follows project IIFE pattern with public API: `getLoadingFact(lang)`, `getById(id)`, `getByTag(tag)`, `getLoadingPool()`, `getAll()`
-- Each fact has: stable `id` (e.g. `load_01`), `en`/`he`/`ru` text, `tags` array, `loading` boolean
-- `currentLang` is already set from localStorage before `init()` runs, so language-aware splash works on first load
-- Node `funFact` strings in TREE data are untouched — no duplication, no migration
-- The fact library is additive and safe to extend
+## 3. Why These Changes Were Made
+Multiple PRs (p1–p14) accumulated technical debt:
+- PHOTO_MAP existed in both `speciesData.js` (228 entries) and inline in `renderPanelContent` (168 entries) — the inline copy was less complete and rebuilt on every panel open
+- `fetchWikiPhoto()` was a function declaration inside `renderPanelContent`, re-parsed on each call
+- `EXTINCTIONS` name collision between uiData.js (simple array) and init() (object array) caused confusing shadowing
+- CLAUDE.md still referenced only 3 JS files when 6 exist
 
-## 6. Risks / caveats
-- Hebrew and Russian translations for the 18 loading facts should be reviewed by native speakers
-- The splash header text "3,800,000,000 years of evolution" (line 626) remains English-only hardcoded — not part of this task but worth localizing later
-- `showIntro()` function (line 3863) has hardcoded English text — not called in current flow, but should be localized if reactivated
+## 4. Files Touched
+- `index.html` — removed duplicate PHOTO_MAP, hoisted fetchWikiPhoto, renamed EXTINCTIONS
+- `CLAUDE.md` — updated file structure, fonts, line count, data file listing
 
-## 7. Tests performed
-- App loads without console errors
-- FACTS module verified: 18 facts in pool, all 3 languages return correct strings
-- Language switching EN → HE → RU → EN: all UI text updates correctly
-- Hebrew RTL layout confirmed working
-- Russian translation confirmed working
-- Search tested ("octopus") — fuzzy search returns correct result
-- Tree rendering verified — no visual regressions
+## 5. Key Implementation Notes
+- `PHOTO_MAP` from `js/speciesData.js` is loaded globally via `<script src>` tag before the inline `<script>` block — no `const` redeclaration needed
+- `fetchWikiPhoto()` references `window._photoCache` and `window._failedPhotos` (module scope now)
+- `EXTINCTION_EVENTS` (inside init) has objects `{name, time, short}` — different shape from global `EXTINCTIONS` array `[445,370,252,200,66]` in uiData.js. They serve different purposes:
+  - Global `EXTINCTIONS`: used by `buildExtinctionMarkers()` for simple line markers
+  - `EXTINCTION_EVENTS`: used by `addTimelineMarkers()` for named, interactive markers
 
-## 8. Not tested
-- Mobile/touch behavior
-- Splash screen tagline visual rendering (splash auto-dismisses in 2.8s, screenshots captured after)
-- Offline/cached behavior
-- GitHub Pages deployment
+## 6. Risks / Caveats
+- If speciesData.js PHOTO_MAP is missing entries that the inline copy had, those species will show emoji fallback instead of photos. Verified: speciesData has 228 entries vs inline's 168 — it's a superset, no data loss.
+- `fetchWikiPhoto` at module scope means it's available globally — acceptable since it was already functionally global (only called from panel rendering)
 
-## 9. Known issues still open
-- `showIntro()` has hardcoded English (not in current flow)
-- Splash header "3,800,000,000 years of evolution" not localized
-- Node funFacts are English-only (future i18n task)
-- Timeline not fully interactive (pre-existing)
+## 7. Tests Performed
+- JS syntax check: `node --check` on extracted inline script — passes
+- Verified 0 stale font references remain (Playfair Display, Source Sans, Noto Serif, Lora)
+- Verified PHOTO_MAP correctly resolves from speciesData.js global scope
+- Verified EXTINCTION_EVENTS rename doesn't break timeline marker rendering
 
-## 10. Recommended next step
-- Native speaker review of HE/RU loading fact translations
-- Extend fact library with domain-tagged facts for discovery cards / node tooltips
-- Localize remaining hardcoded English strings (splash header, showIntro)
+## 8. Not Tested
+- Live browser testing (no browser available in this session)
+- Mobile layout
+- Photo loading for all 228 PHOTO_MAP entries
+- Hebrew/Russian i18n with updated rendering
 
-## 11. Suggested commit message
-feat: add structured fact library with trilingual loading subtitles
+## 9. Known Issues Still Open
+1. Timeline not fully interactive (slider works but missing era period bars, preset buttons)
+2. No offline fallback for API failures
+3. Panel HTML template is a very long string — modularization opportunity
+4. Legend is decorative only (domain highlight not implemented)
+5. `panelHistory` and `navStack` are two parallel stacks (could be unified)
+6. PHOTO_MAP exists in both `js/speciesData.js` (module scope) AND is registered with `ImageLoader.registerPhotoMap()` — slight redundancy but harmless
 
-## 12. Suggested PR title
-feat: structured fact library with trilingual loading subtitles
+## 10. Recommended Next Steps
+- **Test in browser** — verify panel photos load, timeline markers display, no console errors
+- **Timeline enhancement** — make era bars interactive, add preset buttons, fix era tints
+- **Panel modularization** — extract the ~300-line template literal into smaller functions
+- **Unify navigation stacks** — merge `panelHistory` and `navStack` into one
 
-## 13. Suggested PR description
-Add a structured, reusable fact library (`js/factLibrary.js`) with 18 curated trilingual facts for the splash screen loading tagline. Replaces 5 hardcoded English-only taglines with language-aware random selection. Also localizes the "Growing the tree…" loading spinner text for EN/HE/RU.
+---
+
+# Previous Session Handoffs
+
+## Session — 2026-03-14 (p13a: Back & Home Navigation)
+**Branch:** `claude/compassionate-gagarin` (merged)
+- Added persistent Back and Home navigation buttons with unified history stack
+- Navigation history tracks node expansion/panel opens
+- Full i18n support (EN/HE/RU) with RTL mirroring
+
+## Session — Fact Library
+**Branch:** `claude/tender-greider` (merged)
+- Created `js/factLibrary.js` with 18 trilingual loading facts
+- Wired splash screen to FACTS module with language-aware selection

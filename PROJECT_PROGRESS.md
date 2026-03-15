@@ -20,7 +20,10 @@
 | p13b | Species image system (ImageLoader + prompts + PHOTO_MAP) | **Done** | PR #52 (`claude/strange-dewdney`) |
 | p14 | Inline hominin family tree (28 species as tree nodes) | **Done** | PR #53 (`claude/strange-rosalind`) |
 | p15 | Stabilization & docs (dedup, scope fixes, fact library) | **Done** | PR #54 (`claude/p15-stabilization`) |
-| p16 | Roadmap & project health | **Done** | `claude/keen-easley` |
+| p16 | Inline Hominin Subtree Fixes | **Done** | PR #55 (`claude/elated-hofstadter`) |
+| p17 | Subtree-Weighted Radial Spacing | **Done** | PR #56 (`claude/goofy-bartik`) |
+| p18 | Fix Overlapping Header Controls | **Done** | PR #57 (`claude/sad-keller`) |
+| p19 | Roadmap & project health | **Done** | `claude/keen-easley` |
 
 ---
 
@@ -531,6 +534,6 @@ Combined with p8: **~2,800+ lines** of dead code eliminated from the repo.
 
 ---
 
-## p16 — Roadmap & Project Health (2026-03-15)
+## p19 — Roadmap & Project Health (2026-03-15)
 
 See [ROADMAP.md](ROADMAP.md) for the full development roadmap with phases p16+.

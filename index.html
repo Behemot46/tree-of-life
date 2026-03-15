@@ -364,8 +364,23 @@ svg{width:100%;height:100%;}
   background:var(--surface);border:1px solid var(--border);
   border-radius:var(--radius-sm);padding:8px 12px;font-family:var(--font-sans);
   font-size:13px;color:var(--text-primary);box-shadow:0 4px 12px rgba(0,0,0,0.15);
-  max-width:200px;line-height:1.4;opacity:0;visibility:hidden;
+  max-width:280px;line-height:1.4;opacity:0;visibility:hidden;
   transition:opacity 150ms ease;transform:translate(16px,-50%);white-space:nowrap;}
+.tip-fact-line{font-size:11px;font-style:italic;color:var(--text-secondary);margin-top:4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;}
+
+/* ── DISCOVERY FACT TOAST ── */
+#fact-toast{position:fixed;top:5rem;left:50%;transform:translateX(-50%) translateY(-20px);
+  z-index:500;background:var(--surface);border:1px solid var(--accent-primary, var(--gold));
+  border-radius:12px;padding:14px 20px;max-width:420px;width:90vw;
+  box-shadow:0 8px 32px rgba(0,0,0,0.25);font-family:var(--font-sans);
+  opacity:0;visibility:hidden;transition:opacity 300ms ease,transform 300ms ease,visibility 300ms;}
+#fact-toast.visible{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);}
+#fact-toast .ft-label{font-size:10px;font-weight:700;color:var(--accent-primary, var(--gold));
+  letter-spacing:0.1em;margin-bottom:6px;}
+#fact-toast .ft-text{font-size:13px;line-height:1.5;color:var(--text-primary);font-style:italic;}
+#fact-toast .ft-link{font-size:11px;color:var(--accent-primary, var(--gold));cursor:pointer;
+  margin-top:6px;display:inline-block;text-decoration:underline;}
 #tooltip.visible{opacity:1;visibility:visible;}
 .tree-node{cursor:pointer;}
 svg,#canvas-wrap{cursor:grab;}
@@ -1163,6 +1178,12 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 
 <!-- TOOLTIP -->
 <div id="tooltip"></div>
+
+<!-- DISCOVERY FACT TOAST -->
+<div id="fact-toast" role="status" aria-live="polite">
+  <div class="ft-label">💡 DID YOU KNOW</div>
+  <div class="ft-text" id="ft-text"></div>
+</div>
 
 <!-- MAIN DETAIL PANEL -->
 <div id="panel">
@@ -2218,7 +2239,7 @@ function render(){
     if(n.extinct){c.setAttribute('stroke-dasharray','4 2');c.setAttribute('opacity','0.6');}
     c.style.cursor = 'pointer';
     c.style.pointerEvents = 'all';
-    c.addEventListener('mouseenter', function(){ this.style.transform='scale(1.15)';this.style.transformOrigin='center';this.style.filter='brightness(1.2)'; showTip(n.name, n.icon); });
+    c.addEventListener('mouseenter', function(){ this.style.transform='scale(1.15)';this.style.transformOrigin='center';this.style.filter='brightness(1.2)'; showTip(n.name, n.icon, n.id); });
     c.addEventListener('mouseleave', function(){ this.style.transform='scale(1)';this.style.filter=''; hideTip(); });
     c.addEventListener('click', e=>{ e.stopPropagation(); showMainPanel(n); });
     g.appendChild(c);
@@ -2827,12 +2848,15 @@ function renderPanelContent(node) {
         ${node.era ? `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">📅 ${node.era}${node.appeared ? ' · ' + node.appeared + ' Mya' : ''}</div>` : ''}
       </div>
       ${node.desc ? `<p style="font-size:14px;line-height:1.7;color:var(--color-text-secondary);font-family:'Inter',sans-serif;margin:0;">${node.desc}</p>` : ''}
-      ${node.funFact ? `
+      ${(() => {
+        const _panelFact = node.funFact || FACTS.getPanelFact(node.id, currentLang);
+        return _panelFact ? `
         <div style="border-left:3px solid var(--color-accent);padding:12px 16px;background:rgba(46,125,50,0.06);border-radius:0 8px 8px 0;">
           <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;margin-bottom:6px;font-family:'Inter',sans-serif;">💡 DID YOU KNOW</div>
-          <p style="font-family:'Inter',sans-serif;font-style:italic;font-size:14px;line-height:1.6;color:var(--color-text-primary);margin:0;">${node.funFact}</p>
+          <p style="font-family:'Inter',sans-serif;font-style:italic;font-size:14px;line-height:1.6;color:var(--color-text-primary);margin:0;">${_panelFact}</p>
         </div>
-      ` : ''}
+      ` : '';
+      })()}
       ${node.detail ? `<p style="font-size:13px;line-height:1.7;color:var(--color-text-muted);font-family:'Inter',sans-serif;margin:0;">${node.detail}</p>` : ''}
       ${node.facts && node.facts.length > 0 ? `
         <div style="display:flex;flex-direction:column;gap:1px;border-radius:8px;overflow:hidden;border:1px solid var(--color-divider);">
@@ -3049,9 +3073,14 @@ document.addEventListener('mousemove', function(e) {
     tooltipEl.style.top = e.clientY + 'px';
   }
 });
-function showTip(text, icon) {
+function showTip(text, icon, nodeId) {
   clearTimeout(_tipTimer);
-  tooltipEl.innerHTML = (icon ? icon + ' ' : '') + text;
+  let html = (icon ? icon + ' ' : '') + text;
+  if (nodeId) {
+    const tipFact = FACTS.getTooltipFact(nodeId, currentLang);
+    if (tipFact) html += '<div class="tip-fact-line">' + tipFact + '</div>';
+  }
+  tooltipEl.innerHTML = html;
   tooltipEl.classList.add('visible');
 }
 function hideTip() {
@@ -3733,7 +3762,24 @@ document.getElementById('btn-random').addEventListener('click',()=>{
     const pick=leaves[Math.floor(Math.random()*leaves.length)];
     navigateTo(pick.id);
     setTimeout(()=>showMainPanel(pick),300);
+    // Show a discovery fact toast about the picked species
+    const disc = FACTS.getDiscoveryFact(currentLang);
+    if (disc) showFactToast(disc.text);
   }
+});
+
+// ── Discovery fact toast ──
+let _factToastTimer = null;
+function showFactToast(text) {
+  clearTimeout(_factToastTimer);
+  const toast = document.getElementById('fact-toast');
+  document.getElementById('ft-text').textContent = text;
+  toast.classList.add('visible');
+  _factToastTimer = setTimeout(() => toast.classList.remove('visible'), 7000);
+}
+document.getElementById('fact-toast').addEventListener('click', () => {
+  clearTimeout(_factToastTimer);
+  document.getElementById('fact-toast').classList.remove('visible');
 });
 
 // ══════════════════════════════════════════════════════

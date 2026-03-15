@@ -25,6 +25,7 @@
 | p18 | Fix overlapping header controls | PR #57 |
 | p19 | Roadmap & project health | `claude/keen-easley` |
 | p23 | DNA similarity calculator — species comparator with known + estimated data | `claude/crazy-villani` |
+| p26a | 130+ facts pack — expanded library, panel/tooltip/discovery integration | `claude/compassionate-poitras` |
 
 ### Upcoming
 

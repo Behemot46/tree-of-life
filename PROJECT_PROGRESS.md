@@ -2,28 +2,42 @@
 
 ## Milestones
 
-| # | Milestone | Status | Branch / PR |
-|---|-----------|--------|-------------|
-| p1 | Extract tree + hominin data to `js/treeData.js` | **Done** | PR #38 (`claude/cool-pascal`) |
-| p2 | Fuzzy multilingual search (EN/HE/RU) | **Done** | `claude/inspiring-burnell` |
-| p3 | Main-tree hominin lineage access | **Done** | PR #35 (`claude/admiring-wiles`) |
-| p4 | Interactive geological timeline | Pending | — |
-| p5 | Offline fallback for API failures | Pending | — |
-| p6 | Hominin access improvements | **Done** | PR #39 (`feature/hominin-access`) |
-| p7 | Visual overhaul — font, buttons, icons, timeline, contrast | **Done** | `feature/hominin-access` (same branch) |
-| p8 | Dead CSS cleanup — delete `style.css` + remove dead inline rules | **Done** | `feature/hominin-access` (same branch) |
-| p9 | Legacy JS cleanup — delete 7 dead App B modules | **Done** | `feature/hominin-access` (same branch) |
-| p10 | Mobile Responsiveness | **Done** | `claude/inspiring-shockley` |
-| p11 | Interactive Timeline + Alternate Tree Views | **Done** | `claude/epic-mayer` |
-| p12 | Modern Scientific Visual Overhaul | **Done** | PR #48 (`claude/jovial-proskuriakova`) |
-| p13a | Back & Home navigation buttons | **Done** | PR #51 (`claude/compassionate-gagarin`) |
-| p13b | Species image system (ImageLoader + prompts + PHOTO_MAP) | **Done** | PR #52 (`claude/strange-dewdney`) |
-| p14 | Inline hominin family tree (28 species as tree nodes) | **Done** | PR #53 (`claude/strange-rosalind`) |
-| p15 | Stabilization & docs (dedup, scope fixes, fact library) | **Done** | PR #54 (`claude/p15-stabilization`) |
-| p16 | Inline Hominin Subtree Fixes | **Done** | PR #55 (`claude/elated-hofstadter`) |
-| p17 | Subtree-Weighted Radial Spacing | **Done** | PR #56 (`claude/goofy-bartik`) |
-| p18 | Fix Overlapping Header Controls | **Done** | PR #57 (`claude/sad-keller`) |
-| p19 | Roadmap & project health | **Done** | `claude/keen-easley` |
+### Completed
+
+| # | Milestone | Branch / PR |
+|---|-----------|-------------|
+| p1 | Extract tree + hominin data to `js/treeData.js` | PR #38 |
+| p2 | Fuzzy multilingual search (EN/HE/RU) | `claude/inspiring-burnell` |
+| p3 | Main-tree hominin lineage access (28 hominins, 4 groups) | PR #35 |
+| p6 | Hominin access improvements (floating button, golden ring) | PR #39 |
+| p7 | Visual overhaul — fonts, buttons, photo thumbnails, WCAG contrast | PR #39 |
+| p8 | Dead CSS cleanup — deleted `style.css` + 17 dead inline rules | PR #39 |
+| p9 | Legacy JS cleanup — deleted 7 dead App B modules (~2k lines) | PR #39 |
+| p10 | Mobile responsiveness — bottom-sheet panel, touch, swipe, pinch-zoom | PR #45 |
+| p11 | Interactive timeline + alternate tree views (radial/clado/chrono) | `claude/epic-mayer` |
+| p12 | Modern scientific visual overhaul — SVG icons, label collision, human path | PR #48 |
+| p13a | Back & Home navigation buttons with history stack | PR #51 |
+| p13b | Species image system — ImageLoader + PHOTO_MAP (228 entries) | PR #52 |
+| p14 | Inline hominin family tree — 28 species as tree nodes + panel enrichment | PR #53 |
+| p15 | Stabilization & docs — removed duplicates, hoisted functions, fixed shadowing | PR #54 |
+| p16 | Inline hominin subtree fixes | PR #55 |
+| p17 | Subtree-weighted radial spacing | PR #56 |
+| p18 | Fix overlapping header controls | PR #57 |
+| p19 | Roadmap & project health | `claude/keen-easley` |
+
+### Upcoming
+
+| # | Milestone | Goal | Status |
+|---|-----------|------|--------|
+| p20 | Naturalist node artwork | Replace all emoji/silhouette node icons with consistent high-quality artistic sketches (pen-and-ink naturalist style) for every node (~130+). Build asset pipeline, SVG/WebP format, fallback chain. | Pending |
+| p21 | Species panel visual identity | Replace emoji headers in species info panel with curated photos or GenAI artwork. Consistent framing/style, Wikimedia + AI-generated fallback pipeline. | Pending |
+| p22 | Rich data panels & infographics | Increase fonts, add descriptive paragraphs, layered data sections (habitat, diet, morphology, fossil record). Inline mini-infographics: size comparisons, range maps, trait radar charts. | Pending |
+| p23 | DNA similarity calculator | Two-species comparator: pick any two species, display estimated DNA similarity %. Visual output with divergence timeline, shared traits, "you share X% DNA with a banana" UX. | Pending |
+| p24 | Always-visible hominin branch | Show full hominin family tree as expanded branch with twigs on main canvas — no "explore deeper" required. Auto-layout to avoid crowding, golden path emphasis, larger labels. | Pending |
+| p25 | Interactive legend & domain highlighting | Clicking a domain in the legend highlights/filters that subtree on the canvas. Visual feedback, toggle behavior. | Pending |
+| p26 | Accessibility & navigation cleanup | Keyboard nav, ARIA labels, focus management, screen reader support, reduced-motion. Unify `panelHistory`/`navStack` into single model. | Pending |
+| p27 | Performance & offline resilience | Viewport culling (render only visible nodes), lazy expansion, service worker caching, offline fallbacks, connection status indicator. | Pending |
+| p28 | Guided tours & educational mode | Walkthrough overlays narrating key evolutionary milestones (Great Oxidation, Cambrian Explosion, K-Pg). Step-by-step discovery paths for educational use. | Pending |
 
 ---
 

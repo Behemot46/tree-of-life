@@ -1629,8 +1629,48 @@ Object.entries(ENRICHMENT).forEach(([id, data]) => {
 let viewMode='radial';
 function getVisible(n){let a=[n];if(n.children&&!n._collapsed)n.children.forEach(c=>a=a.concat(getVisible(c)));return a;}
 function getVisibleEdges(n){let a=[];if(n.children&&!n._collapsed){n.children.forEach(c=>{a.push({from:n,to:c});a=a.concat(getVisibleEdges(c));});}return a;}
-function assignAngles(n,a0,a1){n._a0=a0;n._a1=a1;n._angle=(a0+a1)/2;if(!n.children||!n.children.length||n._collapsed)return;const visible=n.children;const minAngleSep=0.22;const range=a1-a0;const minTotal=visible.length*minAngleSep;const effectiveRange=Math.max(range,minTotal);let a=a0-(effectiveRange-range)/2;visible.forEach(c=>{const share=effectiveRange/visible.length;assignAngles(c,a,a+share);a+=share;});}
-function assignPositions(n,cx,cy){const r=DEPTH_R[n.depth]||(n.depth*65);n._x=cx+Math.cos(n._angle-Math.PI/2)*r;n._y=cy+Math.sin(n._angle-Math.PI/2)*r;if(n.children&&!n._collapsed)n.children.forEach(c=>assignPositions(c,cx,cy));}
+
+/* Count visible leaves in a subtree — used to weight angular allocation proportionally */
+function leafCount(n){
+  if(!n.children||!n.children.length||n._collapsed) return 1;
+  let sum=0;
+  n.children.forEach(c=>{ sum+=leafCount(c); });
+  return Math.max(1,sum);
+}
+
+/* Minimum angular separation per sibling (radians) */
+const MIN_ANGLE_SEP=0.22;
+
+/* Subtree-weighted angle assignment — larger subtrees get proportionally more room */
+function assignAngles(n,a0,a1){
+  n._a0=a0; n._a1=a1; n._angle=(a0+a1)/2;
+  if(!n.children||!n.children.length||n._collapsed) return;
+  const visible=n.children;
+  const range=a1-a0;
+
+  const weights=visible.map(c=>{
+    const lc=leafCount(c);
+    return Math.max(1.0, Math.sqrt(lc)); /* sqrt dampens extreme ratios */
+  });
+  const totalWeight=weights.reduce((s,w)=>s+w,0);
+
+  const minTotal=visible.length*MIN_ANGLE_SEP;
+  const effectiveRange=Math.max(range,minTotal);
+  let a=a0-(effectiveRange-range)/2;
+
+  visible.forEach((c,i)=>{
+    const share=effectiveRange*(weights[i]/totalWeight);
+    assignAngles(c,a,a+share);
+    a+=share;
+  });
+}
+
+function assignPositions(n,cx,cy){
+  const r=DEPTH_R[n.depth]||(DEPTH_R[DEPTH_R.length-1]+(n.depth-DEPTH_R.length+1)*120);
+  n._x=cx+Math.cos(n._angle-Math.PI/2)*r;
+  n._y=cy+Math.sin(n._angle-Math.PI/2)*r;
+  if(n.children&&!n._collapsed) n.children.forEach(c=>assignPositions(c,cx,cy));
+}
 
 function layoutRadial(){const cx=window.innerWidth/2,cy=window.innerHeight/2+35;assignAngles(TREE,0,Math.PI*2);assignPositions(TREE,cx,cy);}
 
@@ -1842,7 +1882,7 @@ const HUMAN_PATH=new Set(['luca','eukaryota','animalia','vertebrates','mammals',
 const branchLayer=document.getElementById('layer-branches');
 const nodesLayer=document.getElementById('layer-nodes');
 const viewport=document.getElementById('viewport');
-let transform={x:0,y:0,s:0.75};
+let transform={x:0,y:0,s:0.6};
 const applyT=()=>viewport.setAttribute('transform',`translate(${transform.x},${transform.y}) scale(${transform.s})`);
 const animDone=new Set();
 let highlightedId=null;
@@ -2061,7 +2101,7 @@ function render(){
     if(inEra&&n.depth<=6){
       const sibCount=n._parent?.children?.length||1;
       const angleRad=n._angle-Math.PI/2;
-      const lDist=n.r+14+Math.max(0,(n.depth-3)*4);
+      const lDist=n.r+18+Math.max(0,(n.depth-3)*4);
       const lx=n._x+Math.cos(angleRad)*lDist;
       const ly=n._y+Math.sin(angleRad)*lDist;
       const cos=Math.cos(angleRad);

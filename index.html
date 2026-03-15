@@ -296,6 +296,39 @@ svg{width:100%;height:100%;}
 
 [data-theme="light"] .btn-back:hover{background:var(--accent-primary-dim);}
 
+/* ── PANEL HERO IMAGE ── */
+.panel-hero{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;flex-shrink:0;background:var(--color-canvas-alt);}
+.panel-hero-img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity 0.3s ease;}
+.panel-hero-img.loaded{opacity:1;}
+.panel-hero-gradient{position:absolute;bottom:0;left:0;right:0;height:60%;background:linear-gradient(to top,rgba(0,0,0,0.55),transparent);pointer-events:none;}
+.panel-hero-fallback{display:flex;align-items:center;justify-content:center;width:100%;height:100%;position:absolute;top:0;left:0;}
+.panel-hero-fallback svg{width:64px;height:64px;opacity:0.45;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));}
+.panel-hero-credit{position:absolute;bottom:6px;right:8px;font-size:10px;color:rgba(255,255,255,0.7);
+  font-family:var(--font-sans);text-shadow:0 1px 3px rgba(0,0,0,0.8);background:rgba(0,0,0,0.35);
+  padding:1px 6px;border-radius:3px;z-index:2;}
+.panel-hero-skeleton{position:absolute;top:0;left:0;width:100%;height:100%;
+  background:linear-gradient(90deg,var(--color-canvas-alt) 25%,var(--color-button-bg) 50%,var(--color-canvas-alt) 75%);
+  background-size:200% 100%;animation:shimmer 1.5s infinite;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+.panel-hero.has-image .panel-hero-fallback{display:none;}
+.panel-hero.has-image .panel-hero-skeleton{display:none;}
+
+/* Panel header (below hero) */
+.panel-header{display:flex;flex-direction:column;gap:4px;}
+.panel-header h2{font-family:var(--font-head);font-size:1.35rem;font-weight:700;color:var(--color-text-primary);margin:0;line-height:1.2;}
+.panel-header .panel-latin{font-style:italic;font-size:13px;color:var(--color-text-muted);font-family:var(--font-sans);}
+.panel-header .panel-era{font-size:12px;color:var(--color-text-secondary);font-family:var(--font-sans);}
+.panel-lineage-badge{display:inline-flex;font-size:10px;font-weight:700;letter-spacing:0.1em;
+  font-family:var(--font-sans);text-transform:uppercase;padding:3px 10px;border-radius:9999px;}
+
+[data-theme="light"] .panel-hero{background:#e8ecf0;}
+[data-theme="light"] .panel-hero-gradient{background:linear-gradient(to top,rgba(255,255,255,0.5),transparent);}
+[data-theme="light"] .panel-hero-credit{color:rgba(0,0,0,0.6);background:rgba(255,255,255,0.5);text-shadow:none;}
+
+@media (max-width:768px){
+  .panel-hero{aspect-ratio:2/1;max-height:150px;}
+}
+
 .p-top{display:flex;align-items:flex-start;gap:0.9rem;margin-bottom:1.1rem;}
 .p-icon-wrap{width:48px;height:48px;flex-shrink:0;border-radius:var(--radius-md);
   display:flex;align-items:center;justify-content:center;font-size:1.6rem;
@@ -1385,6 +1418,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 <script src="js/imagePrompts.js"></script>
 <script src="js/imageLoader.js"></script>
 <script src="js/dnaSimilarity.js"></script>
+<script src="js/nodeIcons.js"></script>
 <script>
 // Register PHOTO_MAP (from speciesData.js) with ImageLoader for tree node rendering
 if(typeof ImageLoader!=='undefined'&&typeof PHOTO_MAP!=='undefined'&&ImageLoader.registerPhotoMap){
@@ -1969,101 +2003,6 @@ function resetDomains() {
     el.style.fontWeight = '400';
   });
   scheduleRender();
-}
-
-// ══════════════════════════════════════════════════════
-// SVG SILHOUETTE ICONS (replace emojis)
-// ══════════════════════════════════════════════════════
-const NODE_ICONS = {
-  bacteria: 'M12 4c-1.5 0-3 .8-3 2.5v11c0 1.7 1.5 2.5 3 2.5s3-.8 3-2.5v-11C15 4.8 13.5 4 12 4z',
-  archaea: 'M12 3l-3 5.5 1.5 3-2.5 4.5L12 21l4-5-2.5-4.5L15 8.5 12 3z',
-  plant: 'M12 22V12m0 0c0-4-3-7-7-8 1 3 3.5 6 7 8zm0 0c0-4 3-7 7-8-1 3-3.5 6-7 8z',
-  fungus: 'M12 22v-8m0 0c-5 0-8-3-8-6s3-5 8-5 8 2 8 5-3 6-8 6z',
-  animal: 'M4 13c0-4.4 3.6-8 8-8s8 3.6 8 8c0 2-1.5 3-3 3h-2l-1 3h-4l-1-3H7c-1.5 0-3-1-3-3z',
-  fish: 'M2 12c3-4 7-6 11-6 2 0 4 1.5 5 3l4-3v6l-4-3c-1 1.5-3 3-5 3-4 0-8-2-11-6zm13-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
-  bird: 'M3 15c2-4 6-7 10-7h3l5-4-2 5c1 2 1 4 0 6l-4-1-3 3-2-3c-3 0-5 .5-7 1z',
-  reptile: 'M3 14c1-2 3-3 5-3h2l2-2h3l3 1 3-1 1 2-2 1v2l-2 1-3-1-3 1-2-1H8l-3 2-2-2z',
-  amphibian: 'M7 8a5 5 0 0 1 10 0c0 2-1 3-2 4v3c0 1-1 2-3 2s-3-1-3-2v-3c-1-1-2-2-2-4zm3-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
-  insect: 'M12 4a2 2 0 0 1 2 2c0 .5-.2 1-.5 1.3.9.5 1.5 1.4 1.5 2.7 0 1-.4 1.8-1 2.3.6.7 1 1.6 1 2.7 0 2-1.3 3-3 3s-3-1-3-3c0-1.1.4-2 1-2.7-.6-.5-1-1.3-1-2.3 0-1.3.6-2.2 1.5-2.7-.3-.3-.5-.8-.5-1.3a2 2 0 0 1 2-2zM8 9l-3-2m0 6l3-1m8-3l3-2m0 6l-3-1',
-  mollusk: 'M16 12a6 6 0 0 0-5-5.9c.6-1.2 1-2.1 1-2.1s-2 .5-3.5 2C5.5 8 4 11 6 14s5 4 8 3c1.5-.5 2.5-2 2.5-4-.2-.3-.3-.7-.5-1z',
-  cnidarian: 'M12 3c-3 0-6 3-6 7 0 2 1 3 2 3h8c1 0 2-1 2-3 0-4-3-7-6-7zm-4 12l-1 5m2-5v5m2-5l1 5m2-5v5m2-5l1 5',
-  sponge: 'M8 4c-2 1-3 4-3 8s1 7 3 8h8c2-1 3-4 3-8s-1-7-3-8H8zm1 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 2a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
-  primate: 'M8 6a4 4 0 0 1 8 0c0 1.5-1 3-2 3.5.6.5 1 1.3 1 2.5v4c0 1-1 2-3 2s-3-1-3-2v-4c0-1.2.4-2 1-2.5C9 9 8 7.5 8 6zm2 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
-  hominin: 'M12 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm-2 7c-1.5 0-2.5 1-2.5 2.5V15l-2 7h3l1.5-5 .5 1.5V22h3v-3.5l.5-1.5L15.5 22h3l-2-7v-3.5C16.5 10 15.5 9 14 9h-4z',
-  mammal: 'M4 11c0-3 2-5 5-5h1l2-2 2 2h1c3 0 5 2 5 5v2c0 2-1 3-2 3l-1 3h-2l-1-3h-4l-1 3H7l-1-3c-1 0-2-1-2-3v-2zm5 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm6 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
-  default: 'M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10z',
-  echinoderm: 'M12 2l2.5 6.5L21 10l-5 4.5 1.5 7L12 18l-5.5 3.5L8 14.5 3 10l6.5-1.5L12 2z',
-  worm: 'M6 8c0-2 2-3 4-3s3 1 3 3c0 1.5-1 2.5-2 3 1.5.5 3 2 3 4 0 2.5-2 4-4.5 4S5 17.5 5 15c0-2 1.5-3.5 3-4-1-.5-2-1.5-2-3z',
-  crustacean: 'M5 10c0-2 3-4 7-4s7 2 7 4c0 1.5-1 2.5-2.5 3l1.5 4h-3l-1-3h-4l-1 3H6l1.5-4C6 12.5 5 11.5 5 10zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm6 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z'
-};
-
-// Map node IDs to icon groups
-function getIconGroup(n) {
-  const id = n.id;
-  // Specific ID mappings
-  const ID_MAP = {
-    'luca': 'default',
-    'bacteria': 'bacteria', 'cyanobacteria': 'bacteria', 'proteobacteria': 'bacteria',
-    'firmicutes': 'bacteria', 'actinobacteria': 'bacteria', 'spirochetes': 'bacteria',
-    'deinococcus': 'bacteria', 'bacteroides': 'bacteria',
-    'prochlorococcus': 'bacteria', 'nostoc': 'bacteria', 'ecoli': 'bacteria',
-    'helicobacter': 'bacteria', 'vibrio-cholerae': 'bacteria',
-    'lactobacillus': 'bacteria', 'clostridium-botulinum': 'bacteria',
-    'streptomyces': 'bacteria', 'mycobacterium-tb': 'bacteria',
-    'archaea': 'archaea', 'euryarchaeota': 'archaea', 'asgard': 'archaea',
-    'halobacterium': 'archaea', 'sulfolobus': 'archaea', 'pyrolobus': 'archaea',
-    'lokiarchaeota': 'archaea', 'methanobacterium': 'archaea',
-    'eukaryota': 'default',
-    'fungi': 'fungus', 'ascomycetes': 'fungus', 'basidiomycetes': 'fungus', 'chytrids': 'fungus',
-    'saccharomyces': 'fungus', 'penicillium': 'fungus', 'amanita-muscaria': 'fungus',
-    'armillaria': 'fungus', 'psilocybe': 'fungus', 'batrachochytrium': 'fungus',
-    'plantae': 'plant', 'bryophytes': 'plant', 'angiosperms': 'plant',
-    'gymnosperms': 'plant', 'ferns': 'plant',
-    'sphagnum': 'plant', 'marchantia': 'plant', 'arabidopsis': 'plant',
-    'rafflesia': 'plant', 'titan-arum': 'plant', 'mimosa-pudica': 'plant',
-    'wollemia': 'plant', 'welwitschia': 'plant', 'sequoia': 'plant',
-    'tree-fern': 'plant', 'azolla': 'plant',
-    'animalia': 'animal',
-    'invertebrates': 'crustacean', 'insects': 'insect',
-    'horseshoe-crab': 'crustacean', 'mantis-shrimp': 'crustacean', 'honey-bee': 'insect',
-    'cephalopods': 'mollusk', 'octopus': 'mollusk', 'nautilus': 'mollusk',
-    'cnidarians': 'cnidarian', 'turritopsis': 'cnidarian', 'coral': 'cnidarian',
-    'echinoderms': 'echinoderm', 'annelids': 'worm',
-    'vertebrates': 'fish',
-    'fish': 'fish', 'coelacanth': 'fish', 'shark': 'fish',
-    'reptiles': 'reptile', 'komodo-dragon': 'reptile', 'tuatara': 'reptile',
-    'birds': 'bird', 'archaeopteryx': 'bird', 'peregrine-falcon': 'bird',
-    'amphibians': 'amphibian',
-    'mammals': 'mammal', 'cetaceans': 'mammal', 'blue-whale': 'mammal',
-    'naked-mole-rat': 'mammal', 'platypus': 'mammal',
-    'primates': 'primate', 'great-apes': 'primate',
-    'orangutan': 'primate', 'gorilla': 'primate', 'chimpanzee': 'primate',
-    'homo-sapiens': 'hominin', 'hominini': 'hominin',
-    'protists': 'default', 'alveolates': 'default', 'stramenopiles': 'default',
-    'amoebozoa': 'default',
-    'plasmodium': 'insect', 'paramecium': 'default', 'dinoflagellates': 'default',
-    'diatoms': 'default', 'phytophthora': 'default',
-    'amoeba-proteus': 'default', 'volvox': 'default',
-    'sponges': 'sponge',
-  };
-  if (ID_MAP[id]) return ID_MAP[id];
-  // Hominin species from HOMININS array — map by group
-  if (n.group) {
-    const HOMININ_GROUP_MAP = { 'homo': 'hominin', 'proto': 'primate', 'australopith': 'primate', 'paranthropus': 'primate' };
-    if (HOMININ_GROUP_MAP[n.group]) return HOMININ_GROUP_MAP[n.group];
-  }
-  // Group nodes (group-homo, group-proto, etc.)
-  if (id.startsWith('group-')) return id === 'group-homo' ? 'hominin' : 'primate';
-  // Fallback: check ancestry
-  let p = n._parent;
-  while (p) {
-    if (ID_MAP[p.id]) {
-      const pg = ID_MAP[p.id];
-      if (pg !== 'default') return pg;
-    }
-    p = p._parent;
-  }
-  return 'default';
 }
 
 // ══════════════════════════════════════════════════════
@@ -2762,8 +2701,7 @@ async function fetchWikiPhoto(nodeId, wikiTitle, imgEl, fallbackEl, creditEl) {
   if (window._failedPhotos.has(cacheKey)) return;
   if (window._photoCache[cacheKey]) {
     const cached = window._photoCache[cacheKey];
-    imgEl.src = cached.url;
-    imgEl.style.display = 'block';
+    if (imgEl) { imgEl.src = cached.url; imgEl.style.display = 'block'; }
     if (fallbackEl) fallbackEl.style.display = 'none';
     if (creditEl && cached.credit) creditEl.textContent = cached.credit;
     return;
@@ -2778,8 +2716,7 @@ async function fetchWikiPhoto(nodeId, wikiTitle, imgEl, fallbackEl, creditEl) {
     if (thumb && thumb.source) {
       const url = thumb.source.replace(/\/\d+px-/, '/640px-');
       window._photoCache[cacheKey] = { url, credit: 'Wikipedia / Wikimedia Commons' };
-      imgEl.src = url;
-      imgEl.style.display = 'block';
+      if (imgEl) { imgEl.src = url; imgEl.style.display = 'block'; }
       if (fallbackEl) fallbackEl.style.display = 'none';
       if (creditEl) creditEl.textContent = 'Wikipedia / Wikimedia Commons';
     } else {
@@ -2797,55 +2734,50 @@ function renderPanelContent(node) {
   const extinctBadge = node.extinct
     ? '<span style="background:#ef4444;color:white;font-size:10px;padding:2px 8px;border-radius:9999px;font-family:Inter,sans-serif;font-weight:600;letter-spacing:0.05em;">† EXTINCT</span>'
     : '';
-  // WIKI_TITLES and PHOTO_MAP loaded from js/speciesData.js
-  // Merge data-level img with the lookup map; ImageLoader generated images take top priority
-  const photoEntry = PHOTO_MAP[node.id];
-  const generatedUrl = (typeof ImageLoader!=='undefined') ? ImageLoader.getGeneratedUrl(node.id) : null;
-  let staticUrl = generatedUrl || (photoEntry && photoEntry.url) || node.img || null;
-  const staticCredit = generatedUrl ? 'AI-generated illustration' : (photoEntry && photoEntry.credit) || node.imgCredit || null;
+  // Image sourcing: ImageLoader → PHOTO_MAP → Wikipedia API → styled fallback
+  const best = (typeof ImageLoader !== 'undefined') ? ImageLoader.getBestUrl(node) : { url: null, source: null, credit: null };
   const wikiTitle = WIKI_TITLES[node.id] || null;
   // Suppress if this static URL previously failed
-  if (staticUrl && window._failedPhotos && window._failedPhotos.has('static:' + node.id)) {
-    staticUrl = null;
+  if (best.url && window._failedPhotos && window._failedPhotos.has('static:' + node.id)) {
+    best.url = null;
   }
-  const panelImgId = 'panel-species-img-' + node.id.replace(/[^a-z0-9]/g,'_');
-  const panelFbId  = 'panel-species-fb-'  + node.id.replace(/[^a-z0-9]/g,'_');
-  const panelCrId  = 'panel-species-cr-'  + node.id.replace(/[^a-z0-9]/g,'_');
+  const panelImgId = 'panel-hero-img-' + node.id.replace(/[^a-z0-9]/g,'_');
+  const panelHeroId = 'panel-hero-' + node.id.replace(/[^a-z0-9]/g,'_');
+  const panelCrId  = 'panel-hero-cr-' + node.id.replace(/[^a-z0-9]/g,'_');
+  const panelSkeletonId = 'panel-hero-skel-' + node.id.replace(/[^a-z0-9]/g,'_');
+  // Build SVG fallback icon from NODE_ICONS
+  const iconGroup = (typeof getIconGroup === 'function') ? getIconGroup(node) : 'default';
+  const iconPath = (typeof NODE_ICONS !== 'undefined') ? (NODE_ICONS[iconGroup] || NODE_ICONS.default) : '';
+  const nodeColor = node.color || '#555';
+  const fallbackSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="${nodeColor}" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="${iconPath}"/></svg>`;
+  // Lineage badge
+  const lineageBadge = (()=>{
+    const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','homo-sapiens'];
+    const HOMININ_IDS   = ['homo-sapiens','h_erectus','h_habilis','h_neanderthalensis','h_heidelbergensis','h_floresiensis','h_naledi','h_luzonensis','denisovan','au_afarensis','au_africanus','sahelanthropus','ardipithecus_r'];
+    const isHuman  = HOMININ_IDS.includes(node.id) || (node.tags && (node.tags.includes('Hominin') || node.tags.includes('Human evolution')));
+    const isGreatApe = GREAT_APE_IDS.includes(node.id);
+    if (isHuman) return `<span class="panel-lineage-badge" style="color:#b07a3e;background:rgba(176,122,62,0.12);border:1px solid rgba(176,122,62,0.3);">Human Lineage</span>`;
+    if (isGreatApe) return `<span class="panel-lineage-badge" style="color:#b03535;background:rgba(176,53,53,0.1);border:1px solid rgba(176,53,53,0.25);">Great Apes</span>`;
+    return '';
+  })();
   p.innerHTML = `
-    <div style="width:100%;aspect-ratio:16/9;background:#111;overflow:hidden;position:relative;flex-shrink:0;">
-      <img id="${panelImgId}" src="${staticUrl || ''}" alt="${node.name}"
-        style="width:100%;height:100%;object-fit:cover;display:${staticUrl ? 'block' : 'none'};"
-        onerror="(function(el){
-          if(typeof ImageLoader!=='undefined'&&el.dataset.source==='generated'){
-            ImageLoader.markFailed('${node.id}');
-            var fb=${photoEntry?`'${(photoEntry.url||'').replace(/'/g,"\\'")}'`:'null'}||'${(node.img||'').replace(/'/g,"\\'")}';
-            if(fb){el.dataset.source='fallback';el.src=fb;return;}
-          }
-          (window._failedPhotos||(window._failedPhotos=new Set())).add('static:${node.id}');
-          el.style.display='none';document.getElementById('${panelFbId}').style.display='flex';
-        })(this);"
-        data-source="${generatedUrl ? 'generated' : 'static'}"
-      />
-      <div id="${panelFbId}" style="display:${staticUrl ? 'none' : 'flex'};width:100%;height:100%;align-items:center;justify-content:center;font-size:72px;background:#111;">${node.icon||'🌿'}</div>
-      <div id="${panelCrId}" style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.65);font-family:'Inter',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.35);padding:1px 5px;border-radius:3px;">${staticCredit||''}</div>
+    <div id="${panelHeroId}" class="panel-hero${best.url ? ' has-image' : ''}" style="background:linear-gradient(135deg,${nodeColor}22,${nodeColor}44);">
+      <div id="${panelSkeletonId}" class="panel-hero-skeleton" style="${best.url ? '' : 'display:none;'}"></div>
+      <img id="${panelImgId}" class="panel-hero-img" alt="${node.name}"
+        data-source="${best.source || 'none'}" />
+      <div class="panel-hero-fallback">${fallbackSvg}</div>
+      <div class="panel-hero-gradient"></div>
+      <div id="${panelCrId}" class="panel-hero-credit" style="display:none;"></div>
     </div>
     <div style="padding:20px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;flex:1;">
-      ${(()=>{
-        const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','homo-sapiens'];
-        const HOMININ_IDS   = ['homo-sapiens','h_erectus','h_habilis','h_neanderthalensis','h_heidelbergensis','h_floresiensis','h_naledi','h_luzonensis','denisovan','au_afarensis','au_africanus','sahelanthropus','ardipithecus_r'];
-        const isGreatApe    = GREAT_APE_IDS.includes(node.id) || node.id === 'great-apes';
-        const isHuman       = HOMININ_IDS.includes(node.id) || (node.tags && (node.tags.includes('Hominin') || node.tags.includes('Human evolution')));
-        if (isHuman) return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b07a3e;font-family:'Inter',sans-serif;text-transform:uppercase;background:rgba(176,122,62,0.12);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,122,62,0.3);">🧬 Human Lineage</span></div>`;
-        if (isGreatApe) return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b03535;font-family:'Inter',sans-serif;text-transform:uppercase;background:rgba(176,53,53,0.1);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,53,53,0.25);">🦍 Great Apes</span></div>`;
-        return '';
-      })()}
-      <div style="display:flex;flex-direction:column;gap:6px;">
+      ${lineageBadge ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;">${lineageBadge}</div>` : ''}
+      <div class="panel-header">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <h2 style="font-family:'Inter',sans-serif;font-size:22px;font-weight:700;color:var(--color-text-primary);margin:0;line-height:1.2;">${node.name}</h2>
+          <h2>${node.name}</h2>
           ${extinctBadge}
         </div>
-        ${node.latin ? `<div style="font-style:italic;font-size:13px;color:var(--color-text-muted);font-family:'Inter',sans-serif;">${node.latin}</div>` : ''}
-        ${node.era ? `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">📅 ${node.era}${node.appeared ? ' · ' + node.appeared + ' Mya' : ''}</div>` : ''}
+        ${node.latin ? `<div class="panel-latin">${node.latin}</div>` : ''}
+        ${node.era ? `<div class="panel-era">${node.era}${node.appeared ? ' \u00b7 ' + node.appeared + ' Mya' : ''}</div>` : ''}
       </div>
       ${node.desc ? `<p style="font-size:14px;line-height:1.7;color:var(--color-text-secondary);font-family:'Inter',sans-serif;margin:0;">${node.desc}</p>` : ''}
       ${(() => {
@@ -2962,21 +2894,61 @@ function renderPanelContent(node) {
     const scroll=p.querySelector('[style*="padding:20px"]');
     if(scroll){
       const backBtn=document.createElement('button');
-      backBtn.textContent='← Back';
+      backBtn.textContent='\u2190 Back';
       backBtn.onclick=panelBack;
       backBtn.className='btn-back';
       backBtn.style.marginBottom='4px';
       scroll.insertBefore(backBtn,scroll.firstChild);
     }
   }
-  // Fetch real photo from Wikipedia API (runs in browser after HTML is set)
-  if (wikiTitle) {
-    const imgEl = document.getElementById(panelImgId);
-    const fbEl  = document.getElementById(panelFbId);
-    const crEl  = document.getElementById(panelCrId);
-    if (imgEl && fbEl) {
-      // If static URL already loaded, still try API for a better/larger photo
-      fetchWikiPhoto(node.id, wikiTitle, imgEl, fbEl, crEl);
+  // Hero image loading — non-blocking, with full fallback chain
+  const heroEl = document.getElementById(panelHeroId);
+  const imgEl = document.getElementById(panelImgId);
+  const crEl = document.getElementById(panelCrId);
+  const skelEl = document.getElementById(panelSkeletonId);
+  if (imgEl && heroEl) {
+    const showCredit = (text) => {
+      if (crEl && text) { crEl.textContent = text; crEl.style.display = ''; }
+    };
+    const markLoaded = () => {
+      imgEl.classList.add('loaded');
+      heroEl.classList.add('has-image');
+      if (skelEl) skelEl.style.display = 'none';
+    };
+    const showFallback = () => {
+      imgEl.style.display = 'none';
+      heroEl.classList.remove('has-image');
+      if (skelEl) skelEl.style.display = 'none';
+    };
+    if (best.url) {
+      // Try primary URL from ImageLoader
+      imgEl.addEventListener('load', () => { markLoaded(); showCredit(best.credit); }, { once: true });
+      imgEl.addEventListener('error', () => {
+        if (best.source === 'generated') ImageLoader.markFailed(node.id);
+        (window._failedPhotos || (window._failedPhotos = new Set())).add('static:' + node.id);
+        // Try Wikipedia API as secondary source
+        if (wikiTitle) {
+          fetchWikiPhoto(node.id, wikiTitle, imgEl, null, null).then(() => {
+            if (imgEl.src && imgEl.naturalWidth > 0) { markLoaded(); showCredit('Wikipedia / Wikimedia Commons'); }
+            else showFallback();
+          }).catch(() => showFallback());
+        } else {
+          showFallback();
+        }
+      }, { once: true });
+      imgEl.src = best.url;
+    } else if (wikiTitle) {
+      // No static URL — try Wikipedia API directly
+      fetchWikiPhoto(node.id, wikiTitle, imgEl, null, null).then(() => {
+        if (window._photoCache[node.id]) {
+          imgEl.src = window._photoCache[node.id].url;
+          imgEl.addEventListener('load', () => { markLoaded(); showCredit('Wikipedia / Wikimedia Commons'); }, { once: true });
+          imgEl.addEventListener('error', () => showFallback(), { once: true });
+        } else { showFallback(); }
+      }).catch(() => showFallback());
+    } else {
+      // No image source at all — show styled fallback
+      showFallback();
     }
   }
 }

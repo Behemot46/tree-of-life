@@ -74,23 +74,96 @@ Not completed — left as-is. ENRICHMENT altFacts still display in their own "DI
 
 ---
 
+# Session Handoff — 2026-03-15 (p20 — Naturalist Node Artwork)
+
+**Status: done**
+**Branch:** `claude/agitated-hawking`
+
+## 1. Session Goal
+Expand the tree node icon library from 20 monochrome SVG silhouettes to 37 distinct categories, improve node-to-icon mapping accuracy, and extract icon code to a standalone module.
+
+## 2. What I Changed
+- Created `js/nodeIcons.js` — new module with 37 SVG icon paths and `getIconGroup()` mapping function
+- Removed inline `NODE_ICONS` map and `getIconGroup()` from `index.html` (~95 lines removed)
+- Added `<script src="js/nodeIcons.js"></script>` to index.html
+- 17 new icon categories: spirochete, protist, amoeba, diatom, dinoflagellate, algae, yeast, moss, fern, conifer, flower, jellyfish, octopus, butterfly, spider, shark, whale, turtle, dinosaur, rodent, bat
+- Improved mapping: protists, plants, and specific animals now get distinct icons instead of generic fallbacks
+
+## 3. New Icon Categories Added
+spirochete, protist, amoeba, diatom, dinoflagellate, algae, yeast, moss, fern, conifer, flower, jellyfish, octopus, butterfly, spider, shark, whale, turtle, dinosaur, rodent, bat
+
+## 4. Known Issues / Follow-ups
+- `platypus` — uses generic mammal, could have unique silhouette
+- Some deep species nodes inherit parent icon via ancestry walk — acceptable but could be refined
+
+## 5. Files Touched
+| File | Change |
+|------|--------|
+| `js/nodeIcons.js` | **NEW** — 37 icon SVG paths + getIconGroup() (~180 lines) |
+| `index.html` | Removed inline NODE_ICONS + getIconGroup(), added script tag |
+| `PROJECT_PROGRESS.md` | Added p20 milestone entry |
+| `SESSION_HANDOFF.md` | This file |
+
+---
+
+# Session Handoff — 2026-03-15 (p21 — Species Panel Visual Identity)
+
+**Status: done**
+**Branch:** `claude/clever-northcutt`
+
+## 1. Session Goal
+Replace emoji-based species panel headers with hero images and styled SVG fallbacks, creating a visually rich "species card" experience.
+
+## 2. What I Changed
+
+### index.html
+- **Hero image section** — replaced inline `aspect-ratio:16/9; background:#111` div + raw emoji fallback with new `.panel-hero` component using CSS classes
+- **Image sourcing chain** — uses `ImageLoader.getBestUrl(node)` → PHOTO_MAP → generated .webp → Wikipedia API (`fetchWikiPhoto`) → styled SVG fallback
+- **SVG fallback** — when no image available, shows domain-colored gradient background with the node's SVG silhouette icon (from `NODE_ICONS`/`getIconGroup`) instead of raw emoji
+- **Skeleton loading** — CSS shimmer animation (`.panel-hero-skeleton`) while image loads
+- **Fade-in transition** — hero image fades in on load via `.panel-hero-img.loaded { opacity: 1 }`
+- **Credit attribution** — shows source credit ("Wikipedia / Wikimedia Commons" or "AI-generated illustration") below hero image
+- **Header typography** — removed emoji from header, species name uses `.panel-header h2` class, latin name and era use semantic classes
+- **Lineage badges** — "Human Lineage" and "Great Apes" badges extracted to `.panel-lineage-badge` class
+- **`fetchWikiPhoto()` updated** — now handles null `imgEl` parameter (for cache-only pre-fetch)
+- **CSS additions** — ~40 lines of new panel hero styles: `.panel-hero`, `.panel-hero-img`, `.panel-hero-fallback`, `.panel-hero-gradient`, `.panel-hero-credit`, `.panel-hero-skeleton`, `@keyframes shimmer`, light theme overrides, mobile responsive (aspect-ratio 2/1, max-height 150px)
+
+## 3. Image Sourcing Chain (how it works)
+1. `ImageLoader.getBestUrl(node)` returns best static URL (PHOTO_MAP → generated .webp → node.img)
+2. If static URL loads → show it with fade-in + credit
+3. If static URL fails → try `fetchWikiPhoto()` from Wikipedia API
+4. If Wikipedia succeeds → show that photo + "Wikipedia / Wikimedia Commons" credit
+5. If all fail → show styled SVG fallback (domain-colored gradient + silhouette icon)
+
+## 4. Files Touched
+| File | Change |
+|------|--------|
+| `index.html` | Panel hero CSS (~40 lines), `renderPanelContent()` rewrite (~50 lines changed), `fetchWikiPhoto()` null-safety |
+| `PROJECT_PROGRESS.md` | Added p21 completion entry |
+| `SESSION_HANDOFF.md` | This handoff |
+
+## 5. Tests Performed
+- Desktop: panel opens with hero section, fallback SVG icon shown (Wikimedia blocked in preview browser)
+- Mobile (375x812): bottom-sheet panel works, hero capped at 150px height
+- Light theme: hero section has appropriate lighter background
+- Dark theme: hero section blends with surface
+- RTL (Hebrew): panel layout correct, hero image not mirrored
+- Zero console errors across all tests
+
+## 6. Known Issues
+- Claude Preview browser blocks Wikimedia URLs — cannot verify actual photo loading in preview (works in real browser)
+- No duplicate PHOTO_MAP existed (was already removed in p15) — prompt's Phase A was a no-op
+
+## 7. Recommended Next Steps
+- Verify photo loading in a real browser (not Claude Preview)
+- Test with nodes that have PHOTO_MAP entries to confirm fade-in transition
+
+---
+
 # Session Handoff — 2026-03-15 (p23 — DNA Similarity Calculator)
 
 **Status: done**
 **Branch:** `claude/crazy-villani`
-
-## 1. Session Goal
-Build a DNA similarity calculator: users pick two species and see estimated DNA similarity %, divergence time, shared ancestor, and educational context.
-
-## 2. What I Changed
-
-### js/dnaSimilarity.js (NEW — ~130 lines)
-- `DNA_KNOWN` — 35 curated DNA similarity pairs with published sources (Nature, Science) where available
-- `estimateFromDivergence(mya)` — piecewise linear model mapping divergence time to estimated DNA similarity %
-- `findLCA(nodeA, nodeB)` — walks `_parent` chains to find lowest common ancestor
-- `estimateDnaSimilarity(nodeA, nodeB)` — main function: checks known lookup, falls back to estimation
-- `DNA_FUN_FACTS` — 8 educational facts by similarity threshold
-- `getDnaFunFact(percent, speciesName)` — returns relevant fun fact
 
 ### index.html
 - **HTML**: DNA Compare button (`#btn-dna-calc`), modal panel (`#dna-panel`) with species selectors, search overlay, results display, 4 quick presets
@@ -99,47 +172,13 @@ Build a DNA similarity calculator: users pick two species and see estimated DNA 
 - **applyI18n()**: 10 new DNA calculator entries
 
 ### js/uiData.js
-- 13 new i18n keys per language (EN/HE/RU): `dna_calc_title`, `dna_calc_btn`, `dna_select_species`, `dna_similarity`, `dna_divergence`, `dna_shared_ancestor`, `dna_method_known`, `dna_method_estimated`, `dna_search_placeholder`, 4 preset labels
+- 13 new i18n keys per language (EN/HE/RU)
 
-### PROJECT_PROGRESS.md
-- Added p23 to Completed table, marked as Done in Upcoming table
-
-## 3. How the Estimation Model Works
-- **Known pairs**: 35 curated entries in `DNA_KNOWN`, keyed by sorted `"idA|idB"`. Uses actual nodeMap IDs (e.g., `h_sapiens` not `homo-sapiens`)
-- **Estimation**: For unknown pairs, finds LCA via `_parent` chain walk, uses LCA's `appeared` (Mya) as divergence time, then applies piecewise linear decay:
-  - 0–7 Mya: ~98.5–99.5% (hominins)
-  - 7–85 Mya: ~85–98.5% (mammals)
-  - 85–500 Mya: ~40–85% (vertebrates→invertebrates)
-  - 500–2000 Mya: ~17–40% (cross-kingdom)
-  - 2000+ Mya: ~10–17% (cross-domain)
-
-## 4. How to Add More Known Pairs
-1. Open `js/dnaSimilarity.js`
-2. Add entry to `DNA_KNOWN`: key is sorted `"idA|idB"` using actual nodeMap IDs
-3. Check IDs exist: run `Object.keys(nodeMap).filter(k => k.includes('keyword'))` in console
-4. Important: the tree uses `h_sapiens` (not `homo-sapiens`) for Homo sapiens due to `buildHomininTree()`
-
-## 5. Known Issues / Follow-up
-- Some tree nodes use group IDs (e.g., `mammals`, `birds`) rather than species IDs — the calculator works with any node
-- The LCA divergence time uses the ancestor node's `appeared` field, which represents when the group appeared, not necessarily the exact divergence date
-- 4 preset buttons: Chimp (98.8%), Banana/Plants (60%), Mushroom (30%), Bacterium (18%)
-- The preset "You & a Banana" actually compares against "Flowering Plants" (`angiosperms`) since there's no banana-plant node in the tree
-
-## 6. Tests Performed
-- All 4 presets produce correct results with Published data badges
-- Search-and-select flow works for both slots
-- Dark/light theme both render correctly
-- Zero console errors
-- Escape key closes panel
-- Backdrop click closes panel
-- Shared ancestor link is clickable (navigates to LCA node)
-- Animated percentage counter works smoothly
-
-## 7. Not Tested
-- Hebrew RTL layout (translations added but not visually verified)
-- Russian language (translations added but not visually verified)
-- Mobile viewport
-- All 35 known pairs individually
+## 3. Known Issues / Follow-up
+- Some tree nodes use group IDs rather than species IDs — the calculator works with any node
+- The preset "You & a Banana" compares against "Flowering Plants" (`angiosperms`) since there's no banana-plant node
+- Hebrew RTL and Russian not visually verified
+- Mobile viewport not tested
 
 ---
 

@@ -1,4 +1,77 @@
-# Session Handoff — 2026-03-15
+# Session Handoff — 2026-03-15 (p16: Inline Hominin Subtree Fixes)
+
+**Status: done**
+**PR:** https://github.com/Behemot46/tree-of-life/pull/55
+**Branch:** `claude/elated-hofstadter`
+
+## 1. Session Goal
+Expand the human lineage so that all 28 hominin species (4 groups) are rendered as real branches in the main tree.
+
+## 2. What I Changed
+
+### js/treeData.js
+- **Added `homo-floresiensis` to `HOMININ_ID_ALIASES`** — the alias map was missing this entry, so `canonicalHomininId('homo-floresiensis')` returned the raw ID instead of resolving to `h_floresiensis`
+
+### serve.js
+- **Fixed query string handling** — `req.url` now has query params stripped before file lookup, preventing 404 when the page is reloaded with `?node=...` URL params
+
+## 3. Why These Changes Were Made
+- The inline hominin subtree was already implemented in PRs #53/#54. This session discovered two remaining bugs during testing:
+  1. `homo-floresiensis` wasn't aliased, making `canonicalHomininId()` and `getHomininById()` unable to resolve this duplicate ID
+  2. `navigateTo()` sets `?node=...` via `history.replaceState`, but serve.js tried to serve this as a file path
+
+## 4. Files Touched
+- `js/treeData.js` — added 1 alias line
+- `serve.js` — added query string stripping (1 line change)
+
+## 5. Key Implementation Notes
+- `HOMININ_SKIP_IDS` in index.html already prevents duplicate search entries for `homo-floresiensis`, but the alias fix ensures `canonicalHomininId()` resolves correctly across all code paths
+- The serve.js fix uses `req.url.split('?')[0]` — simple and safe for a static file server
+
+## 6. Risks / Caveats
+- None — both changes are minimal and isolated
+
+## 7. Tests Performed
+- Tree renders without JS errors on page load
+- All 28 species confirmed present across 4 groups (4+8+3+13), no duplicates
+- Expanding groups shows species with correct labels, icons, and layout
+- Panel shows brain volume bar, DNA introgression, capabilities, fossil sites
+- Search finds hominin species as regular tree nodes
+- `navigateTo` uncollapse the full path and pans to species
+- Extinct toggle correctly hides 27 extinct species, keeps H. sapiens
+- Hebrew RTL renders correctly
+- Page reload with `?node=...` URL works with fixed serve.js
+
+## 8. Not Tested
+- Russian language switching
+- Mobile layout with expanded hominin subtree
+- Deep zoom levels with all groups expanded simultaneously
+
+## 9. Known Issues Still Open
+1. The hominin overlay (`#hominin-view`) HTML is still in index.html — could be removed since the button now navigates to the tree instead
+2. The `openHomininView` function in main still opens the overlay (only the button's `onclick` was changed to `navigateTo('hominini')`)
+3. Timeline not fully interactive
+4. Panel modularization opportunity remains
+5. `panelHistory` and `navStack` are still parallel stacks
+
+## 10. Recommended Next Steps
+- Remove the hominin overlay HTML/CSS/JS (~200 lines of dead code)
+- Update `openHomininView()` to navigate to tree (currently still opens overlay in main)
+- Test mobile layout with expanded hominin subtree
+- Consider making group nodes start expanded by default (currently all collapsed)
+
+## 11. Suggested Commit Message
+`fix: add homo-floresiensis alias, fix serve.js query string handling`
+
+## 12. Suggested PR Title
+`fix: add homo-floresiensis alias, fix serve.js query string handling`
+
+## 13. Suggested PR Description
+See PR #55
+
+---
+
+# Previous Session Handoff — 2026-03-15 (p15)
 
 **Status: done**
 **PR:** https://github.com/Behemot46/tree-of-life/pull/54

@@ -1,3 +1,109 @@
+# Session Handoff — 2026-03-15 (p16 — Roadmap & Project Health)
+
+**Status: done**
+
+## 1. Session Goal
+Create a clear development roadmap, update all project tracking docs to reflect completed milestones (p13a–p15), and fix project health gaps (deploy validation, README, i18n).
+
+## 2. What I Changed
+- Created `ROADMAP.md` — prioritized development phases p16–p24 with checklists, architectural principles, and decision log
+- Updated `PROJECT_PROGRESS.md` — added p13a, p13b, p14, p15, p16 milestone entries and milestone table rows
+- Updated `CHANGELOG.md` — documented all merged milestones from p1 through p15 in reverse-chronological sections
+- Fixed `deploy-check.yml` — added 3 missing JS files to required file validation (factLibrary.js, imagePrompts.js, imageLoader.js)
+- Fixed `README.md` — corrected local dev instructions from `npx serve .` to `node serve.js`
+- Localized splash screen — added IDs to splash title/years elements, wired to `t()` function
+- Localized `showIntro()` overlay — 3 hardcoded English strings now use `t('title')`, `t('subtitle')`, `t('intro_quote')`
+- Added `splash_years` and `intro_quote` i18n keys to EN/HE/RU in `js/uiData.js`
+- Updated `applyI18n()` to set splash text on language switch
+- Updated `init()` to set splash text from i18n at startup
+
+## 3. Why These Changes Were Made
+- Project had 4 undocumented milestones and no forward-looking roadmap
+- CHANGELOG was empty since baseline — all post-baseline work was undocumented
+- deploy-check.yml wasn't validating 3 JS files added in p13b/p15
+- README gave wrong local dev command
+- Splash screen and intro overlay were English-only (i18n gap for HE/RU users)
+
+## 4. Files Touched
+| File | Change |
+|------|--------|
+| `ROADMAP.md` | **NEW** — development roadmap with phases p16–p24 |
+| `PROJECT_PROGRESS.md` | Added p13a–p16 milestones |
+| `CHANGELOG.md` | Documented all milestones p1–p15 |
+| `.github/workflows/deploy-check.yml` | Added 3 missing JS files to required list |
+| `README.md` | Fixed local dev instructions |
+| `js/uiData.js` | Added `splash_years` and `intro_quote` keys (EN/HE/RU) |
+| `index.html` | Splash IDs, `showIntro()` i18n, `applyI18n()` splash support, `init()` splash i18n |
+
+## 5. Key Implementation Notes
+- `splash_years` and `intro_quote` are new i18n keys; `title` and `subtitle` already existed
+- Russian number formatting uses spaces (3 800 000 000) per locale convention
+- Splash HTML elements now have `id="splash-title"` and `id="splash-years"` for `applyI18n()` targeting
+- `init()` sets splash text from i18n before the splash auto-dismisses (handles non-English first load)
+- ROADMAP phases are advisory and can be reordered
+
+## 6. Risks / Caveats
+- Hebrew/Russian translations for `splash_years` and `intro_quote` should be reviewed by native speakers
+- Splash screen auto-dismisses in 2.8s — language switch during splash is unlikely but handled
+- `showIntro()` uses template literal interpolation with `t()` — safe since no user input
+
+## 7. Tests Performed
+- JS syntax check: main inline script and uiData.js both parse without errors
+- App loads with zero console errors
+- Language switching EN → HE → RU → EN: all new i18n keys return correct translations
+- Hebrew RTL direction confirmed (`dir="rtl"`)
+- Russian LTR direction confirmed
+- Tree renders correctly after language switches
+- All TRANSLATIONS keys verified present in all 3 languages
+
+## 8. Not Tested
+- Splash screen visual rendering (auto-dismisses in 2.8s before screenshot capture)
+- `showIntro()` visual rendering in HE/RU (requires fresh page load with `?lang=he`)
+- Mobile layout
+- GitHub Pages deployment
+- deploy-check.yml CI run
+
+## 9. Known Issues Still Open
+- Legend is decorative only (domain highlight not implemented) → ROADMAP p17
+- `panelHistory` and `navStack` are two parallel stacks → ROADMAP p18
+- No offline fallback → ROADMAP p19
+- index.html is 4,012 lines → ROADMAP p20
+- Panel content strings are English-only (node desc/detail/facts)
+- D3.js CDN loaded but unused
+
+## 10. Recommended Next Step
+- p17: Legend interactivity (click domain → highlight/filter subtree)
+- Or: native speaker review of HE/RU translations across factLibrary and new i18n keys
+
+## 11. Suggested Commit Message
+feat: add development roadmap, update project docs, localize splash/intro (p16)
+
+## 12. Suggested PR Title
+feat: development roadmap, project health fixes, splash i18n
+
+## 13. Suggested PR Description
+## Summary
+- Creates comprehensive development roadmap (`ROADMAP.md`) with prioritized phases p16–p24
+- Updates PROJECT_PROGRESS.md and CHANGELOG.md with all milestones p1–p15
+- Fixes deploy-check.yml to validate all 6 JS files
+- Fixes README.md local dev instructions
+- Localizes splash screen and intro overlay for EN/HE/RU
+
+## Test plan
+- [ ] App loads without console errors
+- [ ] Switch to Hebrew — verify RTL layout, splash text would show Hebrew
+- [ ] Switch to Russian — verify Russian text
+- [ ] Switch back to English — verify no regressions
+- [ ] Fresh load with `?lang=he` — verify intro overlay shows Hebrew text
+- [ ] Verify ROADMAP.md is readable and phases are logically ordered
+
+---
+
+**Branch:** `claude/keen-easley`
+**Worktree:** `C:\Users\GAMER\tree-of-life\.claude\worktrees\keen-easley`
+
+---
+
 # Session Handoff — 2026-03-14
 
 **Status: done**

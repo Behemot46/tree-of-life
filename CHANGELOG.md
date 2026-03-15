@@ -6,6 +6,103 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Added
+- Development roadmap (`ROADMAP.md`) with prioritized phases p16+
+- Localized `showIntro()` overlay and splash screen text (EN/HE/RU)
+- `intro_quote` i18n key for intro overlay
+- `splash_years` i18n key for splash header
+
+### Fixed
+- `deploy-check.yml` now validates all 6 JS files (was missing factLibrary, imagePrompts, imageLoader)
+- `README.md` local dev instructions corrected to use `node serve.js`
+
+---
+
+## 2026-03-14 — p14/p15: Inline Hominins & Stabilization
+
+### Added (p14 — PR #53)
+- 28 hominin species rendered as inline tree nodes in 4 groups
+- Panel enrichment with paleoanthropology data
+
+### Added (p15 — PR #54)
+- `js/factLibrary.js` — structured fact library with 18 trilingual loading facts
+- Splash screen wired to `FACTS.getLoadingFact(currentLang)`
+
+### Fixed (p15)
+- Removed 168-line duplicate inline PHOTO_MAP shadowing speciesData.js
+- Hoisted `fetchWikiPhoto()` to module scope
+- Fixed `EXTINCTIONS` variable shadowing in init()
+
+---
+
+## 2026-03-13 — p13a/p13b: Navigation & Image System
+
+### Added (p13a — PR #51)
+- Persistent Back and Home navigation buttons with unified history stack
+- Cross-view navigation: tree → panel → hominin → back
+- i18n labels for nav buttons (EN/HE/RU), RTL mirroring
+
+### Added (p13b — PR #52)
+- `js/imageLoader.js` — fallback chain: generated → PHOTO_MAP → emoji
+- `js/imagePrompts.js` — AI image prompt library for species illustrations
+- PHOTO_MAP expanded to 228 Wikimedia entries
+
+---
+
+## 2026-03-12 — p12: Modern Scientific Visual Overhaul (PR #48)
+
+### Changed
+- Color palette: slate backgrounds (#1a1d23), sky-blue accents (#0ea5e9)
+- Typography: Inter + JetBrains Mono + Heebo (replacing Playfair Display)
+- 20 SVG silhouette icons replacing emoji node rendering
+- Loading screen: animated SVG branching tree
+- Removed noise overlays, floating particles, glow filters
+
+### Added
+- Global label collision detection with human-path priority
+- Human evolution path highlighting (LUCA → Homo sapiens)
+
+### Removed
+- ~1,000 lines of duplicate inline const declarations
+
+---
+
+## 2026-03-11 — p6–p11: Features & Cleanup (PRs #39, #45)
+
+### Added (p6–p7)
+- Floating "Human Evolution" button with golden pulsing ring on hominini node
+- Font migration to Heebo, photo thumbnails on tree nodes
+- WCAG AA contrast fixes, `.btn-back` unified button style
+
+### Added (p10)
+- Mobile responsiveness: bottom-sheet panel, touch gestures, pinch-to-zoom
+- Swipe-to-close panel and hominin view
+- 3 responsive breakpoints (768px, 480px, landscape)
+
+### Added (p11)
+- Interactive timeline: extinction tooltips, era presets, play/animate, species counter
+- 3 tree view modes: radial, cladogram, chronological
+- View mode toggle UI with i18n
+
+### Removed (p8–p9)
+- `style.css` (757 lines, dead code)
+- 7 dead legacy JS modules (~2,000 lines)
+
+---
+
+## 2026-03-10 — p1–p3: Foundation (PRs #35, #38)
+
+### Added (p1)
+- Extracted TREE, HOMININS, PHOTO_MAP to `js/treeData.js`, `js/speciesData.js`, `js/uiData.js`
+
+### Added (p2)
+- Fuzzy multilingual search with bigram matching (Sorensen-Dice)
+- TAXON_I18N dictionary (~130 entries for HE/RU)
+
+### Added (p3)
+- 28 hominin species as first-class tree nodes in 4 groups
+- Hominin-specific panel with brain volume, tools, fossil sites
+
 ---
 
 ## Baseline — 2026-03-10

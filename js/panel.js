@@ -464,6 +464,23 @@ function renderPanelContent(node) {
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
           <h2 style="font-family:'Inter',sans-serif;font-size:22px;font-weight:700;color:var(--color-text-primary);margin:0;line-height:1.2;">${node.name}</h2>
           ${extinctBadge}
+          ${(()=>{
+            if (!node.iucn || node.iucn === 'NE') return '';
+            const iucnMap = {
+              'EX':{bg:'#000',label:'Extinct'},
+              'EW':{bg:'#542344',label:'Extinct in Wild'},
+              'CR':{bg:'#d32f2f',label:'Critically Endangered'},
+              'EN':{bg:'#e65100',label:'Endangered'},
+              'VU':{bg:'#f9a825',label:'Vulnerable'},
+              'NT':{bg:'#7cb342',label:'Near Threatened'},
+              'LC':{bg:'#388e3c',label:'Least Concern'},
+              'DD':{bg:'#757575',label:'Data Deficient'}
+            };
+            const info = iucnMap[node.iucn];
+            if (!info) return '';
+            const textColor = ['VU','NT'].includes(node.iucn) ? '#000' : '#fff';
+            return '<span style="background:'+info.bg+';color:'+textColor+';font-size:10px;padding:2px 8px;border-radius:9999px;font-family:Inter,sans-serif;font-weight:600;letter-spacing:0.05em;">IUCN: '+info.label+'</span>';
+          })()}
         </div>
         ${node.latin ? `<div style="font-style:italic;font-size:13px;color:var(--color-text-muted);font-family:'Inter',sans-serif;">${node.latin}</div>` : ''}
         ${node.era ? `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">📅 ${node.era}${node.appeared ? ' · ' + node.appeared + ' Mya' : ''}</div>` : ''}

@@ -4,7 +4,7 @@
 
 You are a Claude Code agent working on the **Tree of Life** project — an interactive browser-based phylogenetic visualization. You are executing **phase p32** (Tier 4 — Content).
 
-**Your scope:** Expand the phylogenetic tree from ~130 to 300+ nodes by adding new species across all domains. Add IUCN conservation status, Wikipedia summary fetching, and fossil record data. You primarily touch `js/treeData.js` and `js/speciesData.js`. You do NOT touch rendering logic, layout algorithms, or UI code (the tree should automatically display new nodes).
+**Your scope:** Expand the phylogenetic tree from ~130 to 300+ nodes by adding new species across all domains. Add IUCN conservation status, PHOTO_MAP entries, and WIKI_TITLES entries. You primarily touch `js/treeData.js` and `js/speciesData.js`. You do NOT touch rendering logic, layout algorithms, or UI code (the tree should automatically display new nodes).
 
 **Workflow:** Read CLAUDE.md fully. Understand the codebase. Plan. Implement. Test via `node serve.js`. Commit with `data:` prefix. Push branch. Open a merge-safe PR against `main`. Update PROJECT_PROGRESS.md and SESSION_HANDOFF.md.
 
@@ -16,16 +16,17 @@ Triple the tree's species coverage for a richer, more educational experience.
 
 ### Success Criteria
 
-1. TREE object contains 300+ nodes (up from ~130)
-2. New nodes follow the exact same data shape as existing ones
-3. Every domain gets meaningful additions (not just charismatic animals)
-4. PHOTO_MAP expanded for new species (Wikimedia URLs)
-5. WIKI_TITLES expanded for new species
-6. IUCN conservation status field added to relevant species
-7. All new nodes render correctly in all 3 view modes
-8. Search finds all new species
-9. No performance degradation (benchmark render time)
-10. Zero console errors
+1. 300+ total nodes in TREE (up from ~130)
+2. Balanced coverage: no single domain has >40% of new nodes
+3. Every new node has: `id`, `name`, `latin`, `icon`, `color`, `r`, `appeared`, `era`, `desc`, `detail`, `facts[]`, `tags[]`
+4. New nodes placed correctly in the phylogenetic tree (proper parent-child relationships)
+5. PHOTO_MAP entries for at least 80% of new species (Wikimedia Commons URLs)
+6. WIKI_TITLES entries for all new species
+7. IUCN conservation status added to node.facts where applicable
+8. `appeared` values scientifically accurate (million years ago)
+9. Tree renders without layout issues (radial, cladogram, chronological)
+10. Search index picks up new species (EN + HE + RU names where possible)
+11. Zero console errors
 
 ---
 
@@ -65,49 +66,101 @@ Triple the tree's species coverage for a richer, more educational experience.
 
 ---
 
+## Expansion Targets
+
+### By domain (approximate new node targets)
+
+| Domain | Current | Target | Gap |
+|--------|---------|--------|-----|
+| Bacteria | ~8 | 20 | +12 |
+| Archaea | ~5 | 12 | +7 |
+| Protists | ~6 | 15 | +9 |
+| Fungi | ~6 | 18 | +12 |
+| Plants | ~15 | 40 | +25 |
+| Invertebrates | ~20 | 50 | +30 |
+| Fish | ~8 | 20 | +12 |
+| Amphibians | ~5 | 12 | +7 |
+| Reptiles | ~8 | 18 | +10 |
+| Birds | ~10 | 25 | +15 |
+| Mammals | ~20 | 45 | +25 |
+| Hominins | 28 | 28 | 0 |
+
+### Priority additions (iconic/educational species)
+
+**Bacteria:** MRSA, Helicobacter pylori, Rhizobium, Magnetotactic bacteria, Lactobacillus, Clostridium, Mycobacterium, Borrelia
+**Archaea:** Lokiarchaeota, Asgard archaea, halophiles, Thermoplasma, Sulfolobus
+**Protists:** Paramecium, Euglena, diatoms, dinoflagellates, Trypanosoma, Giardia, Toxoplasma
+**Fungi:** Cordyceps, truffle, death cap, chanterelle, lichen, Aspergillus, Candida
+**Plants:** Sequoia, Welwitschia, Venus flytrap, bamboo, Rafflesia, baobab, ferns, mosses
+**Invertebrates:** Horseshoe crab, mantis shrimp, tardigrade, nautilus, monarch butterfly, Portuguese man o' war
+**Fish:** Coelacanth, anglerfish, seahorse, manta ray, lungfish, pufferfish
+**Amphibians:** Axolotl, poison dart frog, caecilian, hellbender
+**Reptiles:** Tuatara, Komodo dragon, leatherback turtle, gharial
+**Birds:** Kiwi, albatross, hummingbird, secretary bird, kakapo, archaeopteryx
+**Mammals:** Pangolin, narwhal, aye-aye, echidna, Tasmanian devil, snow leopard
+
+### Conservation status
+
+Add IUCN Red List status to `node.facts` for extant species:
+```js
+facts: [
+  ...,
+  { l: 'Conservation', v: 'Critically Endangered (IUCN)' }
+]
+```
+
+Categories: LC, NT, VU, EN, CR, EW, EX
+
+---
+
+## Node data template
+
+```js
+{
+  id: 'species-id',
+  icon: '🦎',
+  color: '#parentColor',
+  r: 10,
+  appeared: 250,
+  name: 'Common Name',
+  latin: 'Genus species',
+  era: 'Late Triassic',
+  desc: 'One-sentence summary of what makes this species notable.',
+  detail: 'Longer paragraph with evolutionary context, habitat, behavior, and significance.',
+  facts: [
+    { l: 'Size', v: '1.5 m' },
+    { l: 'Diet', v: 'Carnivore' },
+    { l: 'Habitat', v: 'Tropical forests' },
+    { l: 'Conservation', v: 'Vulnerable (IUCN)' }
+  ],
+  tags: ['reptile', 'predator', 'island-endemic']
+}
+```
+
+---
+
 ## Implementation Plan
 
 ### Phase A: Plan new species list
 
-Target additions by domain (~170 new nodes):
+Review expansion targets above and finalize the ~170 new species to add.
 
-- **Bacteria** (+10): E. coli, Streptococcus, Staphylococcus, Lactobacillus, Helicobacter, Clostridium, Mycobacterium, Rhizobium, Borrelia, Treponema
-- **Archaea** (+5): Halobacterium, Thermoplasma, Methanococcus, Sulfolobus, Pyrococcus
-- **Protists** (+8): Amoeba, Paramecium, Euglena, Trypanosoma, Giardia, Toxoplasma, Volvox, Foraminifera
-- **Fungi** (+8): Amanita, Chanterelle, Morel, Truffle, Cordyceps, Aspergillus, Candida, Mucor
-- **Plants** (+20): various flowering plants, grasses, ferns, mosses, liverworts
-- **Invertebrates** (+30): additional arthropods, mollusks, echinoderms, cnidarians, worms
-- **Fish** (+15): salmon, tuna, seahorse, anglerfish, pufferfish, rays, lampreys, etc.
-- **Amphibians** (+8): various frogs, salamanders, caecilians
-- **Reptiles** (+12): various snakes, lizards, geckos, iguanas, monitors
-- **Birds** (+20): eagles, penguins, hummingbirds, parrots, crows, owls, flamingos, etc.
-- **Mammals** (+30): additional primates, rodents, bats, marine mammals, ungulates, carnivores
+### Phase B: Add nodes to TREE
 
-### Phase B: Add IUCN conservation status
-
-1. Add optional `iucn` field to node data shape:
-   ```js
-   iucn: 'LC' | 'NT' | 'VU' | 'EN' | 'CR' | 'EW' | 'EX' | null
-   ```
-2. Add IUCN status to all extant species where data is available
-3. This is data-only — panel rendering of IUCN badges is a separate concern
-
-### Phase C: Add nodes to TREE
-
-1. Add each new species to the correct parent's children array
+1. Add each new species to the correct parent's children array in `js/treeData.js`
 2. Ensure IDs are unique and kebab-case
-3. Include all required fields: id, icon, color, r, appeared, name, latin, era, desc, detail, facts, tags
+3. Include all required fields
 4. Use scientifically accurate `appeared` values (Mya)
-5. Use domain-appropriate colors (inherit from parent or use standard domain palette)
+5. Use domain-appropriate colors (inherit from parent)
 
-### Phase D: Expand PHOTO_MAP and WIKI_TITLES
+### Phase C: Expand PHOTO_MAP and WIKI_TITLES
 
 1. For each new species, find a Wikimedia Commons photo URL
 2. Add to PHOTO_MAP in `js/speciesData.js`
 3. Add Wikipedia article title to WIKI_TITLES
-4. Target: 90%+ coverage for new species
+4. Target: 80%+ coverage for new species
 
-### Phase E: Validation
+### Phase D: Validation
 
 1. Run validation script (p21) if available
 2. Manual check: all IDs unique, all required fields present
@@ -119,32 +172,34 @@ Target additions by domain (~170 new nodes):
 
 | File | What changes |
 |------|-------------|
-| `js/treeData.js` | Add ~170 new nodes to TREE |
-| `js/speciesData.js` | Expand PHOTO_MAP and WIKI_TITLES |
+| `js/treeData.js` | Add ~170 new species nodes to TREE |
+| `js/speciesData.js` | Add PHOTO_MAP entries (Wikimedia URLs), WIKI_TITLES entries |
 | `PROJECT_PROGRESS.md` | Add p32 completion entry |
 | `SESSION_HANDOFF.md` | Write handoff notes |
 
 ### Files you must NOT modify
 
-- `index.html` — no UI changes needed
+- `index.html` — rendering/UI code
 - `js/imageLoader.js` — image system
+- `js/uiData.js` — translations (unless adding search terms for new species)
 - Layout algorithms — should work automatically with more nodes
-- Panel template — should work with new data fields
 
 ---
 
 ## Testing Checklist
 
-1. `node serve.js` → tree renders with 300+ nodes
-2. All 3 view modes work (radial, cladogram, chronological)
-3. New species panels open with correct data
-4. Search finds new species
-5. PHOTO_MAP photos load for new species
-6. No overlapping labels (label collision system handles it)
-7. Performance: render time < 50ms at 300 nodes
-8. `Object.keys(nodeMap).length` → 300+
-9. Zero console errors
-10. All domains have meaningful representation
+1. `node serve.js` → open http://localhost:5555
+2. Tree renders with 300+ nodes — no overlapping or missing nodes
+3. New species appear under correct parent nodes
+4. Click any new species → panel shows complete data
+5. Search finds new species by common name and latin name
+6. Radial view: tree balanced, not lopsided
+7. Cladogram view: all leaves render
+8. Chronological view: appeared dates position correctly
+9. PHOTO_MAP entries load photos in panel
+10. Mobile: tree still navigable with more nodes
+11. Zero console errors
+12. `Object.keys(nodeMap).length` → 300+
 
 ---
 

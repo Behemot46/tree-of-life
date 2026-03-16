@@ -282,6 +282,90 @@ svg{width:100%;height:100%;}
   color:var(--text-secondary);font-size:0.85rem;cursor:pointer;
   display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);z-index:5;}
 .p-close:hover{background:var(--surface-raised);color:var(--text-primary);}
+
+/* ── PANEL HERO IMAGE ── */
+.panel-hero{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;flex-shrink:0;background:var(--surface-raised);}
+.panel-hero-img{width:100%;height:100%;object-fit:cover;display:none;transition:opacity 0.3s ease;}
+.panel-hero-img.loaded{display:block;}
+.panel-hero-fallback{display:flex;width:100%;height:100%;align-items:center;justify-content:center;
+  background:var(--surface-raised);position:relative;overflow:hidden;}
+.panel-hero-fallback svg{width:80px;height:80px;opacity:0.35;}
+.panel-hero-fallback.hidden{display:none;}
+.panel-hero-gradient{position:absolute;bottom:0;left:0;right:0;height:50%;
+  background:linear-gradient(to top,var(--surface) 0%,transparent 100%);pointer-events:none;z-index:1;}
+.panel-hero-credit{position:absolute;bottom:6px;right:8px;font-size:10px;
+  color:rgba(255,255,255,0.7);font-family:var(--font-sans);
+  text-shadow:0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.35);
+  padding:1px 6px;border-radius:3px;z-index:2;}
+.panel-hero-shimmer{position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.04) 50%,transparent 100%);
+  background-size:200% 100%;animation:shimmer 1.5s infinite;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.panel-hero.has-image .panel-hero-shimmer{display:none;}
+[data-theme="light"] .panel-hero{background:var(--surface-raised);}
+[data-theme="light"] .panel-hero-shimmer{
+  background:linear-gradient(90deg,transparent 0%,rgba(0,0,0,0.03) 50%,transparent 100%);
+  background-size:200% 100%;}
+[data-theme="light"] .panel-hero-gradient{
+  background:linear-gradient(to top,var(--surface) 0%,transparent 100%);}
+[data-theme="light"] .panel-hero-credit{color:rgba(255,255,255,0.8);background:rgba(0,0,0,0.45);}
+.panel-body{padding:20px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;flex:1;}
+.panel-body::-webkit-scrollbar{width:4px;}
+.panel-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.panel-lineage-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;
+  letter-spacing:0.1em;font-family:var(--font-sans);text-transform:uppercase;
+  padding:3px 10px;border-radius:var(--radius-full);}
+.panel-lineage-badge.human{color:#b07a3e;background:rgba(176,122,62,0.12);border:1px solid rgba(176,122,62,0.3);}
+.panel-lineage-badge.great-ape{color:#b03535;background:rgba(176,53,53,0.1);border:1px solid rgba(176,53,53,0.25);}
+.panel-header{display:flex;flex-direction:column;gap:6px;}
+.panel-title-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.panel-title{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--color-text-primary);margin:0;line-height:1.2;}
+.panel-latin{font-style:italic;font-size:13px;color:var(--color-text-muted);font-family:var(--font-sans);}
+.panel-era{font-size:12px;color:var(--color-text-secondary);font-family:var(--font-sans);}
+.panel-desc{font-size:14px;line-height:1.7;color:var(--color-text-secondary);font-family:var(--font-sans);margin:0;}
+.panel-detail{font-size:13px;line-height:1.7;color:var(--color-text-muted);font-family:var(--font-sans);margin:0;}
+.panel-fun-fact{border-left:3px solid var(--color-accent);padding:12px 16px;
+  background:rgba(46,125,50,0.06);border-radius:0 8px 8px 0;}
+.panel-fun-fact-label{font-size:11px;font-weight:700;color:var(--color-accent);
+  letter-spacing:0.08em;margin-bottom:6px;font-family:var(--font-sans);}
+.panel-fun-fact-text{font-family:var(--font-sans);font-style:italic;font-size:14px;
+  line-height:1.6;color:var(--color-text-primary);margin:0;}
+.panel-facts-grid{display:flex;flex-direction:column;gap:1px;border-radius:8px;
+  overflow:hidden;border:1px solid var(--color-divider);}
+.panel-fact-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;}
+.panel-fact-row:nth-child(odd){background:var(--color-canvas-alt);}
+.panel-fact-row:nth-child(even){background:var(--color-panel-bg);}
+.panel-fact-label{font-size:12px;color:var(--color-text-muted);font-family:var(--font-sans);}
+.panel-fact-value{font-size:13px;font-weight:600;color:var(--color-text-primary);
+  font-family:var(--font-sans);text-align:right;max-width:60%;}
+.panel-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.panel-tag{font-size:11px;padding:3px 10px;border-radius:var(--radius-full);
+  background:var(--color-button-bg);border:1px solid var(--color-button-border);
+  color:var(--color-text-secondary);font-family:var(--font-sans);}
+.panel-tip{padding:12px;background:var(--color-button-bg);border-radius:8px;font-size:12px;
+  color:var(--color-text-muted);font-family:var(--font-sans);font-style:italic;text-align:center;}
+.panel-section-title{font-size:11px;font-weight:700;color:var(--color-accent);
+  letter-spacing:0.08em;font-family:var(--font-sans);}
+.panel-link-btn{font-size:12px;padding:5px 12px;border-radius:var(--radius-full);
+  background:var(--color-button-bg);border:1px solid var(--color-button-border);
+  color:var(--color-accent);font-family:var(--font-sans);text-decoration:none;
+  display:inline-flex;align-items:center;gap:4px;transition:all 0.2s;}
+.panel-link-btn:hover{background:var(--color-accent);color:white;}
+.panel-close-btn{margin-top:8px;padding:10px;border-radius:8px;width:100%;
+  border:1px solid var(--color-button-border);background:var(--color-button-bg);
+  cursor:pointer;font-family:var(--font-sans);font-size:13px;color:var(--color-text-secondary);
+  transition:background 0.2s;}
+.panel-close-btn:hover{background:var(--color-button-hover);}
+.panel-hominin-btn{width:100%;padding:12px;border-radius:8px;border:none;
+  background:var(--color-accent);color:white;cursor:pointer;font-family:var(--font-sans);
+  font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-bottom:8px;transition:filter 0.2s;}
+.panel-hominin-btn:hover{filter:brightness(1.1);}
+.panel-brain-bar{flex:1;height:8px;background:var(--color-canvas-alt);border-radius:4px;overflow:hidden;}
+.panel-brain-fill{height:100%;border-radius:4px;}
+.panel-dna-bar{flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;}
+.panel-dna-fill{height:100%;border-radius:3px;}
+
 .btn-back{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;
 
   border:1px solid var(--border);border-radius:var(--radius-full);background:transparent;
@@ -729,6 +813,9 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
     flex-shrink: 0;
   }
   .panel-scroll { padding: 0.8rem 1.2rem 1.5rem; }
+  .panel-hero{aspect-ratio:2/1;max-height:150px;}
+  .panel-body{padding:14px;gap:12px;}
+  .panel-title{font-size:18px;}
   .p-close {
     width: 44px !important;
     height: 44px !important;
@@ -2742,8 +2829,10 @@ async function fetchWikiPhoto(nodeId, wikiTitle, imgEl, fallbackEl, creditEl) {
   if (window._photoCache[cacheKey]) {
     const cached = window._photoCache[cacheKey];
     imgEl.src = cached.url;
-    imgEl.style.display = 'block';
-    if (fallbackEl) fallbackEl.style.display = 'none';
+    imgEl.classList.add('loaded');
+    const hero = imgEl.closest('.panel-hero');
+    if (hero) hero.classList.add('has-image');
+    if (fallbackEl) fallbackEl.classList.add('hidden');
     if (creditEl && cached.credit) creditEl.textContent = cached.credit;
     return;
   }
@@ -2758,8 +2847,10 @@ async function fetchWikiPhoto(nodeId, wikiTitle, imgEl, fallbackEl, creditEl) {
       const url = thumb.source.replace(/\/\d+px-/, '/640px-');
       window._photoCache[cacheKey] = { url, credit: 'Wikipedia / Wikimedia Commons' };
       imgEl.src = url;
-      imgEl.style.display = 'block';
-      if (fallbackEl) fallbackEl.style.display = 'none';
+      imgEl.classList.add('loaded');
+      const hero = imgEl.closest('.panel-hero');
+      if (hero) hero.classList.add('has-image');
+      if (fallbackEl) fallbackEl.classList.add('hidden');
       if (creditEl) creditEl.textContent = 'Wikipedia / Wikimedia Commons';
     } else {
       throw new Error('No thumbnail');
@@ -2773,27 +2864,49 @@ async function fetchWikiPhoto(nodeId, wikiTitle, imgEl, fallbackEl, creditEl) {
 function renderPanelContent(node) {
   const p = document.getElementById('panel') || document.getElementById('info-panel');
   if (!p) return;
-  const extinctBadge = node.extinct
-    ? '<span style="background:#ef4444;color:white;font-size:10px;padding:2px 8px;border-radius:9999px;font-family:Inter,sans-serif;font-weight:600;letter-spacing:0.05em;">† EXTINCT</span>'
-    : '';
-  // WIKI_TITLES and PHOTO_MAP loaded from js/speciesData.js
-  // Merge data-level img with the lookup map; ImageLoader generated images take top priority
+
+  // ── Image sourcing ──
   const photoEntry = PHOTO_MAP[node.id];
   const generatedUrl = (typeof ImageLoader!=='undefined') ? ImageLoader.getGeneratedUrl(node.id) : null;
   let staticUrl = generatedUrl || (photoEntry && photoEntry.url) || node.img || null;
   const staticCredit = generatedUrl ? 'AI-generated illustration' : (photoEntry && photoEntry.credit) || node.imgCredit || null;
   const wikiTitle = WIKI_TITLES[node.id] || null;
-  // Suppress if this static URL previously failed
   if (staticUrl && window._failedPhotos && window._failedPhotos.has('static:' + node.id)) {
     staticUrl = null;
   }
-  const panelImgId = 'panel-species-img-' + node.id.replace(/[^a-z0-9]/g,'_');
-  const panelFbId  = 'panel-species-fb-'  + node.id.replace(/[^a-z0-9]/g,'_');
-  const panelCrId  = 'panel-species-cr-'  + node.id.replace(/[^a-z0-9]/g,'_');
+
+  // ── IDs for DOM references ──
+  const safeId = node.id.replace(/[^a-z0-9]/g,'_');
+  const panelImgId = 'panel-hero-img-' + safeId;
+  const panelFbId  = 'panel-hero-fb-'  + safeId;
+  const panelCrId  = 'panel-hero-cr-'  + safeId;
+
+  // ── SVG silhouette fallback ──
+  const iconGroup = (typeof getIconGroup==='function') ? getIconGroup(node) : 'default';
+  const iconPath = (typeof NODE_ICONS!=='undefined' && NODE_ICONS[iconGroup]) || (typeof NODE_ICONS!=='undefined' && NODE_ICONS.default) || '';
+  const nodeColor = node.color || '#555';
+
+  // ── Lineage badge ──
+  const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','homo-sapiens'];
+  const HOMININ_IDS = ['h_sapiens','h_erectus','h_habilis','h_heidelbergensis','h_floresiensis','h_naledi','h_luzonensis','h_rudolfensis','h_antecessor','h_bodoensis','h_longi','denisovans','au_afarensis','au_africanus','au_anamensis','au_bahrelghazali','au_deyiremeda','au_garhi','au_sediba','au_prometheus','sahelanthropus','ardipithecus_r','hominini'];
+  const isGreatApe = GREAT_APE_IDS.includes(node.id);
+  const isHuman = HOMININ_IDS.includes(node.id) || (node.tags && (node.tags.includes('Hominin') || node.tags.includes('Human evolution')));
+  const lineageBadge = isHuman
+    ? '<span class="panel-lineage-badge human">🧬 Human Lineage</span>'
+    : isGreatApe
+    ? '<span class="panel-lineage-badge great-ape">🦍 Great Apes</span>'
+    : '';
+
+  // ── Extinct badge ──
+  const extinctBadge = node.extinct
+    ? '<span style="background:#ef4444;color:white;font-size:10px;padding:2px 8px;border-radius:9999px;font-weight:600;letter-spacing:0.05em;">† EXTINCT</span>'
+    : '';
+
+  // ── Build panel HTML ──
   p.innerHTML = `
-    <div style="width:100%;aspect-ratio:16/9;background:#111;overflow:hidden;position:relative;flex-shrink:0;">
-      <img id="${panelImgId}" src="${staticUrl || ''}" alt="${node.name}"
-        style="width:100%;height:100%;object-fit:cover;display:${staticUrl ? 'block' : 'none'};"
+    <div class="panel-hero${staticUrl ? ' has-image' : ''}" style="background:linear-gradient(135deg,${nodeColor}22,${nodeColor}08);">
+      <img id="${panelImgId}" class="panel-hero-img${staticUrl ? ' loaded' : ''}"
+        src="${staticUrl || ''}" alt="${node.name}"
         onerror="(function(el){
           if(typeof ImageLoader!=='undefined'&&el.dataset.source==='generated'){
             ImageLoader.markFailed('${node.id}');
@@ -2801,80 +2914,75 @@ function renderPanelContent(node) {
             if(fb){el.dataset.source='fallback';el.src=fb;return;}
           }
           (window._failedPhotos||(window._failedPhotos=new Set())).add('static:${node.id}');
-          el.style.display='none';document.getElementById('${panelFbId}').style.display='flex';
+          el.classList.remove('loaded');
+          var hero=el.closest('.panel-hero');if(hero)hero.classList.remove('has-image');
+          document.getElementById('${panelFbId}').classList.remove('hidden');
+        })(this);"
+        onload="(function(el){
+          el.classList.add('loaded');
+          var hero=el.closest('.panel-hero');if(hero)hero.classList.add('has-image');
+          document.getElementById('${panelFbId}').classList.add('hidden');
         })(this);"
         data-source="${generatedUrl ? 'generated' : 'static'}"
       />
-      <div id="${panelFbId}" style="display:${staticUrl ? 'none' : 'flex'};width:100%;height:100%;align-items:center;justify-content:center;font-size:72px;background:#111;">${node.icon||'🌿'}</div>
-      <div id="${panelCrId}" style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.65);font-family:'Inter',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.35);padding:1px 5px;border-radius:3px;">${staticCredit||''}</div>
+      <div id="${panelFbId}" class="panel-hero-fallback${staticUrl ? ' hidden' : ''}"
+        style="background:linear-gradient(135deg,${nodeColor}30,${nodeColor}10);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="${nodeColor}" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5;">
+          <path d="${iconPath}"/>
+        </svg>
+      </div>
+      <div class="panel-hero-gradient"></div>
+      <div class="panel-hero-shimmer"></div>
+      <div id="${panelCrId}" class="panel-hero-credit">${staticCredit||''}</div>
     </div>
-    <div style="padding:20px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;flex:1;">
-      ${(()=>{
-        const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','homo-sapiens'];
-        const HOMININ_IDS   = ['homo-sapiens','h_erectus','h_habilis','h_neanderthalensis','h_heidelbergensis','h_floresiensis','h_naledi','h_luzonensis','denisovan','au_afarensis','au_africanus','sahelanthropus','ardipithecus_r'];
-        const isGreatApe    = GREAT_APE_IDS.includes(node.id) || node.id === 'great-apes';
-        const isHuman       = HOMININ_IDS.includes(node.id) || (node.tags && (node.tags.includes('Hominin') || node.tags.includes('Human evolution')));
-        if (isHuman) return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b07a3e;font-family:'Inter',sans-serif;text-transform:uppercase;background:rgba(176,122,62,0.12);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,122,62,0.3);">🧬 Human Lineage</span></div>`;
-        if (isGreatApe) return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b03535;font-family:'Inter',sans-serif;text-transform:uppercase;background:rgba(176,53,53,0.1);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,53,53,0.25);">🦍 Great Apes</span></div>`;
-        return '';
-      })()}
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <h2 style="font-family:'Inter',sans-serif;font-size:22px;font-weight:700;color:var(--color-text-primary);margin:0;line-height:1.2;">${node.name}</h2>
+    <div class="panel-body">
+      ${lineageBadge ? `<div style="margin-bottom:-4px;">${lineageBadge}</div>` : ''}
+      <div class="panel-header">
+        <div class="panel-title-row">
+          <h2 class="panel-title">${node.name}</h2>
           ${extinctBadge}
         </div>
-        ${node.latin ? `<div style="font-style:italic;font-size:13px;color:var(--color-text-muted);font-family:'Inter',sans-serif;">${node.latin}</div>` : ''}
-        ${node.era ? `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">📅 ${node.era}${node.appeared ? ' · ' + node.appeared + ' Mya' : ''}</div>` : ''}
+        ${node.latin ? `<div class="panel-latin">${node.latin}</div>` : ''}
+        ${node.era ? `<div class="panel-era">📅 ${node.era}${node.appeared ? ' · ' + node.appeared + ' Mya' : ''}</div>` : ''}
       </div>
-      ${node.desc ? `<p style="font-size:14px;line-height:1.7;color:var(--color-text-secondary);font-family:'Inter',sans-serif;margin:0;">${node.desc}</p>` : ''}
+      ${node.desc ? `<p class="panel-desc">${node.desc}</p>` : ''}
       ${node.funFact ? `
-        <div style="border-left:3px solid var(--color-accent);padding:12px 16px;background:rgba(46,125,50,0.06);border-radius:0 8px 8px 0;">
-          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;margin-bottom:6px;font-family:'Inter',sans-serif;">💡 DID YOU KNOW</div>
-          <p style="font-family:'Inter',sans-serif;font-style:italic;font-size:14px;line-height:1.6;color:var(--color-text-primary);margin:0;">${node.funFact}</p>
+        <div class="panel-fun-fact">
+          <div class="panel-fun-fact-label">💡 DID YOU KNOW</div>
+          <p class="panel-fun-fact-text">${node.funFact}</p>
         </div>
       ` : ''}
-      ${node.detail ? `<p style="font-size:13px;line-height:1.7;color:var(--color-text-muted);font-family:'Inter',sans-serif;margin:0;">${node.detail}</p>` : ''}
+      ${node.detail ? `<p class="panel-detail">${node.detail}</p>` : ''}
       ${node.facts && node.facts.length > 0 ? `
-        <div style="display:flex;flex-direction:column;gap:1px;border-radius:8px;overflow:hidden;border:1px solid var(--color-divider);">
-          ${node.facts.map((f, i) => `
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:${i % 2 === 0 ? 'var(--color-canvas-alt)' : 'var(--color-panel-bg)'};">
-              <span style="font-size:12px;color:var(--color-text-muted);font-family:'Inter',sans-serif;">${f.l}</span>
-              <span style="font-size:13px;font-weight:600;color:var(--color-text-primary);font-family:'Inter',sans-serif;text-align:right;max-width:60%;">${f.v}</span>
+        <div class="panel-facts-grid">
+          ${node.facts.map(f => `
+            <div class="panel-fact-row">
+              <span class="panel-fact-label">${f.l}</span>
+              <span class="panel-fact-value">${f.v}</span>
             </div>
           `).join('')}
         </div>
       ` : ''}
       ${node.tags && node.tags.length > 0 ? `
-        <div style="display:flex;flex-wrap:wrap;gap:6px;">
-          ${node.tags.map(tag => `
-            <span style="font-size:11px;padding:3px 10px;border-radius:9999px;background:var(--color-button-bg);border:1px solid var(--color-button-border);color:var(--color-text-secondary);font-family:'Inter',sans-serif;">${tag}</span>
-          `).join('')}
+        <div class="panel-tags">
+          ${node.tags.map(tag => `<span class="panel-tag">${tag}</span>`).join('')}
         </div>
       ` : ''}
-      ${node.tipFact ? `
-        <div style="padding:12px;background:var(--color-button-bg);border-radius:8px;font-size:12px;color:var(--color-text-muted);font-family:'Inter',sans-serif;font-style:italic;text-align:center;">
-          🌿 ${node.tipFact}
-        </div>
-      ` : ''}
+      ${node.tipFact ? `<div class="panel-tip">🌿 ${node.tipFact}</div>` : ''}
       ${node.altFacts && node.altFacts.length > 0 ? `
         <div style="display:flex;flex-direction:column;gap:6px;">
-          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">📚 DID YOU KNOW?</div>
+          <div class="panel-section-title">📚 DID YOU KNOW?</div>
           ${node.altFacts.map(f=>`
-            <div style="padding:10px;background:var(--color-button-bg);border-radius:8px;font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">${f}</div>
+            <div style="padding:10px;background:var(--color-button-bg);border-radius:8px;font-size:12px;color:var(--color-text-secondary);font-family:var(--font-sans);">${f}</div>
           `).join('')}
         </div>
       ` : ''}
       ${node.links && node.links.length > 0 ? `
         <div style="display:flex;flex-direction:column;gap:6px;">
-          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">🔗 LEARN MORE</div>
+          <div class="panel-section-title">🔗 LEARN MORE</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px;">
             ${node.links.map(lnk=>`
-              <a href="${lnk.url}" target="_blank" rel="noopener noreferrer"
-                style="font-size:12px;padding:5px 12px;border-radius:9999px;background:var(--color-button-bg);border:1px solid var(--color-button-border);color:var(--color-accent);font-family:'Inter',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:4px;"
-                onmouseover="this.style.background='var(--color-accent)';this.style.color='white';"
-                onmouseout="this.style.background='var(--color-button-bg)';this.style.color='var(--color-accent)';">
-                ↗ ${lnk.label}
-              </a>
+              <a href="${lnk.url}" target="_blank" rel="noopener noreferrer" class="panel-link-btn">↗ ${lnk.label}</a>
             `).join('')}
           </div>
         </div>
@@ -2886,72 +2994,65 @@ function renderPanelContent(node) {
         const neanPct = h.dna && h.dna.neanderthal != null ? h.dna.neanderthal : null;
         const denPct = h.dna && h.dna.denisovan != null ? h.dna.denisovan : null;
         let html = '';
-        // Brain volume bar
         if(brainMax){
           html += `<div style="display:flex;flex-direction:column;gap:4px;">
-            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">🧠 BRAIN VOLUME</div>
+            <div class="panel-section-title">🧠 BRAIN VOLUME</div>
             <div style="display:flex;align-items:center;gap:8px;">
-              <div style="flex:1;height:8px;background:var(--color-canvas-alt);border-radius:4px;overflow:hidden;">
-                <div style="width:${Math.round(brainMax/1750*100)}%;height:100%;background:${h.color};border-radius:4px;"></div>
-              </div>
-              <span style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;min-width:60px;">${brainMax} cm³</span>
+              <div class="panel-brain-bar"><div class="panel-brain-fill" style="width:${Math.round(brainMax/1750*100)}%;background:${h.color};"></div></div>
+              <span style="font-size:12px;color:var(--color-text-secondary);font-family:var(--font-sans);min-width:60px;">${brainMax} cm³</span>
             </div>
           </div>`;
         }
-        // Capabilities row
         const hasTools = h.tools && h.tools!=='None known' && h.tools!=='None';
         const hasFire = h.fire && h.fire!=='No';
         const hasLang = h.language && h.language!=='None';
         if(hasTools || hasFire || hasLang){
           html += `<div style="display:flex;gap:12px;flex-wrap:wrap;">`;
-          if(hasTools) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">🪨 ${h.tools}</div>`;
-          if(hasFire) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">🔥 ${h.fire}</div>`;
-          if(hasLang) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">🗣️ ${h.language}</div>`;
+          if(hasTools) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:var(--font-sans);">🪨 ${h.tools}</div>`;
+          if(hasFire) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:var(--font-sans);">🔥 ${h.fire}</div>`;
+          if(hasLang) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:var(--font-sans);">🗣️ ${h.language}</div>`;
           html += `</div>`;
         }
-        // DNA introgression
         if(neanPct != null || denPct != null){
           html += `<div style="display:flex;flex-direction:column;gap:4px;">
-            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">🧬 DNA LEGACY</div>`;
-          if(neanPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;"><span style="min-width:80px;">Neanderthal</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,neanPct*25)}%;height:100%;background:#7A9BAA;border-radius:3px;"></div></div><span>${neanPct}%</span></div>`;
-          if(denPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;"><span style="min-width:80px;">Denisovan</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,denPct*20)}%;height:100%;background:#7A8BAA;border-radius:3px;"></div></div><span>${denPct}%</span></div>`;
+            <div class="panel-section-title">🧬 DNA LEGACY</div>`;
+          if(neanPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary);font-family:var(--font-sans);"><span style="min-width:80px;">Neanderthal</span><div class="panel-dna-bar"><div class="panel-dna-fill" style="width:${Math.min(100,neanPct*25)}%;background:#7A9BAA;"></div></div><span>${neanPct}%</span></div>`;
+          if(denPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary);font-family:var(--font-sans);"><span style="min-width:80px;">Denisovan</span><div class="panel-dna-bar"><div class="panel-dna-fill" style="width:${Math.min(100,denPct*20)}%;background:#7A8BAA;"></div></div><span>${denPct}%</span></div>`;
           if(h.dna && h.dna.note) html += `<div style="font-size:11px;color:var(--color-text-muted);font-style:italic;">${h.dna.note}</div>`;
           html += `</div>`;
         }
-        // Fossil sites
         if(h.sites && h.sites.length){
           html += `<div style="display:flex;flex-direction:column;gap:4px;">
-            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">📍 FOSSIL SITES</div>
-            <div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;line-height:1.6;">${h.sites.join(' · ')}</div>
+            <div class="panel-section-title">📍 FOSSIL SITES</div>
+            <div style="font-size:12px;color:var(--color-text-secondary);font-family:var(--font-sans);line-height:1.6;">${h.sites.join(' · ')}</div>
           </div>`;
         }
         return html;
       })()}
-      ${(()=>{const isHominin=node._hominData||node.id==='hominini'||(node.id&&node.id.startsWith('hom-'));return isHominin?`<button onclick="openHomininView()" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--color-accent);color:white;cursor:pointer;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">🧬 Hominin Deep Dive</button>`:'';})()}
-      <button onclick="closePanel()" style="margin-top:8px;padding:10px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;color:var(--color-text-secondary);">
-        Close
-      </button>
+      ${(()=>{const isHominin=node._hominData||node.id==='hominini'||(node.id&&node.id.startsWith('hom-'));return isHominin?`<button onclick="openHomininView()" class="panel-hominin-btn">🧬 Hominin Deep Dive</button>`:'';})()}
+      <button onclick="closePanel()" class="panel-close-btn">Close</button>
     </div>
   `;
+
   // Inject back button at top if we have history
   if(panelHistory.length>0){
-    const scroll=p.querySelector('[style*="padding:20px"]');
-    if(scroll){
+    const bodyEl=p.querySelector('.panel-body');
+    if(bodyEl){
       const backBtn=document.createElement('button');
       backBtn.textContent='← Back';
       backBtn.onclick=panelBack;
       backBtn.className='btn-back';
       backBtn.style.marginBottom='4px';
-      scroll.insertBefore(backBtn,scroll.firstChild);
+      bodyEl.insertBefore(backBtn,bodyEl.firstChild);
     }
   }
+
   // Fetch real photo from Wikipedia API (runs in browser after HTML is set)
   if (wikiTitle) {
     const imgEl = document.getElementById(panelImgId);
     const fbEl  = document.getElementById(panelFbId);
     const crEl  = document.getElementById(panelCrId);
     if (imgEl && fbEl) {
-      // If static URL already loaded, still try API for a better/larger photo
       fetchWikiPhoto(node.id, wikiTitle, imgEl, fbEl, crEl);
     }
   }

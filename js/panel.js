@@ -765,11 +765,23 @@ window.navigateTo=function(id){
 // HOMININ VIEW
 // ══════════════════════════════════════════════════════
 window.openHomininView=function(){
-  pushNav();
-  document.getElementById('hominin-view').classList.add('open');
+  // Expand hominini and its child groups on the main tree, then zoom to them
+  const hom = nodeMap['hominini'];
+  if (!hom) return;
+  // Expand ancestors so hominini is visible
+  let cur = hom._parent;
+  while (cur) { cur._collapsed = false; cur = cur._parent; }
+  // Expand hominini and its 4 group nodes
+  hom._collapsed = false;
+  if (hom.children) hom.children.forEach(g => { g._collapsed = false; });
+  // Close any open panel
   panel.classList.remove('open');
-  renderHominins();
-  updateNavButtons();
+  // Re-layout and render
+  layout();
+  // Zoom centered on hominini node at a readable scale
+  const s = 0.7;
+  transform = { x: window.innerWidth / 2 - hom._x * s, y: window.innerHeight / 2 - hom._y * s, s };
+  scheduleRender(true); applyT();
 };
 document.getElementById('hom-close').addEventListener('click',()=>{
   document.getElementById('hominin-view').classList.remove('open');

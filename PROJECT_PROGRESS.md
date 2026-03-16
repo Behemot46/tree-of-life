@@ -24,19 +24,25 @@
 | p17 | Subtree-weighted radial spacing | PR #56 |
 | p18 | Fix overlapping header controls | PR #57 |
 | p19 | Roadmap & project health | `claude/keen-easley` |
+| p20 | Naturalist node artwork — expanded icon library (20→37 icons), improved mapping | PR #62 |
+| p21 | Species panel visual identity — hero images, styled fallbacks, header typography | PR #61 |
 | p23 | DNA similarity calculator — species comparator with known + estimated data | `claude/crazy-villani` |
-| p21 | Species panel visual identity — hero images, SVG silhouette fallbacks, CSS class refactor | `claude/romantic-napier` |
+| p22 | Rich data panels & infographics — sections, timeline bar, radar chart, typography | `claude/charming-einstein` |
+| p24 | Always-visible hominin branch — expanded by default, golden path, label priority | `claude/strange-tharp` |
+| p25 | Interactive legend & domain highlighting — filter, dim, visual feedback | `claude/stupefied-leakey` |
+| p26a | 130+ facts pack — expanded library, panel/tooltip/discovery integration | `claude/compassionate-poitras` |
+| p27 | i18n completeness — translate all hardcoded English strings to HE/RU | PR #69 |
 
 ### Upcoming
 
 | # | Milestone | Goal | Status |
 |---|-----------|------|--------|
-| p20 | Naturalist node artwork | Replace all emoji/silhouette node icons with consistent high-quality artistic sketches (pen-and-ink naturalist style) for every node (~130+). Build asset pipeline, SVG/WebP format, fallback chain. | Pending |
+| p20 | Naturalist node artwork | Replace all emoji/silhouette node icons with consistent high-quality artistic sketches (pen-and-ink naturalist style) for every node (~130+). Build asset pipeline, SVG/WebP format, fallback chain. | Done |
 | p21 | Species panel visual identity | Replace emoji headers in species info panel with curated photos or GenAI artwork. Consistent framing/style, Wikimedia + AI-generated fallback pipeline. | Done |
-| p22 | Rich data panels & infographics | Increase fonts, add descriptive paragraphs, layered data sections (habitat, diet, morphology, fossil record). Inline mini-infographics: size comparisons, range maps, trait radar charts. | Pending |
+| p22 | Rich data panels & infographics | Increase fonts, add descriptive paragraphs, layered data sections (habitat, diet, morphology, fossil record). Inline mini-infographics: size comparisons, range maps, trait radar charts. | Done |
 | p23 | DNA similarity calculator | Two-species comparator: pick any two species, display estimated DNA similarity %. Visual output with divergence timeline, shared traits, "you share X% DNA with a banana" UX. | Done |
-| p24 | Always-visible hominin branch | Show full hominin family tree as expanded branch with twigs on main canvas — no "explore deeper" required. Auto-layout to avoid crowding, golden path emphasis, larger labels. | Pending |
-| p25 | Interactive legend & domain highlighting | Clicking a domain in the legend highlights/filters that subtree on the canvas. Visual feedback, toggle behavior. | Pending |
+| p24 | Always-visible hominin branch | Show full hominin family tree as expanded branch with twigs on main canvas — no "explore deeper" required. Auto-layout to avoid crowding, golden path emphasis, larger labels. | Done |
+| p25 | Interactive legend & domain highlighting | Clicking a domain in the legend highlights/filters that subtree on the canvas. Visual feedback, toggle behavior. | Done |
 | p26 | Accessibility & navigation cleanup | Keyboard nav, ARIA labels, focus management, screen reader support, reduced-motion. Unify `panelHistory`/`navStack` into single model. | Pending |
 | p27 | Performance & offline resilience | Viewport culling (render only visible nodes), lazy expansion, service worker caching, offline fallbacks, connection status indicator. | Pending |
 | p28 | Guided tours & educational mode | Walkthrough overlays narrating key evolutionary milestones (Great Oxidation, Cambrian Explosion, K-Pg). Step-by-step discovery paths for educational use. | Pending |
@@ -550,6 +556,100 @@ Combined with p8: **~2,800+ lines** of dead code eliminated from the repo.
 
 ---
 
+## p24 — Always-Visible Hominin Branch
+
+**Branch:** `claude/strange-tharp`
+
+### What was changed
+
+**Hominini expanded by default**
+- Changed `hominini._collapsed` from `true` to `false` at init time
+- Changed all 4 group nodes (`group-proto`, `group-australopith`, `group-paranthropus`, `group-homo`) from collapsed to expanded
+- 28 hominin species now visible as tree twigs on load — no user action required
+
+**HUMAN_PATH extended**
+- Added `hominini`, `group-homo`, `h_sapiens` to the golden path set
+- Removed stale `homo-sapiens` (replaced by `h_sapiens` after `buildHomininTree()`)
+- Golden path now traces LUCA → eukaryota → animalia → vertebrates → mammals → primates → great-apes → hominini → group-homo → h_sapiens (9 accent-colored segments)
+
+**Label visibility for hominins**
+- Increased depth filter from `depth<=6` to include all hominin nodes (`_hominin` flag, `hominini` ID, `group-*` IDs)
+- Hominin species use abbreviated short names (e.g. "H. sapiens", "H. erectus") to reduce collision
+- Group nodes get 11px font, species get 10px (vs default 8-9px for deep nodes)
+- All 4 group nodes and HUMAN_PATH hominins force-shown in label collision resolution
+- Group labels rendered in golden color (`#e8b86d`) with font-weight 600
+
+**Hominini node rendering toned down**
+- Removed "Explore →" badge (no longer needed as branch is visible)
+- Removed `homininGlow` pulsing animation
+- Kept static golden ring (1.5px, 50% opacity) as subtle visual anchor
+
+### Files changed
+
+| File | Changes |
+|------|---------|
+| `index.html` | Collapse defaults, HUMAN_PATH, label depth/priority/sizing, hominini rendering |
+| `PROJECT_PROGRESS.md` | Added p24 completion entry |
+| `SESSION_HANDOFF.md` | Written handoff notes |
+
+### Verified
+
+- Zero console errors
+- 131 branches, 132 nodes rendered (28 extra from hominins)
+- 9 golden path segments (accent-colored, 3px stroke)
+- Hominin labels visible: Hominini, Proto-Hominins, Australopithecus, Paranthropus, Genus Homo, H. habilis, H. erectus, H. antecessor, H. sapiens
+- Subtree-weighted radial spacing (p17) automatically allocates angular room
+- "Human Evolution" button and dedicated hominin panel view still functional
+
+---
+
 ## p19 — Roadmap & Project Health (2026-03-15)
 
 See [ROADMAP.md](ROADMAP.md) for the full development roadmap with phases p16+.
+
+---
+
+## p20 — Naturalist Node Artwork (2026-03-15)
+
+**Branch:** `claude/agitated-hawking`
+
+### What was changed
+
+**Expanded icon library (20 → 37 categories)**
+- 17 new icon categories added: spirochete, protist, amoeba, diatom, dinoflagellate, algae, yeast, moss, fern, conifer, flower, jellyfish, octopus, butterfly, spider, shark, whale, turtle, dinosaur, rodent, bat
+- All icons: filled silhouette style, 24×24 viewbox, single SVG path `d` string
+- Recognizable at 10–26px rendered size
+
+**Improved node-to-icon mapping**
+- Protists no longer default to 'default' — mapped to protist, amoeba, diatom, dinoflagellate, algae
+- Plants differentiated: moss, fern, conifer, flower (was all 'plant')
+- Saccharomyces → yeast icon (was generic fungus)
+- Shark gets distinct shark silhouette (was generic fish)
+- Cetaceans/blue whale → whale icon (was generic mammal)
+- Turritopsis → jellyfish (was generic cnidarian)
+- Octopus/cephalopods → octopus (was generic mollusk)
+- Archaeopteryx → dinosaur (was generic bird)
+- Honey bee → butterfly (was generic insect)
+- Naked mole rat → rodent (was generic mammal)
+
+**Extracted to module**
+- Created `js/nodeIcons.js` — NODE_ICONS map + getIconGroup() function (~180 lines)
+- Added `<script src="js/nodeIcons.js"></script>` to index.html
+- Removed ~95 lines of inline icon code from index.html
+
+### Files changed
+
+| File | Changes |
+|------|---------|
+| `js/nodeIcons.js` | **NEW** — 37 icon paths + getIconGroup() mapping function |
+| `index.html` | Removed inline NODE_ICONS + getIconGroup(), added script tag |
+| `PROJECT_PROGRESS.md` | Added p20 completion entry |
+| `SESSION_HANDOFF.md` | Updated handoff notes |
+
+### Verified
+
+- All tree nodes render with icons (no blank circles)
+- Photo overlay still works on top of icons
+- Dark and light themes — icons visible in both
+- Zero console errors
+- 40 icon keys loaded, 100+ icon paths rendered on visible nodes

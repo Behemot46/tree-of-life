@@ -700,7 +700,20 @@ function init(){
     }
   }
   assignDomains(TREE, 'luca');
-  layout();scheduleRender(true);applyT();
+  layout();
+  // Fit the entire tree in the viewport on initial load
+  (function(){
+    const nodes=getVisible(TREE);
+    if(!nodes.length)return;
+    const xs=nodes.map(n=>n._x),ys=nodes.map(n=>n._y);
+    const minX=Math.min(...xs),maxX=Math.max(...xs),minY=Math.min(...ys),maxY=Math.max(...ys);
+    const w=maxX-minX||1,h=maxY-minY||1;
+    const pad=80;
+    const s=Math.min((window.innerWidth-pad)/ w,(window.innerHeight-pad-120)/ h, 0.75);
+    const cx=(minX+maxX)/2,cy=(minY+maxY)/2;
+    transform={x:window.innerWidth/2-cx*s,y:(window.innerHeight-120)/2-cy*s+40,s};
+  })();
+  scheduleRender(true);applyT();
   setTimeout(() => hideLoading(loader), 400);
   spawnParticles();
   buildExtinctionMarkers();

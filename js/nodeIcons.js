@@ -3,7 +3,7 @@
 // ══════════════════════════════════════════════════════
 // Each icon is a filled SVG path designed for a 24×24 viewbox.
 // Single-path, no strokes — recognizable at 10–26px rendered size.
-// 37 distinct categories (expanded from original 20).
+// 48 distinct categories (merged from two parallel p20 implementations).
 
 const NODE_ICONS = {
   // ── Bacteria & Archaea ─────────────────────────────
@@ -13,13 +13,16 @@ const NODE_ICONS = {
 
   // ── Protists ───────────────────────────────────────
   protist:     'M12 5c-2 0-4 2-4.5 4.5-.3 1.5.2 3 1.2 4 1.5 1.5 1 3.5-.2 4.8C7 19.5 9 21 12 21s5-1.5 3.5-2.7c-1.2-1.3-1.7-3.3-.2-4.8 1-1 1.5-2.5 1.2-4C16 7 14 5 12 5z',
+  microbe:     'M12 3a3 3 0 0 0-3 3c0 1 .5 2 1.2 2.6L9 11.5c-1.5.5-2.5 2-2.5 3.5 0 2.2 1.8 4 4 4h3c2.2 0 4-1.8 4-4 0-1.5-1-3-2.5-3.5l-1.2-2.9c.7-.6 1.2-1.6 1.2-2.6a3 3 0 0 0-3-3z',
   amoeba:      'M14 4c-2.5-.5-4 1-4.5 3-.3 1.5.5 2.8 1 4-1.5 1-3.5 1.5-4 3.5-.5 2.5 1 4.5 3 5.5 2 .8 4 .2 5.5-1 1 1.5 3 2 4.5 1 2-1.2 2.5-3.5 1.5-5.5-.5-1 .5-2.5 1.5-3.5 1.5-1.5 1-4-.5-5-.5-.5-.5-1.5-1-2-.5-.8-.5-1.5-1-2 0-.8.2-1.5.5-2-.8-.5-1.5-1-2-1.5S11 4.2 14 4z',
   diatom:      'M12 3C8.7 3 6 5.7 6 9v6c0 3.3 2.7 6 6 6s6-2.7 6-6V9c0-3.3-2.7-6-6-6zm0 2c.6 0 1 .4 1 1s-.4 1-1 1-1-.4-1-1 .4-1 1-1zm0 4c.6 0 1 .4 1 1s-.4 1-1 1-1-.4-1-1 .4-1 1-1zm0 4c.6 0 1 .4 1 1s-.4 1-1 1-1-.4-1-1 .4-1 1-1zm0 4c.6 0 1 .4 1 1s-.4 1-1 1-1-.4-1-1 .4-1 1-1z',
   dinoflagellate: 'M12 3c-3 0-5 3-5 6 0 2 1 3 1 5 0 1.5-.5 3-1 4 1.5 1 3.5 2 5 2s3.5-1 5-2c-.5-1-1-2.5-1-4 0-2 1-3 1-5 0-3-2-6-5-6zm-1 5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zm3 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2z',
   algae:       'M12 22V14c-3-1-5-4-5-7 0-2 1-4 3-4 1 0 2 1 2 3v1c0-2 1-3 2-3 2 0 3 2 3 4 0 3-2 6-5 7v8z',
+  parasite:    'M8 4c-2 1-3 3-2 5l1 2-2 3c-1 2 0 4 2 5l3 1 2 2c1.5 1 3.5.5 4.5-1l1-3 3-1c2-1 2.5-3 1.5-5l-2-2 .5-3c.3-2-1-3.5-3-4l-3 .5-2.5-1.5c-1-.5-2.5-.5-4 1z',
 
   // ── Fungi ──────────────────────────────────────────
   fungus:      'M12 22v-8m0 0c-5 0-8-3-8-6s3-5 8-5 8 2 8 5-3 6-8 6z',
+  mushroom:    'M12 22v-6c0-1-1-2-2-2H9c-3 0-5-2-5-4.5S6 5 9 4c1-.3 2-.5 3-.5s2 .2 3 .5c3 1 5 3 5 5.5S18 14 15 14h-1c-1 0-2 1-2 2v6z',
   yeast:       'M9 6a4 4 0 0 1 6 0c1 1 1.5 3 .5 4.5.8.5 1.5 1.5 1.5 3 0 2-1.5 3.5-3 3.5-.5 1.5-2 2.5-4 2.5-2.5 0-4-2-4-4 0-1.5 1-3 2.5-3.5-.5-1.5-.5-3.5 .5-5.5z',
 
   // ── Plants ─────────────────────────────────────────
@@ -33,15 +36,18 @@ const NODE_ICONS = {
   sponge:      'M8 4c-2 1-3 4-3 8s1 7 3 8h8c2-1 3-4 3-8s-1-7-3-8H8zm1 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 2a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
   cnidarian:   'M12 3c-3 0-6 3-6 7 0 2 1 3 2 3h8c1 0 2-1 2-3 0-4-3-7-6-7zm-4 12l-1 5m2-5v5m2-5l1 5m2-5v5m2-5l1 5',
   jellyfish:   'M7 5c0-1.5 2-3 5-3s5 1.5 5 3c0 3-2 5-3 6-.5 2 0 3 0 5s-.5 4-1 5c-.5-1-1-3-1-5s.5-3 0-5c-1-1-3-3-3-6zM8 11l-2 6m10-6l2 6',
+  coral:       'M8 20v-5c-2 0-4-2-4-4 0-1.5 1-3 2.5-3C6 6.5 7 5 9 5c1 0 2 .5 2.5 1.5C12 5.5 13 5 14 5c2 0 3.5 2 3 3.5C18.5 9 20 10.5 20 12c0 2-2 4-4 4v4H8z',
   worm:        'M6 8c0-2 2-3 4-3s3 1 3 3c0 1.5-1 2.5-2 3 1.5.5 3 2 3 4 0 2.5-2 4-4.5 4S5 17.5 5 15c0-2 1.5-3.5 3-4-1-.5-2-1.5-2-3z',
   mollusk:     'M16 12a6 6 0 0 0-5-5.9c.6-1.2 1-2.1 1-2.1s-2 .5-3.5 2C5.5 8 4 11 6 14s5 4 8 3c1.5-.5 2.5-2 2.5-4-.2-.3-.3-.7-.5-1z',
   octopus:     'M12 4a5 5 0 0 0-5 5c0 2 1 3.5 2.5 4.5L8 20l2-4c.6.3 1.3.5 2 .5s1.4-.2 2-.5l2 4-1.5-6.5C16 12.5 17 11 17 9a5 5 0 0 0-5-5zm-2 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
+  squid:       'M12 3c-2.5 0-4.5 2-4.5 5v3c0 1.5 1 3 2.5 3.5l-2 5.5h2l1.5-4h1l1.5 4h2l-2-5.5c1.5-.5 2.5-2 2.5-3.5V8c0-3-2-5-4.5-5zm-1.5 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm3 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
   echinoderm:  'M12 2l2.5 6.5L21 10l-5 4.5 1.5 7L12 18l-5.5 3.5L8 14.5 3 10l6.5-1.5L12 2z',
 
   // ── Arthropods ─────────────────────────────────────
   insect:      'M12 4a2 2 0 0 1 2 2c0 .5-.2 1-.5 1.3.9.5 1.5 1.4 1.5 2.7 0 1-.4 1.8-1 2.3.6.7 1 1.6 1 2.7 0 2-1.3 3-3 3s-3-1-3-3c0-1.1.4-2 1-2.7-.6-.5-1-1.3-1-2.3 0-1.3.6-2.2 1.5-2.7-.3-.3-.5-.8-.5-1.3a2 2 0 0 1 2-2zM8 9l-3-2m0 6l3-1m8-3l3-2m0 6l-3-1',
   butterfly:   'M12 4v16m0-12c-2-2-5-3-7-1s-1 5 1 7c1 1 3 2 5 1m1-7c2-2 5-3 7-1s1 5-1 7c-1 1-3 2-5 1',
   spider:      'M12 8a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm0 6a2.5 2.5 0 0 0 0 5 2.5 2.5 0 0 0 0-5zM8 10l-4-3m0 8l4-2m8-3l4-3m0 8l-4-2M8 14l-5 2m11 0l5 2M9 9L6 5m9 4l3-4',
+  arachnid:    'M12 6a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm0 6c-1.5 0-3 1-3 3v3c0 1 1 2 3 2s3-1 3-2v-3c0-2-1.5-3-3-3zM8 8l-3-3m-1 7h4m-4 4l3-2m12-6l3-3m1 7h-4m4 4l-3-2',
   crustacean:  'M5 10c0-2 3-4 7-4s7 2 7 4c0 1.5-1 2.5-2.5 3l1.5 4h-3l-1-3h-4l-1 3H6l1.5-4C6 12.5 5 11.5 5 10zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm6 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
 
   // ── Fish & Aquatic Vertebrates ─────────────────────
@@ -67,6 +73,10 @@ const NODE_ICONS = {
   primate:     'M8 6a4 4 0 0 1 8 0c0 1.5-1 3-2 3.5.6.5 1 1.3 1 2.5v4c0 1-1 2-3 2s-3-1-3-2v-4c0-1.2.4-2 1-2.5C9 9 8 7.5 8 6zm2 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
   hominin:     'M12 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm-2 7c-1.5 0-2.5 1-2.5 2.5V15l-2 7h3l1.5-5 .5 1.5V22h3v-3.5l.5-1.5L15.5 22h3l-2-7v-3.5C16.5 10 15.5 9 14 9h-4z',
 
+  // ── Abstract / category ────────────────────────────
+  animal:      'M4 13c0-4.4 3.6-8 8-8s8 3.6 8 8c0 2-1.5 3-3 3h-2l-1 3h-4l-1-3H7c-1.5 0-3-1-3-3z',
+  cell:        'M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm-2 5a2 2 0 1 1 0 4 2 2 0 0 1 0-4zm5 2a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z',
+
   // ── Catch-all ──────────────────────────────────────
   default:     'M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10z'
 };
@@ -83,7 +93,7 @@ function getIconGroup(n) {
   // ── Direct ID → icon mappings ──────────────────────
   var ID_MAP = {
     // Root
-    'luca': 'default',
+    'luca': 'cell',
 
     // Bacteria
     'bacteria': 'bacteria', 'cyanobacteria': 'bacteria', 'proteobacteria': 'bacteria',
@@ -100,20 +110,21 @@ function getIconGroup(n) {
     'lokiarchaeota': 'archaea', 'methanobacterium': 'archaea',
 
     // Eukaryota root
-    'eukaryota': 'default',
+    'eukaryota': 'cell',
 
     // Protists
     'protists': 'protist', 'alveolates': 'protist', 'stramenopiles': 'protist',
     'amoebozoa': 'amoeba',
-    'plasmodium': 'protist', 'paramecium': 'protist',
+    'plasmodium': 'parasite', 'paramecium': 'protist',
     'dinoflagellates': 'dinoflagellate',
-    'diatoms': 'diatom', 'phytophthora': 'protist',
+    'diatoms': 'diatom', 'phytophthora': 'parasite',
     'amoeba-proteus': 'amoeba', 'volvox': 'algae',
 
     // Fungi
-    'fungi': 'fungus', 'ascomycetes': 'fungus', 'basidiomycetes': 'fungus', 'chytrids': 'fungus',
+    'fungi': 'fungus', 'ascomycetes': 'fungus', 'chytrids': 'fungus',
+    'basidiomycetes': 'mushroom',
     'saccharomyces': 'yeast', 'penicillium': 'fungus',
-    'amanita-muscaria': 'fungus', 'armillaria': 'fungus', 'psilocybe': 'fungus',
+    'amanita-muscaria': 'mushroom', 'armillaria': 'mushroom', 'psilocybe': 'mushroom',
     'batrachochytrium': 'fungus',
 
     // Plants
@@ -122,16 +133,16 @@ function getIconGroup(n) {
     'ferns': 'fern', 'tree-fern': 'fern', 'azolla': 'fern',
     'gymnosperms': 'conifer', 'wollemia': 'conifer', 'welwitschia': 'conifer', 'sequoia': 'conifer',
     'angiosperms': 'flower', 'arabidopsis': 'flower', 'rafflesia': 'flower',
-    'titan-arum': 'flower', 'mimosa-pudica': 'plant',
+    'titan-arum': 'flower', 'mimosa-pudica': 'flower',
 
     // Animals — top level
-    'animalia': 'default',
+    'animalia': 'animal',
 
     // Sponges
     'sponges': 'sponge',
 
     // Cnidarians
-    'cnidarians': 'cnidarian', 'turritopsis': 'jellyfish', 'coral': 'cnidarian',
+    'cnidarians': 'cnidarian', 'turritopsis': 'jellyfish', 'coral': 'coral',
 
     // Invertebrates
     'invertebrates': 'crustacean',
@@ -139,7 +150,7 @@ function getIconGroup(n) {
 
     // Arthropods
     'insects': 'insect',
-    'horseshoe-crab': 'crustacean', 'mantis-shrimp': 'crustacean',
+    'horseshoe-crab': 'arachnid', 'mantis-shrimp': 'crustacean',
     'honey-bee': 'butterfly',
 
     // Mollusks / Cephalopods
@@ -194,7 +205,7 @@ function getIconGroup(n) {
   while (p) {
     if (ID_MAP[p.id]) {
       var pg = ID_MAP[p.id];
-      if (pg !== 'default') return pg;
+      if (pg !== 'default' && pg !== 'cell') return pg;
     }
     p = p._parent;
   }

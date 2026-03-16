@@ -26,6 +26,7 @@
 | p19 | Roadmap & project health | `claude/keen-easley` |
 | p20 | Naturalist node artwork — expanded icon library (20→37 icons), improved mapping | PR #62 |
 | p21 | Species panel visual identity — hero images, styled fallbacks, header typography | PR #61 |
+| p22 | Rich data panels — collapsible sections, timeline bar, radar chart, enrichment | `claude/confident-haslett` |
 | p23 | DNA similarity calculator — species comparator with known + estimated data | `claude/crazy-villani` |
 | p22 | Rich data panels & infographics — sections, timeline bar, radar chart, typography | `claude/charming-einstein` |
 | p24 | Always-visible hominin branch — expanded by default, golden path, label priority | `claude/strange-tharp` |

@@ -2919,6 +2919,86 @@ async function fetchWikiPhoto(nodeId, wikiTitle, imgEl, fallbackEl, creditEl) {
 }
 
 // ── Panel rendering ──
+function _buildTimelineBar(node) {
+  if (node.appeared == null) return '';
+  const pct = Math.max(2, Math.min(98, (1 - node.appeared / 3800) * 100));
+  const col = node.color || 'var(--color-accent)';
+  return `
+    <div class="panel-timeline">
+      <div class="panel-timeline-track">
+        <div class="panel-timeline-fill" style="width:${pct}%;background:${col};"></div>
+        <div class="panel-timeline-marker" style="left:${pct}%;background:${col};"></div>
+      </div>
+      <div class="panel-timeline-labels" style="margin-top:18px;">
+        <span>3.8 Bya</span>
+        <span style="color:var(--color-text-secondary);font-weight:600;">~${node.appeared >= 1000 ? (node.appeared/1000).toFixed(1)+' Bya' : node.appeared+' Mya'}</span>
+        <span>Now</span>
+      </div>
+    </div>`;
+}
+
+function _buildRadarChart(node) {
+  const facts = node.facts;
+  if (!facts || facts.length < 3) return '';
+  // Extract numeric facts
+  const numFacts = [];
+  for (const f of facts) {
+    const m = String(f.v).match(/^[\d,.]+/);
+    if (m) {
+      const val = parseFloat(m[0].replace(/,/g, ''));
+      if (!isNaN(val) && val > 0) numFacts.push({ label: f.l, value: val });
+    }
+    if (numFacts.length >= 6) break;
+  }
+  if (numFacts.length < 3) return '';
+  const n = numFacts.length;
+  const cx = 60, cy = 60, R = 48;
+  const maxVal = Math.max(...numFacts.map(f => f.value));
+  const col = node.color || 'var(--color-accent)';
+  // Build polygon points
+  const pts = numFacts.map((f, i) => {
+    const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+    const r = (f.value / maxVal) * R;
+    return `${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`;
+  }).join(' ');
+  // Build axis lines and labels
+  let axes = '';
+  numFacts.forEach((f, i) => {
+    const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+    const x2 = cx + R * Math.cos(angle);
+    const y2 = cy + R * Math.sin(angle);
+    axes += `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="var(--color-divider)" stroke-width="1"/>`;
+    // Label position slightly beyond axis end
+    const lx = cx + (R + 14) * Math.cos(angle);
+    const ly = cy + (R + 14) * Math.sin(angle);
+    const anchor = Math.abs(Math.cos(angle)) < 0.1 ? 'middle' : Math.cos(angle) > 0 ? 'start' : 'end';
+    axes += `<text x="${lx}" y="${ly}" text-anchor="${anchor}" dominant-baseline="central" fill="var(--color-text-muted)" font-size="7" font-family="Inter,sans-serif">${f.label.length > 12 ? f.label.slice(0,11)+'…' : f.label}</text>`;
+  });
+  return `
+    <div class="panel-radar">
+      <svg width="140" height="140" viewBox="-10 -10 140 140">
+        ${axes}
+        <polygon points="${pts}" fill="${col}" fill-opacity="0.2" stroke="${col}" stroke-width="1.5"/>
+        ${numFacts.map((f, i) => {
+          const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+          const r = (f.value / maxVal) * R;
+          return `<circle cx="${cx + r * Math.cos(angle)}" cy="${cy + r * Math.sin(angle)}" r="2.5" fill="${col}"/>`;
+        }).join('')}
+      </svg>
+    </div>`;
+}
+
+function _panelSection(icon, title, content, collapsed) {
+  return `
+    <div class="panel-section${collapsed ? ' collapsed' : ''}">
+      <div class="panel-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+        <span class="panel-section-title">${icon} ${title}</span>
+        <span class="panel-chevron">▼</span>
+      </div>
+      <div class="panel-section-body">${content}</div>
+    </div>`;
+}
+
 function renderPanelContent(node) {
   const p = document.getElementById('panel') || document.getElementById('info-panel');
   if (!p) return;
@@ -2959,6 +3039,99 @@ function renderPanelContent(node) {
   const extinctBadge = node.extinct
     ? '<span style="background:#ef4444;color:white;font-size:10px;padding:2px 8px;border-radius:9999px;font-weight:600;letter-spacing:0.05em;">† EXTINCT</span>'
     : '';
+
+  // ── Overview section content (p22) ──
+  let overviewHtml = '';
+  if (node.desc) overviewHtml += `<p class="panel-desc">${node.desc}</p>`;
+  if (node.funFact) overviewHtml += `
+    <div class="panel-fun-fact">
+      <div class="panel-fun-fact-label">💡 DID YOU KNOW</div>
+      <p class="panel-fun-fact-text">${node.funFact}</p>
+    </div>`;
+  if (node.detail) overviewHtml += `<p class="panel-detail">${node.detail}</p>`;
+  if (node.tipFact) overviewHtml += `<div class="panel-tip">🌿 ${node.tipFact}</div>`;
+
+  // ── Key Facts section content (p22) ──
+  let factsHtml = '';
+  if (node.facts && node.facts.length > 0) {
+    factsHtml += `
+      <div class="panel-facts-grid">
+        ${node.facts.map(f => `
+          <div class="panel-fact-row">
+            <span class="panel-fact-label">${f.l}</span>
+            <span class="panel-fact-value">${f.v}</span>
+          </div>
+        `).join('')}
+      </div>`;
+    factsHtml += _buildRadarChart(node);
+  }
+  if (node.tags && node.tags.length > 0) {
+    factsHtml += `
+      <div class="panel-tags">
+        ${node.tags.map(tag => `<span class="panel-tag">${tag}</span>`).join('')}
+      </div>`;
+  }
+
+  // ── Evolutionary Context section content (p22) ──
+  let evoHtml = _buildTimelineBar(node);
+  if (node.altFacts && node.altFacts.length > 0) {
+    evoHtml += `
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+        ${node.altFacts.map(f => `<div class="panel-enrich-card">${f}</div>`).join('')}
+      </div>`;
+  }
+  if (node.links && node.links.length > 0) {
+    evoHtml += `
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">
+        ${node.links.map(lnk => `
+          <a href="${lnk.url}" target="_blank" rel="noopener noreferrer" class="panel-link-pill">↗ ${lnk.label}</a>
+        `).join('')}
+      </div>`;
+  }
+
+  // ── Hominin Data section content (p22) ──
+  const hominHtml = (()=>{
+    const h = node._hominData;
+    if(!h) return '';
+    const brainMax = h.brain && (h.brain[1]||h.brain[0]);
+    const neanPct = h.dna && h.dna.neanderthal != null ? h.dna.neanderthal : null;
+    const denPct = h.dna && h.dna.denisovan != null ? h.dna.denisovan : null;
+    let html = '';
+    if(brainMax){
+      html += `<div style="display:flex;flex-direction:column;gap:4px;">
+        <div class="panel-section-title">🧠 BRAIN VOLUME</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="panel-brain-bar"><div class="panel-brain-fill" style="width:${Math.round(brainMax/1750*100)}%;background:${h.color};"></div></div>
+          <span style="font-size:13px;color:var(--color-text-secondary);font-family:var(--font-mono);min-width:60px;">${brainMax} cm³</span>
+        </div>
+      </div>`;
+    }
+    const hasTools = h.tools && h.tools!=='None known' && h.tools!=='None';
+    const hasFire = h.fire && h.fire!=='No';
+    const hasLang = h.language && h.language!=='None';
+    if(hasTools || hasFire || hasLang){
+      html += `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">`;
+      if(hasTools) html += `<div style="font-size:13px;color:var(--color-text-secondary);font-family:var(--font-sans);">🪨 ${h.tools}</div>`;
+      if(hasFire) html += `<div style="font-size:13px;color:var(--color-text-secondary);font-family:var(--font-sans);">🔥 ${h.fire}</div>`;
+      if(hasLang) html += `<div style="font-size:13px;color:var(--color-text-secondary);font-family:var(--font-sans);">🗣️ ${h.language}</div>`;
+      html += `</div>`;
+    }
+    if(neanPct != null || denPct != null){
+      html += `<div style="display:flex;flex-direction:column;gap:4px;margin-top:8px;">
+        <div class="panel-section-title">🧬 DNA LEGACY</div>`;
+      if(neanPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-secondary);font-family:var(--font-sans);"><span style="min-width:80px;">Neanderthal</span><div class="panel-dna-bar"><div class="panel-dna-fill" style="width:${Math.min(100,neanPct*25)}%;background:#7A9BAA;"></div></div><span style="font-family:var(--font-mono);">${neanPct}%</span></div>`;
+      if(denPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-secondary);font-family:var(--font-sans);"><span style="min-width:80px;">Denisovan</span><div class="panel-dna-bar"><div class="panel-dna-fill" style="width:${Math.min(100,denPct*20)}%;background:#7A8BAA;"></div></div><span style="font-family:var(--font-mono);">${denPct}%</span></div>`;
+      if(h.dna && h.dna.note) html += `<div style="font-size:11px;color:var(--color-text-muted);font-style:italic;">${h.dna.note}</div>`;
+      html += `</div>`;
+    }
+    if(h.sites && h.sites.length){
+      html += `<div style="display:flex;flex-direction:column;gap:4px;margin-top:8px;">
+        <div class="panel-section-title">📍 FOSSIL SITES</div>
+        <div style="font-size:13px;color:var(--color-text-secondary);font-family:var(--font-sans);line-height:1.6;">${h.sites.join(' · ')}</div>
+      </div>`;
+    }
+    return html;
+  })();
 
   // ── Build panel HTML ──
   p.innerHTML = `
@@ -3001,92 +3174,12 @@ function renderPanelContent(node) {
           ${extinctBadge}
         </div>
         ${node.latin ? `<div class="panel-latin">${node.latin}</div>` : ''}
-        ${node.era ? `<div class="panel-era">📅 ${node.era}${node.appeared ? ' · ' + node.appeared + ' Mya' : ''}</div>` : ''}
+        ${node.era ? `<div class="panel-era"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${node.color || 'var(--color-accent)'};margin-right:6px;vertical-align:middle;"></span>${node.era}${node.appeared ? ' · ' + node.appeared + ' Mya' : ''}</div>` : ''}
       </div>
-      ${node.desc ? `<p class="panel-desc">${node.desc}</p>` : ''}
-      ${node.funFact ? `
-        <div class="panel-fun-fact">
-          <div class="panel-fun-fact-label">💡 DID YOU KNOW</div>
-          <p class="panel-fun-fact-text">${node.funFact}</p>
-        </div>
-      ` : ''}
-      ${node.detail ? `<p class="panel-detail">${node.detail}</p>` : ''}
-      ${node.facts && node.facts.length > 0 ? `
-        <div class="panel-facts-grid">
-          ${node.facts.map(f => `
-            <div class="panel-fact-row">
-              <span class="panel-fact-label">${f.l}</span>
-              <span class="panel-fact-value">${f.v}</span>
-            </div>
-          `).join('')}
-        </div>
-      ` : ''}
-      ${node.tags && node.tags.length > 0 ? `
-        <div class="panel-tags">
-          ${node.tags.map(tag => `<span class="panel-tag">${tag}</span>`).join('')}
-        </div>
-      ` : ''}
-      ${node.tipFact ? `<div class="panel-tip">🌿 ${node.tipFact}</div>` : ''}
-      ${node.altFacts && node.altFacts.length > 0 ? `
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <div class="panel-section-title">📚 DID YOU KNOW?</div>
-          ${node.altFacts.map(f=>`
-            <div style="padding:10px;background:var(--color-button-bg);border-radius:8px;font-size:12px;color:var(--color-text-secondary);font-family:var(--font-sans);">${f}</div>
-          `).join('')}
-        </div>
-      ` : ''}
-      ${node.links && node.links.length > 0 ? `
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <div class="panel-section-title">🔗 LEARN MORE</div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;">
-            ${node.links.map(lnk=>`
-              <a href="${lnk.url}" target="_blank" rel="noopener noreferrer" class="panel-link-btn">↗ ${lnk.label}</a>
-            `).join('')}
-          </div>
-        </div>
-      ` : ''}
-      ${(()=>{
-        const h = node._hominData;
-        if(!h) return '';
-        const brainMax = h.brain && (h.brain[1]||h.brain[0]);
-        const neanPct = h.dna && h.dna.neanderthal != null ? h.dna.neanderthal : null;
-        const denPct = h.dna && h.dna.denisovan != null ? h.dna.denisovan : null;
-        let html = '';
-        if(brainMax){
-          html += `<div style="display:flex;flex-direction:column;gap:4px;">
-            <div class="panel-section-title">🧠 BRAIN VOLUME</div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <div class="panel-brain-bar"><div class="panel-brain-fill" style="width:${Math.round(brainMax/1750*100)}%;background:${h.color};"></div></div>
-              <span style="font-size:12px;color:var(--color-text-secondary);font-family:var(--font-sans);min-width:60px;">${brainMax} cm³</span>
-            </div>
-          </div>`;
-        }
-        const hasTools = h.tools && h.tools!=='None known' && h.tools!=='None';
-        const hasFire = h.fire && h.fire!=='No';
-        const hasLang = h.language && h.language!=='None';
-        if(hasTools || hasFire || hasLang){
-          html += `<div style="display:flex;gap:12px;flex-wrap:wrap;">`;
-          if(hasTools) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:var(--font-sans);">🪨 ${h.tools}</div>`;
-          if(hasFire) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:var(--font-sans);">🔥 ${h.fire}</div>`;
-          if(hasLang) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:var(--font-sans);">🗣️ ${h.language}</div>`;
-          html += `</div>`;
-        }
-        if(neanPct != null || denPct != null){
-          html += `<div style="display:flex;flex-direction:column;gap:4px;">
-            <div class="panel-section-title">🧬 DNA LEGACY</div>`;
-          if(neanPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary);font-family:var(--font-sans);"><span style="min-width:80px;">Neanderthal</span><div class="panel-dna-bar"><div class="panel-dna-fill" style="width:${Math.min(100,neanPct*25)}%;background:#7A9BAA;"></div></div><span>${neanPct}%</span></div>`;
-          if(denPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary);font-family:var(--font-sans);"><span style="min-width:80px;">Denisovan</span><div class="panel-dna-bar"><div class="panel-dna-fill" style="width:${Math.min(100,denPct*20)}%;background:#7A8BAA;"></div></div><span>${denPct}%</span></div>`;
-          if(h.dna && h.dna.note) html += `<div style="font-size:11px;color:var(--color-text-muted);font-style:italic;">${h.dna.note}</div>`;
-          html += `</div>`;
-        }
-        if(h.sites && h.sites.length){
-          html += `<div style="display:flex;flex-direction:column;gap:4px;">
-            <div class="panel-section-title">📍 FOSSIL SITES</div>
-            <div style="font-size:12px;color:var(--color-text-secondary);font-family:var(--font-sans);line-height:1.6;">${h.sites.join(' · ')}</div>
-          </div>`;
-        }
-        return html;
-      })()}
+      ${overviewHtml ? _panelSection('📋', 'Overview', overviewHtml, false) : ''}
+      ${factsHtml ? _panelSection('📊', 'Key Facts', factsHtml, false) : ''}
+      ${evoHtml ? _panelSection('🌍', 'Evolutionary Context', evoHtml, node.altFacts && node.altFacts.length > 3) : ''}
+      ${hominHtml ? _panelSection('🧬', 'Hominin Data', hominHtml, false) : ''}
       ${(()=>{const isHominin=node._hominData||node.id==='hominini'||(node.id&&node.id.startsWith('hom-'));return isHominin?`<button onclick="openHomininView()" class="panel-hominin-btn">🧬 Hominin Deep Dive</button>`:'';})()}
       <button onclick="closePanel()" class="panel-close-btn">Close</button>
     </div>

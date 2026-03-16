@@ -1364,6 +1364,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 <script src="js/imagePrompts.js"></script>
 <script src="js/imageLoader.js"></script>
 <script src="js/dnaSimilarity.js"></script>
+<script src="js/nodeIcons.js"></script>
 <script>
 // Register PHOTO_MAP (from speciesData.js) with ImageLoader for tree node rendering
 if(typeof ImageLoader!=='undefined'&&typeof PHOTO_MAP!=='undefined'&&ImageLoader.registerPhotoMap){
@@ -1950,100 +1951,7 @@ function resetDomains() {
   scheduleRender();
 }
 
-// ══════════════════════════════════════════════════════
-// SVG SILHOUETTE ICONS (replace emojis)
-// ══════════════════════════════════════════════════════
-const NODE_ICONS = {
-  bacteria: 'M12 4c-1.5 0-3 .8-3 2.5v11c0 1.7 1.5 2.5 3 2.5s3-.8 3-2.5v-11C15 4.8 13.5 4 12 4z',
-  archaea: 'M12 3l-3 5.5 1.5 3-2.5 4.5L12 21l4-5-2.5-4.5L15 8.5 12 3z',
-  plant: 'M12 22V12m0 0c0-4-3-7-7-8 1 3 3.5 6 7 8zm0 0c0-4 3-7 7-8-1 3-3.5 6-7 8z',
-  fungus: 'M12 22v-8m0 0c-5 0-8-3-8-6s3-5 8-5 8 2 8 5-3 6-8 6z',
-  animal: 'M4 13c0-4.4 3.6-8 8-8s8 3.6 8 8c0 2-1.5 3-3 3h-2l-1 3h-4l-1-3H7c-1.5 0-3-1-3-3z',
-  fish: 'M2 12c3-4 7-6 11-6 2 0 4 1.5 5 3l4-3v6l-4-3c-1 1.5-3 3-5 3-4 0-8-2-11-6zm13-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
-  bird: 'M3 15c2-4 6-7 10-7h3l5-4-2 5c1 2 1 4 0 6l-4-1-3 3-2-3c-3 0-5 .5-7 1z',
-  reptile: 'M3 14c1-2 3-3 5-3h2l2-2h3l3 1 3-1 1 2-2 1v2l-2 1-3-1-3 1-2-1H8l-3 2-2-2z',
-  amphibian: 'M7 8a5 5 0 0 1 10 0c0 2-1 3-2 4v3c0 1-1 2-3 2s-3-1-3-2v-3c-1-1-2-2-2-4zm3-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
-  insect: 'M12 4a2 2 0 0 1 2 2c0 .5-.2 1-.5 1.3.9.5 1.5 1.4 1.5 2.7 0 1-.4 1.8-1 2.3.6.7 1 1.6 1 2.7 0 2-1.3 3-3 3s-3-1-3-3c0-1.1.4-2 1-2.7-.6-.5-1-1.3-1-2.3 0-1.3.6-2.2 1.5-2.7-.3-.3-.5-.8-.5-1.3a2 2 0 0 1 2-2zM8 9l-3-2m0 6l3-1m8-3l3-2m0 6l-3-1',
-  mollusk: 'M16 12a6 6 0 0 0-5-5.9c.6-1.2 1-2.1 1-2.1s-2 .5-3.5 2C5.5 8 4 11 6 14s5 4 8 3c1.5-.5 2.5-2 2.5-4-.2-.3-.3-.7-.5-1z',
-  cnidarian: 'M12 3c-3 0-6 3-6 7 0 2 1 3 2 3h8c1 0 2-1 2-3 0-4-3-7-6-7zm-4 12l-1 5m2-5v5m2-5l1 5m2-5v5m2-5l1 5',
-  sponge: 'M8 4c-2 1-3 4-3 8s1 7 3 8h8c2-1 3-4 3-8s-1-7-3-8H8zm1 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 2a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
-  primate: 'M8 6a4 4 0 0 1 8 0c0 1.5-1 3-2 3.5.6.5 1 1.3 1 2.5v4c0 1-1 2-3 2s-3-1-3-2v-4c0-1.2.4-2 1-2.5C9 9 8 7.5 8 6zm2 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
-  hominin: 'M12 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm-2 7c-1.5 0-2.5 1-2.5 2.5V15l-2 7h3l1.5-5 .5 1.5V22h3v-3.5l.5-1.5L15.5 22h3l-2-7v-3.5C16.5 10 15.5 9 14 9h-4z',
-  mammal: 'M4 11c0-3 2-5 5-5h1l2-2 2 2h1c3 0 5 2 5 5v2c0 2-1 3-2 3l-1 3h-2l-1-3h-4l-1 3H7l-1-3c-1 0-2-1-2-3v-2zm5 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm6 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
-  default: 'M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10z',
-  echinoderm: 'M12 2l2.5 6.5L21 10l-5 4.5 1.5 7L12 18l-5.5 3.5L8 14.5 3 10l6.5-1.5L12 2z',
-  worm: 'M6 8c0-2 2-3 4-3s3 1 3 3c0 1.5-1 2.5-2 3 1.5.5 3 2 3 4 0 2.5-2 4-4.5 4S5 17.5 5 15c0-2 1.5-3.5 3-4-1-.5-2-1.5-2-3z',
-  crustacean: 'M5 10c0-2 3-4 7-4s7 2 7 4c0 1.5-1 2.5-2.5 3l1.5 4h-3l-1-3h-4l-1 3H6l1.5-4C6 12.5 5 11.5 5 10zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm6 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z'
-};
-
-// Map node IDs to icon groups
-function getIconGroup(n) {
-  const id = n.id;
-  // Specific ID mappings
-  const ID_MAP = {
-    'luca': 'default',
-    'bacteria': 'bacteria', 'cyanobacteria': 'bacteria', 'proteobacteria': 'bacteria',
-    'firmicutes': 'bacteria', 'actinobacteria': 'bacteria', 'spirochetes': 'bacteria',
-    'deinococcus': 'bacteria', 'bacteroides': 'bacteria',
-    'prochlorococcus': 'bacteria', 'nostoc': 'bacteria', 'ecoli': 'bacteria',
-    'helicobacter': 'bacteria', 'vibrio-cholerae': 'bacteria',
-    'lactobacillus': 'bacteria', 'clostridium-botulinum': 'bacteria',
-    'streptomyces': 'bacteria', 'mycobacterium-tb': 'bacteria',
-    'archaea': 'archaea', 'euryarchaeota': 'archaea', 'asgard': 'archaea',
-    'halobacterium': 'archaea', 'sulfolobus': 'archaea', 'pyrolobus': 'archaea',
-    'lokiarchaeota': 'archaea', 'methanobacterium': 'archaea',
-    'eukaryota': 'default',
-    'fungi': 'fungus', 'ascomycetes': 'fungus', 'basidiomycetes': 'fungus', 'chytrids': 'fungus',
-    'saccharomyces': 'fungus', 'penicillium': 'fungus', 'amanita-muscaria': 'fungus',
-    'armillaria': 'fungus', 'psilocybe': 'fungus', 'batrachochytrium': 'fungus',
-    'plantae': 'plant', 'bryophytes': 'plant', 'angiosperms': 'plant',
-    'gymnosperms': 'plant', 'ferns': 'plant',
-    'sphagnum': 'plant', 'marchantia': 'plant', 'arabidopsis': 'plant',
-    'rafflesia': 'plant', 'titan-arum': 'plant', 'mimosa-pudica': 'plant',
-    'wollemia': 'plant', 'welwitschia': 'plant', 'sequoia': 'plant',
-    'tree-fern': 'plant', 'azolla': 'plant',
-    'animalia': 'animal',
-    'invertebrates': 'crustacean', 'insects': 'insect',
-    'horseshoe-crab': 'crustacean', 'mantis-shrimp': 'crustacean', 'honey-bee': 'insect',
-    'cephalopods': 'mollusk', 'octopus': 'mollusk', 'nautilus': 'mollusk',
-    'cnidarians': 'cnidarian', 'turritopsis': 'cnidarian', 'coral': 'cnidarian',
-    'echinoderms': 'echinoderm', 'annelids': 'worm',
-    'vertebrates': 'fish',
-    'fish': 'fish', 'coelacanth': 'fish', 'shark': 'fish',
-    'reptiles': 'reptile', 'komodo-dragon': 'reptile', 'tuatara': 'reptile',
-    'birds': 'bird', 'archaeopteryx': 'bird', 'peregrine-falcon': 'bird',
-    'amphibians': 'amphibian',
-    'mammals': 'mammal', 'cetaceans': 'mammal', 'blue-whale': 'mammal',
-    'naked-mole-rat': 'mammal', 'platypus': 'mammal',
-    'primates': 'primate', 'great-apes': 'primate',
-    'orangutan': 'primate', 'gorilla': 'primate', 'chimpanzee': 'primate',
-    'homo-sapiens': 'hominin', 'hominini': 'hominin',
-    'protists': 'default', 'alveolates': 'default', 'stramenopiles': 'default',
-    'amoebozoa': 'default',
-    'plasmodium': 'insect', 'paramecium': 'default', 'dinoflagellates': 'default',
-    'diatoms': 'default', 'phytophthora': 'default',
-    'amoeba-proteus': 'default', 'volvox': 'default',
-    'sponges': 'sponge',
-  };
-  if (ID_MAP[id]) return ID_MAP[id];
-  // Hominin species from HOMININS array — map by group
-  if (n.group) {
-    const HOMININ_GROUP_MAP = { 'homo': 'hominin', 'proto': 'primate', 'australopith': 'primate', 'paranthropus': 'primate' };
-    if (HOMININ_GROUP_MAP[n.group]) return HOMININ_GROUP_MAP[n.group];
-  }
-  // Group nodes (group-homo, group-proto, etc.)
-  if (id.startsWith('group-')) return id === 'group-homo' ? 'hominin' : 'primate';
-  // Fallback: check ancestry
-  let p = n._parent;
-  while (p) {
-    if (ID_MAP[p.id]) {
-      const pg = ID_MAP[p.id];
-      if (pg !== 'default') return pg;
-    }
-    p = p._parent;
-  }
-  return 'default';
-}
+// NODE_ICONS and getIconGroup() loaded from js/nodeIcons.js
 
 // ══════════════════════════════════════════════════════
 // HUMAN EVOLUTION PATH (highlighted from root to Homo sapiens)

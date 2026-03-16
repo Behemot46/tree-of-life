@@ -212,7 +212,14 @@ function render(){
           htmlImg.addEventListener('load',function(){
             // Photo loaded — it naturally covers the silhouette underneath
           });
+          let triedAltFmt=false;
           htmlImg.addEventListener('error',function(){
+            // Try alternate format (.webp → .png) before giving up
+            if(best.source==='generated'&&!triedAltFmt){
+              triedAltFmt=true;
+              const altUrl=ImageLoader.getAlternateGeneratedUrl(n.id,htmlImg.src);
+              if(altUrl){htmlImg.src=altUrl;return;}
+            }
             if(fo.parentNode) fo.remove();
             if(best.source==='generated') ImageLoader.markFailed(n.id);
           });

@@ -432,6 +432,12 @@ function renderPanelContent(node) {
         style="width:100%;height:100%;object-fit:cover;display:${staticUrl ? 'block' : 'none'};"
         onerror="(function(el){
           if(typeof ImageLoader!=='undefined'&&el.dataset.source==='generated'){
+            // Try alternate format (.webp → .png or vice versa)
+            if(!el.dataset.triedAlt){
+              el.dataset.triedAlt='1';
+              var altUrl=ImageLoader.getAlternateGeneratedUrl('${node.id}',el.src);
+              if(altUrl){el.src=altUrl;return;}
+            }
             ImageLoader.markFailed('${node.id}');
             var fb=${photoEntry?`'${(photoEntry.url||'').replace(/'/g,"\\'")}'`:'null'}||'${(node.img||'').replace(/'/g,"\\'")}';
             if(fb){el.dataset.source='fallback';el.src=fb;return;}
@@ -442,7 +448,7 @@ function renderPanelContent(node) {
         data-source="${generatedUrl ? 'generated' : 'static'}"
       />
       <div id="${panelFbId}" style="display:${staticUrl ? 'none' : 'flex'};width:100%;height:100%;align-items:center;justify-content:center;font-size:72px;background:#111;">${node.icon||'🌿'}</div>
-      <div id="${panelCrId}" style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.65);font-family:'Inter',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.35);padding:1px 5px;border-radius:3px;">${staticCredit||''}</div>
+      <div id="${panelCrId}" style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.65);font-family:'Inter',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.35);padding:1px 5px;border-radius:3px;display:flex;align-items:center;gap:4px;">${generatedUrl ? '<span style="background:rgba(139,92,246,0.7);color:white;font-size:8px;font-weight:700;padding:1px 4px;border-radius:2px;letter-spacing:0.05em;">AI</span>' : ''}${staticCredit||''}</div>
     </div>
     <div style="padding:20px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;flex:1;">
       ${(()=>{

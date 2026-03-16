@@ -1,158 +1,217 @@
 // ══════════════════════════════════════════════════════
-// FACT LIBRARY — Structured fact pool for loading screen
-// and future surfaces (discovery cards, quiz, tooltips)
+// FACT LIBRARY — 130+ trilingual facts for loading screen,
+// species panel, node tooltip, discovery toast
 // ══════════════════════════════════════════════════════
 const FACTS = (() => {
 
-  // ── Loading-safe facts ─────────────────────────────
-  // Short, standalone, awe-inspiring. Trilingual.
-  // These are curated for the splash screen tagline.
   const facts = [
-    {
-      id: 'load_01',
-      en: 'Every living thing is your cousin.',
-      he: 'כל יצור חי הוא קרוב משפחה שלך.',
-      ru: 'Каждое живое существо — ваш родственник.',
-      tags: ['kinship', 'general'],
-      loading: true
-    },
-    {
-      id: 'load_02',
-      en: 'You share 50% of your DNA with a banana.',
-      he: 'אתה חולק 50% מה-DNA שלך עם בננה.',
-      ru: 'У вас 50% общей ДНК с бананом.',
-      tags: ['genetics', 'plants'],
-      loading: true
-    },
-    {
-      id: 'load_03',
-      en: 'Life found a way — 3.8 billion years ago.',
-      he: 'החיים מצאו דרך — לפני 3.8 מיליארד שנים.',
-      ru: 'Жизнь нашла способ — 3,8 миллиарда лет назад.',
-      tags: ['origin', 'general'],
-      loading: true
-    },
-    {
-      id: 'load_04',
-      en: 'From a single cell to 8 billion humans.',
-      he: 'מתא בודד ל-8 מיליארד בני אדם.',
-      ru: 'От одной клетки до 8 миллиардов людей.',
-      tags: ['evolution', 'humans'],
-      loading: true
-    },
-    {
-      id: 'load_05',
-      en: 'The tree is real. You are a leaf.',
-      he: 'העץ הזה אמיתי. אתה עלה בו.',
-      ru: 'Это дерево реально. Вы — его лист.',
-      tags: ['metaphor', 'general'],
-      loading: true
-    },
-    {
-      id: 'load_06',
-      en: 'Sharks are older than trees.',
-      he: 'כרישים קדומים יותר מעצים.',
-      ru: 'Акулы старше деревьев.',
-      tags: ['animals', 'deep-time'],
-      loading: true
-    },
-    {
-      id: 'load_07',
-      en: 'Fungi are closer to animals than to plants.',
-      he: 'פטריות קרובות יותר לבעלי חיים מאשר לצמחים.',
-      ru: 'Грибы ближе к животным, чем к растениям.',
-      tags: ['fungi', 'taxonomy'],
-      loading: true
-    },
-    {
-      id: 'load_08',
-      en: 'The largest organism on Earth is a fungus.',
-      he: 'האורגניזם הגדול ביותר על פני כדור הארץ הוא פטרייה.',
-      ru: 'Крупнейший организм на Земле — гриб.',
-      tags: ['fungi', 'records'],
-      loading: true
-    },
-    {
-      id: 'load_09',
-      en: 'Diatoms produce more oxygen than all rainforests combined.',
-      he: 'דיאטומיות מייצרות יותר חמצן מכל יערות הגשם יחד.',
-      ru: 'Диатомеи производят больше кислорода, чем все тропические леса.',
-      tags: ['protists', 'ecology'],
-      loading: true
-    },
-    {
-      id: 'load_10',
-      en: 'Coral reefs cover 1% of the ocean but host 25% of marine species.',
-      he: 'שוניות אלמוגים מכסות 1% מהאוקיינוס אך מארחות 25% מהמינים הימיים.',
-      ru: 'Коралловые рифы — 1% океана, но 25% морских видов.',
-      tags: ['animals', 'ecology'],
-      loading: true
-    },
-    {
-      id: 'load_11',
-      en: 'Your body carries 1.5 kg of bacteria.',
-      he: 'גופך מכיל 1.5 ק״ג של חיידקים.',
-      ru: 'Ваше тело содержит 1,5 кг бактерий.',
-      tags: ['bacteria', 'humans'],
-      loading: true
-    },
-    {
-      id: 'load_12',
-      en: 'All humans descend from roughly 10,000 survivors.',
-      he: 'כל בני האדם צאצאים של כ-10,000 שורדים.',
-      ru: 'Все люди произошли от примерно 10 000 выживших.',
-      tags: ['humans', 'genetics'],
-      loading: true
-    },
-    {
-      id: 'load_13',
-      en: 'The coelacanth was thought extinct for 65 million years.',
-      he: 'הסילקנת נחשבה לנכחדת במשך 65 מיליון שנה.',
-      ru: 'Латимерию считали вымершей 65 миллионов лет.',
-      tags: ['animals', 'deep-time'],
-      loading: true
-    },
-    {
-      id: 'load_14',
-      en: 'An octopus has two thirds of its neurons in its arms.',
-      he: 'לתמנון שני שלישים מהנוירונים בזרועותיו.',
-      ru: 'Две трети нейронов осьминога — в его щупальцах.',
-      tags: ['animals', 'neuroscience'],
-      loading: true
-    },
-    {
-      id: 'load_15',
-      en: 'A blue whale\'s heart is the size of a small car.',
-      he: 'לבו של לוויתן כחול בגודל מכונית קטנה.',
-      ru: 'Сердце синего кита размером с небольшой автомобиль.',
-      tags: ['animals', 'records'],
-      loading: true
-    },
-    {
-      id: 'load_16',
-      en: 'Horseshoe crab blood is blue — and saves millions of lives each year.',
-      he: 'דמו של סרטן פרסה כחול — ומציל מיליוני חיים מדי שנה.',
-      ru: 'Кровь мечехвоста голубая — и спасает миллионы жизней ежегодно.',
-      tags: ['animals', 'medicine'],
-      loading: true
-    },
-    {
-      id: 'load_17',
-      en: 'Mimosa pudica can learn and remember for 28 days — with no brain.',
-      he: 'מימוזה פודיקה יכולה ללמוד ולזכור 28 יום — בלי מוח.',
-      ru: 'Мимоза стыдливая учится и помнит 28 дней — без мозга.',
-      tags: ['plants', 'neuroscience'],
-      loading: true
-    },
-    {
-      id: 'load_18',
-      en: 'The peregrine falcon dives at 389 km/h — faster than a Formula 1 car.',
-      he: 'בז נודד צולל במהירות 389 קמ״ש — מהר יותר ממכונית פורמולה 1.',
-      ru: 'Сапсан пикирует со скоростью 389 км/ч — быстрее болида Формулы-1.',
-      tags: ['animals', 'records'],
-      loading: true
-    }
+    // ─────────────────────────────────────────────────────
+    // ORIGINAL 18 — loading-safe (backward compatible)
+    // ─────────────────────────────────────────────────────
+    { id:'load_01', en:'Every living thing is your cousin.', he:'כל יצור חי הוא קרוב משפחה שלך.', ru:'Каждое живое существо — ваш родственник.', tags:['kinship','general'], species:null, loading:true, panel:true, tooltip:false, discovery:true },
+    { id:'load_02', en:'You share 50% of your DNA with a banana.', he:'אתה חולק 50% מה-DNA שלך עם בננה.', ru:'У вас 50% общей ДНК с бананом.', tags:['genetics','plants'], species:null, loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'load_03', en:'Life found a way — 3.8 billion years ago.', he:'החיים מצאו דרך — לפני 3.8 מיליארד שנים.', ru:'Жизнь нашла способ — 3,8 миллиарда лет назад.', tags:['origin','general'], species:'luca', loading:true, panel:true, tooltip:false, discovery:true },
+    { id:'load_04', en:'From a single cell to 8 billion humans.', he:'מתא בודד ל-8 מיליארד בני אדם.', ru:'От одной клетки до 8 миллиардов людей.', tags:['evolution','humans'], species:'homo-sapiens', loading:true, panel:true, tooltip:false, discovery:true },
+    { id:'load_05', en:'The tree is real. You are a leaf.', he:'העץ הזה אמיתי. אתה עלה בו.', ru:'Это дерево реально. Вы — его лист.', tags:['metaphor','general'], species:null, loading:true, panel:false, tooltip:false, discovery:true },
+    { id:'load_06', en:'Sharks are older than trees.', he:'כרישים קדומים יותר מעצים.', ru:'Акулы старше деревьев.', tags:['animals','deep-time'], species:'shark', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'load_07', en:'Fungi are closer to animals than to plants.', he:'פטריות קרובות יותר לבעלי חיים מאשר לצמחים.', ru:'Грибы ближе к животным, чем к растениям.', tags:['fungi','taxonomy'], species:'fungi', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'load_08', en:'The largest organism on Earth is a fungus.', he:'האורגניזם הגדול ביותר על פני כדור הארץ הוא פטרייה.', ru:'Крупнейший организм на Земле — гриб.', tags:['fungi','records'], species:'armillaria', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'load_09', en:'Diatoms produce more oxygen than all rainforests combined.', he:'דיאטומיות מייצרות יותר חמצן מכל יערות הגשם יחד.', ru:'Диатомеи производят больше кислорода, чем все тропические леса.', tags:['protists','ecology'], species:'diatoms', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'load_10', en:'Coral reefs cover 1% of the ocean but host 25% of marine species.', he:'שוניות אלמוגים מכסות 1% מהאוקיינוס אך מארחות 25% מהמינים הימיים.', ru:'Коралловые рифы — 1% океана, но 25% морских видов.', tags:['animals','ecology'], species:'coral', loading:true, panel:true, tooltip:false, discovery:true },
+    { id:'load_11', en:'Your body carries 1.5 kg of bacteria.', he:'גופך מכיל 1.5 ק״ג של חיידקים.', ru:'Ваше тело содержит 1,5 кг бактерий.', tags:['bacteria','humans'], species:'bacteria', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'load_12', en:'All humans descend from roughly 10,000 survivors.', he:'כל בני האדם צאצאים של כ-10,000 שורדים.', ru:'Все люди произошли от примерно 10 000 выживших.', tags:['humans','genetics'], species:'homo-sapiens', loading:true, panel:true, tooltip:false, discovery:true },
+    { id:'load_13', en:'The coelacanth was thought extinct for 65 million years.', he:'הסילקנת נחשבה לנכחדת במשך 65 מיליון שנה.', ru:'Латимерию считали вымершей 65 миллионов лет.', tags:['animals','deep-time'], species:'coelacanth', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'load_14', en:'An octopus has two thirds of its neurons in its arms.', he:'לתמנון שני שלישים מהנוירונים בזרועותיו.', ru:'Две трети нейронов осьминога — в его щупальцах.', tags:['animals','neuroscience'], species:'octopus', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'load_15', en:'A blue whale\'s heart is the size of a small car.', he:'לבו של לוויתן כחול בגודל מכונית קטנה.', ru:'Сердце синего кита размером с небольшой автомобиль.', tags:['animals','records'], species:'blue-whale', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'load_16', en:'Horseshoe crab blood is blue — and saves millions of lives each year.', he:'דמו של סרטן פרסה כחול — ומציל מיליוני חיים מדי שנה.', ru:'Кровь мечехвоста голубая — и спасает миллионы жизней ежегодно.', tags:['animals','medicine'], species:'horseshoe-crab', loading:true, panel:true, tooltip:false, discovery:true },
+    { id:'load_17', en:'Mimosa pudica can learn and remember for 28 days — with no brain.', he:'מימוזה פודיקה יכולה ללמוד ולזכור 28 יום — בלי מוח.', ru:'Мимоза стыдливая учится и помнит 28 дней — без мозга.', tags:['plants','neuroscience'], species:'mimosa-pudica', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'load_18', en:'The peregrine falcon dives at 389 km/h — faster than a Formula 1 car.', he:'בז נודד צולל במהירות 389 קמ״ש — מהר יותר ממכונית פורמולה 1.', ru:'Сапсан пикирует со скоростью 389 км/ч — быстрее болида Формулы-1.', tags:['animals','records'], species:'peregrine-falcon', loading:true, panel:true, tooltip:true, discovery:true },
+
+    // ─────────────────────────────────────────────────────
+    // BACTERIA & ARCHAEA (~15)
+    // ─────────────────────────────────────────────────────
+    { id:'bact_01', en:'Bacteria collectively outweigh all animals on Earth by a factor of 35.', he:'חיידקים שוקלים יחד פי 35 מכל בעלי החיים על כדור הארץ.', ru:'Бактерии весят в 35 раз больше всех животных на Земле.', tags:['bacteria','records'], species:'bacteria', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'bact_02', en:'Bacteria can share genes horizontally, spreading antibiotic resistance in days.', he:'חיידקים יכולים להעביר גנים אופקית, ולהפיץ עמידות לאנטיביוטיקה בימים.', ru:'Бактерии передают гены горизонтально, распространяя устойчивость за дни.', tags:['bacteria','genetics'], species:'bacteria', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'bact_03', en:'Cyanobacteria caused the Great Oxidation Event 2.4 billion years ago.', he:'ציאנובקטריות גרמו לאירוע החמצון הגדול לפני 2.4 מיליארד שנים.', ru:'Цианобактерии вызвали Великое кислородное событие 2,4 млрд лет назад.', tags:['bacteria','deep-time'], species:'cyanobacteria', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'bact_04', en:'E. coli divides every 20 minutes — one cell could exceed Earth\'s mass in 2 days.', he:'E. coli מתחלק כל 20 דקות — תא אחד יכול לעלות על מסת כדור הארץ ביומיים.', ru:'E. coli делится каждые 20 минут — за 2 дня одна клетка превысила бы массу Земли.', tags:['bacteria','records'], species:'ecoli', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'bact_05', en:'E. coli has been engineered to produce human insulin, saving millions of diabetics.', he:'E. coli הונדס לייצר אינסולין אנושי, ומציל מיליוני חולי סוכרת.', ru:'E. coli модифицировали для производства инсулина, спасая миллионы диабетиков.', tags:['bacteria','medicine'], species:'ecoli', loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'bact_06', en:'H. pylori infects half of all living humans — a 100,000-year partnership.', he:'H. pylori מדביק חצי מכלל בני האדם — שותפות בת 100,000 שנה.', ru:'H. pylori заражает половину людей — партнёрству 100 000 лет.', tags:['bacteria','humans'], species:'helicobacter', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'bact_07', en:'Barry Marshall drank H. pylori to prove it causes ulcers — and won the Nobel Prize.', he:'בארי מרשל שתה H. pylori כדי להוכיח שהוא גורם לכיבים — וזכה בפרס נובל.', ru:'Барри Маршалл выпил H. pylori, доказав связь с язвой — и получил Нобелевскую.', tags:['bacteria','medicine'], species:'helicobacter', loading:true, panel:true, tooltip:false, discovery:true },
+    { id:'bact_08', en:'The earthy smell of soil after rain is caused by Streptomyces bacteria.', he:'הריח האדמתי של קרקע לאחר גשם נגרם על ידי חיידקי סטרפטומיצס.', ru:'Запах земли после дождя создают бактерии Streptomyces.', tags:['bacteria','ecology'], species:'streptomyces', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'bact_09', en:'Streptomyces produce over two-thirds of all natural antibiotics used in medicine.', he:'סטרפטומיצס מייצרים יותר משני שלישים מהאנטיביוטיקה הטבעית ברפואה.', ru:'Стрептомицеты производят более ⅔ всех природных антибиотиков.', tags:['bacteria','medicine'], species:'streptomyces', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'bact_10', en:'TB bacteria have barely changed in 70,000 years — they migrated out of Africa with us.', he:'חיידקי שחפת כמעט לא השתנו ב-70,000 שנה — הם נדדו מאפריקה עמנו.', ru:'Бактерии туберкулёза почти не изменились за 70 000 лет — вышли из Африки с нами.', tags:['bacteria','humans'], species:'mycobacterium-tb', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'arch_01', en:'Archaea were only recognized as a separate domain of life in 1977.', he:'ארכאות הוכרו כתחום חיים נפרד רק ב-1977.', ru:'Археи признали отдельным доменом жизни лишь в 1977 году.', tags:['archaea','taxonomy'], species:'archaea', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'arch_02', en:'Some archaea thrive at 121°C — hotter than boiling water.', he:'ארכאות מסוימות משגשגות ב-121°C — חם יותר מנקודת הרתיחה של מים.', ru:'Некоторые археи живут при 121°C — горячее кипящей воды.', tags:['archaea','extremophiles'], species:'pyrolobus', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'arch_03', en:'Archaea produce all biogenic methane — from cows, wetlands, and landfills.', he:'ארכאות מייצרות את כל המתאן הביוגני — מפרות, ביצות ומטמנות.', ru:'Археи производят весь биогенный метан — от коров, болот и свалок.', tags:['archaea','ecology'], species:'methanobacterium', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'arch_04', en:'Eukaryotes likely evolved FROM archaea — they are our closest prokaryotic relatives.', he:'איקריוטים ככל הנראה התפתחו מארכאות — הן קרובות המשפחה הפרוקריוטיות שלנו.', ru:'Эукариоты, вероятно, произошли ОТ архей — наших ближайших прокариотических родственников.', tags:['archaea','evolution'], species:'asgard', loading:true, panel:true, tooltip:false, discovery:true },
+    { id:'arch_05', en:'Halobacterium turns salt lakes pink and harvests light without chlorophyll.', he:'הלובקטריום צובע אגמי מלח בוורוד וקוצר אור ללא כלורופיל.', ru:'Галобактерии окрашивают солёные озёра в розовый и улавливают свет без хлорофилла.', tags:['archaea','extremophiles'], species:'halobacterium', loading:false, panel:true, tooltip:true, discovery:true },
+
+    // ─────────────────────────────────────────────────────
+    // PROTISTS (~8)
+    // ─────────────────────────────────────────────────────
+    { id:'prot_01', en:'Diatom shells are made of glass and used as calibration standards in microscopy.', he:'קליפות דיאטומיות עשויות זכוכית ומשמשות לכיול מיקרוסקופים.', ru:'Панцири диатомей сделаны из стекла и служат эталонами для микроскопии.', tags:['protists','records'], species:'diatoms', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'prot_02', en:'Malaria has killed more humans than all wars in history combined.', he:'מלריה הרגה יותר בני אדם מכל המלחמות בהיסטוריה יחד.', ru:'Малярия убила больше людей, чем все войны в истории вместе.', tags:['protists','humans'], species:'plasmodium', loading:true, panel:true, tooltip:false, discovery:true },
+    { id:'prot_03', en:'Sickle-cell trait protects against malaria — a classic case of balancing selection.', he:'תכונת תאי מגל מגינה מפני מלריה — מקרה קלאסי של ברירה מאזנת.', ru:'Серповидноклеточность защищает от малярии — классический балансирующий отбор.', tags:['protists','genetics'], species:'plasmodium', loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'prot_04', en:'Volvox evolved multicellularity independently from animals, plants, and fungi.', he:'וולווקס פיתח רב-תאיות באופן בלתי תלוי מבעלי חיים, צמחים ופטריות.', ru:'Вольвокс обрёл многоклеточность независимо от животных, растений и грибов.', tags:['protists','evolution'], species:'volvox', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'prot_05', en:'Daughter Volvox colonies must turn themselves inside-out before being released.', he:'מושבות בת של וולווקס חייבות להתהפך מבפנים החוצה לפני השחרור.', ru:'Дочерние колонии вольвокса должны вывернуться наизнанку перед выходом.', tags:['protists','biology'], species:'volvox', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'prot_06', en:'Dinoflagellates create bioluminescent waves that glow blue at night.', he:'דינופלגלטים יוצרים גלים ביולומינסצנטיים הזוהרים בכחול בלילה.', ru:'Динофлагелляты создают биолюминесцентные волны, светящиеся синим ночью.', tags:['protists','ecology'], species:'dinoflagellates', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'prot_07', en:'Phytophthora infestans caused the Irish Potato Famine, killing over a million people.', he:'פיטופטורה אינפסטנס גרמה לרעב הגדול באירלנד, שהרג מעל מיליון איש.', ru:'Phytophthora infestans вызвала Великий голод в Ирландии, убив более миллиона.', tags:['protists','humans'], species:'phytophthora', loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'prot_08', en:'There are likely over 200,000 diatom species — most still undescribed.', he:'ככל הנראה יש מעל 200,000 מיני דיאטומיות — רובם עדיין לא תוארו.', ru:'Вероятно, существует более 200 000 видов диатомей — большинство не описаны.', tags:['protists','biodiversity'], species:'diatoms', loading:false, panel:true, tooltip:true, discovery:true },
+
+    // ─────────────────────────────────────────────────────
+    // FUNGI (~10)
+    // ─────────────────────────────────────────────────────
+    { id:'fung_01', en:'The animal-fungi split occurred ~1 billion years ago — they share a common ancestor.', he:'הפיצול בין בעלי חיים לפטריות אירע לפני כמיליארד שנה — יש להם אב קדמון משותף.', ru:'Животные и грибы разделились ~1 млрд лет назад — у них общий предок.', tags:['fungi','evolution'], species:'fungi', loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'fung_02', en:'Mycorrhizal networks let trees exchange sugars and chemical warnings underground.', he:'רשתות מיקוריזה מאפשרות לעצים להחליף סוכרים ואותות כימיים מתחת לאדמה.', ru:'Микоризные сети позволяют деревьям обмениваться сахарами и сигналами под землёй.', tags:['fungi','ecology'], species:'fungi', loading:true, panel:true, tooltip:false, discovery:true },
+    { id:'fung_03', en:'Penicillin, statins, and cyclosporin all come from fungi.', he:'פניצילין, סטטינים וציקלוספורין — כולם באים מפטריות.', ru:'Пенициллин, статины и циклоспорин — все получены из грибов.', tags:['fungi','medicine'], species:'penicillium', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'fung_04', en:'Baker\'s yeast was the first eukaryote to have its genome fully sequenced, in 1996.', he:'שמרי אפייה היו האיקריוט הראשון ששרשרת הגנום שלו רוצפה במלואה, ב-1996.', ru:'Пекарские дрожжи стали первым эукариотом с полностью секвенированным геномом в 1996.', tags:['fungi','genetics'], species:'saccharomyces', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'fung_05', en:'~30% of yeast genes have human equivalents — yeast models cancer and aging research.', he:'כ-30% מגני השמר דומים לגנים אנושיים — שמר משמש כמודל לחקר סרטן והזדקנות.', ru:'~30% генов дрожжей имеют человеческие аналоги — дрожжи моделируют рак и старение.', tags:['fungi','genetics'], species:'saccharomyces', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'fung_06', en:'Amanita muscaria is the fairy-tale toadstool — psychoactive but rarely lethal.', he:'אמניטה מוסקריה היא מטריית האגדות — פסיכואקטיבית אך לעיתים רחוקות קטלנית.', ru:'Мухомор — сказочный гриб: психоактивен, но редко смертелен.', tags:['fungi','ecology'], species:'amanita-muscaria', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'fung_07', en:'Giant sequoia-sized Armillaria honey fungus covers 9.65 km² in Oregon.', he:'פטריית דבש ארמילריה ענקית מכסה 9.65 קמ״ר באורגון.', ru:'Гигантский опёнок Armillaria покрывает 9,65 км² в Орегоне.', tags:['fungi','records'], species:'armillaria', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'fung_08', en:'Chytrid fungus has driven over 90 amphibian species to extinction worldwide.', he:'פטריית כיטריד הובילה ליותר מ-90 מיני דו-חיים להכחדה ברחבי העולם.', ru:'Хитридиевый грибок привёл к вымиранию более 90 видов амфибий по всему миру.', tags:['fungi','ecology'], species:'batrachochytrium', loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'fung_09', en:'Psilocybin mushrooms are being studied as treatment for depression and PTSD.', he:'פטריות פסילוציבין נחקרות כטיפול בדיכאון ו-PTSD.', ru:'Псилоцибиновые грибы изучают как средство от депрессии и ПТСР.', tags:['fungi','medicine'], species:'psilocybe', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'fung_10', en:'Fungi helped plants colonize land 470 million years ago via mycorrhizal partnerships.', he:'פטריות עזרו לצמחים לכבוש את היבשה לפני 470 מיליון שנה דרך שותפות מיקוריזה.', ru:'Грибы помогли растениям освоить сушу 470 млн лет назад через микоризу.', tags:['fungi','plants','deep-time'], species:'fungi', loading:false, panel:true, tooltip:false, discovery:true },
+
+    // ─────────────────────────────────────────────────────
+    // PLANTS (~15)
+    // ─────────────────────────────────────────────────────
+    { id:'plnt_01', en:'Plants produce ~50% of Earth\'s oxygen; phytoplankton produce the other half.', he:'צמחים מייצרים כ-50% מחמצן כדור הארץ; פיטופלנקטון מייצר את החצי השני.', ru:'Растения производят ~50% кислорода Земли; фитопланктон — вторую половину.', tags:['plants','ecology'], species:'plantae', loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'plnt_02', en:'A sunflower head contains up to 2,000 florets arranged in Fibonacci spirals.', he:'ראש חמנייה מכיל עד 2,000 פרחונים מסודרים בספירלות פיבונאצ\'י.', ru:'В головке подсолнуха до 2000 цветков, расположенных по спиралям Фибоначчи.', tags:['plants','mathematics'], species:'sunflower', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'plnt_03', en:'Sunflowers were planted at Chernobyl to absorb radioactive cesium from soil.', he:'חמניות נשתלו בצ\'רנוביל לספיגת צזיום רדיואקטיבי מהקרקע.', ru:'Подсолнухи посадили в Чернобыле для поглощения радиоактивного цезия из почвы.', tags:['plants','ecology'], species:'sunflower', loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'plnt_04', en:'Giant sequoias need fire to reproduce — heat opens their cones.', he:'סקוויות ענק זקוקות לאש כדי להתרבות — החום פותח את האצטרובלים שלהן.', ru:'Секвойям нужен огонь для размножения — жар раскрывает их шишки.', tags:['plants','ecology'], species:'sequoia', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'plnt_05', en:'Sequoia bark can be 90 cm thick — natural fireproof armor.', he:'קליפת סקוויה יכולה להיות בעובי 90 ס"מ — שריון טבעי חסין אש.', ru:'Кора секвойи до 90 см толщиной — природная огнеупорная броня.', tags:['plants','records'], species:'sequoia', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'plnt_06', en:'Welwitschia has only two leaves — ever. They grow for over 2,000 years.', he:'לוולוויצ\'יה רק שני עלים — תמיד. הם גדלים במשך למעלה מ-2,000 שנה.', ru:'У вельвичии всего два листа — навсегда. Они растут более 2000 лет.', tags:['plants','records'], species:'welwitschia', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'plnt_07', en:'Rafflesia has the world\'s largest flower — up to 1 meter wide, smelling of rotting flesh.', he:'לרפלזיה הפרח הגדול בעולם — עד מטר רוחב, מריח כמו בשר נרקב.', ru:'У раффлезии крупнейший цветок — до метра, пахнущий гнилым мясом.', tags:['plants','records'], species:'rafflesia', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'plnt_08', en:'Rafflesia has no roots, stems, or leaves — it lives entirely inside its host vine.', he:'לרפלזיה אין שורשים, גבעולים או עלים — היא חיה לחלוטין בתוך גפן המאכסן.', ru:'У раффлезии нет корней, стеблей и листьев — она живёт внутри лианы-хозяина.', tags:['plants','biology'], species:'rafflesia', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'plnt_09', en:'Wollemia nobilis was known only from fossils until found alive in Australia in 1994.', he:'וולמיה נובילס הייתה ידועה רק ממאובנים עד שנמצאה חיה באוסטרליה ב-1994.', ru:'Воллемию знали только по ископаемым, пока не нашли живой в Австралии в 1994.', tags:['plants','deep-time'], species:'wollemia', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'plnt_10', en:'Arabidopsis was the first plant to have its genome fully sequenced, in 2000.', he:'ארבידופסיס היה הצמח הראשון שגנום שלו רוצף במלואו, ב-2000.', ru:'Арабидопсис — первое растение с полностью секвенированным геномом (2000).', tags:['plants','genetics'], species:'arabidopsis', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'plnt_11', en:'Titan arum\'s flower spike can reach 3 meters and heats up to spread its smell.', he:'שושנת הנבלה יכולה להגיע ל-3 מטרים ומחממת את עצמה כדי להפיץ ריח.', ru:'Аморфофаллус титанический вырастает до 3 м и нагревается, распространяя запах.', tags:['plants','records'], species:'titan-arum', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'plnt_12', en:'Sphagnum moss bogs store twice as much carbon as all the world\'s forests.', he:'ביצות ספגנום מאחסנות פי שניים פחמן מכל יערות העולם.', ru:'Сфагновые болота хранят вдвое больше углерода, чем все леса мира.', tags:['plants','ecology'], species:'sphagnum', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'plnt_13', en:'The first land plants descended from freshwater green algae ~470 million years ago.', he:'צמחי היבשה הראשונים צאצאי אצות מים מתוקים ירוקות מלפני כ-470 מיליון שנה.', ru:'Первые наземные растения произошли от пресноводных зелёных водорослей ~470 млн лет назад.', tags:['plants','evolution'], species:'plantae', loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'plnt_14', en:'Azolla ferns may have cooled Earth 49 million years ago by capturing massive CO₂.', he:'שרכי אזולה אולי קיררו את כדור הארץ לפני 49 מיליון שנה על ידי לכידת CO₂ עצומה.', ru:'Папоротники азолла могли охладить Землю 49 млн лет назад, поглотив огромное количество CO₂.', tags:['plants','ecology','deep-time'], species:'azolla', loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'plnt_15', en:'Tree ferns grew up to 20 meters in Carboniferous forests, forming today\'s coal deposits.', he:'שרכי עץ צמחו עד 20 מטר ביערות הקרבון, ויצרו את משקעי הפחם של היום.', ru:'Древовидные папоротники вырастали до 20 м в карбоновых лесах, образуя угольные залежи.', tags:['plants','deep-time'], species:'tree-fern', loading:false, panel:true, tooltip:false, discovery:true },
+
+    // ─────────────────────────────────────────────────────
+    // INVERTEBRATES (~15)
+    // ─────────────────────────────────────────────────────
+    { id:'inv_01', en:'Octopuses can edit their own RNA to adapt to temperature changes.', he:'תמנונים יכולים לערוך את ה-RNA שלהם כדי להסתגל לשינויי טמפרטורה.', ru:'Осьминоги могут редактировать свою РНК для адаптации к изменениям температуры.', tags:['animals','genetics'], species:'octopus', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'inv_02', en:'Octopuses have been observed using coconut shells as portable shelters.', he:'תמנונים נצפו משתמשים בקליפות קוקוס כמחסות ניידים.', ru:'Осьминоги используют скорлупу кокоса как переносное укрытие.', tags:['animals','intelligence'], species:'octopus', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'inv_03', en:'The nautilus has survived 500 million years and five mass extinctions unchanged.', he:'הנאוטילוס שרד 500 מיליון שנה וחמש הכחדות המוניות ללא שינוי.', ru:'Наутилус пережил 500 млн лет и пять массовых вымираний без изменений.', tags:['animals','deep-time'], species:'nautilus', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'inv_04', en:'Mantis shrimp strike with the force of a bullet — generating cavitation bubbles.', he:'שרימפס גמל מכה בכוח של כדור רובה — ויוצר בועות קוויטציה.', ru:'Рак-богомол бьёт с силой пули — создавая кавитационные пузыри.', tags:['animals','records'], species:'mantis-shrimp', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'inv_05', en:'Mantis shrimp have 16 types of color receptors — humans have just 3.', he:'לשרימפס גמל 16 סוגי קולטני צבע — לבני אדם יש רק 3.', ru:'У рака-богомола 16 типов цветовых рецепторов — у человека лишь 3.', tags:['animals','neuroscience'], species:'mantis-shrimp', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'inv_06', en:'Turritopsis dohrnii can revert to a polyp — the only biologically immortal animal.', he:'טוריטופסיס דוהרני יכולה לחזור לפוליפ — בעל החיים הבלתי-בן-תמותה היחיד.', ru:'Turritopsis dohrnii может вернуться к полипу — единственное бессмертное животное.', tags:['animals','biology'], species:'turritopsis', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'inv_07', en:'Honeybees communicate food locations through a symbolic waggle dance.', he:'דבורי דבש מתקשרות על מיקומי מזון באמצעות ריקוד נדנוד סמלי.', ru:'Пчёлы сообщают о пище символическим виляющим танцем.', tags:['animals','intelligence'], species:'honey-bee', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'inv_08', en:'One-third of all human food depends on bee pollination.', he:'שליש מכל המזון האנושי תלוי בהאבקה על ידי דבורים.', ru:'Треть всей пищи человека зависит от опыления пчёлами.', tags:['animals','ecology'], species:'honey-bee', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'inv_09', en:'The Cambrian Explosion saw virtually all modern body plans appear in ~20 million years.', he:'הפיצוץ הקמבריוני הביא להופעת כל תוכניות הגוף המודרניות תוך כ-20 מיליון שנה.', ru:'Кембрийский взрыв породил все современные планы тела за ~20 млн лет.', tags:['animals','deep-time'], species:'metazoa', loading:true, panel:true, tooltip:false, discovery:true },
+    { id:'inv_10', en:'The first animals were probably similar to modern sponges — sessile filter-feeders.', he:'בעלי החיים הראשונים היו כנראה דומים לספוגים מודרניים — מסנני מזון נייחים.', ru:'Первые животные были похожи на губки — неподвижные фильтраторы.', tags:['animals','evolution'], species:'metazoa', loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'inv_11', en:'Coral bleaching occurs when heat stress forces corals to expel symbiotic algae.', he:'הלבנת אלמוגים מתרחשת כשלחץ חום מאלץ אלמוגים לגרש אצות סימביוטיות.', ru:'Обесцвечивание кораллов происходит, когда тепловой стресс заставляет их изгонять водоросли.', tags:['animals','ecology'], species:'coral', loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'inv_12', en:'The Great Barrier Reef is the largest living structure on Earth — visible from space.', he:'שונית המחסום הגדולה היא המבנה החי הגדול ביותר על פני כדור הארץ — נראית מהחלל.', ru:'Большой Барьерный риф — крупнейшая живая структура на Земле — видна из космоса.', tags:['animals','records'], species:'coral', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'inv_13', en:'Leaf-cutter ants farm fungi underground — a 50-million-year agricultural partnership.', he:'נמלים חותכות עלים מגדלות פטריות מתחת לאדמה — שותפות חקלאית בת 50 מיליון שנה.', ru:'Муравьи-листорезы выращивают грибы под землёй — 50-миллионолетнее фермерство.', tags:['animals','fungi','ecology'], species:'insects', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'inv_14', en:'Spider silk is stronger than steel by weight and more elastic than nylon.', he:'חוט עכביש חזק יותר מפלדה ביחס למשקלו וגמיש יותר מניילון.', ru:'Паутина прочнее стали по весу и эластичнее нейлона.', tags:['animals','records'], species:'invertebrates', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'inv_15', en:'Sea stars can regenerate entire arms — some species regrow a whole body from one arm.', he:'כוכבי ים יכולים לחדש זרועות שלמות — מינים מסוימים מחדשים גוף שלם מזרוע אחת.', ru:'Морские звёзды отращивают целые лучи — некоторые восстанавливают всё тело из одного.', tags:['animals','biology'], species:'echinoderms', loading:false, panel:true, tooltip:true, discovery:true },
+
+    // ─────────────────────────────────────────────────────
+    // FISH & AMPHIBIANS (~10)
+    // ─────────────────────────────────────────────────────
+    { id:'fish_01', en:'Coelacanth fins move in an alternating gait — like the legs of a walking tetrapod.', he:'סנפירי הסילקנת זזים בצעד מתחלף — כמו רגליים של טטרפוד מהלך.', ru:'Плавники латимерии двигаются попеременно — как ноги шагающего четвероногого.', tags:['animals','evolution'], species:'coelacanth', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'fish_02', en:'Coelacanths give birth to live young after ~3 years of gestation — the longest known.', he:'סילקנתות יולדות צאצאים חיים לאחר הריון של כ-3 שנים — הארוך ביותר הידוע.', ru:'Латимерии рождают живых детёнышей после ~3 лет беременности — рекорд.', tags:['animals','records'], species:'coelacanth', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'fish_03', en:'Great white sharks are warm-blooded — their muscles generate heat for faster reactions.', he:'כרישים לבנים גדולים הם בעלי דם חם — שריריהם מייצרים חום לתגובות מהירות יותר.', ru:'Белые акулы теплокровны — их мышцы вырабатывают тепло для быстрых реакций.', tags:['animals','biology'], species:'shark', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'fish_04', en:'Shark skin has tooth-like scales that reduce drag — copied by swimsuit manufacturers.', he:'עור כריש מכיל קשקשים דמויי שיניים שמפחיתים גרר — הועתק על ידי יצרני בגדי ים.', ru:'Кожа акулы покрыта зубообразными чешуйками, снижающими сопротивление — скопировано в купальниках.', tags:['animals','biomimicry'], species:'shark', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'fish_05', en:'Great whites can detect one drop of blood in 100 liters of water.', he:'כרישים לבנים יכולים לזהות טיפת דם אחת ב-100 ליטר מים.', ru:'Белая акула чувствует каплю крови в 100 литрах воды.', tags:['animals','neuroscience'], species:'shark', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'fish_06', en:'Electric eels can discharge 860 volts — enough to stun a horse.', he:'צלופחים חשמליים יכולים לפרוק 860 וולט — מספיק להלום סוס.', ru:'Электрический угорь разряжает 860 вольт — достаточно, чтобы оглушить лошадь.', tags:['animals','records'], species:'fish', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'fish_07', en:'Axolotls can regenerate limbs, heart tissue, spinal cord, and even parts of the brain.', he:'אקסולוטלים יכולים לחדש גפיים, רקמת לב, חוט שדרה ואפילו חלקים מהמוח.', ru:'Аксолотли регенерируют конечности, сердце, спинной мозг и даже части мозга.', tags:['animals','biology'], species:'amphibians', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'fish_08', en:'Some deep-sea fish produce their own light through bioluminescence to hunt in darkness.', he:'דגי מעמקים מסוימים מייצרים אור משלהם באמצעות ביולומינסצנציה לציד בחשיכה.', ru:'Некоторые глубоководные рыбы производят свой свет для охоты во тьме.', tags:['animals','ecology'], species:'fish', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'fish_09', en:'Lungfish can survive buried in dried mud for years, breathing air through a lung.', he:'דג ריאות יכול לשרוד קבור בבוץ יבש שנים, נושם אוויר דרך ריאה.', ru:'Двоякодышащая рыба выживает в засохшей грязи годами, дыша лёгким.', tags:['animals','biology'], species:'fish', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'fish_10', en:'Frogs absorb water through their skin — they never need to drink.', he:'צפרדעים סופגות מים דרך העור — הן אף פעם לא צריכות לשתות.', ru:'Лягушки впитывают воду кожей — им не нужно пить.', tags:['animals','biology'], species:'amphibians', loading:false, panel:true, tooltip:true, discovery:true },
+
+    // ─────────────────────────────────────────────────────
+    // REPTILES & BIRDS (~12)
+    // ─────────────────────────────────────────────────────
+    { id:'rept_01', en:'Birds are living dinosaurs — descended from theropod dinosaurs like Velociraptor.', he:'ציפורים הן דינוזאורים חיים — צאצאיות דינוזאורים תרופודים כמו ולוצירפטור.', ru:'Птицы — живые динозавры, потомки тероподов вроде велоцираптора.', tags:['animals','evolution'], species:'birds', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'rept_02', en:'Archaeopteryx had feathers like modern birds but kept teeth and clawed wings.', he:'ארכאופטריקס נשא נוצות כמו ציפורים מודרניות אך שמר שיניים וכנפיים עם טפרים.', ru:'Археоптерикс имел перья как у птиц, но сохранил зубы и когтистые крылья.', tags:['animals','evolution'], species:'archaeopteryx', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'rept_03', en:'Archaeopteryx was found just 2 years after Darwin published On the Origin of Species.', he:'ארכאופטריקס נמצא רק שנתיים אחרי שדרווין פרסם את מוצא המינים.', ru:'Археоптерикса нашли через 2 года после публикации «Происхождения видов» Дарвина.', tags:['animals','deep-time'], species:'archaeopteryx', loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'rept_04', en:'Peregrines now nest on city skyscrapers, hunting pigeons — a conservation success.', he:'בזים נודדים מקננים כעת על גורדי שחקים בערים, צדים יונים — הצלחת שימור.', ru:'Сапсаны гнездятся на небоскрёбах, охотясь на голубей — успех охраны природы.', tags:['animals','ecology'], species:'peregrine-falcon', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'rept_05', en:'Komodo dragons can reproduce without a mate — via parthenogenesis.', he:'דרקוני קומודו יכולים להתרבות ללא בן זוג — באמצעות פרתנוגנזה.', ru:'Комодские вараны размножаются без партнёра — партеногенезом.', tags:['animals','biology'], species:'komodo-dragon', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'rept_06', en:'Komodo dragons were unknown to Western science until 1912.', he:'דרקוני קומודו היו לא ידועים למדע המערבי עד 1912.', ru:'Комодские вараны были неизвестны западной науке до 1912 года.', tags:['animals','deep-time'], species:'komodo-dragon', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'rept_07', en:'Tuatara have a third "parietal eye" on top of their skull with a lens and retina.', he:'לטואטרה עין שלישית "פריאטלית" על קודקוד גולגולתה עם עדשה ורשתית.', ru:'У туатары третий «теменной глаз» на макушке с хрусталиком и сетчаткой.', tags:['animals','biology'], species:'tuatara', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'rept_08', en:'Tuatara are the sole survivors of an order that thrived in the Jurassic, 200 Mya.', he:'טואטרות הן השורדות היחידות של סדרה ששגשגה ביורה, לפני 200 מיליון שנה.', ru:'Туатары — единственные выжившие отряда, процветавшего в юрском периоде (200 млн лет).', tags:['animals','deep-time'], species:'tuatara', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'rept_09', en:'Chameleons change color for communication and temperature — not primarily camouflage.', he:'זיקיות מחליפות צבע לתקשורת ולטמפרטורה — לא בעיקר להסוואה.', ru:'Хамелеоны меняют цвет для общения и терморегуляции — не только для маскировки.', tags:['animals','biology'], species:'reptiles', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'rept_10', en:'Arctic terns migrate from Arctic to Antarctic and back — 70,000 km each year.', he:'שחפיות ארקטיות נודדות מהארקטי לאנטארקטי וחזרה — 70,000 ק"מ בשנה.', ru:'Полярные крачки мигрируют из Арктики в Антарктику и обратно — 70 000 км в год.', tags:['animals','records'], species:'birds', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'rept_11', en:'Crocodilians are caring parents — mothers guard nests and carry hatchlings in their jaws.', he:'תנינאים הם הורים אכפתיים — אמהות שומרות על קנים ונושאות גוזלים בלסתותיהן.', ru:'Крокодилы — заботливые родители: матери охраняют гнёзда и носят детёнышей в пасти.', tags:['animals','biology'], species:'reptiles', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'rept_12', en:'Some reptile sexes are determined by egg incubation temperature, not chromosomes.', he:'אצל זוחלים מסוימים, מין הצאצא נקבע לפי טמפרטורת דגירת הביצה, לא כרומוזומים.', ru:'У некоторых рептилий пол определяется температурой инкубации, а не хромосомами.', tags:['animals','genetics'], species:'reptiles', loading:false, panel:true, tooltip:true, discovery:true },
+
+    // ─────────────────────────────────────────────────────
+    // MAMMALS (~15)
+    // ─────────────────────────────────────────────────────
+    { id:'mamm_01', en:'Blue whale calls at 188 decibels are the loudest sounds produced by any animal.', he:'קריאות לוויתן כחול ב-188 דציבלים הן הקולות החזקים ביותר של כל בעל חיים.', ru:'Крики синего кита в 188 дБ — самые громкие звуки любого животного.', tags:['animals','records'], species:'blue-whale', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'mamm_02', en:'A blue whale calf gains ~90 kg per day from its mother\'s milk.', he:'עגל לוויתן כחול עולה כ-90 ק"ג ביום מחלב אמו.', ru:'Детёныш синего кита набирает ~90 кг в день на молоке матери.', tags:['animals','records'], species:'blue-whale', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'mamm_03', en:'Platypus bills contain ~40,000 electroreceptors — they hunt with eyes and ears closed.', he:'מקורי ברווזנים מכילים כ-40,000 קולטני חשמל — הם צדים עם עיניים ואוזניים סגורות.', ru:'В клюве утконоса ~40 000 электрорецепторов — он охотится с закрытыми глазами и ушами.', tags:['animals','neuroscience'], species:'platypus', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'mamm_04', en:'Male platypuses have venomous spurs — the venom causes excruciating pain.', he:'לברווזנים זכרים יש דרבנות ארסיים — הארס גורם לכאב מייסר.', ru:'У самцов утконоса ядовитые шпоры — яд вызывает мучительную боль.', tags:['animals','biology'], species:'platypus', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'mamm_05', en:'Platypuses glow blue-green under UV light — discovered only in 2020.', he:'ברווזנים זוהרים בכחול-ירוק תחת אור UV — התגלה רק ב-2020.', ru:'Утконосы светятся сине-зелёным в ультрафиолете — открыто лишь в 2020.', tags:['animals','biology'], species:'platypus', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'mamm_06', en:'Naked mole-rats are virtually immune to cancer — almost no cases in 30 years.', he:'חולדי שומה עירומים חסינים כמעט לחלוטין לסרטן — כמעט ללא מקרים ב-30 שנה.', ru:'Голые землекопы почти не болеют раком — за 30 лет почти ни одного случая.', tags:['animals','medicine'], species:'naked-mole-rat', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'mamm_07', en:'Naked mole-rats survive 18 minutes without oxygen using fructose metabolism.', he:'חולדי שומה עירומים שורדים 18 דקות ללא חמצן באמצעות מטבוליזם פרוקטוז.', ru:'Голые землекопы выживают 18 минут без кислорода, используя фруктозный обмен.', tags:['animals','biology'], species:'naked-mole-rat', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'mamm_08', en:'Naked mole-rats are eusocial like ants — they have a breeding queen.', he:'חולדי שומה עירומים חברתיים כמו נמלים — יש להם מלכה מתרבה.', ru:'Голые землекопы эусоциальны как муравьи — у них есть размножающаяся королева.', tags:['animals','biology'], species:'naked-mole-rat', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'mamm_09', en:'Bats are the only mammals capable of powered flight.', he:'עטלפים הם היונקים היחידים המסוגלים לטיסה מונעת.', ru:'Летучие мыши — единственные млекопитающие, способные к активному полёту.', tags:['animals','evolution'], species:'mammals', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'mamm_10', en:'Elephants can recognize themselves in mirrors and mourn their dead.', he:'פילים יכולים לזהות את עצמם במראה ולהתאבל על מתיהם.', ru:'Слоны узнают себя в зеркале и оплакивают умерших.', tags:['animals','intelligence'], species:'mammals', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'mamm_11', en:'Whale songs can travel thousands of kilometers through the ocean.', he:'שירי לווייתנים יכולים לנסוע אלפי קילומטרים דרך האוקיינוס.', ru:'Песни китов распространяются на тысячи километров в океане.', tags:['animals','ecology'], species:'cetaceans', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'mamm_12', en:'Tarsiers have the largest eyes relative to body size of any mammal.', he:'לטרסיירים העיניים הגדולות ביותר ביחס לגוף מכל יונק.', ru:'У долгопятов самые большие глаза относительно тела среди млекопитающих.', tags:['animals','records'], species:'primates', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'mamm_13', en:'All great apes pass the mirror test — suggesting self-awareness.', he:'כל הקופים הגדולים עוברים את מבחן המראה — המרמז על מודעות עצמית.', ru:'Все человекообразные обезьяны проходят зеркальный тест — признак самосознания.', tags:['animals','intelligence'], species:'great-apes', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'mamm_14', en:'Gorillas build a fresh sleeping nest every single night.', he:'גורילות בונות קן שינה חדש בכל לילה.', ru:'Гориллы строят новое гнездо для сна каждый вечер.', tags:['animals','biology'], species:'gorilla', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'mamm_15', en:'Orangutans spend up to 8 years with their mothers — the longest non-human dependency.', he:'אורנגאוטנים מבלים עד 8 שנים עם אמותיהם — התלות הארוכה ביותר שאינה אנושית.', ru:'Орангутаны проводят до 8 лет с матерями — самая долгая зависимость среди не-людей.', tags:['animals','biology'], species:'orangutan', loading:false, panel:true, tooltip:true, discovery:true },
+
+    // ─────────────────────────────────────────────────────
+    // HUMAN EVOLUTION (~15)
+    // ─────────────────────────────────────────────────────
+    { id:'hum_01', en:'Every non-African human carries 1–4% Neanderthal DNA from ancient interbreeding.', he:'כל אדם שאינו אפריקאי נושא 1-4% DNA ניאנדרטלי מהכלאה עתיקה.', ru:'Каждый неафриканец несёт 1–4% неандертальской ДНК от древнего скрещивания.', tags:['humans','genetics'], species:'homo-sapiens', loading:true, panel:true, tooltip:false, discovery:true },
+    { id:'hum_02', en:'The human brain uses 20% of the body\'s energy despite being only 2% of its weight.', he:'המוח האנושי משתמש ב-20% מאנרגיית הגוף למרות שהוא רק 2% ממשקלו.', ru:'Мозг потребляет 20% энергии тела, составляя лишь 2% его веса.', tags:['humans','neuroscience'], species:'homo-sapiens', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'hum_03', en:'Humans spent 96% of our existence as hunter-gatherers — agriculture is just 12,000 years old.', he:'בני אדם בילו 96% מקיומנו כציידים-לקטים — חקלאות בת 12,000 שנה בלבד.', ru:'96% своей истории люди были охотниками-собирателями — земледелие лишь 12 000 лет.', tags:['humans','deep-time'], species:'homo-sapiens', loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'hum_04', en:'Humans share 98.7% of DNA with chimpanzees — our closest living relatives.', he:'בני אדם חולקים 98.7% מה-DNA עם שימפנזים — קרובי המשפחה החיים הקרובים ביותר שלנו.', ru:'У людей 98,7% общей ДНК с шимпанзе — нашими ближайшими живыми родственниками.', tags:['humans','genetics'], species:'chimpanzee', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'hum_05', en:'Jane Goodall\'s 1960 discovery that chimps use tools revolutionized science.', he:'תגלית ג\'יין גודול ב-1960 ששימפנזים משתמשים בכלים חוללה מהפכה במדע.', ru:'Открытие Джейн Гудолл в 1960 году — шимпанзе используют орудия — произвело революцию.', tags:['humans','intelligence'], species:'chimpanzee', loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'hum_06', en:'Lucy (A. afarensis) proved bipedalism evolved millions of years before big brains.', he:'לוסי (A. afarensis) הוכיחה שהליכה על שתיים התפתחה מיליוני שנים לפני מוחות גדולים.', ru:'Люси (A. afarensis) доказала: прямохождение появилось за миллионы лет до большого мозга.', tags:['humans','evolution'], species:'au_afarensis', loading:true, panel:true, tooltip:false, discovery:true },
+    { id:'hum_07', en:'Neanderthals buried their dead, made art, and cared for their elderly.', he:'ניאנדרטלים קברו את מתיהם, יצרו אמנות וטיפלו בקשישיהם.', ru:'Неандертальцы хоронили мёртвых, создавали искусство и заботились о пожилых.', tags:['humans','culture'], species:'h_neanderthalensis', loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'hum_08', en:'H. erectus was the first hominin to leave Africa — reaching Asia 1.8 million years ago.', he:'הומו ארקטוס היה ההומינין הראשון שעזב את אפריקה — והגיע לאסיה לפני 1.8 מיליון שנה.', ru:'H. erectus первым вышел из Африки — достиг Азии 1,8 млн лет назад.', tags:['humans','evolution'], species:'h_erectus', loading:true, panel:true, tooltip:false, discovery:true },
+    { id:'hum_09', en:'Fire and cooking may have driven human brain expansion by increasing calorie intake.', he:'אש ובישול אולי הניעו את התרחבות המוח האנושי על ידי הגדלת צריכת קלוריות.', ru:'Огонь и готовка могли стимулировать рост мозга, увеличив потребление калорий.', tags:['humans','evolution'], species:'h_erectus', loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'hum_10', en:'Sahelanthropus (7 Mya) was found in Chad — far from East Africa\'s Rift Valley.', he:'סהלנתרופוס (7 מיליון שנה) נמצא בצ\'אד — רחוק מעמק השבר במזרח אפריקה.', ru:'Сахелантроп (7 млн лет) найден в Чаде — далеко от Восточно-Африканского рифта.', tags:['humans','evolution'], species:'sahelanthropus', loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'hum_11', en:'The human genome has ~20,000 genes — the same number as a roundworm.', he:'בגנום האנושי כ-20,000 גנים — אותו מספר כמו בתולעת חוטית.', ru:'В геноме человека ~20 000 генов — столько же, сколько у круглого червя.', tags:['humans','genetics'], species:'homo-sapiens', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'hum_12', en:'Laetoli footprints (3.6 Mya) prove hominins walked fully upright with a modern gait.', he:'עקבות לאטולי (3.6 מיליון שנה) מוכיחות שהומינינים הלכו זקופים עם הליכה מודרנית.', ru:'Следы Лаэтоли (3,6 млн лет) доказывают полностью прямую походку у гоминин.', tags:['humans','evolution'], species:'au_afarensis', loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'hum_13', en:'Bonobos resolve conflict with affection rather than aggression.', he:'בונובואים פותרים קונפליקטים בחיבה ולא באגרסיה.', ru:'Бонобо разрешают конфликты лаской, а не агрессией.', tags:['humans','intelligence'], species:'great-apes', loading:false, panel:true, tooltip:true, discovery:true },
+    { id:'hum_14', en:'Every great ape species except humans is endangered or critically endangered.', he:'כל מיני הקופים הגדולים למעט בני אדם נמצאים בסכנת הכחדה.', ru:'Все виды человекообразных обезьян, кроме людей, находятся под угрозой вымирания.', tags:['humans','ecology'], species:'great-apes', loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'hum_15', en:'Mountain gorillas were brought back from 250 individuals to over 1,000 today.', he:'גורילות הרים שוקמו מ-250 פרטים ליותר מ-1,000 כיום.', ru:'Горных горилл восстановили с 250 особей до более 1000 сегодня.', tags:['humans','ecology'], species:'gorilla', loading:false, panel:true, tooltip:false, discovery:true },
+
+    // ─────────────────────────────────────────────────────
+    // GENERAL / CROSS-DOMAIN (~15)
+    // ─────────────────────────────────────────────────────
+    { id:'gen_01', en:'Convergent evolution gave octopus and human eyes similar designs independently.', he:'אבולוציה מתכנסת העניקה לעיני תמנון ואדם עיצובים דומים באופן בלתי תלוי.', ru:'Конвергентная эволюция независимо дала осьминогу и человеку похожие глаза.', tags:['general','evolution'], species:null, loading:true, panel:true, tooltip:false, discovery:true },
+    { id:'gen_02', en:'Five mass extinctions have each wiped out 70–96% of all species on Earth.', he:'חמש הכחדות המוניות, כל אחת מחקה 70-96% מכל המינים על כדור הארץ.', ru:'Пять массовых вымираний уничтожали 70–96% всех видов на Земле.', tags:['general','deep-time'], species:null, loading:true, panel:true, tooltip:false, discovery:true },
+    { id:'gen_03', en:'Endosymbiosis: mitochondria were once free-living bacteria swallowed by a host cell.', he:'אנדוסימביוזה: מיטוכונדריות היו פעם חיידקים חופשיים שנבלעו על ידי תא מאכסן.', ru:'Эндосимбиоз: митохондрии были свободными бактериями, поглощёнными клеткой-хозяином.', tags:['general','evolution'], species:'eukaryota', loading:true, panel:true, tooltip:false, discovery:true },
+    { id:'gen_04', en:'If Earth\'s history were 24 hours, humans would appear in the last 4 seconds.', he:'אם היסטוריית כדור הארץ הייתה 24 שעות, בני אדם היו מופיעים ב-4 השניות האחרונות.', ru:'Если историю Земли сжать до суток, люди появились бы за 4 секунды до конца.', tags:['general','deep-time'], species:null, loading:true, panel:true, tooltip:false, discovery:true },
+    { id:'gen_05', en:'Horizontal gene transfer lets bacteria swap genes across species boundaries.', he:'העברת גנים אופקית מאפשרת לחיידקים להחליף גנים מעבר לגבולות מינים.', ru:'Горизонтальный перенос генов позволяет бактериям обмениваться генами между видами.', tags:['general','genetics'], species:null, loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'gen_06', en:'CRISPR — the gene-editing tool — was discovered in bacteria\'s immune system.', he:'CRISPR — כלי עריכת הגנים — התגלה במערכת החיסון של חיידקים.', ru:'CRISPR — инструмент редактирования генов — обнаружен в иммунной системе бактерий.', tags:['general','genetics','bacteria'], species:'bacteria', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'gen_07', en:'99.9% of all species that ever lived are now extinct.', he:'99.9% מכל המינים שחיו אי פעם נכחדו.', ru:'99,9% всех когда-либо живших видов вымерли.', tags:['general','deep-time'], species:null, loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'gen_08', en:'DNA was discovered in 1953, but its code is 3.8 billion years old.', he:'DNA התגלה ב-1953, אך הקוד שלו בן 3.8 מיליארד שנים.', ru:'ДНК открыли в 1953 году, но её коду 3,8 миллиарда лет.', tags:['general','genetics'], species:'luca', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'gen_09', en:'All life on Earth shares the same genetic code — the same 4 DNA bases.', he:'כל החיים על כדור הארץ חולקים את אותו קוד גנטי — אותם 4 בסיסי DNA.', ru:'Вся жизнь на Земле использует один генетический код — 4 основания ДНК.', tags:['general','genetics'], species:'luca', loading:true, panel:true, tooltip:false, discovery:true },
+    { id:'gen_10', en:'The Permian extinction (252 Mya) killed ~96% of marine species — the worst ever.', he:'הכחדת הפרם (252 מיליון שנה) הרגה כ-96% ממיני הים — הגרועה אי פעם.', ru:'Пермское вымирание (252 млн лет) убило ~96% морских видов — самое страшное.', tags:['general','deep-time'], species:null, loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'gen_11', en:'The K-Pg asteroid impact 66 Mya ended the dinosaurs but freed mammals to diversify.', he:'פגיעת האסטרואיד K-Pg לפני 66 מיליון שנה הביאה לסוף הדינוזאורים אך שחררה את היונקים להתפתח.', ru:'Удар астероида K-Pg 66 млн лет назад уничтожил динозавров, но дал расцвет млекопитающим.', tags:['general','deep-time'], species:null, loading:true, panel:true, tooltip:false, discovery:true },
+    { id:'gen_12', en:'Viruses are not alive by most definitions — yet they drive evolution through gene transfer.', he:'וירוסים אינם חיים לפי רוב ההגדרות — אך הם מניעים אבולוציה דרך העברת גנים.', ru:'Вирусы не живые по большинству определений — но двигают эволюцию, перенося гены.', tags:['general','evolution'], species:null, loading:false, panel:true, tooltip:false, discovery:true },
+    { id:'gen_13', en:'About 8% of the human genome is made of ancient viral DNA.', he:'כ-8% מהגנום האנושי מורכב מ-DNA ויראלי עתיק.', ru:'Около 8% генома человека состоит из древней вирусной ДНК.', tags:['general','genetics','humans'], species:'homo-sapiens', loading:true, panel:true, tooltip:true, discovery:true },
+    { id:'gen_14', en:'Photosynthesis was invented once — every plant inherited it from cyanobacteria.', he:'פוטוסינתזה הומצאה פעם אחת — כל צמח ירש אותה מציאנובקטריות.', ru:'Фотосинтез изобретён один раз — все растения унаследовали его от цианобактерий.', tags:['general','evolution','plants'], species:'cyanobacteria', loading:true, panel:true, tooltip:false, discovery:true },
+    { id:'gen_15', en:'There are more trees on Earth (~3 trillion) than stars in the Milky Way (~200 billion).', he:'יש יותר עצים על כדור הארץ (כ-3 טריליון) מכוכבים בשביל החלב (כ-200 מיליארד).', ru:'На Земле больше деревьев (~3 трлн), чем звёзд в Млечном Пути (~200 млрд).', tags:['general','ecology','plants'], species:null, loading:true, panel:true, tooltip:true, discovery:true },
   ];
+
+  // ── Domain tag lookup for node ancestry matching ────
+  const DOMAIN_TAGS = {
+    'bacteria': ['bacteria'],
+    'archaea': ['archaea'],
+    'fungi': ['fungi'],
+    'plantae': ['plants'],
+    'animalia': ['animals'],
+    'protists': ['protists'],
+    'eukaryota': ['general'],
+    'luca': ['general'],
+  };
+
+  // ── Session dedup tracking for discovery ────────────
+  let _shownDiscoveryIds = [];
 
   // ── Public API ─────────────────────────────────────
 
@@ -175,5 +234,44 @@ const FACTS = (() => {
   /** Get all loading-safe facts */
   function getLoadingPool() { return facts.filter(f => f.loading); }
 
-  return { getLoadingFact, getAll, getById, getByTag, getLoadingPool, facts };
+  /** Get facts linked to a specific species/node ID */
+  function getForSpecies(nodeId) {
+    return facts.filter(f => f.species === nodeId);
+  }
+
+  /** Get a random panel-suitable fact for a species (or general if none) */
+  function getPanelFact(nodeId, lang) {
+    let pool = facts.filter(f => f.panel && f.species === nodeId);
+    if (!pool.length) pool = facts.filter(f => f.panel && f.species === null);
+    if (!pool.length) return null;
+    const f = pool[Math.floor(Math.random() * pool.length)];
+    return f[lang] || f.en;
+  }
+
+  /** Get a random tooltip fact for a species (short, ≤120 chars) */
+  function getTooltipFact(nodeId, lang) {
+    const pool = facts.filter(f => f.tooltip && f.species === nodeId);
+    if (!pool.length) return null;
+    const f = pool[Math.floor(Math.random() * pool.length)];
+    return f[lang] || f.en;
+  }
+
+  /** Get a random discovery fact (with session dedup) */
+  function getDiscoveryFact(lang) {
+    let pool = facts.filter(f => f.discovery && !_shownDiscoveryIds.includes(f.id));
+    if (!pool.length) {
+      _shownDiscoveryIds = [];
+      pool = facts.filter(f => f.discovery);
+    }
+    if (!pool.length) return null;
+    const f = pool[Math.floor(Math.random() * pool.length)];
+    _shownDiscoveryIds.push(f.id);
+    return { id: f.id, text: f[lang] || f.en, species: f.species };
+  }
+
+  return {
+    getLoadingFact, getAll, getById, getByTag, getLoadingPool,
+    getForSpecies, getPanelFact, getTooltipFact, getDiscoveryFact,
+    facts
+  };
 })();

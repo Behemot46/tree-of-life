@@ -1,18 +1,18 @@
-# P32 — Data Enrichment (300+ Species)
+# P32 — Data Enrichment (300+ Nodes)
 
 ## Meta Instructions
 
-You are a Claude Code agent working on the **Tree of Life** project — an interactive browser-based phylogenetic visualization. You are executing **phase p32** — expanding the tree from ~130 nodes to 300+ species with richer data.
+You are a Claude Code agent working on the **Tree of Life** project — an interactive browser-based phylogenetic visualization. You are executing **phase p32** (Tier 4 — Content).
 
-**Your scope:** Expand `js/treeData.js` TREE with new nodes, add PHOTO_MAP entries in `js/speciesData.js`, add WIKI_TITLES entries, and ensure all new nodes have complete data (desc, detail, facts, tags, appeared, era). You do NOT modify rendering logic, layout algorithms, or UI code.
+**Your scope:** Expand the phylogenetic tree from ~130 to 300+ nodes by adding new species across all domains. Add IUCN conservation status, PHOTO_MAP entries, and WIKI_TITLES entries. You primarily touch `js/treeData.js` and `js/speciesData.js`. You do NOT touch rendering logic, layout algorithms, or UI code (the tree should automatically display new nodes).
 
-**Workflow:** Read CLAUDE.md fully. Understand the codebase. Plan. Implement. Test via `node serve.js`. Commit with `feat:` prefix. Push branch. Open a merge-safe PR against `main`. Update PROJECT_PROGRESS.md and SESSION_HANDOFF.md.
+**Workflow:** Read CLAUDE.md fully. Understand the codebase. Plan. Implement. Test via `node serve.js`. Commit with `data:` prefix. Push branch. Open a merge-safe PR against `main`. Update PROJECT_PROGRESS.md and SESSION_HANDOFF.md.
 
 ---
 
 ## Goal
 
-Expand the tree to 300+ scientifically accurate species nodes, covering all major taxonomic groups with balanced representation and rich educational data.
+Triple the tree's species coverage for a richer, more educational experience.
 
 ### Success Criteria
 
@@ -27,6 +27,42 @@ Expand the tree to 300+ scientifically accurate species nodes, covering all majo
 9. Tree renders without layout issues (radial, cladogram, chronological)
 10. Search index picks up new species (EN + HE + RU names where possible)
 11. Zero console errors
+
+---
+
+## Context
+
+### Current coverage (~130 nodes)
+
+- Bacteria: ~8 nodes
+- Archaea: ~4 nodes
+- Protists: ~6 nodes
+- Fungi: ~6 nodes
+- Plants: ~12 nodes
+- Animals: ~80 nodes (invertebrates + vertebrates)
+- Hominins: 28 nodes (via buildHomininTree)
+
+### Node data shape
+
+```js
+{
+  id: string, icon: string, color: string, r: number,
+  appeared: number, name: string, latin: string, era: string,
+  desc: string, detail: string,
+  facts: [{l, v}], tags: string[],
+  children: Node[],
+  extinct: boolean  // optional
+}
+```
+
+### Adding new species
+
+1. Add node object to appropriate parent's `children` array in `js/treeData.js`
+2. Add PHOTO_MAP entry in `js/speciesData.js`
+3. Add WIKI_TITLES entry in `js/speciesData.js`
+4. `preprocess()` automatically sets `_parent`, `depth`, populates `nodeMap`
+5. `buildSearchIndex()` automatically includes new nodes
+6. `render()` automatically renders new nodes
 
 ---
 
@@ -51,13 +87,13 @@ Expand the tree to 300+ scientifically accurate species nodes, covering all majo
 
 ### Priority additions (iconic/educational species)
 
-**Bacteria:** MRSA, Helicobacter pylori, Rhizobium, Magnetotactic bacteria
-**Archaea:** Lokiarchaeota, Asgard archaea, halophiles
-**Protists:** Paramecium, Euglena, diatoms, dinoflagellates
-**Fungi:** Cordyceps, truffle, death cap, chanterelle, lichen
-**Plants:** Sequoia, Welwitschia, Venus flytrap, bamboo, Rafflesia, baobab
+**Bacteria:** MRSA, Helicobacter pylori, Rhizobium, Magnetotactic bacteria, Lactobacillus, Clostridium, Mycobacterium, Borrelia
+**Archaea:** Lokiarchaeota, Asgard archaea, halophiles, Thermoplasma, Sulfolobus
+**Protists:** Paramecium, Euglena, diatoms, dinoflagellates, Trypanosoma, Giardia, Toxoplasma
+**Fungi:** Cordyceps, truffle, death cap, chanterelle, lichen, Aspergillus, Candida
+**Plants:** Sequoia, Welwitschia, Venus flytrap, bamboo, Rafflesia, baobab, ferns, mosses
 **Invertebrates:** Horseshoe crab, mantis shrimp, tardigrade, nautilus, monarch butterfly, Portuguese man o' war
-**Fish:** Coelacanth, anglerfish, seahorse, manta ray, lungfish
+**Fish:** Coelacanth, anglerfish, seahorse, manta ray, lungfish, pufferfish
 **Amphibians:** Axolotl, poison dart frog, caecilian, hellbender
 **Reptiles:** Tuatara, Komodo dragon, leatherback turtle, gharial
 **Birds:** Kiwi, albatross, hummingbird, secretary bird, kakapo, archaeopteryx
@@ -103,6 +139,35 @@ Categories: LC, NT, VU, EN, CR, EW, EX
 
 ---
 
+## Implementation Plan
+
+### Phase A: Plan new species list
+
+Review expansion targets above and finalize the ~170 new species to add.
+
+### Phase B: Add nodes to TREE
+
+1. Add each new species to the correct parent's children array in `js/treeData.js`
+2. Ensure IDs are unique and kebab-case
+3. Include all required fields
+4. Use scientifically accurate `appeared` values (Mya)
+5. Use domain-appropriate colors (inherit from parent)
+
+### Phase C: Expand PHOTO_MAP and WIKI_TITLES
+
+1. For each new species, find a Wikimedia Commons photo URL
+2. Add to PHOTO_MAP in `js/speciesData.js`
+3. Add Wikipedia article title to WIKI_TITLES
+4. Target: 80%+ coverage for new species
+
+### Phase D: Validation
+
+1. Run validation script (p21) if available
+2. Manual check: all IDs unique, all required fields present
+3. Test tree renders with 300+ nodes — check performance
+
+---
+
 ## Files You Will Modify
 
 | File | What changes |
@@ -117,7 +182,7 @@ Categories: LC, NT, VU, EN, CR, EW, EX
 - `index.html` — rendering/UI code
 - `js/imageLoader.js` — image system
 - `js/uiData.js` — translations (unless adding search terms for new species)
-- Layout algorithms
+- Layout algorithms — should work automatically with more nodes
 
 ---
 
@@ -135,3 +200,27 @@ Categories: LC, NT, VU, EN, CR, EW, EX
 10. Mobile: tree still navigable with more nodes
 11. Zero console errors
 12. `Object.keys(nodeMap).length` → 300+
+
+---
+
+## Branch & PR
+
+- Branch from `main`
+- Branch name: use the worktree name or `claude/p32-data-enrichment`
+- PR title: `data: expand tree to 300+ species with IUCN status and Wikimedia photos`
+- PR against `main`
+
+---
+
+## Session Closing Protocol
+
+Before declaring the session complete, you MUST:
+
+1. **Commit** all changes with descriptive `data:` message
+2. **Push** the branch to origin
+3. **Open PR** against `main` using `gh pr create`
+4. **Verify** the PR is mergeable (no conflicts with main)
+5. **If conflicts exist**: pull main, resolve conflicts, push again
+6. **Update** `PROJECT_PROGRESS.md` — add p32 to Completed table
+7. **Update** `SESSION_HANDOFF.md` — write full handoff notes
+8. **Verify** zero console errors in browser

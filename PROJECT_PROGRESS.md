@@ -33,20 +33,27 @@
 | p25 | Interactive legend & domain highlighting — filter, dim, visual feedback | `claude/stupefied-leakey` |
 | p26a | 130+ facts pack — expanded library, panel/tooltip/discovery integration | `claude/compassionate-poitras` |
 | p27 | i18n completeness — translate all hardcoded English strings to HE/RU | PR #69 |
+| p24* | Code extraction — index.html from ~3,800 to ~1,500 lines; logic in js/core.js, renderer.js, panel.js, search.js | (incremental, across multiple PRs) |
 
-### Upcoming
+### Upcoming (unified roadmap — see docs/PROMPTS/README.md)
 
-| # | Milestone | Goal | Status |
-|---|-----------|------|--------|
-| p20 | Naturalist node artwork | Replace all emoji/silhouette node icons with consistent high-quality artistic sketches (pen-and-ink naturalist style) for every node (~130+). Build asset pipeline, SVG/WebP format, fallback chain. | Done |
-| p21 | Species panel visual identity | Replace emoji headers in species info panel with curated photos or GenAI artwork. Consistent framing/style, Wikimedia + AI-generated fallback pipeline. | Done |
-| p22 | Rich data panels & infographics | Increase fonts, add descriptive paragraphs, layered data sections (habitat, diet, morphology, fossil record). Inline mini-infographics: size comparisons, range maps, trait radar charts. | Done |
-| p23 | DNA similarity calculator | Two-species comparator: pick any two species, display estimated DNA similarity %. Visual output with divergence timeline, shared traits, "you share X% DNA with a banana" UX. | Done |
-| p24 | Always-visible hominin branch | Show full hominin family tree as expanded branch with twigs on main canvas — no "explore deeper" required. Auto-layout to avoid crowding, golden path emphasis, larger labels. | Done |
-| p25 | Interactive legend & domain highlighting | Clicking a domain in the legend highlights/filters that subtree on the canvas. Visual feedback, toggle behavior. | Done |
-| p26 | Accessibility & navigation cleanup | Keyboard nav, ARIA labels, focus management, screen reader support, reduced-motion. Unify `panelHistory`/`navStack` into single model. | Pending |
-| p27 | Performance & offline resilience | Viewport culling (render only visible nodes), lazy expansion, service worker caching, offline fallbacks, connection status indicator. | Pending |
-| p28 | Guided tours & educational mode | Walkthrough overlays narrating key evolutionary milestones (Great Oxidation, Cambrian Explosion, K-Pg). Step-by-step discovery paths for educational use. | Pending |
+| Tier | Phase | Milestone | Status |
+|------|-------|-----------|--------|
+| 1 | p20 | i18n completeness & per-language translation files | Pending |
+| 1 | p21 | JSON data + schema validation (CI safety net) | Pending |
+| 1 | p22 | CI photo link checker | Pending |
+| 1 | p23 | Navigation stack unification | Pending |
+| 2 | p25 | Accessibility (keyboard nav, ARIA, focus) | Pending |
+| 2 | p26 | Rich data panels & visual identity | Pending |
+| 2 | p27 | Always-visible hominin branch | Pending |
+| 3 | p28 | Lazy-loaded subtrees | Pending |
+| 3 | p29 | Inverted search index | Pending |
+| 3 | p30 | Viewport culling (quadtree) | Pending |
+| 4 | p31 | Discovery & engagement features | Pending |
+| 4 | p32 | Data enrichment (300+ nodes) | Pending |
+| 4 | p33 | AI-generated species illustrations | Pending |
+| 4 | p34 | Naturalist node artwork | Pending |
+| 4 | p35 | IndexedDB & offline mode | Pending |
 
 ---
 

@@ -2359,7 +2359,6 @@ function render(){
 const panel=document.getElementById('panel');
 const panelAccent=document.getElementById('panel-accent');
 let currentPanelNode=null;
-let panelHistory=[];  // legacy panel-to-panel history (used by dynamic back btn inside panel)
 
 // ── Unified Navigation Stack ──
 // Records state snapshots before each transition so Back can restore them.
@@ -2390,7 +2389,6 @@ function restoreNavState(s){
   if(homView) homView.classList.remove('open');
   panel.classList.remove('open');
   currentPanelNode=null;
-  panelHistory=[];
 
   if(s.type==='tree'){
     updateBreadcrumb(null);
@@ -2422,7 +2420,6 @@ function navBack(){
 }
 function navHome(){
   navStack.length=0;
-  panelHistory=[];
   currentPanelNode=null;
   const homView=document.getElementById('hominin-view');
   if(homView) homView.classList.remove('open');
@@ -2933,18 +2930,6 @@ function renderPanelContent(node) {
       </button>
     </div>
   `;
-  // Inject back button at top if we have history
-  if(panelHistory.length>0){
-    const scroll=p.querySelector('[style*="padding:20px"]');
-    if(scroll){
-      const backBtn=document.createElement('button');
-      backBtn.textContent='← Back';
-      backBtn.onclick=panelBack;
-      backBtn.className='btn-back';
-      backBtn.style.marginBottom='4px';
-      scroll.insertBefore(backBtn,scroll.firstChild);
-    }
-  }
   // Fetch real photo from Wikipedia API (runs in browser after HTML is set)
   if (wikiTitle) {
     const imgEl = document.getElementById(panelImgId);
@@ -2973,10 +2958,6 @@ function openHominins(nodeId) {
 }
 function showMainPanel(n){
   pushNav(); // record state before transition
-  if(currentPanelNode && currentPanelNode.id !== n.id){
-    panelHistory.push(currentPanelNode);
-    if(panelHistory.length>20) panelHistory.shift();
-  }
   currentPanelNode=n;
   renderPanelContent(n);
   panel.classList.add('panel-enter');
@@ -2990,18 +2971,10 @@ function showMainPanel(n){
   updateNavButtons();
 }
 
-function panelBack(){
-  if(panelHistory.length===0) return;
-  const prev=panelHistory.pop();
-  currentPanelNode=prev;
-  renderPanelContent(prev);
-  updateBreadcrumb(prev);
-}
-
 function closePanel(){
   const p=document.getElementById('panel')||document.getElementById('info-panel');
   if(p){p.classList.remove('open');p.style.transform='';p.style.transition='';}
-  updateBreadcrumb(null);panelHistory=[];currentPanelNode=null;
+  updateBreadcrumb(null);currentPanelNode=null;
   history.replaceState(null,'',location.pathname);
   updateNavButtons();
 }

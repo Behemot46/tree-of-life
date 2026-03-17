@@ -2359,12 +2359,13 @@ function render(){
 const panel=document.getElementById('panel');
 const panelAccent=document.getElementById('panel-accent');
 let currentPanelNode=null;
-let panelHistory=[];  // legacy panel-to-panel history (used by dynamic back btn inside panel)
 
 // ── Unified Navigation Stack ──
-// Records state snapshots before each transition so Back can restore them.
+// Single history for all contexts: tree, panel, hominin view, hominin detail.
 // Each entry: {type:'tree'|'panel'|'hominin'|'hominin-detail', nodeId?, homininId?}
 const navStack=[];
+let _suppressPopstate=false; // guard against re-entrant popstate during pushState
+
 function currentNavState(){
   const homView=document.getElementById('hominin-view');
   const isHomOpen=homView&&homView.classList.contains('open');
@@ -2373,7 +2374,7 @@ function currentNavState(){
   if(currentPanelNode) return {type:'panel',nodeId:currentPanelNode.id};
   return {type:'tree'};
 }
-function pushNav(){
+function pushNav(url){
   const s=currentNavState();
   // Avoid duplicate consecutive states
   if(navStack.length>0){
@@ -2382,6 +2383,10 @@ function pushNav(){
   }
   navStack.push(s);
   if(navStack.length>30) navStack.shift();
+  // Push browser history entry so Back button triggers popstate
+  _suppressPopstate=true;
+  history.pushState({nav:navStack.length},'',url||'');
+  _suppressPopstate=false;
   updateNavButtons();
 }
 function restoreNavState(s){
@@ -2390,7 +2395,6 @@ function restoreNavState(s){
   if(homView) homView.classList.remove('open');
   panel.classList.remove('open');
   currentPanelNode=null;
-  panelHistory=[];
 
   if(s.type==='tree'){
     updateBreadcrumb(null);
@@ -2415,14 +2419,25 @@ function restoreNavState(s){
   }
 }
 function navBack(){
-  if(navStack.length===0) return;
+  if(navStack.length===0){
+    // Nothing in stack — close whatever is open
+    const s=currentNavState();
+    if(s.type!=='tree'){
+      const homView=document.getElementById('hominin-view');
+      if(homView) homView.classList.remove('open');
+      panel.classList.remove('open');
+      currentPanelNode=null;
+      updateBreadcrumb(null);
+    }
+    updateNavButtons();
+    return;
+  }
   const prev=navStack.pop();
   restoreNavState(prev);
   updateNavButtons();
 }
 function navHome(){
   navStack.length=0;
-  panelHistory=[];
   currentPanelNode=null;
   const homView=document.getElementById('hominin-view');
   if(homView) homView.classList.remove('open');
@@ -2933,13 +2948,13 @@ function renderPanelContent(node) {
       </button>
     </div>
   `;
-  // Inject back button at top if we have history
-  if(panelHistory.length>0){
+  // Inject back button at top if we have nav history
+  if(navStack.length>0){
     const scroll=p.querySelector('[style*="padding:20px"]');
     if(scroll){
       const backBtn=document.createElement('button');
       backBtn.textContent='← Back';
-      backBtn.onclick=panelBack;
+      backBtn.onclick=navBack;
       backBtn.className='btn-back';
       backBtn.style.marginBottom='4px';
       scroll.insertBefore(backBtn,scroll.firstChild);
@@ -2971,12 +2986,9 @@ function openHominins(nodeId) {
     navigateTo('hominini');
   }
 }
-function showMainPanel(n){
-  pushNav(); // record state before transition
-  if(currentPanelNode && currentPanelNode.id !== n.id){
-    panelHistory.push(currentPanelNode);
-    if(panelHistory.length>20) panelHistory.shift();
-  }
+function showMainPanel(n,url){
+  if(!n || (currentPanelNode && currentPanelNode.id === n.id)) return;
+  pushNav(url); // record state before transition
   currentPanelNode=n;
   renderPanelContent(n);
   panel.classList.add('panel-enter');
@@ -2990,22 +3002,14 @@ function showMainPanel(n){
   updateNavButtons();
 }
 
-function panelBack(){
-  if(panelHistory.length===0) return;
-  const prev=panelHistory.pop();
-  currentPanelNode=prev;
-  renderPanelContent(prev);
-  updateBreadcrumb(prev);
-}
-
 function closePanel(){
   const p=document.getElementById('panel')||document.getElementById('info-panel');
   if(p){p.classList.remove('open');p.style.transform='';p.style.transition='';}
-  updateBreadcrumb(null);panelHistory=[];currentPanelNode=null;
+  updateBreadcrumb(null);currentPanelNode=null;
   history.replaceState(null,'',location.pathname);
   updateNavButtons();
 }
-document.getElementById('panel-close').addEventListener('click',closePanel);
+document.getElementById('panel-close').addEventListener('click',navBack);
 document.getElementById('svg').addEventListener('click',closePanel);
 
 // ══════════════════════════════════════════════════════
@@ -3303,8 +3307,7 @@ window.navigateTo=function(id){
   transform.x=cx-n._x*transform.s;
   transform.y=cy-n._y*transform.s;
   applyT();
-  showMainPanel(n);
-  history.replaceState(null,'','?node='+encodeURIComponent(id));
+  showMainPanel(n,'?node='+encodeURIComponent(id));
   setTimeout(()=>{highlightedId=null;scheduleRender();},2500);
 };
 
@@ -3321,10 +3324,7 @@ window.openHomininView=function(){
   renderHominins();
   updateNavButtons();
 };
-document.getElementById('hom-close').addEventListener('click',()=>{
-  document.getElementById('hominin-view').classList.remove('open');
-  updateNavButtons();
-});
+document.getElementById('hom-close').addEventListener('click',navBack);
 
 // ── Nav button click handlers ──
 document.getElementById('nav-back').addEventListener('click',navBack);
@@ -3741,13 +3741,19 @@ document.getElementById('btn-random').addEventListener('click',()=>{
 // ══════════════════════════════════════════════════════
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
+    // Close search dropdown first if open (not a nav action)
+    if(searchResults.classList.contains('show')){
+      searchResults.classList.remove('show');
+      searchInput.setAttribute('aria-expanded','false');
+      searchInput.blur();
+      return;
+    }
+    // Close DNA calculator if open (not a nav action)
     if(document.getElementById('dna-panel').classList.contains('open')){closeDnaCalc();return;}
-    panel.classList.remove('open');
-    updateBreadcrumb(null);
-    document.getElementById('hominin-view').classList.remove('open');
-    searchResults.classList.remove('show');
-    searchInput.setAttribute('aria-expanded','false');
-    history.replaceState(null,'',location.pathname);
+    // Shift+Escape = Home (reset everything)
+    if(e.shiftKey){navHome();return;}
+    // Escape = Back (step back one level)
+    navBack();
     return;
   }
   // Prevent shortcuts firing while typing in any input/textarea
@@ -4228,14 +4234,10 @@ window.addEventListener('resize',()=>{layout();scheduleRender();});
     },{passive:true});
   }
 
-  // ── Close panel on back-gesture / history ──
+  // ── Browser back button integrates with navStack ──
   window.addEventListener('popstate',()=>{
-    if(panel.classList.contains('open')){
-      closePanel();
-    }
-    if(homView && homView.classList.contains('open')){
-      homView.classList.remove('open');
-    }
+    if(_suppressPopstate) return;
+    navBack();
   });
 })();
 

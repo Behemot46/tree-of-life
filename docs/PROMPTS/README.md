@@ -1,6 +1,6 @@
 # Prompt Library — Tree of Life
 
-> Last updated: 2026-03-16
+> Last updated: 2026-03-17
 
 Self-contained implementation prompts. Each can be activated standalone.
 Say **"run p29"** or **"run tier 1"** to execute.
@@ -24,12 +24,11 @@ Say **"run p29"** or **"run tier 1"** to execute.
 
 | File | Phase | Title |
 |------|-------|-------|
-| `PROMPT_P24_CODE_ORGANIZATION.md` | p24 | Code Organization & Extraction |
 | `PROMPT_P25_ACCESSIBILITY.md` | p25 | Accessibility (a11y) |
 | `PROMPT_P26_RICH_PANELS.md` | p26 | Rich Data Panels & Visual Identity |
 | `PROMPT_P27_HOMININ_BRANCH.md` | p27 | Always-Visible Hominin Branch |
 
-**Parallel-safe:** p26 + p27 can run concurrently (panel vs canvas). p24 is a major refactor — run alone. p25 depends on p24 if extraction happened.
+**Parallel-safe:** p26 + p27 can run concurrently (panel vs canvas). p25 can run with either.
 
 ---
 
@@ -70,6 +69,8 @@ Say **"run p29"** or **"run tier 1"** to execute.
 | `archive/OLD_P22_RICH_DATA_PANELS.md` | p22 (old) | Superseded by p26 |
 | `archive/OLD_P24_HOMININ_BRANCH.md` | p24 (old) | Superseded by p27 |
 | `archive/OLD_P26_FACTS_INTEGRATION.md` | p26 (old) | Superseded by p31 |
+| `archive/PROMPT_P24_CODE_ORGANIZATION.md` | p24 | Done — code extracted to js/core.js, renderer.js, panel.js, search.js |
+| `archive/OLD_P30_CODE_EXTRACTION.md` | p30 (old) | Duplicate of p24 — archived |
 | `PROMPT_00_baseline_audit.md` | — | Baseline audit |
 | `PROMPT_00_DOCUMENTATION.md` | — | Documentation setup |
 | `PROMPT_0_AUDIT.md` | — | Initial audit |

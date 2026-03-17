@@ -282,6 +282,90 @@ svg{width:100%;height:100%;}
   color:var(--text-secondary);font-size:0.85rem;cursor:pointer;
   display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);z-index:5;}
 .p-close:hover{background:var(--surface-raised);color:var(--text-primary);}
+
+/* ── PANEL HERO IMAGE ── */
+.panel-hero{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;flex-shrink:0;background:var(--surface-raised);}
+.panel-hero-img{width:100%;height:100%;object-fit:cover;display:none;transition:opacity 0.3s ease;}
+.panel-hero-img.loaded{display:block;}
+.panel-hero-fallback{display:flex;width:100%;height:100%;align-items:center;justify-content:center;
+  background:var(--surface-raised);position:relative;overflow:hidden;}
+.panel-hero-fallback svg{width:80px;height:80px;opacity:0.35;}
+.panel-hero-fallback.hidden{display:none;}
+.panel-hero-gradient{position:absolute;bottom:0;left:0;right:0;height:50%;
+  background:linear-gradient(to top,var(--surface) 0%,transparent 100%);pointer-events:none;z-index:1;}
+.panel-hero-credit{position:absolute;bottom:6px;right:8px;font-size:10px;
+  color:rgba(255,255,255,0.7);font-family:var(--font-sans);
+  text-shadow:0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.35);
+  padding:1px 6px;border-radius:3px;z-index:2;}
+.panel-hero-shimmer{position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.04) 50%,transparent 100%);
+  background-size:200% 100%;animation:shimmer 1.5s infinite;}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.panel-hero.has-image .panel-hero-shimmer{display:none;}
+[data-theme="light"] .panel-hero{background:var(--surface-raised);}
+[data-theme="light"] .panel-hero-shimmer{
+  background:linear-gradient(90deg,transparent 0%,rgba(0,0,0,0.03) 50%,transparent 100%);
+  background-size:200% 100%;}
+[data-theme="light"] .panel-hero-gradient{
+  background:linear-gradient(to top,var(--surface) 0%,transparent 100%);}
+[data-theme="light"] .panel-hero-credit{color:rgba(255,255,255,0.8);background:rgba(0,0,0,0.45);}
+.panel-body{padding:20px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;flex:1;}
+.panel-body::-webkit-scrollbar{width:4px;}
+.panel-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
+.panel-lineage-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;
+  letter-spacing:0.1em;font-family:var(--font-sans);text-transform:uppercase;
+  padding:3px 10px;border-radius:var(--radius-full);}
+.panel-lineage-badge.human{color:#b07a3e;background:rgba(176,122,62,0.12);border:1px solid rgba(176,122,62,0.3);}
+.panel-lineage-badge.great-ape{color:#b03535;background:rgba(176,53,53,0.1);border:1px solid rgba(176,53,53,0.25);}
+.panel-header{display:flex;flex-direction:column;gap:6px;}
+.panel-title-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.panel-title{font-family:var(--font-head);font-size:22px;font-weight:700;color:var(--color-text-primary);margin:0;line-height:1.2;}
+.panel-latin{font-style:italic;font-size:13px;color:var(--color-text-muted);font-family:var(--font-sans);}
+.panel-era{font-size:12px;color:var(--color-text-secondary);font-family:var(--font-sans);}
+.panel-desc{font-size:14px;line-height:1.7;color:var(--color-text-secondary);font-family:var(--font-sans);margin:0;}
+.panel-detail{font-size:13px;line-height:1.7;color:var(--color-text-muted);font-family:var(--font-sans);margin:0;}
+.panel-fun-fact{border-left:3px solid var(--color-accent);padding:12px 16px;
+  background:rgba(46,125,50,0.06);border-radius:0 8px 8px 0;}
+.panel-fun-fact-label{font-size:11px;font-weight:700;color:var(--color-accent);
+  letter-spacing:0.08em;margin-bottom:6px;font-family:var(--font-sans);}
+.panel-fun-fact-text{font-family:var(--font-sans);font-style:italic;font-size:14px;
+  line-height:1.6;color:var(--color-text-primary);margin:0;}
+.panel-facts-grid{display:flex;flex-direction:column;gap:1px;border-radius:8px;
+  overflow:hidden;border:1px solid var(--color-divider);}
+.panel-fact-row{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;}
+.panel-fact-row:nth-child(odd){background:var(--color-canvas-alt);}
+.panel-fact-row:nth-child(even){background:var(--color-panel-bg);}
+.panel-fact-label{font-size:12px;color:var(--color-text-muted);font-family:var(--font-sans);}
+.panel-fact-value{font-size:13px;font-weight:600;color:var(--color-text-primary);
+  font-family:var(--font-sans);text-align:right;max-width:60%;}
+.panel-tags{display:flex;flex-wrap:wrap;gap:6px;}
+.panel-tag{font-size:11px;padding:3px 10px;border-radius:var(--radius-full);
+  background:var(--color-button-bg);border:1px solid var(--color-button-border);
+  color:var(--color-text-secondary);font-family:var(--font-sans);}
+.panel-tip{padding:12px;background:var(--color-button-bg);border-radius:8px;font-size:12px;
+  color:var(--color-text-muted);font-family:var(--font-sans);font-style:italic;text-align:center;}
+.panel-section-title{font-size:11px;font-weight:700;color:var(--color-accent);
+  letter-spacing:0.08em;font-family:var(--font-sans);}
+.panel-link-btn{font-size:12px;padding:5px 12px;border-radius:var(--radius-full);
+  background:var(--color-button-bg);border:1px solid var(--color-button-border);
+  color:var(--color-accent);font-family:var(--font-sans);text-decoration:none;
+  display:inline-flex;align-items:center;gap:4px;transition:all 0.2s;}
+.panel-link-btn:hover{background:var(--color-accent);color:white;}
+.panel-close-btn{margin-top:8px;padding:10px;border-radius:8px;width:100%;
+  border:1px solid var(--color-button-border);background:var(--color-button-bg);
+  cursor:pointer;font-family:var(--font-sans);font-size:13px;color:var(--color-text-secondary);
+  transition:background 0.2s;}
+.panel-close-btn:hover{background:var(--color-button-hover);}
+.panel-hominin-btn{width:100%;padding:12px;border-radius:8px;border:none;
+  background:var(--color-accent);color:white;cursor:pointer;font-family:var(--font-sans);
+  font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;
+  margin-bottom:8px;transition:filter 0.2s;}
+.panel-hominin-btn:hover{filter:brightness(1.1);}
+.panel-brain-bar{flex:1;height:8px;background:var(--color-canvas-alt);border-radius:4px;overflow:hidden;}
+.panel-brain-fill{height:100%;border-radius:4px;}
+.panel-dna-bar{flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;}
+.panel-dna-fill{height:100%;border-radius:3px;}
+
 .btn-back{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;
 
   border:1px solid var(--border);border-radius:var(--radius-full);background:transparent;
@@ -295,6 +379,39 @@ svg{width:100%;height:100%;}
 [data-theme="light"] .btn-back{border-color:var(--border);color:var(--accent-primary);}
 
 [data-theme="light"] .btn-back:hover{background:var(--accent-primary-dim);}
+
+/* ── PANEL HERO IMAGE ── */
+.panel-hero{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden;flex-shrink:0;background:var(--color-canvas-alt);}
+.panel-hero-img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity 0.3s ease;}
+.panel-hero-img.loaded{opacity:1;}
+.panel-hero-gradient{position:absolute;bottom:0;left:0;right:0;height:60%;background:linear-gradient(to top,rgba(0,0,0,0.55),transparent);pointer-events:none;}
+.panel-hero-fallback{display:flex;align-items:center;justify-content:center;width:100%;height:100%;position:absolute;top:0;left:0;}
+.panel-hero-fallback svg{width:64px;height:64px;opacity:0.45;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.3));}
+.panel-hero-credit{position:absolute;bottom:6px;right:8px;font-size:10px;color:rgba(255,255,255,0.7);
+  font-family:var(--font-sans);text-shadow:0 1px 3px rgba(0,0,0,0.8);background:rgba(0,0,0,0.35);
+  padding:1px 6px;border-radius:3px;z-index:2;}
+.panel-hero-skeleton{position:absolute;top:0;left:0;width:100%;height:100%;
+  background:linear-gradient(90deg,var(--color-canvas-alt) 25%,var(--color-button-bg) 50%,var(--color-canvas-alt) 75%);
+  background-size:200% 100%;animation:shimmer 1.5s infinite;}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+.panel-hero.has-image .panel-hero-fallback{display:none;}
+.panel-hero.has-image .panel-hero-skeleton{display:none;}
+
+/* Panel header (below hero) */
+.panel-header{display:flex;flex-direction:column;gap:4px;}
+.panel-header h2{font-family:var(--font-head);font-size:1.35rem;font-weight:700;color:var(--color-text-primary);margin:0;line-height:1.2;}
+.panel-header .panel-latin{font-style:italic;font-size:13px;color:var(--color-text-muted);font-family:var(--font-sans);}
+.panel-header .panel-era{font-size:12px;color:var(--color-text-secondary);font-family:var(--font-sans);}
+.panel-lineage-badge{display:inline-flex;font-size:10px;font-weight:700;letter-spacing:0.1em;
+  font-family:var(--font-sans);text-transform:uppercase;padding:3px 10px;border-radius:9999px;}
+
+[data-theme="light"] .panel-hero{background:#e8ecf0;}
+[data-theme="light"] .panel-hero-gradient{background:linear-gradient(to top,rgba(255,255,255,0.5),transparent);}
+[data-theme="light"] .panel-hero-credit{color:rgba(0,0,0,0.6);background:rgba(255,255,255,0.5);text-shadow:none;}
+
+@media (max-width:768px){
+  .panel-hero{aspect-ratio:2/1;max-height:150px;}
+}
 
 .p-top{display:flex;align-items:flex-start;gap:0.9rem;margin-bottom:1.1rem;}
 .p-icon-wrap{width:48px;height:48px;flex-shrink:0;border-radius:var(--radius-md);
@@ -323,6 +440,46 @@ svg{width:100%;height:100%;}
 .p-children li:hover{background:var(--surface-raised);color:var(--text-primary);}
 .p-children li .pci{font-size:0.95rem;}
 
+/* ── RICH PANEL SECTIONS (p22) ── */
+.panel-section{border-bottom:1px solid var(--border);padding-bottom:4px;}
+.panel-section:last-of-type{border-bottom:none;}
+.panel-section-header{display:flex;align-items:center;justify-content:space-between;cursor:pointer;
+  padding:10px 0;user-select:none;transition:opacity 0.15s;}
+.panel-section-header:hover{opacity:0.8;}
+.panel-section-header span:first-child{font-size:12px;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--text-secondary);font-family:var(--font-sans);}
+.panel-chevron{font-size:10px;color:var(--text-secondary);transition:transform 0.25s ease;display:inline-block;}
+.panel-section.collapsed .panel-chevron{transform:rotate(-90deg);}
+[dir="rtl"] .panel-section.collapsed .panel-chevron{transform:rotate(90deg);}
+.panel-section-body{overflow:hidden;transition:max-height 0.3s ease;display:flex;flex-direction:column;gap:12px;
+  padding-bottom:8px;}
+.panel-section.collapsed .panel-section-body{display:none;}
+
+/* Timeline bar */
+.panel-timeline{width:100%;position:relative;}
+.panel-timeline-track{width:100%;height:6px;background:var(--surface-raised);border-radius:3px;position:relative;
+  border:1px solid var(--border);}
+.panel-timeline-fill{height:100%;border-radius:3px;opacity:0.35;position:absolute;left:0;top:0;}
+.panel-timeline-marker{width:10px;height:10px;border-radius:50%;position:absolute;top:50%;
+  transform:translate(-50%,-50%);border:2px solid var(--surface);box-shadow:0 0 4px rgba(0,0,0,0.3);}
+.panel-timeline-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text-secondary);
+  font-family:var(--font-mono);margin-top:4px;}
+
+/* Radar chart */
+.panel-radar{display:flex;justify-content:center;padding:8px 0;}
+
+/* Enrichment cards */
+.panel-enrich-card{padding:10px 14px;background:var(--surface-raised);border-radius:8px;
+  font-size:13px;line-height:1.65;color:var(--text-secondary);font-family:var(--font-body);
+  border-left:3px solid var(--accent-primary);}
+[dir="rtl"] .panel-enrich-card{border-left:none;border-right:3px solid var(--accent-primary);}
+
+/* Link pills */
+.panel-link-pill{display:inline-flex;align-items:center;gap:4px;font-size:12px;padding:5px 12px;
+  border-radius:9999px;background:var(--surface-raised);border:1px solid var(--border);
+  color:var(--accent-primary);font-family:var(--font-sans);text-decoration:none;transition:all 0.2s;}
+.panel-link-pill:hover{background:var(--accent-primary);color:white;border-color:var(--accent-primary);}
+
 /* ── HOMININ ENTER BUTTON ── */
 #hom-enter-btn{display:inline-flex;align-items:center;gap:0.5rem;margin-top:0.8rem;
   padding:0.45rem 1rem;background:var(--accent-primary-dim);border:1px solid rgba(14,165,233,0.3);
@@ -335,8 +492,17 @@ svg{width:100%;height:100%;}
   background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);
   padding:0.7rem 0.9rem;pointer-events:auto;}
 .leg-title{font-size:0.56rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:0.25rem;font-weight:600;}
-.leg-row{display:flex;align-items:center;gap:0.45rem;font-size:0.65rem;color:var(--text-secondary);margin-top:0.2rem;}
-.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.leg-row{display:flex;align-items:center;gap:0.45rem;font-size:0.65rem;color:var(--text-secondary);margin-top:0.2rem;
+  padding:3px 6px;border-radius:6px;transition:opacity 0.3s ease,background 0.3s ease,font-weight 0.15s ease;}
+.leg-row.active{background:rgba(255,255,255,0.08);font-weight:600;color:var(--text-primary);}
+.leg-row.dimmed{opacity:0.35;}
+.leg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;transition:box-shadow 0.3s ease;}
+.leg-row.active .leg-dot{box-shadow:0 0 6px 2px currentColor;}
+#leg-show-all{font-size:11px;padding:3px 10px;border-radius:9999px;border:1px solid var(--border);
+  background:transparent;color:var(--text-secondary);cursor:pointer;margin-top:8px;
+  font-family:var(--font-sans);transition:all 0.3s ease;}
+#leg-show-all:hover{border-color:var(--accent-primary);color:var(--text-primary);}
+#leg-show-all.filtering{border-color:var(--accent-primary);color:var(--accent-primary);font-weight:600;}
 
 /* ── ZOOM CONTROLS ── */
 #zoom-ctrl{position:fixed;bottom:4.5rem;right:1.2rem;z-index:200;display:flex;flex-direction:column;gap:0.35rem;}
@@ -364,8 +530,23 @@ svg{width:100%;height:100%;}
   background:var(--surface);border:1px solid var(--border);
   border-radius:var(--radius-sm);padding:8px 12px;font-family:var(--font-sans);
   font-size:13px;color:var(--text-primary);box-shadow:0 4px 12px rgba(0,0,0,0.15);
-  max-width:200px;line-height:1.4;opacity:0;visibility:hidden;
+  max-width:280px;line-height:1.4;opacity:0;visibility:hidden;
   transition:opacity 150ms ease;transform:translate(16px,-50%);white-space:nowrap;}
+.tip-fact-line{font-size:11px;font-style:italic;color:var(--text-secondary);margin-top:4px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;}
+
+/* ── DISCOVERY FACT TOAST ── */
+#fact-toast{position:fixed;top:5rem;left:50%;transform:translateX(-50%) translateY(-20px);
+  z-index:500;background:var(--surface);border:1px solid var(--accent-primary, var(--gold));
+  border-radius:12px;padding:14px 20px;max-width:420px;width:90vw;
+  box-shadow:0 8px 32px rgba(0,0,0,0.25);font-family:var(--font-sans);
+  opacity:0;visibility:hidden;transition:opacity 300ms ease,transform 300ms ease,visibility 300ms;}
+#fact-toast.visible{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);}
+#fact-toast .ft-label{font-size:10px;font-weight:700;color:var(--accent-primary, var(--gold));
+  letter-spacing:0.1em;margin-bottom:6px;}
+#fact-toast .ft-text{font-size:13px;line-height:1.5;color:var(--text-primary);font-style:italic;}
+#fact-toast .ft-link{font-size:11px;color:var(--accent-primary, var(--gold));cursor:pointer;
+  margin-top:6px;display:inline-block;text-decoration:underline;}
 #tooltip.visible{opacity:1;visibility:visible;}
 .tree-node{cursor:pointer;}
 svg,#canvas-wrap{cursor:grab;}
@@ -515,6 +696,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 /* ── LIGHT THEME: ELEMENT CONTRAST FIXES ── */
 [data-theme="light"] .hint-bar{color:var(--text-secondary);}
 [data-theme="light"] .leg-row{color:var(--text-secondary);}
+[data-theme="light"] .leg-row.active{background:rgba(0,0,0,0.06);color:var(--text-primary);}
 [data-theme="light"] .p-detail{color:var(--text-secondary);}
 [data-theme="light"] .p-desc{color:var(--text-secondary);}
 [data-theme="light"] .p-children li{color:var(--text-secondary);}
@@ -729,6 +911,9 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
     flex-shrink: 0;
   }
   .panel-scroll { padding: 0.8rem 1.2rem 1.5rem; }
+  .panel-hero{aspect-ratio:2/1;max-height:150px;}
+  .panel-body{padding:14px;gap:12px;}
+  .panel-title{font-size:18px;}
   .p-close {
     width: 44px !important;
     height: 44px !important;
@@ -1081,9 +1266,54 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   .dna-vs{transform:rotate(90deg);}
   .dna-presets{justify-content:center;}
 }
+
+/* ── ACCESSIBILITY ── */
+
+/* Skip-to-content link */
+.skip-link{
+  position:fixed;top:-100%;left:50%;transform:translateX(-50%);
+  z-index:10000;padding:0.6rem 1.2rem;
+  background:var(--accent-primary);color:#fff;
+  font-family:var(--font-sans);font-size:0.85rem;font-weight:600;
+  border-radius:0 0 var(--radius-md) var(--radius-md);
+  text-decoration:none;outline:none;
+  transition:top 0.15s ease;
+}
+.skip-link:focus{top:0;}
+
+/* Focus-visible rings */
+:focus-visible{outline:2px solid var(--accent-primary);outline-offset:2px;}
+button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
+.lang-btn:focus-visible,.view-btn:focus-visible,.hom-filter:focus-visible,
+.era-preset:focus-visible,.dna-preset:focus-visible,.dna-slot:focus-visible,
+.p-close:focus-visible,#theme-btn:focus-visible,.btn-back:focus-visible,
+#extinct-toggle:focus-visible,#hominins-tab:focus-visible,#btn-hominin:focus-visible,
+#btn-dna-calc:focus-visible,.leg-row:focus-visible{
+  outline:2px solid var(--accent-primary);outline-offset:2px;
+  box-shadow:0 0 0 4px var(--accent-primary-dim);
+}
+/* SVG node focus ring — outline doesn't work on SVG, use stroke */
+.node-group:focus-visible{outline:none;}
+.node-group:focus-visible .nc-main{
+  stroke:var(--accent-primary) !important;stroke-width:3 !important;stroke-opacity:1 !important;
+}
+
+/* Search result keyboard highlight */
+.sr-item.a11y-active{background:var(--accent-primary-dim);color:var(--text-primary);}
+
+/* Reduced motion */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:0.01ms !important;
+    animation-iteration-count:1 !important;
+    transition-duration:0.01ms !important;
+    scroll-behavior:auto !important;
+  }
+}
 </style>
 </head>
 <body>
+<a href="#svg" class="skip-link">Skip to Tree</a>
 <div id="splash" style="position:fixed;inset:0;background:#1a1d23;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px;transition:opacity 0.8s ease;">
   <div id="splash-years" style="font-family:'Inter',sans-serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:rgba(160,164,176,0.6);">3,800,000,000 years of evolution</div>
   <h1 id="splash-title" style="font-family:'Inter',sans-serif;font-size:clamp(48px,8vw,96px);font-weight:700;color:#e8eaf0;letter-spacing:-2px;line-height:1;margin:0;">Tree of Life</h1>
@@ -1120,10 +1350,10 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   <input id="search-input" type="text" placeholder="Search species…" autocomplete="off" aria-label="Search species by name, latin name, or description" role="combobox" aria-expanded="false" aria-controls="search-results">
   <div id="search-results" role="listbox"></div>
   <button id="extinct-toggle" onclick="toggleExtinct()" aria-label="Toggle visibility of extinct species" style="font-family:'Inter',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);white-space:nowrap;flex-shrink:0;">
-    <span>†</span><span id="extinct-label">Hide Extinct</span>
+    <span>†</span><span id="extinct-label"></span>
   </button>
   <button id="hominins-tab" onclick="navigateTo('hominini')" aria-label="Navigate to Hominin family tree" style="font-family:'Inter',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;color:var(--text-secondary);white-space:nowrap;flex-shrink:0;">
-    🧬 Hominins
+    🧬 <span id="i-btn-hominins">Hominins</span>
   </button>
 </div>
 
@@ -1134,11 +1364,11 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 </div>
 
 <!-- BREADCRUMB -->
-<div id="breadcrumb" class="hidden"></div>
+<nav id="breadcrumb" class="hidden" role="navigation" aria-label="Breadcrumb"></nav>
 
 <!-- SVG CANVAS -->
 <div id="canvas-wrap">
-  <svg id="svg" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Interactive Tree of Life visualization showing evolutionary relationships">
+  <svg id="svg" xmlns="http://www.w3.org/2000/svg" role="tree" aria-label="Interactive Tree of Life visualization showing evolutionary relationships" tabindex="0">
     <defs>
       <radialGradient id="rootGrad" cx="50%" cy="50%" r="50%">
         <stop offset="0%" stop-color="#a78bfa"/>
@@ -1164,8 +1394,14 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 <!-- TOOLTIP -->
 <div id="tooltip"></div>
 
+<!-- DISCOVERY FACT TOAST -->
+<div id="fact-toast" role="status" aria-live="polite">
+  <div class="ft-label">💡 DID YOU KNOW</div>
+  <div class="ft-text" id="ft-text"></div>
+</div>
+
 <!-- MAIN DETAIL PANEL -->
-<div id="panel">
+<div id="panel" role="dialog" aria-label="Species detail panel" aria-modal="false">
   <div class="panel-accent" id="panel-accent"></div>
   <button class="p-close" id="panel-close" aria-label="Close panel">✕</button>
   <div class="panel-scroll">
@@ -1197,7 +1433,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 </div>
 
 <!-- HOMININ VIEW -->
-<div id="hominin-view">
+<div id="hominin-view" role="dialog" aria-label="Hominin Evolution explorer" aria-modal="true">
   <div id="hom-header">
     <div>
       <div id="hom-title">Hominin Evolution</div>
@@ -1206,13 +1442,13 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
     <button id="hom-close" class="btn-back">← Back to Tree</button>
 
   </div>
-  <div id="hom-filters">
-    <div class="hom-filter active" data-filter="all" id="i-hf-all">All Species</div>
-    <div class="hom-filter" data-filter="proto" id="i-hf-proto">Proto-Hominins</div>
-    <div class="hom-filter" data-filter="australopith" id="i-hf-australo">Australopithecus</div>
-    <div class="hom-filter" data-filter="paranthropus" id="i-hf-paranth">Paranthropus</div>
-    <div class="hom-filter" data-filter="homo" id="i-hf-homo">Genus Homo</div>
-    <div class="hom-filter" data-filter="surviving" id="i-hf-surv">Surviving</div>
+  <div id="hom-filters" role="tablist" aria-label="Hominin species filters">
+    <div class="hom-filter active" data-filter="all" id="i-hf-all" role="tab" tabindex="0" aria-selected="true">All Species</div>
+    <div class="hom-filter" data-filter="proto" id="i-hf-proto" role="tab" tabindex="-1" aria-selected="false">Proto-Hominins</div>
+    <div class="hom-filter" data-filter="australopith" id="i-hf-australo" role="tab" tabindex="-1" aria-selected="false">Australopithecus</div>
+    <div class="hom-filter" data-filter="paranthropus" id="i-hf-paranth" role="tab" tabindex="-1" aria-selected="false">Paranthropus</div>
+    <div class="hom-filter" data-filter="homo" id="i-hf-homo" role="tab" tabindex="-1" aria-selected="false">Genus Homo</div>
+    <div class="hom-filter" data-filter="surviving" id="i-hf-surv" role="tab" tabindex="-1" aria-selected="false">Surviving</div>
     <div style="margin-left:auto;display:flex;gap:0.5rem;align-items:center;">
       <button id="compare-btn" onclick="toggleCompareMode()" style="padding:0.25rem 0.85rem;border:1px solid var(--border);border-radius:14px;background:transparent;color:var(--text-secondary);font-size:0.7rem;font-family:var(--font-sans);cursor:pointer;transition:all 0.2s;letter-spacing:0.05em;">⚖ Compare Mode</button>
       <span id="compare-hint" style="display:none;font-size:0.65rem;color:var(--text-secondary);font-style:italic;">Select 2–4 species</span>
@@ -1237,14 +1473,14 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 <!-- LEGEND -->
 <div id="legend">
   <div class="leg-title" id="i-leg-title">Domains</div>
-  <div class="leg-row" data-domain="luca" onclick="toggleDomain('luca')" style="cursor:pointer;"><div class="leg-dot" style="background:#8b5cf6"></div><span id="i-leg-luca">LUCA / Root</span></div>
-  <div class="leg-row" data-domain="bacteria" onclick="toggleDomain('bacteria')" style="cursor:pointer;"><div class="leg-dot" style="background:#ef4444"></div><span id="i-leg-bact">Bacteria</span></div>
-  <div class="leg-row" data-domain="archaea" onclick="toggleDomain('archaea')" style="cursor:pointer;"><div class="leg-dot" style="background:#f59e0b"></div><span id="i-leg-arch">Archaea</span></div>
-  <div class="leg-row" data-domain="plantae" onclick="toggleDomain('plantae')" style="cursor:pointer;"><div class="leg-dot" style="background:#22c55e"></div><span id="i-leg-plant">Plants</span></div>
-  <div class="leg-row" data-domain="animalia" onclick="toggleDomain('animalia')" style="cursor:pointer;"><div class="leg-dot" style="background:#3b82f6"></div><span id="i-leg-anim">Animals</span></div>
-  <div class="leg-row" data-domain="fungi" onclick="toggleDomain('fungi')" style="cursor:pointer;"><div class="leg-dot" style="background:#f97316"></div><span id="i-leg-fungi">Fungi</span></div>
-  <div class="leg-row" data-domain="protists" onclick="toggleDomain('protists')" style="cursor:pointer;"><div class="leg-dot" style="background:#a855f7"></div><span id="i-leg-prot">Protists</span></div>
-  <button onclick="resetDomains()" style="font-size:11px;padding:3px 10px;border-radius:9999px;border:1px solid #c8b99a;background:transparent;color:var(--parchment);cursor:pointer;margin-top:8px;font-family:'Inter',sans-serif;">Show All</button>
+  <div class="leg-row" data-domain="luca" onclick="toggleDomain('luca')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#8b5cf6"></div><span id="i-leg-luca">LUCA / Root</span></div>
+  <div class="leg-row" data-domain="bacteria" onclick="toggleDomain('bacteria')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#ef4444"></div><span id="i-leg-bact">Bacteria</span></div>
+  <div class="leg-row" data-domain="archaea" onclick="toggleDomain('archaea')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#f59e0b"></div><span id="i-leg-arch">Archaea</span></div>
+  <div class="leg-row" data-domain="plantae" onclick="toggleDomain('plantae')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#22c55e"></div><span id="i-leg-plant">Plants</span></div>
+  <div class="leg-row" data-domain="animalia" onclick="toggleDomain('animalia')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#3b82f6"></div><span id="i-leg-anim">Animals</span></div>
+  <div class="leg-row" data-domain="fungi" onclick="toggleDomain('fungi')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#f97316"></div><span id="i-leg-fungi">Fungi</span></div>
+  <div class="leg-row" data-domain="protists" onclick="toggleDomain('protists')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#a855f7"></div><span id="i-leg-prot">Protists</span></div>
+  <button id="leg-show-all" onclick="resetDomains()"><span id="i-leg-show-all">Show All</span></button>
 </div>
 
 
@@ -1270,13 +1506,13 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 </div>
 
 <!-- HUMAN EVOLUTION SHORTCUT -->
-<button id="btn-hominin" onclick="openHomininView()" aria-label="Open Human Evolution explorer" title="Human Evolution">🧬 <span id="i-btn-hominin">Human Evolution</span></button>
+<button id="btn-hominin" onclick="openHomininView()" aria-label="Explore Human Lineage on tree" title="Explore Human Lineage">🧬 <span id="i-btn-hominin">Human Evolution</span></button>
 
 <!-- DNA SIMILARITY CALCULATOR BUTTON -->
 <button id="btn-dna-calc" onclick="openDnaCalc()" aria-label="Open DNA Similarity Calculator" title="DNA Compare">🧬 <span id="i-btn-dna-calc">DNA Compare</span></button>
 
 <!-- DNA SIMILARITY CALCULATOR PANEL -->
-<div id="dna-panel" class="dna-panel" aria-hidden="true">
+<div id="dna-panel" class="dna-panel" role="dialog" aria-label="DNA Similarity Calculator" aria-modal="true" aria-hidden="true">
   <div class="dna-panel-inner">
     <div class="dna-panel-header">
       <div id="i-dna-title" class="dna-panel-title">DNA Similarity Calculator</div>
@@ -1297,7 +1533,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
         <div class="dna-slot-icon" id="dna-icon-a">?</div>
         <div class="dna-slot-label" id="dna-label-a">Select a species</div>
       </div>
-      <div class="dna-vs">vs</div>
+      <div class="dna-vs" id="i-dna-vs">vs</div>
       <div class="dna-slot" id="dna-slot-b" onclick="openDnaSearch('b')">
         <div class="dna-slot-icon" id="dna-icon-b">?</div>
         <div class="dna-slot-label" id="dna-label-b">Select a species</div>
@@ -1358,12 +1594,14 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 </div>
 
 <script src="js/treeData.js"></script>
+<script src="js/treeExpansion.js"></script>
 <script src="js/speciesData.js"></script>
 <script src="js/uiData.js"></script>
 <script src="js/factLibrary.js"></script>
 <script src="js/imagePrompts.js"></script>
 <script src="js/imageLoader.js"></script>
 <script src="js/dnaSimilarity.js"></script>
+<script src="js/nodeIcons.js"></script>
 <script>
 // Register PHOTO_MAP (from speciesData.js) with ImageLoader for tree node rendering
 if(typeof ImageLoader!=='undefined'&&typeof PHOTO_MAP!=='undefined'&&ImageLoader.registerPhotoMap){
@@ -1813,7 +2051,7 @@ function leafCount(n){
 }
 
 /* Minimum angular separation per sibling (radians) */
-const MIN_ANGLE_SEP=0.22;
+const MIN_ANGLE_SEP=0.32;
 
 /* Subtree-weighted angle assignment — larger subtrees get proportionally more room */
 function assignAngles(n,a0,a1){
@@ -1840,7 +2078,7 @@ function assignAngles(n,a0,a1){
 }
 
 function assignPositions(n,cx,cy){
-  const r=DEPTH_R[n.depth]||(DEPTH_R[DEPTH_R.length-1]+(n.depth-DEPTH_R.length+1)*120);
+  const r=DEPTH_R[n.depth]||(DEPTH_R[DEPTH_R.length-1]+(n.depth-DEPTH_R.length+1)*160);
   n._x=cx+Math.cos(n._angle-Math.PI/2)*r;
   n._y=cy+Math.sin(n._angle-Math.PI/2)*r;
   if(n.children&&!n._collapsed) n.children.forEach(c=>assignPositions(c,cx,cy));
@@ -1852,10 +2090,10 @@ function layoutCladogram(){
   const isRtl=document.documentElement.dir==='rtl';
   const W=window.innerWidth,H=window.innerHeight;
   const margin=120;
-  const depthSpacing=Math.min(140,(W-margin*2)/8);
+  const depthSpacing=Math.min(200,(W-margin*2)/8);
   function countLeaves(n){if(!n.children||!n.children.length||n._collapsed)return 1;let c=0;n.children.forEach(ch=>c+=countLeaves(ch));return c;}
   const totalLeaves=countLeaves(TREE);
-  const leafSpacing=Math.max(20,(H-margin*2)/totalLeaves);
+  const leafSpacing=Math.max(36,(H-margin*2)/totalLeaves);
   let leafIdx=0;
   function assign(n,depth){
     if(!n.children||!n.children.length||n._collapsed){
@@ -1950,100 +2188,7 @@ function resetDomains() {
   scheduleRender();
 }
 
-// ══════════════════════════════════════════════════════
-// SVG SILHOUETTE ICONS (replace emojis)
-// ══════════════════════════════════════════════════════
-const NODE_ICONS = {
-  bacteria: 'M12 4c-1.5 0-3 .8-3 2.5v11c0 1.7 1.5 2.5 3 2.5s3-.8 3-2.5v-11C15 4.8 13.5 4 12 4z',
-  archaea: 'M12 3l-3 5.5 1.5 3-2.5 4.5L12 21l4-5-2.5-4.5L15 8.5 12 3z',
-  plant: 'M12 22V12m0 0c0-4-3-7-7-8 1 3 3.5 6 7 8zm0 0c0-4 3-7 7-8-1 3-3.5 6-7 8z',
-  fungus: 'M12 22v-8m0 0c-5 0-8-3-8-6s3-5 8-5 8 2 8 5-3 6-8 6z',
-  animal: 'M4 13c0-4.4 3.6-8 8-8s8 3.6 8 8c0 2-1.5 3-3 3h-2l-1 3h-4l-1-3H7c-1.5 0-3-1-3-3z',
-  fish: 'M2 12c3-4 7-6 11-6 2 0 4 1.5 5 3l4-3v6l-4-3c-1 1.5-3 3-5 3-4 0-8-2-11-6zm13-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
-  bird: 'M3 15c2-4 6-7 10-7h3l5-4-2 5c1 2 1 4 0 6l-4-1-3 3-2-3c-3 0-5 .5-7 1z',
-  reptile: 'M3 14c1-2 3-3 5-3h2l2-2h3l3 1 3-1 1 2-2 1v2l-2 1-3-1-3 1-2-1H8l-3 2-2-2z',
-  amphibian: 'M7 8a5 5 0 0 1 10 0c0 2-1 3-2 4v3c0 1-1 2-3 2s-3-1-3-2v-3c-1-1-2-2-2-4zm3-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
-  insect: 'M12 4a2 2 0 0 1 2 2c0 .5-.2 1-.5 1.3.9.5 1.5 1.4 1.5 2.7 0 1-.4 1.8-1 2.3.6.7 1 1.6 1 2.7 0 2-1.3 3-3 3s-3-1-3-3c0-1.1.4-2 1-2.7-.6-.5-1-1.3-1-2.3 0-1.3.6-2.2 1.5-2.7-.3-.3-.5-.8-.5-1.3a2 2 0 0 1 2-2zM8 9l-3-2m0 6l3-1m8-3l3-2m0 6l-3-1',
-  mollusk: 'M16 12a6 6 0 0 0-5-5.9c.6-1.2 1-2.1 1-2.1s-2 .5-3.5 2C5.5 8 4 11 6 14s5 4 8 3c1.5-.5 2.5-2 2.5-4-.2-.3-.3-.7-.5-1z',
-  cnidarian: 'M12 3c-3 0-6 3-6 7 0 2 1 3 2 3h8c1 0 2-1 2-3 0-4-3-7-6-7zm-4 12l-1 5m2-5v5m2-5l1 5m2-5v5m2-5l1 5',
-  sponge: 'M8 4c-2 1-3 4-3 8s1 7 3 8h8c2-1 3-4 3-8s-1-7-3-8H8zm1 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 2a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 4a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
-  primate: 'M8 6a4 4 0 0 1 8 0c0 1.5-1 3-2 3.5.6.5 1 1.3 1 2.5v4c0 1-1 2-3 2s-3-1-3-2v-4c0-1.2.4-2 1-2.5C9 9 8 7.5 8 6zm2 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
-  hominin: 'M12 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6zm-2 7c-1.5 0-2.5 1-2.5 2.5V15l-2 7h3l1.5-5 .5 1.5V22h3v-3.5l.5-1.5L15.5 22h3l-2-7v-3.5C16.5 10 15.5 9 14 9h-4z',
-  mammal: 'M4 11c0-3 2-5 5-5h1l2-2 2 2h1c3 0 5 2 5 5v2c0 2-1 3-2 3l-1 3h-2l-1-3h-4l-1 3H7l-1-3c-1 0-2-1-2-3v-2zm5 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm6 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
-  default: 'M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16zm0 3a5 5 0 1 1 0 10 5 5 0 0 1 0-10z',
-  echinoderm: 'M12 2l2.5 6.5L21 10l-5 4.5 1.5 7L12 18l-5.5 3.5L8 14.5 3 10l6.5-1.5L12 2z',
-  worm: 'M6 8c0-2 2-3 4-3s3 1 3 3c0 1.5-1 2.5-2 3 1.5.5 3 2 3 4 0 2.5-2 4-4.5 4S5 17.5 5 15c0-2 1.5-3.5 3-4-1-.5-2-1.5-2-3z',
-  crustacean: 'M5 10c0-2 3-4 7-4s7 2 7 4c0 1.5-1 2.5-2.5 3l1.5 4h-3l-1-3h-4l-1 3H6l1.5-4C6 12.5 5 11.5 5 10zm4 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm6 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z'
-};
-
-// Map node IDs to icon groups
-function getIconGroup(n) {
-  const id = n.id;
-  // Specific ID mappings
-  const ID_MAP = {
-    'luca': 'default',
-    'bacteria': 'bacteria', 'cyanobacteria': 'bacteria', 'proteobacteria': 'bacteria',
-    'firmicutes': 'bacteria', 'actinobacteria': 'bacteria', 'spirochetes': 'bacteria',
-    'deinococcus': 'bacteria', 'bacteroides': 'bacteria',
-    'prochlorococcus': 'bacteria', 'nostoc': 'bacteria', 'ecoli': 'bacteria',
-    'helicobacter': 'bacteria', 'vibrio-cholerae': 'bacteria',
-    'lactobacillus': 'bacteria', 'clostridium-botulinum': 'bacteria',
-    'streptomyces': 'bacteria', 'mycobacterium-tb': 'bacteria',
-    'archaea': 'archaea', 'euryarchaeota': 'archaea', 'asgard': 'archaea',
-    'halobacterium': 'archaea', 'sulfolobus': 'archaea', 'pyrolobus': 'archaea',
-    'lokiarchaeota': 'archaea', 'methanobacterium': 'archaea',
-    'eukaryota': 'default',
-    'fungi': 'fungus', 'ascomycetes': 'fungus', 'basidiomycetes': 'fungus', 'chytrids': 'fungus',
-    'saccharomyces': 'fungus', 'penicillium': 'fungus', 'amanita-muscaria': 'fungus',
-    'armillaria': 'fungus', 'psilocybe': 'fungus', 'batrachochytrium': 'fungus',
-    'plantae': 'plant', 'bryophytes': 'plant', 'angiosperms': 'plant',
-    'gymnosperms': 'plant', 'ferns': 'plant',
-    'sphagnum': 'plant', 'marchantia': 'plant', 'arabidopsis': 'plant',
-    'rafflesia': 'plant', 'titan-arum': 'plant', 'mimosa-pudica': 'plant',
-    'wollemia': 'plant', 'welwitschia': 'plant', 'sequoia': 'plant',
-    'tree-fern': 'plant', 'azolla': 'plant',
-    'animalia': 'animal',
-    'invertebrates': 'crustacean', 'insects': 'insect',
-    'horseshoe-crab': 'crustacean', 'mantis-shrimp': 'crustacean', 'honey-bee': 'insect',
-    'cephalopods': 'mollusk', 'octopus': 'mollusk', 'nautilus': 'mollusk',
-    'cnidarians': 'cnidarian', 'turritopsis': 'cnidarian', 'coral': 'cnidarian',
-    'echinoderms': 'echinoderm', 'annelids': 'worm',
-    'vertebrates': 'fish',
-    'fish': 'fish', 'coelacanth': 'fish', 'shark': 'fish',
-    'reptiles': 'reptile', 'komodo-dragon': 'reptile', 'tuatara': 'reptile',
-    'birds': 'bird', 'archaeopteryx': 'bird', 'peregrine-falcon': 'bird',
-    'amphibians': 'amphibian',
-    'mammals': 'mammal', 'cetaceans': 'mammal', 'blue-whale': 'mammal',
-    'naked-mole-rat': 'mammal', 'platypus': 'mammal',
-    'primates': 'primate', 'great-apes': 'primate',
-    'orangutan': 'primate', 'gorilla': 'primate', 'chimpanzee': 'primate',
-    'homo-sapiens': 'hominin', 'hominini': 'hominin',
-    'protists': 'default', 'alveolates': 'default', 'stramenopiles': 'default',
-    'amoebozoa': 'default',
-    'plasmodium': 'insect', 'paramecium': 'default', 'dinoflagellates': 'default',
-    'diatoms': 'default', 'phytophthora': 'default',
-    'amoeba-proteus': 'default', 'volvox': 'default',
-    'sponges': 'sponge',
-  };
-  if (ID_MAP[id]) return ID_MAP[id];
-  // Hominin species from HOMININS array — map by group
-  if (n.group) {
-    const HOMININ_GROUP_MAP = { 'homo': 'hominin', 'proto': 'primate', 'australopith': 'primate', 'paranthropus': 'primate' };
-    if (HOMININ_GROUP_MAP[n.group]) return HOMININ_GROUP_MAP[n.group];
-  }
-  // Group nodes (group-homo, group-proto, etc.)
-  if (id.startsWith('group-')) return id === 'group-homo' ? 'hominin' : 'primate';
-  // Fallback: check ancestry
-  let p = n._parent;
-  while (p) {
-    if (ID_MAP[p.id]) {
-      const pg = ID_MAP[p.id];
-      if (pg !== 'default') return pg;
-    }
-    p = p._parent;
-  }
-  return 'default';
-}
+// NODE_ICONS and getIconGroup() loaded from js/nodeIcons.js
 
 // ══════════════════════════════════════════════════════
 // HUMAN EVOLUTION PATH (highlighted from root to Homo sapiens)
@@ -2757,8 +2902,10 @@ async function fetchWikiPhoto(nodeId, wikiTitle, imgEl, fallbackEl, creditEl) {
   if (window._photoCache[cacheKey]) {
     const cached = window._photoCache[cacheKey];
     imgEl.src = cached.url;
-    imgEl.style.display = 'block';
-    if (fallbackEl) fallbackEl.style.display = 'none';
+    imgEl.classList.add('loaded');
+    const hero = imgEl.closest('.panel-hero');
+    if (hero) hero.classList.add('has-image');
+    if (fallbackEl) fallbackEl.classList.add('hidden');
     if (creditEl && cached.credit) creditEl.textContent = cached.credit;
     return;
   }
@@ -2773,8 +2920,10 @@ async function fetchWikiPhoto(nodeId, wikiTitle, imgEl, fallbackEl, creditEl) {
       const url = thumb.source.replace(/\/\d+px-/, '/640px-');
       window._photoCache[cacheKey] = { url, credit: 'Wikipedia / Wikimedia Commons' };
       imgEl.src = url;
-      imgEl.style.display = 'block';
-      if (fallbackEl) fallbackEl.style.display = 'none';
+      imgEl.classList.add('loaded');
+      const hero = imgEl.closest('.panel-hero');
+      if (hero) hero.classList.add('has-image');
+      if (fallbackEl) fallbackEl.classList.add('hidden');
       if (creditEl) creditEl.textContent = 'Wikipedia / Wikimedia Commons';
     } else {
       throw new Error('No thumbnail');
@@ -2785,30 +2934,225 @@ async function fetchWikiPhoto(nodeId, wikiTitle, imgEl, fallbackEl, creditEl) {
 }
 
 // ── Panel rendering ──
+function _buildTimelineBar(node) {
+  if (node.appeared == null) return '';
+  const pct = Math.max(2, Math.min(98, (1 - node.appeared / 3800) * 100));
+  const col = node.color || 'var(--color-accent)';
+  return `
+    <div class="panel-timeline">
+      <div class="panel-timeline-track">
+        <div class="panel-timeline-fill" style="width:${pct}%;background:${col};"></div>
+        <div class="panel-timeline-marker" style="left:${pct}%;background:${col};"></div>
+      </div>
+      <div class="panel-timeline-labels" style="margin-top:18px;">
+        <span>3.8 Bya</span>
+        <span style="color:var(--color-text-secondary);font-weight:600;">~${node.appeared >= 1000 ? (node.appeared/1000).toFixed(1)+' Bya' : node.appeared+' Mya'}</span>
+        <span>Now</span>
+      </div>
+    </div>`;
+}
+
+function _buildRadarChart(node) {
+  const facts = node.facts;
+  if (!facts || facts.length < 3) return '';
+  // Extract numeric facts
+  const numFacts = [];
+  for (const f of facts) {
+    const m = String(f.v).match(/^[\d,.]+/);
+    if (m) {
+      const val = parseFloat(m[0].replace(/,/g, ''));
+      if (!isNaN(val) && val > 0) numFacts.push({ label: f.l, value: val });
+    }
+    if (numFacts.length >= 6) break;
+  }
+  if (numFacts.length < 3) return '';
+  const n = numFacts.length;
+  const cx = 60, cy = 60, R = 48;
+  const maxVal = Math.max(...numFacts.map(f => f.value));
+  const col = node.color || 'var(--color-accent)';
+  // Build polygon points
+  const pts = numFacts.map((f, i) => {
+    const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+    const r = (f.value / maxVal) * R;
+    return `${cx + r * Math.cos(angle)},${cy + r * Math.sin(angle)}`;
+  }).join(' ');
+  // Build axis lines and labels
+  let axes = '';
+  numFacts.forEach((f, i) => {
+    const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+    const x2 = cx + R * Math.cos(angle);
+    const y2 = cy + R * Math.sin(angle);
+    axes += `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="var(--color-divider)" stroke-width="1"/>`;
+    // Label position slightly beyond axis end
+    const lx = cx + (R + 14) * Math.cos(angle);
+    const ly = cy + (R + 14) * Math.sin(angle);
+    const anchor = Math.abs(Math.cos(angle)) < 0.1 ? 'middle' : Math.cos(angle) > 0 ? 'start' : 'end';
+    axes += `<text x="${lx}" y="${ly}" text-anchor="${anchor}" dominant-baseline="central" fill="var(--color-text-muted)" font-size="7" font-family="Inter,sans-serif">${f.label.length > 12 ? f.label.slice(0,11)+'…' : f.label}</text>`;
+  });
+  return `
+    <div class="panel-radar">
+      <svg width="140" height="140" viewBox="-10 -10 140 140">
+        ${axes}
+        <polygon points="${pts}" fill="${col}" fill-opacity="0.2" stroke="${col}" stroke-width="1.5"/>
+        ${numFacts.map((f, i) => {
+          const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
+          const r = (f.value / maxVal) * R;
+          return `<circle cx="${cx + r * Math.cos(angle)}" cy="${cy + r * Math.sin(angle)}" r="2.5" fill="${col}"/>`;
+        }).join('')}
+      </svg>
+    </div>`;
+}
+
+function _panelSection(icon, title, content, collapsed) {
+  return `
+    <div class="panel-section${collapsed ? ' collapsed' : ''}">
+      <div class="panel-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+        <span class="panel-section-title">${icon} ${title}</span>
+        <span class="panel-chevron">▼</span>
+      </div>
+      <div class="panel-section-body">${content}</div>
+    </div>`;
+}
+
 function renderPanelContent(node) {
   const p = document.getElementById('panel') || document.getElementById('info-panel');
   if (!p) return;
-  const extinctBadge = node.extinct
-    ? '<span style="background:#ef4444;color:white;font-size:10px;padding:2px 8px;border-radius:9999px;font-family:Inter,sans-serif;font-weight:600;letter-spacing:0.05em;">† EXTINCT</span>'
-    : '';
-  // WIKI_TITLES and PHOTO_MAP loaded from js/speciesData.js
-  // Merge data-level img with the lookup map; ImageLoader generated images take top priority
+
+  // ── Image sourcing ──
   const photoEntry = PHOTO_MAP[node.id];
   const generatedUrl = (typeof ImageLoader!=='undefined') ? ImageLoader.getGeneratedUrl(node.id) : null;
   let staticUrl = generatedUrl || (photoEntry && photoEntry.url) || node.img || null;
   const staticCredit = generatedUrl ? 'AI-generated illustration' : (photoEntry && photoEntry.credit) || node.imgCredit || null;
   const wikiTitle = WIKI_TITLES[node.id] || null;
-  // Suppress if this static URL previously failed
   if (staticUrl && window._failedPhotos && window._failedPhotos.has('static:' + node.id)) {
     staticUrl = null;
   }
-  const panelImgId = 'panel-species-img-' + node.id.replace(/[^a-z0-9]/g,'_');
-  const panelFbId  = 'panel-species-fb-'  + node.id.replace(/[^a-z0-9]/g,'_');
-  const panelCrId  = 'panel-species-cr-'  + node.id.replace(/[^a-z0-9]/g,'_');
+
+  // ── IDs for DOM references ──
+  const safeId = node.id.replace(/[^a-z0-9]/g,'_');
+  const panelImgId = 'panel-hero-img-' + safeId;
+  const panelFbId  = 'panel-hero-fb-'  + safeId;
+  const panelCrId  = 'panel-hero-cr-'  + safeId;
+
+  // ── SVG silhouette fallback ──
+  const iconGroup = (typeof getIconGroup==='function') ? getIconGroup(node) : 'default';
+  const iconPath = (typeof NODE_ICONS!=='undefined' && NODE_ICONS[iconGroup]) || (typeof NODE_ICONS!=='undefined' && NODE_ICONS.default) || '';
+  const nodeColor = node.color || '#555';
+
+  // ── Lineage badge ──
+  const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','homo-sapiens'];
+  const HOMININ_IDS = ['h_sapiens','h_erectus','h_habilis','h_heidelbergensis','h_floresiensis','h_naledi','h_luzonensis','h_rudolfensis','h_antecessor','h_bodoensis','h_longi','denisovans','au_afarensis','au_africanus','au_anamensis','au_bahrelghazali','au_deyiremeda','au_garhi','au_sediba','au_prometheus','sahelanthropus','ardipithecus_r','hominini'];
+  const isGreatApe = GREAT_APE_IDS.includes(node.id);
+  const isHuman = HOMININ_IDS.includes(node.id) || (node.tags && (node.tags.includes('Hominin') || node.tags.includes('Human evolution')));
+  const lineageBadge = isHuman
+    ? '<span class="panel-lineage-badge human">🧬 Human Lineage</span>'
+    : isGreatApe
+    ? '<span class="panel-lineage-badge great-ape">🦍 Great Apes</span>'
+    : '';
+
+  // ── Extinct badge ──
+  const extinctBadge = node.extinct
+    ? '<span style="background:#ef4444;color:white;font-size:10px;padding:2px 8px;border-radius:9999px;font-weight:600;letter-spacing:0.05em;">† EXTINCT</span>'
+    : '';
+
+  // ── Overview section content (p22) ──
+  let overviewHtml = '';
+  if (node.desc) overviewHtml += `<p class="panel-desc">${node.desc}</p>`;
+  if (node.funFact) overviewHtml += `
+    <div class="panel-fun-fact">
+      <div class="panel-fun-fact-label">💡 DID YOU KNOW</div>
+      <p class="panel-fun-fact-text">${node.funFact}</p>
+    </div>`;
+  if (node.detail) overviewHtml += `<p class="panel-detail">${node.detail}</p>`;
+  if (node.tipFact) overviewHtml += `<div class="panel-tip">🌿 ${node.tipFact}</div>`;
+
+  // ── Key Facts section content (p22) ──
+  let factsHtml = '';
+  if (node.facts && node.facts.length > 0) {
+    factsHtml += `
+      <div class="panel-facts-grid">
+        ${node.facts.map(f => `
+          <div class="panel-fact-row">
+            <span class="panel-fact-label">${f.l}</span>
+            <span class="panel-fact-value">${f.v}</span>
+          </div>
+        `).join('')}
+      </div>`;
+    factsHtml += _buildRadarChart(node);
+  }
+  if (node.tags && node.tags.length > 0) {
+    factsHtml += `
+      <div class="panel-tags">
+        ${node.tags.map(tag => `<span class="panel-tag">${tag}</span>`).join('')}
+      </div>`;
+  }
+
+  // ── Evolutionary Context section content (p22) ──
+  let evoHtml = _buildTimelineBar(node);
+  if (node.altFacts && node.altFacts.length > 0) {
+    evoHtml += `
+      <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px;">
+        ${node.altFacts.map(f => `<div class="panel-enrich-card">${f}</div>`).join('')}
+      </div>`;
+  }
+  if (node.links && node.links.length > 0) {
+    evoHtml += `
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">
+        ${node.links.map(lnk => `
+          <a href="${lnk.url}" target="_blank" rel="noopener noreferrer" class="panel-link-pill">↗ ${lnk.label}</a>
+        `).join('')}
+      </div>`;
+  }
+
+  // ── Hominin Data section content (p22) ──
+  const hominHtml = (()=>{
+    const h = node._hominData;
+    if(!h) return '';
+    const brainMax = h.brain && (h.brain[1]||h.brain[0]);
+    const neanPct = h.dna && h.dna.neanderthal != null ? h.dna.neanderthal : null;
+    const denPct = h.dna && h.dna.denisovan != null ? h.dna.denisovan : null;
+    let html = '';
+    if(brainMax){
+      html += `<div style="display:flex;flex-direction:column;gap:4px;">
+        <div class="panel-section-title">🧠 BRAIN VOLUME</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="panel-brain-bar"><div class="panel-brain-fill" style="width:${Math.round(brainMax/1750*100)}%;background:${h.color};"></div></div>
+          <span style="font-size:13px;color:var(--color-text-secondary);font-family:var(--font-mono);min-width:60px;">${brainMax} cm³</span>
+        </div>
+      </div>`;
+    }
+    const hasTools = h.tools && h.tools!=='None known' && h.tools!=='None';
+    const hasFire = h.fire && h.fire!=='No';
+    const hasLang = h.language && h.language!=='None';
+    if(hasTools || hasFire || hasLang){
+      html += `<div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">`;
+      if(hasTools) html += `<div style="font-size:13px;color:var(--color-text-secondary);font-family:var(--font-sans);">🪨 ${h.tools}</div>`;
+      if(hasFire) html += `<div style="font-size:13px;color:var(--color-text-secondary);font-family:var(--font-sans);">🔥 ${h.fire}</div>`;
+      if(hasLang) html += `<div style="font-size:13px;color:var(--color-text-secondary);font-family:var(--font-sans);">🗣️ ${h.language}</div>`;
+      html += `</div>`;
+    }
+    if(neanPct != null || denPct != null){
+      html += `<div style="display:flex;flex-direction:column;gap:4px;margin-top:8px;">
+        <div class="panel-section-title">🧬 DNA LEGACY</div>`;
+      if(neanPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-secondary);font-family:var(--font-sans);"><span style="min-width:80px;">Neanderthal</span><div class="panel-dna-bar"><div class="panel-dna-fill" style="width:${Math.min(100,neanPct*25)}%;background:#7A9BAA;"></div></div><span style="font-family:var(--font-mono);">${neanPct}%</span></div>`;
+      if(denPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-text-secondary);font-family:var(--font-sans);"><span style="min-width:80px;">Denisovan</span><div class="panel-dna-bar"><div class="panel-dna-fill" style="width:${Math.min(100,denPct*20)}%;background:#7A8BAA;"></div></div><span style="font-family:var(--font-mono);">${denPct}%</span></div>`;
+      if(h.dna && h.dna.note) html += `<div style="font-size:11px;color:var(--color-text-muted);font-style:italic;">${h.dna.note}</div>`;
+      html += `</div>`;
+    }
+    if(h.sites && h.sites.length){
+      html += `<div style="display:flex;flex-direction:column;gap:4px;margin-top:8px;">
+        <div class="panel-section-title">📍 FOSSIL SITES</div>
+        <div style="font-size:13px;color:var(--color-text-secondary);font-family:var(--font-sans);line-height:1.6;">${h.sites.join(' · ')}</div>
+      </div>`;
+    }
+    return html;
+  })();
+
+  // ── Build panel HTML ──
   p.innerHTML = `
-    <div style="width:100%;aspect-ratio:16/9;background:#111;overflow:hidden;position:relative;flex-shrink:0;">
-      <img id="${panelImgId}" src="${staticUrl || ''}" alt="${node.name}"
-        style="width:100%;height:100%;object-fit:cover;display:${staticUrl ? 'block' : 'none'};"
+    <div class="panel-hero${staticUrl ? ' has-image' : ''}" style="background:linear-gradient(135deg,${nodeColor}22,${nodeColor}08);">
+      <img id="${panelImgId}" class="panel-hero-img${staticUrl ? ' loaded' : ''}"
+        src="${staticUrl || ''}" alt="${node.name}"
         onerror="(function(el){
           if(typeof ImageLoader!=='undefined'&&el.dataset.source==='generated'){
             ImageLoader.markFailed('${node.id}');
@@ -2816,136 +3160,43 @@ function renderPanelContent(node) {
             if(fb){el.dataset.source='fallback';el.src=fb;return;}
           }
           (window._failedPhotos||(window._failedPhotos=new Set())).add('static:${node.id}');
-          el.style.display='none';document.getElementById('${panelFbId}').style.display='flex';
+          el.classList.remove('loaded');
+          var hero=el.closest('.panel-hero');if(hero)hero.classList.remove('has-image');
+          document.getElementById('${panelFbId}').classList.remove('hidden');
+        })(this);"
+        onload="(function(el){
+          el.classList.add('loaded');
+          var hero=el.closest('.panel-hero');if(hero)hero.classList.add('has-image');
+          document.getElementById('${panelFbId}').classList.add('hidden');
         })(this);"
         data-source="${generatedUrl ? 'generated' : 'static'}"
       />
-      <div id="${panelFbId}" style="display:${staticUrl ? 'none' : 'flex'};width:100%;height:100%;align-items:center;justify-content:center;font-size:72px;background:#111;">${node.icon||'🌿'}</div>
-      <div id="${panelCrId}" style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.65);font-family:'Inter',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.35);padding:1px 5px;border-radius:3px;">${staticCredit||''}</div>
+      <div id="${panelFbId}" class="panel-hero-fallback${staticUrl ? ' hidden' : ''}"
+        style="background:linear-gradient(135deg,${nodeColor}30,${nodeColor}10);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="${nodeColor}" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5;">
+          <path d="${iconPath}"/>
+        </svg>
+      </div>
+      <div class="panel-hero-gradient"></div>
+      <div class="panel-hero-shimmer"></div>
+      <div id="${panelCrId}" class="panel-hero-credit">${staticCredit||''}</div>
     </div>
-    <div style="padding:20px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;flex:1;">
-      ${(()=>{
-        const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','homo-sapiens'];
-        const HOMININ_IDS   = ['homo-sapiens','h_erectus','h_habilis','h_neanderthalensis','h_heidelbergensis','h_floresiensis','h_naledi','h_luzonensis','denisovan','au_afarensis','au_africanus','sahelanthropus','ardipithecus_r'];
-        const isGreatApe    = GREAT_APE_IDS.includes(node.id) || node.id === 'great-apes';
-        const isHuman       = HOMININ_IDS.includes(node.id) || (node.tags && (node.tags.includes('Hominin') || node.tags.includes('Human evolution')));
-        if (isHuman) return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b07a3e;font-family:'Inter',sans-serif;text-transform:uppercase;background:rgba(176,122,62,0.12);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,122,62,0.3);">🧬 Human Lineage</span></div>`;
-        if (isGreatApe) return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b03535;font-family:'Inter',sans-serif;text-transform:uppercase;background:rgba(176,53,53,0.1);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,53,53,0.25);">🦍 Great Apes</span></div>`;
-        return '';
-      })()}
-      <div style="display:flex;flex-direction:column;gap:6px;">
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <h2 style="font-family:'Inter',sans-serif;font-size:22px;font-weight:700;color:var(--color-text-primary);margin:0;line-height:1.2;">${node.name}</h2>
+    <div class="panel-body">
+      ${lineageBadge ? `<div style="margin-bottom:-4px;">${lineageBadge}</div>` : ''}
+      <div class="panel-header">
+        <div class="panel-title-row">
+          <h2 class="panel-title">${node.name}</h2>
           ${extinctBadge}
         </div>
-        ${node.latin ? `<div style="font-style:italic;font-size:13px;color:var(--color-text-muted);font-family:'Inter',sans-serif;">${node.latin}</div>` : ''}
-        ${node.era ? `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">📅 ${node.era}${node.appeared ? ' · ' + node.appeared + ' Mya' : ''}</div>` : ''}
+        ${node.latin ? `<div class="panel-latin">${node.latin}</div>` : ''}
+        ${node.era ? `<div class="panel-era"><span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${node.color || 'var(--color-accent)'};margin-right:6px;vertical-align:middle;"></span>${node.era}${node.appeared ? ' · ' + node.appeared + ' Mya' : ''}</div>` : ''}
       </div>
-      ${node.desc ? `<p style="font-size:14px;line-height:1.7;color:var(--color-text-secondary);font-family:'Inter',sans-serif;margin:0;">${node.desc}</p>` : ''}
-      ${node.funFact ? `
-        <div style="border-left:3px solid var(--color-accent);padding:12px 16px;background:rgba(46,125,50,0.06);border-radius:0 8px 8px 0;">
-          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;margin-bottom:6px;font-family:'Inter',sans-serif;">💡 DID YOU KNOW</div>
-          <p style="font-family:'Inter',sans-serif;font-style:italic;font-size:14px;line-height:1.6;color:var(--color-text-primary);margin:0;">${node.funFact}</p>
-        </div>
-      ` : ''}
-      ${node.detail ? `<p style="font-size:13px;line-height:1.7;color:var(--color-text-muted);font-family:'Inter',sans-serif;margin:0;">${node.detail}</p>` : ''}
-      ${node.facts && node.facts.length > 0 ? `
-        <div style="display:flex;flex-direction:column;gap:1px;border-radius:8px;overflow:hidden;border:1px solid var(--color-divider);">
-          ${node.facts.map((f, i) => `
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;background:${i % 2 === 0 ? 'var(--color-canvas-alt)' : 'var(--color-panel-bg)'};">
-              <span style="font-size:12px;color:var(--color-text-muted);font-family:'Inter',sans-serif;">${f.l}</span>
-              <span style="font-size:13px;font-weight:600;color:var(--color-text-primary);font-family:'Inter',sans-serif;text-align:right;max-width:60%;">${f.v}</span>
-            </div>
-          `).join('')}
-        </div>
-      ` : ''}
-      ${node.tags && node.tags.length > 0 ? `
-        <div style="display:flex;flex-wrap:wrap;gap:6px;">
-          ${node.tags.map(tag => `
-            <span style="font-size:11px;padding:3px 10px;border-radius:9999px;background:var(--color-button-bg);border:1px solid var(--color-button-border);color:var(--color-text-secondary);font-family:'Inter',sans-serif;">${tag}</span>
-          `).join('')}
-        </div>
-      ` : ''}
-      ${node.tipFact ? `
-        <div style="padding:12px;background:var(--color-button-bg);border-radius:8px;font-size:12px;color:var(--color-text-muted);font-family:'Inter',sans-serif;font-style:italic;text-align:center;">
-          🌿 ${node.tipFact}
-        </div>
-      ` : ''}
-      ${node.altFacts && node.altFacts.length > 0 ? `
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">📚 DID YOU KNOW?</div>
-          ${node.altFacts.map(f=>`
-            <div style="padding:10px;background:var(--color-button-bg);border-radius:8px;font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">${f}</div>
-          `).join('')}
-        </div>
-      ` : ''}
-      ${node.links && node.links.length > 0 ? `
-        <div style="display:flex;flex-direction:column;gap:6px;">
-          <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">🔗 LEARN MORE</div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;">
-            ${node.links.map(lnk=>`
-              <a href="${lnk.url}" target="_blank" rel="noopener noreferrer"
-                style="font-size:12px;padding:5px 12px;border-radius:9999px;background:var(--color-button-bg);border:1px solid var(--color-button-border);color:var(--color-accent);font-family:'Inter',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:4px;"
-                onmouseover="this.style.background='var(--color-accent)';this.style.color='white';"
-                onmouseout="this.style.background='var(--color-button-bg)';this.style.color='var(--color-accent)';">
-                ↗ ${lnk.label}
-              </a>
-            `).join('')}
-          </div>
-        </div>
-      ` : ''}
-      ${(()=>{
-        const h = node._hominData;
-        if(!h) return '';
-        const brainMax = h.brain && (h.brain[1]||h.brain[0]);
-        const neanPct = h.dna && h.dna.neanderthal != null ? h.dna.neanderthal : null;
-        const denPct = h.dna && h.dna.denisovan != null ? h.dna.denisovan : null;
-        let html = '';
-        // Brain volume bar
-        if(brainMax){
-          html += `<div style="display:flex;flex-direction:column;gap:4px;">
-            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">🧠 BRAIN VOLUME</div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <div style="flex:1;height:8px;background:var(--color-canvas-alt);border-radius:4px;overflow:hidden;">
-                <div style="width:${Math.round(brainMax/1750*100)}%;height:100%;background:${h.color};border-radius:4px;"></div>
-              </div>
-              <span style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;min-width:60px;">${brainMax} cm³</span>
-            </div>
-          </div>`;
-        }
-        // Capabilities row
-        const hasTools = h.tools && h.tools!=='None known' && h.tools!=='None';
-        const hasFire = h.fire && h.fire!=='No';
-        const hasLang = h.language && h.language!=='None';
-        if(hasTools || hasFire || hasLang){
-          html += `<div style="display:flex;gap:12px;flex-wrap:wrap;">`;
-          if(hasTools) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">🪨 ${h.tools}</div>`;
-          if(hasFire) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">🔥 ${h.fire}</div>`;
-          if(hasLang) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">🗣️ ${h.language}</div>`;
-          html += `</div>`;
-        }
-        // DNA introgression
-        if(neanPct != null || denPct != null){
-          html += `<div style="display:flex;flex-direction:column;gap:4px;">
-            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">🧬 DNA LEGACY</div>`;
-          if(neanPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;"><span style="min-width:80px;">Neanderthal</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,neanPct*25)}%;height:100%;background:#7A9BAA;border-radius:3px;"></div></div><span>${neanPct}%</span></div>`;
-          if(denPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;"><span style="min-width:80px;">Denisovan</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,denPct*20)}%;height:100%;background:#7A8BAA;border-radius:3px;"></div></div><span>${denPct}%</span></div>`;
-          if(h.dna && h.dna.note) html += `<div style="font-size:11px;color:var(--color-text-muted);font-style:italic;">${h.dna.note}</div>`;
-          html += `</div>`;
-        }
-        // Fossil sites
-        if(h.sites && h.sites.length){
-          html += `<div style="display:flex;flex-direction:column;gap:4px;">
-            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">📍 FOSSIL SITES</div>
-            <div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;line-height:1.6;">${h.sites.join(' · ')}</div>
-          </div>`;
-        }
-        return html;
-      })()}
-      ${(()=>{const isHominin=node._hominData||node.id==='hominini'||(node.id&&node.id.startsWith('hom-'));return isHominin?`<button onclick="openHomininView()" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--color-accent);color:white;cursor:pointer;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">🧬 Hominin Deep Dive</button>`:'';})()}
-      <button onclick="closePanel()" style="margin-top:8px;padding:10px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;color:var(--color-text-secondary);">
-        Close
-      </button>
+      ${overviewHtml ? _panelSection('📋', 'Overview', overviewHtml, false) : ''}
+      ${factsHtml ? _panelSection('📊', 'Key Facts', factsHtml, false) : ''}
+      ${evoHtml ? _panelSection('🌍', 'Evolutionary Context', evoHtml, node.altFacts && node.altFacts.length > 3) : ''}
+      ${hominHtml ? _panelSection('🧬', 'Hominin Data', hominHtml, false) : ''}
+      ${(()=>{const isHominin=node._hominData||node.id==='hominini'||(node.id&&node.id.startsWith('hom-'));return isHominin?`<button onclick="openHomininView()" class="panel-hominin-btn">🧬 Hominin Deep Dive</button>`:'';})()}
+      <button onclick="closePanel()" class="panel-close-btn">Close</button>
     </div>
   `;
   // Inject back button at top if we have nav history
@@ -2966,7 +3217,6 @@ function renderPanelContent(node) {
     const fbEl  = document.getElementById(panelFbId);
     const crEl  = document.getElementById(panelCrId);
     if (imgEl && fbEl) {
-      // If static URL already loaded, still try API for a better/larger photo
       fetchWikiPhoto(node.id, wikiTitle, imgEl, fbEl, crEl);
     }
   }
@@ -4242,12 +4492,37 @@ window.addEventListener('resize',()=>{layout();scheduleRender();});
 })();
 
 init();
+
+// ── Service Worker registration ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+
+// ── Offline indicator ──
+(function() {
+  const banner = document.createElement('div');
+  banner.id = 'offline-banner';
+  banner.setAttribute('role', 'status');
+  banner.setAttribute('aria-live', 'polite');
+  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;text-align:center;padding:6px 12px;font-family:Inter,sans-serif;font-size:13px;font-weight:500;background:#ef4444;color:#fff;transform:translateY(-100%);transition:transform 0.3s ease;pointer-events:none;';
+  banner.textContent = 'You are offline — cached content is being used';
+  document.body.appendChild(banner);
+
+  function update() {
+    banner.style.transform = navigator.onLine ? 'translateY(-100%)' : 'translateY(0)';
+  }
+  window.addEventListener('online', update);
+  window.addEventListener('offline', update);
+  update();
+})();
 </script>
-<footer style="position:fixed;bottom:4px;right:8px;font-family:'Inter',sans-serif;font-size:10px;color:var(--color-text-muted);opacity:0.6;z-index:10;pointer-events:none;">
+<footer id="i-footer" style="position:fixed;bottom:4px;right:8px;font-family:'Inter',sans-serif;font-size:10px;color:var(--color-text-muted);opacity:0.6;z-index:10;pointer-events:none;">
   Tree of Life · Images via Wikimedia Commons · Built with Claude
 </footer>
 <div id="shortcuts-hint" style="position:fixed;bottom:8px;right:8px;font-family:'Inter',sans-serif;font-size:11px;color:var(--color-text-muted);background:var(--color-canvas);border:1px solid var(--color-divider);border-radius:6px;padding:4px 10px;opacity:0;transition:opacity 300ms ease;pointer-events:none;z-index:50;">
-  Press <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">/</kbd> to search &nbsp;·&nbsp; <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">D</kbd> dark mode &nbsp;·&nbsp; <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">Esc</kbd> close
+  <span id="i-shortcuts-hint">Press <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">/</kbd> to search &nbsp;·&nbsp; <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">D</kbd> dark mode &nbsp;·&nbsp; <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">Esc</kbd> close</span>
 </div>
 </body>
 </html>

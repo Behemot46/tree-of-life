@@ -35,6 +35,7 @@
 | p27 | i18n completeness — translate all hardcoded English strings to HE/RU | PR #69 |
 | p24* | Code extraction — index.html from ~3,800 to ~1,500 lines; logic in js/core.js, renderer.js, panel.js, search.js | (incremental, across multiple PRs) |
 | p25 | WCAG 2.1 AA accessibility — skip link, focus-visible, reduced motion, ARIA landmarks, keyboard nav, focus trap, SR announcements, i18n a11y labels | `claude/funny-chatterjee` |
+| p26 | Rich data panels & visual identity — collapsible sections, timeline bar, radar chart, sub-groups | PR #86 `claude/nifty-moore` |
 
 ### Upcoming (unified roadmap — see docs/PROMPTS/README.md)
 
@@ -45,7 +46,7 @@
 | 1 | p22 | CI photo link checker | Pending |
 | 1 | p23 | Navigation stack unification | Pending |
 | 2 | p25 | Accessibility (keyboard nav, ARIA, focus) | **Done** |
-| 2 | p26 | Rich data panels & visual identity | Pending |
+| 2 | p26 | Rich data panels & visual identity | **Done** |
 | 2 | p27 | Always-visible hominin branch | Pending |
 | 3 | p28 | Lazy-loaded subtrees | Pending |
 | 3 | p29 | Inverted search index | Pending |

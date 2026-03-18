@@ -1,3 +1,48 @@
+# Session Handoff — 2026-03-18 (p26 — Rich Data Panels & Visual Identity)
+
+**Status: done**
+**Branch:** `claude/nifty-moore`
+**PR:** #86
+
+## 1. Session Goal
+Upgrade the species info panel with rich data presentation: collapsible sections, inline infographics (timeline bar, radar chart), sub-groups navigation, ENRICHMENT data rendering, and typography improvements.
+
+## 2. What I Changed
+
+### index.html — CSS (~30 lines added)
+- `.p-collapse` — collapsible section styling using native `<details>/<summary>` with custom arrow rotation, hover states, border treatment
+- `.p-timeline` — timeline bar with fill, marker, label, and era scale
+- `.p-radar` — centered SVG radar chart container with label styling
+
+### index.html — renderPanelContent() (rewritten, +281/-116 lines)
+- **Hero image**: gradient overlay (`linear-gradient(transparent, rgba(0,0,0,0.6))`) at bottom for credit readability
+- **Lineage badge**: now uses `node._hominData` presence instead of hardcoded ID list — correctly badges all 28 hominins
+- **Timeline bar**: horizontal bar showing appeared Mya on 0–3800 scale with era markers (Present, 1Bya, 2Bya, 3.8Bya)
+- **Collapsible sections**: 4 `<details class="p-collapse">` sections:
+  - Overview (desc, funFact, detail, tipFact) — open by default
+  - Key Facts (facts table, tags, radar chart) — open by default
+  - Evolutionary Context (hominin data, altFacts, links) — open by default
+  - Sub-groups (clickable children list) — collapsed by default
+- **Trait radar chart**: SVG spider chart with 8 dimensions mapped via regex:
+  - Complexity, Autotrophy, Mobility, Intelligence, Ecology, Resilience, Deep Time, Biotech
+  - Shows for ~8 nodes that have 3+ matching trait categories
+- **Sub-groups**: renders `node.children` as clickable list items with icon, name, latin, Mya
+- **Typography**: 26px h2 headings, 15px body, `var(--font-mono)` for data values and era
+
+## 3. Key Decisions
+- Used native `<details>/<summary>` for collapsible sections (zero JS needed, accessible by default)
+- Radar chart only appears when node has tags matching 3+ different trait dimensions
+- Sub-groups section uses `navigateTo()` for click handling — triggers tree navigation + panel update
+- ENRICHMENT altFacts + links moved into Evolutionary Context section (was standalone before)
+- Hominin data (brain volume, DNA legacy, fossil sites) also inside Evolutionary Context
+
+## 4. What's Left / Next Steps
+- p22 partially addressed — could add more infographics (size comparisons, range maps)
+- Radar chart coverage could be expanded with more tag→dimension mappings
+- Panel modularization opportunity remains (large template string)
+
+---
+
 # Session Handoff — 2026-03-18 (p25 — WCAG 2.1 AA Accessibility Overhaul)
 
 **Status: done**
@@ -76,127 +121,12 @@ Translate all remaining hardcoded English strings in the UI to Hebrew (HE) and R
 **Status: done**
 **Branch:** `claude/charming-einstein`
 
-## 1. Session Goal
-Enhance the species detail panel with richer data, larger fonts, collapsible sections, and inline mini-infographics.
-
-## 2. What I Changed
-
-### index.html — CSS (~45 lines added)
-- **Collapsible sections**: `.panel-section`, `.panel-section-header`, `.panel-section-body` with smooth max-height transition and rotating chevron
-- **Timeline bar**: `.panel-timeline`, `.panel-timeline-track`, `.panel-timeline-marker`, `.panel-timeline-labels` for inline SVG timeline
-- **Radar chart**: `.panel-radar` container for SVG spider charts
-- **Enrichment cards**: `.panel-alt-fact` with accent left-border styling
-- **Link pills**: `.panel-link-pill` with hover state (accent bg + white text)
-- **RTL support**: chevron rotation direction for `[dir="rtl"]`
-
-### index.html — JS (`renderPanelContent()` rewritten, 3 new helper functions)
-
-**New helper functions:**
-- `_buildTimelineBar(node)` — horizontal SVG timeline bar showing when species appeared relative to 3.8 Bya (LUCA). Marker dot + fill + labels at proportional position
-- `_buildRadarChart(node)` — SVG spider/radar chart (140x140) for species with ≥3 numeric facts. Extracts numeric values from facts grid, plots polygon with axes and labels
-- `_panelSection(icon, title, content, collapsed)` — reusable collapsible section builder with header, chevron, and body
-
-**Panel structure reorganized into 4 collapsible sections:**
-1. **Overview** (always open): desc + fun fact + detail + tip fact
-2. **Key Facts** (always open): facts grid (JetBrains Mono values) + radar chart + trait tags
-3. **Evolutionary Context** (auto-collapsed if >3 alt facts): timeline bar + enrichment alt-facts cards + link pills
-4. **Hominin Data** (always open, if applicable): brain volume, capabilities, DNA legacy, fossil sites
-
-**Typography upgrades:**
-- Species name: 22px → 26px, font-weight 700 → 800
-- Latin name: 13px → 15px
-- Body text (desc): 14px → 15px, line-height 1.7 → 1.8
-- Detail text: 13px → 14px, line-height 1.7 → 1.8
-- Facts values: 13px → 14px, `font-family: 'JetBrains Mono', monospace`
-- Era line: 12px → 13px, added colored domain dot (8px circle)
-- Section headers: 11px uppercase with 0.1em letter-spacing
-- Hominin brain volume/DNA values: JetBrains Mono font
-
-**Back button fix:**
-- Changed selector from `[style*="padding:20px"]` to `.panel-content-scroll` for more reliable back button injection
-
-## 3. Files Touched
-| File | Changes |
-|------|---------|
-| `index.html` | CSS (45 lines), JS (3 helper functions + rewritten renderPanelContent) |
-| `PROJECT_PROGRESS.md` | Added p22 to completed table, marked Done |
-| `SESSION_HANDOFF.md` | This file |
-
-## 4. Panel Section Architecture
-```
-Panel
-├── Hero image (16:9, unchanged)
-├── Lineage badge (Human Lineage / Great Apes)
-├── Title block (name + extinct badge + latin + era with colored dot)
-├── [Overview] section (collapsible)
-│   ├── Description (15px)
-│   ├── Fun fact card
-│   ├── Detail paragraph (14px)
-│   └── Tip fact
-├── [Key Facts] section (collapsible)
-│   ├── Facts grid (JetBrains Mono values)
-│   ├── Radar chart (if ≥3 numeric facts)
-│   └── Trait tags
-├── [Evolutionary Context] section (collapsible)
-│   ├── Timeline position bar (SVG)
-│   ├── Enrichment alt-facts cards
-│   └── External link pills
-├── [Hominin Data] section (if applicable, collapsible)
-│   ├── Brain volume bar
-│   ├── Capabilities (tools/fire/language)
-│   ├── DNA legacy bars
-│   └── Fossil sites
-├── Hominin Deep Dive button (if applicable)
-└── Close button
-```
-
-## 5. Infographics Implemented
-1. **Timeline position bar** — every species with `appeared` value gets a horizontal bar showing position in 3.8 Bya history
-2. **Trait radar chart** — species with ≥3 numeric facts get a spider chart with labeled axes
-3. Size comparison was skipped (insufficient body-size data in current tree nodes)
-
-## 6. Tests Performed
-- Panel renders with larger text, collapsible sections (fungi, bacteria, h_erectus tested)
-- Sections collapse/expand on click with chevron rotation
-- Timeline bar shows correct proportional position
-- Key Facts values use JetBrains Mono
-- Enrichment alt-facts render as styled cards with accent border
-- Link pills render with hover effect
-- Mobile bottom-sheet panel works
-- Zero console errors
-- Dark/light theme both functional
-
-## 7. Not Tested
-- Hebrew RTL section layout (CSS added but not visually verified)
-- Russian language rendering
-- Radar chart rendering (needs species with ≥3 numeric facts visible)
-- Desktop right-panel view (preview browser kept triggering mobile bottom-sheet)
-
-## 8. Known Issues
-- Desktop preview testing was difficult (SVG click handler closes panel on eval-triggered opens)
-- The mobile swipe-to-close can trigger when scrolling the panel content (pre-existing issue)
-
 ---
 
 # Session Handoff — 2026-03-15 (p23 — DNA Similarity Calculator)
 
 **Status: done**
 **Branch:** `claude/crazy-villani`
-
-### index.html
-- **HTML**: DNA Compare button (`#btn-dna-calc`), modal panel (`#dna-panel`) with species selectors, search overlay, results display, 4 quick presets
-- **CSS**: ~130 lines — modal styling, species slots, DNA bar, percentage display, badges, mobile responsive, dark/light theme
-- **JS**: ~120 lines — `openDnaCalc()`, `closeDnaCalc()`, `dnaPreset()`, search integration via `searchEntities()`, animated counter, Escape key handling, backdrop click close
-- **applyI18n()**: 10 new DNA calculator entries
-
-### js/uiData.js
-- 13 new i18n keys per language (EN/HE/RU)
-
-## 3. Known Issues / Follow-up
-- Some tree nodes use group IDs rather than species IDs — the calculator works with any node
-- The preset "You & a Banana" compares against "Flowering Plants" (`angiosperms`) since there's no banana-plant node
-- Hebrew RTL and Russian not visually verified
-- Mobile viewport not tested
 
 ---
 

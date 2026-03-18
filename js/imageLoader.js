@@ -5,7 +5,7 @@
    and search thumbnails. Implements:
    - Curated PHOTO_MAP (Wikimedia Commons) as primary source
    - Stable URL pattern: assets/species/{id}.webp for AI-generated
-   - Graceful fallback: PHOTO_MAP → generated → node.img → emoji
+   - Graceful fallback: generated .webp → PHOTO_MAP → node.img → emoji
    - Fail-once tracking (no retry loops per session)
    - Lazy, non-blocking loading
    ═══════════════════════════════════════════════════════════════ */
@@ -21,6 +21,14 @@ const ImageLoader = (() => {
   const SPECIES_IMAGE_BASE = 'assets/species/';
   const IMAGE_EXT = '.webp';
 
+  /* Manifest of node IDs with available generated images.
+     Only these IDs will attempt the local .webp URL — prevents
+     unnecessary 404s for nodes without generated art. */
+  const GENERATED_IDS = new Set([
+    'luca', 'bacteria', 'archaea', 'eukaryota', 'fungi',
+    'plantae', 'animalia', 'vertebrates', 'mammals', 'primates'
+  ]);
+
   /**
    * Register a PHOTO_MAP object for curated Wikimedia URLs.
    * Called once after PHOTO_MAP is defined in inline script.
@@ -34,6 +42,7 @@ const ImageLoader = (() => {
    * Returns null if the image already failed this session.
    */
   function getGeneratedUrl(nodeId) {
+    if (!GENERATED_IDS.has(nodeId)) return null;
     if (failedIds.has(nodeId)) return null;
     return SPECIES_IMAGE_BASE + nodeId + IMAGE_EXT;
   }
@@ -41,19 +50,19 @@ const ImageLoader = (() => {
   /**
    * Get the best available image URL for a node, synchronously.
    * Returns { url, source, credit }.
-   * Priority: PHOTO_MAP → generated .webp → node.img → null.
+   * Priority: generated .webp (local) → PHOTO_MAP → node.img → null.
    */
   function getBestUrl(nodeData) {
     const id = nodeData.id;
 
-    // 1. Curated PHOTO_MAP (Wikimedia Commons URLs) — highest priority
+    // 1. Generated image (local-first — if not already failed)
+    const genUrl = getGeneratedUrl(id);
+    if (genUrl) return { url: genUrl, source: 'generated', credit: 'AI-generated illustration' };
+
+    // 2. Curated PHOTO_MAP (Wikimedia Commons URLs)
     if (photoMap && photoMap[id]) {
       return { url: photoMap[id].url, source: 'photomap', credit: photoMap[id].credit };
     }
-
-    // 2. Generated image (if not already failed)
-    const genUrl = getGeneratedUrl(id);
-    if (genUrl) return { url: genUrl, source: 'generated', credit: 'AI-generated illustration' };
 
     // 3. Node's existing img field
     if (nodeData.img) return { url: nodeData.img, source: 'node', credit: nodeData.imgCredit || null };
@@ -105,13 +114,13 @@ const ImageLoader = (() => {
     }
 
     const onError = () => {
-      if (best.source === 'photomap') {
-        // Photomap failed, try generated
-        const genUrl = getGeneratedUrl(nodeData.id);
-        if (genUrl) {
-          setUrl(genUrl);
+      if (best.source === 'generated') {
+        // Generated failed, try PHOTO_MAP
+        markFailed(nodeData.id);
+        if (photoMap && photoMap[nodeData.id]) {
+          setUrl(photoMap[nodeData.id].url);
           imgEl.removeEventListener('error', onError);
-          imgEl.addEventListener('error', onGenError, { once: true });
+          imgEl.addEventListener('error', onPhotomapError, { once: true });
         } else if (nodeData.img) {
           setUrl(nodeData.img);
           imgEl.removeEventListener('error', onError);
@@ -119,8 +128,8 @@ const ImageLoader = (() => {
         } else {
           if (opts.onFallback) opts.onFallback(getEmoji(nodeData));
         }
-      } else if (best.source === 'generated') {
-        markFailed(nodeData.id);
+      } else if (best.source === 'photomap') {
+        // Photomap failed, try node.img
         if (nodeData.img) {
           setUrl(nodeData.img);
           imgEl.removeEventListener('error', onError);
@@ -133,8 +142,7 @@ const ImageLoader = (() => {
       }
     };
 
-    const onGenError = () => {
-      markFailed(nodeData.id);
+    const onPhotomapError = () => {
       if (nodeData.img) {
         setUrl(nodeData.img);
         imgEl.addEventListener('error', onFinalError, { once: true });

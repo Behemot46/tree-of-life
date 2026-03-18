@@ -1,3 +1,32 @@
+# Session Handoff — 2026-03-18 (Tree UX Improvements)
+
+**Status: done**
+**Branch:** `claude/magical-chebyshev`
+**PR:** #91
+
+## 1. Session Goal
+Fix node click behavior, branch structure, and visual quality issues.
+
+## 2. What I Changed
+
+### js/renderer.js
+- **Click behavior**: Left-click on branch nodes toggles expand/collapse (was panel-only). Left-click on leaf nodes opens info panel. Double-click any node always opens panel. Right-click still toggles as secondary.
+- **Branch styling**: stroke-width min 2px (was 1px), max 4.5px (was 3px). Opacity floor 0.4 (was 0.25). Added round stroke-linecap/linejoin attributes.
+- **Animation fix**: Entrance animation (opacity:0 → 1, scale:0.2 → 1) only runs on initial page load. On expand/collapse, newly-visible nodes appear instantly via `window._initialAnimDone` flag.
+
+### js/uiData.js
+- **DEPTH_R**: Increased ~40% — `[0,420,780,1120,1430,1720,2000,2270,2520,2760,2980]` (was `[0,300,560,800,1020,1230,1430,1620,1800,1970,2130]`)
+
+### js/core.js
+- **Fallback depth gap**: 120 → 170 for nodes beyond DEPTH_R array
+- **`_initialAnimDone` flag**: Set `true` after `animateTreeEntrance()` completes (~1.5s)
+
+## 3. Previous Session
+- p24: Code extraction (PR #90, merged)
+- p33: AI Species Illustrations (`claude/hungry-mclean`)
+
+---
+
 # Session Handoff — 2026-03-18 (p33 — AI Species Illustrations)
 
 **Status: done**

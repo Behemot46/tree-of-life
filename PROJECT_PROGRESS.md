@@ -36,6 +36,7 @@
 | p24* | Code extraction — index.html from ~3,800 to ~1,500 lines; logic in js/core.js, renderer.js, panel.js, search.js | (incremental, across multiple PRs) |
 | p25 | WCAG 2.1 AA accessibility — skip link, focus-visible, reduced motion, ARIA landmarks, keyboard nav, focus trap, SR announcements, i18n a11y labels | `claude/funny-chatterjee` |
 | p26 | Rich data panels & visual identity — collapsible sections, timeline bar, radar chart, sub-groups | PR #86 `claude/nifty-moore` |
+| p33 | AI species illustrations — 10 generated images, local-first ImageLoader | `claude/hungry-mclean` |
 
 ### Upcoming (unified roadmap — see docs/PROMPTS/README.md)
 

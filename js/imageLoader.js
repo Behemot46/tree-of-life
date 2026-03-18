@@ -25,6 +25,14 @@ const ImageLoader = (() => {
   const SPECIES_IMAGE_BASE = 'assets/species/';
   const IMAGE_FORMATS = ['.webp', '.png'];
 
+  /* Manifest of node IDs with available generated images.
+     Only these IDs will attempt the local .webp URL — prevents
+     unnecessary 404s for nodes without generated art. */
+  const GENERATED_IDS = new Set([
+    'luca', 'bacteria', 'archaea', 'eukaryota', 'fungi',
+    'plantae', 'animalia', 'vertebrates', 'mammals', 'primates'
+  ]);
+
   /**
    * Register a PHOTO_MAP object for curated Wikimedia URLs.
    * Called once after PHOTO_MAP is defined in inline script.
@@ -39,6 +47,7 @@ const ImageLoader = (() => {
    * Tries confirmed format first, defaults to .webp.
    */
   function getGeneratedUrl(nodeId) {
+    if (!GENERATED_IDS.has(nodeId)) return null;
     if (failedIds.has(nodeId)) return null;
     const ext = confirmedFormats[nodeId] || IMAGE_FORMATS[0];
     return SPECIES_IMAGE_BASE + nodeId + ext;
@@ -57,7 +66,7 @@ const ImageLoader = (() => {
   /**
    * Get the best available image URL for a node, synchronously.
    * Returns { url, source, credit }.
-   * Priority: generated .webp/.png → PHOTO_MAP → node.img → null.
+   * Priority: generated .webp/.png (local) → PHOTO_MAP → node.img → null.
    */
   function getBestUrl(nodeData) {
     const id = nodeData.id;

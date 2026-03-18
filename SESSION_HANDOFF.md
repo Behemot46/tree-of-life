@@ -1,3 +1,58 @@
+# Session Handoff — 2026-03-18 (p33 — AI Species Illustrations)
+
+**Status: done**
+**Branch:** `claude/hungry-mclean`
+
+## 1. Session Goal
+Generate AI species illustrations via Canva MCP, save as optimized .webp in assets/species/, update ImageLoader to prefer local images over PHOTO_MAP.
+
+## 2. What I Changed
+
+### assets/species/ (10 new .webp files, ~330KB total)
+- Generated 10 species illustrations via Canva MCP `generate-design` tool (instagram_post format)
+- Exported as 512x512 PNG, converted to WebP via Pillow (quality=82, 89-95% size reduction)
+- Species covered: **luca, bacteria, archaea, eukaryota, fungi, plantae, animalia, vertebrates, mammals, primates**
+
+### js/imageLoader.js
+- **Added GENERATED_IDS manifest**: Set of 10 node IDs with available local art — prevents 404s for species without generated images
+- Integrated with main's format fallback (.webp → .png) and confirmedFormats cache
+
+## 3. Why These Changes Were Made
+- ImageLoader already had infrastructure for generated .webp images (`SPECIES_IMAGE_BASE`, `getGeneratedUrl()`) but no actual images existed in assets/species/
+- The old priority (PHOTO_MAP first) meant local images would never be used for species that had PHOTO_MAP entries
+- Without GENERATED_IDS manifest, the local-first approach would cause 130+ 404 requests on every page load for species without generated art
+
+## 4. How to Add More Generated Images
+1. Generate/create the image
+2. Save as `assets/species/{node-id}.webp` (512x512, quality ~82)
+3. Add the node ID to `GENERATED_IDS` set in `js/imageLoader.js`
+4. That's it — ImageLoader will automatically prefer the local file
+
+## 5. Canva MCP Quota
+- Generated 10 out of planned 20 images before hitting Canva's daily quota limit
+- Remaining targets: h_sapiens, cyanobacteria, octopus, shark, blue-whale, neanderthal, sequoia, coral, honey-bee, coelacanth
+- These can be added in a follow-up session when quota resets
+
+## 6. Tests Performed
+- Zero console errors on page load
+- All 10 generated species resolve to `source: "generated"` with local .webp URLs
+- Non-generated species correctly skip to PHOTO_MAP (no wasted 404s)
+- Tree renders with visible photo thumbnails on generated nodes
+- Fallback chain works: generated → PHOTO_MAP → node.img → emoji
+
+## 7. Not Tested
+- Panel hero image display for generated species
+- Mobile layout
+- Hebrew/Russian language modes
+- Light theme rendering of generated images
+
+## 8. Known Issues
+- Canva designs may include text overlays — future iterations should request cleaner image-only outputs
+- Wikimedia URLs blocked by Claude Preview browser's ORB policy (pre-existing, not related to this change)
+- 10/20 planned species completed due to Canva quota limit
+
+---
+
 # Session Handoff — 2026-03-18 (Scientific Modern Full Redesign)
 
 **Status: done**

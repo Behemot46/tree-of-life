@@ -330,7 +330,7 @@ function assignAngles(n,a0,a1){
 }
 
 function assignPositions(n,cx,cy){
-  const r=DEPTH_R[n.depth]||(DEPTH_R[DEPTH_R.length-1]+(n.depth-DEPTH_R.length+1)*120);
+  const r=DEPTH_R[n.depth]||(DEPTH_R[DEPTH_R.length-1]+(n.depth-DEPTH_R.length+1)*170);
   n._x=cx+Math.cos(n._angle-Math.PI/2)*r;
   n._y=cy+Math.sin(n._angle-Math.PI/2)*r;
   if(n.children&&!n._collapsed) n.children.forEach(c=>assignPositions(c,cx,cy));
@@ -579,6 +579,7 @@ function animateTreeEntrance() {
   setTimeout(() => {
     allBranches.forEach(b => { b.style.opacity = '1'; });
   }, 300);
+  setTimeout(() => { window._initialAnimDone = true; }, depths.length * 180 + 400);
 }
 
 // ══════════════════════════════════════════════════════

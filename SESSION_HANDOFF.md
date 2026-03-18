@@ -1,3 +1,47 @@
+# Session Handoff — 2026-03-18 (Scientific Modern Full Redesign)
+
+**Status: done**
+**Branch:** `claude/gracious-euler`
+**PR:** https://github.com/Behemot46/tree-of-life/pull/88
+
+## 1. Session Goal
+Full visual redesign targeting a Scientific Modern aesthetic — 10 stages from design system foundation through accessibility.
+
+## 2. What I Changed
+
+### index.html (~490 lines changed)
+- **Stage 1**: Complete `:root` and `[data-theme="light"]` overhaul — warm earth tones (gold #c8883a, sage #5b9a8b, terra #c45c4a), glassmorphism tokens, 3-level shadow system, spacing/typography scales, animation variables
+- **Stage 2**: Glassmorphism on nav-btn, panel, search; shadow elevation; button `:active` scale(0.97)
+- **Stage 3**: Enhanced node icons — 1.2x larger, 0.85 opacity, colored background circles, larger +/- expand badges
+- **Stage 4**: Left-click expands/collapses branch nodes, left-click on leaves opens panel, double-click always opens panel, `smoothPanTo()` auto-pans to expanded children
+- **Stage 5**: Sibling navigation (Prev/Next) in panel, "Lineage" button calls `traceLineage()`, breadcrumb always visible
+- **Stage 6**: 30+ CSS classes extracted from inline `style=` in `renderPanelContent()` — `.panel-hero`, `.panel-body`, `.panel-facts-grid`, `.panel-fact-card`, `.panel-nav-btn`, `.panel-callout`, `.panel-tag`, `.panel-link`, `.badge-extinct`, `.panel-btn-primary`, `.panel-btn-close`, etc. 2-column facts card grid replaces alternating-row table.
+- **Stage 7**: `buildHeroFallback()` renders large SVG silhouette (120px) on domain-colored radial gradient when no photo available
+- **Stage 8**: Unified ~15 scattered CSS transitions to use `var(--transition-fast)` / `var(--transition-normal)`, added `prefers-reduced-motion` media query
+- **Stage 9**: `:focus-visible` gold outline rings, `forced-colors` high contrast support, `role="treeitem"` + `aria-expanded` on all node SVG groups, `aria-live="polite"` on panel
+- **Stage 10**: Fixed stale cyan `rgba(2,132,199,...)` in light theme tags, updated semantic color overrides to warm palette
+
+### js/imageLoader.js (~37 lines changed)
+- Inverted `getBestUrl()` priority: generated local images FIRST, PHOTO_MAP as fallback
+- Updated `loadInto()` fallback chain: generated (.webp → .png) → PHOTO_MAP → node.img → emoji
+- Added `onGenExhausted` handler for when both generated formats fail
+
+## 3. New Functions
+- `smoothPanTo(wx, wy)` — animated viewport pan using requestAnimationFrame
+- `traceLineage(nodeId)` — expands all ancestors, highlights path, pans to node
+- `buildHeroFallback(node)` — generates SVG silhouette hero with domain gradient
+
+## 4. Known Issues / Next Steps
+- No local AI-generated species images exist yet in `assets/species/` — the local-first system is ready but needs images generated from `IMAGE_PROMPTS`
+- Panel template still uses some remaining inline styles for layout (flex containers) — further extraction possible
+- Consider generating initial batch of ~20 species images for key nodes (LUCA, bacteria, archaea, eukaryota, fungi, plants, animals, etc.)
+
+## 5. Files Modified
+- `index.html` (CSS + JS)
+- `js/imageLoader.js`
+
+---
+
 # Session Handoff — 2026-03-18 (p26 — Rich Data Panels & Visual Identity)
 
 **Status: done**
@@ -29,18 +73,6 @@ Upgrade the species info panel with rich data presentation: collapsible sections
 - **Sub-groups**: renders `node.children` as clickable list items with icon, name, latin, Mya
 - **Typography**: 26px h2 headings, 15px body, `var(--font-mono)` for data values and era
 
-## 3. Key Decisions
-- Used native `<details>/<summary>` for collapsible sections (zero JS needed, accessible by default)
-- Radar chart only appears when node has tags matching 3+ different trait dimensions
-- Sub-groups section uses `navigateTo()` for click handling — triggers tree navigation + panel update
-- ENRICHMENT altFacts + links moved into Evolutionary Context section (was standalone before)
-- Hominin data (brain volume, DNA legacy, fossil sites) also inside Evolutionary Context
-
-## 4. What's Left / Next Steps
-- p22 partially addressed — could add more infographics (size comparisons, range maps)
-- Radar chart coverage could be expanded with more tag→dimension mappings
-- Panel modularization opportunity remains (large template string)
-
 ---
 
 # Session Handoff — 2026-03-18 (p25 — WCAG 2.1 AA Accessibility Overhaul)
@@ -50,83 +82,6 @@ Upgrade the species info panel with rich data presentation: collapsible sections
 
 ## 1. Session Goal
 Add comprehensive WCAG 2.1 AA accessibility support: keyboard navigation, ARIA landmarks, screen reader support, focus management, and reduced motion.
-
-## 2. What I Changed
-
-### index.html — CSS Accessibility Block
-- **Skip-link**: styled fixed-position link, hidden off-screen, appears on focus (`top:0`)
-- **Focus-visible rings**: 2px solid outlines on all interactive elements (buttons, legend rows, theme toggle, etc.)
-- **SVG node focus**: stroke-based focus ring (CSS outline doesn't work on SVG)
-- **Search keyboard highlight**: `.sr-item.a11y-active` class for arrow-key navigation
-- **Reduced motion**: `@media(prefers-reduced-motion:reduce)` disables all animations, particles, splash transition, panel animations
-- **Screen reader utility**: `.sr-only` class for visually-hidden live region
-
-### index.html — HTML Structure
-- **Skip link**: `<a href="#canvas-wrap" class="skip-link">` before splash
-- **Live region**: `<div aria-live="polite" id="a11y-announce">` for screen reader announcements
-- **ARIA roles**: `role="tree"` on SVG, `role="dialog" aria-modal="true"` on panel and hominin view
-- **Legend keyboard access**: `tabindex="0" role="button"` on all `.leg-row` elements
-- **Canvas wrap**: `tabindex="-1"` for skip-link target; SVG gets `tabindex="0"` for keyboard focus
-
-### js/uiData.js — i18n Accessibility Keys (EN/HE/RU)
-- Added keys: `a11y_skip`, `a11y_tree`, `a11y_panel`, `a11y_hominin_view`, `a11y_show_all`
-- Merged with upstream keys: `skip_to_tree`, `a11y_tree_label`, `a11y_panel_label`, `a11y_hominin_label`, `a11y_dna_label`, `a11y_breadcrumb`
-
-## 3. Merge Resolution
-- Resolved 5 conflicts in `index.html` and 3 conflicts in `js/uiData.js`
-- Kept all upstream features (new translation keys, legend `tabindex`/`role`, Show All button with ID) alongside all branch a11y additions
-
----
-
-# Session Handoff — 2026-03-16 (p22 — Rich Data Panels & Infographics, merge update)
-
-**Status: done**
-**Branch:** `claude/confident-haslett`
-
----
-
-# Session Handoff — 2026-03-15 (p27 — i18n Completeness)
-
-**Status: done**
-**Branch:** `claude/suspicious-murdock`
-**PR:** https://github.com/Behemot46/tree-of-life/pull/69
-
-## 1. Session Goal
-Translate all remaining hardcoded English strings in the UI to Hebrew (HE) and Russian (RU), achieving full trilingual coverage.
-
-## 2. What I Changed
-
-### js/uiData.js — 25 new translation keys (EN/HE/RU)
-- Toggle buttons: `hide_extinct`, `show_extinct`, `btn_hominins`, `show_all`
-- Node badge: `explore_badge`
-- Photo credit: `photo_credit`
-- Section headers: `did_you_know`, `did_you_know_q`, `learn_more`, `brain_volume`, `dna_legacy`, `fossil_sites`
-- Labels: `lbl_neanderthal`, `lbl_denisovan`
-- Panel buttons: `hominin_deep_dive`, `panel_close`, `panel_back`
-- DNA calculator: `dna_source_prefix`, `dna_vs`
-- Time units: `unit_ma_ago`, `unit_mya`
-- Chrome: `loading_init`, `footer_text`, `shortcut_hint`
-
-### index.html — Hardcoded strings → t() calls
-- `renderPanelContent()`: all section headers, labels, buttons now use `t()`
-- `buildHomininSection()`: brain volume, DNA legacy, Neanderthal/Denisovan labels, fossil sites translated
-- `fetchWikiPhoto()`: credit string uses `t('photo_credit')`
-- `applyI18n()`: updated to use `i-leg-show-all` ID (from main's a11y refactor)
-- Extinct toggle, loading screen, footer, shortcut hint all translated
-
----
-
-# Session Handoff — 2026-03-15 (p22 — Rich Data Panels & Infographics)
-
-**Status: done**
-**Branch:** `claude/charming-einstein`
-
----
-
-# Session Handoff — 2026-03-15 (p23 — DNA Similarity Calculator)
-
-**Status: done**
-**Branch:** `claude/crazy-villani`
 
 ---
 

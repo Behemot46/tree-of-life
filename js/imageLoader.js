@@ -3,10 +3,10 @@
 
    Provides a unified image source for tree nodes, panel heroes,
    and search thumbnails. Implements:
-   - Curated PHOTO_MAP (Wikimedia Commons) as primary source
-   - Stable URL pattern: assets/species/{id}.webp for AI-generated
+   - Local-first: assets/species/{id}.webp (AI-generated) as primary
+   - PHOTO_MAP (Wikimedia Commons) as secondary fallback
    - Format fallback: tries .webp first, then .png
-   - Graceful fallback: PHOTO_MAP → generated → node.img → emoji
+   - Graceful fallback: generated → PHOTO_MAP → node.img → emoji
    - Fail-once tracking (no retry loops per session)
    - Lazy, non-blocking loading
    ═══════════════════════════════════════════════════════════════ */
@@ -57,19 +57,19 @@ const ImageLoader = (() => {
   /**
    * Get the best available image URL for a node, synchronously.
    * Returns { url, source, credit }.
-   * Priority: PHOTO_MAP → generated .webp/.png → node.img → null.
+   * Priority: generated .webp/.png → PHOTO_MAP → node.img → null.
    */
   function getBestUrl(nodeData) {
     const id = nodeData.id;
 
-    // 1. Curated PHOTO_MAP (Wikimedia Commons URLs) — highest priority
+    // 1. Local generated image (highest priority — sustainable, no CORS)
+    const genUrl = getGeneratedUrl(id);
+    if (genUrl) return { url: genUrl, source: 'generated', credit: 'AI-generated illustration' };
+
+    // 2. Curated PHOTO_MAP (Wikimedia Commons URLs) — fallback
     if (photoMap && photoMap[id]) {
       return { url: photoMap[id].url, source: 'photomap', credit: photoMap[id].credit };
     }
-
-    // 2. Generated image (if not already failed)
-    const genUrl = getGeneratedUrl(id);
-    if (genUrl) return { url: genUrl, source: 'generated', credit: 'AI-generated illustration' };
 
     // 3. Node's existing img field
     if (nodeData.img) return { url: nodeData.img, source: 'node', credit: nodeData.imgCredit || null };
@@ -123,28 +123,14 @@ const ImageLoader = (() => {
     let triedAltFormat = false;
 
     const onError = () => {
-      if (best.source === 'photomap') {
-        // Photomap failed, try generated
-        const genUrl = getGeneratedUrl(nodeData.id);
-        if (genUrl) {
-          setUrl(genUrl);
-          imgEl.removeEventListener('error', onError);
-          imgEl.addEventListener('error', onGenError, { once: true });
-        } else if (nodeData.img) {
-          setUrl(nodeData.img);
-          imgEl.removeEventListener('error', onError);
-          imgEl.addEventListener('error', onFinalError, { once: true });
-        } else {
-          if (opts.onFallback) opts.onFallback(getEmoji(nodeData));
-        }
-      } else if (best.source === 'generated') {
-        // Try alternate format (.webp → .png or vice versa) before giving up
+      if (best.source === 'generated') {
+        // Try alternate format (.webp → .png or vice versa) before falling back
         if (!triedAltFormat) {
           triedAltFormat = true;
           const altUrl = getAlternateGeneratedUrl(nodeData.id, best.url);
           setUrl(altUrl);
           imgEl.removeEventListener('error', onError);
-          imgEl.addEventListener('error', onGenError, { once: true });
+          imgEl.addEventListener('error', onGenExhausted, { once: true });
           // If alt format loads, remember it
           imgEl.addEventListener('load', () => {
             const ext = altUrl.endsWith('.webp') ? '.webp' : '.png';
@@ -152,7 +138,21 @@ const ImageLoader = (() => {
           }, { once: true });
           return;
         }
+        // Both formats failed, try PHOTO_MAP
         markFailed(nodeData.id);
+        if (photoMap && photoMap[nodeData.id]) {
+          setUrl(photoMap[nodeData.id].url);
+          imgEl.removeEventListener('error', onError);
+          imgEl.addEventListener('error', onPhotoMapError, { once: true });
+        } else if (nodeData.img) {
+          setUrl(nodeData.img);
+          imgEl.removeEventListener('error', onError);
+          imgEl.addEventListener('error', onFinalError, { once: true });
+        } else {
+          if (opts.onFallback) opts.onFallback(getEmoji(nodeData));
+        }
+      } else if (best.source === 'photomap') {
+        // Photomap failed, try node.img
         if (nodeData.img) {
           setUrl(nodeData.img);
           imgEl.removeEventListener('error', onError);
@@ -165,8 +165,21 @@ const ImageLoader = (() => {
       }
     };
 
-    const onGenError = () => {
+    const onGenExhausted = () => {
+      // Both generated formats failed, fall through to PHOTO_MAP
       markFailed(nodeData.id);
+      if (photoMap && photoMap[nodeData.id]) {
+        setUrl(photoMap[nodeData.id].url);
+        imgEl.addEventListener('error', onPhotoMapError, { once: true });
+      } else if (nodeData.img) {
+        setUrl(nodeData.img);
+        imgEl.addEventListener('error', onFinalError, { once: true });
+      } else {
+        if (opts.onFallback) opts.onFallback(getEmoji(nodeData));
+      }
+    };
+
+    const onPhotoMapError = () => {
       if (nodeData.img) {
         setUrl(nodeData.img);
         imgEl.addEventListener('error', onFinalError, { once: true });

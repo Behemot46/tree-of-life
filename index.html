@@ -377,7 +377,6 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 @keyframes livingPulse{0%,100%{opacity:0.25}50%{opacity:0.55}}
 @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
 @keyframes searchHighlight{0%{stroke-width:0;opacity:0}50%{opacity:1}100%{stroke-width:0;opacity:0}}
-@keyframes homininGlow{0%,100%{opacity:0.3;stroke-width:1.5}50%{opacity:0.8;stroke-width:2.5}}
 
 /* ── LANGUAGE SWITCHER ── */
 #lang-switcher{position:fixed;top:3.2rem;right:1.2rem;z-index:400;display:flex;align-items:center;gap:0.25rem;pointer-events:all;}
@@ -1632,11 +1631,8 @@ function preprocess(n,parent=null,depth=0){
   if(n.children) n.children.forEach(c=>preprocess(c,n,depth+1));
 }
 preprocess(TREE);
-// Collapse hominini subtree by default so tree isn't visually overloaded
-if(nodeMap['hominini']) nodeMap['hominini']._collapsed=true;
-['group-proto','group-australopith','group-paranthropus','group-homo'].forEach(id=>{
-  if(nodeMap[id]) nodeMap[id]._collapsed=true;
-});
+// Hominini branch always visible — groups expanded, individual species collapsed
+// (p27: always-visible hominin branch)
 window.getNodeById = id=>nodeMap[id];
 
 /* ===========================
@@ -2048,7 +2044,7 @@ function getIconGroup(n) {
 // ══════════════════════════════════════════════════════
 // HUMAN EVOLUTION PATH (highlighted from root to Homo sapiens)
 // ══════════════════════════════════════════════════════
-const HUMAN_PATH=new Set(['luca','eukaryota','animalia','vertebrates','mammals','primates','great-apes','homo-sapiens']);
+const HUMAN_PATH=new Set(['luca','eukaryota','animalia','vertebrates','mammals','primates','great-apes','hominini','group-homo','h_sapiens']);
 
 // ══════════════════════════════════════════════════════
 // RENDER
@@ -2160,24 +2156,6 @@ function render(){
       g.appendChild(ring);
     }
 
-    // Hominini gateway — golden pulsing ring + Explore badge
-    if(n.id==='hominini'){
-      const gw=document.createElementNS('http://www.w3.org/2000/svg','circle');
-      gw.setAttribute('cx',n._x);gw.setAttribute('cy',n._y);gw.setAttribute('r',n.r+12);
-      gw.setAttribute('fill','none');gw.setAttribute('stroke','#e8b86d');
-      gw.setAttribute('stroke-width','2');gw.setAttribute('stroke-opacity','0.6');
-      gw.style.animation='homininGlow 2.5s ease-in-out infinite';
-      g.appendChild(gw);
-      const badgeFo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
-      const bw=64,bh=18;
-      badgeFo.setAttribute('x',n._x-bw/2);badgeFo.setAttribute('y',n._y+n.r+6);
-      badgeFo.setAttribute('width',bw);badgeFo.setAttribute('height',bh);
-      badgeFo.style.pointerEvents='none';
-      const badge=document.createElement('div');
-      badge.style.cssText='font-size:9px;font-family:"Heebo",sans-serif;color:#e8b86d;text-align:center;font-weight:700;letter-spacing:0.05em;opacity:0.85;';
-      badge.textContent='Explore \u2192';
-      badgeFo.appendChild(badge);g.appendChild(badgeFo);
-    }
 
     // Highlight ring
     if(isHighlighted){
@@ -2280,7 +2258,8 @@ function render(){
       const ly=n._y+Math.sin(angleRad)*lDist;
       const cos=Math.cos(angleRad);
       const fontSize=n.depth===0?14:n.depth===1?12:sibCount>12?8:sibCount>8?9:10;
-      const textW=n.name.length*fontSize*0.55;
+      const labelText=n._hominData?n._hominData.short:n.name;
+      const textW=labelText.length*fontSize*0.55;
       const textH=fontSize+2;
       const anchor=cos<-0.15?'end':cos>0.15?'start':'middle';
       const bx=anchor==='end'?lx-textW:anchor==='start'?lx:lx-textW/2;
@@ -2345,7 +2324,7 @@ function render(){
     svgText.setAttribute('font-family',"'Inter', sans-serif");
     svgText.setAttribute('font-weight',onPath||lb.n.depth<=1?'600':'400');
     svgText.setAttribute('class','node-label-text');
-    svgText.textContent=lb.n.name;
+    svgText.textContent=lb.n._hominData?lb.n._hominData.short:lb.n.name;
     lb.g.appendChild(svgText);
   });
 

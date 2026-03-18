@@ -1,3 +1,38 @@
+# Session Handoff — 2026-03-18 (p25 — WCAG 2.1 AA Accessibility Overhaul)
+
+**Status: done**
+**Branch:** `claude/funny-chatterjee`
+
+## 1. Session Goal
+Add comprehensive WCAG 2.1 AA accessibility support: keyboard navigation, ARIA landmarks, screen reader support, focus management, and reduced motion.
+
+## 2. What I Changed
+
+### index.html — CSS Accessibility Block
+- **Skip-link**: styled fixed-position link, hidden off-screen, appears on focus (`top:0`)
+- **Focus-visible rings**: 2px solid outlines on all interactive elements (buttons, legend rows, theme toggle, etc.)
+- **SVG node focus**: stroke-based focus ring (CSS outline doesn't work on SVG)
+- **Search keyboard highlight**: `.sr-item.a11y-active` class for arrow-key navigation
+- **Reduced motion**: `@media(prefers-reduced-motion:reduce)` disables all animations, particles, splash transition, panel animations
+- **Screen reader utility**: `.sr-only` class for visually-hidden live region
+
+### index.html — HTML Structure
+- **Skip link**: `<a href="#canvas-wrap" class="skip-link">` before splash
+- **Live region**: `<div aria-live="polite" id="a11y-announce">` for screen reader announcements
+- **ARIA roles**: `role="tree"` on SVG, `role="dialog" aria-modal="true"` on panel and hominin view
+- **Legend keyboard access**: `tabindex="0" role="button"` on all `.leg-row` elements
+- **Canvas wrap**: `tabindex="-1"` for skip-link target; SVG gets `tabindex="0"` for keyboard focus
+
+### js/uiData.js — i18n Accessibility Keys (EN/HE/RU)
+- Added keys: `a11y_skip`, `a11y_tree`, `a11y_panel`, `a11y_hominin_view`, `a11y_show_all`
+- Merged with upstream keys: `skip_to_tree`, `a11y_tree_label`, `a11y_panel_label`, `a11y_hominin_label`, `a11y_dna_label`, `a11y_breadcrumb`
+
+## 3. Merge Resolution
+- Resolved 5 conflicts in `index.html` and 3 conflicts in `js/uiData.js`
+- Kept all upstream features (new translation keys, legend `tabindex`/`role`, Show All button with ID) alongside all branch a11y additions
+
+---
+
 # Session Handoff — 2026-03-16 (p22 — Rich Data Panels & Infographics, merge update)
 
 **Status: done**

@@ -25,6 +25,7 @@
 | p18 | Fix overlapping header controls | PR #57 |
 | p19 | Roadmap & project health | `claude/keen-easley` |
 | p23 | DNA similarity calculator — species comparator with known + estimated data | `claude/crazy-villani` |
+| p33 | AI species illustrations — 10 generated images, local-first ImageLoader | `claude/hungry-mclean` |
 
 ### Upcoming
 

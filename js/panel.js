@@ -1,41 +1,11 @@
 // ══════════════════════════════════════════════════════
-// PANEL — Panel rendering, navigation, hominin view, compare, DNA calc
-// Extracted from index.html (p24)
+// PANEL — info panel, navigation, zoom/pan, search UI, hominin view,
+//         compare mode, DNA calculator, tooltip, keyboard, mobile
 // ══════════════════════════════════════════════════════
 
-// ── PHOTO RELIABILITY LAYER ──
-const PHOTO_STATUS_CACHE=new Map();
-const PHOTO_VERIFY_PROMISES=new Map();
-function verifyPhotoUrl(url){
-  if(!url) return Promise.resolve(false);
-  const cached=PHOTO_STATUS_CACHE.get(url);
-  if(cached==="ok") return Promise.resolve(true);
-  if(cached==="bad") return Promise.resolve(false);
-  if(PHOTO_VERIFY_PROMISES.has(url))
-    return PHOTO_VERIFY_PROMISES.get(url);
-  const promise=new Promise(resolve=>{
-    const img=new Image();
-    img.onload=()=>{
-      PHOTO_STATUS_CACHE.set(url,"ok");
-      PHOTO_VERIFY_PROMISES.delete(url);
-      resolve(true);
-    };
-    img.onerror=()=>{
-      PHOTO_STATUS_CACHE.set(url,"bad");
-      PHOTO_VERIFY_PROMISES.delete(url);
-      resolve(false);
-    };
-    img.src=url;
-  });
-  PHOTO_VERIFY_PROMISES.set(url,promise);
-  return promise;
-}
-
-// ── MAIN PANEL ──
+// ── DOM REFS ──
 const panel=document.getElementById('panel');
 const panelAccent=document.getElementById('panel-accent');
-let currentPanelNode=null;
-let panelHistory=[];
 
 // ── Unified Navigation Stack ──
 const navStack=[];
@@ -122,7 +92,9 @@ function updateNavButtons(){
   }
 }
 
-// ── SPECIES ILLUSTRATION GENERATOR ──
+// ══════════════════════════════════════════════════════
+// SPECIES ILLUSTRATION (SVG)
+// ══════════════════════════════════════════════════════
 function generateSpeciesIllustration(node) {
   const id = node.id || '';
   const color = node.color || '#0ea5e9';
@@ -291,7 +263,7 @@ function generateSpeciesIllustration(node) {
     );
   }
 
-  // MAMMALS
+  // MAMMALS — generic
   if (['mammalia','mammals','cetaceans','naked-mole-rat','platypus'].includes(id)) {
     return wrap(darken(c,0.8),
       `<ellipse cx="${W/2}" cy="${H*0.55}" rx="80" ry="48" fill="${rgba(c,0.5)}" filter="url(#ig_glow)"/>
@@ -460,6 +432,12 @@ function renderPanelContent(node) {
         style="width:100%;height:100%;object-fit:cover;display:${staticUrl ? 'block' : 'none'};"
         onerror="(function(el){
           if(typeof ImageLoader!=='undefined'&&el.dataset.source==='generated'){
+            // Try alternate format (.webp → .png or vice versa)
+            if(!el.dataset.triedAlt){
+              el.dataset.triedAlt='1';
+              var altUrl=ImageLoader.getAlternateGeneratedUrl('${node.id}',el.src);
+              if(altUrl){el.src=altUrl;return;}
+            }
             ImageLoader.markFailed('${node.id}');
             var fb=${photoEntry?`'${(photoEntry.url||'').replace(/'/g,"\\'")}'`:'null'}||'${(node.img||'').replace(/'/g,"\\'")}';
             if(fb){el.dataset.source='fallback';el.src=fb;return;}
@@ -470,7 +448,7 @@ function renderPanelContent(node) {
         data-source="${generatedUrl ? 'generated' : 'static'}"
       />
       <div id="${panelFbId}" style="display:${staticUrl ? 'none' : 'flex'};width:100%;height:100%;align-items:center;justify-content:center;font-size:72px;background:#111;">${node.icon||'🌿'}</div>
-      <div id="${panelCrId}" style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.65);font-family:'Inter',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.35);padding:1px 5px;border-radius:3px;">${staticCredit||''}</div>
+      <div id="${panelCrId}" style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.65);font-family:'Inter',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.35);padding:1px 5px;border-radius:3px;display:flex;align-items:center;gap:4px;">${generatedUrl ? '<span style="background:rgba(139,92,246,0.7);color:white;font-size:8px;font-weight:700;padding:1px 4px;border-radius:2px;letter-spacing:0.05em;">AI</span>' : ''}${staticCredit||''}</div>
     </div>
     <div style="padding:20px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;flex:1;">
       ${(()=>{
@@ -486,6 +464,23 @@ function renderPanelContent(node) {
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
           <h2 style="font-family:'Inter',sans-serif;font-size:22px;font-weight:700;color:var(--color-text-primary);margin:0;line-height:1.2;">${node.name}</h2>
           ${extinctBadge}
+          ${(()=>{
+            if (!node.iucn || node.iucn === 'NE') return '';
+            const iucnMap = {
+              'EX':{bg:'#000',label:'Extinct'},
+              'EW':{bg:'#542344',label:'Extinct in Wild'},
+              'CR':{bg:'#d32f2f',label:'Critically Endangered'},
+              'EN':{bg:'#e65100',label:'Endangered'},
+              'VU':{bg:'#f9a825',label:'Vulnerable'},
+              'NT':{bg:'#7cb342',label:'Near Threatened'},
+              'LC':{bg:'#388e3c',label:'Least Concern'},
+              'DD':{bg:'#757575',label:'Data Deficient'}
+            };
+            const info = iucnMap[node.iucn];
+            if (!info) return '';
+            const textColor = ['VU','NT'].includes(node.iucn) ? '#000' : '#fff';
+            return '<span style="background:'+info.bg+';color:'+textColor+';font-size:10px;padding:2px 8px;border-radius:9999px;font-family:Inter,sans-serif;font-weight:600;letter-spacing:0.05em;">IUCN: '+info.label+'</span>';
+          })()}
         </div>
         ${node.latin ? `<div style="font-style:italic;font-size:13px;color:var(--color-text-muted);font-family:'Inter',sans-serif;">${node.latin}</div>` : ''}
         ${node.era ? `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">📅 ${node.era}${node.appeared ? ' · ' + node.appeared + ' Mya' : ''}</div>` : ''}
@@ -663,7 +658,9 @@ function closePanel(){
 document.getElementById('panel-close').addEventListener('click',closePanel);
 document.getElementById('svg').addEventListener('click',closePanel);
 
-// ── BREADCRUMB ──
+// ══════════════════════════════════════════════════════
+// BREADCRUMB
+// ══════════════════════════════════════════════════════
 function getAncestors(n){const path=[];let c=n;while(c){path.unshift(c);c=c._parent;}return path;}
 
 function focusNode(id) {
@@ -691,23 +688,124 @@ function updateBreadcrumb(n){
   }).join('');
 }
 
-// ── HOMININ VIEW ──
-let currentHomFilter='all';
-let selectedHominin=null;
+// ══════════════════════════════════════════════════════
+// TOOLTIP
+// ══════════════════════════════════════════════════════
+const tooltipEl = document.getElementById('tooltip');
+document.addEventListener('mousemove', function(e) {
+  if (tooltipEl.classList.contains('visible')) {
+    tooltipEl.style.left = e.clientX + 'px';
+    tooltipEl.style.top = e.clientY + 'px';
+  }
+});
+function showTip(text, icon) {
+  clearTimeout(_tipTimer);
+  tooltipEl.innerHTML = (icon ? icon + ' ' : '') + text;
+  tooltipEl.classList.add('visible');
+}
+function hideTip() {
+  clearTimeout(_tipTimer);
+  _tipTimer = setTimeout(() => {
+    tooltipEl.classList.remove('visible');
+  }, 80);
+}
 
+// ══════════════════════════════════════════════════════
+// SEARCH UI
+// ══════════════════════════════════════════════════════
+const searchInput=document.getElementById('search-input');
+const searchResults=document.getElementById('search-results');
+const allNodes=Object.values(nodeMap);
+
+searchInput.addEventListener('input',()=>{
+  const q=searchInput.value.trim();
+  if(!q){
+    searchResults.innerHTML=`
+      <div style="padding:16px;text-align:center;font-family:'Inter',sans-serif;">
+        <div style="font-size:24px;margin-bottom:8px;">🔍</div>
+        <div style="font-size:13px;color:var(--color-text-muted);">${t('search_hint')}</div>
+      </div>
+    `;
+    searchResults.style.display='block';
+    searchResults.classList.add('show');
+    searchInput.setAttribute('aria-expanded','true');
+    return;
+  }
+  const matches=searchEntities(q);
+  const lang=currentLang;
+  searchResults.innerHTML=matches.map(m=>{
+    const lookupId=m.homId||m.id;
+    const i18nEntry=TAXON_I18N[lookupId];
+    const localName=(lang!=='en'&&i18nEntry&&i18nEntry[lang])?i18nEntry[lang]:null;
+    const displayName=localName||m.name;
+    const subName=localName?m.name:'';
+    const eraText=m.era?m.era.replace('~','').split(' ').slice(0,3).join(' '):'';
+    return `<div class="sr-item" role="option" tabindex="-1" onclick="navigateTo('${m.id}')"><span class="sri-icon" aria-hidden="true">${m.icon}</span><span class="sri-name">${displayName}${subName?' <span style="font-size:0.8em;opacity:0.55;font-style:italic">'+subName+'</span>':''}</span><span class="sri-sub">${eraText}</span></div>`;
+  }).join('');
+  if(!matches.length){
+    searchResults.innerHTML=`<div style="padding:16px;text-align:center;font-size:13px;color:var(--color-text-muted);font-family:'Heebo',sans-serif;">${t('search_no_results')}</div>`;
+    searchResults.classList.add('show');
+  } else {
+    searchResults.classList.add('show');
+  }
+  searchInput.setAttribute('aria-expanded',matches.length>0?'true':'false');
+});
+searchInput.addEventListener('blur',()=>setTimeout(()=>{searchResults.classList.remove('show');searchInput.setAttribute('aria-expanded','false');},200));
+
+window.navigateTo=function(id){
+  searchInput.value='';searchResults.classList.remove('show');searchInput.setAttribute('aria-expanded','false');
+  if(id.startsWith('hom:')){
+    const homId=id.slice(4);
+    const canonId=canonicalHomininId(homId);
+    if(nodeMap[canonId]){
+      id=canonId;
+    } else if(nodeMap[homId]){
+      id=homId;
+    } else {
+      if(homId === 'h_sapiens') id = 'homo-sapiens';
+    }
+  }
+  const n=nodeMap[id];if(!n)return;
+  highlightedId=id;
+  let c=n;while(c._parent){c._parent._collapsed=false;c=c._parent;}
+  layout();scheduleRender(true);applyT();
+  const cx=window.innerWidth/2,cy=window.innerHeight/2;
+  transform.x=cx-n._x*transform.s;
+  transform.y=cy-n._y*transform.s;
+  applyT();
+  showMainPanel(n);
+  history.replaceState(null,'','?node='+encodeURIComponent(id));
+  setTimeout(()=>{highlightedId=null;scheduleRender();},2500);
+};
+
+// ══════════════════════════════════════════════════════
+// HOMININ VIEW
+// ══════════════════════════════════════════════════════
 window.openHomininView=function(){
-  pushNav();
-  document.getElementById('hominin-view').classList.add('open');
+  // Expand hominini and its child groups on the main tree, then zoom to them
+  const hom = nodeMap['hominini'];
+  if (!hom) return;
+  // Expand ancestors so hominini is visible
+  let cur = hom._parent;
+  while (cur) { cur._collapsed = false; cur = cur._parent; }
+  // Expand hominini and its 4 group nodes
+  hom._collapsed = false;
+  if (hom.children) hom.children.forEach(g => { g._collapsed = false; });
+  // Close any open panel
   panel.classList.remove('open');
-  renderHominins();
-  updateNavButtons();
+  // Re-layout and render
+  layout();
+  // Zoom centered on hominini node at a readable scale
+  const s = 0.7;
+  transform = { x: window.innerWidth / 2 - hom._x * s, y: window.innerHeight / 2 - hom._y * s, s };
+  scheduleRender(true); applyT();
 };
 document.getElementById('hom-close').addEventListener('click',()=>{
   document.getElementById('hominin-view').classList.remove('open');
   updateNavButtons();
 });
 
-// Nav button click handlers
+// ── Nav button click handlers ──
 document.getElementById('nav-back').addEventListener('click',navBack);
 document.getElementById('nav-home').addEventListener('click',navHome);
 
@@ -795,10 +893,48 @@ function showHominDetail(h){
     <div style="font-size:0.75rem;color:var(--text-dim);margin-top:0.3rem;line-height:1.7">${(h.sites||[]).join(' · ')}</div>`;
 }
 
-// ── COMPARE MODE ──
-let compareMode=false;
-let compareSelected=new Set();
+// ══════════════════════════════════════════════════════
+// PAN & ZOOM
+// ══════════════════════════════════════════════════════
+const svgEl=document.getElementById('svg');
+svgEl.style.touchAction="none";
+let isPointerPanning=false;
+let pointerStart={x:0,y:0};
+let transformStart={x:0,y:0};
+const activePointers=new Map();
+let pinchGesture=null;
+svgEl.addEventListener("pointerdown",e=>{
+  if(e.pointerType==="mouse" && e.button!==0) return;
+  activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(activePointers.size===1){
+    isPointerPanning=true;
+    pointerStart={x:e.clientX,y:e.clientY};
+    transformStart={...transform};
+  }
+});
+svgEl.addEventListener("pointermove",e=>{
+  if(!activePointers.has(e.pointerId)) return;
+  activePointers.set(e.pointerId,{x:e.clientX,y:e.clientY});
+  if(activePointers.size===1 && isPointerPanning){
+    transform.x=transformStart.x+(e.clientX-pointerStart.x);
+    transform.y=transformStart.y+(e.clientY-pointerStart.y);
+    applyT();
+  }
+});
+svgEl.addEventListener("pointerup",e=>{
+  activePointers.delete(e.pointerId);
+  if(activePointers.size===0){
+    isPointerPanning=false;
+  }
+});
+svgEl.addEventListener('wheel',e=>{e.preventDefault();const f=e.deltaY<0?1.13:0.88;const rect=svgEl.getBoundingClientRect();const mx=e.clientX-rect.left,my=e.clientY-rect.top;const ns=Math.min(6,Math.max(0.12,transform.s*f));transform.x=mx-(mx-transform.x)*(ns/transform.s);transform.y=my-(my-transform.y)*(ns/transform.s);transform.s=ns;applyT();},{passive:false});
+document.getElementById('btn-in').addEventListener('click',()=>{transform.s=Math.min(6,transform.s*1.2);applyT();});
+document.getElementById('btn-out').addEventListener('click',()=>{transform.s=Math.max(0.12,transform.s*0.83);applyT();});
+document.getElementById('btn-reset').addEventListener('click',()=>{transform={x:0,y:0,s:1};applyT();});
 
+// ══════════════════════════════════════════════════════
+// COMPARE MODE
+// ══════════════════════════════════════════════════════
 function toggleCompareMode(){
   compareMode=!compareMode;
   compareSelected.clear();
@@ -879,11 +1015,9 @@ function closeCompare(){
   document.getElementById('compare-panel').style.display='none';
 }
 
-// ── DNA SIMILARITY CALCULATOR ──
-let dnaSlotA = null;
-let dnaSlotB = null;
-let dnaSearchTarget = null;
-
+// ══════════════════════════════════════════════════════
+// DNA SIMILARITY CALCULATOR
+// ══════════════════════════════════════════════════════
 function openDnaCalc() {
   dnaSlotA = null;
   dnaSlotB = null;
@@ -1048,3 +1182,157 @@ function animateCounter(el, target) {
 document.getElementById('dna-panel').addEventListener('click', function(e) {
   if (e.target === this) closeDnaCalc();
 });
+
+// ══════════════════════════════════════════════════════
+// RANDOM SPECIES
+// ══════════════════════════════════════════════════════
+document.getElementById('btn-random').addEventListener('click',()=>{
+  const allNodes=Object.values(nodeMap);
+  const leaves=allNodes.filter(n=>!n.children||!n.children.length);
+  if(leaves.length){
+    const pick=leaves[Math.floor(Math.random()*leaves.length)];
+    navigateTo(pick.id);
+    setTimeout(()=>showMainPanel(pick),300);
+  }
+});
+
+// ══════════════════════════════════════════════════════
+// KEYBOARD
+// ══════════════════════════════════════════════════════
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    if(document.getElementById('dna-panel').classList.contains('open')){closeDnaCalc();return;}
+    panel.classList.remove('open');
+    updateBreadcrumb(null);
+    document.getElementById('hominin-view').classList.remove('open');
+    searchResults.classList.remove('show');
+    searchInput.setAttribute('aria-expanded','false');
+    history.replaceState(null,'',location.pathname);
+    return;
+  }
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.isContentEditable) return;
+  if(e.key==='f'||e.key==='F'){searchInput.focus();e.preventDefault();}
+  if(e.key==='/'){e.preventDefault();const search=document.getElementById('search-input');if(search)search.focus();}
+  if(e.key==='h'||e.key==='H'){navigateTo('hominini');}
+  if(e.key==='r'||e.key==='R'){transform={x:0,y:0,s:1};applyT();}
+  if(e.key==='d'){const toggle=document.getElementById('theme-btn');if(toggle)toggle.click();}
+});
+
+// ══════════════════════════════════════════════════════
+// RESIZE
+// ══════════════════════════════════════════════════════
+window.addEventListener('resize',()=>{layout();scheduleRender();});
+
+// ══════════════════════════════════════════════════════
+// MOBILE ENHANCEMENTS
+// ══════════════════════════════════════════════════════
+(function mobilePatch(){
+  const isMobile=()=>window.innerWidth<=768;
+
+  // ── Swipe-to-close panel ──
+  let panelTouchStartY=0, panelTouchDelta=0, panelSwiping=false;
+  panel.addEventListener('touchstart',e=>{
+    if(!isMobile()) return;
+    const t=e.touches[0];
+    panelTouchStartY=t.clientY;
+    panelTouchDelta=0;
+    panelSwiping=true;
+  },{passive:true});
+  panel.addEventListener('touchmove',e=>{
+    if(!panelSwiping||!isMobile()) return;
+    const t=e.touches[0];
+    panelTouchDelta=t.clientY-panelTouchStartY;
+    if(panelTouchDelta>0 && panel.scrollTop<=0){
+      panel.style.transform=`translateY(${panelTouchDelta}px)`;
+      panel.style.transition='none';
+    }
+  },{passive:true});
+  panel.addEventListener('touchend',()=>{
+    if(!panelSwiping||!isMobile()) return;
+    panelSwiping=false;
+    panel.style.transition='';
+    if(panelTouchDelta>80){
+      closePanel();
+    } else {
+      panel.style.transform='translateY(0)';
+    }
+    panelTouchDelta=0;
+  },{passive:true});
+
+  // ── Legend toggle on mobile ──
+  const legend=document.getElementById('legend');
+  if(legend){
+    const legTitle=legend.querySelector('.leg-title');
+    if(legTitle){
+      legTitle.addEventListener('click',()=>{
+        if(!isMobile()) return;
+        legend.classList.toggle('m-collapsed');
+      });
+    }
+    if(isMobile()) legend.classList.add('m-collapsed');
+    window.addEventListener('resize',()=>{
+      if(!isMobile()) legend.classList.remove('m-collapsed');
+      else if(!legend.classList.contains('m-collapsed')) legend.classList.add('m-collapsed');
+    });
+  }
+
+  // ── Pinch-to-zoom (two-finger) ──
+  let lastPinchDist=0;
+  svgEl.addEventListener('touchstart',e=>{
+    if(e.touches.length===2){
+      const dx=e.touches[0].clientX-e.touches[1].clientX;
+      const dy=e.touches[0].clientY-e.touches[1].clientY;
+      lastPinchDist=Math.hypot(dx,dy);
+    }
+  },{passive:true});
+  svgEl.addEventListener('touchmove',e=>{
+    if(e.touches.length===2){
+      e.preventDefault();
+      const dx=e.touches[0].clientX-e.touches[1].clientX;
+      const dy=e.touches[0].clientY-e.touches[1].clientY;
+      const dist=Math.hypot(dx,dy);
+      if(lastPinchDist>0){
+        const scale=dist/lastPinchDist;
+        const cx=(e.touches[0].clientX+e.touches[1].clientX)/2;
+        const cy=(e.touches[0].clientY+e.touches[1].clientY)/2;
+        const ns=Math.min(6,Math.max(0.12,transform.s*scale));
+        transform.x=cx-(cx-transform.x)*(ns/transform.s);
+        transform.y=cy-(cy-transform.y)*(ns/transform.s);
+        transform.s=ns;
+        applyT();
+      }
+      lastPinchDist=dist;
+    }
+  },{passive:false});
+  svgEl.addEventListener('touchend',()=>{lastPinchDist=0;},{passive:true});
+
+  // ── Swipe-to-close hominin view ──
+  const homView=document.getElementById('hominin-view');
+  let homTouchStartX=0, homSwiping=false;
+  if(homView){
+    homView.addEventListener('touchstart',e=>{
+      if(!isMobile()) return;
+      homTouchStartX=e.touches[0].clientX;
+      homSwiping=true;
+    },{passive:true});
+    homView.addEventListener('touchend',e=>{
+      if(!homSwiping||!isMobile()) return;
+      homSwiping=false;
+      const dx=e.changedTouches[0].clientX-homTouchStartX;
+      const isRtl=document.documentElement.dir==='rtl';
+      if((!isRtl && dx>100)||(isRtl && dx<-100)){
+        homView.classList.remove('open');
+      }
+    },{passive:true});
+  }
+
+  // ── Close panel on back-gesture / history ──
+  window.addEventListener('popstate',()=>{
+    if(panel.classList.contains('open')){
+      closePanel();
+    }
+    if(homView && homView.classList.contains('open')){
+      homView.classList.remove('open');
+    }
+  });
+})();

@@ -3054,6 +3054,7 @@ function renderPanelContent(node) {
   const panelImgId = 'panel-species-img-' + node.id.replace(/[^a-z0-9]/g,'_');
   const panelFbId  = 'panel-species-fb-'  + node.id.replace(/[^a-z0-9]/g,'_');
   const panelCrId  = 'panel-species-cr-'  + node.id.replace(/[^a-z0-9]/g,'_');
+  const nodeColor  = node.color || 'var(--color-accent)';
 
   // ── Lineage badge ──
   const lineageBadge = (()=>{

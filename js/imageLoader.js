@@ -5,6 +5,7 @@
    and search thumbnails. Implements:
    - Local-first: assets/species/{id}.webp (AI-generated) as primary
    - PHOTO_MAP (Wikimedia Commons) as secondary fallback
+   - Format fallback: tries .webp first, then .png
    - Graceful fallback: generated → PHOTO_MAP → node.img → emoji
    - Fail-once tracking (no retry loops per session)
    - Lazy, non-blocking loading
@@ -14,12 +15,15 @@ const ImageLoader = (() => {
   /* Set of node IDs whose generated image failed to load this session */
   const failedIds = new Set();
 
+  /* Track which IDs have confirmed working format (avoids double probing) */
+  const confirmedFormats = {};
+
   /* Registered PHOTO_MAP reference (set via registerPhotoMap) */
   let photoMap = null;
 
   /* Base path for AI-generated species images */
   const SPECIES_IMAGE_BASE = 'assets/species/';
-  const IMAGE_EXT = '.webp';
+  const IMAGE_FORMATS = ['.webp', '.png'];
 
   /**
    * Register a PHOTO_MAP object for curated Wikimedia URLs.
@@ -32,16 +36,28 @@ const ImageLoader = (() => {
   /**
    * Get the generated image URL for a node ID.
    * Returns null if the image already failed this session.
+   * Tries confirmed format first, defaults to .webp.
    */
   function getGeneratedUrl(nodeId) {
     if (failedIds.has(nodeId)) return null;
-    return SPECIES_IMAGE_BASE + nodeId + IMAGE_EXT;
+    const ext = confirmedFormats[nodeId] || IMAGE_FORMATS[0];
+    return SPECIES_IMAGE_BASE + nodeId + ext;
+  }
+
+  /**
+   * Get the alternate format URL (for fallback within generated images).
+   * If .webp failed, try .png and vice versa.
+   */
+  function getAlternateGeneratedUrl(nodeId, failedUrl) {
+    const failedExt = failedUrl.endsWith('.webp') ? '.webp' : '.png';
+    const altExt = failedExt === '.webp' ? '.png' : '.webp';
+    return SPECIES_IMAGE_BASE + nodeId + altExt;
   }
 
   /**
    * Get the best available image URL for a node, synchronously.
    * Returns { url, source, credit }.
-   * Priority: generated .webp → PHOTO_MAP → node.img → null.
+   * Priority: generated .webp/.png → PHOTO_MAP → node.img → null.
    */
   function getBestUrl(nodeData) {
     const id = nodeData.id;
@@ -104,9 +120,25 @@ const ImageLoader = (() => {
       return;
     }
 
+    let triedAltFormat = false;
+
     const onError = () => {
       if (best.source === 'generated') {
-        // Generated failed, try PHOTO_MAP
+        // Try alternate format (.webp → .png or vice versa) before falling back
+        if (!triedAltFormat) {
+          triedAltFormat = true;
+          const altUrl = getAlternateGeneratedUrl(nodeData.id, best.url);
+          setUrl(altUrl);
+          imgEl.removeEventListener('error', onError);
+          imgEl.addEventListener('error', onGenExhausted, { once: true });
+          // If alt format loads, remember it
+          imgEl.addEventListener('load', () => {
+            const ext = altUrl.endsWith('.webp') ? '.webp' : '.png';
+            confirmedFormats[nodeData.id] = ext;
+          }, { once: true });
+          return;
+        }
+        // Both formats failed, try PHOTO_MAP
         markFailed(nodeData.id);
         if (photoMap && photoMap[nodeData.id]) {
           setUrl(photoMap[nodeData.id].url);
@@ -133,6 +165,20 @@ const ImageLoader = (() => {
       }
     };
 
+    const onGenExhausted = () => {
+      // Both generated formats failed, fall through to PHOTO_MAP
+      markFailed(nodeData.id);
+      if (photoMap && photoMap[nodeData.id]) {
+        setUrl(photoMap[nodeData.id].url);
+        imgEl.addEventListener('error', onPhotoMapError, { once: true });
+      } else if (nodeData.img) {
+        setUrl(nodeData.img);
+        imgEl.addEventListener('error', onFinalError, { once: true });
+      } else {
+        if (opts.onFallback) opts.onFallback(getEmoji(nodeData));
+      }
+    };
+
     const onPhotoMapError = () => {
       if (nodeData.img) {
         setUrl(nodeData.img);
@@ -148,6 +194,11 @@ const ImageLoader = (() => {
 
     const onSuccess = () => {
       imgEl.removeEventListener('error', onError);
+      // Remember which format worked for this ID
+      if (best.source === 'generated' && !confirmedFormats[nodeData.id]) {
+        const ext = best.url.endsWith('.webp') ? '.webp' : '.png';
+        confirmedFormats[nodeData.id] = ext;
+      }
       if (opts.onLoad) opts.onLoad();
     };
 
@@ -191,10 +242,31 @@ const ImageLoader = (() => {
 
     return new Promise((resolve) => {
       const img = new Image();
-      img.onload = () => resolve(true);
+      img.onload = () => {
+        if (best.source === 'generated') {
+          const ext = best.url.endsWith('.webp') ? '.webp' : '.png';
+          confirmedFormats[nodeData.id] = ext;
+        }
+        resolve(true);
+      };
       img.onerror = () => {
-        if (best.source === 'generated') markFailed(nodeData.id);
-        resolve(false);
+        // Try alternate format before marking as failed
+        if (best.source === 'generated') {
+          const altUrl = getAlternateGeneratedUrl(nodeData.id, best.url);
+          const img2 = new Image();
+          img2.onload = () => {
+            const ext = altUrl.endsWith('.webp') ? '.webp' : '.png';
+            confirmedFormats[nodeData.id] = ext;
+            resolve(true);
+          };
+          img2.onerror = () => {
+            markFailed(nodeData.id);
+            resolve(false);
+          };
+          img2.src = altUrl;
+        } else {
+          resolve(false);
+        }
       };
       img.src = best.url;
     });
@@ -205,6 +277,7 @@ const ImageLoader = (() => {
     getBestUrl,
     getEmoji,
     getGeneratedUrl,
+    getAlternateGeneratedUrl,
     markFailed,
     hasImage,
     loadInto,

@@ -19,8 +19,9 @@ jobs:
 
       - name: Extract and check PHOTO_MAP URLs
         run: |
-          # Extract URLs from PHOTO_MAP in speciesData.js
-          grep -o "url:'[^']*'" js/speciesData.js | sed "s/^url:'//;s/'$//" > /tmp/photo_urls.txt
+          # Extract only PHOTO_MAP section (starts at "const PHOTO_MAP", ends at next "const " or EOF)
+          sed -n '/^const PHOTO_MAP/,/^const [A-Z]/p' js/speciesData.js | \
+            grep -o "url:'[^']*'" | sed "s/^url:'//;s/'$//" > /tmp/photo_urls.txt
 
           total=$(wc -l < /tmp/photo_urls.txt)
           echo "Found $total photo URLs to check"

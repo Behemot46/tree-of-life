@@ -515,8 +515,8 @@ svg{width:100%;height:100%;}
 
 /* ── LEGEND ── */
 #legend{position:fixed;bottom:4.5rem;left:1.2rem;z-index:200;
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);
-  padding:0.7rem 0.9rem;pointer-events:auto;box-shadow:var(--shadow-1);}
+  background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius-md);
+  padding:0.7rem 0.9rem;pointer-events:auto;box-shadow:var(--shadow-1);backdrop-filter:var(--glass-blur);}
 .leg-title{font-size:0.56rem;letter-spacing:0.18em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:0.25rem;font-weight:600;}
 .leg-row{display:flex;align-items:center;gap:0.45rem;font-size:0.65rem;color:var(--text-secondary);margin-top:0.2rem;
   padding:3px 6px;border-radius:6px;transition:opacity 0.3s ease,background 0.3s ease,font-weight 0.15s ease;}
@@ -532,9 +532,9 @@ svg{width:100%;height:100%;}
 
 /* ── ZOOM CONTROLS ── */
 #zoom-ctrl{position:fixed;bottom:4.5rem;right:1.2rem;z-index:200;display:flex;flex-direction:column;gap:0.35rem;}
-.zbtn{width:32px;height:32px;background:var(--surface);border:1px solid var(--border);
+.zbtn{width:32px;height:32px;background:var(--glass-bg);border:1px solid var(--glass-border);
   border-radius:var(--radius-sm);color:var(--text-secondary);font-size:1rem;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);box-shadow:var(--shadow-1);}
+  display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);box-shadow:var(--shadow-1);backdrop-filter:var(--glass-blur);}
 .zbtn:hover{background:var(--surface-raised);border-color:var(--gold);color:var(--text-primary);}
 .zbtn:active{transform:scale(0.97);}
 
@@ -607,18 +607,18 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 
 /* ── LANGUAGE SWITCHER ── */
-#lang-switcher{position:fixed;top:3.2rem;right:1.2rem;z-index:400;display:flex;align-items:center;gap:0.25rem;pointer-events:all;}
-.lang-btn{padding:0.35rem 0.65rem;border:1px solid var(--border);border-radius:var(--radius-sm);
-  background:var(--surface);color:var(--text-secondary);font-size:0.688rem;font-weight:600;
-  letter-spacing:0.06em;cursor:pointer;transition:all var(--transition-fast);font-family:var(--font-sans);}
+#lang-switcher{position:fixed;top:1rem;right:1.2rem;z-index:400;display:flex;align-items:center;gap:0.25rem;pointer-events:all;}
+.lang-btn{padding:0.35rem 0.65rem;border:1px solid var(--glass-border);border-radius:var(--radius-sm);
+  background:var(--glass-bg);color:var(--text-secondary);font-size:0.688rem;font-weight:600;
+  letter-spacing:0.06em;cursor:pointer;transition:all var(--transition-fast);font-family:var(--font-sans);backdrop-filter:var(--glass-blur);}
 .lang-btn:hover{color:var(--text-primary);border-color:var(--accent-primary);}
 .lang-btn.active{background:var(--accent-primary-dim);border-color:var(--accent-primary);color:var(--accent-primary);}
 
 /* ── THEME TOGGLE ── */
-#theme-btn{position:fixed;top:5.2rem;right:1.2rem;z-index:400;width:30px;height:30px;
-  border-radius:var(--radius-sm);background:var(--surface);border:1px solid var(--border);
+#theme-btn{position:fixed;top:3rem;right:1.2rem;z-index:400;width:30px;height:30px;
+  border-radius:var(--radius-sm);background:var(--glass-bg);border:1px solid var(--glass-border);
   color:var(--text-secondary);font-size:0.85rem;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);}
+  display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);backdrop-filter:var(--glass-blur);}
 #theme-btn:hover{border-color:var(--accent-primary);color:var(--accent-primary);}
 
 /* ── LIGHT THEME — Museum Style ── */
@@ -673,14 +673,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 [data-theme="light"] #header{background:linear-gradient(to bottom,var(--bg) 40%,transparent);}
 [data-theme="light"] #panel{background:var(--surface);border-left-color:var(--border);}
 [data-theme="light"] #hominin-view{background:var(--surface-overlay);}
-[data-theme="light"] #legend{background:var(--surface);border-color:var(--border);}
-[data-theme="light"] #zoom-ctrl .zbtn{background:var(--surface);border-color:var(--border);}
+[data-theme="light"] #legend{background:var(--glass-bg);border-color:var(--glass-border);}
+[data-theme="light"] #zoom-ctrl .zbtn{background:var(--glass-bg);border-color:var(--glass-border);}
 [data-theme="light"] #search-input{background:var(--surface);color:var(--text-primary);}
 [data-theme="light"] #search-results{background:var(--surface);border-color:var(--border);}
 [data-theme="light"] #timeline{background:linear-gradient(to top,var(--bg) 50%,transparent);}
-[data-theme="light"] .lang-btn{background:var(--surface);color:var(--text-secondary);border-color:var(--border);}
+[data-theme="light"] .lang-btn{background:var(--glass-bg);color:var(--text-secondary);border-color:var(--glass-border);}
 [data-theme="light"] .lang-btn.active{background:var(--accent-primary-dim);border-color:var(--accent-primary);color:var(--accent-primary);}
-[data-theme="light"] #theme-btn{background:var(--surface);color:var(--text-secondary);border-color:var(--border);}
+[data-theme="light"] #theme-btn{background:var(--glass-bg);color:var(--text-secondary);border-color:var(--glass-border);}
 [data-theme="light"] .sr-item{color:var(--text-secondary);}
 [data-theme="light"] .sr-item:hover{background:var(--accent-primary-dim);}
 [data-theme="light"] .hom-era-title{background:var(--accent-primary-dim);}
@@ -919,6 +919,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     height: 32px;
     font-size: 0.8rem;
   }
+  [dir="rtl"] #lang-switcher { right: auto; left: 38px; }
+  [dir="rtl"] #theme-btn { right: auto; left: 6px; }
 
   /* ── DETAIL PANEL: bottom-sheet on mobile ── */
   #panel {
@@ -1181,7 +1183,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .era-preset:active{transform:scale(0.97);}
 
 /* ── VIEW TOGGLE ── */
-#view-toggle{position:fixed;top:5.5rem;right:1.2rem;z-index:300;display:flex;gap:0;
+#view-toggle{position:fixed;top:5rem;right:1.2rem;z-index:300;display:flex;gap:0;
   background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;
   overflow:hidden;backdrop-filter:var(--glass-blur);pointer-events:all;box-shadow:var(--shadow-1);}
 .view-btn{padding:0.3rem 0.6rem;border:none;background:transparent;color:var(--text-secondary);
@@ -1195,7 +1197,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 /* ── MOBILE FOR NEW ELEMENTS ── */
 @media (max-width: 768px) {
-  #view-toggle{top:auto;bottom:5rem;right:0.6rem;flex-direction:column;}
+  #view-toggle{top:auto;bottom:18rem;right:0.6rem;flex-direction:column;}
   .view-btn+.view-btn{border-left:none;border-top:1px solid var(--border);}
   #era-presets{gap:0.25rem;}
   .era-preset{font-size:0.5rem;padding:0.12rem 0.4rem;}
@@ -1208,7 +1210,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* DNA SIMILARITY CALCULATOR                              */
 /* ══════════════════════════════════════════════════════ */
 #btn-dna-calc{
-  position:fixed;bottom:5.5rem;left:1.2rem;z-index:200;
+  position:fixed;bottom:9rem;left:1.2rem;z-index:200;
   padding:0.5rem 1rem;border-radius:var(--radius-full);
   border:1px solid var(--glass-border);background:var(--glass-bg);
   color:var(--text-primary);font-family:var(--font-sans);font-size:0.75rem;
@@ -1217,7 +1219,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 #btn-dna-calc:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim);box-shadow:var(--shadow-2);}
 #btn-dna-calc:active{transform:scale(0.97);}
-[data-theme="light"] #btn-dna-calc{background:var(--glass-bg);border-color:var(--border);color:var(--text-secondary);box-shadow:var(--shadow-1);}
+[data-theme="light"] #btn-dna-calc{background:var(--glass-bg);border-color:var(--glass-border);color:var(--text-secondary);box-shadow:var(--shadow-1);}
 [data-theme="light"] #btn-dna-calc:hover{border-color:var(--accent-primary);color:var(--accent-primary);}
 [dir="rtl"] #btn-dna-calc{left:auto;right:1.2rem;}
 
@@ -1309,7 +1311,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 /* Mobile */
 @media(max-width:600px){
-  #btn-dna-calc{bottom:4.5rem;left:0.6rem;padding:0.4rem 0.7rem;font-size:0.65rem;}
+  #btn-dna-calc{bottom:8.5rem;left:0.6rem;padding:0.4rem 0.7rem;font-size:0.65rem;}
   [dir="rtl"] #btn-dna-calc{left:auto;right:0.6rem;}
   .dna-panel-inner{padding:1rem;width:96vw;max-height:95vh;}
   .dna-percent-num{font-size:2.4rem;}
@@ -1320,12 +1322,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 /* ── TRIVIA GAME ── */
 #btn-trivia{
-  position:fixed;bottom:8rem;left:1.2rem;z-index:200;
+  position:fixed;bottom:12rem;left:1.2rem;z-index:200;
   padding:0.45rem 0.85rem;border-radius:var(--radius-full);
-  border:1px solid var(--border);background:var(--surface);
+  border:1px solid var(--glass-border);background:var(--glass-bg);
   color:var(--text-primary);font-family:var(--font-sans);font-size:0.72rem;
   cursor:pointer;display:inline-flex;align-items:center;gap:6px;
-  transition:all var(--transition-fast);letter-spacing:0.03em;
+  transition:all var(--transition-fast);letter-spacing:0.03em;backdrop-filter:var(--glass-blur);box-shadow:var(--shadow-1);
 }
 #btn-trivia:hover{border-color:var(--accent-primary);color:var(--accent-primary);}
 [dir="rtl"] #btn-trivia{left:auto;right:1.2rem;}
@@ -1458,7 +1460,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 [data-theme="light"] .trivia-option:hover:not(.answered){background:rgba(14,165,233,0.08);}
 
 @media(max-width:600px){
-  #btn-trivia{bottom:7rem;left:0.6rem;padding:0.4rem 0.7rem;font-size:0.65rem;}
+  #btn-trivia{bottom:12rem;left:0.6rem;padding:0.4rem 0.7rem;font-size:0.65rem;}
   [dir="rtl"] #btn-trivia{left:auto;right:0.6rem;}
   .trivia-panel-inner{padding:1rem;width:96vw;max-height:95vh;}
   .trivia-question-text{font-size:0.88rem;}

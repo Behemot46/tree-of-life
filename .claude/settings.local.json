@@ -19,14 +19,8 @@
       "Bash(sed -i 's/phase p19/phase p23/g; s/p16 + p17 + p19/p20 + p21 + p23/g; s/p16''''s scope/p20''''s scope/g; s/p17''''s scope/p21''''s scope/g; s/# P19/# P23/g' docs/PROMPTS/PROMPT_P19_DNA_CALCULATOR.md)",
       "Bash(sed -i 's/| p19 |/| p23 |/g' docs/PROMPTS/PROMPT_P19_DNA_CALCULATOR.md)",
       "Bash(mv docs/PROMPTS/PROMPT_P19_DNA_CALCULATOR.md docs/PROMPTS/PROMPT_P23_DNA_CALCULATOR.md)",
-      "mcp__mcp-registry__search_mcp_registry",
       "mcp__Claude_Preview__preview_start",
-      "Bash(git add:*)",
-      "Bash(git commit:*)",
-      "Bash(git push:*)",
-      "Bash(git fetch:*)",
-      "Bash(git merge:*)",
-      "Bash(node -e:*)"
+      "WebFetch(domain:behemot46.github.io)"
     ]
   }
 }

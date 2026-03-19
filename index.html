@@ -1318,6 +1318,152 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .dna-presets{justify-content:center;}
 }
 
+/* ── TRIVIA GAME ── */
+#btn-trivia{
+  position:fixed;bottom:8rem;left:1.2rem;z-index:200;
+  padding:0.45rem 0.85rem;border-radius:var(--radius-full);
+  border:1px solid var(--border);background:var(--surface);
+  color:var(--text-primary);font-family:var(--font-sans);font-size:0.72rem;
+  cursor:pointer;display:inline-flex;align-items:center;gap:6px;
+  transition:all var(--transition-fast);letter-spacing:0.03em;
+}
+#btn-trivia:hover{border-color:var(--accent-primary);color:var(--accent-primary);}
+[dir="rtl"] #btn-trivia{left:auto;right:1.2rem;}
+
+.trivia-panel{
+  position:fixed;inset:0;z-index:1100;display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);
+}
+.trivia-panel.open{display:flex;}
+.trivia-panel-inner{
+  width:min(460px,92vw);max-height:90vh;overflow-y:auto;
+  background:var(--surface);border-radius:var(--radius-lg);
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);padding:1.5rem;
+  position:relative;
+}
+.trivia-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;}
+.trivia-title{font-family:var(--font-head);font-size:1.1rem;font-weight:600;color:var(--accent-primary);}
+.trivia-subtitle{font-size:0.8rem;color:var(--text-secondary);margin-bottom:1rem;text-align:center;}
+
+/* Start screen */
+.trivia-rules{
+  background:var(--surface-raised);border-radius:var(--radius-md);padding:0.8rem 1rem;
+  margin-bottom:1rem;font-size:0.75rem;color:var(--text-secondary);line-height:1.6;text-align:center;
+}
+.trivia-difficulty-preview{display:flex;justify-content:center;gap:0.5rem;margin-bottom:1.2rem;flex-wrap:wrap;}
+.trivia-start-btn{
+  display:block;width:100%;padding:0.8rem;border:none;border-radius:var(--radius-md);
+  background:var(--accent-primary);color:#fff;font-family:var(--font-head);font-size:0.95rem;
+  font-weight:600;cursor:pointer;transition:all var(--transition-fast);letter-spacing:0.03em;
+}
+.trivia-start-btn:hover{filter:brightness(1.15);transform:translateY(-1px);}
+
+/* Question screen */
+.trivia-status{display:flex;justify-content:space-between;align-items:center;margin-bottom:0.6rem;font-size:0.75rem;}
+.trivia-lives{display:flex;gap:2px;}
+.trivia-lives span{transition:opacity var(--transition-fast);}
+.trivia-lives span.lost{opacity:0.2;}
+.trivia-score-display{font-family:var(--font-mono);color:var(--accent-primary);font-weight:500;}
+.trivia-progress{height:4px;background:var(--surface-raised);border-radius:var(--radius-full);margin-bottom:1rem;overflow:hidden;}
+.trivia-progress-fill{height:100%;border-radius:var(--radius-full);background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary));transition:width 0.4s ease;}
+
+.trivia-diff-badge{
+  display:inline-block;font-size:0.6rem;padding:0.15rem 0.5rem;border-radius:var(--radius-full);
+  font-family:var(--font-sans);font-weight:600;letter-spacing:0.05em;text-transform:uppercase;
+}
+.trivia-diff-badge.easy{background:rgba(34,197,94,0.15);color:#22c55e;border:1px solid rgba(34,197,94,0.3);}
+.trivia-diff-badge.medium{background:rgba(14,165,233,0.15);color:#0ea5e9;border:1px solid rgba(14,165,233,0.3);}
+.trivia-diff-badge.hard{background:rgba(249,115,22,0.15);color:#f97316;border:1px solid rgba(249,115,22,0.3);}
+.trivia-diff-badge.expert{background:rgba(239,68,68,0.15);color:#ef4444;border:1px solid rgba(239,68,68,0.3);}
+.trivia-diff-badge.master{background:rgba(168,85,247,0.15);color:#a855f7;border:1px solid rgba(168,85,247,0.3);}
+
+.trivia-question-text{font-size:0.95rem;font-weight:500;color:var(--text-primary);margin:0.8rem 0 1rem;line-height:1.5;}
+
+.trivia-options{display:flex;flex-direction:column;gap:0.5rem;margin-bottom:0.8rem;}
+.trivia-option{
+  padding:0.7rem 1rem;border:1px solid var(--border);border-radius:var(--radius-md);
+  background:var(--surface-raised);color:var(--text-primary);font-family:var(--font-body);
+  font-size:0.82rem;cursor:pointer;transition:all var(--transition-fast);text-align:left;
+  min-height:44px;display:flex;align-items:center;gap:0.6rem;line-height:1.4;
+}
+.trivia-option:hover:not(.answered){border-color:var(--accent-primary);background:var(--accent-primary-dim);}
+.trivia-option .opt-letter{
+  flex-shrink:0;width:24px;height:24px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:0.7rem;font-weight:600;background:var(--surface);border:1px solid var(--border);
+}
+.trivia-option.correct{background:rgba(34,197,94,0.15);border-color:#22c55e;color:#22c55e;}
+.trivia-option.correct .opt-letter{background:#22c55e;color:#fff;border-color:#22c55e;}
+.trivia-option.wrong{background:rgba(239,68,68,0.15);border-color:#ef4444;color:#ef4444;}
+.trivia-option.wrong .opt-letter{background:#ef4444;color:#fff;border-color:#ef4444;}
+.trivia-option.answered{cursor:default;pointer-events:none;}
+.trivia-option.reveal{border-color:rgba(34,197,94,0.5);}
+
+.trivia-feedback{margin-top:0.6rem;display:none;}
+.trivia-feedback.show{display:block;}
+.trivia-funfact{
+  font-size:0.75rem;color:var(--text-primary);background:var(--gold-dim);
+  border-radius:var(--radius-md);padding:0.6rem 0.8rem;line-height:1.4;margin-bottom:0.5rem;
+}
+.trivia-learn-more{font-size:0.7rem;}
+.trivia-learn-more a{color:var(--accent-primary);text-decoration:none;}
+.trivia-learn-more a:hover{text-decoration:underline;}
+
+.trivia-points-popup{
+  position:absolute;right:1.5rem;top:3.5rem;font-family:var(--font-mono);font-size:1.1rem;
+  font-weight:700;color:#22c55e;pointer-events:none;opacity:0;
+  animation:trivia-points 1s ease forwards;
+}
+.trivia-streak-badge{
+  display:inline-flex;align-items:center;gap:4px;font-size:0.7rem;font-weight:600;
+  color:#f97316;padding:0.15rem 0.5rem;border-radius:var(--radius-full);
+  background:rgba(249,115,22,0.12);animation:trivia-pulse 1.5s ease infinite;
+}
+
+.trivia-next-btn{
+  display:block;width:100%;padding:0.65rem;border:1px solid var(--accent-primary);
+  border-radius:var(--radius-md);background:transparent;color:var(--accent-primary);
+  font-family:var(--font-head);font-size:0.85rem;font-weight:500;cursor:pointer;
+  margin-top:0.8rem;transition:all var(--transition-fast);
+}
+.trivia-next-btn:hover{background:var(--accent-primary-dim);}
+
+/* Results screen */
+.trivia-result-emoji{font-size:3rem;text-align:center;margin:0.5rem 0;}
+.trivia-result-score{
+  font-family:var(--font-mono);font-size:2.2rem;font-weight:700;
+  color:var(--accent-primary);text-align:center;margin-bottom:0.3rem;
+}
+.trivia-result-label{font-size:0.75rem;color:var(--text-secondary);text-align:center;margin-bottom:0.8rem;}
+.trivia-result-stats{
+  display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1rem;
+}
+.trivia-stat{
+  background:var(--surface-raised);border-radius:var(--radius-md);padding:0.6rem;text-align:center;
+}
+.trivia-stat-value{font-family:var(--font-mono);font-size:1rem;font-weight:600;color:var(--text-primary);}
+.trivia-stat-label{font-size:0.65rem;color:var(--text-secondary);margin-top:0.15rem;}
+.trivia-result-actions{display:flex;gap:0.5rem;}
+.trivia-result-actions button{flex:1;}
+
+@keyframes trivia-shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+@keyframes trivia-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+@keyframes trivia-points{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-30px)}}
+@keyframes trivia-fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.trivia-shake{animation:trivia-shake 0.35s ease;}
+.trivia-fadein{animation:trivia-fadein 0.3s ease;}
+
+[data-theme="light"] .trivia-panel-inner{background:#fff;}
+[data-theme="light"] .trivia-option{background:#f8f9fa;}
+[data-theme="light"] .trivia-option:hover:not(.answered){background:rgba(14,165,233,0.08);}
+
+@media(max-width:600px){
+  #btn-trivia{bottom:7rem;left:0.6rem;padding:0.4rem 0.7rem;font-size:0.65rem;}
+  [dir="rtl"] #btn-trivia{left:auto;right:0.6rem;}
+  .trivia-panel-inner{padding:1rem;width:96vw;max-height:95vh;}
+  .trivia-question-text{font-size:0.88rem;}
+}
+
 /* ── ACCESSIBILITY ── */
 
 /* Skip-to-content link */
@@ -1626,6 +1772,36 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
   </div>
 </div>
 
+<!-- TRIVIA GAME BUTTON -->
+<button id="btn-trivia" onclick="openTrivia()" aria-label="Play Evolution Trivia" title="Evolution Trivia">🧠 <span id="i-btn-trivia">Trivia</span></button>
+
+<!-- TRIVIA GAME PANEL -->
+<div id="trivia-panel" class="trivia-panel" aria-hidden="true" onclick="if(event.target===this)closeTrivia()">
+  <div class="trivia-panel-inner">
+    <!-- Start Phase -->
+    <div id="trivia-start">
+      <div class="trivia-header">
+        <div class="trivia-title" id="i-trivia-title">🧠 Evolution Trivia</div>
+        <button class="btn-back" onclick="closeTrivia()" aria-label="Close">✕</button>
+      </div>
+      <div class="trivia-subtitle" id="i-trivia-subtitle">Test your knowledge of life's history</div>
+      <div class="trivia-rules" id="i-trivia-rules">15 questions · 3 lives · Difficulty increases<br>Easy → Medium → Hard → Expert → Master</div>
+      <div class="trivia-difficulty-preview">
+        <span class="trivia-diff-badge easy">Easy 10pts</span>
+        <span class="trivia-diff-badge medium">Medium 20pts</span>
+        <span class="trivia-diff-badge hard">Hard 30pts</span>
+        <span class="trivia-diff-badge expert">Expert 50pts</span>
+        <span class="trivia-diff-badge master">Master 100pts</span>
+      </div>
+      <button class="trivia-start-btn" onclick="startTriviaGame()" id="i-trivia-start-btn">Start Game</button>
+    </div>
+    <!-- Question Phase -->
+    <div id="trivia-question" style="display:none"></div>
+    <!-- Result Phase -->
+    <div id="trivia-result" style="display:none"></div>
+  </div>
+</div>
+
 <!-- ERA BROWSER -->
 <div id="timeline">
   <div style="display:flex;align-items:center;justify-content:center;gap:0.4rem;">
@@ -1660,6 +1836,7 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
 <script src="js/imageLoader.js"></script>
 <script src="js/dnaSimilarity.js"></script>
 <script src="js/nodeIcons.js"></script>
+<script src="js/triviaData.js"></script>
 <script>
 // Register PHOTO_MAP (from speciesData.js) with ImageLoader for tree node rendering
 if(typeof ImageLoader!=='undefined'&&typeof PHOTO_MAP!=='undefined'&&ImageLoader.registerPhotoMap){
@@ -4369,6 +4546,260 @@ document.getElementById('dna-panel').addEventListener('click', function(e) {
 });
 
 // ══════════════════════════════════════════════════════
+// TRIVIA GAME
+// ══════════════════════════════════════════════════════
+const TRIVIA_POINTS = {1:10,2:10,3:20,4:20,5:30,6:30,7:50,8:50,9:100,10:100};
+const TRIVIA_TIERS = [
+  {min:1,max:2,label:'Easy',cls:'easy'},
+  {min:3,max:4,label:'Medium',cls:'medium'},
+  {min:5,max:6,label:'Hard',cls:'hard'},
+  {min:7,max:8,label:'Expert',cls:'expert'},
+  {min:9,max:10,label:'Master',cls:'master'}
+];
+let triviaState = null;
+
+function getTriviaLabel(diff){
+  const t=TRIVIA_TIERS.find(t=>diff>=t.min&&diff<=t.max);
+  return t||TRIVIA_TIERS[0];
+}
+
+function openTrivia(){
+  triviaState = null;
+  document.getElementById('trivia-start').style.display='';
+  document.getElementById('trivia-question').style.display='none';
+  document.getElementById('trivia-result').style.display='none';
+  const panel=document.getElementById('trivia-panel');
+  panel.classList.add('open');
+  panel.setAttribute('aria-hidden','false');
+}
+
+function closeTrivia(){
+  const panel=document.getElementById('trivia-panel');
+  panel.classList.remove('open');
+  panel.setAttribute('aria-hidden','true');
+  triviaState=null;
+}
+
+function selectTriviaQuestions(){
+  const qs=TRIVIA_QUESTIONS;
+  const selected=[];
+  for(const tier of TRIVIA_TIERS){
+    const pool=qs.filter(q=>q.difficulty>=tier.min&&q.difficulty<=tier.max);
+    const shuffled=[...pool].sort(()=>Math.random()-0.5);
+    selected.push(...shuffled.slice(0,3));
+  }
+  return selected;
+}
+
+function startTriviaGame(){
+  const questions=selectTriviaQuestions();
+  triviaState={
+    questions,
+    currentIndex:0,
+    score:0,
+    streak:0,
+    bestStreak:0,
+    lives:3,
+    answered:false,
+    selectedOption:-1,
+    tierScores:{}
+  };
+  TRIVIA_TIERS.forEach(t=>{triviaState.tierScores[t.cls]={correct:0,total:0};});
+  document.getElementById('trivia-start').style.display='none';
+  document.getElementById('trivia-question').style.display='';
+  document.getElementById('trivia-result').style.display='none';
+  showTriviaQuestion();
+}
+
+function showTriviaQuestion(){
+  const s=triviaState;
+  const q=s.questions[s.currentIndex];
+  const tier=getTriviaLabel(q.difficulty);
+  const pts=TRIVIA_POINTS[q.difficulty];
+  const letters=['A','B','C','D'];
+
+  const container=document.getElementById('trivia-question');
+  container.innerHTML=`
+    <div class="trivia-header">
+      <button class="btn-back" onclick="closeTrivia()" aria-label="Close">✕</button>
+      <div style="font-size:0.75rem;color:var(--text-secondary);">Q ${s.currentIndex+1}/${s.questions.length}</div>
+      <div style="display:flex;align-items:center;gap:0.6rem;">
+        <div class="trivia-lives" id="trivia-lives">${renderTriviaLives(s.lives)}</div>
+        <div class="trivia-score-display" id="trivia-score">${s.score} pts</div>
+      </div>
+    </div>
+    <div class="trivia-progress"><div class="trivia-progress-fill" style="width:${((s.currentIndex)/s.questions.length)*100}%"></div></div>
+    <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+      <span class="trivia-diff-badge ${tier.cls}">${tier.label}</span>
+      <span style="font-size:0.65rem;color:var(--text-secondary);">${pts} pts</span>
+      <span style="font-size:0.65rem;color:var(--text-secondary);margin-left:auto;">${q.category}</span>
+      ${s.streak>=3?`<span class="trivia-streak-badge">${s.streak>=5?'🔥 Unstoppable!':'🔥 '+s.streak+' streak!'}</span>`:''}
+    </div>
+    <div class="trivia-question-text trivia-fadein">${q.question}</div>
+    <div class="trivia-options" id="trivia-options">
+      ${q.answers.map((a,i)=>`<button class="trivia-option" onclick="answerTrivia(${i})" data-idx="${i}">
+        <span class="opt-letter">${letters[i]}</span><span>${a}</span>
+      </button>`).join('')}
+    </div>
+    <div class="trivia-feedback" id="trivia-feedback">
+      <div class="trivia-funfact" id="trivia-funfact"></div>
+      <div class="trivia-learn-more" id="trivia-learn-more"></div>
+    </div>
+    <button class="trivia-next-btn" id="trivia-next-btn" onclick="nextTriviaQuestion()" style="display:none;">${t('trivia_next')||'Next Question'}</button>
+  `;
+}
+
+function renderTriviaLives(lives){
+  let html='';
+  for(let i=0;i<3;i++) html+=`<span${i>=lives?' class="lost"':''}>❤️</span>`;
+  return html;
+}
+
+function answerTrivia(idx){
+  const s=triviaState;
+  if(s.answered)return;
+  s.answered=true;
+  s.selectedOption=idx;
+  const q=s.questions[s.currentIndex];
+  const tier=getTriviaLabel(q.difficulty);
+  const isCorrect=idx===q.correct;
+
+  // Update tier stats
+  s.tierScores[tier.cls].total++;
+
+  const options=document.querySelectorAll('#trivia-options .trivia-option');
+  options.forEach((btn,i)=>{
+    btn.classList.add('answered');
+    if(i===q.correct) btn.classList.add('correct');
+    else if(i===idx&&!isCorrect){
+      btn.classList.add('wrong');
+      btn.classList.add('trivia-shake');
+    }
+    if(i!==q.correct&&i!==idx) btn.classList.add('reveal');
+  });
+
+  if(isCorrect){
+    s.streak++;
+    if(s.streak>s.bestStreak)s.bestStreak=s.streak;
+    const basePts=TRIVIA_POINTS[q.difficulty];
+    const streakBonus=s.streak>=3?s.streak*5:0;
+    const totalPts=basePts+streakBonus;
+    s.score+=totalPts;
+    s.tierScores[tier.cls].correct++;
+    // Update score display
+    const scoreEl=document.getElementById('trivia-score');
+    if(scoreEl)scoreEl.textContent=s.score+' pts';
+    // Points popup
+    showTriviaPointsPopup('+'+totalPts+(streakBonus?' (🔥+'+streakBonus+')':''));
+  } else {
+    s.streak=0;
+    s.lives--;
+    const livesEl=document.getElementById('trivia-lives');
+    if(livesEl)livesEl.innerHTML=renderTriviaLives(s.lives);
+  }
+
+  // Show feedback
+  const feedback=document.getElementById('trivia-feedback');
+  feedback.classList.add('show');
+  document.getElementById('trivia-funfact').textContent='💡 '+q.funFact;
+  const learnMore=document.getElementById('trivia-learn-more');
+  if(q.learnMoreUrl){
+    learnMore.innerHTML='📺 <a href="'+q.learnMoreUrl+'" target="_blank" rel="noopener">'+(t('trivia_learn_more')||'Learn More')+'</a>';
+  }
+
+  // Show next button
+  const nextBtn=document.getElementById('trivia-next-btn');
+  if(s.lives<=0){
+    nextBtn.textContent=t('trivia_see_results')||'See Results';
+  } else if(s.currentIndex>=s.questions.length-1){
+    nextBtn.textContent=t('trivia_see_results')||'See Results';
+  } else {
+    nextBtn.textContent=t('trivia_next')||'Next Question';
+  }
+  nextBtn.style.display='';
+}
+
+function showTriviaPointsPopup(text){
+  const container=document.querySelector('.trivia-panel-inner');
+  const popup=document.createElement('div');
+  popup.className='trivia-points-popup';
+  popup.textContent=text;
+  container.appendChild(popup);
+  setTimeout(()=>popup.remove(),1000);
+}
+
+function nextTriviaQuestion(){
+  const s=triviaState;
+  if(s.lives<=0||s.currentIndex>=s.questions.length-1){
+    showTriviaResults();
+    return;
+  }
+  s.currentIndex++;
+  s.answered=false;
+  s.selectedOption=-1;
+  showTriviaQuestion();
+}
+
+function showTriviaResults(){
+  const s=triviaState;
+  const total=s.questions.length;
+  const answered=Math.min(s.currentIndex+1,total);
+  let correctCount=0;
+  TRIVIA_TIERS.forEach(t=>{correctCount+=s.tierScores[t.cls].correct;});
+
+  // Star rating based on score percentage of max possible
+  const maxPossible=s.questions.reduce((sum,q)=>sum+TRIVIA_POINTS[q.difficulty],0);
+  const pct=maxPossible>0?s.score/maxPossible:0;
+  const stars=pct>=0.7?3:pct>=0.4?2:pct>0?1:0;
+  const starStr='⭐'.repeat(stars)+'☆'.repeat(3-stars);
+
+  const emoji=s.lives<=0?'💀':(stars>=3?'🏆':stars>=2?'🎉':'💪');
+  const title=s.lives<=0?(t('trivia_game_over')||'Game Over'):(t('trivia_complete')||'Complete!');
+
+  document.getElementById('trivia-question').style.display='none';
+  const result=document.getElementById('trivia-result');
+  result.style.display='';
+
+  let breakdownHTML='';
+  TRIVIA_TIERS.forEach(tier=>{
+    const ts=s.tierScores[tier.cls];
+    if(ts.total>0){
+      breakdownHTML+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:0.3rem 0;font-size:0.75rem;">
+        <span class="trivia-diff-badge ${tier.cls}">${tier.label}</span>
+        <span style="color:var(--text-secondary);font-family:var(--font-mono);">${ts.correct}/${ts.total}</span>
+      </div>`;
+    }
+  });
+
+  result.innerHTML=`
+    <div class="trivia-header">
+      <div class="trivia-title">${title}</div>
+      <button class="btn-back" onclick="closeTrivia()" aria-label="Close">✕</button>
+    </div>
+    <div class="trivia-result-emoji">${emoji}</div>
+    <div class="trivia-result-score">${s.score}</div>
+    <div class="trivia-result-label">${t('trivia_points')||'points'} · ${starStr}</div>
+    <div class="trivia-result-stats">
+      <div class="trivia-stat">
+        <div class="trivia-stat-value">${correctCount}/${answered}</div>
+        <div class="trivia-stat-label">${t('trivia_correct')||'Correct'}</div>
+      </div>
+      <div class="trivia-stat">
+        <div class="trivia-stat-value">🔥 ${s.bestStreak}</div>
+        <div class="trivia-stat-label">${t('trivia_best_streak')||'Best Streak'}</div>
+      </div>
+    </div>
+    <div style="background:var(--surface-raised);border-radius:var(--radius-md);padding:0.6rem 0.8rem;margin-bottom:1rem;">
+      ${breakdownHTML}
+    </div>
+    <div class="trivia-result-actions">
+      <button class="trivia-start-btn" onclick="startTriviaGame()">${t('trivia_play_again')||'Play Again'}</button>
+      <button class="trivia-next-btn" onclick="closeTrivia()">${t('trivia_close')||'Close'}</button>
+    </div>
+  `;
+}
+
+// ══════════════════════════════════════════════════════
 // RANDOM SPECIES
 // ══════════════════════════════════════════════════════
 document.getElementById('btn-random').addEventListener('click',()=>{
@@ -4386,6 +4817,7 @@ document.getElementById('btn-random').addEventListener('click',()=>{
 // ══════════════════════════════════════════════════════
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
+    if(document.getElementById('trivia-panel').classList.contains('open')){closeTrivia();return;}
     // Close search dropdown first if open (not a nav action)
     if(searchResults.classList.contains('show')){
       searchResults.classList.remove('show');
@@ -4593,6 +5025,12 @@ function applyI18n(){
   set('i-hf-homo',t('hom_homo'));
   set('i-hf-surv',t('hom_surv'));
   const cb=el('compare-btn');if(cb)cb.textContent=t('compare_btn');
+  // Trivia i18n
+  set('i-btn-trivia',t('trivia_btn'));
+  set('i-trivia-title',t('trivia_title'));
+  set('i-trivia-subtitle',t('trivia_subtitle'));
+  const triviaRulesEl=el('i-trivia-rules');if(triviaRulesEl)triviaRulesEl.innerHTML=t('trivia_rules').replace(/\n/g,'<br>');
+  set('i-trivia-start-btn',t('trivia_start'));
   // DNA Calculator i18n
   set('i-dna-title',t('dna_calc_title'));
   set('i-btn-dna-calc',t('dna_calc_btn'));

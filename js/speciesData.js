@@ -654,6 +654,17 @@ const WIKI_TITLES = {
   'par_aethiopicus':'Paranthropus_aethiopicus',
   'sahelanthropus':'Sahelanthropus','orrorin':'Orrorin','ardipithecus_r':'Ardipithecus_ramidus',
   'kenyanthropus':'Kenyanthropus',
+  // New species (p-species-classification)
+  'golden-poison-frog':'Golden_poison_frog','axolotl':'Axolotl',
+  'chinese-giant-salamander':'Chinese_giant_salamander',
+  'clownfish':'Ocellaris_clownfish','seahorse':'Common_seahorse','anglerfish':'Anglerfish',
+  'green-sea-turtle':'Green_sea_turtle','king-cobra':'King_cobra','saltwater-crocodile':'Saltwater_crocodile',
+  'emperor-penguin':'Emperor_penguin','hummingbird':'Ruby-throated_hummingbird','african-grey-parrot':'Grey_parrot',
+  'flying-fox':'Large_flying_fox','african-elephant':'African_bush_elephant','gray-wolf':'Wolf',
+  'bottlenose-dolphin':'Common_bottlenose_dolphin','three-toed-sloth':'Brown-throated_sloth',
+  'monarch-butterfly':'Monarch_butterfly','leaf-cutter-ant':'Atta_cephalotes','dragonfly':'Anax_junius',
+  'giant-squid':'Giant_squid','common-earthworm':'Lumbricus_terrestris','common-starfish':'Asterias_rubens',
+  'venus-flytrap':'Venus_flytrap','baobab':'Adansonia_digitata',
 };
 
 const PHOTO_MAP = {
@@ -776,6 +787,32 @@ const PHOTO_MAP = {
   'au_africanus':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Australopithecus_africanus_-_Cast_of_taung_child.jpg/640px-Australopithecus_africanus_-_Cast_of_taung_child.jpg', credit:'José Braga/Didier Descouens, CC BY-SA 4.0'},
   'sahelanthropus':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg/640px-Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg', credit:'Didier Descouens, CC BY-SA 4.0'},
   'ardipithecus_r':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Ardipithecus_ramidus_-_Scientific_reconstruction.jpg/640px-Ardipithecus_ramidus_-_Scientific_reconstruction.jpg', credit:'Science, Educational use'},
+  // New species (p-species-classification)
+  'golden-poison-frog':    {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6e/Schrecklicherpfeilgiftfrosch-01.jpg/640px-Schrecklicherpfeilgiftfrosch-01.jpg', credit:'Wilfried Berns, CC BY-SA 2.0 de'},
+  'axolotl':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Axolotl_ganz.jpg/640px-Axolotl_ganz.jpg', credit:'LoKiLeCh, CC BY-SA 3.0'},
+  'chinese-giant-salamander':{url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Velemlok_%C4%8D%C3%ADnsk%C3%BD_zoo_praha_1.jpg/640px-Velemlok_%C4%8D%C3%ADnsk%C3%BD_zoo_praha_1.jpg', credit:'Petr Hamernik, CC BY-SA 4.0'},
+  'clownfish':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f6/Clown_fish_in_the_Andaman_Coral_Reef.jpg/640px-Clown_fish_in_the_Andaman_Coral_Reef.jpg', credit:'Ritiks, CC BY-SA 3.0'},
+  'seahorse':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Hal_-_Hippocampus_kuda_-_4.jpg/640px-Hal_-_Hippocampus_kuda_-_4.jpg', credit:'Emoke Denes, CC BY-SA 4.0'},
+  'anglerfish':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Lophiiformes_Collage.png/640px-Lophiiformes_Collage.png', credit:'Anthropophoca, CC BY-SA 4.0'},
+  'green-sea-turtle':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Green_sea_turtle_%28Chelonia_mydas%29_Moorea.jpg/640px-Green_sea_turtle_%28Chelonia_mydas%29_Moorea.jpg', credit:'Charles J. Sharp, CC BY-SA 4.0'},
+  'king-cobra':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/12_-_The_Mystical_King_Cobra_and_Coffee_Forests.jpg/640px-12_-_The_Mystical_King_Cobra_and_Coffee_Forests.jpg', credit:'Michael Allen Smith, CC BY-SA 2.0'},
+  'saltwater-crocodile':   {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/SaltwaterCrocodile%28%27Maximo%27%29.jpg/640px-SaltwaterCrocodile%28%27Maximo%27%29.jpg', credit:'Molly Ebersold, Public domain'},
+  'emperor-penguin':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Aptenodytes_forsteri_-Snow_Hill_Island%2C_Antarctica_-adults_and_juvenile-8.jpg/640px-Aptenodytes_forsteri_-Snow_Hill_Island%2C_Antarctica_-adults_and_juvenile-8.jpg', credit:'Ian Duffy, CC BY 2.0'},
+  'hummingbird':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Archilochus_colubris_-flying_-male-8.jpg/640px-Archilochus_colubris_-flying_-male-8.jpg', credit:'jeffreyw, CC BY 2.0'},
+  'african-grey-parrot':   {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Perroquet_%C3%A0_Yampopo_Beach_-_Douala.jpg/640px-Perroquet_%C3%A0_Yampopo_Beach_-_Douala.jpg', credit:'Florettesokeng, CC BY-SA 4.0'},
+  'flying-fox':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Wilhelma_Kalong-Flughund_Pteropus_vampyrus_0513.jpg/640px-Wilhelma_Kalong-Flughund_Pteropus_vampyrus_0513.jpg', credit:'NobbiP, CC BY-SA 3.0'},
+  'african-elephant':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/94/178_Male_African_bush_elephant_in_Etosha_National_Park_Photo_by_Giles_Laurent.jpg/640px-178_Male_African_bush_elephant_in_Etosha_National_Park_Photo_by_Giles_Laurent.jpg', credit:'Giles Laurent, CC BY-SA 4.0'},
+  'gray-wolf':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Eurasian_wolf_2.jpg/640px-Eurasian_wolf_2.jpg', credit:'Mas3cf, CC BY-SA 4.0'},
+  'bottlenose-dolphin':    {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bc/Tursiops_truncatus_01-cropped.jpg/640px-Tursiops_truncatus_01-cropped.jpg', credit:'NASA, Public domain'},
+  'three-toed-sloth':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Bradypus.jpg/640px-Bradypus.jpg', credit:'Stefan Laube, Public domain'},
+  'monarch-butterfly':     {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Monarch_Butterfly_Danaus_plexippus_Male_2664px.jpg/640px-Monarch_Butterfly_Danaus_plexippus_Male_2664px.jpg', credit:'Derek Ramsey, GFDL 1.2'},
+  'leaf-cutter-ant':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Atta_cephalotes-pjt.jpg/640px-Atta_cephalotes-pjt.jpg', credit:'Pjt56, CC BY-SA 4.0'},
+  'dragonfly':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/Common_Green_Darner_Anax_junius_JG.jpg/640px-Common_Green_Darner_Anax_junius_JG.jpg', credit:'JeffreyGammon, CC BY 4.0'},
+  'giant-squid':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Giant_squid_Ranheim.jpg/640px-Giant_squid_Ranheim.jpg', credit:'NTNU Vitenskapsmuseet, CC BY 2.0'},
+  'common-earthworm':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Regenwurm1.jpg/640px-Regenwurm1.jpg', credit:'Michael Linnenbach, CC BY-SA 3.0'},
+  'common-starfish':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Asterias_rubens.jpg/640px-Asterias_rubens.jpg', credit:'Hans Hillewaert, CC BY-SA 4.0'},
+  'venus-flytrap':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Venus_Flytrap_showing_trigger_hairs.jpg/640px-Venus_Flytrap_showing_trigger_hairs.jpg', credit:'Noah Elhardt, CC BY-SA 2.5'},
+  'baobab':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Baobab_and_elephant%2C_Tanzania.jpg/640px-Baobab_and_elephant%2C_Tanzania.jpg', credit:'Ferdinand Reus, CC BY-SA 2.0'},
 };
 
 const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','hominini'];

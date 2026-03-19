@@ -191,8 +191,8 @@ body.dragging{cursor:grabbing;}
 .nav-btn:active{transform:scale(0.97);}
 .nav-btn:disabled{opacity:0.3;cursor:default;pointer-events:none;}
 .nav-btn .nav-arrow{display:inline-block;font-size:0.75rem;line-height:1;}
-[data-theme="light"] .nav-btn{background:var(--glass-bg);border-color:var(--glass-border);color:var(--gold);}
-[data-theme="light"] .nav-btn:hover{background:var(--accent-primary-dim);border-color:var(--gold);color:var(--parchment);}
+[data-theme="light"] .nav-btn{background:var(--glass-bg);border-color:var(--glass-border);color:var(--text-secondary);}
+[data-theme="light"] .nav-btn:hover{background:var(--accent-primary-dim);border-color:var(--accent-primary);color:var(--accent-primary);}
 [dir="rtl"] #nav-ctrl{left:auto;right:1.2rem;flex-direction:row-reverse;}
 [dir="rtl"] .nav-arrow{transform:scaleX(-1);}
 
@@ -629,52 +629,52 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);}
 #theme-btn:hover{border-color:var(--accent-primary);color:var(--accent-primary);}
 
-/* ── LIGHT THEME ── */
+/* ── LIGHT THEME — Museum Style ── */
 [data-theme="light"]{
-  --bg:#faf7f2;
-  --surface:#f3efe8;
-  --surface-raised:#eae5dc;
-  --surface-overlay:rgba(250,247,242,0.98);
-  --parchment:#1a1610;
-  --text-primary:#1a1610;
-  --text-secondary:#5c5448;
-  --text-muted:#8a8278;
-  --text-dim:rgba(26,22,16,0.50);
-  --text-faint:rgba(26,22,16,0.30);
-  --gold:#a06e2e;
-  --gold-light:#8a5e24;
-  --gold-dim:rgba(160,110,46,0.10);
-  --gold-rgb:160,110,46;
+  --bg:#ffffff;
+  --surface:#faf8f5;
+  --surface-raised:#f3efe9;
+  --surface-overlay:rgba(255,253,250,0.98);
+  --parchment:#2c2418;
+  --text-primary:#2c2418;
+  --text-secondary:#6b5d4d;
+  --text-muted:#9a8e7e;
+  --text-dim:rgba(44,36,24,0.50);
+  --text-faint:rgba(44,36,24,0.30);
+  --gold:#8a6d3b;
+  --gold-light:#6b5227;
+  --gold-dim:rgba(138,109,59,0.10);
+  --gold-rgb:138,109,59;
   --teal:#3d7a6c;
   --teal-dim:rgba(61,122,108,0.10);
-  --terra:#a04030;
-  --sage:#3d7a4c;
-  --accent-primary:#a06e2e;
-  --accent-primary-dim:rgba(160,110,46,0.10);
-  --accent-secondary:#3d7a6c;
-  --accent-secondary-dim:rgba(61,122,108,0.10);
-  --accent-success:#3d7a4c;
-  --accent-danger:#a04030;
-  --panel-bg:rgba(250,247,242,0.98);
-  --border:#d9d2c6;
-  --divider:#d9d2c6;
+  --terra:#a03020;
+  --sage:#3a7a45;
+  --accent-primary:#8a6d3b;
+  --accent-primary-dim:rgba(138,109,59,0.10);
+  --accent-secondary:#b0703a;
+  --accent-secondary-dim:rgba(176,112,58,0.10);
+  --accent-success:#3a7a45;
+  --accent-danger:#a03020;
+  --panel-bg:rgba(255,253,250,0.98);
+  --border:#ddd5c8;
+  --divider:#ddd5c8;
   --shadow-1:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
   --shadow-2:0 4px 12px rgba(0,0,0,0.08),0 2px 4px rgba(0,0,0,0.04);
   --shadow-3:0 8px 32px rgba(0,0,0,0.1),0 4px 8px rgba(0,0,0,0.06);
-  --glass-bg:rgba(250,247,242,0.75);
+  --glass-bg:rgba(255,253,250,0.75);
   --glass-border:rgba(0,0,0,0.06);
-  --color-canvas:#faf7f2;
-  --color-canvas-alt:#f3efe8;
-  --color-panel-bg:#f3efe8;
-  --color-panel-border:#d9d2c6;
-  --color-text-primary:#1a1610;
-  --color-text-secondary:#5c5448;
-  --color-text-muted:#8a8278;
-  --color-accent:#a06e2e;
-  --color-divider:#d9d2c6;
-  --color-button-bg:#eae5dc;
-  --color-button-border:#d9d2c6;
-  --color-button-hover:#ddd7cc;
+  --color-canvas:#ffffff;
+  --color-canvas-alt:#faf8f5;
+  --color-panel-bg:#faf8f5;
+  --color-panel-border:#ddd5c8;
+  --color-text-primary:#2c2418;
+  --color-text-secondary:#6b5d4d;
+  --color-text-muted:#9a8e7e;
+  --color-accent:#8a6d3b;
+  --color-divider:#ddd5c8;
+  --color-button-bg:#f3efe9;
+  --color-button-border:#ddd5c8;
+  --color-button-hover:#e8e0d4;
 }
 [data-theme="light"] body{background:var(--bg);color:var(--parchment);}
 [data-theme="light"] #bg{background:var(--bg);}
@@ -1227,7 +1227,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 #btn-dna-calc:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim);box-shadow:var(--shadow-2);}
 #btn-dna-calc:active{transform:scale(0.97);}
 [data-theme="light"] #btn-dna-calc{background:var(--glass-bg);border-color:var(--border);color:var(--text-secondary);box-shadow:var(--shadow-1);}
-[data-theme="light"] #btn-dna-calc:hover{border-color:var(--gold);color:var(--gold);}
+[data-theme="light"] #btn-dna-calc:hover{border-color:var(--accent-primary);color:var(--accent-primary);}
 [dir="rtl"] #btn-dna-calc{left:auto;right:1.2rem;}
 
 .dna-panel{

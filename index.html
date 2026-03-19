@@ -345,18 +345,6 @@ svg{width:100%;height:100%;}
   display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);}
 .zbtn:hover{background:var(--surface-raised);border-color:var(--accent-primary);color:var(--text-primary);}
 
-#btn-hominin{position:fixed;bottom:4.5rem;right:5rem;z-index:200;height:32px;padding:0 14px;
-
-  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);
-
-  color:var(--accent-primary);font-size:12px;font-weight:600;font-family:'Inter',sans-serif;
-
-  cursor:pointer;display:flex;align-items:center;gap:6px;transition:all 0.2s;
-
-  white-space:nowrap;}
-
-#btn-hominin:hover{background:var(--surface-raised);border-color:var(--accent-primary);color:var(--text-primary);}
-
 
 
 /* ── TOOLTIP ── */
@@ -466,7 +454,6 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 [dir="rtl"] .panel-scroll{direction:rtl;}
 [dir="rtl"] #legend{left:auto;right:1.2rem;}
 [dir="rtl"] #zoom-ctrl{right:auto;left:1.2rem;}
-[dir="rtl"] #btn-hominin{right:auto;left:5rem;}
 [dir="rtl"] .p-top{flex-direction:row-reverse;}
 [dir="rtl"] .bc-sep{transform:scaleX(-1);display:inline-block;}
 [dir="rtl"] .hom-species{flex-direction:row-reverse;}
@@ -1268,9 +1255,6 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   <button class="zbtn" id="btn-out" aria-label="Zoom out">−</button>
   <button class="zbtn" id="btn-random" title="Random species" aria-label="Jump to random species" style="font-size:0.9rem;">🎲</button>
 </div>
-
-<!-- HUMAN EVOLUTION SHORTCUT -->
-<button id="btn-hominin" onclick="openHomininView()" aria-label="Open Human Evolution explorer" title="Human Evolution">🧬 <span id="i-btn-hominin">Human Evolution</span></button>
 
 <!-- DNA SIMILARITY CALCULATOR BUTTON -->
 <button id="btn-dna-calc" onclick="openDnaCalc()" aria-label="Open DNA Similarity Calculator" title="DNA Compare">🧬 <span id="i-btn-dna-calc">DNA Compare</span></button>
@@ -2108,8 +2092,9 @@ function render(){
     p.setAttribute('stroke-width',sw);
     p.setAttribute('stroke-opacity',op);
     if(!animDone.has(to.id)){
-      const len=300;p.style.strokeDasharray=len;p.style.strokeDashoffset=len;
+      const len=9999;p.style.strokeDasharray=len;p.style.strokeDashoffset=len;
       p.style.transition=`stroke-dashoffset ${0.3+to.depth*0.05}s cubic-bezier(.4,0,.2,1) ${to.depth*0.04}s`;
+      p.addEventListener('transitionend',function h(){p.style.strokeDasharray='';p.style.strokeDashoffset='';p.style.transition='';p.removeEventListener('transitionend',h);},{once:true});
       setTimeout(()=>{p.style.strokeDashoffset=0;},50);
     }
     branchFrag.appendChild(p);
@@ -2160,7 +2145,7 @@ function render(){
       g.appendChild(ring);
     }
 
-    // Hominini gateway — golden pulsing ring + Explore badge
+    // Hominini gateway — golden pulsing ring
     if(n.id==='hominini'){
       const gw=document.createElementNS('http://www.w3.org/2000/svg','circle');
       gw.setAttribute('cx',n._x);gw.setAttribute('cy',n._y);gw.setAttribute('r',n.r+12);
@@ -2168,15 +2153,6 @@ function render(){
       gw.setAttribute('stroke-width','2');gw.setAttribute('stroke-opacity','0.6');
       gw.style.animation='homininGlow 2.5s ease-in-out infinite';
       g.appendChild(gw);
-      const badgeFo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
-      const bw=64,bh=18;
-      badgeFo.setAttribute('x',n._x-bw/2);badgeFo.setAttribute('y',n._y+n.r+6);
-      badgeFo.setAttribute('width',bw);badgeFo.setAttribute('height',bh);
-      badgeFo.style.pointerEvents='none';
-      const badge=document.createElement('div');
-      badge.style.cssText='font-size:9px;font-family:"Heebo",sans-serif;color:#e8b86d;text-align:center;font-weight:700;letter-spacing:0.05em;opacity:0.85;';
-      badge.textContent='Explore \u2192';
-      badgeFo.appendChild(badge);g.appendChild(badgeFo);
     }
 
     // Highlight ring
@@ -2769,10 +2745,157 @@ async function fetchWikiPhoto(nodeId, wikiTitle, imgEl, fallbackEl, creditEl) {
   }
 }
 
+// ── Premium Homo sapiens panel ──
+function renderSapiensPanel(node, panelEl) {
+  const h = node._hominData;
+  const photoEntry = PHOTO_MAP[node.id];
+  const generatedUrl = (typeof ImageLoader!=='undefined') ? ImageLoader.getGeneratedUrl(node.id) : null;
+  const heroImg = generatedUrl || (photoEntry && photoEntry.url) || node.img || '';
+  const heroCredit = generatedUrl ? 'AI-generated illustration' : (photoEntry && photoEntry.credit) || node.imgCredit || '';
+  const brainMax = h && h.brain ? (h.brain[1]||h.brain[0]) : 1500;
+  const neanPct = h && h.dna && h.dna.neanderthal != null ? h.dna.neanderthal : 2;
+  const denPct = h && h.dna && h.dna.denisovan != null ? h.dna.denisovan : 1;
+  const dnaNote = h && h.dna && h.dna.note ? h.dna.note : '';
+  const sites = h && h.sites ? h.sites : ['Jebel Irhoud, Morocco','Omo Kibish, Ethiopia'];
+
+  panelEl.innerHTML = `
+    <!-- Hero gradient -->
+    <div style="position:relative;width:100%;min-height:260px;background:linear-gradient(135deg,#0c1425 0%,#0a1628 30%,#0d2847 60%,#0ea5e9 150%);overflow:hidden;flex-shrink:0;">
+      <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 80%,rgba(14,165,233,0.15) 0%,transparent 70%);"></div>
+      <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 100%,rgba(14,165,233,0.08) 0%,transparent 50%);"></div>
+      ${heroImg ? `<img src="${heroImg}" alt="Homo sapiens" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0.2;mix-blend-mode:luminosity;" onerror="this.style.display='none';" />` : ''}
+      <div style="position:relative;z-index:1;padding:32px 24px 24px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;">
+        <div style="font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:rgba(14,165,233,0.8);font-family:Inter,sans-serif;">THE PINNACLE</div>
+        <h2 style="font-family:Inter,sans-serif;font-size:32px;font-weight:800;color:#fff;margin:0;line-height:1.1;letter-spacing:-0.02em;">Homo sapiens</h2>
+        <div style="font-style:italic;font-size:14px;color:rgba(255,255,255,0.6);font-family:Inter,sans-serif;letter-spacing:0.05em;">The Sole Survivor</div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:8px;">
+          <span style="font-size:12px;color:rgba(255,255,255,0.75);font-family:Inter,sans-serif;display:flex;align-items:center;gap:4px;">🧠 ${brainMax} cm³</span>
+          <span style="font-size:12px;color:rgba(255,255,255,0.75);font-family:Inter,sans-serif;display:flex;align-items:center;gap:4px;">🌍 All 7 continents</span>
+          <span style="font-size:12px;color:rgba(255,255,255,0.75);font-family:Inter,sans-serif;display:flex;align-items:center;gap:4px;">👥 8 billion</span>
+        </div>
+      </div>
+      ${heroCredit ? `<div style="position:absolute;bottom:5px;right:8px;font-size:9px;color:rgba(255,255,255,0.4);font-family:Inter,sans-serif;">${heroCredit}</div>` : ''}
+    </div>
+
+    <div style="padding:24px;display:flex;flex-direction:column;gap:20px;overflow-y:auto;flex:1;">
+
+      <!-- Key stats cards -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="padding:14px;border-radius:10px;background:var(--color-canvas-alt);border:1px solid var(--color-divider);display:flex;flex-direction:column;gap:4px;">
+          <span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--color-accent);font-family:Inter,sans-serif;">APPEARED</span>
+          <span style="font-size:18px;font-weight:700;color:var(--color-text-primary);font-family:'JetBrains Mono',monospace;">~300 Kya</span>
+          <span style="font-size:11px;color:var(--color-text-muted);font-family:Inter,sans-serif;">Jebel Irhoud, Morocco</span>
+        </div>
+        <div style="padding:14px;border-radius:10px;background:var(--color-canvas-alt);border:1px solid var(--color-divider);display:flex;flex-direction:column;gap:4px;">
+          <span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--color-accent);font-family:Inter,sans-serif;">BRAIN VOLUME</span>
+          <span style="font-size:18px;font-weight:700;color:var(--color-text-primary);font-family:'JetBrains Mono',monospace;">1,350–1,500</span>
+          <span style="font-size:11px;color:var(--color-text-muted);font-family:Inter,sans-serif;">cm³ — largest relative to body</span>
+        </div>
+        <div style="padding:14px;border-radius:10px;background:var(--color-canvas-alt);border:1px solid var(--color-divider);display:flex;flex-direction:column;gap:4px;">
+          <span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--color-accent);font-family:Inter,sans-serif;">POPULATION</span>
+          <span style="font-size:18px;font-weight:700;color:var(--color-text-primary);font-family:'JetBrains Mono',monospace;">8.1 B</span>
+          <span style="font-size:11px;color:var(--color-text-muted);font-family:Inter,sans-serif;">From ~10,000 survivors 70 Kya</span>
+        </div>
+        <div style="padding:14px;border-radius:10px;background:var(--color-canvas-alt);border:1px solid var(--color-divider);display:flex;flex-direction:column;gap:4px;">
+          <span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:var(--color-accent);font-family:Inter,sans-serif;">STATUS</span>
+          <span style="font-size:18px;font-weight:700;color:#22c55e;font-family:'JetBrains Mono',monospace;">Extant</span>
+          <span style="font-size:11px;color:var(--color-text-muted);font-family:Inter,sans-serif;">Sole surviving hominin</span>
+        </div>
+      </div>
+
+      <!-- Our Story -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.12em;color:var(--color-accent);font-family:Inter,sans-serif;text-transform:uppercase;">Our Story</div>
+        <p style="font-size:14px;line-height:1.75;color:var(--color-text-secondary);font-family:Inter,sans-serif;margin:0;">${node.desc || ''}</p>
+        <p style="font-size:13px;line-height:1.75;color:var(--color-text-muted);font-family:Inter,sans-serif;margin:0;">${node.detail || ''}</p>
+      </div>
+
+      <!-- The Bottleneck callout -->
+      <div style="position:relative;padding:16px 20px;background:linear-gradient(135deg,rgba(14,165,233,0.08),rgba(139,92,246,0.06));border-left:3px solid var(--color-accent);border-radius:0 10px 10px 0;">
+        <div style="font-size:10px;font-weight:700;color:var(--color-accent);letter-spacing:0.1em;margin-bottom:8px;font-family:Inter,sans-serif;">THE BOTTLENECK</div>
+        <p style="font-family:Inter,sans-serif;font-size:14px;line-height:1.65;color:var(--color-text-primary);margin:0;">${node.funFact || 'All 8 billion humans alive today descend from a population of perhaps 10,000 individuals who survived a near-extinction event 70,000 years ago.'}</p>
+      </div>
+
+      <!-- DNA Legacy -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.12em;color:var(--color-accent);font-family:Inter,sans-serif;text-transform:uppercase;">🧬 DNA Legacy</div>
+        <div style="display:flex;flex-direction:column;gap:8px;padding:14px;background:var(--color-canvas-alt);border-radius:10px;border:1px solid var(--color-divider);">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:12px;color:var(--color-text-secondary);font-family:Inter,sans-serif;min-width:90px;">Neanderthal</span>
+            <div style="flex:1;height:10px;background:var(--color-panel-bg);border-radius:5px;overflow:hidden;">
+              <div style="width:${Math.min(100,neanPct*20)}%;height:100%;background:linear-gradient(90deg,#7A9BAA,#5a8a9e);border-radius:5px;transition:width 1s ease;"></div>
+            </div>
+            <span style="font-size:13px;font-weight:600;color:#7A9BAA;font-family:'JetBrains Mono',monospace;min-width:36px;text-align:right;">${neanPct}%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-size:12px;color:var(--color-text-secondary);font-family:Inter,sans-serif;min-width:90px;">Denisovan</span>
+            <div style="flex:1;height:10px;background:var(--color-panel-bg);border-radius:5px;overflow:hidden;">
+              <div style="width:${Math.min(100,denPct*20)}%;height:100%;background:linear-gradient(90deg,#7A8BAA,#5a6a9e);border-radius:5px;transition:width 1s ease;"></div>
+            </div>
+            <span style="font-size:13px;font-weight:600;color:#7A8BAA;font-family:'JetBrains Mono',monospace;min-width:36px;text-align:right;">${denPct}%</span>
+          </div>
+          ${dnaNote ? `<div style="font-size:11px;color:var(--color-text-muted);font-style:italic;margin-top:2px;">${dnaNote}</div>` : ''}
+        </div>
+      </div>
+
+      <!-- What Makes Us Unique -->
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.12em;color:var(--color-accent);font-family:Inter,sans-serif;text-transform:uppercase;">What Makes Us Unique</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">
+          ${['🗣️ Language','🎨 Art','🔧 Tool use','🌾 Agriculture','🔬 Science','🚀 Space travel'].map(t=>`
+            <div style="padding:10px 8px;border-radius:8px;background:var(--color-canvas-alt);border:1px solid var(--color-divider);text-align:center;font-size:12px;color:var(--color-text-secondary);font-family:Inter,sans-serif;">${t}</div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Capabilities -->
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:120px;padding:12px;border-radius:8px;background:var(--color-canvas-alt);border:1px solid var(--color-divider);text-align:center;">
+          <div style="font-size:20px;margin-bottom:4px;">🔥</div>
+          <div style="font-size:10px;font-weight:700;color:var(--color-accent);letter-spacing:0.1em;font-family:Inter,sans-serif;">FIRE</div>
+          <div style="font-size:12px;color:var(--color-text-secondary);font-family:Inter,sans-serif;">Total control</div>
+        </div>
+        <div style="flex:1;min-width:120px;padding:12px;border-radius:8px;background:var(--color-canvas-alt);border:1px solid var(--color-divider);text-align:center;">
+          <div style="font-size:20px;margin-bottom:4px;">🗣️</div>
+          <div style="font-size:10px;font-weight:700;color:var(--color-accent);letter-spacing:0.1em;font-family:Inter,sans-serif;">LANGUAGE</div>
+          <div style="font-size:12px;color:var(--color-text-secondary);font-family:Inter,sans-serif;">Full symbolic</div>
+        </div>
+        <div style="flex:1;min-width:120px;padding:12px;border-radius:8px;background:var(--color-canvas-alt);border:1px solid var(--color-divider);text-align:center;">
+          <div style="font-size:20px;margin-bottom:4px;">🧠</div>
+          <div style="font-size:10px;font-weight:700;color:var(--color-accent);letter-spacing:0.1em;font-family:Inter,sans-serif;">COGNITION</div>
+          <div style="font-size:12px;color:var(--color-text-secondary);font-family:Inter,sans-serif;">Abstract thought</div>
+        </div>
+      </div>
+
+      <!-- Fossil sites -->
+      <div style="display:flex;flex-direction:column;gap:6px;">
+        <div style="font-size:11px;font-weight:700;letter-spacing:0.12em;color:var(--color-accent);font-family:Inter,sans-serif;text-transform:uppercase;">📍 Key Fossil Sites</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          ${sites.map(s=>`<span style="font-size:11px;padding:4px 12px;border-radius:9999px;background:var(--color-button-bg);border:1px solid var(--color-button-border);color:var(--color-text-secondary);font-family:Inter,sans-serif;display:inline-flex;align-items:center;gap:4px;">📌 ${s}</span>`).join('')}
+        </div>
+      </div>
+
+      <!-- Reflection quote -->
+      <div style="padding:16px;background:var(--color-canvas-alt);border-radius:10px;border:1px solid var(--color-divider);text-align:center;">
+        <div style="font-size:14px;font-style:italic;line-height:1.7;color:var(--color-text-primary);font-family:Inter,sans-serif;">"In 300,000 years we reshaped the biosphere, split the atom, walked on the moon, and began sequencing the genomes of every organism on this tree of life."</div>
+        <div style="font-size:11px;color:var(--color-text-muted);margin-top:8px;font-family:Inter,sans-serif;">You are a 300,000-year-old African species looking at a screen.</div>
+      </div>
+
+      <!-- Hominin Deep Dive button -->
+      <button onclick="openHomininView()" style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#0ea5e9,#8b5cf6);color:white;cursor:pointer;font-family:Inter,sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:0.02em;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">🧬 Explore Human Evolution</button>
+
+      <!-- Close button -->
+      <button onclick="closePanel()" style="padding:10px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:Inter,sans-serif;font-size:13px;color:var(--color-text-secondary);">Close</button>
+    </div>
+  `;
+}
+
 // ── Panel rendering ──
 function renderPanelContent(node) {
   const p = document.getElementById('panel') || document.getElementById('info-panel');
   if (!p) return;
+  // Premium panel for Homo sapiens
+  if (node.id === 'homo-sapiens' || node.id === 'h_sapiens') { renderSapiensPanel(node, p); return; }
   const extinctBadge = node.extinct
     ? '<span style="background:#ef4444;color:white;font-size:10px;padding:2px 8px;border-radius:9999px;font-family:Inter,sans-serif;font-weight:600;letter-spacing:0.05em;">† EXTINCT</span>'
     : '';
@@ -3844,7 +3967,6 @@ function applyI18n(){
   set('i-p-traits',t('p_traits'));
   set('i-p-evo',t('p_evo'));
   set('i-p-sub',t('p_sub'));
-  set('i-btn-hominin',t('btn_hominin'));
   set('hom-title',t('hom_title'));
   set('hom-sub',t('hom_sub'));
   set('hom-close',t('hom_back'));

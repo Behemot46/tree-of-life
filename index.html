@@ -155,8 +155,8 @@ body.dragging{cursor:grabbing;}
 .nav-btn:hover{background:rgba(200,136,58,0.14);border-color:var(--gold);color:var(--parchment);}
 .nav-btn:disabled{opacity:0.3;cursor:default;pointer-events:none;}
 .nav-btn .nav-arrow{display:inline-block;font-size:0.75rem;line-height:1;}
-[data-theme="light"] .nav-btn{background:rgba(248,242,230,0.92);border-color:rgba(138,90,24,0.2);color:rgba(138,90,24,0.7);}
-[data-theme="light"] .nav-btn:hover{background:rgba(138,90,24,0.1);border-color:rgba(138,90,24,0.4);color:var(--parchment);}
+[data-theme="light"] .nav-btn{background:rgba(250,248,245,0.95);border-color:var(--border);color:var(--text-secondary);}
+[data-theme="light"] .nav-btn:hover{background:var(--accent-primary-dim);border-color:var(--accent-primary);color:var(--accent-primary);}
 [dir="rtl"] #nav-ctrl{left:auto;right:1.2rem;flex-direction:row-reverse;}
 [dir="rtl"] .nav-arrow{transform:scaleX(-1);}
 
@@ -394,43 +394,43 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);}
 #theme-btn:hover{border-color:var(--accent-primary);color:var(--accent-primary);}
 
-/* ── LIGHT THEME ── */
+/* ── LIGHT THEME — Museum Style ── */
 [data-theme="light"]{
   --bg:#ffffff;
-  --surface:#f8fafc;
-  --surface-raised:#f1f5f9;
-  --surface-overlay:rgba(255,255,255,0.98);
-  --parchment:#0f172a;
-  --text-primary:#0f172a;
-  --text-secondary:#475569;
-  --gold:#0284c7;
-  --gold-light:#0369a1;
-  --gold-dim:rgba(2,132,199,0.10);
-  --teal:#0284c7;
-  --teal-dim:rgba(2,132,199,0.10);
-  --terra:#dc2626;
-  --sage:#16a34a;
-  --accent-primary:#0284c7;
-  --accent-primary-dim:rgba(2,132,199,0.10);
-  --accent-secondary:#ea580c;
-  --accent-secondary-dim:rgba(234,88,12,0.10);
-  --accent-success:#16a34a;
-  --accent-danger:#dc2626;
-  --panel-bg:rgba(255,255,255,0.98);
-  --border:#e2e8f0;
-  --divider:#e2e8f0;
+  --surface:#faf8f5;
+  --surface-raised:#f3efe9;
+  --surface-overlay:rgba(255,253,250,0.98);
+  --parchment:#2c2418;
+  --text-primary:#2c2418;
+  --text-secondary:#6b5d4d;
+  --gold:#8a6d3b;
+  --gold-light:#6b5227;
+  --gold-dim:rgba(138,109,59,0.10);
+  --teal:#8a6d3b;
+  --teal-dim:rgba(138,109,59,0.10);
+  --terra:#a03020;
+  --sage:#3a7a45;
+  --accent-primary:#8a6d3b;
+  --accent-primary-dim:rgba(138,109,59,0.10);
+  --accent-secondary:#b0703a;
+  --accent-secondary-dim:rgba(176,112,58,0.10);
+  --accent-success:#3a7a45;
+  --accent-danger:#a03020;
+  --panel-bg:rgba(255,253,250,0.98);
+  --border:#ddd5c8;
+  --divider:#ddd5c8;
   --color-canvas:#ffffff;
-  --color-canvas-alt:#f8fafc;
-  --color-panel-bg:#f8fafc;
-  --color-panel-border:#e2e8f0;
-  --color-text-primary:#0f172a;
-  --color-text-secondary:#475569;
-  --color-text-muted:#94a3b8;
-  --color-accent:#0284c7;
-  --color-divider:#e2e8f0;
-  --color-button-bg:#f1f5f9;
-  --color-button-border:#e2e8f0;
-  --color-button-hover:#e2e8f0;
+  --color-canvas-alt:#faf8f5;
+  --color-panel-bg:#faf8f5;
+  --color-panel-border:#ddd5c8;
+  --color-text-primary:#2c2418;
+  --color-text-secondary:#6b5d4d;
+  --color-text-muted:#9a8e7e;
+  --color-accent:#8a6d3b;
+  --color-divider:#ddd5c8;
+  --color-button-bg:#f3efe9;
+  --color-button-border:#ddd5c8;
+  --color-button-hover:#e8e0d4;
 }
 [data-theme="light"] body{background:var(--bg);color:var(--parchment);}
 [data-theme="light"] #bg{background:var(--bg);}
@@ -981,8 +981,8 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   box-shadow:0 2px 8px rgba(0,0,0,0.2);pointer-events:all;
 }
 #btn-dna-calc:hover{border-color:var(--gold);color:var(--gold);background:var(--gold-dim);}
-[data-theme="light"] #btn-dna-calc{background:rgba(248,242,230,0.92);border-color:rgba(138,90,24,0.2);color:var(--text-secondary);box-shadow:0 2px 8px rgba(0,0,0,0.08);}
-[data-theme="light"] #btn-dna-calc:hover{border-color:var(--gold);color:var(--gold);}
+[data-theme="light"] #btn-dna-calc{background:rgba(250,248,245,0.95);border-color:var(--border);color:var(--text-secondary);box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+[data-theme="light"] #btn-dna-calc:hover{border-color:var(--accent-primary);color:var(--accent-primary);}
 [dir="rtl"] #btn-dna-calc{left:auto;right:1.2rem;}
 
 .dna-panel{

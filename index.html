@@ -2296,6 +2296,15 @@ function assignAngles(n,a0,a1){
     const lc=leafCount(c);
     return Math.max(1.0, Math.sqrt(lc)); /* sqrt dampens extreme ratios */
   });
+
+  /* Cap weight ratio: no child gets more than 2.5× the lightest sibling */
+  const MAX_WEIGHT_RATIO=2.5;
+  const minW=Math.min(...weights);
+  const cap=minW*MAX_WEIGHT_RATIO;
+  for(let i=0;i<weights.length;i++){
+    if(weights[i]>cap) weights[i]=cap;
+  }
+
   const totalWeight=weights.reduce((s,w)=>s+w,0);
 
   const minTotal=visible.length*MIN_ANGLE_SEP;

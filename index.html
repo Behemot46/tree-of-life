@@ -2444,7 +2444,7 @@ const HUMAN_PATH=new Set(['luca','eukaryota','animalia','vertebrates','mammals',
 const branchLayer=document.getElementById('layer-branches');
 const nodesLayer=document.getElementById('layer-nodes');
 const viewport=document.getElementById('viewport');
-let transform={x:0,y:0,s:0.18};
+let transform={x:0,y:0,s:0.2};
 const applyT=()=>viewport.setAttribute('transform',`translate(${transform.x},${transform.y}) scale(${transform.s})`);
 function smoothPanTo(wx,wy){
   const svgR=document.getElementById('tree-container').getBoundingClientRect();
@@ -2892,7 +2892,7 @@ function navHome(){
   panel.classList.remove('open');
   updateBreadcrumb(null);
   // Reset zoom/pan
-  transform={x:0,y:0,s:0.22};applyT();
+  centerOnRoot(0.18);applyT();
   history.replaceState(null,'',location.pathname);
   updateNavButtons();
 }
@@ -4056,13 +4056,21 @@ function centerOnTree(scale){
   const cy=(Math.min(...ys)+Math.max(...ys))/2;
   transform={x:window.innerWidth/2-cx*scale,y:window.innerHeight/2-cy*scale,s:scale};
 }
+function centerOnRoot(scale){
+  const inner=getVisible(TREE).filter(n=>n.depth<=3);
+  if(!inner.length){transform={x:0,y:0,s:scale};return;}
+  const xs=inner.map(n=>n._x),ys=inner.map(n=>n._y);
+  const cx=(Math.min(...xs)+Math.max(...xs))/2;
+  const cy=(Math.min(...ys)+Math.max(...ys))/2;
+  transform={x:window.innerWidth/2-cx*scale,y:window.innerHeight/2-cy*scale,s:scale};
+}
 function setViewMode(mode){
   viewMode=mode;
   document.querySelectorAll('.view-btn').forEach(btn=>{
     btn.classList.toggle('active',btn.dataset.mode===mode);
   });
   layout();
-  if(mode==='radial'){centerOnTree(0.22);}
+  if(mode==='radial'){centerOnRoot(0.18);}
   else if(mode==='cladogram'){centerOnTree(0.7);}
   else if(mode==='chronological'){centerOnTree(0.65);}
   scheduleRender(true);applyT();
@@ -4296,7 +4304,7 @@ svgEl.addEventListener("pointerup",e=>{
 svgEl.addEventListener('wheel',e=>{e.preventDefault();const f=e.deltaY<0?1.13:0.88;const rect=svgEl.getBoundingClientRect();const mx=e.clientX-rect.left,my=e.clientY-rect.top;const ns=Math.min(6,Math.max(0.05,transform.s*f));transform.x=mx-(mx-transform.x)*(ns/transform.s);transform.y=my-(my-transform.y)*(ns/transform.s);transform.s=ns;applyT();},{passive:false});
 document.getElementById('btn-in').addEventListener('click',()=>{transform.s=Math.min(6,transform.s*1.2);applyT();});
 document.getElementById('btn-out').addEventListener('click',()=>{transform.s=Math.max(0.05,transform.s*0.83);applyT();});
-document.getElementById('btn-reset').addEventListener('click',()=>{transform={x:0,y:0,s:0.22};applyT();});
+document.getElementById('btn-reset').addEventListener('click',()=>{centerOnRoot(0.18);applyT();});
 
 // ══════════════════════════════════════════════════════
 // COMPARE MODE
@@ -4858,7 +4866,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='f'||e.key==='F'){searchInput.focus();e.preventDefault();}
   if(e.key==='/'){e.preventDefault();const search=document.getElementById('search-input');if(search)search.focus();}
   if(e.key==='h'||e.key==='H'){navigateTo('hominini');}
-  if(e.key==='r'||e.key==='R'){transform={x:0,y:0,s:0.22};applyT();}
+  if(e.key==='r'||e.key==='R'){centerOnRoot(0.18);applyT();}
   if(e.key==='d'){const toggle=document.getElementById('theme-btn');if(toggle)toggle.click();}
 });
 
@@ -5231,7 +5239,7 @@ function init(){
     }
   }
   assignDomains(TREE, 'luca');
-  layout();scheduleRender(true);applyT();
+  layout();centerOnRoot(0.18);scheduleRender(true);applyT();
   setTimeout(() => hideLoading(loader), 400);
   spawnParticles();
   buildExtinctionMarkers();

@@ -266,8 +266,8 @@ svg{width:100%;height:100%;}
   height:100%;color:var(--text-secondary);opacity:0.4;font-style:italic;font-size:0.85rem;text-align:center;padding:2rem;}
 
 /* ── MAIN DETAIL PANEL ── */
-#panel{position:fixed;top:0;right:-500px;bottom:0;
-  width:min(440px,92vw);background:var(--surface);
+#panel{position:fixed;top:48px;right:-560px;bottom:0;
+  width:min(33vw,560px);background:var(--surface);
   border-left:1px solid var(--border);z-index:400;
   transition:right 0.3s cubic-bezier(0.16,1,0.3,1),transform 250ms ease,opacity 250ms ease;
   display:flex;flex-direction:column;
@@ -317,6 +317,47 @@ svg{width:100%;height:100%;}
 .p-detail{font-size:0.8rem;color:var(--text-secondary);line-height:1.8;margin-bottom:0.75rem;}
 .p-tag{display:inline-block;background:var(--accent-primary-dim);border:1px solid rgba(14,165,233,0.2);
   border-radius:var(--radius-full);padding:0.18rem 0.6rem;font-size:0.7rem;color:var(--accent-primary);margin:0.2rem 0.15rem;}
+
+/* ── PRIMATE ENRICHED CARD SECTIONS ── */
+.pri-section-hdr{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;
+  font-family:var(--font-sans);margin-bottom:6px;}
+.pri-taxonomy{display:grid;grid-template-columns:auto 1fr;gap:2px 12px;
+  border:1px solid var(--border);border-radius:8px;padding:10px 14px;background:var(--surface-raised);}
+.pri-tax-rank{font-size:10px;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--text-secondary);font-family:var(--font-mono);padding:3px 0;opacity:0.6;}
+.pri-tax-val{font-size:12px;color:var(--text-secondary);font-family:var(--font-sans);padding:3px 0;}
+.pri-tax-rank.pri-current,.pri-tax-val.pri-current{opacity:1;font-weight:700;}
+.pri-tax-val.pri-current{color:var(--text-primary);}
+.pri-traits-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.pri-trait-card{background:var(--surface-raised);border:1px solid var(--border);
+  border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:2px;}
+.pri-trait-icon{font-size:14px;}
+.pri-trait-label{font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--text-secondary);font-family:var(--font-mono);}
+.pri-trait-value{font-size:12px;color:var(--text-primary);font-weight:500;line-height:1.3;font-family:var(--font-sans);}
+.pri-genome-card{border:1px solid var(--border);border-radius:8px;padding:12px 14px;
+  background:var(--surface-raised);display:flex;flex-direction:column;gap:8px;}
+.pri-genome-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-family:var(--font-sans);}
+.pri-genome-label{color:var(--text-secondary);}
+.pri-genome-value{font-weight:600;color:var(--text-primary);font-family:var(--font-mono);}
+.pri-dna-bar{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-secondary);font-family:var(--font-sans);}
+.pri-dna-bar-track{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.pri-dna-bar-fill{height:100%;border-radius:3px;}
+.pri-bar-track{flex:1;height:8px;background:var(--surface-raised);border-radius:4px;overflow:hidden;border:1px solid var(--border);}
+.pri-bar-fill{height:100%;border-radius:4px;}
+.pri-behavior-card{border:1px solid var(--border);border-radius:8px;padding:10px 14px;
+  background:var(--surface-raised);display:flex;flex-direction:column;gap:6px;}
+.pri-behavior-row{font-size:12px;color:var(--text-secondary);font-family:var(--font-sans);line-height:1.5;}
+.pri-behavior-row strong{color:var(--text-primary);font-weight:600;}
+.pri-iucn{font-size:10px;font-weight:700;letter-spacing:0.06em;padding:3px 10px;
+  border-radius:9999px;font-family:var(--font-sans);text-transform:uppercase;border:1px solid;}
+.pri-iucn-cr{color:#ef4444;background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.3);}
+.pri-iucn-en{color:#f97316;background:rgba(249,115,22,0.1);border-color:rgba(249,115,22,0.3);}
+.pri-iucn-vu{color:#eab308;background:rgba(234,179,8,0.1);border-color:rgba(234,179,8,0.3);}
+.pri-iucn-lc{color:#22c55e;background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.3);}
+.pri-cap-row{display:flex;gap:12px;flex-wrap:wrap;}
+.pri-cap-item{font-size:12px;color:var(--text-secondary);font-family:var(--font-sans);
+  background:var(--surface-raised);border:1px solid var(--border);border-radius:6px;padding:4px 10px;}
+
 .p-children{list-style:none;margin-top:0.35rem;}
 .p-children li{padding:0.35rem 0.5rem;border-radius:var(--radius-sm);color:var(--text-secondary);
   font-size:0.78rem;display:flex;align-items:center;gap:0.45rem;cursor:pointer;transition:all var(--transition-fast);}
@@ -1364,6 +1405,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 <script src="js/imagePrompts.js"></script>
 <script src="js/imageLoader.js"></script>
 <script src="js/dnaSimilarity.js"></script>
+<script src="js/primateData.js"></script>
 <script>
 // Register PHOTO_MAP (from speciesData.js) with ImageLoader for tree node rendering
 if(typeof ImageLoader!=='undefined'&&typeof PHOTO_MAP!=='undefined'&&ImageLoader.registerPhotoMap){
@@ -2769,6 +2811,191 @@ async function fetchWikiPhoto(nodeId, wikiTitle, imgEl, fallbackEl, creditEl) {
   }
 }
 
+// ── Primate enriched card helper ──
+function renderPrimateCard(node) {
+  const pd = (typeof PRIMATE_DATA !== 'undefined') ? (PRIMATE_DATA[node.id] || null) : null;
+  const h = node._hominData || null;
+  if (!pd && !h) return '';
+
+  let html = '';
+  const nodeColor = (h && h.color) || node.color || 'var(--accent-primary)';
+
+  // ─ IUCN Conservation Status badge ─
+  const cons = pd && pd.conservation;
+  if (cons && cons.iucnStatus) {
+    const iucnMap = {'Critically Endangered':'cr','Endangered':'en','Vulnerable':'vu','Least Concern':'lc'};
+    const cls = iucnMap[cons.iucnStatus] || 'lc';
+    html += `<span class="pri-iucn pri-iucn-${cls}">${cons.iucnStatus}</span>`;
+  }
+
+  // ─ Taxonomy table ─
+  const tax = pd && pd.taxonomy;
+  if (tax) {
+    const ranks = [
+      ['Kingdom', tax.kingdom], ['Phylum', tax.phylum], ['Class', tax.class],
+      ['Order', tax.order], ['Family', tax.family], ['Subfamily', tax.subfamily],
+      ['Tribe', tax.tribe], ['Genus', tax.genus], ['Species', tax.species]
+    ].filter(r => r[1]);
+    if (ranks.length > 0) {
+      // Determine the most specific (current) rank
+      const currentIdx = ranks.length - 1;
+      html += `<div style="display:flex;flex-direction:column;gap:4px;">
+        <div class="pri-section-hdr" style="color:${nodeColor};">🔬 TAXONOMY</div>
+        <div class="pri-taxonomy">
+          ${ranks.map((r, i) => {
+            const isCurrent = i >= currentIdx;
+            const cls = isCurrent ? ' pri-current' : '';
+            const colorStyle = isCurrent ? ` style="color:${nodeColor};"` : '';
+            return `<span class="pri-tax-rank${cls}"${colorStyle}>${r[0]}</span><span class="pri-tax-val${cls}">${r[1]}</span>`;
+          }).join('')}
+        </div>
+      </div>`;
+    }
+  }
+
+  // ─ Brain Volume bar ─
+  const brainData = (pd && pd.brain && pd.brain.volume) || (h && h.brain);
+  if (brainData) {
+    const brainArr = Array.isArray(brainData) ? brainData : [brainData, brainData];
+    const brainMax = brainArr[1] || brainArr[0];
+    if (brainMax) {
+      const pct = Math.round(brainMax / 1750 * 100);
+      html += `<div style="display:flex;flex-direction:column;gap:4px;">
+        <div class="pri-section-hdr" style="color:${nodeColor};">🧠 BRAIN VOLUME</div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <div class="pri-bar-track">
+            <div class="pri-bar-fill" style="width:${pct}%;background:${nodeColor};"></div>
+          </div>
+          <span style="font-size:12px;color:var(--text-secondary);font-family:var(--font-mono);min-width:70px;">${brainArr[0] !== brainArr[1] && brainArr[0] ? brainArr[0]+'–'+brainMax : brainMax} cc</span>
+        </div>
+        ${(pd && pd.brain && pd.brain.eq) ? `<div style="font-size:11px;color:var(--text-secondary);">Encephalization Quotient: <strong style="color:var(--text-primary);">${pd.brain.eq}</strong></div>` : ''}
+      </div>`;
+    }
+  }
+
+  // ─ Physical Traits grid ─
+  const phys = (pd && pd.physical) || {};
+  const hHeight = (h && h.height) || phys.height;
+  const hWeight = (h && h.weight) || phys.weight;
+  const traits = [
+    hHeight ? ['📏','Height', hHeight] : null,
+    hWeight ? ['⚖️','Weight', hWeight] : null,
+    phys.dentition ? ['🦷','Dentition', phys.dentition] : null,
+    phys.skull ? ['💀','Skull', phys.skull] : null,
+    phys.locomotion ? ['🦶','Locomotion', phys.locomotion] : null
+  ].filter(Boolean);
+  if (traits.length > 0) {
+    html += `<div style="display:flex;flex-direction:column;gap:4px;">
+      <div class="pri-section-hdr" style="color:${nodeColor};">📐 PHYSICAL TRAITS</div>
+      <div class="pri-traits-grid">
+        ${traits.map(t => `<div class="pri-trait-card">
+          <span class="pri-trait-icon">${t[0]}</span>
+          <span class="pri-trait-label">${t[1]}</span>
+          <span class="pri-trait-value">${t[2]}</span>
+        </div>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  // ─ Genome / DNA card ─
+  const gen = pd && pd.genome;
+  if (gen && (gen.size || gen.chromosomes || gen.dnaSimHuman != null)) {
+    html += `<div style="display:flex;flex-direction:column;gap:4px;">
+      <div class="pri-section-hdr" style="color:${nodeColor};">🧬 GENOME & DNA</div>
+      <div class="pri-genome-card">`;
+    if (gen.size) html += `<div class="pri-genome-row"><span class="pri-genome-label">Genome Size</span><span class="pri-genome-value">${gen.size}</span></div>`;
+    if (gen.chromosomes) html += `<div class="pri-genome-row"><span class="pri-genome-label">Chromosomes</span><span class="pri-genome-value">${gen.chromosomes}</span></div>`;
+    if (gen.dnaSimHuman != null && gen.dnaSimHuman !== 100) {
+      html += `<div style="display:flex;flex-direction:column;gap:4px;">
+        <div class="pri-dna-bar">
+          <span style="min-width:100px;">DNA sim. to human</span>
+          <div class="pri-dna-bar-track">
+            <div class="pri-dna-bar-fill" style="width:${gen.dnaSimHuman}%;background:${nodeColor};"></div>
+          </div>
+          <span style="font-family:var(--font-mono);font-weight:600;">${gen.dnaSimHuman}%</span>
+        </div>
+      </div>`;
+    } else if (gen.dnaSimHuman === 100) {
+      html += `<div class="pri-genome-row"><span class="pri-genome-label">DNA sim. to human</span><span class="pri-genome-value">100% (reference)</span></div>`;
+    }
+    if (gen.note) html += `<div style="font-size:11px;color:var(--text-secondary);font-style:italic;line-height:1.4;">${gen.note}</div>`;
+    html += `</div></div>`;
+  }
+
+  // ─ DNA introgression (hominins with dna data) ─
+  const dna = h && h.dna;
+  if (dna && (dna.neanderthal != null || dna.denisovan != null)) {
+    const nPct = dna.neanderthal != null ? dna.neanderthal : null;
+    const dPct = dna.denisovan != null ? dna.denisovan : null;
+    if ((nPct != null && nPct > 0 && nPct < 100) || (dPct != null && dPct > 0 && dPct < 100)) {
+      html += `<div style="display:flex;flex-direction:column;gap:4px;">
+        <div class="pri-section-hdr" style="color:${nodeColor};">🧬 DNA LEGACY</div>`;
+      if (nPct != null && nPct > 0 && nPct < 100) {
+        html += `<div class="pri-dna-bar"><span style="min-width:80px;">Neanderthal</span><div class="pri-dna-bar-track"><div class="pri-dna-bar-fill" style="width:${Math.min(100,nPct*25)}%;background:#7A9BAA;"></div></div><span>${nPct}%</span></div>`;
+      }
+      if (dPct != null && dPct > 0 && dPct < 100) {
+        html += `<div class="pri-dna-bar"><span style="min-width:80px;">Denisovan</span><div class="pri-dna-bar-track"><div class="pri-dna-bar-fill" style="width:${Math.min(100,dPct*20)}%;background:#7A8BAA;"></div></div><span>${dPct}%</span></div>`;
+      }
+      if (dna.note) html += `<div style="font-size:11px;color:var(--text-secondary);font-style:italic;">${dna.note}</div>`;
+      html += `</div>`;
+    }
+  }
+
+  // ─ Capabilities row (hominins) ─
+  if (h) {
+    const hasTools = h.tools && h.tools !== 'None known' && h.tools !== 'None';
+    const hasFire = h.fire && h.fire !== 'No';
+    const hasLang = h.language && h.language !== 'None';
+    if (hasTools || hasFire || hasLang) {
+      html += `<div style="display:flex;flex-direction:column;gap:4px;">
+        <div class="pri-section-hdr" style="color:${nodeColor};">⚡ CAPABILITIES</div>
+        <div class="pri-cap-row">`;
+      if (hasTools) html += `<span class="pri-cap-item">🪨 ${h.tools}</span>`;
+      if (hasFire) html += `<span class="pri-cap-item">🔥 ${h.fire}</span>`;
+      if (hasLang) html += `<span class="pri-cap-item">🗣️ ${h.language}</span>`;
+      html += `</div></div>`;
+    }
+  }
+
+  // ─ Behavior & Culture card (living species and H. sapiens) ─
+  const beh = pd && pd.behavior;
+  if (beh && (beh.socialStructure || beh.culture || beh.communication)) {
+    const showBehavior = beh.socialStructure !== 'Unknown' && beh.socialStructure;
+    const showCulture = beh.culture;
+    const showComm = beh.communication && beh.communication !== 'Unknown';
+    if (showBehavior || showCulture || showComm) {
+      html += `<div style="display:flex;flex-direction:column;gap:4px;">
+        <div class="pri-section-hdr" style="color:${nodeColor};">🏛️ BEHAVIOR & CULTURE</div>
+        <div class="pri-behavior-card">`;
+      if (showBehavior) html += `<div class="pri-behavior-row"><strong>Social:</strong> ${beh.socialStructure}</div>`;
+      if (showComm) html += `<div class="pri-behavior-row"><strong>Communication:</strong> ${beh.communication}</div>`;
+      if (beh.toolUse && beh.toolUse !== 'None known' && beh.toolUse !== 'None documented') html += `<div class="pri-behavior-row"><strong>Tool Use:</strong> ${beh.toolUse}</div>`;
+      if (showCulture) html += `<div class="pri-behavior-row"><strong>Culture:</strong> ${beh.culture}</div>`;
+      html += `</div></div>`;
+    }
+  }
+
+  // ─ Fossil Sites (hominins) ─
+  if (h && h.sites && h.sites.length) {
+    html += `<div style="display:flex;flex-direction:column;gap:4px;">
+      <div class="pri-section-hdr" style="color:${nodeColor};">📍 FOSSIL SITES</div>
+      <div style="font-size:12px;color:var(--text-secondary);font-family:var(--font-sans);line-height:1.6;">${h.sites.join(' · ')}</div>
+    </div>`;
+  }
+
+  // ─ Conservation (living species) ─
+  if (cons && cons.population) {
+    html += `<div style="display:flex;flex-direction:column;gap:4px;">
+      <div class="pri-section-hdr" style="color:${nodeColor};">🌍 CONSERVATION</div>
+      <div class="pri-behavior-card">`;
+    if (cons.population) html += `<div class="pri-behavior-row"><strong>Population:</strong> ${cons.population}</div>`;
+    if (cons.threat) html += `<div class="pri-behavior-row"><strong>Threat:</strong> ${cons.threat}</div>`;
+    html += `</div></div>`;
+  }
+
+  return html;
+}
+
 // ── Panel rendering ──
 function renderPanelContent(node) {
   const p = document.getElementById('panel') || document.getElementById('info-panel');
@@ -2808,15 +3035,17 @@ function renderPanelContent(node) {
       <div id="${panelFbId}" style="display:${staticUrl ? 'none' : 'flex'};width:100%;height:100%;align-items:center;justify-content:center;font-size:72px;background:#111;">${node.icon||'🌿'}</div>
       <div id="${panelCrId}" style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.65);font-family:'Inter',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.35);padding:1px 5px;border-radius:3px;">${staticCredit||''}</div>
     </div>
+    <div class="panel-accent" style="background:${node.color || 'var(--accent-primary)'};"></div>
     <div style="padding:20px;display:flex;flex-direction:column;gap:16px;overflow-y:auto;flex:1;">
       ${(()=>{
-        const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','homo-sapiens'];
-        const HOMININ_IDS   = ['homo-sapiens','h_erectus','h_habilis','h_neanderthalensis','h_heidelbergensis','h_floresiensis','h_naledi','h_luzonensis','denisovan','au_afarensis','au_africanus','sahelanthropus','ardipithecus_r'];
-        const isGreatApe    = GREAT_APE_IDS.includes(node.id) || node.id === 'great-apes';
-        const isHuman       = HOMININ_IDS.includes(node.id) || (node.tags && (node.tags.includes('Hominin') || node.tags.includes('Human evolution')));
-        if (isHuman) return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b07a3e;font-family:'Inter',sans-serif;text-transform:uppercase;background:rgba(176,122,62,0.12);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,122,62,0.3);">🧬 Human Lineage</span></div>`;
-        if (isGreatApe) return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:-4px;"><span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b03535;font-family:'Inter',sans-serif;text-transform:uppercase;background:rgba(176,53,53,0.1);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,53,53,0.25);">🦍 Great Apes</span></div>`;
-        return '';
+        const isGreatApe = ['great-apes','gorilla','orangutan','chimpanzee','homo-sapiens'].includes(node.id);
+        const isHominin  = node._hominData || node.id==='hominini' || (node.tags && (node.tags.includes('Hominin') || node.tags.includes('Human evolution'))) || (typeof PRIMATE_DATA!=='undefined' && PRIMATE_DATA[node.id] && PRIMATE_DATA[node.id].taxonomy && PRIMATE_DATA[node.id].taxonomy.tribe==='Hominini');
+        const isPrimate  = node.id==='primates' || (typeof PRIMATE_DATA!=='undefined' && PRIMATE_DATA[node.id]);
+        let badges = '';
+        if (isHominin) badges += `<span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b07a3e;font-family:Inter,sans-serif;text-transform:uppercase;background:rgba(176,122,62,0.12);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,122,62,0.3);">🧬 Human Lineage</span>`;
+        else if (isGreatApe) badges += `<span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#b03535;font-family:Inter,sans-serif;text-transform:uppercase;background:rgba(176,53,53,0.1);padding:3px 10px;border-radius:9999px;border:1px solid rgba(176,53,53,0.25);">🦍 Great Apes</span>`;
+        else if (isPrimate) badges += `<span style="font-size:10px;font-weight:700;letter-spacing:0.1em;color:#c03a3a;font-family:Inter,sans-serif;text-transform:uppercase;background:rgba(192,58,58,0.1);padding:3px 10px;border-radius:9999px;border:1px solid rgba(192,58,58,0.25);">🦍 Primates</span>`;
+        return badges ? `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:-4px;">${badges}</div>` : '';
       })()}
       <div style="display:flex;flex-direction:column;gap:6px;">
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
@@ -2879,54 +3108,7 @@ function renderPanelContent(node) {
           </div>
         </div>
       ` : ''}
-      ${(()=>{
-        const h = node._hominData;
-        if(!h) return '';
-        const brainMax = h.brain && (h.brain[1]||h.brain[0]);
-        const neanPct = h.dna && h.dna.neanderthal != null ? h.dna.neanderthal : null;
-        const denPct = h.dna && h.dna.denisovan != null ? h.dna.denisovan : null;
-        let html = '';
-        // Brain volume bar
-        if(brainMax){
-          html += `<div style="display:flex;flex-direction:column;gap:4px;">
-            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">🧠 BRAIN VOLUME</div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <div style="flex:1;height:8px;background:var(--color-canvas-alt);border-radius:4px;overflow:hidden;">
-                <div style="width:${Math.round(brainMax/1750*100)}%;height:100%;background:${h.color};border-radius:4px;"></div>
-              </div>
-              <span style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;min-width:60px;">${brainMax} cm³</span>
-            </div>
-          </div>`;
-        }
-        // Capabilities row
-        const hasTools = h.tools && h.tools!=='None known' && h.tools!=='None';
-        const hasFire = h.fire && h.fire!=='No';
-        const hasLang = h.language && h.language!=='None';
-        if(hasTools || hasFire || hasLang){
-          html += `<div style="display:flex;gap:12px;flex-wrap:wrap;">`;
-          if(hasTools) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">🪨 ${h.tools}</div>`;
-          if(hasFire) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">🔥 ${h.fire}</div>`;
-          if(hasLang) html += `<div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;">🗣️ ${h.language}</div>`;
-          html += `</div>`;
-        }
-        // DNA introgression
-        if(neanPct != null || denPct != null){
-          html += `<div style="display:flex;flex-direction:column;gap:4px;">
-            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">🧬 DNA LEGACY</div>`;
-          if(neanPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;"><span style="min-width:80px;">Neanderthal</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,neanPct*25)}%;height:100%;background:#7A9BAA;border-radius:3px;"></div></div><span>${neanPct}%</span></div>`;
-          if(denPct != null) html += `<div style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;"><span style="min-width:80px;">Denisovan</span><div style="flex:1;height:6px;background:var(--color-canvas-alt);border-radius:3px;overflow:hidden;"><div style="width:${Math.min(100,denPct*20)}%;height:100%;background:#7A8BAA;border-radius:3px;"></div></div><span>${denPct}%</span></div>`;
-          if(h.dna && h.dna.note) html += `<div style="font-size:11px;color:var(--color-text-muted);font-style:italic;">${h.dna.note}</div>`;
-          html += `</div>`;
-        }
-        // Fossil sites
-        if(h.sites && h.sites.length){
-          html += `<div style="display:flex;flex-direction:column;gap:4px;">
-            <div style="font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.08em;font-family:'Inter',sans-serif;">📍 FOSSIL SITES</div>
-            <div style="font-size:12px;color:var(--color-text-secondary);font-family:'Inter',sans-serif;line-height:1.6;">${h.sites.join(' · ')}</div>
-          </div>`;
-        }
-        return html;
-      })()}
+      ${renderPrimateCard(node)}
       ${(()=>{const isHominin=node._hominData||node.id==='hominini'||(node.id&&node.id.startsWith('hom-'));return isHominin?`<button onclick="openHomininView()" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--color-accent);color:white;cursor:pointer;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">🧬 Hominin Deep Dive</button>`:'';})()}
       <button onclick="closePanel()" style="margin-top:8px;padding:10px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;color:var(--color-text-secondary);">
         Close

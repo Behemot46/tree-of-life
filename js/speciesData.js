@@ -776,6 +776,24 @@ const PHOTO_MAP = {
   'au_africanus':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Australopithecus_africanus_-_Cast_of_taung_child.jpg/640px-Australopithecus_africanus_-_Cast_of_taung_child.jpg', credit:'José Braga/Didier Descouens, CC BY-SA 4.0'},
   'sahelanthropus':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg/640px-Sahelanthropus_tchadensis_-_TM_266-01-060-1.jpg', credit:'Didier Descouens, CC BY-SA 4.0'},
   'ardipithecus_r':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Ardipithecus_ramidus_-_Scientific_reconstruction.jpg/640px-Ardipithecus_ramidus_-_Scientific_reconstruction.jpg', credit:'Science, Educational use'},
+  // Additional hominins
+  'neanderthal':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Homo_neanderthalensis.jpg/640px-Homo_neanderthalensis.jpg', credit:'Erich Ferdinand, CC BY 2.0'},
+  'denisovans':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Denisova_Cave_main_gallery.jpg/640px-Denisova_Cave_main_gallery.jpg', credit:'Демин Алексей Барнаул, CC BY-SA 3.0'},
+  'orrorin':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Orrorin_tugenensis.jpg/640px-Orrorin_tugenensis.jpg', credit:'Wikimedia Commons, CC BY-SA 3.0'},
+  'au_anamensis':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Australopithecus_anamensis.JPG/640px-Australopithecus_anamensis.JPG', credit:'Tiia Monto, CC BY-SA 3.0'},
+  'par_boisei':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Paranthropus_boisei.JPG/640px-Paranthropus_boisei.JPG', credit:'Lillyundfreya, CC BY-SA 3.0'},
+  'par_robustus':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Original_of_Paranthropus_robustus_Face.jpg/640px-Original_of_Paranthropus_robustus_Face.jpg', credit:'José Braga/Didier Descouens, CC BY-SA 4.0'},
+  'par_aethiopicus':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Paranthropus_aethiopicus.JPG/640px-Paranthropus_aethiopicus.JPG', credit:'Lillyundfreya, CC BY-SA 3.0'},
+  'h_rudolfensis':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/KNM_ER_1470.jpg/640px-KNM_ER_1470.jpg', credit:'Ryan Somma, CC BY 2.0'},
+  'h_antecessor':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Homo_antecessor_boy.jpg/640px-Homo_antecessor_boy.jpg', credit:'Atapuerca Foundation, CC BY-SA 4.0'},
+  'h_bodoensis':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Homo_heidelbergensis-male.jpg/640px-Homo_heidelbergensis-male.jpg', credit:'Cicero Moraes, CC BY-SA 3.0'},
+  'h_longi':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2e/Homo_longi_-_Harbin_cranium.jpg/640px-Homo_longi_-_Harbin_cranium.jpg', credit:'Kai Geng, CC BY 4.0'},
+  'kenyanthropus':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Kenyanthropus_platyops,_head.jpg/640px-Kenyanthropus_platyops,_head.jpg', credit:'Lillyundfreya, CC BY-SA 3.0'},
+  'au_sediba':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Australopithecus_sediba.JPG/640px-Australopithecus_sediba.JPG', credit:'Brett Eloff/Lee Berger, CC BY-SA 4.0'},
+  'au_garhi':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Lucy_Skeleton.jpg/640px-Lucy_Skeleton.jpg', credit:'Cleveland Museum, CC BY 4.0'},
+  'au_prometheus':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Australopithecus_africanus_-_Cast_of_taung_child.jpg/640px-Australopithecus_africanus_-_Cast_of_taung_child.jpg', credit:'José Braga/Didier Descouens, CC BY-SA 4.0'},
+  'h_sapiens':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/Akha_woman.jpg/640px-Akha_woman.jpg', credit:'Steve Evans, CC BY 2.0'},
+  'hominini':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Turkana_Boy_1.JPG/640px-Turkana_Boy_1.JPG', credit:'Locutus Borg, CC BY-SA 3.0'},
 };
 
 const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','hominini'];

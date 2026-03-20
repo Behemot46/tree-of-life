@@ -24,7 +24,7 @@
 <title>Tree of Life — 3.8 Billion Years of Evolution</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Heebo:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Heebo:wght@300;400;500;600&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
@@ -821,11 +821,15 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 [data-theme="dark"] .search-result-meta{color:var(--text-secondary);}
 [data-theme="dark"] #shortcuts-hint{background:var(--surface);border-color:var(--border);color:var(--text-secondary);}
 [data-theme="dark"] kbd{background:var(--surface-raised);border-color:var(--border);color:var(--text-primary);}
-[data-theme="dark"] #loader{background:var(--bg);}
+[data-theme="dark"] #splash{background:var(--bg);}
 
 /* ── SPLASH POLISH ── */
-#splash{animation:fadeIn 600ms ease forwards;}
-#splash h1{font-family:var(--font-head);font-size:clamp(2rem,6vw,4rem);letter-spacing:-0.02em;margin-bottom:8px;font-weight:700;}
+@keyframes splashFadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes splashLineGrow{from{width:0;opacity:0}to{width:60px;opacity:1}}
+#splash{opacity:1;}
+#splash .splash-child{opacity:0;animation:splashFadeUp 800ms ease forwards;}
+#splash h1{font-family:'Playfair Display',var(--font-head);font-size:clamp(2rem,6vw,4rem);letter-spacing:-0.02em;margin-bottom:8px;font-weight:700;}
+#splash .splash-line{opacity:0;animation:splashLineGrow 600ms ease forwards;}
 #splash .tagline{font-family:var(--font-sans);font-size:clamp(0.9rem,2vw,1.1rem);opacity:0.75;max-width:480px;text-align:center;line-height:1.6;}
 
 /* ── PANEL ANIMATION ── */
@@ -1524,10 +1528,11 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
 <a href="#canvas-wrap" class="skip-link" id="skip-link">Skip to Tree of Life</a>
 <div aria-live="polite" aria-atomic="true" class="sr-only" id="a11y-announce"></div>
 <div id="splash" style="position:fixed;inset:0;background:#141618;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px;transition:opacity 0.8s ease;">
-  <div id="splash-years" style="font-family:'Inter',sans-serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:rgba(154,148,136,0.6);">3,800,000,000 years of evolution</div>
-  <h1 id="splash-title" style="font-family:'Inter',sans-serif;font-size:clamp(48px,8vw,96px);font-weight:700;color:#e6e1d8;letter-spacing:-2px;line-height:1;margin:0;">Tree of Life</h1>
-  <div style="width:60px;height:1px;background:rgba(200,136,58,0.4);"></div>
-  <div id="splash-tagline" style="font-family:'Inter',sans-serif;font-style:normal;font-size:16px;color:rgba(154,148,136,0.6);"></div>
+  <div id="splash-tree-container" style="margin-bottom:12px;"></div>
+  <div id="splash-years" class="splash-child" style="font-family:'Inter',sans-serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:rgba(154,148,136,0.6);animation-delay:1.0s;">3,800,000,000 years of evolution</div>
+  <h1 id="splash-title" class="splash-child" style="font-family:'Playfair Display',serif;font-size:clamp(48px,8vw,96px);font-weight:700;color:#e6e1d8;letter-spacing:-2px;line-height:1;margin:0;animation-delay:2.0s;">Tree of Life</h1>
+  <div class="splash-line" style="width:60px;height:1px;background:rgba(200,136,58,0.4);animation-delay:3.0s;"></div>
+  <div id="splash-tagline" class="splash-child" style="font-family:'Inter',sans-serif;font-style:normal;font-size:16px;color:rgba(154,148,136,0.6);max-width:480px;text-align:center;line-height:1.6;animation-delay:3.5s;"></div>
 </div>
 <div id="bg"></div>
 <div id="era-tint-overlay"></div>
@@ -5167,53 +5172,66 @@ function animateTreeEntrance() {
 // INIT
 // ══════════════════════════════════════════════════════
 function showLoading() {
-  const loader = document.createElement('div');
-  loader.id = 'loader';
-  loader.style.cssText = `
-    position:fixed;inset:0;
-    background:var(--bg, #1a1d23);
-    display:flex;flex-direction:column;align-items:center;justify-content:center;
-    z-index:9999;font-family:'Inter',system-ui,sans-serif;
-    transition:opacity 600ms ease;
-  `;
-  loader.innerHTML = `
+  /* Tree grows directly inside #splash — no separate loader overlay needed */
+  const container = document.getElementById('splash-tree-container');
+  if (!container) return null;
+  container.innerHTML = `
     <style>
-      @keyframes loadBranchGrow{from{stroke-dashoffset:60;opacity:0}to{stroke-dashoffset:0;opacity:1}}
-      @keyframes loadNodeAppear{from{r:0;opacity:0}to{opacity:1}}
-      .load-branch{stroke-dasharray:60;opacity:0;animation:loadBranchGrow 0.5s ease forwards}
-      .load-node{opacity:0;animation:loadNodeAppear 0.3s ease forwards}
+      @keyframes loadBranchGrow{from{stroke-dashoffset:80;opacity:0}to{stroke-dashoffset:0;opacity:1}}
+      @keyframes loadNodePulse{from{r:0;opacity:0}to{opacity:1}}
+      @keyframes loadNodeGlow{0%,100%{filter:drop-shadow(0 0 2px currentColor)}50%{filter:drop-shadow(0 0 8px currentColor)}}
+      .load-branch{stroke-dasharray:80;opacity:0;animation:loadBranchGrow 0.7s ease forwards}
+      .load-node{opacity:0;animation:loadNodePulse 0.4s ease forwards}
+      .load-leaf{opacity:0;animation:loadNodePulse 0.4s ease forwards, loadNodeGlow 1.5s ease-in-out 4.2s infinite}
     </style>
-    <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
-      <circle cx="60" cy="100" r="4" fill="#8b5cf6" class="load-node" style="animation-delay:0s"/>
-      <line x1="60" y1="96" x2="60" y2="70" stroke="#8b5cf6" stroke-width="2" class="load-branch" style="animation-delay:0.2s"/>
-      <line x1="60" y1="70" x2="30" y2="50" stroke="#ef4444" stroke-width="1.5" class="load-branch" style="animation-delay:0.4s"/>
-      <line x1="60" y1="70" x2="90" y2="50" stroke="#3b82f6" stroke-width="1.5" class="load-branch" style="animation-delay:0.4s"/>
-      <circle cx="30" cy="50" r="3" fill="#ef4444" class="load-node" style="animation-delay:0.6s"/>
-      <circle cx="90" cy="50" r="3" fill="#3b82f6" class="load-node" style="animation-delay:0.6s"/>
-      <line x1="30" y1="50" x2="15" y2="30" stroke="#22c55e" stroke-width="1" class="load-branch" style="animation-delay:0.8s"/>
-      <line x1="30" y1="50" x2="45" y2="30" stroke="#f59e0b" stroke-width="1" class="load-branch" style="animation-delay:0.8s"/>
-      <line x1="90" y1="50" x2="75" y2="30" stroke="#f97316" stroke-width="1" class="load-branch" style="animation-delay:0.8s"/>
-      <line x1="90" y1="50" x2="105" y2="30" stroke="#a855f7" stroke-width="1" class="load-branch" style="animation-delay:0.8s"/>
-      <circle cx="15" cy="30" r="2.5" fill="#22c55e" class="load-node" style="animation-delay:1s"/>
-      <circle cx="45" cy="30" r="2.5" fill="#f59e0b" class="load-node" style="animation-delay:1s"/>
-      <circle cx="75" cy="30" r="2.5" fill="#f97316" class="load-node" style="animation-delay:1s"/>
-      <circle cx="105" cy="30" r="2.5" fill="#a855f7" class="load-node" style="animation-delay:1s"/>
+    <svg width="200" height="180" viewBox="0 0 200 180" fill="none">
+      <!-- Stage 1: Root + trunk (0s–0.8s) -->
+      <circle cx="100" cy="170" r="5" fill="#8b5cf6" class="load-node" style="animation-delay:0s"/>
+      <line x1="100" y1="165" x2="100" y2="120" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round" class="load-branch" style="animation-delay:0.3s"/>
+
+      <!-- Stage 2: First fork — 2 main branches (0.8s–1.8s) -->
+      <line x1="100" y1="120" x2="55" y2="85" stroke="#ef4444" stroke-width="2" stroke-linecap="round" class="load-branch" style="animation-delay:0.9s"/>
+      <line x1="100" y1="120" x2="145" y2="85" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" class="load-branch" style="animation-delay:1.0s"/>
+      <circle cx="55" cy="85" r="4" fill="#ef4444" class="load-node" style="animation-delay:1.5s"/>
+      <circle cx="145" cy="85" r="4" fill="#3b82f6" class="load-node" style="animation-delay:1.6s"/>
+
+      <!-- Stage 3: Second fork — 4 sub-branches (1.8s–3.0s) -->
+      <line x1="55" y1="85" x2="28" y2="52" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round" class="load-branch" style="animation-delay:2.0s"/>
+      <line x1="55" y1="85" x2="78" y2="52" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" class="load-branch" style="animation-delay:2.2s"/>
+      <line x1="145" y1="85" x2="122" y2="52" stroke="#14b8a6" stroke-width="1.5" stroke-linecap="round" class="load-branch" style="animation-delay:2.4s"/>
+      <line x1="145" y1="85" x2="172" y2="52" stroke="#f97316" stroke-width="1.5" stroke-linecap="round" class="load-branch" style="animation-delay:2.6s"/>
+      <circle cx="28" cy="52" r="3" fill="#22c55e" class="load-node" style="animation-delay:2.7s"/>
+      <circle cx="78" cy="52" r="3" fill="#f59e0b" class="load-node" style="animation-delay:2.8s"/>
+      <circle cx="122" cy="52" r="3" fill="#14b8a6" class="load-node" style="animation-delay:2.9s"/>
+      <circle cx="172" cy="52" r="3" fill="#f97316" class="load-node" style="animation-delay:3.0s"/>
+
+      <!-- Stage 4: Leaf bloom — 8 terminal nodes (3.0s–4.2s) -->
+      <line x1="28" y1="52" x2="14" y2="25" stroke="#22c55e" stroke-width="1" stroke-linecap="round" class="load-branch" style="animation-delay:3.2s"/>
+      <line x1="28" y1="52" x2="42" y2="28" stroke="#10b981" stroke-width="1" stroke-linecap="round" class="load-branch" style="animation-delay:3.3s"/>
+      <line x1="78" y1="52" x2="65" y2="25" stroke="#eab308" stroke-width="1" stroke-linecap="round" class="load-branch" style="animation-delay:3.4s"/>
+      <line x1="78" y1="52" x2="92" y2="28" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" class="load-branch" style="animation-delay:3.5s"/>
+      <line x1="122" y1="52" x2="108" y2="25" stroke="#06b6d4" stroke-width="1" stroke-linecap="round" class="load-branch" style="animation-delay:3.6s"/>
+      <line x1="122" y1="52" x2="136" y2="28" stroke="#14b8a6" stroke-width="1" stroke-linecap="round" class="load-branch" style="animation-delay:3.7s"/>
+      <line x1="172" y1="52" x2="158" y2="25" stroke="#f97316" stroke-width="1" stroke-linecap="round" class="load-branch" style="animation-delay:3.8s"/>
+      <line x1="172" y1="52" x2="186" y2="28" stroke="#a855f7" stroke-width="1" stroke-linecap="round" class="load-branch" style="animation-delay:3.9s"/>
+      <circle cx="14" cy="25" r="2.5" fill="#22c55e" class="load-leaf" style="animation-delay:4.0s"/>
+      <circle cx="42" cy="28" r="2.5" fill="#10b981" class="load-leaf" style="animation-delay:4.0s"/>
+      <circle cx="65" cy="25" r="2.5" fill="#eab308" class="load-leaf" style="animation-delay:4.1s"/>
+      <circle cx="92" cy="28" r="2.5" fill="#f59e0b" class="load-leaf" style="animation-delay:4.1s"/>
+      <circle cx="108" cy="25" r="2.5" fill="#06b6d4" class="load-leaf" style="animation-delay:4.2s"/>
+      <circle cx="136" cy="28" r="2.5" fill="#14b8a6" class="load-leaf" style="animation-delay:4.2s"/>
+      <circle cx="158" cy="25" r="2.5" fill="#f97316" class="load-leaf" style="animation-delay:4.3s"/>
+      <circle cx="186" cy="28" r="2.5" fill="#a855f7" class="load-leaf" style="animation-delay:4.3s"/>
     </svg>
-    <div style="margin-top:20px;font-size:13px;color:var(--text-secondary, #a0a4b0);letter-spacing:0.08em;">
-      Loading Tree of Life...
-    </div>
   `;
-  document.body.appendChild(loader);
-  return loader;
+  return container;
 }
 function hideLoading(loader) {
-  if (!loader) return;
-  loader.style.opacity = '0';
-  setTimeout(() => loader.remove(), 600);
+  /* Tree animation lives inside splash now — no separate loader to remove */
 }
 
 function init(){
-  const loader = showLoading();
+  showLoading();
   const _splash = document.getElementById('splash');
   const _taglineEl = document.getElementById('splash-tagline');
   if (_splash && _taglineEl) {
@@ -5222,11 +5240,14 @@ function init(){
     const _splashYears = document.getElementById('splash-years');
     if(_splashTitle) _splashTitle.textContent = t('title');
     if(_splashYears) _splashYears.textContent = t('splash_years');
+    let _dismissed = false;
     const _dismissSplash = () => {
+      if (_dismissed) return;
+      _dismissed = true;
       _splash.style.opacity = '0';
       setTimeout(() => { _splash.style.display = 'none'; animateTreeEntrance(); }, 800);
     };
-    setTimeout(_dismissSplash, 2800);
+    setTimeout(_dismissSplash, 7000);
     _splash.addEventListener('click', _dismissSplash);
   }
   function assignDomains(node, domain) {
@@ -5240,7 +5261,6 @@ function init(){
   }
   assignDomains(TREE, 'luca');
   layout();centerOnRoot(0.18);scheduleRender(true);applyT();
-  setTimeout(() => hideLoading(loader), 400);
   spawnParticles();
   buildExtinctionMarkers();
   buildEraPresets();

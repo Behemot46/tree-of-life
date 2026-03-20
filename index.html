@@ -1812,8 +1812,10 @@ function leafCount(n){
   return Math.max(1,sum);
 }
 
-/* Minimum angular separation per sibling (radians) */
-const MIN_ANGLE_SEP=0.22;
+/* Minimum arc gap between siblings (px) — converted to angle per depth */
+const MIN_ARC_PX=50;
+/* Max arc-length (px) per visible leaf — limits spread at large radii */
+const MAX_ARC_PER_LEAF=80;
 
 /* Subtree-weighted angle assignment — larger subtrees get proportionally more room */
 function assignAngles(n,a0,a1){
@@ -1822,15 +1824,31 @@ function assignAngles(n,a0,a1){
   const visible=n.children;
   const range=a1-a0;
 
+  /* Child depth radius — used for arc-based spacing */
+  const childDepth=(n.depth!==undefined?n.depth:0)+1;
+  const r=DEPTH_R[childDepth]||(DEPTH_R[DEPTH_R.length-1]+(childDepth-DEPTH_R.length+1)*120);
+
   const weights=visible.map(c=>{
     const lc=leafCount(c);
     return Math.max(1.0, Math.sqrt(lc)); /* sqrt dampens extreme ratios */
   });
   const totalWeight=weights.reduce((s,w)=>s+w,0);
 
-  const minTotal=visible.length*MIN_ANGLE_SEP;
-  const effectiveRange=Math.max(range,minTotal);
-  let a=a0-(effectiveRange-range)/2;
+  /* Depth-aware minimum separation: fixed px gap → smaller angle at large radii */
+  const minAngleSep=r>0?Math.max(0.04,MIN_ARC_PX/r):0.22;
+  const minTotal=visible.length*minAngleSep;
+  let effectiveRange=Math.max(range,minTotal);
+
+  /* Arc-length clamping: keep siblings tight at large radii */
+  if(r>0){
+    const totalLeaves=visible.reduce((s,c)=>s+leafCount(c),0);
+    const maxAngle=(totalLeaves*MAX_ARC_PER_LEAF)/r;
+    if(effectiveRange>maxAngle&&maxAngle>=minTotal) effectiveRange=maxAngle;
+  }
+
+  /* Center clamped range within parent arc */
+  const parentMid=(a0+a1)/2;
+  let a=parentMid-effectiveRange/2;
 
   visible.forEach((c,i)=>{
     const share=effectiveRange*(weights[i]/totalWeight);
@@ -2308,7 +2326,7 @@ function render(){
 
     // Events
     g.addEventListener('click',e=>{e.stopPropagation();showMainPanel(n);});
-    g.addEventListener('contextmenu',e=>{e.preventDefault();if(n.children?.length){n._collapsed=!n._collapsed;scheduleRender();}});
+    g.addEventListener('contextmenu',e=>{e.preventDefault();if(n.children?.length){n._collapsed=!n._collapsed;layout();scheduleRender(true);}});
     nodesFrag.appendChild(g);
   });
 
@@ -2429,7 +2447,7 @@ function navHome(){
   panel.classList.remove('open');
   updateBreadcrumb(null);
   // Reset zoom/pan
-  transform={x:0,y:0,s:1};applyT();
+  layout();centerOnRoot(0.6);scheduleRender(true);applyT();
   history.replaceState(null,'',location.pathname);
   updateNavButtons();
 }
@@ -3202,6 +3220,9 @@ function buildEraPresets(){
   updatePresetHighlight(currentEra);
 }
 
+function centerOnRoot(scale){
+  transform={x:window.innerWidth/2-TREE._x*scale,y:window.innerHeight/2-TREE._y*scale,s:scale};
+}
 function centerOnTree(scale){
   const nodes=getVisible(TREE);
   if(!nodes.length)return;
@@ -3216,7 +3237,7 @@ function setViewMode(mode){
     btn.classList.toggle('active',btn.dataset.mode===mode);
   });
   layout();
-  if(mode==='radial'){centerOnTree(0.75);}
+  if(mode==='radial'){centerOnRoot(0.6);}
   else if(mode==='cladogram'){centerOnTree(0.7);}
   else if(mode==='chronological'){centerOnTree(0.65);}
   scheduleRender(true);applyT();
@@ -3454,7 +3475,7 @@ svgEl.addEventListener("pointerup",e=>{
 svgEl.addEventListener('wheel',e=>{e.preventDefault();const f=e.deltaY<0?1.13:0.88;const rect=svgEl.getBoundingClientRect();const mx=e.clientX-rect.left,my=e.clientY-rect.top;const ns=Math.min(6,Math.max(0.12,transform.s*f));transform.x=mx-(mx-transform.x)*(ns/transform.s);transform.y=my-(my-transform.y)*(ns/transform.s);transform.s=ns;applyT();},{passive:false});
 document.getElementById('btn-in').addEventListener('click',()=>{transform.s=Math.min(6,transform.s*1.2);applyT();});
 document.getElementById('btn-out').addEventListener('click',()=>{transform.s=Math.max(0.12,transform.s*0.83);applyT();});
-document.getElementById('btn-reset').addEventListener('click',()=>{transform={x:0,y:0,s:1};applyT();});
+document.getElementById('btn-reset').addEventListener('click',()=>{layout();centerOnRoot(0.6);scheduleRender(true);applyT();});
 
 // ══════════════════════════════════════════════════════
 // COMPARE MODE
@@ -3755,7 +3776,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='f'||e.key==='F'){searchInput.focus();e.preventDefault();}
   if(e.key==='/'){e.preventDefault();const search=document.getElementById('search-input');if(search)search.focus();}
   if(e.key==='h'||e.key==='H'){navigateTo('hominini');}
-  if(e.key==='r'||e.key==='R'){transform={x:0,y:0,s:1};applyT();}
+  if(e.key==='r'||e.key==='R'){layout();centerOnRoot(0.6);scheduleRender(true);applyT();}
   if(e.key==='d'){const toggle=document.getElementById('theme-btn');if(toggle)toggle.click();}
 });
 
@@ -4026,7 +4047,7 @@ function init(){
     }
   }
   assignDomains(TREE, 'luca');
-  layout();scheduleRender(true);applyT();
+  layout();centerOnRoot(0.6);scheduleRender(true);applyT();
   setTimeout(() => hideLoading(loader), 400);
   spawnParticles();
   buildExtinctionMarkers();
@@ -4121,7 +4142,7 @@ function init(){
     }
   },3000);
 }
-window.addEventListener('resize',()=>{layout();scheduleRender();});
+window.addEventListener('resize',()=>{layout();if(viewMode==='radial')centerOnRoot(transform.s);scheduleRender();applyT();});
 
 // ══════════════════════════════════════════════════════
 // MOBILE ENHANCEMENTS

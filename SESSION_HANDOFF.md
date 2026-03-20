@@ -1,3 +1,50 @@
+# Session Handoff — 2026-03-20 (Timeline Bar Complete Overhaul)
+
+**Status: done**
+**Branch:** `claude/zen-burnell`
+**PR:** #102
+
+## 1. Session Goal
+Complete overhaul of the bottom timeline bar — replace the minimal 4px gradient slider with a modern, geologically-accurate segmented timeline with rich interactivity.
+
+## 2. What I Changed
+
+### js/uiData.js
+- **TIMELINE_SEGMENTS**: New constant with 20 geological periods (Hadean → Quaternary), each with id, min/max Ma, dark/light theme colors, and i18n nameKey
+- **TRANSLATIONS**: Added ~20 segment name keys to all 3 language objects (en/he/ru)
+
+### index.html — HTML
+- Replaced old timeline structure with new layout: info bar, canvas sparkline, segmented track with custom thumb, controls row with presets + playback + speed buttons, extinction popover
+
+### index.html — CSS
+- **Glassmorphism container**: `backdrop-filter:blur(16px) saturate(180%)` replacing gradient fade
+- **Segmented era track**: 14px height (was 4px), colored geological period segments
+- **Custom slider thumb**: Visible draggable handle with grab cursor, accent glow (replaces invisible range input)
+- **Extinction markers**: Emoji icons (💀/☠️/☄️) with severity-scaled sizing, click-to-show popover
+- **Preset chips with icons**: 🧬 LUCA, 💨 O₂, 🦐 Cambrian, 🦕 Dinosaurs, ☄️ K-Pg, 🌍 Now
+- **Speed control buttons**: 0.5x / 1x / 2x pill-style group
+- **RTL overrides**, **mobile responsive**, **light theme** variants
+
+### index.html — JS (~400 lines rewritten)
+- **`buildEraSegments()`**: Renders colored period divs with segment labels
+- **`buildDensitySparkline()`**: Canvas histogram of species per 50Ma bucket
+- **`initThumbDrag()`**: Pointer-event-based drag, click-on-track jump, keyboard (arrows ±20Ma, Shift ±100Ma, Space play/pause)
+- **`initSpeedButtons()`**: Speed control handlers with active state
+- **`showExtinctionPopover()`**: Click-to-show popover with dismiss-on-outside
+- **`updateThumbPosition(mya)`**: Syncs thumb left% and aria-valuenow
+- **`updateEraTimeRange(mya)`**: Shows Ga or Ma range for current segment
+- **`toggleEraPlay()`**: Reversed direction (3800→0, forward through time), eased animation (quadratic), speed-aware
+- **Preset icons**: Emoji-enhanced chips via `PRESET_ICONS` map
+- **Extinction icons**: Severity-scaled markers via `EXTINCTION_ICONS` map
+
+## 3. Track Direction
+Left = LUCA (3800 Ma), Right = Present (0 Ma). Thumb at left=0% is 3800Ma, left=100% is 0Ma.
+
+## 4. Previous Session
+- Tree UX Improvements (PR #91, `claude/magical-chebyshev`)
+
+---
+
 # Session Handoff — 2026-03-18 (Tree UX Improvements)
 
 **Status: done**

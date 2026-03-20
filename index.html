@@ -2071,6 +2071,7 @@ function branchPath(x1,y1,x2,y2){
    RENDER SCHEDULER
    =========================== */
 let renderQueued=false;
+const confirmedPhotoUrls=new Map();
 function scheduleRender(force=false){
   if(force){
     renderQueued=false;
@@ -2247,7 +2248,8 @@ function render(){
       // Overlay species photo on top if available (via ImageLoader)
       // Uses foreignObject + HTML img (SVG <image> fails cross-origin)
       if(typeof ImageLoader!=='undefined'&&imgR>=8){
-        const best=ImageLoader.getBestUrl(n);
+        const cachedUrl=confirmedPhotoUrls.get(n.id);
+        const best=cachedUrl ? {url:cachedUrl} : ImageLoader.getBestUrl(n);
         if(best.url){
           const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
           fo.setAttribute('x',n._x-imgR);fo.setAttribute('y',n._y-imgR);
@@ -2258,14 +2260,15 @@ function render(){
           const htmlImg=document.createElement('img');
           htmlImg.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
           htmlImg.alt=n.name||'';
-          htmlImg.addEventListener('load',function(){
-            // Photo loaded — it naturally covers the silhouette underneath
-          });
-          htmlImg.addEventListener('error',function(){
-            if(fo.parentNode) fo.remove();
-            if(best.source==='generated') ImageLoader.markFailed(n.id);
-          });
-          htmlImg.src=best.url;
+          if(cachedUrl){
+            htmlImg.addEventListener('error',function(){if(fo.parentNode)fo.remove();confirmedPhotoUrls.delete(n.id);});
+            htmlImg.src=cachedUrl;
+          } else {
+            ImageLoader.loadInto(n,htmlImg,{
+              onLoad:function(){confirmedPhotoUrls.set(n.id,htmlImg.src);},
+              onFallback:function(){if(fo.parentNode)fo.remove();}
+            });
+          }
           wrap.appendChild(htmlImg);fo.appendChild(wrap);g.appendChild(fo);
         }
       }

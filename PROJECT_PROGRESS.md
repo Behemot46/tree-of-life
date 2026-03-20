@@ -37,6 +37,7 @@
 | p25 | WCAG 2.1 AA accessibility — skip link, focus-visible, reduced motion, ARIA landmarks, keyboard nav, focus trap, SR announcements, i18n a11y labels | `claude/funny-chatterjee` |
 | p26 | Rich data panels & visual identity — collapsible sections, timeline bar, radar chart, sub-groups | PR #86 `claude/nifty-moore` |
 | p33 | AI species illustrations — 10 generated images, local-first ImageLoader | `claude/hungry-mclean` |
+| p36 | Timeline bar overhaul — segmented geological periods, custom thumb, sparkline, extinction popovers, speed control | PR #102 `claude/zen-burnell` |
 
 ### Upcoming (unified roadmap — see docs/PROMPTS/README.md)
 

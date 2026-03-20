@@ -196,21 +196,38 @@ body.dragging{cursor:grabbing;}
 [dir="rtl"] #nav-ctrl{left:auto;right:1.2rem;flex-direction:row-reverse;}
 [dir="rtl"] .nav-arrow{transform:scaleX(-1);}
 
-/* ── ERA BROWSER ── */
+/* ── ERA BROWSER / TIMELINE BAR ── */
 #timeline{position:fixed;bottom:0;left:0;right:0;z-index:200;
-  padding:0.6rem 1.5rem 1rem;
-  background:linear-gradient(to top,var(--bg) 50%,transparent);
-  pointer-events:all;}
-#era-label{font-size:0.625rem;color:var(--text-secondary);letter-spacing:0.12em;text-transform:uppercase;
-  margin-bottom:0.4rem;text-align:center;font-family:var(--font-mono);}
-#era-track{position:relative;height:4px;background:var(--border);border-radius:2px;margin:0 0.5rem;}
-#era-fill{position:absolute;left:0;top:0;height:100%;background:linear-gradient(to right,var(--accent-primary),var(--accent-secondary));
-  border-radius:2px;transition:width 0.1s;}
-#era-slider{width:100%;height:6px;opacity:0;position:absolute;top:0;left:0;cursor:pointer;margin:0;}
-.era-ticks{display:flex;justify-content:space-between;margin-top:0.4rem;}
-.era-tick{font-size:0.55rem;color:var(--text-secondary);opacity:0.5;letter-spacing:0.04em;font-family:var(--font-mono);}
+  padding:0.4rem 1.2rem 0.7rem;
+  background:rgba(26,29,35,0.78);backdrop-filter:blur(16px) saturate(180%);
+  -webkit-backdrop-filter:blur(16px) saturate(180%);
+  border-top:1px solid rgba(255,255,255,0.06);pointer-events:all;}
+[data-theme="light"] #timeline{background:rgba(255,255,255,0.82);border-top-color:rgba(0,0,0,0.06);}
+#tl-info-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.2rem;min-height:1.1rem;}
+#tl-era-info{display:flex;align-items:baseline;gap:0.5rem;}
+#era-label{font-size:0.7rem;font-weight:600;color:var(--text-primary);letter-spacing:0.06em;
+  text-transform:uppercase;font-family:var(--font-mono);}
+#era-time-range{font-size:0.6rem;color:var(--text-secondary);font-family:var(--font-mono);}
+#tl-density{width:100%;height:16px;display:block;margin-bottom:0.1rem;opacity:0.5;border-radius:2px 2px 0 0;}
+#tl-track-wrap{position:relative;margin:0 0.2rem;}
+#era-track{position:relative;height:14px;border-radius:4px;overflow:visible;background:var(--border);cursor:pointer;}
+#era-segments{display:flex;height:100%;border-radius:4px;overflow:hidden;}
+.era-seg{height:100%;position:relative;transition:filter 0.2s;display:flex;align-items:center;
+  justify-content:center;overflow:hidden;cursor:pointer;}
+.era-seg:hover{filter:brightness(1.25);}
+.era-seg-label{font-size:0.42rem;color:rgba(255,255,255,0.85);font-weight:600;letter-spacing:0.04em;
+  text-transform:uppercase;white-space:nowrap;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,0.5);}
+[data-theme="light"] .era-seg-label{color:rgba(0,0,0,0.7);text-shadow:0 1px 2px rgba(255,255,255,0.5);}
+#tl-thumb{position:absolute;top:50%;transform:translate(-50%,-50%);width:18px;height:26px;border-radius:4px;
+  background:var(--accent-primary);border:2px solid rgba(255,255,255,0.9);
+  box-shadow:0 2px 8px rgba(0,0,0,0.35),0 0 0 2px rgba(14,165,233,0.3);
+  cursor:grab;z-index:10;transition:box-shadow 0.2s;outline:none;left:0%;}
+#tl-thumb:hover,#tl-thumb:focus-visible{box-shadow:0 2px 12px rgba(0,0,0,0.4),0 0 0 4px rgba(14,165,233,0.4);}
+#tl-thumb:active{cursor:grabbing;}
+#tl-thumb::after{content:'';position:absolute;top:5px;bottom:5px;left:50%;transform:translateX(-50%);
+  width:2px;background:rgba(255,255,255,0.5);border-radius:1px;}
+[data-theme="light"] #tl-thumb{border-color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15),0 0 0 2px rgba(2,132,199,0.2);}
 #extinction-markers{position:absolute;top:0;left:0;right:0;height:100%;pointer-events:none;}
-.ext-line{position:absolute;top:-4px;width:2px;height:14px;background:rgba(239,68,68,0.7);border-radius:1px;}
 
 /* ── MAIN SVG ── */
 #canvas-wrap{position:fixed;inset:0;z-index:1;}
@@ -758,8 +775,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 [data-theme="light"] .hp-detail{color:var(--text-secondary);}
 [data-theme="light"] .hp-fact-v{color:var(--text-primary);}
 [data-theme="light"] .tip-fact{color:var(--text-secondary);}
-[data-theme="light"] .era-tick{color:var(--text-secondary);}
-[data-theme="light"] #era-label{color:var(--text-secondary);}
+[data-theme="light"] #era-label{color:var(--text-primary);}
 [data-theme="light"] .hom-filter{color:var(--text-secondary);}
 [data-theme="light"] .hom-filter.active{color:var(--accent-primary);}
 [data-theme="light"] .hs-mya{color:var(--text-secondary);}
@@ -1019,11 +1035,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     padding: 0.4rem 0.8rem 0.7rem;
   }
   #era-label { font-size: 0.55rem; }
-  .era-tick  { font-size: 0.45rem; }
-  #era-slider {
-    height: 24px;
-    top: -9px;
-  }
 
   /* ── HOMININ VIEW: stack vertically ── */
   #hom-body {
@@ -1142,49 +1153,74 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   #panel { max-height: 60vh; }
   #hominin-view #hom-panel { max-height: 40vh; }
   .hint-bar { display: none; }
-  #timeline { padding: 0.3rem 0.6rem 0.5rem; }
-  .era-tick { font-size: 0.4rem; }
+  #timeline { padding: 0.2rem 0.5rem 0.4rem; }
+  #tl-density { display: none; }
+  #era-track { height: 10px; }
+  #tl-thumb { width: 14px; height: 18px; }
 }
 
 /* ── ERA TINT OVERLAY ── */
 #era-tint-overlay{position:fixed;inset:0;z-index:0;pointer-events:none;transition:background 0.6s ease;}
 
-/* ── EXTINCTION TOOLTIP ── */
-.ext-marker{position:absolute;top:-4px;width:3px;height:14px;background:rgba(176,80,80,0.7);border-radius:1px;
-  cursor:pointer;pointer-events:all;transition:transform var(--transition-fast);z-index:2;}
-.ext-marker:hover{transform:scaleY(1.5);background:rgba(176,80,80,1);}
-.ext-tooltip{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);
-  background:var(--panel-bg);border:1px solid var(--gold);border-radius:8px;padding:0.5rem 0.7rem;
-  white-space:nowrap;font-size:0.65rem;color:var(--parchment);pointer-events:none;opacity:0;
-  transition:opacity var(--transition-fast);z-index:100;min-width:140px;box-shadow:0 4px 16px rgba(0,0,0,0.4);}
-.ext-marker:hover .ext-tooltip{opacity:1;}
-.ext-tooltip-name{font-weight:600;color:var(--gold);margin-bottom:0.2rem;font-size:0.7rem;}
-.ext-tooltip-stat{color:rgba(176,80,80,0.9);font-weight:600;}
-.ext-tooltip-cause{color:var(--text-muted);margin-top:0.15rem;}
-.ext-tooltip-surv{color:var(--sage);margin-top:0.15rem;font-style:italic;}
-[data-theme="light"] .ext-tooltip{background:var(--panel-bg);border-color:var(--gold);}
+/* ── EXTINCTION MARKERS ── */
+.ext-marker{position:absolute;top:-8px;width:22px;height:30px;transform:translateX(-50%);
+  cursor:pointer;pointer-events:all;z-index:5;display:flex;align-items:flex-start;justify-content:center;
+  transition:transform var(--transition-fast);}
+.ext-marker:hover{transform:translateX(-50%) scale(1.2);}
+.ext-marker-icon{font-size:0.75rem;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.5));position:relative;z-index:2;}
+.ext-marker-line{position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:2px;height:16px;
+  background:linear-gradient(to bottom,rgba(239,68,68,0.9),rgba(239,68,68,0.2));border-radius:1px;}
+.ext-marker[data-severity="high"] .ext-marker-icon{font-size:0.85rem;}
+.ext-marker[data-severity="extreme"] .ext-marker-icon{font-size:1rem;}
+/* Extinction popover */
+.ext-popover{position:absolute;bottom:calc(100% + 8px);background:var(--surface);
+  border:1px solid var(--accent-primary);border-radius:var(--radius-md);padding:0.6rem 0.8rem;
+  min-width:180px;max-width:260px;box-shadow:0 8px 32px rgba(0,0,0,0.3);z-index:200;
+  font-size:0.7rem;color:var(--text-primary);transition:opacity var(--transition-fast),transform var(--transition-fast);}
+.ext-popover.hidden{opacity:0;pointer-events:none;transform:translateY(4px);}
+.ext-popover-name{font-weight:700;color:var(--accent-danger);font-size:0.8rem;margin-bottom:0.2rem;}
+.ext-popover-stat{color:var(--accent-danger);font-weight:600;opacity:0.8;}
+.ext-popover-cause{color:var(--text-secondary);margin-top:0.15rem;}
+.ext-popover-surv{color:var(--sage);margin-top:0.15rem;font-style:italic;}
+[data-theme="light"] .ext-popover{background:var(--surface);border-color:var(--accent-primary);}
 
 /* ── SPECIES COUNT ── */
-#era-species-count{font-size:0.58rem;color:var(--sage);letter-spacing:0.08em;opacity:0.8;}
-[data-theme="light"] #era-species-count{color:rgba(30,80,15,0.6);}
+#era-species-count{font-size:0.6rem;color:var(--sage);letter-spacing:0.06em;font-family:var(--font-mono);}
+[data-theme="light"] #era-species-count{color:rgba(22,163,74,0.7);}
 
-/* ── ERA PLAY BUTTON ── */
-#era-play{position:absolute;right:-40px;top:50%;transform:translateY(-50%);width:28px;height:28px;
-  border-radius:50%;background:var(--accent-primary-dim);border:1px solid rgba(var(--gold-rgb),0.3);
-  color:var(--gold);font-size:0.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  transition:all var(--transition-fast);z-index:5;}
-#era-play:hover{background:rgba(var(--gold-rgb),0.25);border-color:var(--gold);}
-#era-play.playing{background:rgba(var(--gold-rgb),0.2);border-color:var(--gold-light);color:var(--gold-light);}
-#era-play:active{transform:translateY(-50%) scale(0.97);}
-
-/* ── ERA PRESETS ── */
-#era-presets{display:flex;justify-content:center;gap:0.35rem;margin-top:0.35rem;flex-wrap:wrap;}
-.era-preset{padding:0.15rem 0.5rem;border:1px solid rgba(var(--gold-rgb),0.2);border-radius:10px;
-  font-size:0.55rem;color:var(--text-secondary);cursor:pointer;transition:all var(--transition-fast);
-  font-family:var(--font-body);letter-spacing:0.04em;background:transparent;white-space:nowrap;}
-.era-preset:hover{border-color:rgba(var(--gold-rgb),0.5);color:var(--gold);}
-.era-preset.active{background:var(--accent-primary-dim);border-color:var(--gold);color:var(--gold-light);}
+/* ── TIMELINE CONTROLS ROW ── */
+#tl-controls{display:flex;align-items:center;justify-content:space-between;margin-top:0.3rem;gap:0.5rem;}
+#era-presets{display:flex;gap:0.3rem;flex-wrap:wrap;flex:1;}
+.era-preset{padding:0.2rem 0.55rem;border:1px solid rgba(14,165,233,0.2);border-radius:var(--radius-full);
+  font-size:0.6rem;color:var(--text-secondary);cursor:pointer;transition:all var(--transition-fast);
+  font-family:var(--font-body);background:transparent;white-space:nowrap;display:flex;align-items:center;gap:0.25rem;}
+.era-preset:hover{border-color:var(--accent-primary);color:var(--text-primary);}
+.era-preset.active{background:var(--accent-primary-dim);border-color:var(--accent-primary);color:var(--accent-primary);}
 .era-preset:active{transform:scale(0.97);}
+.era-preset-icon{font-size:0.7rem;}
+[data-theme="light"] .era-preset{border-color:rgba(2,132,199,0.2);color:var(--text-secondary);}
+[data-theme="light"] .era-preset:hover{border-color:var(--accent-primary);color:var(--text-primary);}
+[data-theme="light"] .era-preset.active{background:var(--accent-primary-dim);color:var(--accent-primary);}
+
+/* ── PLAYBACK CONTROLS ── */
+#tl-playback{display:flex;align-items:center;gap:0.3rem;}
+#era-play{width:30px;height:30px;border-radius:50%;background:var(--accent-primary-dim);
+  border:1px solid rgba(14,165,233,0.3);color:var(--accent-primary);font-size:0.75rem;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);}
+#era-play:hover{background:rgba(14,165,233,0.25);border-color:var(--accent-primary);}
+#era-play.playing{background:rgba(14,165,233,0.2);border-color:var(--gold-light);color:var(--gold-light);}
+#era-play:active{transform:scale(0.97);}
+[data-theme="light"] #era-play{background:rgba(2,132,199,0.08);border-color:rgba(2,132,199,0.2);color:var(--accent-primary);}
+#tl-speed-group{display:flex;gap:0;border-radius:var(--radius-full);overflow:hidden;border:1px solid var(--border);}
+.tl-speed-btn{padding:0.15rem 0.4rem;font-size:0.55rem;font-family:var(--font-mono);
+  color:var(--text-secondary);background:transparent;border:none;cursor:pointer;transition:all var(--transition-fast);}
+.tl-speed-btn:hover{color:var(--text-primary);background:var(--accent-primary-dim);}
+.tl-speed-btn.active{color:var(--accent-primary);background:var(--accent-primary-dim);font-weight:600;}
+/* RTL timeline */
+[dir="rtl"] #tl-info-bar{flex-direction:row-reverse;}
+[dir="rtl"] #tl-era-info{flex-direction:row-reverse;}
+[dir="rtl"] #tl-controls{flex-direction:row-reverse;}
+[dir="rtl"] #era-presets{flex-direction:row-reverse;}
 
 /* ── VIEW TOGGLE ── */
 #view-toggle{position:fixed;top:5rem;right:1.2rem;z-index:300;display:flex;gap:0;
@@ -1203,10 +1239,18 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 @media (max-width: 768px) {
   #view-toggle{top:auto;bottom:18rem;right:0.6rem;flex-direction:column;}
   .view-btn+.view-btn{border-left:none;border-top:1px solid var(--border);}
-  #era-presets{gap:0.25rem;}
-  .era-preset{font-size:0.5rem;padding:0.12rem 0.4rem;}
-  #era-play{right:-32px;width:24px;height:24px;font-size:0.65rem;}
+  #timeline{padding:0.3rem 0.6rem 0.5rem;}
+  #era-label{font-size:0.6rem;}
+  #era-time-range{display:none;}
   #era-species-count{display:none;}
+  #tl-density{height:10px;}
+  #era-track{height:12px;}
+  #tl-thumb{width:14px;height:20px;}
+  .era-seg-label{display:none;}
+  .era-preset{font-size:0.5rem;padding:0.12rem 0.4rem;}
+  .era-preset-icon{display:none;}
+  #tl-speed-group{display:none;}
+  #era-play{width:26px;height:26px;font-size:0.65rem;}
   [dir="rtl"] #view-toggle{left:0.6rem;right:auto;}
 }
 
@@ -1811,27 +1855,36 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
 
 <!-- ERA BROWSER -->
 <div id="timeline">
-  <div style="display:flex;align-items:center;justify-content:center;gap:0.4rem;">
-    <div id="era-label">PRESENT (0 Ma)</div>
+  <div id="tl-info-bar">
+    <div id="tl-era-info">
+      <span id="era-label">PRESENT (0 Ma)</span>
+      <span id="era-time-range"></span>
+    </div>
     <span id="era-species-count"></span>
   </div>
-  <div style="position:relative;margin-right:40px;">
+  <canvas id="tl-density"></canvas>
+  <div id="tl-track-wrap">
     <div id="era-track">
-      <div id="era-fill" style="width:100%"></div>
+      <div id="era-segments"></div>
       <div id="extinction-markers"></div>
-      <input id="era-slider" type="range" min="0" max="3800" value="3800" step="10">
+      <div id="tl-thumb" tabindex="0" role="slider"
+           aria-label="Timeline slider" aria-valuemin="0" aria-valuemax="3800" aria-valuenow="3800"></div>
     </div>
-    <button id="era-play" onclick="toggleEraPlay()" title="Play timeline animation" aria-label="Play timeline animation">&#9654;</button>
+    <input id="era-slider" type="range" min="0" max="3800" value="3800" step="10"
+           aria-hidden="true" tabindex="-1" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">
   </div>
-  <div class="era-ticks">
-    <span class="era-tick">3,800 Ma (LUCA)</span>
-    <span class="era-tick">2,500 Ma</span>
-    <span class="era-tick">1,000 Ma</span>
-    <span class="era-tick">541 Ma (Cambrian)</span>
-    <span class="era-tick">66 Ma (K-Pg)</span>
-    <span class="era-tick">Present</span>
+  <div id="tl-controls">
+    <div id="era-presets"></div>
+    <div id="tl-playback">
+      <button id="era-play" title="Play timeline animation" aria-label="Play timeline">&#9654;</button>
+      <div id="tl-speed-group">
+        <button class="tl-speed-btn" data-speed="0.5">0.5x</button>
+        <button class="tl-speed-btn active" data-speed="1">1x</button>
+        <button class="tl-speed-btn" data-speed="2">2x</button>
+      </div>
+    </div>
   </div>
-  <div id="era-presets"></div>
+  <div id="ext-popover" class="ext-popover hidden"></div>
 </div>
 
 <script src="js/treeData.js"></script>
@@ -3913,12 +3966,10 @@ function hideTip() {
 }
 
 // ══════════════════════════════════════════════════════
-// ERA BROWSER
+// ERA BROWSER — Segmented geological timeline
 // ══════════════════════════════════════════════════════
 const eraSlider=document.getElementById('era-slider');
 const eraLabel=document.getElementById('era-label');
-const eraFill=document.getElementById('era-fill');
-
 
 function getEraName(v){
   const keys=Object.keys(ERA_NAMES).map(Number).sort((a,b)=>a-b);
@@ -3934,6 +3985,9 @@ const EXTINCTION_DETAILS=[
   {mya:200,key:'ext_triassic',pct:80,causeKey:'ext_cause_triassic',survKey:'ext_surv_triassic'},
   {mya:66,key:'ext_kpg',pct:76,causeKey:'ext_cause_kpg',survKey:'ext_surv_kpg'}
 ];
+
+const EXTINCTION_ICONS={445:'\uD83D\uDC80',370:'\uD83D\uDC80',252:'\u2620\uFE0F',200:'\uD83D\uDC80',66:'\u2604\uFE0F'};
+
 function buildExtinctionMarkers(){
   const container=document.getElementById('extinction-markers');
   if(!container)return;
@@ -3943,13 +3997,41 @@ function buildExtinctionMarkers(){
     const marker=document.createElement('div');
     marker.className='ext-marker';
     marker.style.left=`${100-pct}%`;
-    marker.addEventListener('click',()=>animateSliderTo(ext.mya));
-    const tooltip=document.createElement('div');
-    tooltip.className='ext-tooltip';
-    tooltip.innerHTML=`<div class="ext-tooltip-name">${t(ext.key)}</div><div class="ext-tooltip-stat">${ext.pct}% ${t('ext_lost')}</div><div class="ext-tooltip-cause">${t(ext.causeKey)}</div><div class="ext-tooltip-surv">${t(ext.survKey)}</div>`;
-    marker.appendChild(tooltip);
+    marker.dataset.severity=ext.pct>90?'extreme':ext.pct>80?'high':'normal';
+    marker.dataset.mya=ext.mya;
+    const icon=document.createElement('span');
+    icon.className='ext-marker-icon';
+    icon.textContent=EXTINCTION_ICONS[ext.mya]||'\uD83D\uDC80';
+    marker.appendChild(icon);
+    const line=document.createElement('div');
+    line.className='ext-marker-line';
+    marker.appendChild(line);
+    marker.addEventListener('click',e=>{
+      e.stopPropagation();
+      showExtinctionPopover(ext,marker);
+      animateSliderTo(ext.mya);
+    });
     container.appendChild(marker);
   });
+}
+
+function showExtinctionPopover(ext,anchor){
+  const popover=document.getElementById('ext-popover');
+  if(!popover)return;
+  popover.innerHTML=`<div class="ext-popover-name">${t(ext.key)}</div><div class="ext-popover-stat">${ext.pct}% ${t('ext_lost')}</div><div class="ext-popover-cause">${t(ext.causeKey)}</div><div class="ext-popover-surv">${t(ext.survKey)}</div>`;
+  const trackRect=document.getElementById('era-track').getBoundingClientRect();
+  const anchorRect=anchor.getBoundingClientRect();
+  const leftPx=anchorRect.left-trackRect.left+anchorRect.width/2;
+  const maxLeft=trackRect.width-140;
+  popover.style.left=Math.max(10,Math.min(maxLeft,leftPx))+'px';
+  popover.style.transform='translateX(-50%)';
+  popover.classList.remove('hidden');
+  const close=e=>{
+    if(!popover.contains(e.target)&&!anchor.contains(e.target)){
+      popover.classList.add('hidden');document.removeEventListener('click',close);
+    }
+  };
+  setTimeout(()=>document.addEventListener('click',close),0);
 }
 
 const ERA_COLORS={
@@ -3983,12 +4065,32 @@ function updateEraTint(mya){
 }
 
 let eraPlayId=null;
+let eraPlaySpeed=1;
 
 function updateSpeciesCount(){
   const all=Object.values(nodeMap);
   const visible=all.filter(n=>nodeInEra(n));
   const el=document.getElementById('era-species-count');
   if(el)el.textContent=t('era_species_count').replace('{0}',visible.length).replace('{1}',all.length);
+}
+
+function updateThumbPosition(mya){
+  const thumb=document.getElementById('tl-thumb');
+  if(thumb){
+    // Left=3800 Ma (0%), Right=0 Ma (100%)
+    thumb.style.left=((3800-mya)/3800*100)+'%';
+    thumb.setAttribute('aria-valuenow',mya);
+  }
+}
+
+function updateEraTimeRange(mya){
+  const el=document.getElementById('era-time-range');
+  if(!el)return;
+  const seg=TIMELINE_SEGMENTS.find(s=>mya>=s.min&&mya<s.max);
+  if(seg){
+    el.textContent=seg.max>=1000?`${(seg.max/1000).toFixed(1)}\u2013${(seg.min/1000).toFixed(1)} Ga`
+      :`${seg.max}\u2013${seg.min} Ma`;
+  } else el.textContent='';
 }
 
 function toggleEraPlay(){
@@ -3998,13 +4100,21 @@ function toggleEraPlay(){
     btn.textContent='\u25b6';btn.classList.remove('playing');btn.title=t('era_play');return;
   }
   btn.textContent='\u23f8';btn.classList.add('playing');btn.title=t('era_pause');
-  const startVal=parseInt(eraSlider.value);const startTime=performance.now();const duration=12000;
+  // Play forward through time: LUCA (3800) → Present (0)
+  const startVal=3800;
+  currentEra=startVal;eraSlider.value=startVal;
+  updateThumbPosition(startVal);
+  const startTime=performance.now();
+  const baseDuration=12000;
   function step(now){
+    const duration=baseDuration/eraPlaySpeed;
     const elapsed=now-startTime;const progress=Math.min(1,elapsed/duration);
-    const newVal=Math.round(startVal*(1-progress));
+    const eased=progress<0.5?2*progress*progress:-1+(4-2*progress)*progress;
+    const newVal=Math.round(startVal*(1-eased));
     eraSlider.value=newVal;currentEra=newVal;
-    eraFill.style.width=(newVal/3800*100)+'%';
+    updateThumbPosition(newVal);
     eraLabel.textContent=getEraName(newVal);
+    updateEraTimeRange(newVal);
     updateEraTint(newVal);updateSpeciesCount();updatePresetHighlight(newVal);
     scheduleRender();
     if(progress<1){eraPlayId=requestAnimationFrame(step);}
@@ -4017,14 +4127,15 @@ function animateSliderTo(target){
   if(eraPlayId){cancelAnimationFrame(eraPlayId);eraPlayId=null;
     const pb=document.getElementById('era-play');if(pb){pb.textContent='\u25b6';pb.classList.remove('playing');}}
   const start=parseInt(eraSlider.value);const diff=target-start;
-  const startTime=performance.now();const duration=250;
+  const startTime=performance.now();const duration=400;
   function step(now){
     const elapsed=now-startTime;const progress=Math.min(1,elapsed/duration);
     const eased=progress<0.5?2*progress*progress:-1+(4-2*progress)*progress;
     const newVal=Math.round(start+diff*eased);
     eraSlider.value=newVal;currentEra=newVal;
-    eraFill.style.width=(newVal/3800*100)+'%';
+    updateThumbPosition(newVal);
     eraLabel.textContent=getEraName(newVal);
+    updateEraTimeRange(newVal);
     updateEraTint(newVal);updateSpeciesCount();updatePresetHighlight(newVal);
     scheduleRender();
     if(progress<1)requestAnimationFrame(step);
@@ -4039,6 +4150,9 @@ function updatePresetHighlight(mya){
   });
 }
 
+const PRESET_ICONS={preset_luca:'\uD83E\uDDEC',preset_o2:'\uD83D\uDCA8',preset_cambrian:'\uD83E\uDD90',
+  preset_dinos:'\uD83E\uDD95',preset_kpg:'\u2604\uFE0F',preset_now:'\uD83C\uDF0D'};
+
 function buildEraPresets(){
   const container=document.getElementById('era-presets');if(!container)return;
   const presets=[{mya:3800,key:'preset_luca'},{mya:2400,key:'preset_o2'},{mya:541,key:'preset_cambrian'},
@@ -4046,11 +4160,152 @@ function buildEraPresets(){
   container.innerHTML='';
   presets.forEach(p=>{
     const btn=document.createElement('button');btn.className='era-preset';
-    btn.textContent=t(p.key);btn.dataset.mya=p.mya;
+    const iconSpan=document.createElement('span');
+    iconSpan.className='era-preset-icon';
+    iconSpan.textContent=PRESET_ICONS[p.key]||'';
+    btn.appendChild(iconSpan);
+    btn.appendChild(document.createTextNode(t(p.key)));
+    btn.dataset.mya=p.mya;
     btn.addEventListener('click',()=>animateSliderTo(p.mya));
     container.appendChild(btn);
   });
   updatePresetHighlight(currentEra);
+}
+
+// Build colored geological segments
+function buildEraSegments(){
+  const container=document.getElementById('era-segments');
+  if(!container)return;
+  container.innerHTML='';
+  const totalRange=3800;
+  // Sort oldest first (leftmost = oldest in this timeline)
+  const sorted=[...TIMELINE_SEGMENTS].sort((a,b)=>b.max-a.max);
+  const isLight=document.documentElement.getAttribute('data-theme')==='light';
+  sorted.forEach(seg=>{
+    const clampedMin=Math.max(0,seg.min);
+    const clampedMax=Math.min(3800,seg.max);
+    if(clampedMax<=clampedMin)return;
+    const widthPct=((clampedMax-clampedMin)/totalRange)*100;
+    const div=document.createElement('div');
+    div.className='era-seg';
+    div.style.width=widthPct+'%';
+    div.style.background=isLight?seg.colorLight:seg.color;
+    div.dataset.segId=seg.id;
+    div.dataset.min=clampedMin;
+    div.dataset.max=clampedMax;
+    if(widthPct>5){
+      const label=document.createElement('span');
+      label.className='era-seg-label';
+      label.textContent=t(seg.nameKey);
+      div.appendChild(label);
+    }
+    div.addEventListener('click',e=>{
+      if(e.target.closest('#tl-thumb'))return;
+      animateSliderTo(Math.round((clampedMin+clampedMax)/2));
+    });
+    container.appendChild(div);
+  });
+}
+
+// Node density sparkline — histogram of species by geological time
+function buildDensitySparkline(){
+  const canvas=document.getElementById('tl-density');
+  if(!canvas)return;
+  const dpr=window.devicePixelRatio||1;
+  const rect=canvas.getBoundingClientRect();
+  canvas.width=rect.width*dpr;
+  canvas.height=rect.height*dpr;
+  const ctx=canvas.getContext('2d');
+  ctx.scale(dpr,dpr);
+  const w=rect.width,h=rect.height;
+  ctx.clearRect(0,0,w,h);
+  const bucketSize=50;
+  const numBuckets=Math.ceil(3800/bucketSize);
+  const buckets=new Array(numBuckets).fill(0);
+  Object.values(nodeMap).forEach(n=>{
+    if(!n.appeared)return;
+    const idx=Math.min(numBuckets-1,Math.floor(n.appeared/bucketSize));
+    buckets[idx]++;
+  });
+  const maxCount=Math.max(1,...buckets);
+  const barW=w/numBuckets;
+  const isLight=document.documentElement.getAttribute('data-theme')==='light';
+  ctx.fillStyle=isLight?'rgba(2,132,199,0.35)':'rgba(14,165,233,0.35)';
+  // Render right-to-left: bucket 0 (0-50 Ma) is on the right, bucket N (oldest) is on the left
+  buckets.forEach((count,i)=>{
+    const barH=(count/maxCount)*h*0.9;
+    const x=w-((i+1)*barW);
+    ctx.fillRect(x,h-barH,barW-1,barH);
+  });
+}
+
+// Custom thumb drag via pointer events
+function initThumbDrag(){
+  const thumb=document.getElementById('tl-thumb');
+  const track=document.getElementById('era-track');
+  if(!thumb||!track)return;
+  let dragging=false;
+
+  function myaFromPointer(clientX){
+    const rect=track.getBoundingClientRect();
+    const pct=Math.max(0,Math.min(1,(clientX-rect.left)/rect.width));
+    // Left=3800 Ma (oldest), right=0 Ma (present)
+    return Math.round((1-pct)*3800);
+  }
+
+  function updateFromMya(mya){
+    mya=Math.max(0,Math.min(3800,mya));
+    currentEra=mya;
+    eraSlider.value=mya;
+    updateThumbPosition(mya);
+    eraLabel.textContent=getEraName(mya);
+    updateEraTimeRange(mya);
+    updateEraTint(mya);
+    updateSpeciesCount();
+    updatePresetHighlight(mya);
+    if(eraPlayId){
+      cancelAnimationFrame(eraPlayId);eraPlayId=null;
+      const pb=document.getElementById('era-play');
+      if(pb){pb.textContent='\u25b6';pb.classList.remove('playing');}
+    }
+    scheduleRender();
+  }
+
+  thumb.addEventListener('pointerdown',e=>{
+    dragging=true;
+    thumb.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  });
+  document.addEventListener('pointermove',e=>{
+    if(!dragging)return;
+    updateFromMya(myaFromPointer(e.clientX));
+  });
+  document.addEventListener('pointerup',()=>{dragging=false;});
+
+  // Click on track to jump
+  track.addEventListener('click',e=>{
+    if(e.target.closest('.ext-marker')||e.target.closest('#tl-thumb'))return;
+    updateFromMya(myaFromPointer(e.clientX));
+  });
+
+  // Keyboard on thumb
+  thumb.addEventListener('keydown',e=>{
+    const step=e.shiftKey?100:20;
+    if(e.key==='ArrowLeft'){updateFromMya(currentEra+step);e.preventDefault();}
+    else if(e.key==='ArrowRight'){updateFromMya(currentEra-step);e.preventDefault();}
+    else if(e.key===' '){toggleEraPlay();e.preventDefault();}
+  });
+}
+
+// Speed button handlers
+function initSpeedButtons(){
+  document.querySelectorAll('.tl-speed-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      eraPlaySpeed=parseFloat(btn.dataset.speed);
+      document.querySelectorAll('.tl-speed-btn').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+    });
+  });
 }
 
 function centerOnTree(scale){
@@ -4080,19 +4335,6 @@ function setViewMode(mode){
   else if(mode==='chronological'){centerOnTree(0.65);}
   scheduleRender(true);applyT();
 }
-
-eraSlider.addEventListener('input',()=>{
-  currentEra=parseInt(eraSlider.value);
-  const pct=(currentEra/3800)*100;
-  eraFill.style.width=pct+'%';
-  eraLabel.textContent=getEraName(currentEra);
-  updateEraTint(currentEra);
-  updateSpeciesCount();
-  updatePresetHighlight(currentEra);
-  if(eraPlayId){cancelAnimationFrame(eraPlayId);eraPlayId=null;
-    const pb=document.getElementById('era-play');if(pb){pb.textContent='\u25b6';pb.classList.remove('playing');}}
-  scheduleRender();
-});
 
 // ══════════════════════════════════════════════════════
 // SEARCH
@@ -5098,9 +5340,10 @@ function applyI18n(){
   // Update play button
   const playBtn=document.getElementById('era-play');
   if(playBtn)playBtn.title=eraPlayId?t('era_pause'):t('era_play');
-  // Rebuild era presets and extinction markers with translated labels
+  // Rebuild era presets, extinction markers, and segments with translated labels
   buildEraPresets();
   buildExtinctionMarkers();
+  buildEraSegments();
   updateSpeciesCount();
   // Accessibility labels
   const skipLink=document.getElementById('skip-link');
@@ -5129,6 +5372,8 @@ function applyTheme(){
     document.getElementById('theme-btn').textContent='\ud83c\udf19';
   }
   // Re-render SVG so stroke CSS vars pick up new --bg value
+  buildEraSegments();
+  buildDensitySparkline();
   scheduleRender();
 }
 
@@ -5264,6 +5509,13 @@ function init(){
   spawnParticles();
   buildExtinctionMarkers();
   buildEraPresets();
+  buildEraSegments();
+  buildDensitySparkline();
+  initThumbDrag();
+  initSpeedButtons();
+  updateThumbPosition(currentEra);
+  eraLabel.textContent=getEraName(currentEra);
+  updateEraTimeRange(currentEra);
   updateSpeciesCount();
   updateEraTint(currentEra);
   buildSearchIndex();

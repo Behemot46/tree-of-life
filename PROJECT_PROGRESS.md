@@ -39,6 +39,7 @@
 | p33 | AI species illustrations — 10 generated images, local-first ImageLoader | `claude/hungry-mclean` |
 | p36 | Timeline bar overhaul — segmented geological periods, custom thumb, sparkline, extinction popovers, speed control | PR #102 `claude/zen-burnell` |
 | p37 | Hominin pill chips — group nodes as collapsible pills, inline deep-dive data, overlay removed, standalone compare | PR #106 `claude/intelligent-payne` |
+| p38 | Mammal data upgrade — all 11 mammal nodes to Homo sapiens parity (5 facts, 6 tags, funFact, 5 altFacts, 3 links) | PR #110 `claude/dazzling-black` |
 
 ### Upcoming (unified roadmap — see docs/PROMPTS/README.md)
 

@@ -105,9 +105,6 @@ body.dragging{cursor:grabbing;}
   text-transform:uppercase;margin-top:0.35rem;opacity:0.9;}
 [data-theme="light"] .title-main{color:var(--text-primary) !important;}
 [data-theme="light"] .title-sub{color:var(--text-secondary) !important;}
-.hint-bar{font-size:0.62rem;color:var(--text-secondary);letter-spacing:0.06em;
-  line-height:1.6;text-align:left;pointer-events:none;margin-top:0.2rem;opacity:0.6;}
-
 /* ── SEARCH BAR ── */
 #search-wrap{position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:300;
   display:flex;align-items:center;gap:0;pointer-events:all;}
@@ -456,7 +453,6 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 
 /* ── RTL (Hebrew) ── */
 [dir="rtl"] #header{flex-direction:row-reverse;}
-[dir="rtl"] .hint-bar{text-align:left;}
 [dir="rtl"] #lang-switcher{right:auto;left:1.2rem;}
 [dir="rtl"] #theme-btn{right:auto;left:1.2rem;}
 [dir="rtl"] #search-wrap{left:auto;right:50%;transform:translateX(50%);}
@@ -513,7 +509,6 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 }
 
 /* ── LIGHT THEME: ELEMENT CONTRAST FIXES ── */
-[data-theme="light"] .hint-bar{color:var(--text-secondary);}
 [data-theme="light"] .leg-row{color:var(--text-secondary);}
 [data-theme="light"] .p-detail{color:var(--text-secondary);}
 [data-theme="light"] .p-desc{color:var(--text-secondary);}
@@ -620,8 +615,6 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   }
   .title-main { font-size: 1.1rem !important; }
   .title-sub  { font-size: 0.55rem !important; margin-top: 0.2rem; }
-  .hint-bar   { display: none; }
-
   /* ── BREADCRUMB: hide on mobile ── */
   #breadcrumb { display: none !important; }
 
@@ -896,7 +889,6 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 @media (max-height: 500px) and (max-width: 900px) {
   #panel { max-height: 60vh; }
   #hominin-view #hom-panel { max-height: 40vh; }
-  .hint-bar { display: none; }
   #timeline { padding: 0.3rem 0.6rem 0.5rem; }
   .era-tick { font-size: 0.4rem; }
 }
@@ -1107,10 +1099,6 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   <div class="title-wrap">
     <div class="title-main" id="i-title">Tree of Life</div>
     <div class="title-sub" id="i-subtitle">3.8 Billion Years of Natural Selection</div>
-  </div>
-  <div class="hint-bar" id="i-hints">
-    Scroll to zoom &nbsp;|&nbsp; Drag to pan<br>
-    <strong style="color:var(--accent-primary);opacity:0.8;">Click any node to explore</strong> &nbsp;|&nbsp; Right-click to collapse
   </div>
 </div>
 
@@ -3831,7 +3819,6 @@ function applyI18n(){
   set('i-subtitle',t('subtitle'));
   set('splash-title',t('title'));
   set('splash-years',t('splash_years'));
-  const hints=el('i-hints');if(hints)hints.innerHTML=t('hint1')+'<br>'+t('hint2');
   const si=el('search-input');if(si)si.placeholder=t('search_ph');
   set('i-leg-title',t('leg_title'));
   set('i-leg-luca',t('leg_luca'));

@@ -1198,7 +1198,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 /* ── SPECIES COUNT ── */
 #era-species-count{font-size:0.6rem;color:var(--sage);letter-spacing:0.06em;font-family:var(--font-mono);}
-[data-theme="light"] #era-species-count{color:rgba(22,163,74,0.7);}
+[data-theme="light"] #era-species-count{color:var(--text-secondary);}
 
 /* ── TIMELINE CONTROLS ROW ── */
 #tl-controls{display:flex;align-items:center;justify-content:space-between;margin-top:0.3rem;gap:0.5rem;}
@@ -6065,65 +6065,6 @@ function init(){
   updateSpeciesCount();
   updateEraTint(currentEra);
   buildSearchIndex();
-  const EXTINCTION_EVENTS = [
-    { name: 'End-Ordovician', time: 443, short: '†' },
-    { name: 'Late Devonian', time: 372, short: '†' },
-    { name: 'The Great Dying', time: 252, short: '†' },
-    { name: 'End-Triassic', time: 201, short: '†' },
-    { name: 'K-Pg Extinction', time: 66, short: '†' }
-  ];
-  const INNOVATIONS = [
-    { name: 'First Photosynthesis', time: 3500, icon: '☀️' },
-    { name: 'First Eukaryotes', time: 2100, icon: '🔬' },
-    { name: 'Cambrian Explosion', time: 541, icon: '💥' },
-    { name: 'First Land Plants', time: 470, icon: '🌿' },
-    { name: 'First Flight', time: 150, icon: '🦅' },
-    { name: 'First Flowers', time: 130, icon: '🌸' }
-  ];
-  function addTimelineMarkers() {
-    const timeline = document.getElementById('timeline') ||
-      document.getElementById('era-bar') ||
-      document.getElementById('timeline-bar') ||
-      document.querySelector('.timeline') ||
-      document.querySelector('.era-bar') ||
-      document.querySelector('[class*="timeline"]');
-
-    if (!timeline) {
-      console.warn('Timeline element not found');
-      return;
-    }
-
-    timeline.id = 'timeline';
-    const totalTime = 3800;
-    EXTINCTION_EVENTS.forEach(ext => {
-      const pct = (1 - ext.time / totalTime) * 100;
-      const marker = document.createElement('div');
-      marker.style.cssText = `position:absolute;left:${pct}%;top:0;bottom:0;width:2px;background:#ef4444;opacity:0.7;cursor:pointer;z-index:10;pointer-events:all;`;
-      marker.title = ext.name + ' (' + ext.time + ' Ma)';
-      const label = document.createElement('div');
-      label.style.cssText = `position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:10px;color:#ef4444;font-weight:700;white-space:nowrap;font-family:'Inter',sans-serif;`;
-      label.textContent = '†';
-      marker.appendChild(label);
-      marker.addEventListener('mouseenter', () => { label.textContent = ext.name; });
-      marker.addEventListener('mouseleave', () => { label.textContent = '†'; });
-      timeline.appendChild(marker);
-    });
-    INNOVATIONS.forEach(inv => {
-      const pct = (1 - inv.time / totalTime) * 100;
-      const marker = document.createElement('div');
-      marker.style.cssText = `position:absolute;left:${pct}%;top:0;bottom:0;width:1px;background:#2e7d32;opacity:0.5;cursor:pointer;z-index:9;pointer-events:all;`;
-      marker.title = inv.name + ' (' + inv.time + ' Ma)';
-      const label = document.createElement('div');
-      label.style.cssText = `position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font-size:11px;white-space:nowrap;transition:transform 150ms ease;`;
-      label.textContent = inv.icon;
-      label.title = inv.name;
-      marker.appendChild(label);
-      marker.addEventListener('mouseenter', () => { label.style.transform = 'translateX(-50%) scale(1.4)'; });
-      marker.addEventListener('mouseleave', () => { label.style.transform = 'translateX(-50%) scale(1)'; });
-      timeline.appendChild(marker);
-    });
-  }
-  setTimeout(addTimelineMarkers, 500);
   // Restore saved theme & language
   isDark=localStorage.getItem('theme')==='dark';
   applyTheme();

@@ -1380,6 +1380,131 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .dna-presets{justify-content:center;}
 }
 
+/* ══════════════════════════════════════════════════════ */
+/* EVOLUTIONARY PATH FINDER                               */
+/* ══════════════════════════════════════════════════════ */
+#btn-evo-path{
+  position:fixed;bottom:7.5rem;left:1.2rem;z-index:200;
+  padding:0.5rem 1rem;border-radius:var(--radius-full);
+  border:1px solid var(--border);background:var(--surface);
+  color:var(--text-primary);font-family:var(--font-sans);font-size:0.75rem;
+  cursor:pointer;transition:all var(--transition-normal);
+  box-shadow:0 2px 8px rgba(0,0,0,0.2);pointer-events:all;
+}
+#btn-evo-path:hover{border-color:var(--accent-secondary);color:var(--accent-secondary);background:rgba(249,115,22,0.1);}
+[data-theme="light"] #btn-evo-path{background:rgba(248,242,230,0.92);border-color:rgba(138,90,24,0.2);color:var(--text-secondary);box-shadow:0 2px 8px rgba(0,0,0,0.08);}
+[data-theme="light"] #btn-evo-path:hover{border-color:var(--accent-secondary);color:var(--accent-secondary);}
+[dir="rtl"] #btn-evo-path{left:auto;right:1.2rem;}
+
+.evo-panel{
+  position:fixed;inset:0;z-index:1100;display:none;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);
+}
+.evo-panel.open{display:flex;}
+.evo-panel-inner{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);
+  width:min(480px,92vw);max-height:90vh;overflow-y:auto;padding:1.5rem;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+[data-theme="light"] .evo-panel-inner{background:#fff;box-shadow:0 8px 32px rgba(0,0,0,0.12);}
+.evo-panel-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;}
+.evo-panel-title{font-family:var(--font-head);font-size:1.1rem;font-weight:600;color:var(--accent-secondary);}
+.evo-panel-header .btn-back{font-size:1rem;width:28px;height:28px;display:flex;align-items:center;justify-content:center;}
+
+.evo-presets{display:flex;flex-wrap:wrap;gap:0.4rem;margin-bottom:1.2rem;}
+.evo-preset{
+  padding:0.3rem 0.7rem;border-radius:var(--radius-full);
+  border:1px solid var(--border);background:transparent;
+  color:var(--text-secondary);font-family:var(--font-sans);font-size:0.65rem;
+  cursor:pointer;transition:all var(--transition-fast);
+}
+.evo-preset:hover{border-color:var(--accent-secondary);color:var(--accent-secondary);background:rgba(249,115,22,0.1);}
+
+.evo-selectors{display:flex;align-items:center;gap:0.6rem;margin-bottom:1rem;}
+.evo-slot{
+  flex:1;padding:0.8rem;border-radius:var(--radius-md);
+  border:1px dashed var(--border);cursor:pointer;text-align:center;
+  transition:all var(--transition-fast);
+}
+.evo-slot:hover{border-color:var(--accent-secondary);background:rgba(249,115,22,0.1);}
+.evo-slot.filled{border-style:solid;border-color:var(--accent-secondary);background:rgba(249,115,22,0.1);}
+.evo-slot-icon{font-size:1.6rem;margin-bottom:0.3rem;}
+.evo-slot-label{font-size:0.7rem;color:var(--text-secondary);font-family:var(--font-sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.evo-arrow{font-family:var(--font-mono);font-size:0.8rem;color:var(--text-secondary);font-weight:600;}
+
+.evo-search-overlay{margin-bottom:1rem;}
+#evo-search-input{
+  width:100%;padding:0.5rem 0.8rem;border-radius:var(--radius-md);
+  border:1px solid var(--border);background:var(--surface-raised);
+  color:var(--text-primary);font-family:var(--font-sans);font-size:0.8rem;
+  outline:none;margin-bottom:0.4rem;
+}
+#evo-search-input:focus{border-color:var(--accent-secondary);}
+.evo-search-results{max-height:180px;overflow-y:auto;}
+.evo-search-item{
+  padding:0.4rem 0.6rem;cursor:pointer;display:flex;align-items:center;gap:0.5rem;
+  border-radius:var(--radius-sm);font-size:0.75rem;color:var(--text-primary);
+  font-family:var(--font-sans);transition:background var(--transition-fast);
+}
+.evo-search-item:hover{background:rgba(249,115,22,0.1);}
+.evo-search-item-icon{font-size:1rem;flex-shrink:0;}
+.evo-search-item-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.evo-search-item-latin{font-size:0.65rem;color:var(--text-secondary);font-style:italic;}
+
+.evo-results{padding:0.5rem 0;}
+.evo-results-header{display:flex;justify-content:center;gap:1.2rem;margin-bottom:0.8rem;}
+.evo-stat{text-align:center;}
+.evo-stat-value{font-family:var(--font-mono);font-size:1.8rem;font-weight:700;color:var(--accent-secondary);line-height:1;}
+.evo-stat-label{font-size:0.65rem;color:var(--text-secondary);font-family:var(--font-sans);text-transform:uppercase;letter-spacing:0.06em;}
+
+.evo-chain{
+  display:flex;align-items:center;gap:0.3rem;
+  overflow-x:auto;padding:0.6rem 0;margin-bottom:0.8rem;
+  scrollbar-width:thin;
+}
+.evo-chain-node{
+  display:flex;flex-direction:column;align-items:center;gap:0.15rem;
+  padding:0.3rem 0.5rem;border-radius:var(--radius-sm);cursor:pointer;
+  transition:background var(--transition-fast);flex-shrink:0;
+  border:1px solid transparent;
+}
+.evo-chain-node:hover{background:rgba(249,115,22,0.1);}
+.evo-chain-node.lca{border-color:var(--accent-secondary);background:rgba(249,115,22,0.1);}
+.evo-chain-node-icon{font-size:1.2rem;}
+.evo-chain-node-name{font-size:0.55rem;color:var(--text-secondary);font-family:var(--font-sans);max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center;}
+.evo-chain-sep{color:var(--text-secondary);font-size:0.7rem;opacity:0.5;flex-shrink:0;}
+
+.evo-ancestor-card{
+  background:var(--surface-raised);border-radius:var(--radius-md);padding:0.8rem;
+  margin-bottom:0.8rem;text-align:left;
+}
+.evo-ancestor-title{font-size:0.65rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--accent-secondary);font-family:var(--font-sans);margin-bottom:0.3rem;}
+.evo-ancestor-name{font-size:0.9rem;font-weight:600;color:var(--text-primary);font-family:var(--font-head);}
+.evo-ancestor-era{font-size:0.65rem;color:var(--text-secondary);font-family:var(--font-mono);margin-bottom:0.3rem;}
+.evo-ancestor-desc{font-size:0.7rem;color:var(--text-secondary);line-height:1.4;font-family:var(--font-sans);}
+
+.evo-actions{display:flex;gap:0.5rem;justify-content:center;}
+.evo-btn{
+  padding:0.5rem 1rem;border-radius:var(--radius-full);
+  font-family:var(--font-sans);font-size:0.75rem;font-weight:500;
+  cursor:pointer;transition:all var(--transition-fast);border:none;
+}
+.evo-btn-primary{background:var(--accent-secondary);color:#fff;}
+.evo-btn-primary:hover{filter:brightness(1.1);}
+.evo-btn-secondary{background:transparent;color:var(--text-secondary);border:1px solid var(--border);}
+.evo-btn-secondary:hover{border-color:var(--text-secondary);color:var(--text-primary);}
+
+@media(max-width:600px){
+  #btn-evo-path{bottom:6.5rem;left:0.6rem;padding:0.4rem 0.7rem;font-size:0.65rem;}
+  [dir="rtl"] #btn-evo-path{left:auto;right:0.6rem;}
+  .evo-panel-inner{padding:1rem;width:96vw;max-height:95vh;}
+  .evo-selectors{flex-direction:column;gap:0.3rem;}
+  .evo-arrow{transform:rotate(90deg);}
+  .evo-presets{justify-content:center;}
+  .evo-stat-value{font-size:1.4rem;}
+  .evo-chain-node-name{max-width:45px;font-size:0.5rem;}
+}
+
 /* ── TRIVIA GAME ── */
 #btn-trivia{
   position:fixed;bottom:25.5rem;left:1.2rem;z-index:200;
@@ -1747,6 +1872,72 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
 
 <!-- DNA SIMILARITY CALCULATOR BUTTON -->
 <button id="btn-dna-calc" onclick="openDnaCalc()" aria-label="Open DNA Similarity Calculator" title="DNA Compare">🧬 <span id="i-btn-dna-calc">DNA Compare</span></button>
+
+<!-- EVOLUTIONARY PATH FINDER BUTTON -->
+<button id="btn-evo-path" onclick="openEvoPath()" aria-label="Open Evolutionary Path Finder" title="Evo Path">🔀 <span id="i-btn-evo-path">Evo Path</span></button>
+
+<!-- EVOLUTIONARY PATH FINDER PANEL -->
+<div id="evo-path-panel" class="evo-panel" aria-hidden="true">
+  <div class="evo-panel-inner">
+    <div class="evo-panel-header">
+      <div id="i-evo-title" class="evo-panel-title">Evolutionary Path</div>
+      <button class="btn-back" onclick="closeEvoPath()" aria-label="Close">✕</button>
+    </div>
+
+    <!-- Quick Presets -->
+    <div class="evo-presets">
+      <button class="evo-preset" onclick="evoPreset('h_sapiens','ecoli')"><span id="i-evo-preset-bact">Humans &amp; Bacteria</span></button>
+      <button class="evo-preset" onclick="evoPreset('angiosperms','fungi')"><span id="i-evo-preset-plantfungi">Plants &amp; Fungi</span></button>
+      <button class="evo-preset" onclick="evoPreset('h_sapiens','chimpanzee')"><span id="i-evo-preset-chimp">Humans &amp; Chimps</span></button>
+      <button class="evo-preset" onclick="evoPreset('birds','shark')"><span id="i-evo-preset-birdshark">Birds &amp; Sharks</span></button>
+    </div>
+
+    <!-- Species Selectors -->
+    <div class="evo-selectors">
+      <div class="evo-slot" id="evo-slot-a" onclick="openEvoSearch('a')">
+        <div class="evo-slot-icon" id="evo-icon-a">?</div>
+        <div class="evo-slot-label" id="evo-label-a">Select a species</div>
+      </div>
+      <div class="evo-arrow">→</div>
+      <div class="evo-slot" id="evo-slot-b" onclick="openEvoSearch('b')">
+        <div class="evo-slot-icon" id="evo-icon-b">?</div>
+        <div class="evo-slot-label" id="evo-label-b">Select a species</div>
+      </div>
+    </div>
+
+    <!-- Search overlay -->
+    <div class="evo-search-overlay" id="evo-search-overlay" style="display:none;">
+      <input type="text" id="evo-search-input" placeholder="Search species..." autocomplete="off" aria-label="Search species for path finder">
+      <div id="evo-search-results" class="evo-search-results"></div>
+    </div>
+
+    <!-- Results -->
+    <div id="evo-results" class="evo-results" style="display:none;">
+      <div class="evo-results-header">
+        <div class="evo-stat">
+          <div class="evo-stat-value" id="evo-divergence">—</div>
+          <div class="evo-stat-label" id="i-evo-diverged">Diverged (Ma)</div>
+        </div>
+        <div class="evo-stat">
+          <div class="evo-stat-value" id="evo-steps">—</div>
+          <div class="evo-stat-label" id="i-evo-steps">Steps</div>
+        </div>
+      </div>
+
+      <!-- Path chain visualization -->
+      <div class="evo-chain" id="evo-chain"></div>
+
+      <!-- Common ancestor card -->
+      <div class="evo-ancestor-card" id="evo-ancestor-card"></div>
+
+      <!-- Actions -->
+      <div class="evo-actions">
+        <button class="evo-btn evo-btn-primary" onclick="showEvoOnTree()" id="i-evo-show-tree">Show on Tree</button>
+        <button class="evo-btn evo-btn-secondary" onclick="clearEvoPath()" id="i-evo-clear">Clear Path</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- DNA SIMILARITY CALCULATOR PANEL -->
 <div id="dna-panel" class="dna-panel" role="dialog" aria-label="DNA Similarity Calculator" aria-modal="true" aria-hidden="true">
@@ -2566,18 +2757,21 @@ function render(){
 
   // Branches
   const humanPathEdges=[];
+  const evoPathEdges=[];
   edges.forEach(({from,to})=>{
     if(to._domain && to._domain!=='luca' && !activeDomains.has(to._domain)) return;
     if(!showExtinct && to.extinct) return;
     const inEra=nodeInEra(to);
     const onHumanPath=HUMAN_PATH.has(from.id)&&HUMAN_PATH.has(to.id);
+    const onEvoPath=evoPathEdgeSet.has(from.id+'|'+to.id);
     const p=document.createElementNS('http://www.w3.org/2000/svg','path');
     p.setAttribute('d',branchPath(from._x,from._y,to._x,to._y));
     p.setAttribute('class','branch-path');
     p.setAttribute('data-branch','true');
-    const sw=onHumanPath?5:Math.max(2,6-to.depth*0.5);
-    const op=onHumanPath?0.9:(inEra?Math.max(0.3,0.8-to.depth*0.06):0.08);
-    p.setAttribute('stroke',onHumanPath?'var(--accent-primary)':to.color);
+    const isAccent=onHumanPath||onEvoPath;
+    const sw=isAccent?5:Math.max(2,6-to.depth*0.5);
+    const op=isAccent?0.9:(inEra?Math.max(0.3,0.8-to.depth*0.06):0.08);
+    p.setAttribute('stroke',onEvoPath?'var(--accent-secondary)':(onHumanPath?'var(--accent-primary)':to.color));
     p.setAttribute('stroke-width',sw);
     p.setAttribute('stroke-opacity',op);
     if(!animDone.has(to.id)){
@@ -2588,9 +2782,12 @@ function render(){
     }
     branchFrag.appendChild(p);
     if(onHumanPath) humanPathEdges.push(p);
+    if(onEvoPath) evoPathEdges.push(p);
   });
   // Re-append human path edges on top so they draw over other branches
   humanPathEdges.forEach(p=>branchFrag.appendChild(p));
+  // Evo path edges draw on top of everything
+  evoPathEdges.forEach(p=>branchFrag.appendChild(p));
 
   // Nodes
   const pendingLabels=[];
@@ -2669,6 +2866,15 @@ function render(){
       pathRing.setAttribute('fill','none');pathRing.setAttribute('stroke','var(--accent-primary)');
       pathRing.setAttribute('stroke-width','2');pathRing.setAttribute('stroke-opacity','0.5');
       g.appendChild(pathRing);
+    }
+
+    // Evolutionary path accent ring (orange)
+    if(evoPathSet.has(n.id)&&n.depth>0){
+      const evoRing=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      evoRing.setAttribute('cx',n._x);evoRing.setAttribute('cy',n._y);evoRing.setAttribute('r',n.r+8);
+      evoRing.setAttribute('fill','none');evoRing.setAttribute('stroke','var(--accent-secondary)');
+      evoRing.setAttribute('stroke-width','2.5');evoRing.setAttribute('stroke-opacity','0.6');
+      g.appendChild(evoRing);
     }
 
     // Root pulse ring
@@ -4963,6 +5169,211 @@ document.getElementById('dna-panel').addEventListener('click', function(e) {
 });
 
 // ══════════════════════════════════════════════════════
+// EVOLUTIONARY PATH FINDER
+// ══════════════════════════════════════════════════════
+let evoSlotA = null;
+let evoSlotB = null;
+let evoSearchTarget = null;
+let evoPathSet = new Set();
+let evoPathEdgeSet = new Set();
+let evoPathNodes = []; // ordered path from A to B
+
+function openEvoPath() {
+  document.getElementById('evo-path-panel').classList.add('open');
+  document.getElementById('evo-path-panel').setAttribute('aria-hidden','false');
+}
+
+function closeEvoPath() {
+  document.getElementById('evo-path-panel').classList.remove('open');
+  document.getElementById('evo-path-panel').setAttribute('aria-hidden','true');
+  document.getElementById('evo-search-overlay').style.display = 'none';
+}
+
+function openEvoSearch(slot) {
+  evoSearchTarget = slot;
+  const overlay = document.getElementById('evo-search-overlay');
+  overlay.style.display = 'block';
+  const input = document.getElementById('evo-search-input');
+  input.value = '';
+  input.focus();
+  document.getElementById('evo-search-results').innerHTML = '';
+}
+
+document.getElementById('evo-search-input').addEventListener('input', function() {
+  const q = this.value.trim();
+  const container = document.getElementById('evo-search-results');
+  if (!q) { container.innerHTML = ''; return; }
+  const matches = searchEntities(q).slice(0, 12);
+  container.innerHTML = matches.map(m => {
+    const node = nodeMap[m.id];
+    if (!node) return '';
+    const icon = node.img || node.icon || '🧬';
+    const name = node.name || m.id;
+    const latin = node.latin || '';
+    return '<div class="evo-search-item" onclick="selectEvoSpecies(\'' + m.id + '\')">' +
+      '<span class="evo-search-item-icon">' + icon + '</span>' +
+      '<span class="evo-search-item-name">' + name + '</span>' +
+      '<span class="evo-search-item-latin">' + latin + '</span>' +
+    '</div>';
+  }).join('');
+});
+
+function selectEvoSpecies(id) {
+  const node = nodeMap[id];
+  if (!node) return;
+  const icon = node.img || node.icon || '🧬';
+  if (evoSearchTarget === 'a') {
+    evoSlotA = node;
+    document.getElementById('evo-icon-a').textContent = icon;
+    document.getElementById('evo-label-a').textContent = node.name;
+    document.getElementById('evo-slot-a').classList.add('filled');
+  } else {
+    evoSlotB = node;
+    document.getElementById('evo-icon-b').textContent = icon;
+    document.getElementById('evo-label-b').textContent = node.name;
+    document.getElementById('evo-slot-b').classList.add('filled');
+  }
+  document.getElementById('evo-search-overlay').style.display = 'none';
+  if (evoSlotA && evoSlotB) computeEvoPath(evoSlotA, evoSlotB);
+}
+
+function evoPreset(idA, idB) {
+  evoSlotA = nodeMap[idA];
+  evoSlotB = nodeMap[idB];
+  if (!evoSlotA || !evoSlotB) return;
+  const iconA = evoSlotA.img || evoSlotA.icon || '🧬';
+  const iconB = evoSlotB.img || evoSlotB.icon || '🧬';
+  document.getElementById('evo-icon-a').textContent = iconA;
+  document.getElementById('evo-label-a').textContent = evoSlotA.name;
+  document.getElementById('evo-slot-a').classList.add('filled');
+  document.getElementById('evo-icon-b').textContent = iconB;
+  document.getElementById('evo-label-b').textContent = evoSlotB.name;
+  document.getElementById('evo-slot-b').classList.add('filled');
+  document.getElementById('evo-search-overlay').style.display = 'none';
+  computeEvoPath(evoSlotA, evoSlotB);
+}
+
+function computeEvoPath(nodeA, nodeB) {
+  const lca = findLCA(nodeA, nodeB);
+  if (!lca) return;
+
+  // Build path from A up to LCA
+  const pathA = [];
+  let cur = nodeA;
+  while (cur && cur.id !== lca.id) {
+    pathA.push(cur);
+    cur = cur._parent;
+  }
+  pathA.push(lca);
+
+  // Build path from B up to LCA (reversed)
+  const pathB = [];
+  cur = nodeB;
+  while (cur && cur.id !== lca.id) {
+    pathB.push(cur);
+    cur = cur._parent;
+  }
+  // pathB does not include LCA (already in pathA)
+
+  // Full path: A → ... → LCA → ... → B
+  evoPathNodes = pathA.concat(pathB.reverse());
+
+  // Build sets for render()
+  evoPathSet = new Set(evoPathNodes.map(n => n.id));
+  evoPathEdgeSet = new Set();
+  // Edges from A side (child→parent direction, but render uses parent→child)
+  for (let i = 0; i < pathA.length - 1; i++) {
+    // pathA[i+1] is parent of pathA[i]
+    evoPathEdgeSet.add(pathA[i + 1].id + '|' + pathA[i].id);
+  }
+  // Edges from B side (pathB is already reversed: [closest-to-LCA, ..., nodeB])
+  for (let i = 0; i < pathB.length - 1; i++) {
+    // parent→child: pathB[i] is parent of pathB[i+1]
+    evoPathEdgeSet.add(pathB[i].id + '|' + pathB[i + 1].id);
+  }
+  // Edge from LCA to first node on B side (closest child of LCA toward B)
+  if (pathB.length > 0) {
+    evoPathEdgeSet.add(lca.id + '|' + pathB[0].id);
+  }
+
+  // Show results
+  const divergence = lca.appeared || 0;
+  const steps = evoPathNodes.length;
+  document.getElementById('evo-divergence').textContent = divergence >= 1000 ? (divergence / 1000).toFixed(1) + ' Ga' : divergence + ' Ma';
+  document.getElementById('evo-steps').textContent = steps;
+
+  // Build chain visualization
+  const chainEl = document.getElementById('evo-chain');
+  chainEl.innerHTML = evoPathNodes.map((n, i) => {
+    const isLca = n.id === lca.id;
+    const icon = n.img || n.icon || '🧬';
+    const shortName = n.name.length > 10 ? n.name.slice(0, 9) + '…' : n.name;
+    return (i > 0 ? '<span class="evo-chain-sep">→</span>' : '') +
+      '<div class="evo-chain-node' + (isLca ? ' lca' : '') + '" onclick="closeEvoPath();navigateTo(\'' + n.id + '\')" title="' + n.name + '">' +
+        '<span class="evo-chain-node-icon">' + icon + '</span>' +
+        '<span class="evo-chain-node-name">' + shortName + '</span>' +
+      '</div>';
+  }).join('');
+
+  // Common ancestor card
+  const card = document.getElementById('evo-ancestor-card');
+  card.innerHTML =
+    '<div class="evo-ancestor-title">' + t('evo_path_ancestor') + '</div>' +
+    '<div class="evo-ancestor-name">' + lca.icon + ' ' + lca.name + '</div>' +
+    '<div class="evo-ancestor-era">' + (lca.era || '') + ' · ' + (lca.appeared || 0) + ' Ma</div>' +
+    '<div class="evo-ancestor-desc">' + (lca.desc || '') + '</div>';
+
+  document.getElementById('evo-results').style.display = 'block';
+}
+
+function showEvoOnTree() {
+  closeEvoPath();
+  // Expand all nodes on the path so the path is visible
+  evoPathNodes.forEach(n => {
+    let c = n;
+    while (c) {
+      if (c._collapsed) c._collapsed = false;
+      c = c._parent;
+    }
+  });
+  layout();
+  scheduleRender();
+  // Pan to LCA
+  const lca = findLCA(evoSlotA, evoSlotB);
+  if (lca) {
+    setTimeout(() => {
+      const cx = window.innerWidth / 2;
+      const cy = window.innerHeight / 2;
+      transform.x = cx - lca._x * transform.s;
+      transform.y = cy - lca._y * transform.s;
+      applyTransform();
+    }, 100);
+  }
+}
+
+function clearEvoPath() {
+  evoPathSet = new Set();
+  evoPathEdgeSet = new Set();
+  evoPathNodes = [];
+  evoSlotA = null;
+  evoSlotB = null;
+  document.getElementById('evo-icon-a').textContent = '?';
+  document.getElementById('evo-label-a').textContent = t('evo_path_select');
+  document.getElementById('evo-slot-a').classList.remove('filled');
+  document.getElementById('evo-icon-b').textContent = '?';
+  document.getElementById('evo-label-b').textContent = t('evo_path_select');
+  document.getElementById('evo-slot-b').classList.remove('filled');
+  document.getElementById('evo-results').style.display = 'none';
+  document.getElementById('evo-search-overlay').style.display = 'none';
+  scheduleRender();
+}
+
+// Close evo panel on backdrop click
+document.getElementById('evo-path-panel').addEventListener('click', function(e) {
+  if (e.target === this) closeEvoPath();
+});
+
+// ══════════════════════════════════════════════════════
 // TRIVIA GAME
 // ══════════════════════════════════════════════════════
 const TRIVIA_POINTS = {1:10,2:10,3:20,4:20,5:30,6:30,7:50,8:50,9:100,10:100};
@@ -5234,6 +5645,7 @@ document.getElementById('btn-random').addEventListener('click',()=>{
 // ══════════════════════════════════════════════════════
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
+    if(document.getElementById('evo-path-panel').classList.contains('open')){closeEvoPath();return;}
     if(document.getElementById('trivia-panel').classList.contains('open')){closeTrivia();return;}
     // Close search dropdown first if open (not a nav action)
     if(searchResults.classList.contains('show')){
@@ -5439,6 +5851,20 @@ function applyI18n(){
   set('i-dna-preset-bacterium',t('dna_preset_bacterium'));
   const dnaLabelA=el('dna-label-a');if(dnaLabelA&&!document.getElementById('dna-slot-a').classList.contains('filled'))dnaLabelA.textContent=t('dna_select_species');
   const dnaLabelB=el('dna-label-b');if(dnaLabelB&&!document.getElementById('dna-slot-b').classList.contains('filled'))dnaLabelB.textContent=t('dna_select_species');
+  // Evo Path i18n
+  set('i-evo-title',t('evo_path_title'));
+  set('i-btn-evo-path',t('evo_path_btn'));
+  set('i-evo-diverged',t('evo_path_diverged'));
+  set('i-evo-steps',t('evo_path_steps'));
+  set('i-evo-show-tree',t('evo_path_show_tree'));
+  set('i-evo-clear',t('evo_path_clear'));
+  set('i-evo-preset-bact',t('evo_preset_bact'));
+  set('i-evo-preset-plantfungi',t('evo_preset_plantfungi'));
+  set('i-evo-preset-chimp',t('evo_preset_chimp'));
+  set('i-evo-preset-birdshark',t('evo_preset_birdshark'));
+  const evoLabelA=el('evo-label-a');if(evoLabelA&&!document.getElementById('evo-slot-a').classList.contains('filled'))evoLabelA.textContent=t('evo_path_select');
+  const evoLabelB=el('evo-label-b');if(evoLabelB&&!document.getElementById('evo-slot-b').classList.contains('filled'))evoLabelB.textContent=t('evo_path_select');
+  const evoSearchInput=el('evo-search-input');if(evoSearchInput)evoSearchInput.placeholder=t('evo_path_search');
   set('i-compare-title',t('compare_title'));
   set('i-compare-back',t('compare_back'));
   // Nav buttons

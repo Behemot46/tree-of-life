@@ -38,6 +38,7 @@
 | p26 | Rich data panels & visual identity — collapsible sections, timeline bar, radar chart, sub-groups | PR #86 `claude/nifty-moore` |
 | p33 | AI species illustrations — 10 generated images, local-first ImageLoader | `claude/hungry-mclean` |
 | p36 | Timeline bar overhaul — segmented geological periods, custom thumb, sparkline, extinction popovers, speed control | PR #102 `claude/zen-burnell` |
+| p37 | Hominin pill chips — group nodes as collapsible pills, inline deep-dive data, overlay removed, standalone compare | PR #106 `claude/intelligent-payne` |
 
 ### Upcoming (unified roadmap — see docs/PROMPTS/README.md)
 

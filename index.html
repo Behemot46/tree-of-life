@@ -189,81 +189,7 @@ svg{width:100%;height:100%;}
 .node-species-img[href]{opacity:1;}
 .node-pulse{pointer-events:none;}
 
-/* ── HOMININ VIEW ── */
-#hominin-view{position:fixed;inset:0;z-index:150;
-  background:var(--surface-overlay);
-  display:none;flex-direction:column;
-  border-left:1px solid var(--border);}
-#hominin-view.open{display:flex;}
-#hom-header{padding:1.5rem 2rem 1rem;display:flex;align-items:center;justify-content:space-between;
-  border-bottom:1px solid var(--border);flex-shrink:0;}
-#hom-title{font-family:var(--font-head);font-size:1.5rem;font-weight:700;color:var(--text-primary);}
-#hom-sub{font-size:0.65rem;color:var(--text-secondary);letter-spacing:0.15em;text-transform:uppercase;margin-top:0.2rem;}
-#hom-close{padding:0.4rem 1rem;background:transparent;border:1px solid var(--border);
-  border-radius:var(--radius-sm);color:var(--text-secondary);font-size:0.72rem;cursor:pointer;transition:all 0.2s;
-  font-family:var(--font-sans);letter-spacing:0.05em;}
-#hom-close:hover{background:var(--surface-raised);color:var(--text-primary);}
-#hom-filters{padding:0.6rem 2rem;display:flex;gap:0.5rem;border-bottom:1px solid var(--border);flex-shrink:0;flex-wrap:wrap;}
-.hom-filter{padding:0.25rem 0.75rem;border:1px solid var(--border);border-radius:var(--radius-full);
-  font-size:0.65rem;color:var(--text-secondary);cursor:pointer;transition:all 0.2s;
-  font-family:var(--font-sans);letter-spacing:0.04em;}
-.hom-filter:hover{border-color:var(--accent-primary);color:var(--accent-primary);}
-.hom-filter.active{background:var(--accent-primary-dim);border-color:var(--accent-primary);color:var(--accent-primary);}
-#hom-body{display:flex;flex:1;overflow:hidden;}
-#hom-timeline{flex:1;overflow-y:auto;padding:1.5rem 1.5rem 2rem;position:relative;}
-#hom-timeline::-webkit-scrollbar{width:4px;}
-#hom-timeline::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-.hom-era-group{margin-bottom:1.5rem;}
-.hom-era-title{font-family:var(--font-head);font-size:0.75rem;color:var(--accent-primary);letter-spacing:0.15em;
-  text-transform:uppercase;padding:0.4rem 0.7rem;background:var(--accent-primary-dim);
-  border-left:2px solid var(--accent-primary);border-radius:0 6px 6px 0;margin-bottom:0.8rem;font-weight:600;}
-.hom-species{display:flex;align-items:flex-start;gap:0.9rem;padding:0.7rem 0.8rem;
-  border-radius:var(--radius-md);cursor:pointer;transition:background 0.2s;border:1px solid transparent;margin-bottom:0.4rem;}
-.hom-species:hover{background:var(--surface-raised);border-color:var(--border);}
-.hom-species.selected{background:var(--accent-primary-dim);border-color:var(--accent-primary);}
-.hs-icon{font-size:1.5rem;flex-shrink:0;margin-top:0.1rem;}
-.hs-info{flex:1;min-width:0;}
-.hs-name{font-family:var(--font-head);font-size:0.88rem;font-weight:600;color:var(--text-primary);}
-.hs-latin{font-style:italic;font-size:0.72rem;color:var(--text-secondary);}
-.hs-mya{font-size:0.65rem;color:var(--text-secondary);margin-top:0.15rem;font-family:var(--font-mono);}
-.hs-brain{margin-top:0.4rem;display:flex;align-items:center;gap:0.5rem;}
-.brain-bar-wrap{flex:1;height:4px;background:var(--border);border-radius:2px;overflow:hidden;}
-.brain-bar-fill{height:100%;border-radius:2px;transition:width 0.5s;}
-.brain-label{font-size:0.6rem;color:var(--text-secondary);white-space:nowrap;font-family:var(--font-mono);}
-.hs-tags{display:flex;flex-wrap:wrap;gap:0.3rem;margin-top:0.4rem;}
-.hs-tag{font-size:0.58rem;padding:0.15rem 0.4rem;border-radius:var(--radius-full);
-  background:var(--accent-primary-dim);border:1px solid rgba(14,165,233,0.2);color:var(--accent-primary);}
-.hs-status-extinct{opacity:0.7;}
-.hs-status-surviving .hs-name{color:var(--accent-primary);}
-.hs-icons-row{display:flex;gap:0.5rem;margin-top:0.35rem;font-size:0.65rem;color:var(--text-secondary);}
-
-/* ── HOMININ DETAIL PANEL ── */
-#hom-panel{width:min(380px,40vw);border-left:1px solid var(--border);
-  overflow-y:auto;padding:1.5rem;flex-shrink:0;}
-#hom-panel::-webkit-scrollbar{width:4px;}
-#hom-panel::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px;}
-.hp-accent{height:3px;border-radius:2px;margin-bottom:1.2rem;margin:-1.5rem -1.5rem 1.2rem;}
-.hp-top{display:flex;gap:0.8rem;align-items:flex-start;margin-bottom:1rem;}
-.hp-icon{font-size:2rem;flex-shrink:0;}
-.hp-name{font-family:var(--font-head);font-size:1.1rem;font-weight:600;color:var(--text-primary);line-height:1.2;}
-.hp-latin{font-style:italic;font-size:0.75rem;color:var(--text-secondary);margin-top:0.2rem;}
-.hp-mya{font-size:0.62rem;color:var(--text-secondary);letter-spacing:0.1em;font-family:var(--font-mono);}
-.hp-desc{font-size:0.82rem;color:var(--text-secondary);line-height:1.85;margin-bottom:1rem;}
-.hp-facts{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1rem;}
-.hp-fact{background:var(--surface-raised);border:1px solid var(--border);border-radius:var(--radius-md);padding:0.6rem;}
-.hp-fact-l{font-size:0.56rem;letter-spacing:0.15em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:0.2rem;}
-.hp-fact-v{font-size:0.78rem;color:var(--text-primary);font-family:var(--font-mono);}
-.hp-section{font-family:var(--font-head);font-size:0.8rem;color:var(--accent-primary);letter-spacing:0.1em;
-  text-transform:uppercase;margin:0.8rem 0 0.4rem;font-weight:600;}
-.hp-detail{font-size:0.78rem;color:var(--text-secondary);line-height:1.8;margin-bottom:0.8rem;}
-.hp-dna{display:flex;gap:0.6rem;align-items:center;margin-bottom:0.3rem;font-size:0.72rem;}
-.dna-fill{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
-.dna-fill-inner{height:100%;border-radius:3px;}
-.hp-tags{display:flex;flex-wrap:wrap;gap:0.3rem;}
-.hp-tag{font-size:0.6rem;padding:0.15rem 0.5rem;border-radius:var(--radius-full);
-  background:var(--accent-primary-dim);border:1px solid rgba(14,165,233,0.2);color:var(--accent-primary);}
-#hom-panel-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
-  height:100%;color:var(--text-secondary);opacity:0.4;font-style:italic;font-size:0.85rem;text-align:center;padding:2rem;}
+/* (Hominin view removed — groups rendered as inline pill chips in tree) */
 
 /* ── MAIN DETAIL PANEL ── */
 #panel{position:fixed;top:0;right:-500px;bottom:0;
@@ -322,13 +248,6 @@ svg{width:100%;height:100%;}
   font-size:0.78rem;display:flex;align-items:center;gap:0.45rem;cursor:pointer;transition:all var(--transition-fast);}
 .p-children li:hover{background:var(--surface-raised);color:var(--text-primary);}
 .p-children li .pci{font-size:0.95rem;}
-
-/* ── HOMININ ENTER BUTTON ── */
-#hom-enter-btn{display:inline-flex;align-items:center;gap:0.5rem;margin-top:0.8rem;
-  padding:0.45rem 1rem;background:var(--accent-primary-dim);border:1px solid rgba(14,165,233,0.3);
-  border-radius:var(--radius-full);color:var(--accent-primary);font-size:0.73rem;cursor:pointer;transition:all 0.2s;
-  font-family:var(--font-sans);letter-spacing:0.05em;}
-#hom-enter-btn:hover{background:rgba(14,165,233,0.25);color:var(--text-primary);}
 
 /* ── LEGEND ── */
 #legend{position:fixed;bottom:4.5rem;left:1.2rem;z-index:200;
@@ -436,7 +355,6 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 [data-theme="light"] #bg{background:var(--bg);}
 [data-theme="light"] #header{background:linear-gradient(to bottom,var(--bg) 40%,transparent);}
 [data-theme="light"] #panel{background:var(--surface);border-left-color:var(--border);}
-[data-theme="light"] #hominin-view{background:var(--surface-overlay);}
 [data-theme="light"] #legend{background:var(--surface);border-color:var(--border);}
 [data-theme="light"] #zoom-ctrl .zbtn{background:var(--surface);border-color:var(--border);}
 [data-theme="light"] #search-input{background:var(--surface);color:var(--text-primary);}
@@ -447,12 +365,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 [data-theme="light"] #theme-btn{background:var(--surface);color:var(--text-secondary);border-color:var(--border);}
 [data-theme="light"] .sr-item{color:var(--text-secondary);}
 [data-theme="light"] .sr-item:hover{background:var(--accent-primary-dim);}
-[data-theme="light"] .hom-era-title{background:var(--accent-primary-dim);}
-[data-theme="light"] .hom-species:hover{background:var(--surface-raised);}
-[data-theme="light"] #hom-panel{background:var(--surface);}
 [data-theme="light"] #breadcrumb{background:var(--surface);}
-[data-theme="light"] #hom-header{border-bottom-color:var(--border);}
-[data-theme="light"] #hom-filters{border-bottom-color:var(--border);}
 
 /* ── RTL (Hebrew) ── */
 [dir="rtl"] #header{flex-direction:row-reverse;}
@@ -469,11 +382,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 [dir="rtl"] #btn-hominin{right:auto;left:5rem;}
 [dir="rtl"] .p-top{flex-direction:row-reverse;}
 [dir="rtl"] .bc-sep{transform:scaleX(-1);display:inline-block;}
-[dir="rtl"] .hom-species{flex-direction:row-reverse;}
-[dir="rtl"] #hom-header{flex-direction:row-reverse;}
-[dir="rtl"] #hom-body{flex-direction:row-reverse;}
-[dir="rtl"] #hom-filters{flex-direction:row-reverse;}
-[dir="rtl"] #hom-filters>div:last-child{margin-left:0;margin-right:auto;}
+/* (Removed hominin RTL overrides — view deleted) */
 [lang="he"],[lang="he"] *{font-family:'Heebo','Inter',sans-serif;}
 [lang="he"] #breadcrumb {
   flex-direction: row-reverse;
@@ -518,35 +427,16 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 [data-theme="light"] .p-detail{color:var(--text-secondary);}
 [data-theme="light"] .p-desc{color:var(--text-secondary);}
 [data-theme="light"] .p-children li{color:var(--text-secondary);}
-[data-theme="light"] .hp-desc{color:var(--text-secondary);}
-[data-theme="light"] .hp-detail{color:var(--text-secondary);}
-[data-theme="light"] .hp-fact-v{color:var(--text-primary);}
 [data-theme="light"] .tip-fact{color:var(--text-secondary);}
 [data-theme="light"] .era-tick{color:var(--text-secondary);}
 [data-theme="light"] #era-label{color:var(--text-secondary);}
-[data-theme="light"] .hom-filter{color:var(--text-secondary);}
-[data-theme="light"] .hom-filter.active{color:var(--accent-primary);}
-[data-theme="light"] .hs-mya{color:var(--text-secondary);}
-[data-theme="light"] .hs-name{color:var(--text-primary);}
-[data-theme="light"] .brain-label{color:var(--text-secondary);}
-[data-theme="light"] .hs-tag{color:var(--accent-primary);background:var(--accent-primary-dim);border-color:rgba(2,132,199,0.2);}
-[data-theme="light"] .hp-tag{color:var(--accent-primary);background:var(--accent-primary-dim);border-color:rgba(2,132,199,0.2);}
 [data-theme="light"] .p-tag{color:var(--accent-primary);background:var(--accent-primary-dim);border-color:rgba(2,132,199,0.2);}
-[data-theme="light"] #hom-panel-empty{color:var(--text-secondary);}
 [data-theme="light"] .node-label-text{fill:var(--text-secondary);}
-[data-theme="light"] #compare-btn{color:var(--text-secondary);}
 [data-theme="light"] .bc-item{color:var(--text-secondary);}
 [data-theme="light"] .bc-item.active{color:var(--text-primary);}
 [data-theme="light"] .fact-l{color:var(--text-secondary);}
 [data-theme="light"] .fact-v{color:var(--text-primary);}
-[data-theme="light"] .hp-fact-l{color:var(--text-secondary);}
 [data-theme="light"] .p-section{color:var(--text-secondary);}
-[data-theme="light"] .hp-section{color:var(--accent-primary);}
-[data-theme="light"] .hs-latin{color:var(--text-secondary);}
-[data-theme="light"] .hom-era-title{color:var(--accent-primary);}
-[data-theme="light"] #hom-sub{color:var(--text-secondary);}
-[data-theme="light"] #hom-header{background:var(--surface);}
-[data-theme="light"] .hs-icons-row{color:var(--text-secondary);}
 
 /* ── SPECIES IMAGE ── */
 .p-img{width:100%;border-radius:var(--radius-md);margin-bottom:0.6rem;object-fit:cover;max-height:175px;border:1px solid var(--border);display:block;}
@@ -780,58 +670,6 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
     top: -9px;
   }
 
-  /* ── HOMININ VIEW: stack vertically ── */
-  #hom-body {
-    flex-direction: column !important;
-  }
-  #hom-panel {
-    width: 100% !important;
-    max-height: 50vh;
-    border-left: none !important;
-    border-top: 1px solid rgba(200,136,58,0.12);
-  }
-  #hom-header {
-    padding: 0.8rem 1rem 0.6rem;
-    flex-wrap: wrap;
-    gap: 0.4rem;
-  }
-  #hom-title { font-size: 1.1rem; }
-  #hom-sub   { font-size: 0.58rem; }
-  #hom-close {
-    min-height: 44px;
-    min-width: 44px;
-    padding: 0.3rem 0.8rem;
-    font-size: 0.7rem;
-  }
-  #hom-filters {
-    padding: 0.5rem 0.8rem;
-    gap: 0.35rem;
-    overflow-x: auto;
-    flex-wrap: nowrap;
-    -webkit-overflow-scrolling: touch;
-  }
-  .hom-filter {
-    min-height: 36px;
-    display: inline-flex;
-    align-items: center;
-    white-space: nowrap;
-    flex-shrink: 0;
-    padding: 0.2rem 0.6rem;
-    font-size: 0.62rem;
-  }
-  #hom-timeline {
-    padding: 0.8rem 0.8rem 1rem;
-  }
-  .hom-species {
-    padding: 0.6rem;
-    gap: 0.6rem;
-  }
-  .hs-name { font-size: 0.82rem; }
-  .hp-facts {
-    grid-template-columns: 1fr 1fr;
-    gap: 0.4rem;
-  }
-
   /* ── CANVAS ── */
   #canvas-wrap {
     width: 100vw !important;
@@ -878,14 +716,6 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   #panel { max-height: 80vh; }
   .p-facts { grid-template-columns: 1fr !important; }
   #splash h1 { font-size: 1.4rem !important; }
-  #hom-filters {
-    padding: 0.3rem 0.5rem;
-  }
-  .hom-filter {
-    font-size: 0.58rem;
-    padding: 0.15rem 0.5rem;
-  }
-  #hom-title { font-size: 0.95rem; }
   #zoom-ctrl { bottom: 5rem; right: 4px; }
   .zbtn { width: 40px !important; height: 40px !important; }
 }
@@ -895,7 +725,6 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
    ══════════════════════════════════════════════════════ */
 @media (max-height: 500px) and (max-width: 900px) {
   #panel { max-height: 60vh; }
-  #hominin-view #hom-panel { max-height: 40vh; }
   .hint-bar { display: none; }
   #timeline { padding: 0.3rem 0.6rem 0.5rem; }
   .era-tick { font-size: 0.4rem; }
@@ -1196,42 +1025,13 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   </div>
 </div>
 
-<!-- HOMININ VIEW -->
-<div id="hominin-view">
-  <div id="hom-header">
-    <div>
-      <div id="hom-title">Hominin Evolution</div>
-      <div id="hom-sub">7 Million Years of the Human Journey</div>
-    </div>
-    <button id="hom-close" class="btn-back">← Back to Tree</button>
-
+<!-- COMPARE PANEL (standalone overlay) -->
+<div id="compare-panel" style="display:none;position:fixed;inset:0;z-index:150;background:var(--surface-overlay);overflow-y:auto;padding:1.5rem 2rem;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+    <div id="i-compare-title" style="font-family:var(--font-head);font-size:1.2rem;color:var(--gold);">Species Comparison</div>
+    <button id="i-compare-back" onclick="closeCompare()" class="btn-back">← Back</button>
   </div>
-  <div id="hom-filters">
-    <div class="hom-filter active" data-filter="all" id="i-hf-all">All Species</div>
-    <div class="hom-filter" data-filter="proto" id="i-hf-proto">Proto-Hominins</div>
-    <div class="hom-filter" data-filter="australopith" id="i-hf-australo">Australopithecus</div>
-    <div class="hom-filter" data-filter="paranthropus" id="i-hf-paranth">Paranthropus</div>
-    <div class="hom-filter" data-filter="homo" id="i-hf-homo">Genus Homo</div>
-    <div class="hom-filter" data-filter="surviving" id="i-hf-surv">Surviving</div>
-    <div style="margin-left:auto;display:flex;gap:0.5rem;align-items:center;">
-      <button id="compare-btn" onclick="toggleCompareMode()" style="padding:0.25rem 0.85rem;border:1px solid var(--border);border-radius:14px;background:transparent;color:var(--text-secondary);font-size:0.7rem;font-family:var(--font-sans);cursor:pointer;transition:all 0.2s;letter-spacing:0.05em;">⚖ Compare Mode</button>
-      <span id="compare-hint" style="display:none;font-size:0.65rem;color:var(--text-secondary);font-style:italic;">Select 2–4 species</span>
-
-    </div>
-  </div>
-  <!-- Compare Panel -->
-  <div id="compare-panel" style="display:none;position:absolute;inset:0;z-index:10;background:var(--bg);overflow-y:auto;padding:1.5rem 2rem;">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
-      <div id="i-compare-title" style="font-family:var(--font-head);font-size:1.2rem;color:var(--gold);">Species Comparison</div>
-      <button id="i-compare-back" onclick="closeCompare()" style="padding:0.3rem 0.8rem;border:1px solid var(--border);border-radius:8px;background:transparent;color:var(--text-primary);font-size:0.75rem;cursor:pointer;font-family:var(--font-sans);">← Back</button>
-    </div>
-    <div id="compare-grid" style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));"></div>
-  </div>
-  <div id="hom-body">
-    <div id="hom-timeline"></div>
-    <div id="hom-panel"><div id="hom-panel-empty">← Select a species<br>to explore</div></div>
-
-  </div>
+  <div id="compare-grid" style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));"></div>
 </div>
 
 <!-- LEGEND -->
@@ -1270,7 +1070,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 </div>
 
 <!-- HUMAN EVOLUTION SHORTCUT -->
-<button id="btn-hominin" onclick="openHomininView()" aria-label="Open Human Evolution explorer" title="Human Evolution">🧬 <span id="i-btn-hominin">Human Evolution</span></button>
+<button id="btn-hominin" onclick="navigateTo('hominini')" aria-label="Navigate to Human Evolution branch" title="Human Evolution">🧬 <span id="i-btn-hominin">Human Evolution</span></button>
 
 <!-- DNA SIMILARITY CALCULATOR BUTTON -->
 <button id="btn-dna-calc" onclick="openDnaCalc()" aria-label="Open DNA Similarity Calculator" title="DNA Compare">🧬 <span id="i-btn-dna-calc">DNA Compare</span></button>
@@ -1571,28 +1371,28 @@ function buildHomininTree(){
 
   // Define 4 group nodes
   const groups=[
-    {id:'group-proto',icon:'🦴',color:'#8B5E3C',r:10,appeared:7,extinct:true,
+    {id:'group-proto',icon:'🦴',color:'#8B5E3C',r:30,appeared:7,extinct:true,
       name:'Proto-Hominins',latin:'Early Hominini',era:'7–3 Ma',
       desc:'The earliest members of the human lineage — bipedal apes from Africa\'s forests and lakeshores. These species bridge the gap between the human-chimp common ancestor and the australopiths.',
       detail:'Proto-hominins show the first signs of bipedalism while retaining many ape-like features. They are known from fragmentary fossils in Chad, Kenya, and Ethiopia.',
       facts:[{l:'Time span',v:'7–3 Mya'},{l:'Key trait',v:'Early bipedalism'},{l:'Regions',v:'Chad, Kenya, Ethiopia'}],
       tags:['Bipedalism origins','Forest dwellers','Human-chimp split'],
       filter:'proto'},
-    {id:'group-australopith',icon:'🐒',color:'#b07840',r:10,appeared:4.2,extinct:true,
+    {id:'group-australopith',icon:'🐒',color:'#b07840',r:30,appeared:4.2,extinct:true,
       name:'Australopithecus',latin:'Genus Australopithecus',era:'4.2–1.8 Ma',
       desc:'The "southern apes" — small-brained but fully bipedal hominins that dominated Africa for over 2 million years. Includes Lucy (Au. afarensis), the most famous fossil hominin.',
       detail:'Australopiths were the first hominins to thrive in open savanna environments. Some species may have used simple tools before the emergence of Homo.',
       facts:[{l:'Time span',v:'4.2–1.8 Mya'},{l:'Famous fossil',v:'Lucy (AL 288-1)'},{l:'Brain range',v:'370–500 cc'}],
       tags:['Lucy','Bipedal','Savanna','Southern apes'],
       filter:'australopith'},
-    {id:'group-paranthropus',icon:'💪',color:'#9B3A3A',r:9,appeared:2.7,extinct:true,
+    {id:'group-paranthropus',icon:'💪',color:'#9B3A3A',r:30,appeared:2.7,extinct:true,
       name:'Paranthropus',latin:'Genus Paranthropus',era:'2.7–1.2 Ma',
       desc:'The "robust" hominins — with massive jaws, huge molars, and dramatic sagittal crests for anchoring powerful chewing muscles. A specialized side branch that coexisted with early Homo for over a million years.',
       detail:'Paranthropus represents an evolutionary experiment in dietary specialization. While Homo invested in brains and tools, Paranthropus invested in jaw power.',
       facts:[{l:'Time span',v:'2.7–1.2 Mya'},{l:'Key trait',v:'Massive jaws & molars'},{l:'Species',v:'3 known'}],
       tags:['Robust hominins','Massive jaws','Sagittal crest','Dead-end lineage'],
       filter:'paranthropus'},
-    {id:'group-homo',icon:'🧠',color:'#6B8B5E',r:11,appeared:2.4,extinct:null,
+    {id:'group-homo',icon:'🧠',color:'#6B8B5E',r:30,appeared:2.4,extinct:null,
       name:'Genus Homo',latin:'Genus Homo',era:'2.4 Ma – present',
       desc:'Our own genus — from the first stone toolmakers to the species that split the atom. Homo is defined by increasing brain size, sophisticated tool use, fire control, and eventually language and symbolic thought.',
       detail:'The genus Homo emerged in Africa around 2.4 million years ago and eventually spread across every continent. Only one species survives today.',
@@ -2125,9 +1925,61 @@ function render(){
     if(!showExtinct && n.extinct) return;
     const inEra=nodeInEra(n);
     const isHighlighted=highlightedId===n.id;
+    const isGroupChip=n.id&&n.id.startsWith('group-');
     const g=document.createElementNS('http://www.w3.org/2000/svg','g');
     g.setAttribute('class','node-group');
     g.style.cursor='pointer';
+
+    if(isGroupChip){
+      // ── PILL / CHIP rendering for hominin group nodes ──
+      const pillW=Math.max(n.name.length*7+32,100);
+      const pillH=28;
+      const px=n._x-pillW/2;
+      const py=n._y-pillH/2;
+      const colAlpha=n.color+'33';
+      const colBorder=n.color+'66';
+      const indicator=n._collapsed?'+':'−';
+
+      const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+      fo.setAttribute('x',px);fo.setAttribute('y',py);
+      fo.setAttribute('width',pillW);fo.setAttribute('height',pillH);
+      fo.style.overflow='visible';
+
+      const chip=document.createElement('div');
+      chip.style.cssText=`display:inline-flex;align-items:center;gap:5px;padding:4px 14px;border-radius:9999px;border:1.5px solid ${colBorder};background:${colAlpha};color:${n.color};font-size:12px;font-weight:600;font-family:Inter,sans-serif;letter-spacing:0.04em;cursor:pointer;transition:all 0.2s;white-space:nowrap;user-select:none;width:100%;justify-content:center;height:${pillH}px;box-sizing:border-box;`;
+      chip.textContent=`${n.icon} ${n.name} ${indicator}`;
+      chip.addEventListener('mouseenter',()=>{chip.style.borderColor=n.color;chip.style.background=n.color+'44';showTip(n.name,n.icon);});
+      chip.addEventListener('mouseleave',()=>{chip.style.borderColor=colBorder;chip.style.background=colAlpha;hideTip();});
+
+      fo.appendChild(chip);g.appendChild(fo);
+
+      // Highlight ring for search
+      if(isHighlighted){
+        const hl=document.createElementNS('http://www.w3.org/2000/svg','rect');
+        hl.setAttribute('x',px-4);hl.setAttribute('y',py-4);
+        hl.setAttribute('width',pillW+8);hl.setAttribute('height',pillH+8);
+        hl.setAttribute('rx','18');hl.setAttribute('fill','none');
+        hl.setAttribute('stroke','#0ea5e9');hl.setAttribute('stroke-width','2');hl.setAttribute('stroke-opacity','0.9');
+        g.appendChild(hl);
+      }
+
+      // Animate in
+      if(!animDone.has(n.id)){
+        g.style.opacity='0';g.style.transformOrigin=`${n._x}px ${n._y}px`;g.style.transform='scale(0.2)';
+        setTimeout(()=>{
+          g.style.transition=`opacity 0.45s ease ${n.depth*0.09}s, transform 0.45s cubic-bezier(.34,1.56,.64,1) ${n.depth*0.09}s`;
+          g.style.opacity='1';g.style.transform='scale(1)';
+          setTimeout(()=>animDone.add(n.id),550+n.depth*90);
+        },40);
+      }
+
+      // Left-click toggles collapse; double-click opens panel
+      g.addEventListener('click',e=>{e.stopPropagation();n._collapsed=!n._collapsed;scheduleRender();});
+      g.addEventListener('dblclick',e=>{e.stopPropagation();showMainPanel(n);});
+      g.addEventListener('contextmenu',e=>{e.preventDefault();showMainPanel(n);});
+      nodesFrag.appendChild(g);
+      return; // skip normal node rendering
+    }
 
     const onHumanPath=HUMAN_PATH.has(n.id);
 
@@ -2363,13 +2215,9 @@ let panelHistory=[];  // legacy panel-to-panel history (used by dynamic back btn
 
 // ── Unified Navigation Stack ──
 // Records state snapshots before each transition so Back can restore them.
-// Each entry: {type:'tree'|'panel'|'hominin'|'hominin-detail', nodeId?, homininId?}
+// Each entry: {type:'tree'|'panel', nodeId?}
 const navStack=[];
 function currentNavState(){
-  const homView=document.getElementById('hominin-view');
-  const isHomOpen=homView&&homView.classList.contains('open');
-  if(isHomOpen&&selectedHominin) return {type:'hominin-detail',homininId:selectedHominin};
-  if(isHomOpen) return {type:'hominin'};
   if(currentPanelNode) return {type:'panel',nodeId:currentPanelNode.id};
   return {type:'tree'};
 }
@@ -2386,8 +2234,6 @@ function pushNav(){
 }
 function restoreNavState(s){
   // Close everything first without pushing to stack
-  const homView=document.getElementById('hominin-view');
-  if(homView) homView.classList.remove('open');
   panel.classList.remove('open');
   currentPanelNode=null;
   panelHistory=[];
@@ -2402,16 +2248,6 @@ function restoreNavState(s){
       panel.classList.add('open');
       updateBreadcrumb(node);
     }
-  } else if(s.type==='hominin'){
-    homView.classList.add('open');
-    selectedHominin=null;
-    renderHominins();
-  } else if(s.type==='hominin-detail'){
-    homView.classList.add('open');
-    selectedHominin=s.homininId;
-    renderHominins();
-    const hom=HOMININS.find(h=>h.id===s.homininId);
-    if(hom) showHominDetail(hom);
   }
 }
 function navBack(){
@@ -2424,8 +2260,6 @@ function navHome(){
   navStack.length=0;
   panelHistory=[];
   currentPanelNode=null;
-  const homView=document.getElementById('hominin-view');
-  if(homView) homView.classList.remove('open');
   panel.classList.remove('open');
   updateBreadcrumb(null);
   // Reset zoom/pan
@@ -2791,6 +2625,7 @@ function renderPanelContent(node) {
   const panelFbId  = 'panel-species-fb-'  + node.id.replace(/[^a-z0-9]/g,'_');
   const panelCrId  = 'panel-species-cr-'  + node.id.replace(/[^a-z0-9]/g,'_');
   p.innerHTML = `
+    ${node._hominData?`<div style="height:3px;border-radius:2px;background:linear-gradient(to right,${node._hominData.color||node.color},transparent);flex-shrink:0;"></div>`:''}
     <div style="width:100%;aspect-ratio:16/9;background:#111;overflow:hidden;position:relative;flex-shrink:0;">
       <img id="${panelImgId}" src="${staticUrl || ''}" alt="${node.name}"
         style="width:100%;height:100%;object-fit:cover;display:${staticUrl ? 'block' : 'none'};"
@@ -2833,6 +2668,7 @@ function renderPanelContent(node) {
           <p style="font-family:'Inter',sans-serif;font-style:italic;font-size:14px;line-height:1.6;color:var(--color-text-primary);margin:0;">${node.funFact}</p>
         </div>
       ` : ''}
+      ${node._hominData && node.detail ? `<div style="font-family:Inter,sans-serif;font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.1em;text-transform:uppercase;">${typeof t==='function'?t('sec_evo'):'Evolutionary Detail'}</div>` : ''}
       ${node.detail ? `<p style="font-size:13px;line-height:1.7;color:var(--color-text-muted);font-family:'Inter',sans-serif;margin:0;">${node.detail}</p>` : ''}
       ${node.facts && node.facts.length > 0 ? `
         <div style="display:flex;flex-direction:column;gap:1px;border-radius:8px;overflow:hidden;border:1px solid var(--color-divider);">
@@ -2844,6 +2680,7 @@ function renderPanelContent(node) {
           `).join('')}
         </div>
       ` : ''}
+      ${node._hominData && node.tags && node.tags.length > 0 ? `<div style="font-family:Inter,sans-serif;font-size:11px;font-weight:700;color:var(--color-accent);letter-spacing:0.1em;text-transform:uppercase;">${typeof t==='function'?t('sec_traits'):'Key Traits'}</div>` : ''}
       ${node.tags && node.tags.length > 0 ? `
         <div style="display:flex;flex-wrap:wrap;gap:6px;">
           ${node.tags.map(tag => `
@@ -2927,7 +2764,7 @@ function renderPanelContent(node) {
         }
         return html;
       })()}
-      ${(()=>{const isHominin=node._hominData||node.id==='hominini'||(node.id&&node.id.startsWith('hom-'));return isHominin?`<button onclick="openHomininView()" style="width:100%;padding:12px;border-radius:8px;border:none;background:var(--color-accent);color:white;cursor:pointer;font-family:'Inter',sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">🧬 Hominin Deep Dive</button>`:'';})()}
+      ${(()=>{const isHominin=node._hominData;return isHominin?`<button onclick="startCompareFromPanel('${node.id}')" style="width:100%;padding:12px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--color-text-secondary);display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px;">⚖ Compare Species</button>`:'';})()}
       <button onclick="closePanel()" style="margin-top:8px;padding:10px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;color:var(--color-text-secondary);">
         Close
       </button>
@@ -3308,111 +3145,11 @@ window.navigateTo=function(id){
   setTimeout(()=>{highlightedId=null;scheduleRender();},2500);
 };
 
-// ══════════════════════════════════════════════════════
-// HOMININ VIEW
-// ══════════════════════════════════════════════════════
-let currentHomFilter='all';
-let selectedHominin=null;
-
-window.openHomininView=function(){
-  pushNav(); // record state before entering hominin view
-  document.getElementById('hominin-view').classList.add('open');
-  panel.classList.remove('open');
-  renderHominins();
-  updateNavButtons();
-};
-document.getElementById('hom-close').addEventListener('click',()=>{
-  document.getElementById('hominin-view').classList.remove('open');
-  updateNavButtons();
-});
+// (Hominin deep dive view removed — groups rendered as inline pill chips in tree)
 
 // ── Nav button click handlers ──
 document.getElementById('nav-back').addEventListener('click',navBack);
 document.getElementById('nav-home').addEventListener('click',navHome);
-
-document.querySelectorAll('.hom-filter').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    document.querySelectorAll('.hom-filter').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    currentHomFilter=btn.dataset.filter;
-    renderHominins();
-  });
-});
-
-function renderHominins(){
-  const tl=document.getElementById('hom-timeline');
-  const filtered=HOMININS.filter(h=>{
-    if(currentHomFilter==='all')return true;
-    if(currentHomFilter==='surviving')return h.status==='surviving';
-    return h.group===currentHomFilter;
-  });
-  tl.innerHTML='';
-  ERA_GROUPS.forEach(eg=>{
-    const items=filtered.filter(eg.filter);
-    if(!items.length)return;
-    const group=document.createElement('div');group.className='hom-era-group';
-    const title=document.createElement('div');title.className='hom-era-title';title.textContent=eg.label;
-    group.appendChild(title);
-    items.sort((a,b)=>b.mya[0]-a.mya[0]).forEach(h=>{
-      const el=document.createElement('div');
-      el.className=`hom-species hs-status-${h.status}${selectedHominin===h.id?' selected':''}${compareMode&&compareSelected.has(h.id)?' selected':''}`;
-      el.setAttribute('data-hominin-id', h.id);
-      const brainMax=h.brain[1]||h.brain[0];
-      const brainPct=brainMax?(brainMax/MAX_BRAIN*100):0;
-      const hasTools=h.tools&&h.tools!=='None known'&&h.tools!=='None';
-      const hasFire=h.fire&&h.fire!=='No';
-      const hasLang=h.language&&h.language!=='None';
-      el.innerHTML=`
-        <div class="hs-icon">${h.icon}</div>
-        <div class="hs-info">
-          <div class="hs-name">${h.short}</div>
-          <div class="hs-latin">${h.name}</div>
-          <div class="hs-mya">${h.mya[0]}–${h.mya[1]} Ma</div>
-          ${brainMax?`<div class="hs-brain"><div class="brain-bar-wrap"><div class="brain-bar-fill" style="width:${brainPct}%;background:${h.color}"></div></div><span class="brain-label">${brainMax} cm³</span></div>`:''}
-          <div class="hs-icons-row">${hasTools?t('cap_tools'):''} ${hasFire?t('cap_fire'):''} ${hasLang?t('cap_lang'):''}</div>
-          <div class="hs-tags">${(h.tags||[]).slice(0,3).map(t=>`<span class="hs-tag">${t}</span>`).join('')}</div>
-        </div>`;
-      el.addEventListener('click',()=>{
-        if(compareMode){toggleCompareSelect(h.id);}
-        else{pushNav();selectedHominin=h.id;renderHominins();showHominDetail(h);updateNavButtons();}
-      });
-      group.appendChild(el);
-    });
-    tl.appendChild(group);
-  });
-}
-
-function showHominDetail(h){
-  const p=document.getElementById('hom-panel');
-  const brainMax=h.brain[1]||h.brain[0];
-  const neanPct=h.dna&&h.dna.neanderthal!=null?h.dna.neanderthal:null;
-  const denPct=h.dna&&h.dna.denisovan!=null?h.dna.denisovan:null;
-  p.innerHTML=`
-    <div class="hp-accent" style="background:linear-gradient(to right,${h.color},transparent)"></div>
-    <div class="hp-top">
-      <div class="hp-icon">${h.icon}</div>
-      <div>
-        <div class="hp-name">${h.short}</div>
-        <div class="hp-latin">${h.name}</div>
-        <div class="hp-mya">${h.mya[0]}–${h.mya[1]} Ma ago</div>
-      </div>
-    </div>
-    <div class="hp-desc">${h.desc}</div>
-    <div class="hp-facts">
-      ${(h.facts||[]).map(f=>`<div class="hp-fact"><div class="hp-fact-l">${f.l}</div><div class="hp-fact-v">${f.v}</div></div>`).join('')}
-    </div>
-    ${neanPct!=null||denPct!=null?`
-    <div class="hp-section">${t('sec_dna')}</div>
-    ${neanPct!=null?`<div class="hp-dna"><span style="font-size:0.65rem;min-width:80px;color:var(--gold-text)">${t('lbl_nean').replace(' DNA','')}</span><div class="dna-fill"><div class="dna-fill-inner" style="width:${Math.min(100,neanPct*25)}%;background:#7A9BAA"></div></div><span style="font-size:0.65rem;color:#7A9BAA;min-width:28px;text-align:right">${neanPct}%</span></div>`:''}
-    ${denPct!=null?`<div class="hp-dna"><span style="font-size:0.65rem;min-width:80px;color:var(--gold-text)">${t('lbl_den').replace(' DNA','')}</span><div class="dna-fill"><div class="dna-fill-inner" style="width:${Math.min(100,denPct*20)}%;background:#7A8BAA"></div></div><span style="font-size:0.65rem;color:#7A8BAA;min-width:28px;text-align:right">${denPct}%</span></div>`:''}
-    <div style="font-size:0.65rem;color:var(--gold-text-dim);margin-top:0.3rem;font-style:italic">${h.dna.note||''}</div>`:''}
-    <div class="hp-section">${t('sec_evo')}</div>
-    <div class="hp-detail">${h.detail||''}</div>
-    <div class="hp-section">${t('sec_traits')}</div>
-    <div class="hp-tags">${(h.tags||[]).map(tag=>`<span class="hp-tag">${tag}</span>`).join('')}</div>
-    <div style="margin-top:0.8rem;font-size:0.65rem;color:var(--gold-text-dim);letter-spacing:0.1em">${t('sec_fossil')}</div>
-    <div style="font-size:0.75rem;color:var(--text-dim);margin-top:0.3rem;line-height:1.7">${(h.sites||[]).join(' · ')}</div>`;
-}
 
 // ══════════════════════════════════════════════════════
 // PAN & ZOOM
@@ -3457,49 +3194,77 @@ document.getElementById('btn-out').addEventListener('click',()=>{transform.s=Mat
 document.getElementById('btn-reset').addEventListener('click',()=>{transform={x:0,y:0,s:1};applyT();});
 
 // ══════════════════════════════════════════════════════
-// COMPARE MODE
+// COMPARE MODE (standalone, triggered from panel)
 // ══════════════════════════════════════════════════════
 let compareMode=false;
 let compareSelected=new Set();
 
-function toggleCompareMode(){
-  compareMode=!compareMode;
+window.startCompareFromPanel=function(nodeId){
+  compareMode=true;
   compareSelected.clear();
-  const btn=document.getElementById('compare-btn');
-  const hint=document.getElementById('compare-hint');
-  if(compareMode){
-    btn.style.borderColor='var(--accent-primary)';
-    btn.style.color='var(--accent-primary)';
-    btn.style.background='var(--accent-primary-dim)';
-    hint.style.display='inline';
-  } else {
-    btn.style.borderColor='var(--border)';
-    btn.style.color='var(--text-secondary)';
-    btn.style.background='transparent';
-    hint.style.display='none';
-    renderHominins();
+  // Find the HOMININS entry matching this tree node
+  const hom=HOMININS.find(h=>h.id===nodeId);
+  if(hom) compareSelected.add(hom.id);
+  // Close panel and prompt user to click more hominin nodes
+  panel.classList.remove('open');
+  currentPanelNode=null;
+  // Show a hint banner
+  let banner=document.getElementById('compare-banner');
+  if(!banner){
+    banner=document.createElement('div');
+    banner.id='compare-banner';
+    banner.style.cssText='position:fixed;top:60px;left:50%;transform:translateX(-50%);z-index:200;background:var(--surface-overlay);border:1px solid var(--accent-primary);border-radius:12px;padding:8px 20px;font-family:Inter,sans-serif;font-size:13px;color:var(--accent-primary);display:flex;align-items:center;gap:12px;box-shadow:0 4px 16px rgba(0,0,0,0.3);';
+    document.body.appendChild(banner);
   }
-  renderHominins();
-}
+  banner.style.display='flex';
+  banner.innerHTML=`<span>⚖ Compare: click 1–3 more hominin species</span><button onclick="finishCompare()" style="padding:4px 12px;border-radius:8px;border:1px solid var(--accent-primary);background:var(--accent-primary-dim);color:var(--accent-primary);cursor:pointer;font-size:12px;font-family:Inter,sans-serif;">Done</button><button onclick="cancelCompare()" style="padding:4px 8px;border:none;background:transparent;color:var(--text-secondary);cursor:pointer;font-size:14px;">✕</button>`;
+};
 
-function toggleCompareSelect(hId){
-  if(compareSelected.has(hId)){
-    compareSelected.delete(hId);
-  } else if(compareSelected.size<4){
-    compareSelected.add(hId);
+// Hook into showMainPanel to intercept clicks during compare mode
+const _origShowMainPanel=showMainPanel;
+window.showMainPanel=function(n){
+  if(compareMode && n._hominData){
+    const hom=HOMININS.find(h=>h.id===n.id);
+    if(hom){
+      if(compareSelected.has(hom.id)){
+        compareSelected.delete(hom.id);
+      } else if(compareSelected.size<4){
+        compareSelected.add(hom.id);
+      }
+      // Update banner count
+      const banner=document.getElementById('compare-banner');
+      if(banner) banner.querySelector('span').textContent=`⚖ Compare: ${compareSelected.size} selected (click more or press Done)`;
+      if(compareSelected.size>=2){
+        // Auto-show after a short delay
+      }
+    }
+    return;
   }
-  renderHominins();
+  _origShowMainPanel(n);
+};
+
+window.finishCompare=function(){
   if(compareSelected.size>=2){
     showComparePanel();
   }
-}
+  const banner=document.getElementById('compare-banner');
+  if(banner) banner.style.display='none';
+  compareMode=false;
+};
+
+window.cancelCompare=function(){
+  compareMode=false;
+  compareSelected.clear();
+  const banner=document.getElementById('compare-banner');
+  if(banner) banner.style.display='none';
+};
 
 function showComparePanel(){
-  const panel=document.getElementById('compare-panel');
+  const cpanel=document.getElementById('compare-panel');
   const grid=document.getElementById('compare-grid');
   const species=Array.from(compareSelected).map(id=>HOMININS.find(h=>h.id===id)).filter(Boolean);
-  panel.style.display='flex';
-  panel.style.flexDirection='column';
+  cpanel.style.display='flex';
+  cpanel.style.flexDirection='column';
 
   const MAX_B=1750;
   const allBrains=species.map(h=>h.brain[1]||h.brain[0]).filter(Boolean);
@@ -3540,6 +3305,8 @@ function showComparePanel(){
 
 function closeCompare(){
   document.getElementById('compare-panel').style.display='none';
+  compareMode=false;
+  compareSelected.clear();
 }
 
 // ══════════════════════════════════════════════════════
@@ -3744,7 +3511,6 @@ document.addEventListener('keydown',e=>{
     if(document.getElementById('dna-panel').classList.contains('open')){closeDnaCalc();return;}
     panel.classList.remove('open');
     updateBreadcrumb(null);
-    document.getElementById('hominin-view').classList.remove('open');
     searchResults.classList.remove('show');
     searchInput.setAttribute('aria-expanded','false');
     history.replaceState(null,'',location.pathname);
@@ -3845,16 +3611,6 @@ function applyI18n(){
   set('i-p-evo',t('p_evo'));
   set('i-p-sub',t('p_sub'));
   set('i-btn-hominin',t('btn_hominin'));
-  set('hom-title',t('hom_title'));
-  set('hom-sub',t('hom_sub'));
-  set('hom-close',t('hom_back'));
-  set('i-hf-all',t('hom_all'));
-  set('i-hf-proto',t('hom_proto'));
-  set('i-hf-australo',t('hom_australo'));
-  set('i-hf-paranth',t('hom_paranth'));
-  set('i-hf-homo',t('hom_homo'));
-  set('i-hf-surv',t('hom_surv'));
-  const cb=el('compare-btn');if(cb)cb.textContent=t('compare_btn');
   // DNA Calculator i18n
   set('i-dna-title',t('dna_calc_title'));
   set('i-btn-dna-calc',t('dna_calc_btn'));
@@ -3865,11 +3621,8 @@ function applyI18n(){
   set('i-dna-preset-bacterium',t('dna_preset_bacterium'));
   const dnaLabelA=el('dna-label-a');if(dnaLabelA&&!document.getElementById('dna-slot-a').classList.contains('filled'))dnaLabelA.textContent=t('dna_select_species');
   const dnaLabelB=el('dna-label-b');if(dnaLabelB&&!document.getElementById('dna-slot-b').classList.contains('filled'))dnaLabelB.textContent=t('dna_select_species');
-  const ch=el('compare-hint');if(ch)ch.textContent=t('compare_hint');
   set('i-compare-title',t('compare_title'));
   set('i-compare-back',t('compare_back'));
-  const hpe=el('hom-panel-empty');
-  if(hpe){const parts=t('hom_empty').split('\n');hpe.innerHTML=parts.join('<br>');}
   // Nav buttons
   set('nav-back-label',t('nav_back'));
   set('nav-home-label',t('nav_home'));
@@ -4206,27 +3959,6 @@ window.addEventListener('resize',()=>{layout();scheduleRender();});
     }
   },{passive:false});
   svgEl.addEventListener('touchend',()=>{lastPinchDist=0;},{passive:true});
-
-  // ── Swipe-to-close hominin view ──
-  const homView=document.getElementById('hominin-view');
-  let homTouchStartX=0, homSwiping=false;
-  if(homView){
-    homView.addEventListener('touchstart',e=>{
-      if(!isMobile()) return;
-      homTouchStartX=e.touches[0].clientX;
-      homSwiping=true;
-    },{passive:true});
-    homView.addEventListener('touchend',e=>{
-      if(!homSwiping||!isMobile()) return;
-      homSwiping=false;
-      const dx=e.changedTouches[0].clientX-homTouchStartX;
-      // Swipe right to close (LTR) or left (RTL)
-      const isRtl=document.documentElement.dir==='rtl';
-      if((!isRtl && dx>100)||(isRtl && dx<-100)){
-        homView.classList.remove('open');
-      }
-    },{passive:true});
-  }
 
   // ── Close panel on back-gesture / history ──
   window.addEventListener('popstate',()=>{

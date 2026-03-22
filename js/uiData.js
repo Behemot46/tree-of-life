@@ -220,6 +220,7 @@ const TRANSLATIONS = {
     tour_skip:'Skip',
     tour_done:'Done',
     tour_of:'of',
+    toast_dismiss:'Dismiss',
   },
   he:{
     title:'\u05e2\u05e5 \u05d4\u05d7\u05d9\u05d9\u05dd',
@@ -392,6 +393,7 @@ const TRANSLATIONS = {
     tour_skip:'\u05d3\u05dc\u05d2',
     tour_done:'\u05e1\u05d9\u05d5\u05dd',
     tour_of:'\u05de\u05ea\u05d5\u05da',
+    toast_dismiss:'\u05e1\u05d2\u05d5\u05e8',
   },
   ru:{
     title:'\u0414\u0435\u0440\u0435\u0432\u043e \u0436\u0438\u0437\u043d\u0438',
@@ -564,5 +566,6 @@ const TRANSLATIONS = {
     tour_skip:'\u041f\u0440\u043e\u043f\u0443\u0441\u0442\u0438\u0442\u044c',
     tour_done:'\u0413\u043e\u0442\u043e\u0432\u043e',
     tour_of:'\u0438\u0437',
+    toast_dismiss:'\u0417\u0430\u043a\u0440\u044b\u0442\u044c',
   }
 };

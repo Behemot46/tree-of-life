@@ -789,6 +789,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 [dir="rtl"] .p-top{flex-direction:row-reverse;}
 [dir="rtl"] .bc-sep{transform:scaleX(-1);display:inline-block;}
 /* (Removed hominin RTL overrides — view deleted) */
+
+
 [lang="he"],[lang="he"] *{font-family:'Heebo','Inter',sans-serif;}
 [lang="he"] #breadcrumb {
   flex-direction: row-reverse;
@@ -5705,14 +5707,85 @@ document.getElementById('btn-random').addEventListener('click',()=>{
     const pick=leaves[Math.floor(Math.random()*leaves.length)];
     navigateTo(pick.id);
     setTimeout(()=>showMainPanel(pick),300);
+    setTimeout(()=>showSpeciesToast(pick.id),600);
   }
 });
+
+// ══════════════════════════════════════════════════════
+// FACT TOAST SYSTEM
+// ══════════════════════════════════════════════════════
+const _toastEl = document.getElementById('fact-toast');
+const _toastText = document.getElementById('ft-text');
+let _toastDismissTimer = null;
+let _toastIdleTimer = null;
+let _lastUserActivity = Date.now();
+const TOAST_IDLE_INTERVAL = 45000;
+const TOAST_DISMISS_DELAY = 7000;
+
+function showToast(factResult) {
+  if (!factResult || !_toastEl) return;
+  clearTimeout(_toastDismissTimer);
+  _toastText.textContent = factResult.text;
+  _toastEl.classList.add('visible');
+  _toastDismissTimer = setTimeout(dismissToast, TOAST_DISMISS_DELAY);
+}
+
+function dismissToast() {
+  if (!_toastEl) return;
+  clearTimeout(_toastDismissTimer);
+  _toastEl.classList.remove('visible');
+}
+window.dismissToast = dismissToast;
+
+function showSpeciesToast(nodeId) {
+  // Try species-specific tooltip fact, then panel fact, then general discovery
+  const tip = FACTS.getTooltipFact(nodeId, currentLang);
+  if (tip) { showToast({ text: tip }); return; }
+  const pan = FACTS.getPanelFact(nodeId, currentLang);
+  if (pan) { showToast({ text: pan }); return; }
+  const fact = FACTS.getDiscoveryFact(currentLang);
+  if (fact) showToast(fact);
+}
+
+function showIdleToast() {
+  if (panel.classList.contains('open')) return;
+  if (document.getElementById('dna-panel')?.classList.contains('open')) return;
+  if (document.getElementById('evo-path-panel')?.classList.contains('open')) return;
+  if (document.getElementById('trivia-panel')?.classList.contains('open')) return;
+  const splash = document.getElementById('splash');
+  if (splash && splash.style.display !== 'none') return;
+  if (_toastEl.classList.contains('visible')) return;
+  const fact = FACTS.getDiscoveryFact(currentLang);
+  if (fact) showToast(fact);
+}
+
+function resetIdleTimer() {
+  _lastUserActivity = Date.now();
+  clearTimeout(_toastIdleTimer);
+  _toastIdleTimer = setTimeout(function idleTick() {
+    if (Date.now() - _lastUserActivity >= TOAST_IDLE_INTERVAL) showIdleToast();
+    _toastIdleTimer = setTimeout(idleTick, TOAST_IDLE_INTERVAL);
+  }, TOAST_IDLE_INTERVAL);
+}
+
+let _activityThrottle = 0;
+function onUserActivity() {
+  const now = Date.now();
+  if (now - _activityThrottle < 2000) return;
+  _activityThrottle = now;
+  resetIdleTimer();
+}
+['pointerdown', 'pointermove', 'wheel', 'keydown', 'scroll'].forEach(evt => {
+  document.addEventListener(evt, onUserActivity, { passive: true });
+});
+setTimeout(resetIdleTimer, 5000);
 
 // ══════════════════════════════════════════════════════
 // KEYBOARD
 // ══════════════════════════════════════════════════════
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
+    if(_toastEl.classList.contains('visible')){dismissToast();return;}
     if(document.getElementById('evo-path-panel').classList.contains('open')){closeEvoPath();return;}
     if(document.getElementById('trivia-panel').classList.contains('open')){closeTrivia();return;}
     // Close search dropdown first if open (not a nav action)

@@ -323,6 +323,34 @@ const ENRICHMENT = {
       {label:'Cornell Lab of Ornithology', url:'https://www.allaboutbirds.org/guide/Peregrine_Falcon/'},
     ]
   },
+  'mammals': {
+    altFacts:[
+      'The bumblebee bat weighs just 2 grams — the smallest mammal — while the blue whale reaches 190 tonnes, a 95-million-fold size range within a single class.',
+      'Mammals evolved three middle-ear bones from reptilian jaw bones, one of the most completely documented evolutionary transitions in the fossil record.',
+      'The platypus, echidna, and three other monotremes are the only mammals that lay eggs — a trait inherited from our reptilian ancestors.',
+      'After the asteroid wiped out non-avian dinosaurs 66 million years ago, mammals radiated explosively from small, shrew-sized nocturnal forms into every ecological niche on the planet.',
+      'All mammals produce milk, but its composition varies wildly: hooded seal milk is 60% fat (thickest), while horse milk is only 1% fat.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Mammal'},
+      {label:'Animal Diversity Web', url:'https://animaldiversity.org/accounts/Mammalia/'},
+      {label:'IUCN Red List — Mammals', url:'https://www.iucnredlist.org/search?taxonomies=100089'},
+    ]
+  },
+  'cetaceans': {
+    altFacts:[
+      'Whales evolved from small, four-legged, dog-like land animals — Pakicetus — that lived near rivers about 50 million years ago. The entire land-to-sea transition took only ~10 million years.',
+      'Sperm whales have the largest brain of any animal (7.8 kg) and communicate using codas — distinct clicking patterns that vary by clan, functioning like dialects.',
+      'Cuvier\'s beaked whale holds the record for the deepest mammal dive: 2,992 meters (nearly 2 miles) — deeper than many submarines can go.',
+      'Humpback whale songs can propagate across entire ocean basins and evolve culturally, with new song motifs spreading thousands of kilometers between populations.',
+      'Bowhead whales can live over 200 years — the longest-lived mammal — with stone harpoon points from the 1800s found embedded in living whales.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Cetacea'},
+      {label:'NOAA Fisheries — Cetaceans', url:'https://www.fisheries.noaa.gov/topic/marine-life'},
+      {label:'Whale & Dolphin Conservation', url:'https://us.whales.org/'},
+    ]
+  },
   'blue-whale': {
     altFacts:[
       'The blue whale\'s heart is the size of a small car and beats as slowly as 2 times per minute during deep dives.',
@@ -348,6 +376,7 @@ const ENRICHMENT = {
     links:[
       {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Platypus'},
       {label:'Australian Museum', url:'https://australian.museum/learn/animals/mammals/platypus/'},
+      {label:'National Geographic', url:'https://www.nationalgeographic.com/animals/mammals/facts/platypus'},
     ]
   },
   'naked-mole-rat': {
@@ -361,6 +390,7 @@ const ENRICHMENT = {
     links:[
       {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Naked_mole-rat'},
       {label:'Smithsonian\'s National Zoo', url:'https://nationalzoo.si.edu/animals/naked-mole-rat'},
+      {label:'Science — Aging Research', url:'https://www.science.org/topic/naked-mole-rat'},
     ]
   },
   'primates': {
@@ -369,6 +399,7 @@ const ENRICHMENT = {
       'The tarsier has the largest eyes relative to body size of any mammal — each eye is as large as its entire brain.',
       'Primates have the longest childhoods relative to lifespan of any animal group, allowing extended learning periods.',
       'New World monkeys evolved independently in South America after ancestral primates somehow crossed the Atlantic from Africa ~40 million years ago — probably on floating vegetation.',
+      'Primates have the highest brain-to-body mass ratio of any mammalian order — the human brain is ~2% of body weight but uses ~20% of its energy.',
     ],
     links:[
       {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Primate'},
@@ -382,6 +413,7 @@ const ENRICHMENT = {
       'Bonobos, our co-closest relative alongside chimpanzees, resolve conflict with sex rather than aggression and live in female-dominated societies.',
       'Great apes show empathy, altruism, grief, and can plan for the future — abilities once thought uniquely human.',
       'Every great ape species except Homo sapiens is endangered or critically endangered, mostly due to habitat destruction.',
+      'Great apes diverged from lesser apes (gibbons) around 20 million years ago — humans and orangutans last shared a common ancestor roughly 14 million years ago.',
     ],
     links:[
       {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Hominidae'},
@@ -429,6 +461,20 @@ const ENRICHMENT = {
       {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Chimpanzee'},
       {label:'Jane Goodall Institute', url:'https://www.janegoodall.org/'},
       {label:'WWF Chimpanzee', url:'https://www.worldwildlife.org/species/chimpanzee'},
+    ]
+  },
+  'hominini': {
+    altFacts:[
+      'At least 9 different hominin species coexisted on Earth as recently as 100,000 years ago — Homo sapiens is the sole survivor of a once-diverse lineage.',
+      'The oldest known stone tools (3.3 million years old, from Lomekwi, Kenya) predate the genus Homo — they were likely made by Australopithecus or Kenyanthropus.',
+      'Bipedalism — walking upright on two legs — appeared at least 6 million years ago, long before brain size began increasing significantly.',
+      'Homo erectus was the first hominin to leave Africa, spreading to Asia and Europe nearly 2 million years ago and surviving for over 1.5 million years.',
+      'DNA evidence shows that Homo sapiens interbred with at least three other hominin species: Neanderthals, Denisovans, and an unknown "ghost" population.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Hominini'},
+      {label:'Smithsonian Human Origins', url:'https://humanorigins.si.edu/'},
+      {label:'Becoming Human', url:'https://www.becominghuman.org/'},
     ]
   },
   'homo-sapiens': {

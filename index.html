@@ -474,6 +474,31 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
 [dir="rtl"] #hom-body{flex-direction:row-reverse;}
 [dir="rtl"] #hom-filters{flex-direction:row-reverse;}
 [dir="rtl"] #hom-filters>div:last-child{margin-left:0;margin-right:auto;}
+
+/* ── FACT TOAST ── */
+@keyframes toastIn{from{opacity:0;transform:translateX(-50%) translateY(-20px);}to{opacity:1;transform:translateX(-50%) translateY(0);}}
+.fact-toast{
+  position:fixed;top:5rem;left:50%;transform:translateX(-50%) translateY(-20px);
+  z-index:500;display:flex;align-items:center;gap:10px;
+  max-width:520px;width:max-content;padding:12px 18px 12px 14px;
+  background:var(--surface);border:1px solid var(--border);border-radius:12px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.25);
+  font-family:var(--font-body);font-size:0.85rem;line-height:1.45;color:var(--text);
+  opacity:0;pointer-events:none;
+  transition:opacity 0.35s ease,transform 0.35s cubic-bezier(0.16,1,0.3,1);
+}
+.fact-toast.show{opacity:1;transform:translateX(-50%) translateY(0);pointer-events:auto;animation:toastIn 0.35s cubic-bezier(0.16,1,0.3,1);}
+.fact-toast.hiding{opacity:0;transform:translateX(-50%) translateY(-12px);}
+.fact-toast-icon{font-size:1.1rem;flex-shrink:0;}
+.fact-toast-text{flex:1;min-width:0;}
+.fact-toast-close{
+  flex-shrink:0;width:22px;height:22px;border:none;border-radius:50%;
+  background:transparent;color:var(--parchment);font-size:0.7rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;transition:background 0.15s;
+}
+.fact-toast-close:hover{background:rgba(255,255,255,0.1);}
+[dir="rtl"] .fact-toast{direction:rtl;}
+
 [lang="he"],[lang="he"] *{font-family:'Heebo','Inter',sans-serif;}
 [lang="he"] #breadcrumb {
   flex-direction: row-reverse;
@@ -852,6 +877,9 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   /* ── TOOLTIP: hidden on touch (use panel instead) ── */
   #tooltip { display: none !important; }
 
+  /* ── FACT TOAST: full-width on mobile ── */
+  .fact-toast{max-width:90vw;width:90vw;top:4rem;font-size:0.8rem;padding:10px 14px;}
+
   /* ── FOOTER / HINTS ── */
   footer { display: none; }
   #shortcuts-hint { display: none !important; }
@@ -875,6 +903,7 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   #lang-switcher { display: none; }
   #theme-btn { top: 0.4rem; right: 4px; }
   #legend { display: none; }
+  .fact-toast{top:3.5rem;border-radius:8px;}
   #panel { max-height: 80vh; }
   .p-facts { grid-template-columns: 1fr !important; }
   #splash h1 { font-size: 1.4rem !important; }
@@ -1125,6 +1154,13 @@ svg:active,#canvas-wrap:active{cursor:grabbing;}
   <button id="hominins-tab" onclick="navigateTo('hominini')" aria-label="Navigate to Hominin family tree" style="font-family:'Inter',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;color:var(--text-secondary);white-space:nowrap;flex-shrink:0;">
     🧬 Hominins
   </button>
+</div>
+
+<!-- FACT TOAST -->
+<div id="fact-toast" class="fact-toast" role="status" aria-live="polite">
+  <span class="fact-toast-icon">💡</span>
+  <span id="fact-toast-text"></span>
+  <button class="fact-toast-close" id="fact-toast-close" aria-label="Dismiss" onclick="dismissToast()">✕</button>
 </div>
 
 <!-- NAV CONTROLS -->
@@ -3733,14 +3769,86 @@ document.getElementById('btn-random').addEventListener('click',()=>{
     const pick=leaves[Math.floor(Math.random()*leaves.length)];
     navigateTo(pick.id);
     setTimeout(()=>showMainPanel(pick),300);
+    setTimeout(()=>showSpeciesToast(pick.id),600);
   }
 });
+
+// ══════════════════════════════════════════════════════
+// FACT TOAST SYSTEM
+// ══════════════════════════════════════════════════════
+const _toastEl = document.getElementById('fact-toast');
+const _toastText = document.getElementById('fact-toast-text');
+const _shownFactIds = new Set();
+let _toastDismissTimer = null;
+let _toastIdleTimer = null;
+let _lastUserActivity = Date.now();
+const TOAST_IDLE_INTERVAL = 45000;
+const TOAST_DISMISS_DELAY = 7000;
+const TOAST_DEDUP_MAX = 40;
+
+function showToast(factResult) {
+  if (!factResult || !_toastEl) return;
+  clearTimeout(_toastDismissTimer);
+  _toastText.textContent = factResult.text;
+  _shownFactIds.add(factResult.id);
+  if (_shownFactIds.size >= TOAST_DEDUP_MAX) _shownFactIds.clear();
+  _toastEl.classList.remove('hiding');
+  _toastEl.classList.add('show');
+  _toastDismissTimer = setTimeout(dismissToast, TOAST_DISMISS_DELAY);
+}
+
+function dismissToast() {
+  if (!_toastEl) return;
+  clearTimeout(_toastDismissTimer);
+  _toastEl.classList.add('hiding');
+  _toastEl.classList.remove('show');
+}
+window.dismissToast = dismissToast;
+
+function showSpeciesToast(nodeId) {
+  let fact = FACTS.getForSpecies(nodeId, currentLang, _shownFactIds);
+  if (!fact) fact = FACTS.getDiscoveryFact(currentLang, _shownFactIds);
+  if (fact) showToast(fact);
+}
+
+function showIdleToast() {
+  if (panel.classList.contains('open')) return;
+  if (document.getElementById('hominin-view')?.classList.contains('open')) return;
+  if (document.getElementById('dna-panel')?.classList.contains('open')) return;
+  const splash = document.getElementById('splash');
+  if (splash && splash.style.display !== 'none') return;
+  if (_toastEl.classList.contains('show')) return;
+  const fact = FACTS.getDiscoveryFact(currentLang, _shownFactIds);
+  if (fact) showToast(fact);
+}
+
+function resetIdleTimer() {
+  _lastUserActivity = Date.now();
+  clearTimeout(_toastIdleTimer);
+  _toastIdleTimer = setTimeout(function idleTick() {
+    if (Date.now() - _lastUserActivity >= TOAST_IDLE_INTERVAL) showIdleToast();
+    _toastIdleTimer = setTimeout(idleTick, TOAST_IDLE_INTERVAL);
+  }, TOAST_IDLE_INTERVAL);
+}
+
+let _activityThrottle = 0;
+function onUserActivity() {
+  const now = Date.now();
+  if (now - _activityThrottle < 2000) return;
+  _activityThrottle = now;
+  resetIdleTimer();
+}
+['pointerdown', 'pointermove', 'wheel', 'keydown', 'scroll'].forEach(evt => {
+  document.addEventListener(evt, onUserActivity, { passive: true });
+});
+setTimeout(resetIdleTimer, 5000);
 
 // ══════════════════════════════════════════════════════
 // KEYBOARD
 // ══════════════════════════════════════════════════════
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
+    if(_toastEl.classList.contains('show')){dismissToast();return;}
     if(document.getElementById('dna-panel').classList.contains('open')){closeDnaCalc();return;}
     panel.classList.remove('open');
     updateBreadcrumb(null);

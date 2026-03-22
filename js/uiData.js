@@ -105,6 +105,7 @@ const TRANSLATIONS = {
     dna_preset_banana:'You & a Banana',
     dna_preset_mushroom:'You & a Mushroom',
     dna_preset_bacterium:'You & a Bacterium',
+    toast_dismiss:'Dismiss',
   },
   he:{
     title:'\u05e2\u05e5 \u05d4\u05d7\u05d9\u05d9\u05dd',
@@ -186,6 +187,7 @@ const TRANSLATIONS = {
     dna_preset_banana:'\u05d0\u05ea\u05d4 \u05d5\u05d1\u05e0\u05e0\u05d4',
     dna_preset_mushroom:'\u05d0\u05ea\u05d4 \u05d5\u05e4\u05d8\u05e8\u05d9\u05d4',
     dna_preset_bacterium:'\u05d0\u05ea\u05d4 \u05d5\u05d7\u05d9\u05d9\u05d3\u05e7',
+    toast_dismiss:'\u05e1\u05d2\u05d5\u05e8',
   },
   ru:{
     title:'\u0414\u0435\u0440\u0435\u0432\u043e \u0436\u0438\u0437\u043d\u0438',
@@ -267,5 +269,6 @@ const TRANSLATIONS = {
     dna_preset_banana:'\u0412\u044b \u0438 \u0431\u0430\u043d\u0430\u043d',
     dna_preset_mushroom:'\u0412\u044b \u0438 \u0433\u0440\u0438\u0431',
     dna_preset_bacterium:'\u0412\u044b \u0438 \u0431\u0430\u043a\u0442\u0435\u0440\u0438\u044f',
+    toast_dismiss:'\u0417\u0430\u043a\u0440\u044b\u0442\u044c',
   }
 };

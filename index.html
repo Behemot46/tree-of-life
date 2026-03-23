@@ -1415,7 +1415,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* EVOLUTIONARY PATH FINDER                               */
 /* ══════════════════════════════════════════════════════ */
 #btn-evo-path{
-  position:fixed;bottom:7.5rem;left:1.2rem;z-index:200;
+  position:fixed;bottom:7.2rem;left:1.2rem;z-index:200;
   padding:0.5rem 1rem;border-radius:var(--radius-full);
   border:1px solid var(--border);background:var(--surface);
   color:var(--text-primary);font-family:var(--font-sans);font-size:0.75rem;
@@ -1525,8 +1525,59 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .evo-btn-secondary{background:transparent;color:var(--text-secondary);border:1px solid var(--border);}
 .evo-btn-secondary:hover{border-color:var(--text-secondary);color:var(--text-primary);}
 
+.evo-slot-photo{width:36px;height:36px;border-radius:50%;object-fit:cover;border:2px solid var(--border);}
+.evo-slot.filled .evo-slot-photo{border-color:var(--accent-secondary);}
+.evo-vs{font-family:var(--font-mono);font-size:0.9rem;color:var(--text-secondary);font-weight:600;flex-shrink:0;}
+
+.evo-narrative{
+  font-size:0.78rem;color:var(--text-secondary);font-family:var(--font-sans);
+  text-align:center;margin-bottom:0.8rem;font-style:italic;line-height:1.5;
+}
+.evo-narrative strong{color:var(--accent-secondary);font-style:normal;}
+
+.evo-chain-node{animation:evoReveal 0.4s ease both;animation-delay:calc(var(--i,0) * 100ms);position:relative;}
+.evo-chain-node:hover{transform:translateY(-2px);}
+.evo-chain-photo{width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--border);background:var(--surface-raised);}
+.evo-chain-node.lca .evo-chain-photo{border-color:var(--accent-secondary);box-shadow:0 0 8px rgba(249,115,22,0.3);}
+.evo-chain-emoji{position:absolute;bottom:16px;right:2px;font-size:10px;background:var(--surface);border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;border:1px solid var(--border);line-height:1;}
+.evo-chain-lca-label{font-size:0.45rem;color:var(--accent-secondary);font-family:var(--font-sans);text-transform:uppercase;letter-spacing:0.06em;font-weight:600;}
+@keyframes evoReveal{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+
+.evo-timeline{position:relative;margin:0.6rem 0 1rem;padding:0 0.2rem;}
+.evo-timeline-bar{height:6px;border-radius:3px;background:linear-gradient(90deg,#ef4444 0%,#f97316 25%,#eab308 50%,#22c55e 100%);position:relative;}
+.evo-timeline-marker{position:absolute;top:-4px;width:14px;height:14px;border-radius:50%;background:var(--accent-secondary);border:2px solid var(--surface);box-shadow:0 0 6px rgba(249,115,22,0.5);transform:translateX(-50%);transition:left 0.6s ease;}
+.evo-timeline-labels{display:flex;justify-content:space-between;margin-top:4px;font-size:0.55rem;color:var(--text-secondary);font-family:var(--font-mono);}
+
+.evo-divergence{text-align:center;margin-bottom:0.6rem;}
+.evo-divergence-value{font-family:var(--font-mono);font-size:1.8rem;font-weight:700;color:var(--accent-secondary);line-height:1;}
+.evo-divergence-label{font-size:0.65rem;color:var(--text-secondary);font-family:var(--font-sans);text-transform:uppercase;letter-spacing:0.06em;}
+
+.evo-ancestor-card{display:flex;gap:0.8rem;align-items:flex-start;}
+.evo-ancestor-photo{width:48px;height:48px;border-radius:50%;object-fit:cover;border:2px solid var(--accent-secondary);flex-shrink:0;}
+.evo-ancestor-info{flex:1;min-width:0;}
+
+.evo-fun-fact{
+  background:rgba(249,115,22,0.08);border:1px solid rgba(249,115,22,0.2);
+  border-radius:var(--radius-md);padding:0.7rem 0.8rem;margin-bottom:1rem;
+  display:flex;align-items:flex-start;gap:0.5rem;
+}
+.evo-fun-fact-icon{font-size:1.1rem;flex-shrink:0;line-height:1.3;}
+.evo-fun-fact-text{font-size:0.72rem;color:var(--text-secondary);font-family:var(--font-sans);line-height:1.5;font-style:italic;}
+
+#evo-clear-overlay{
+  position:fixed;top:5rem;left:50%;transform:translateX(-50%);z-index:300;
+  padding:0.45rem 1rem;border-radius:var(--radius-full);
+  border:1px solid var(--accent-secondary);background:var(--surface);
+  color:var(--accent-secondary);font-family:var(--font-sans);font-size:0.72rem;
+  cursor:pointer;box-shadow:0 4px 16px rgba(249,115,22,0.2);
+  display:none;align-items:center;gap:0.4rem;
+  animation:evoReveal 0.3s ease both;
+}
+#evo-clear-overlay:hover{background:rgba(249,115,22,0.1);}
+#evo-clear-overlay.show{display:inline-flex;}
+
 @media(max-width:600px){
-  #btn-evo-path{bottom:6.5rem;left:0.6rem;padding:0.4rem 0.7rem;font-size:0.65rem;}
+  #btn-evo-path{bottom:6.2rem;left:0.6rem;padding:0.4rem 0.7rem;font-size:0.65rem;}
   [dir="rtl"] #btn-evo-path{left:auto;right:0.6rem;}
   .evo-panel-inner{padding:1rem;width:96vw;max-height:95vh;}
   .evo-selectors{flex-direction:column;gap:0.3rem;}
@@ -1975,22 +2026,24 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
 <button id="btn-dna-calc" onclick="openDnaCalc()" aria-label="Open DNA Similarity Calculator" title="DNA Compare">🧬 <span id="i-btn-dna-calc">DNA Compare</span></button>
 
 <!-- EVOLUTIONARY PATH FINDER BUTTON -->
-<button id="btn-evo-path" onclick="openEvoPath()" aria-label="Open Evolutionary Path Finder" title="Evo Path">🔀 <span id="i-btn-evo-path">Evo Path</span></button>
+<button id="btn-evo-path" onclick="openEvoPath()" aria-label="Evolutionary Path finder" title="Evo Path">🌿 <span id="i-btn-evo-path">Evo Path</span></button>
 
 <!-- EVOLUTIONARY PATH FINDER PANEL -->
 <div id="evo-path-panel" class="evo-panel" aria-hidden="true">
   <div class="evo-panel-inner">
     <div class="evo-panel-header">
       <div id="i-evo-title" class="evo-panel-title">Evolutionary Path</div>
-      <button class="btn-back" onclick="closeEvoPath()" aria-label="Close">✕</button>
+      <button class="btn-back" onclick="closeEvoPath()" aria-label="Close">&#10005;</button>
     </div>
 
     <!-- Quick Presets -->
     <div class="evo-presets">
-      <button class="evo-preset" onclick="evoPreset('h_sapiens','ecoli')"><span id="i-evo-preset-bact">Humans &amp; Bacteria</span></button>
-      <button class="evo-preset" onclick="evoPreset('angiosperms','fungi')"><span id="i-evo-preset-plantfungi">Plants &amp; Fungi</span></button>
-      <button class="evo-preset" onclick="evoPreset('h_sapiens','chimpanzee')"><span id="i-evo-preset-chimp">Humans &amp; Chimps</span></button>
-      <button class="evo-preset" onclick="evoPreset('birds','shark')"><span id="i-evo-preset-birdshark">Birds &amp; Sharks</span></button>
+      <button class="evo-preset" onclick="evoPreset('h_sapiens','fungi')"><span id="i-evo-p1">You &amp; a Mushroom</span></button>
+      <button class="evo-preset" onclick="evoPreset('shark','angiosperms')"><span id="i-evo-p2">Shark &amp; a Tree</span></button>
+      <button class="evo-preset" onclick="evoPreset('h_sapiens','bacteria')"><span id="i-evo-p3">You &amp; Bacteria</span></button>
+      <button class="evo-preset" onclick="evoPreset('octopus','insects')"><span id="i-evo-p4">Octopus &amp; Ant</span></button>
+      <button class="evo-preset" onclick="evoPreset('h_sapiens','cnidarians')"><span id="i-evo-p5">You &amp; a Jellyfish</span></button>
+      <button class="evo-preset" onclick="evoPreset('h_sapiens','chimpanzee')"><span id="i-evo-p6">Humans &amp; Chimps</span></button>
     </div>
 
     <!-- Species Selectors -->
@@ -1999,7 +2052,7 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
         <div class="evo-slot-icon" id="evo-icon-a">?</div>
         <div class="evo-slot-label" id="evo-label-a">Select a species</div>
       </div>
-      <div class="evo-arrow">→</div>
+      <div class="evo-vs">&#8596;</div>
       <div class="evo-slot" id="evo-slot-b" onclick="openEvoSearch('b')">
         <div class="evo-slot-icon" id="evo-icon-b">?</div>
         <div class="evo-slot-label" id="evo-label-b">Select a species</div>
@@ -2013,32 +2066,26 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
     </div>
 
     <!-- Results -->
-    <div id="evo-results" class="evo-results" style="display:none;">
-      <div class="evo-results-header">
-        <div class="evo-stat">
-          <div class="evo-stat-value" id="evo-divergence">—</div>
-          <div class="evo-stat-label" id="i-evo-diverged">Diverged (Ma)</div>
-        </div>
-        <div class="evo-stat">
-          <div class="evo-stat-value" id="evo-steps">—</div>
-          <div class="evo-stat-label" id="i-evo-steps">Steps</div>
-        </div>
-      </div>
-
-      <!-- Path chain visualization -->
+    <div id="evo-results" style="display:none;">
+      <div class="evo-narrative" id="evo-narrative"></div>
       <div class="evo-chain" id="evo-chain"></div>
-
-      <!-- Common ancestor card -->
+      <div class="evo-timeline" id="evo-timeline"></div>
+      <div class="evo-divergence">
+        <div class="evo-divergence-value" id="evo-div-value">—</div>
+        <div class="evo-divergence-label" id="i-evo-diverged">Diverged</div>
+      </div>
       <div class="evo-ancestor-card" id="evo-ancestor-card"></div>
-
-      <!-- Actions -->
+      <div class="evo-fun-fact" id="evo-fun-fact"></div>
       <div class="evo-actions">
-        <button class="evo-btn evo-btn-primary" onclick="showEvoOnTree()" id="i-evo-show-tree">Show on Tree</button>
-        <button class="evo-btn evo-btn-secondary" onclick="clearEvoPath()" id="i-evo-clear">Clear Path</button>
+        <button class="evo-btn evo-btn-primary" onclick="showEvoOnTree()">&#127795; <span id="i-evo-show-tree">Show on Tree</span></button>
+        <button class="evo-btn evo-btn-secondary" onclick="clearEvoPath()"><span id="i-evo-clear">Clear</span></button>
       </div>
     </div>
   </div>
 </div>
+
+<!-- Floating clear-path overlay -->
+<button id="evo-clear-overlay" onclick="clearEvoHighlight()">&#10005; <span id="i-evo-clear-overlay">Clear Path</span></button>
 
 <!-- GUIDED TOUR HELP BUTTON -->
 <button id="btn-tour-help" onclick="startTour()" aria-label="Guided tour" title="Guided Tour">?</button>
@@ -3270,7 +3317,7 @@ function render(){
 
     const inEra=nodeInEra(to);
     const onHumanPath=HUMAN_PATH.has(from.id)&&HUMAN_PATH.has(to.id);
-    const onEvoPath=evoPathEdgeSet.has(from.id+'|'+to.id);
+    const onEvoPath=evoPathActive&&evoPathEdgeSet.has(from.id+'|'+to.id);
     const p=document.createElementNS('http://www.w3.org/2000/svg','path');
     p.setAttribute('d',branchPath(from._x,from._y,to._x,to._y));
     p.setAttribute('class','branch-path');
@@ -3432,7 +3479,7 @@ function render(){
     }
 
     // Evolutionary path accent ring (orange)
-    if(evoPathSet.has(n.id)&&n.depth>0){
+    if(evoPathActive&&evoPathSet.has(n.id)&&n.depth>0){
       const evoRing=document.createElementNS('http://www.w3.org/2000/svg','circle');
       evoRing.setAttribute('cx',n._x);evoRing.setAttribute('cy',n._y);evoRing.setAttribute('r',n.r+8);
       evoRing.setAttribute('fill','none');evoRing.setAttribute('stroke','var(--accent-secondary)');
@@ -5758,12 +5805,42 @@ document.getElementById('dna-panel').addEventListener('click', function(e) {
 // ══════════════════════════════════════════════════════
 // EVOLUTIONARY PATH FINDER
 // ══════════════════════════════════════════════════════
-let evoSlotA = null;
-let evoSlotB = null;
+let evoSlotA = null, evoSlotB = null;
 let evoSearchTarget = null;
 let evoPathSet = new Set();
 let evoPathEdgeSet = new Set();
-let evoPathNodes = []; // ordered path from A to B
+let evoPathNodes = [];
+let evoPathActive = false;
+let evoClearTimer = null;
+
+const EVO_FUN_FACTS = [
+  {min:3500, en:'Your common ancestor lived before Earth had free oxygen \u2014 it breathed a completely alien atmosphere.',
+             he:'\u05d4\u05d0\u05d1 \u05d4\u05e7\u05d3\u05de\u05d5\u05df \u05d7\u05d9 \u05dc\u05e4\u05e0\u05d9 \u05e9\u05d4\u05d9\u05d4 \u05d7\u05de\u05e6\u05df \u05d7\u05d5\u05e4\u05e9\u05d9 \u05d1\u05d0\u05d8\u05de\u05d5\u05e1\u05e4\u05e8\u05d4.',
+             ru:'\u041e\u0431\u0449\u0438\u0439 \u043f\u0440\u0435\u0434\u043e\u043a \u0436\u0438\u043b \u0434\u043e \u043f\u043e\u044f\u0432\u043b\u0435\u043d\u0438\u044f \u0441\u0432\u043e\u0431\u043e\u0434\u043d\u043e\u0433\u043e \u043a\u0438\u0441\u043b\u043e\u0440\u043e\u0434\u0430 \u043d\u0430 \u0417\u0435\u043c\u043b\u0435.'},
+  {min:2000, en:'When these lineages split, all life on Earth was single-celled. Multicellular life was still a billion years away.',
+             he:'\u05db\u05e9\u05d4\u05e9\u05d5\u05e9\u05dc\u05d5\u05ea \u05d4\u05d0\u05dc\u05d4 \u05e0\u05e4\u05e8\u05d3\u05d5, \u05db\u05dc \u05d4\u05d7\u05d9\u05d9\u05dd \u05d4\u05d9\u05d5 \u05d7\u05d3-\u05ea\u05d0\u05d9\u05d9\u05dd.',
+             ru:'\u041a\u043e\u0433\u0434\u0430 \u044d\u0442\u0438 \u043b\u0438\u043d\u0438\u0438 \u0440\u0430\u0437\u043e\u0448\u043b\u0438\u0441\u044c, \u0432\u0441\u044f \u0436\u0438\u0437\u043d\u044c \u0431\u044b\u043b\u0430 \u043e\u0434\u043d\u043e\u043a\u043b\u0435\u0442\u043e\u0447\u043d\u043e\u0439.'},
+  {min:541,  en:'These species diverged before the Cambrian Explosion \u2014 before most animal body plans even existed.',
+             he:'\u05d4\u05de\u05d9\u05e0\u05d9\u05dd \u05e0\u05e4\u05e8\u05d3\u05d5 \u05dc\u05e4\u05e0\u05d9 \u05d4\u05d4\u05ea\u05e4\u05d5\u05e6\u05e6\u05d5\u05ea \u05d4\u05e7\u05de\u05d1\u05e8\u05d9\u05ea.',
+             ru:'\u042d\u0442\u0438 \u0432\u0438\u0434\u044b \u0440\u0430\u0437\u043e\u0448\u043b\u0438\u0441\u044c \u0434\u043e \u041a\u0435\u043c\u0431\u0440\u0438\u0439\u0441\u043a\u043e\u0433\u043e \u0432\u0437\u0440\u044b\u0432\u0430.'},
+  {min:252,  en:'This split happened before the Great Dying \u2014 the worst mass extinction ever, which wiped out 96% of marine species.',
+             he:'\u05d4\u05e4\u05d9\u05e6\u05d5\u05dc \u05e7\u05e8\u05d4 \u05dc\u05e4\u05e0\u05d9 \u05d4\u05db\u05d7\u05d3\u05d4 \u05d4\u05d2\u05d3\u05d5\u05dc\u05d4 \u2014 \u05e9\u05d7\u05d9\u05e1\u05dc\u05d4 96% \u05de\u05d4\u05de\u05d9\u05e0\u05d9\u05dd \u05d4\u05d9\u05de\u05d9\u05d9\u05dd.',
+             ru:'\u042d\u0442\u043e \u0440\u0430\u0437\u0434\u0435\u043b\u0435\u043d\u0438\u0435 \u043f\u0440\u043e\u0438\u0437\u043e\u0448\u043b\u043e \u0434\u043e \u0412\u0435\u043b\u0438\u043a\u043e\u0433\u043e \u0432\u044b\u043c\u0438\u0440\u0430\u043d\u0438\u044f \u2014 96% \u043c\u043e\u0440\u0441\u043a\u0438\u0445 \u0432\u0438\u0434\u043e\u0432 \u043f\u043e\u0433\u0438\u0431\u043b\u0438.'},
+  {min:66,   en:'Dinosaurs were still roaming the Earth when these lineages parted ways.',
+             he:'\u05d3\u05d9\u05e0\u05d5\u05d6\u05d0\u05d5\u05e8\u05d9\u05dd \u05e2\u05d3\u05d9\u05d9\u05df \u05e9\u05dc\u05d8\u05d5 \u05d1\u05d0\u05e8\u05e5 \u05db\u05e9\u05d4\u05e9\u05d5\u05e9\u05dc\u05d5\u05ea \u05d4\u05d0\u05dc\u05d4 \u05e0\u05e4\u05e8\u05d3\u05d5.',
+             ru:'\u0414\u0438\u043d\u043e\u0437\u0430\u0432\u0440\u044b \u0435\u0449\u0451 \u0431\u0440\u043e\u0434\u0438\u043b\u0438 \u043f\u043e \u0417\u0435\u043c\u043b\u0435, \u043a\u043e\u0433\u0434\u0430 \u044d\u0442\u0438 \u043b\u0438\u043d\u0438\u0438 \u0440\u0430\u0437\u043e\u0448\u043b\u0438\u0441\u044c.'},
+  {min:7,    en:'These lineages diverged when our ancestors first stood upright on the African savanna.',
+             he:'\u05d4\u05e9\u05d5\u05e9\u05dc\u05d5\u05ea \u05e0\u05e4\u05e8\u05d3\u05d5 \u05db\u05e9\u05d0\u05d1\u05d5\u05ea\u05d9\u05e0\u05d5 \u05d4\u05ea\u05d7\u05d9\u05dc\u05d5 \u05dc\u05dc\u05db\u05ea \u05d6\u05e7\u05d5\u05e4\u05d9\u05dd.',
+             ru:'\u042d\u0442\u0438 \u043b\u0438\u043d\u0438\u0438 \u0440\u0430\u0437\u043e\u0448\u043b\u0438\u0441\u044c, \u043a\u043e\u0433\u0434\u0430 \u043d\u0430\u0448\u0438 \u043f\u0440\u0435\u0434\u043a\u0438 \u0432\u043f\u0435\u0440\u0432\u044b\u0435 \u0432\u0441\u0442\u0430\u043b\u0438 \u043d\u0430 \u043d\u043e\u0433\u0438.'},
+  {min:0,    en:'A relatively recent split in the grand story of life \u2014 you share more DNA than you might think!',
+             he:'\u05e4\u05d9\u05e6\u05d5\u05dc \u05d7\u05d3\u05e9 \u05d9\u05d7\u05e1\u05d9\u05ea \u2014 \u05d0\u05ea\u05dd \u05d7\u05d5\u05dc\u05e7\u05d9\u05dd \u05d9\u05d5\u05ea\u05e8 DNA \u05de\u05de\u05d4 \u05e9\u05d7\u05e9\u05d1\u05ea\u05dd!',
+             ru:'\u041e\u0442\u043d\u043e\u0441\u0438\u0442\u0435\u043b\u044c\u043d\u043e \u043d\u0435\u0434\u0430\u0432\u043d\u0435\u0435 \u0440\u0430\u0437\u0434\u0435\u043b\u0435\u043d\u0438\u0435 \u2014 \u0443 \u0432\u0430\u0441 \u0431\u043e\u043b\u044c\u0448\u0435 \u043e\u0431\u0449\u0435\u0439 \u0414\u041d\u041a, \u0447\u0435\u043c \u0432\u044b \u0434\u0443\u043c\u0430\u0435\u0442\u0435!'},
+];
+
+function getEvoFunFact(mya, lang) {
+  for (const f of EVO_FUN_FACTS) { if (mya >= f.min) return f[lang] || f.en; }
+  return EVO_FUN_FACTS[EVO_FUN_FACTS.length - 1].en;
+}
 
 function openEvoPath() {
   document.getElementById('evo-path-panel').classList.add('open');
@@ -5778,11 +5855,9 @@ function closeEvoPath() {
 
 function openEvoSearch(slot) {
   evoSearchTarget = slot;
-  const overlay = document.getElementById('evo-search-overlay');
-  overlay.style.display = 'block';
+  document.getElementById('evo-search-overlay').style.display = 'block';
   const input = document.getElementById('evo-search-input');
-  input.value = '';
-  input.focus();
+  input.value = ''; input.focus();
   document.getElementById('evo-search-results').innerHTML = '';
 }
 
@@ -5794,165 +5869,150 @@ document.getElementById('evo-search-input').addEventListener('input', function()
   container.innerHTML = matches.map(m => {
     const node = nodeMap[m.id];
     if (!node) return '';
-    const icon = node.img || node.icon || '🧬';
-    const name = node.name || m.id;
-    const latin = node.latin || '';
     return '<div class="evo-search-item" onclick="selectEvoSpecies(\'' + m.id + '\')">' +
-      '<span class="evo-search-item-icon">' + icon + '</span>' +
-      '<span class="evo-search-item-name">' + name + '</span>' +
-      '<span class="evo-search-item-latin">' + latin + '</span>' +
-    '</div>';
+      '<span class="evo-search-item-icon">' + (node.icon || '\ud83e\uddec') + '</span>' +
+      '<span class="evo-search-item-name">' + (node.name || m.id) + '</span>' +
+      '<span class="evo-search-item-latin">' + (node.latin || '') + '</span></div>';
   }).join('');
 });
+
+function fillEvoSlot(slot, node) {
+  const icon = node.icon || '\ud83e\uddec';
+  const photoUrl = PHOTO_MAP[node.id] ? PHOTO_MAP[node.id].url : null;
+  const iconEl = document.getElementById('evo-icon-' + slot);
+  if (photoUrl) {
+    iconEl.innerHTML = '<img class="evo-slot-photo" src="' + photoUrl + '" alt="' + (node.name||'') + '" onerror="this.replaceWith(document.createTextNode(\'' + icon + '\'))">';
+  } else { iconEl.textContent = icon; }
+  document.getElementById('evo-label-' + slot).textContent = node.name;
+  document.getElementById('evo-slot-' + slot).classList.add('filled');
+}
 
 function selectEvoSpecies(id) {
   const node = nodeMap[id];
   if (!node) return;
-  const icon = node.img || node.icon || '🧬';
-  if (evoSearchTarget === 'a') {
-    evoSlotA = node;
-    document.getElementById('evo-icon-a').textContent = icon;
-    document.getElementById('evo-label-a').textContent = node.name;
-    document.getElementById('evo-slot-a').classList.add('filled');
-  } else {
-    evoSlotB = node;
-    document.getElementById('evo-icon-b').textContent = icon;
-    document.getElementById('evo-label-b').textContent = node.name;
-    document.getElementById('evo-slot-b').classList.add('filled');
-  }
+  if (evoSearchTarget === 'a') { evoSlotA = node; fillEvoSlot('a', node); }
+  else { evoSlotB = node; fillEvoSlot('b', node); }
   document.getElementById('evo-search-overlay').style.display = 'none';
-  if (evoSlotA && evoSlotB) computeEvoPath(evoSlotA, evoSlotB);
+  if (evoSlotA && evoSlotB) computeEvoPath();
 }
 
 function evoPreset(idA, idB) {
-  evoSlotA = nodeMap[idA];
-  evoSlotB = nodeMap[idB];
+  evoSlotA = nodeMap[idA]; evoSlotB = nodeMap[idB];
   if (!evoSlotA || !evoSlotB) return;
-  const iconA = evoSlotA.img || evoSlotA.icon || '🧬';
-  const iconB = evoSlotB.img || evoSlotB.icon || '🧬';
-  document.getElementById('evo-icon-a').textContent = iconA;
-  document.getElementById('evo-label-a').textContent = evoSlotA.name;
-  document.getElementById('evo-slot-a').classList.add('filled');
-  document.getElementById('evo-icon-b').textContent = iconB;
-  document.getElementById('evo-label-b').textContent = evoSlotB.name;
-  document.getElementById('evo-slot-b').classList.add('filled');
+  fillEvoSlot('a', evoSlotA); fillEvoSlot('b', evoSlotB);
   document.getElementById('evo-search-overlay').style.display = 'none';
-  computeEvoPath(evoSlotA, evoSlotB);
+  computeEvoPath();
 }
 
-function computeEvoPath(nodeA, nodeB) {
-  const lca = findLCA(nodeA, nodeB);
+function computeEvoPath() {
+  if (!evoSlotA || !evoSlotB) return;
+  const lca = findLCA(evoSlotA, evoSlotB);
   if (!lca) return;
 
-  // Build path from A up to LCA
-  const pathA = [];
-  let cur = nodeA;
-  while (cur && cur.id !== lca.id) {
-    pathA.push(cur);
-    cur = cur._parent;
-  }
+  const pathA = []; let cur = evoSlotA;
+  while (cur && cur.id !== lca.id) { pathA.push(cur); cur = cur._parent; }
   pathA.push(lca);
+  const pathB = []; cur = evoSlotB;
+  while (cur && cur.id !== lca.id) { pathB.push(cur); cur = cur._parent; }
 
-  // Build path from B up to LCA (reversed)
-  const pathB = [];
-  cur = nodeB;
-  while (cur && cur.id !== lca.id) {
-    pathB.push(cur);
-    cur = cur._parent;
-  }
-  // pathB does not include LCA (already in pathA)
-
-  // Full path: A → ... → LCA → ... → B
   evoPathNodes = pathA.concat(pathB.reverse());
-
-  // Build sets for render()
   evoPathSet = new Set(evoPathNodes.map(n => n.id));
   evoPathEdgeSet = new Set();
-  // Edges from A side (child→parent direction, but render uses parent→child)
-  for (let i = 0; i < pathA.length - 1; i++) {
-    // pathA[i+1] is parent of pathA[i]
-    evoPathEdgeSet.add(pathA[i + 1].id + '|' + pathA[i].id);
-  }
-  // Edges from B side (pathB is already reversed: [closest-to-LCA, ..., nodeB])
-  for (let i = 0; i < pathB.length - 1; i++) {
-    // parent→child: pathB[i] is parent of pathB[i+1]
-    evoPathEdgeSet.add(pathB[i].id + '|' + pathB[i + 1].id);
-  }
-  // Edge from LCA to first node on B side (closest child of LCA toward B)
-  if (pathB.length > 0) {
-    evoPathEdgeSet.add(lca.id + '|' + pathB[0].id);
-  }
+  for (let i = 0; i < pathA.length - 1; i++) evoPathEdgeSet.add(pathA[i+1].id + '|' + pathA[i].id);
+  for (let i = 0; i < pathB.length - 1; i++) evoPathEdgeSet.add(pathB[i].id + '|' + pathB[i+1].id);
+  if (pathB.length > 0) evoPathEdgeSet.add(lca.id + '|' + pathB[0].id);
 
-  // Show results
-  const divergence = lca.appeared || 0;
+  const mya = lca.appeared || 0;
+  const divText = mya >= 1000 ? (mya / 1000).toFixed(1) + ' Ga' : mya + ' Ma';
+  document.getElementById('evo-div-value').textContent = divText;
+
+  const lang = currentLang || 'en';
   const steps = evoPathNodes.length;
-  document.getElementById('evo-divergence').textContent = divergence >= 1000 ? (divergence / 1000).toFixed(1) + ' Ga' : divergence + ' Ma';
-  document.getElementById('evo-steps').textContent = steps;
+  const tmpl = t('evo_narrative') || 'Your journey passes through {n} ancestors';
+  document.getElementById('evo-narrative').innerHTML = tmpl.includes('{n}')
+    ? tmpl.replace('{n}', '<strong>' + steps + '</strong>')
+    : '<strong>' + evoSlotA.name + '</strong> \u2192 ' + steps + ' steps \u2192 <strong>' + evoSlotB.name + '</strong>';
 
-  // Build chain visualization
   const chainEl = document.getElementById('evo-chain');
   chainEl.innerHTML = evoPathNodes.map((n, i) => {
     const isLca = n.id === lca.id;
-    const icon = n.img || n.icon || '🧬';
-    const shortName = n.name.length > 10 ? n.name.slice(0, 9) + '…' : n.name;
-    return (i > 0 ? '<span class="evo-chain-sep">→</span>' : '') +
-      '<div class="evo-chain-node' + (isLca ? ' lca' : '') + '" onclick="closeEvoPath();navigateTo(\'' + n.id + '\')" title="' + n.name + '">' +
-        '<span class="evo-chain-node-icon">' + icon + '</span>' +
-        '<span class="evo-chain-node-name">' + shortName + '</span>' +
-      '</div>';
+    const icon = n.icon || '\ud83e\uddec';
+    const photoUrl = PHOTO_MAP[n.id] ? PHOTO_MAP[n.id].url : null;
+    const shortName = n.name.length > 10 ? n.name.slice(0, 9) + '\u2026' : n.name;
+    const photoHtml = photoUrl
+      ? '<img class="evo-chain-photo" src="' + photoUrl + '" alt="' + (n.name||'') + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+        '<span class="evo-chain-emoji" style="display:none;width:32px;height:32px;font-size:18px;border:none;position:static;background:var(--surface-raised);border-radius:50%">' + icon + '</span>'
+      : '<span style="font-size:22px;line-height:32px;">' + icon + '</span>';
+    return (i > 0 ? '<span class="evo-chain-sep">\u203a</span>' : '') +
+      '<div class="evo-chain-node' + (isLca ? ' lca' : '') + '" style="--i:' + i + '" onclick="closeEvoPath();navigateTo(\'' + n.id + '\')" title="' + n.name + '">' +
+        (isLca ? '<span class="evo-chain-lca-label">' + t('evo_ancestor') + '</span>' : '') +
+        photoHtml + '<span class="evo-chain-emoji">' + icon + '</span>' +
+        '<span class="evo-chain-node-name">' + shortName + '</span></div>';
   }).join('');
 
-  // Common ancestor card
+  const pct = Math.min(100, Math.max(2, (1 - mya / 4600) * 100));
+  document.getElementById('evo-timeline').innerHTML =
+    '<div class="evo-timeline-bar"><div class="evo-timeline-marker" style="left:' + pct + '%"></div></div>' +
+    '<div class="evo-timeline-labels"><span>4.6 Ga</span><span>\u2190 ' + divText + '</span><span>Now</span></div>';
+
   const card = document.getElementById('evo-ancestor-card');
+  const lcaPhoto = PHOTO_MAP[lca.id] ? PHOTO_MAP[lca.id].url : '';
   card.innerHTML =
-    '<div class="evo-ancestor-title">' + t('evo_path_ancestor') + '</div>' +
+    (lcaPhoto ? '<img class="evo-ancestor-photo" src="' + lcaPhoto + '" alt="' + lca.name + '" onerror="this.style.display=\'none\'">' : '') +
+    '<div class="evo-ancestor-info"><div class="evo-ancestor-title">' + t('evo_ancestor') + '</div>' +
     '<div class="evo-ancestor-name">' + lca.icon + ' ' + lca.name + '</div>' +
-    '<div class="evo-ancestor-era">' + (lca.era || '') + ' · ' + (lca.appeared || 0) + ' Ma</div>' +
-    '<div class="evo-ancestor-desc">' + (lca.desc || '') + '</div>';
+    '<div class="evo-ancestor-era">' + (lca.era || '') + ' \u00b7 ' + (lca.appeared || 0) + ' Ma</div>' +
+    '<div class="evo-ancestor-desc">' + (lca.desc || '') + '</div></div>';
+
+  document.getElementById('evo-fun-fact').innerHTML =
+    '<span class="evo-fun-fact-icon">\ud83d\udca1</span><span class="evo-fun-fact-text">' + getEvoFunFact(mya, lang) + '</span>';
 
   document.getElementById('evo-results').style.display = 'block';
 }
 
 function showEvoOnTree() {
   closeEvoPath();
-  // Expand all nodes on the path so the path is visible
-  evoPathNodes.forEach(n => {
-    let c = n;
-    while (c) {
-      if (c._collapsed) c._collapsed = false;
-      c = c._parent;
-    }
-  });
-  layout();
-  scheduleRender();
-  // Pan to LCA
-  const lca = findLCA(evoSlotA, evoSlotB);
-  if (lca) {
-    setTimeout(() => {
-      const cx = window.innerWidth / 2;
-      const cy = window.innerHeight / 2;
-      transform.x = cx - lca._x * transform.s;
-      transform.y = cy - lca._y * transform.s;
-      applyTransform();
-    }, 100);
+  evoPathActive = true;
+  evoPathNodes.forEach(n => { let c = n; while (c) { if (c._collapsed) c._collapsed = false; c = c._parent; } });
+  layout(); scheduleRender(true);
+
+  if (evoPathNodes.length > 0) {
+    const xs = evoPathNodes.map(n => n._x), ys = evoPathNodes.map(n => n._y);
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+    const pathW = Math.max(...xs) - Math.min(...xs) || 200, pathH = Math.max(...ys) - Math.min(...ys) || 200;
+    const scale = Math.min(2, Math.max(0.3, Math.min((window.innerWidth * 0.7) / pathW, (window.innerHeight * 0.7) / pathH)));
+    viewport.style.transition = 'transform 0.7s cubic-bezier(0.4,0,0.2,1)';
+    transform.s = scale; transform.x = window.innerWidth / 2 - cx * scale; transform.y = window.innerHeight / 2 - cy * scale;
+    applyT();
+    setTimeout(() => { viewport.style.transition = ''; }, 750);
   }
+
+  document.getElementById('evo-clear-overlay').classList.add('show');
+  if (evoClearTimer) clearTimeout(evoClearTimer);
+  evoClearTimer = setTimeout(clearEvoHighlight, 15000);
 }
 
 function clearEvoPath() {
-  evoPathSet = new Set();
-  evoPathEdgeSet = new Set();
-  evoPathNodes = [];
-  evoSlotA = null;
-  evoSlotB = null;
+  evoPathSet = new Set(); evoPathEdgeSet = new Set(); evoPathNodes = [];
+  evoSlotA = null; evoSlotB = null; evoPathActive = false;
   document.getElementById('evo-icon-a').textContent = '?';
-  document.getElementById('evo-label-a').textContent = t('evo_path_select');
+  document.getElementById('evo-label-a').textContent = t('evo_select');
   document.getElementById('evo-slot-a').classList.remove('filled');
   document.getElementById('evo-icon-b').textContent = '?';
-  document.getElementById('evo-label-b').textContent = t('evo_path_select');
+  document.getElementById('evo-label-b').textContent = t('evo_select');
   document.getElementById('evo-slot-b').classList.remove('filled');
   document.getElementById('evo-results').style.display = 'none';
   document.getElementById('evo-search-overlay').style.display = 'none';
-  scheduleRender();
+  document.getElementById('evo-clear-overlay').classList.remove('show');
+  if (evoClearTimer) { clearTimeout(evoClearTimer); evoClearTimer = null; }
+  scheduleRender(true);
+}
+
+function clearEvoHighlight() {
+  evoPathActive = false; evoPathSet = new Set(); evoPathEdgeSet = new Set();
+  document.getElementById('evo-clear-overlay').classList.remove('show');
+  if (evoClearTimer) { clearTimeout(evoClearTimer); evoClearTimer = null; }
+  scheduleRender(true);
 }
 
 // Close evo panel on backdrop click
@@ -6517,19 +6577,17 @@ function applyI18n(){
   const dnaLabelA=el('dna-label-a');if(dnaLabelA&&!document.getElementById('dna-slot-a').classList.contains('filled'))dnaLabelA.textContent=t('dna_select_species');
   const dnaLabelB=el('dna-label-b');if(dnaLabelB&&!document.getElementById('dna-slot-b').classList.contains('filled'))dnaLabelB.textContent=t('dna_select_species');
   // Evo Path i18n
-  set('i-evo-title',t('evo_path_title'));
-  set('i-btn-evo-path',t('evo_path_btn'));
-  set('i-evo-diverged',t('evo_path_diverged'));
-  set('i-evo-steps',t('evo_path_steps'));
-  set('i-evo-show-tree',t('evo_path_show_tree'));
-  set('i-evo-clear',t('evo_path_clear'));
-  set('i-evo-preset-bact',t('evo_preset_bact'));
-  set('i-evo-preset-plantfungi',t('evo_preset_plantfungi'));
-  set('i-evo-preset-chimp',t('evo_preset_chimp'));
-  set('i-evo-preset-birdshark',t('evo_preset_birdshark'));
-  const evoLabelA=el('evo-label-a');if(evoLabelA&&!document.getElementById('evo-slot-a').classList.contains('filled'))evoLabelA.textContent=t('evo_path_select');
-  const evoLabelB=el('evo-label-b');if(evoLabelB&&!document.getElementById('evo-slot-b').classList.contains('filled'))evoLabelB.textContent=t('evo_path_select');
-  const evoSearchInput=el('evo-search-input');if(evoSearchInput)evoSearchInput.placeholder=t('evo_path_search');
+  set('i-evo-title',t('evo_title'));
+  set('i-btn-evo-path',t('evo_btn'));
+  set('i-evo-diverged',t('evo_diverged'));
+  set('i-evo-show-tree',t('evo_show_tree'));
+  set('i-evo-clear',t('evo_clear'));
+  set('i-evo-clear-overlay',t('evo_clear_overlay'));
+  set('i-evo-p1',t('evo_p1'));set('i-evo-p2',t('evo_p2'));set('i-evo-p3',t('evo_p3'));
+  set('i-evo-p4',t('evo_p4'));set('i-evo-p5',t('evo_p5'));set('i-evo-p6',t('evo_p6'));
+  const evoLabelA=el('evo-label-a');if(evoLabelA&&!document.getElementById('evo-slot-a').classList.contains('filled'))evoLabelA.textContent=t('evo_select');
+  const evoLabelB=el('evo-label-b');if(evoLabelB&&!document.getElementById('evo-slot-b').classList.contains('filled'))evoLabelB.textContent=t('evo_select');
+  const evoSearchInput=el('evo-search-input');if(evoSearchInput)evoSearchInput.placeholder=t('evo_search');
   set('i-compare-title',t('compare_title'));
   set('i-compare-back',t('compare_back'));
   // Nav buttons

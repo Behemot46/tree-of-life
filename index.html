@@ -2777,11 +2777,12 @@ function renderPanelContent(node) {
     ? '<span style="background:#ef4444;color:white;font-size:10px;padding:2px 8px;border-radius:9999px;font-family:Inter,sans-serif;font-weight:600;letter-spacing:0.05em;">† EXTINCT</span>'
     : '';
   // WIKI_TITLES and PHOTO_MAP loaded from js/speciesData.js
-  // Merge data-level img with the lookup map; ImageLoader generated images take top priority
+  // Merge data-level img with the lookup map; PHOTO_MAP takes top priority (matches ImageLoader.getBestUrl)
   const photoEntry = PHOTO_MAP[node.id];
   const generatedUrl = (typeof ImageLoader!=='undefined') ? ImageLoader.getGeneratedUrl(node.id) : null;
-  let staticUrl = generatedUrl || (photoEntry && photoEntry.url) || node.img || null;
-  const staticCredit = generatedUrl ? 'AI-generated illustration' : (photoEntry && photoEntry.credit) || node.imgCredit || null;
+  let staticUrl = (photoEntry && photoEntry.url) || generatedUrl || node.img || null;
+  const isGenerated = !(photoEntry && photoEntry.url) && !!generatedUrl;
+  const staticCredit = isGenerated ? 'AI-generated illustration' : (photoEntry && photoEntry.credit) || node.imgCredit || null;
   const wikiTitle = WIKI_TITLES[node.id] || null;
   // Suppress if this static URL previously failed
   if (staticUrl && window._failedPhotos && window._failedPhotos.has('static:' + node.id)) {
@@ -2803,7 +2804,7 @@ function renderPanelContent(node) {
           (window._failedPhotos||(window._failedPhotos=new Set())).add('static:${node.id}');
           el.style.display='none';document.getElementById('${panelFbId}').style.display='flex';
         })(this);"
-        data-source="${generatedUrl ? 'generated' : 'static'}"
+        data-source="${isGenerated ? 'generated' : 'static'}"
       />
       <div id="${panelFbId}" style="display:${staticUrl ? 'none' : 'flex'};width:100%;height:100%;align-items:center;justify-content:center;font-size:72px;background:#111;">${node.icon||'🌿'}</div>
       <div id="${panelCrId}" style="position:absolute;bottom:5px;right:8px;font-size:10px;color:rgba(255,255,255,0.65);font-family:'Inter',sans-serif;text-shadow:0 1px 4px rgba(0,0,0,0.9);background:rgba(0,0,0,0.35);padding:1px 5px;border-radius:3px;">${staticCredit||''}</div>

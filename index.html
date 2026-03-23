@@ -2463,14 +2463,16 @@ function buildHomininTree(){
 
   // Build group nodes with their children from HOMININS
   const groupNodes=groups.map(g=>{
-    const species=HOMININS.filter(h=>h.group===g.filter).map(homininToTreeNode);
+    const species=HOMININS.filter(h=>h.group===g.filter).map(homininToTreeNode)
+      .sort((a,b)=>b.appeared-a.appeared);  // oldest first
     return {
       id:g.id, icon:g.icon, color:g.color, r:g.r,
       appeared:g.appeared, extinct:g.extinct,
       name:g.name, latin:g.latin, era:g.era,
       desc:g.desc, detail:g.detail,
       facts:g.facts, tags:g.tags,
-      children:species
+      children:species,
+      _isHomininGroup:true
     };
   });
 
@@ -2492,6 +2494,14 @@ function preprocess(n,parent=null,depth=0){
   if(n.children) n.children.forEach(c=>preprocess(c,n,depth+1));
 }
 preprocess(TREE);
+// Sort all children by appeared (oldest first) for consistent ordering
+function sortChildrenByAge(n){
+  if(n.children && n.children.length>1){
+    n.children.sort((a,b)=>(b.appeared||0)-(a.appeared||0));
+  }
+  if(n.children) n.children.forEach(sortChildrenByAge);
+}
+sortChildrenByAge(TREE);
 // Hominini branch always visible — groups expanded, individual species collapsed
 // (p27: always-visible hominin branch)
 window.getNodeById = id=>nodeMap[id];
@@ -2712,12 +2722,25 @@ function assignAngles(n,a0,a1){
     if(effectiveRange>maxAngle&&maxAngle>=minTotal) effectiveRange=maxAngle;
   }
 
+  // Angular gap between hominin group siblings for visual distinction
+  const GROUP_GAP_RAD=0.08;
+  let gapCount=0;
+  if(n.id==='hominini'){
+    for(let i=1;i<visible.length;i++){
+      if(visible[i]._isHomininGroup) gapCount++;
+    }
+  }
+  const totalGap=gapCount*GROUP_GAP_RAD;
+  effectiveRange=Math.max(effectiveRange,effectiveRange+totalGap);
+  const distributable=effectiveRange-totalGap;
+
   /* Center clamped range within parent arc */
   const parentMid=(a0+a1)/2;
   let a=parentMid-effectiveRange/2;
 
   visible.forEach((c,i)=>{
-    const share=effectiveRange*(weights[i]/totalWeight);
+    if(i>0 && n.id==='hominini' && c._isHomininGroup) a+=GROUP_GAP_RAD;
+    const share=distributable*(weights[i]/totalWeight);
     assignAngles(c,a,a+share);
     a+=share;
   });
@@ -2737,12 +2760,29 @@ function layoutCladogram(){
   const W=window.innerWidth,H=window.innerHeight;
   const margin=120;
   const depthSpacing=Math.min(200,(W-margin*2)/8);
-  function countLeaves(n){if(!n.children||!n.children.length||n._collapsed)return 1;let c=0;n.children.forEach(ch=>c+=countLeaves(ch));return c;}
+  const GROUP_GAP_LEAVES=1.5;
+  function countLeaves(n){
+    if(!n.children||!n.children.length||n._collapsed)return 1;
+    let c=0;n.children.forEach(ch=>c+=countLeaves(ch));
+    // Add virtual gap leaves for hominin group boundaries
+    if(n.id==='hominini'){
+      const groups=n.children.filter(ch=>ch._isHomininGroup);
+      c+=Math.max(0,(groups.length-1))*GROUP_GAP_LEAVES;
+    }
+    return c;
+  }
   const totalLeaves=countLeaves(TREE);
   const leafSpacing=Math.max(36,(H-margin*2)/totalLeaves);
   let leafIdx=0;
+  let lastHomininGroup=null;
   function assign(n,depth){
     if(!n.children||!n.children.length||n._collapsed){
+      // Insert vertical gap between hominin groups
+      if(n._parent && n._parent._isHomininGroup){
+        const gid=n._parent.id;
+        if(lastHomininGroup && lastHomininGroup!==gid) leafIdx+=GROUP_GAP_LEAVES;
+        lastHomininGroup=gid;
+      }
       const x=margin+depth*depthSpacing;
       n._x=isRtl?W-x:x;n._y=margin+leafIdx*leafSpacing;n._angle=0;leafIdx++;
     } else {

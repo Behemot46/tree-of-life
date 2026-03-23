@@ -20,7 +20,12 @@
       "Bash(sed -i 's/| p19 |/| p23 |/g' docs/PROMPTS/PROMPT_P19_DNA_CALCULATOR.md)",
       "Bash(mv docs/PROMPTS/PROMPT_P19_DNA_CALCULATOR.md docs/PROMPTS/PROMPT_P23_DNA_CALCULATOR.md)",
       "mcp__Claude_Preview__preview_start",
-      "WebFetch(domain:behemot46.github.io)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(git stash:*)",
+      "Bash(git merge:*)",
+      "Bash(echo \"EXIT: $?\")"
     ]
   }
 }

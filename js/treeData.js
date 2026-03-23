@@ -1314,26 +1314,6 @@ const TREE = {
                               tags:['Closest relative','Stone tools','Culture','Political alliances','Grief','Self-medicating'],tipFact:'You share more DNA with a chimp than a mouse shares with a rat.',children:[]}
                           ]}
                       ]},
-                    {id:'naked-mole-rat',icon:'🐀',color:lightenColor('#3b82f6','species'),r:11,
-                      appeared:5,extinct:null,
-                      img:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Naked_mole_rat.jpg/320px-Naked_mole_rat.jpg',
-                      imgCredit:'Jedimentat44, CC BY 2.0',
-                      name:'Naked mole rat',latin:'Heterocephalus glaber',era:'Neogene',
-                      desc:'The only cold-blooded mammal. Lives 37 years — 10 times longer than expected for its size. Never gets cancer. Feels no pain from acid or capsaicin. Lives in eusocial colonies like ants with a single breeding queen.',
-                      detail:'Naked mole rats can survive 18 minutes without oxygen by switching to fructose metabolism like a plant. Their longevity and cancer resistance make them a major focus of aging research.',
-                      funFact:'The naked mole rat never gets cancer, lives 10 times longer than it should for its size, feels no pain from chili peppers or acid, and can survive 18 minutes without oxygen by thinking like a plant.',
-                      facts:[{l:'Lifespan',v:'37 years (record for size)'},{l:'Cancer',v:'Never observed'},{l:'Cold-blooded',v:'Only mammal known'},{l:'Colony size',v:'Up to 300 individuals'},{l:'Oxygen tolerance',v:'18 min without O₂'}],
-                      tags:['Cancer resistant','Longevity','Cold-blooded mammal','Eusocial','Pain resistant','Fructose metabolism'],tipFact:'The only mammal that never gets cancer — and lives 10 times longer than it should.',children:[]},
-                    {id:'platypus',icon:'🦆',color:lightenColor('#3b82f6','species'),r:11,
-                      appeared:110,extinct:null,
-                      img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Platypus.jpg/320px-Platypus.jpg',
-                      imgCredit:'Peter Scheunis, CC BY-SA 3.0',
-                      name:'Platypus',latin:'Ornithorhynchus anatinus',era:'Cretaceous',
-                      desc:'A mammal that lays eggs, has a duck bill, beaver tail, otter feet, venomous ankle spurs, detects prey through electroreception, and glows blue-green under UV light. When first described to European scientists they thought it was a hoax.',
-                      detail:'The platypus has 10 sex chromosomes — humans have 2. Males have venomous spurs capable of causing severe pain in humans. Their bill contains 40,000 electroreceptors that detect the electric fields of muscle contractions in prey.',
-                      funFact:'When the first platypus specimen arrived in Britain in 1799, scientists thought someone had sewn a duck\'s bill onto a beaver — they literally checked the specimen for stitches.',
-                      facts:[{l:'Egg-laying',v:'One of only 5 mammal species'},{l:'Sex chromosomes',v:'10 (humans have 2)'},{l:'Electroreceptors',v:'40,000 in bill'},{l:'Venom',v:'Males have venomous ankle spurs'},{l:'Lineage age',v:'~110 million years'}],
-                      tags:['Egg-laying mammal','Electroreception','UV fluorescent','Venomous','Monotreme','Ancient lineage'],tipFact:'Scientists thought the first platypus specimen was a taxidermy hoax — they checked for stitches.',children:[]}
                   ]}
               ]}
           ]},

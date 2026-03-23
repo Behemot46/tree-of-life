@@ -1382,6 +1382,35 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .dna-presets{justify-content:center;}
 }
 
+/* ── PLAYBACK MODE ── */
+.node-locked{fill:var(--parchment);fill-opacity:0.15;stroke:var(--parchment);stroke-width:1.5;stroke-dasharray:4 3;cursor:pointer;transition:fill-opacity 0.3s,transform 0.2s;}
+.node-locked:hover{fill-opacity:0.3;transform:scale(1.12);}
+@keyframes nodeRevealBurst{0%{transform:scale(0.3);opacity:0;}50%{transform:scale(1.25);opacity:1;}100%{transform:scale(1);opacity:1;}}
+.node-revealing{animation:nodeRevealBurst 0.6s cubic-bezier(.34,1.56,.64,1) forwards;}
+.branch-pb-grow{transition:stroke-dashoffset 0.8s cubic-bezier(.4,0,.2,1)!important;}
+.discovery-card{position:fixed;z-index:300;background:var(--surface);border:1px solid var(--gold);border-radius:12px;padding:1rem 1.2rem;max-width:280px;backdrop-filter:blur(12px);animation:panelSlideUp 0.35s ease forwards;pointer-events:auto;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
+.discovery-card .dc-icon{font-size:2rem;margin-bottom:0.3rem;}
+.discovery-card .dc-name{font-family:var(--font-head);font-weight:600;font-size:1rem;color:var(--text);}
+.discovery-card .dc-latin{font-family:var(--font-body);font-size:0.75rem;color:var(--parchment);font-style:italic;}
+.discovery-card .dc-era{font-family:'JetBrains Mono',monospace;font-size:0.7rem;color:var(--parchment);margin-top:0.15rem;}
+.discovery-card .dc-desc{font-size:0.8rem;color:var(--parchment);margin-top:0.5rem;line-height:1.4;}
+.discovery-card .dc-fact{font-size:0.75rem;color:var(--gold);margin-top:0.5rem;font-style:italic;}
+@keyframes extinctionFlash{0%{opacity:0;}20%{opacity:0.35;}100%{opacity:0;}}
+.extinction-flash{position:fixed;inset:0;z-index:180;background:radial-gradient(circle,rgba(239,68,68,0.4),rgba(239,68,68,0.1));pointer-events:none;animation:extinctionFlash 1.8s ease forwards;}
+.extinction-info{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);z-index:185;pointer-events:none;text-align:center;animation:extinctionFlash 2.5s ease forwards;}
+.extinction-info h3{font-family:var(--font-head);font-size:1.6rem;color:#ef4444;margin:0;text-shadow:0 2px 12px rgba(0,0,0,0.6);}
+.extinction-info p{font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:var(--parchment);margin-top:0.3rem;}
+.playback-controls{display:flex;align-items:center;justify-content:center;gap:0.4rem;margin-top:0.3rem;flex-wrap:wrap;}
+.pb-btn{font-size:0.65rem;padding:3px 10px;border-radius:9999px;border:1px solid var(--gold);background:transparent;color:var(--parchment);cursor:pointer;font-family:var(--font-body);transition:all 0.15s ease;}
+.pb-btn:hover{background:var(--gold);color:var(--bg);}
+.pb-btn.active{background:var(--gold);color:var(--bg);}
+.pb-era-badge{position:fixed;top:45%;left:50%;transform:translate(-50%,-50%);z-index:180;pointer-events:none;font-family:var(--font-head);font-size:1.4rem;font-weight:700;color:var(--text);opacity:0;transition:opacity 0.5s;text-shadow:0 2px 16px rgba(0,0,0,0.7);}
+.pb-era-badge.show{opacity:0.7;}
+@media(max-width:768px){
+  .discovery-card{max-width:90vw;left:5vw!important;right:5vw!important;bottom:140px!important;top:auto!important;}
+  .playback-controls{gap:0.3rem;}
+}
+
 /* ══════════════════════════════════════════════════════ */
 /* EVOLUTIONARY PATH FINDER                               */
 /* ══════════════════════════════════════════════════════ */
@@ -1923,7 +1952,13 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
 
   <button class="view-btn" data-mode="cladogram" onclick="setViewMode('cladogram')">&#9500; Cladogram</button>
 
+  <button class="view-btn" data-mode="playback" onclick="enterPlaybackMode()" id="i-view-playback">&#9654; Playback</button>
+
 </div>
+
+<!-- PLAYBACK OVERLAYS -->
+<div id="discovery-card-container"></div>
+<div id="pb-era-badge" class="pb-era-badge"></div>
 
 <!-- ZOOM -->
 <div id="zoom-ctrl" role="toolbar" aria-label="Map controls">
@@ -2694,12 +2729,402 @@ function layoutChronological(){
   assign(TREE);
 }
 
+function layoutPlayback(){
+  const W=window.innerWidth,H=window.innerHeight;
+  const margin=120;const maxTime=3800;
+  // Logarithmic x: recent eras get more space
+  function timeToX(mya){
+    const norm=1-(Math.log(mya+1)/Math.log(maxTime+1));
+    return margin+norm*(W-margin*2);
+  }
+  const domainOrder=['bacteria','archaea','protists','fungi','plantae','animalia'];
+  const laneH=(H-margin*2)/domainOrder.length;
+  function hashCode(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return h;}
+  function getDomainLane(n){const d=n._domain||'luca';const idx=domainOrder.indexOf(d);return idx>=0?idx:Math.floor(domainOrder.length/2);}
+  function assign(n){
+    const mya=n.appeared||inferAppeared(n);
+    n._x=timeToX(mya);
+    const lane=getDomainLane(n);
+    const laneTop=margin+lane*laneH;
+    const laneCenter=laneTop+laneH/2;
+    const jitter=((hashCode(n.id||'x')%100)-50)/50*laneH*0.35;
+    n._y=laneCenter+jitter;n._angle=0;
+    if(n.children&&!n._collapsed)n.children.forEach(c=>assign(c));
+  }
+  assign(TREE);
+}
+
 function layout(){
   switch(viewMode){
     case 'cladogram':layoutCladogram();break;
     case 'chronological':layoutChronological();break;
+    case 'playback':layoutPlayback();break;
     default:layoutRadial();
   }
+}
+
+// ══════════════════════════════════════════════════════
+// PLAYBACK MODE
+// ══════════════════════════════════════════════════════
+let playbackMode=false;
+let playbackCursor=3800;
+let playbackSpeed=1;
+let playbackAnimId=null;
+let playbackStartTime=null;
+let playbackStartCursor=3800;
+let playbackNodeStates=new Map();
+let discoveredNodes=new Set();
+let playbackEvents=[];
+let previousViewMode='radial';
+let pbLastEraBadge='';
+let pbFiredExtinctions=new Set();
+const PLAYBACK_LOCK_PREVIEW=200;
+const PLAYBACK_DURATION=90000; // 90 seconds at 1x
+
+/* Infer appeared value for nodes missing it (use parent's value) */
+function inferAppeared(n){
+  if(n.appeared!==undefined&&n.appeared!==null) return n.appeared;
+  if(n._parent) return inferAppeared(n._parent);
+  return 0;
+}
+
+/* Build sorted event list from all nodes + extinction events */
+function buildPlaybackEvents(){
+  playbackEvents=[];
+  Object.values(nodeMap).forEach(n=>{
+    const mya=n.appeared!==undefined&&n.appeared!==null?n.appeared:inferAppeared(n);
+    playbackEvents.push({mya,type:'node',id:n.id,node:n});
+  });
+  if(typeof EXTINCTIONS!=='undefined'){
+    EXTINCTIONS.forEach(ext=>{
+      playbackEvents.push({mya:ext.mya,type:'extinction',data:ext});
+    });
+  }
+  // Sort descending by Mya (oldest first in playback)
+  playbackEvents.sort((a,b)=>b.mya-a.mya);
+}
+
+/* Derive node state purely from cursor position */
+function getPlaybackNodeState(n){
+  if(discoveredNodes.has(n.id)) return 'revealed';
+  const mya=n.appeared!==undefined&&n.appeared!==null?n.appeared:inferAppeared(n);
+  // Cursor counts DOWN from 3800→0. Node revealed when cursor passes its appeared value.
+  if(playbackCursor<=mya) return 'revealed';
+  if(playbackCursor<=mya+PLAYBACK_LOCK_PREVIEW) return 'locked';
+  return 'hidden';
+}
+
+/* Update all node states from current cursor */
+function updatePlaybackStates(){
+  Object.values(nodeMap).forEach(n=>{
+    playbackNodeStates.set(n.id,getPlaybackNodeState(n));
+  });
+}
+
+/* Enter playback mode */
+function enterPlaybackMode(){
+  if(playbackMode) return;
+  playbackMode=true;
+  previousViewMode=viewMode;
+  viewMode='playback';
+  playbackCursor=3800;
+  playbackSpeed=1;
+  discoveredNodes.clear();
+  pbFiredExtinctions.clear();
+  pbLastEraBadge='';
+
+  // Update view toggle buttons
+  document.querySelectorAll('.view-btn').forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.mode==='playback');
+  });
+
+  buildPlaybackEvents();
+  updatePlaybackStates();
+
+  // Set era slider to 3800
+  const eraSliderEl=document.getElementById('era-slider');
+  if(eraSliderEl){eraSliderEl.value=3800;currentEra=3800;}
+
+  // Build playback controls in era-presets area
+  buildPlaybackControls();
+
+  // Layout and render
+  layout();
+  centerOnTree(0.55);
+  scheduleRender(true);applyT();
+
+  // Auto-start playback after short delay
+  setTimeout(()=>startPlayback(),600);
+}
+
+/* Exit playback mode */
+function exitPlaybackMode(){
+  if(!playbackMode) return;
+  playbackMode=false;
+  pausePlayback();
+  discoveredNodes.clear();
+  playbackNodeStates.clear();
+  pbFiredExtinctions.clear();
+
+  // Remove discovery card if present
+  const dc=document.getElementById('discovery-card-container');
+  if(dc) dc.innerHTML='';
+  // Remove era badge
+  const badge=document.getElementById('pb-era-badge');
+  if(badge){badge.classList.remove('show');badge.textContent='';}
+
+  // Restore previous view mode
+  viewMode=previousViewMode;
+  document.querySelectorAll('.view-btn').forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.mode===viewMode);
+  });
+
+  // Restore era presets
+  buildEraPresets();
+
+  // Re-layout and render
+  layout();
+  animDone.clear();
+  if(viewMode==='radial') centerOnTree(0.75);
+  else if(viewMode==='cladogram') centerOnTree(0.7);
+  else if(viewMode==='chronological') centerOnTree(0.65);
+  scheduleRender(true);applyT();
+}
+
+/* Start playback animation */
+function startPlayback(){
+  if(playbackAnimId) return;
+  playbackStartTime=performance.now();
+  playbackStartCursor=playbackCursor;
+  let lastRenderTime=0;
+  let lastVisibleCount=0;
+  const RENDER_INTERVAL=200; // only re-render ~5fps (DOM rebuild is expensive)
+  function step(now){
+    const elapsed=now-playbackStartTime;
+    const progress=Math.min(1,elapsed/(PLAYBACK_DURATION/playbackSpeed));
+    playbackCursor=Math.max(0,Math.round(playbackStartCursor*(1-progress)));
+
+    // Sync era slider (lightweight, every frame)
+    const eraSliderEl=document.getElementById('era-slider');
+    if(eraSliderEl){
+      eraSliderEl.value=playbackCursor;currentEra=playbackCursor;
+      const eraFillEl=document.getElementById('era-fill');
+      if(eraFillEl) eraFillEl.style.width=(playbackCursor/3800*100)+'%';
+      const eraLabelEl=document.getElementById('era-label');
+      if(eraLabelEl&&typeof getEraName==='function') eraLabelEl.textContent=getEraName(playbackCursor);
+      if(typeof updateEraTint==='function') updateEraTint(playbackCursor);
+    }
+
+    checkExtinctionEvents();
+    showEraBadge();
+
+    // Only do heavy work (state update + render) at throttled rate
+    if(now-lastRenderTime>=RENDER_INTERVAL){
+      lastRenderTime=now;
+      updatePlaybackStates();
+      // Only re-render if the visible set changed
+      let visCount=0;
+      playbackNodeStates.forEach(s=>{if(s!=='hidden')visCount++;});
+      if(visCount!==lastVisibleCount){
+        lastVisibleCount=visCount;
+        if(typeof updateSpeciesCount==='function') updateSpeciesCount();
+        scheduleRender(true);
+      }
+    }
+
+    if(progress<1&&playbackMode){
+      playbackAnimId=requestAnimationFrame(step);
+    } else {
+      // Final update when playback completes
+      updatePlaybackStates();
+      if(typeof updateSpeciesCount==='function') updateSpeciesCount();
+      scheduleRender(true);
+      playbackAnimId=null;
+      updatePlaybackControlState();
+    }
+  }
+  playbackAnimId=requestAnimationFrame(step);
+  updatePlaybackControlState();
+}
+
+/* Pause playback */
+function pausePlayback(){
+  if(playbackAnimId){cancelAnimationFrame(playbackAnimId);playbackAnimId=null;}
+  updatePlaybackControlState();
+}
+
+/* Toggle play/pause */
+function togglePlayback(){
+  if(playbackAnimId) pausePlayback();
+  else startPlayback();
+}
+
+/* Set playback speed */
+function setPlaybackSpeed(speed){
+  const wasPlaying=!!playbackAnimId;
+  if(wasPlaying) pausePlayback();
+  playbackSpeed=speed;
+  if(wasPlaying) startPlayback();
+  updatePlaybackControlState();
+}
+
+/* Reset playback to beginning */
+function resetPlayback(){
+  pausePlayback();
+  playbackCursor=3800;
+  discoveredNodes.clear();
+  pbFiredExtinctions.clear();
+  pbLastEraBadge='';
+  updatePlaybackStates();
+  const eraSliderEl=document.getElementById('era-slider');
+  if(eraSliderEl){eraSliderEl.value=3800;currentEra=3800;}
+  animDone.clear();
+  scheduleRender(true);
+  updatePlaybackControlState();
+}
+
+/* Skip to next event */
+function skipToNextEvent(){
+  const next=playbackEvents.find(e=>e.mya<playbackCursor);
+  if(!next) return;
+  pausePlayback();
+  playbackCursor=next.mya;
+  updatePlaybackStates();
+  const eraSliderEl=document.getElementById('era-slider');
+  if(eraSliderEl){
+    eraSliderEl.value=playbackCursor;currentEra=playbackCursor;
+    const eraFillEl=document.getElementById('era-fill');
+    if(eraFillEl) eraFillEl.style.width=(playbackCursor/3800*100)+'%';
+    const eraLabelEl=document.getElementById('era-label');
+    if(eraLabelEl&&typeof getEraName==='function') eraLabelEl.textContent=getEraName(playbackCursor);
+    if(typeof updateEraTint==='function') updateEraTint(playbackCursor);
+  }
+  checkExtinctionEvents();
+  scheduleRender(true);
+}
+
+/* Check and fire extinction effects */
+function checkExtinctionEvents(){
+  if(typeof EXTINCTION_DETAILS==='undefined') return;
+  EXTINCTION_DETAILS.forEach(ext=>{
+    if(!pbFiredExtinctions.has(ext.mya)&&playbackCursor<=ext.mya&&playbackCursor>=ext.mya-50){
+      pbFiredExtinctions.add(ext.mya);
+      playExtinctionEffect(ext);
+    }
+  });
+}
+
+/* Play extinction flash effect */
+function playExtinctionEffect(ext){
+  // Red flash
+  const flash=document.createElement('div');
+  flash.className='extinction-flash';
+  document.body.appendChild(flash);
+  setTimeout(()=>flash.remove(),2000);
+
+  // Info overlay
+  const info=document.createElement('div');
+  info.className='extinction-info';
+  const name=typeof t==='function'?t(ext.key):ext.key;
+  info.innerHTML=`<h3>${name}</h3><p>${ext.mya} Ma \u2022 ${ext.pct}% species lost</p>`;
+  document.body.appendChild(info);
+  setTimeout(()=>info.remove(),2800);
+}
+
+/* Show era badge when era changes */
+function showEraBadge(){
+  if(typeof getEraName!=='function') return;
+  const name=getEraName(playbackCursor);
+  if(name===pbLastEraBadge) return;
+  pbLastEraBadge=name;
+  const badge=document.getElementById('pb-era-badge');
+  if(!badge) return;
+  badge.textContent=name;
+  badge.classList.add('show');
+  clearTimeout(badge._timeout);
+  badge._timeout=setTimeout(()=>badge.classList.remove('show'),2500);
+}
+
+/* Discover a locked node (user clicks it) */
+function discoverNode(n){
+  if(!playbackMode) return;
+  const state=getPlaybackNodeState(n);
+  if(state!=='locked') return;
+  discoveredNodes.add(n.id);
+  playbackNodeStates.set(n.id,'revealed');
+  showDiscoveryCard(n);
+  scheduleRender(true);
+}
+
+/* Show discovery card near a node */
+function showDiscoveryCard(n){
+  const container=document.getElementById('discovery-card-container');
+  if(!container) return;
+  container.innerHTML='';
+
+  // Calculate screen position of node
+  const svgRect=document.getElementById('svg').getBoundingClientRect();
+  const sx=transform.x+n._x*transform.s+svgRect.left;
+  const sy=transform.y+n._y*transform.s+svgRect.top;
+
+  const card=document.createElement('div');
+  card.className='discovery-card';
+  card.style.left=Math.min(sx+20,window.innerWidth-300)+'px';
+  card.style.top=Math.max(sy-60,10)+'px';
+
+  const eraStr=n.appeared?n.appeared+' Ma':'Present';
+  const factHtml=n.facts&&n.facts.length?`<div class="dc-fact">${n.facts[0].l}: ${n.facts[0].v}</div>`:'';
+  card.innerHTML=`
+    <div class="dc-icon">${n.icon||''}</div>
+    <div class="dc-name">${n.name||n.id}</div>
+    ${n.latin?`<div class="dc-latin">${n.latin}</div>`:''}
+    <div class="dc-era">${eraStr}</div>
+    ${n.desc?`<div class="dc-desc">${n.desc}</div>`:''}
+    ${factHtml}
+  `;
+  card.addEventListener('click',()=>container.innerHTML='');
+  container.appendChild(card);
+
+  // Auto-dismiss after 3.5 seconds
+  setTimeout(()=>{if(container.contains(card))container.innerHTML='';},3500);
+}
+
+/* Build playback control buttons in era-presets area */
+function buildPlaybackControls(){
+  const container=document.getElementById('era-presets');
+  if(!container) return;
+  container.innerHTML='';
+  container.className='playback-controls';
+
+  const btns=[
+    {label:'\u23f8 '+t('pb_pause'),id:'pb-toggle',action:()=>togglePlayback()},
+    {label:'0.5x',id:'pb-s05',action:()=>setPlaybackSpeed(0.5)},
+    {label:'1x',id:'pb-s1',action:()=>setPlaybackSpeed(1),active:true},
+    {label:'2x',id:'pb-s2',action:()=>setPlaybackSpeed(2)},
+    {label:'4x',id:'pb-s4',action:()=>setPlaybackSpeed(4)},
+    {label:'\u23ed '+t('pb_skip'),id:'pb-skip',action:()=>skipToNextEvent()},
+    {label:'\u21ba '+t('pb_reset'),id:'pb-reset',action:()=>resetPlayback()},
+    {label:'\u2715 '+t('pb_exit'),id:'pb-exit',action:()=>exitPlaybackMode()},
+  ];
+  btns.forEach(b=>{
+    const btn=document.createElement('button');
+    btn.className='pb-btn'+(b.active?' active':'');
+    btn.id=b.id;btn.textContent=b.label;
+    btn.addEventListener('click',b.action);
+    container.appendChild(btn);
+  });
+}
+
+/* Update playback control button states */
+function updatePlaybackControlState(){
+  const toggle=document.getElementById('pb-toggle');
+  if(toggle) toggle.textContent=playbackAnimId?'\u23f8 '+t('pb_pause'):'\u25b6 '+t('pb_play');
+
+  [0.5,1,2,4].forEach(s=>{
+    const id='pb-s'+String(s).replace('.','');
+    const btn=document.getElementById(id);
+    if(btn) btn.classList.toggle('active',playbackSpeed===s);
+  });
 }
 
 // ══════════════════════════════════════════════════════
@@ -2709,6 +3134,10 @@ let currentEra = 3800;
 let activeDomains = new Set(['luca','bacteria','archaea','eukaryota','protists','fungi','plantae','animalia']);
 let showExtinct = true;
 function nodeInEra(n){
+  if(playbackMode){
+    const state=playbackNodeStates.get(n.id)||getPlaybackNodeState(n);
+    return state!=='hidden';
+  }
   if(!n.appeared) return true;
   const mya = n.appeared;
   const extinctMya = n.extinct || 0;
@@ -2788,6 +3217,7 @@ let highlightedId=null;
 function branchPath(x1,y1,x2,y2){
   if(viewMode==='cladogram'){return `M${x1},${y1} H${(x1+x2)/2} V${y2} H${x2}`;}
   if(viewMode==='chronological'){return `M${x1},${y1} L${x2},${y2}`;}
+  if(viewMode==='playback'){return `M${x1},${y1} C${x1+(x2-x1)*0.5},${y1} ${x1+(x2-x1)*0.5},${y2} ${x2},${y2}`;}
   const dx=x2-x1,dy=y2-y1;
   const dist=Math.hypot(dx,dy)||1;
   const px=-dy/dist,py=dx/dist;
@@ -2831,6 +3261,13 @@ function render(){
   edges.forEach(({from,to})=>{
     if(to._domain && to._domain!=='luca' && !activeDomains.has(to._domain)) return;
     if(!showExtinct && to.extinct) return;
+
+    // Playback: skip branch if child is hidden
+    if(playbackMode){
+      const childState=playbackNodeStates.get(to.id)||getPlaybackNodeState(to);
+      if(childState==='hidden') return;
+    }
+
     const inEra=nodeInEra(to);
     const onHumanPath=HUMAN_PATH.has(from.id)&&HUMAN_PATH.has(to.id);
     const onEvoPath=evoPathEdgeSet.has(from.id+'|'+to.id);
@@ -2840,15 +3277,28 @@ function render(){
     p.setAttribute('data-branch','true');
     const isAccent=onHumanPath||onEvoPath;
     const sw=isAccent?5:Math.max(2,6-to.depth*0.5);
-    const op=isAccent?0.9:(inEra?Math.max(0.3,0.8-to.depth*0.06):0.08);
+
+    // Playback: locked branches are dimmer
+    let op;
+    if(playbackMode){
+      const childState=playbackNodeStates.get(to.id)||getPlaybackNodeState(to);
+      op=childState==='locked'?0.12:(isAccent?0.9:(inEra?Math.max(0.3,0.8-to.depth*0.06):0.08));
+    } else {
+      op=isAccent?0.9:(inEra?Math.max(0.3,0.8-to.depth*0.06):0.08);
+    }
     p.setAttribute('stroke',onEvoPath?'var(--accent-secondary)':(onHumanPath?'var(--accent-primary)':to.color));
     p.setAttribute('stroke-width',sw);
     p.setAttribute('stroke-opacity',op);
     if(!animDone.has(to.id)){
       const len=9999;p.style.strokeDasharray=len;p.style.strokeDashoffset=len;
-      p.style.transition=`stroke-dashoffset ${0.3+to.depth*0.05}s cubic-bezier(.4,0,.2,1) ${to.depth*0.04}s`;
-      p.addEventListener('transitionend',function h(){p.style.strokeDasharray='';p.style.strokeDashoffset='';p.style.transition='';p.removeEventListener('transitionend',h);},{once:true});
-      setTimeout(()=>{p.style.strokeDashoffset=0;},50);
+      if(playbackMode){
+        p.classList.add('branch-pb-grow');
+        setTimeout(()=>{p.style.strokeDashoffset=0;},30);
+      } else {
+        p.style.transition=`stroke-dashoffset ${0.3+to.depth*0.05}s cubic-bezier(.4,0,.2,1) ${to.depth*0.04}s`;
+        p.addEventListener('transitionend',function h(){p.style.strokeDasharray='';p.style.strokeDashoffset='';p.style.transition='';p.removeEventListener('transitionend',h);},{once:true});
+        setTimeout(()=>{p.style.strokeDashoffset=0;},50);
+      }
     }
     branchFrag.appendChild(p);
     if(onHumanPath) humanPathEdges.push(p);
@@ -2864,6 +3314,49 @@ function render(){
   nodes.forEach(n=>{
     if(n._domain && n._domain!=='luca' && !activeDomains.has(n._domain)) return;
     if(!showExtinct && n.extinct) return;
+
+    // Playback: skip hidden, render locked differently
+    const pbState=playbackMode?(playbackNodeStates.get(n.id)||getPlaybackNodeState(n)):null;
+    if(playbackMode&&pbState==='hidden') return;
+
+    if(playbackMode&&pbState==='locked'){
+      // Render locked silhouette node
+      const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+      g.setAttribute('class','node-group');
+      g.style.cursor='pointer';
+
+      // Hit area
+      const hit=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      hit.setAttribute('cx',n._x);hit.setAttribute('cy',n._y);hit.setAttribute('r',Math.max(n.r+14,22));
+      hit.setAttribute('fill','transparent');hit.style.cursor='pointer';
+      hit.addEventListener('click',e=>{e.stopPropagation();discoverNode(n);});
+      g.appendChild(hit);
+
+      // Locked circle (dashed, dim)
+      const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',n._x);c.setAttribute('cy',n._y);c.setAttribute('r',Math.max(n.r,8));
+      c.setAttribute('class','node-locked');
+      c.style.transformOrigin=`${n._x}px ${n._y}px`;
+      c.addEventListener('mouseenter',function(){showTip('???','?');});
+      c.addEventListener('mouseleave',function(){hideTip();});
+      c.addEventListener('click',e=>{e.stopPropagation();discoverNode(n);});
+      g.appendChild(c);
+
+      // Question mark icon
+      const qm=document.createElementNS('http://www.w3.org/2000/svg','text');
+      qm.setAttribute('x',n._x);qm.setAttribute('y',n._y+4);
+      qm.setAttribute('text-anchor','middle');qm.setAttribute('font-size',Math.max(10,n.r*0.8));
+      qm.setAttribute('fill','var(--parchment)');qm.setAttribute('fill-opacity','0.5');
+      qm.setAttribute('font-family','Inter,sans-serif');qm.setAttribute('font-weight','700');
+      qm.style.pointerEvents='none';
+      qm.textContent='?';
+      g.appendChild(qm);
+
+      g.addEventListener('contextmenu',e=>e.preventDefault());
+      nodesFrag.appendChild(g);
+      return; // skip normal node rendering for locked nodes
+    }
+
     const inEra=nodeInEra(n);
     const isHighlighted=highlightedId===n.id;
     const isGroupChip=n.id&&n.id.startsWith('group-');
@@ -3115,8 +3608,8 @@ function render(){
       g.appendChild(label);
     }
 
-    // Animate in
-    if(!animDone.has(n.id)){
+    // Animate in (skip during playback — playback has its own locked→revealed animation)
+    if(!playbackMode&&!animDone.has(n.id)){
       g.style.opacity='0';g.style.transformOrigin=`${n._x}px ${n._y}px`;g.style.transform='scale(0.2)';
       setTimeout(()=>{
         g.style.transition=`opacity 0.45s ease ${n.depth*0.09}s, transform 0.45s cubic-bezier(.34,1.56,.64,1) ${n.depth*0.09}s`;
@@ -3128,6 +3621,7 @@ function render(){
     // Events — left-click: expand/collapse branches, open panel for leaves
     g.addEventListener('click',e=>{
       e.stopPropagation();
+      if(playbackMode){showDiscoveryCard(n);return;}
       if(n.children&&n.children.length){
         n._collapsed=!n._collapsed;
         layout();scheduleRender(true);
@@ -3147,7 +3641,7 @@ function render(){
       }
     });
     // Double-click: always open panel (even for branch nodes)
-    g.addEventListener('dblclick',e=>{e.stopPropagation();e.preventDefault();showMainPanel(n);});
+    g.addEventListener('dblclick',e=>{e.stopPropagation();e.preventDefault();if(!playbackMode)showMainPanel(n);});
     nodesFrag.appendChild(g);
   });
 
@@ -4584,6 +5078,7 @@ function updateEraTimeRange(mya){
 }
 
 function toggleEraPlay(){
+  if(playbackMode){togglePlayback();return;}
   const btn=document.getElementById('era-play');
   if(eraPlayId){
     cancelAnimationFrame(eraPlayId);eraPlayId=null;
@@ -4809,6 +5304,8 @@ function centerOnRoot(scale){
   transform={x:window.innerWidth/2-TREE._x*scale,y:window.innerHeight/2-TREE._y*scale,s:scale};
 }
 function setViewMode(mode){
+  if(playbackMode&&mode!=='playback') exitPlaybackMode();
+  if(mode==='playback'){enterPlaybackMode();return;}
   viewMode=mode;
   document.querySelectorAll('.view-btn').forEach(btn=>{
     btn.classList.toggle('active',btn.dataset.mode===mode);
@@ -4820,6 +5317,26 @@ function setViewMode(mode){
   scheduleRender(true);applyT();
 }
 
+eraSlider.addEventListener('input',()=>{
+  currentEra=parseInt(eraSlider.value);
+  const pct=(currentEra/3800)*100;
+  eraFill.style.width=pct+'%';
+  eraLabel.textContent=getEraName(currentEra);
+  updateEraTint(currentEra);
+  updateSpeciesCount();
+  if(playbackMode){
+    pausePlayback();
+    playbackCursor=currentEra;
+    pbFiredExtinctions.clear();
+    playbackEvents.forEach(e=>{if(e.type==='extinction'&&e.mya>=playbackCursor)pbFiredExtinctions.add(e.mya);});
+    updatePlaybackStates();
+  } else {
+    updatePresetHighlight(currentEra);
+    if(eraPlayId){cancelAnimationFrame(eraPlayId);eraPlayId=null;
+      const pb=document.getElementById('era-play');if(pb){pb.textContent='\u25b6';pb.classList.remove('playing');}}
+  }
+  scheduleRender();
+});
 // ══════════════════════════════════════════════════════
 // SEARCH
 // ══════════════════════════════════════════════════════
@@ -5785,6 +6302,7 @@ setTimeout(resetIdleTimer, 5000);
 // ══════════════════════════════════════════════════════
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
+    if(playbackMode){exitPlaybackMode();return;}
     if(_toastEl.classList.contains('visible')){dismissToast();return;}
     if(document.getElementById('evo-path-panel').classList.contains('open')){closeEvoPath();return;}
     if(document.getElementById('trivia-panel').classList.contains('open')){closeTrivia();return;}
@@ -5805,6 +6323,12 @@ document.addEventListener('keydown',e=>{
   }
   // Prevent shortcuts firing while typing in any input/textarea
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.isContentEditable) return;
+  // Playback keyboard shortcuts
+  if(playbackMode){
+    if(e.key===' '){e.preventDefault();togglePlayback();}
+    if(e.key==='ArrowRight'){e.preventDefault();skipToNextEvent();}
+    return;
+  }
   if(e.key==='f'||e.key==='F'){searchInput.focus();e.preventDefault();}
   if(e.key==='/'){e.preventDefault();const search=document.getElementById('search-input');if(search)search.focus();}
   if(e.key==='h'||e.key==='H'){navigateTo('hominini');}
@@ -6023,6 +6547,7 @@ function applyI18n(){
     if(mode==='radial')btn.innerHTML='&#9673; '+t('view_radial');
     else if(mode==='chronological')btn.innerHTML='&#8594; '+t('view_chrono');
     else if(mode==='cladogram')btn.innerHTML='&#9500; '+t('view_clado');
+    else if(mode==='playback')btn.innerHTML='&#9654; '+t('view_playback');
   });
   // Update play button
   const playBtn=document.getElementById('era-play');

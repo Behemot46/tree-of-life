@@ -523,6 +523,13 @@ const IMAGE_PROMPTS = {
     tags: ['eukaryote', 'animals', 'great-ape']
   },
 
+  // ── HOMININI (tribe) ──
+  'hominini': {
+    prompt: 'Museum-quality composite showing the march of human evolution: silhouettes progressing from a crouched ape-like figure through upright australopiths to a modern human, set against an African savanna sunset with acacia trees, warm golden light, scientific illustration style with anatomical accuracy',
+    style: 'illustration',
+    tags: ['hominin', 'tribe', 'evolution', 'iconic']
+  },
+
   // ── HOMININS ──
   'sahelanthropus': {
     prompt: 'Scientific reconstruction of Sahelanthropus tchadensis (Toumai), ape-like face with reduced canines, small braincase, standing semi-upright in forested lake margin environment in ancient Chad, 7 million years ago, paleoart style',

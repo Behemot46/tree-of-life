@@ -1,8 +1,14 @@
 # Roadmap — Tree of Life
 
-> Last updated: 2026-03-16
+> Last updated: 2026-03-28
 
-## Completed Milestones
+## Vision
+
+Make Tree of Life the most **engaging, intuitive, accurate, and fun** phylogenetic explorer on the web. English-only focus. Clear design across desktop and mobile.
+
+---
+
+## Completed Milestones (p-series)
 
 | Phase | Milestone | PR / Branch |
 |-------|-----------|-------------|
@@ -25,197 +31,133 @@
 | p17 | Subtree-weighted radial spacing | PR #56 |
 | p18 | Fix overlapping header controls | PR #57 |
 | p19 | Roadmap, project health, splash/intro i18n | PR #58 |
-| p23 | DNA similarity calculator with species comparison | PR #60 |
-| ~~p21~~ | ~~Legend interactivity~~ | Already implemented — `toggleDomain()` + `activeDomains` filtering works |
+| p23 | DNA similarity calculator (35 known pairs + LCA estimation model) | PR #60 |
+
+### Features shipped without phase numbers
+
+- **Domain legend interactivity** — `toggleDomain()` / `resetDomains()` with click handlers and "Show All" reset
+- **Rich species panels** — Photo hero, funFact, facts table, tags, links, hominin brain/tools/DNA/fossils
+- **Procedural SVG illustrations** — `generateSpeciesIllustration()` (440×200 domain-specific SVG)
+- **Partial ARIA** — roles, labels on all controls
+- **Hominin deep-dive view** — Full-screen view with filtering, timeline cards, compare mode
 
 ---
 
-## Upcoming Phases
+## J-Series — Next Generation
 
-### Tier 1 — High Priority (foundations & data integrity)
+English-only. Focus: clear design, engaging, intuitive, accurate, fun.
 
-#### p20 — i18n Completeness & Translation Files
-**Priority:** High | **Effort:** Small–Medium
+### J1 — Design System Cleanup
+**Effort:** Small | **Prompt:** `docs/PROMPTS/SPRINT_J1_DESIGN_CLEANUP.md`
 
-- [x] Localize splash screen text — done in p19
-- [x] Localize `showIntro()` overlay — done in p19
-- [ ] **Split translations into per-language files** (`js/i18n/en.js`, `he.js`, `ru.js`) — cleaner code, faster loads at scale
-- [ ] Localize splash header number formatting (comma vs period by locale)
-- [ ] Audit remaining hardcoded English in panel content template
-- [ ] Native speaker review of HE/RU translations
-- [ ] Localize node `desc` / `detail` / `facts` in treeData.js (large — may be its own phase)
+- Rename `--gold` → `--accent` (currently sky blue, not gold)
+- Consolidate duplicate light theme CSS rules
+- Define z-index scale as CSS custom properties
+- Remove dead CSS classes, convert inline JS styles → CSS classes
+- Add `prefers-reduced-motion` support
+- Unify mobile breakpoints to 768px
 
-#### p21 — JSON Data & Schema Validation
-**Priority:** High | **Effort:** Medium
-**Why now:** CI safety net at 132 nodes, essential at 1K+
+### J2 — Navigation & Interaction Polish
+**Effort:** Small | **Prompt:** `docs/PROMPTS/SPRINT_J2_NAV_POLISH.md`
 
-- [ ] Convert `treeData.js` TREE constant to JSON (loaded at init)
-- [ ] Define JSON schema for node shape (`id`, `appeared`, `children`, etc.)
-- [ ] Add CI validation step (schema check on push)
-- [ ] Convert `speciesData.js` maps to JSON where appropriate
-- [ ] Validate PHOTO_MAP URLs, WIKI_TITLES keys against node IDs
+- Merge `panelHistory` + `navStack` into single unified stack
+- Delete `panelBack()`, all navigation through `navBack()`
+- Smooth auto-pan to focused node
+- Keyboard: Escape = Back, Shift+Escape = Home
 
-#### p22 — CI Photo Link Checker
-**Priority:** High | **Effort:** Low
-**Why now:** Catches URL rot early — same value at any scale
+### J3 — Code Modularization
+**Effort:** Large | **Prompt:** `docs/PROMPTS/SPRINT_J3_MODULARIZATION.md`
 
-- [ ] GitHub Actions workflow to verify PHOTO_MAP URLs return 200
-- [ ] Run weekly or on data file changes
-- [ ] Report broken links as PR check / issue
+- Split 4,251-line index.html inline JS → 12 ES modules
+- `<script type="module">` — no build step needed
+- Modules: app, renderer, layout, panel, navigation, search, timeline, hominin, dnaCalc, zoom, theme, utils
 
-#### p23 — Navigation Stack Unification
-**Priority:** High | **Effort:** Small
+### J4 — Accessibility Foundation
+**Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J4_ACCESSIBILITY.md`
 
-- [ ] Merge `panelHistory` and `navStack` into a single unified stack
-- [ ] Consolidate Back button logic (panel-internal vs global nav)
-- [ ] Add keyboard shortcuts: Escape → Back, Shift+Escape → Home
-- [ ] Test all navigation paths after unification
+- ARIA tree roles on SVG nodes, `aria-expanded`, `aria-selected`
+- Arrow-key tree navigation (Up/Down/Left/Right)
+- Focus trapping in modals, skip-to-content link
+- Touch targets ≥ 44px on mobile
+- `aria-live` announcements
 
----
+### J5 — SVG Performance
+**Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J5_PERFORMANCE.md`
 
-### Tier 2 — Medium Priority (UX & architecture)
+- Viewport culling — only render visible nodes
+- GPU compositing with `will-change: transform`
+- CSS-class animations instead of inline styles
+- rAF-debounced pointer pan
+- Target: 60fps with 300+ nodes
 
-#### p24 — Code Organization & Extraction
-**Priority:** Medium | **Effort:** Medium–Large
+### J6 — Discovery & Fun
+**Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J6_ENGAGEMENT.md`
 
-- [ ] Extract rendering logic from index.html to `js/renderer.js`
-- [ ] Extract panel logic to `js/panel.js`
-- [ ] Extract navigation/state to `js/navigation.js`
-- [ ] Extract search logic to `js/search.js`
-- [ ] Keep inline only: HTML structure, CSS, bootstrap/init
-- [ ] Ensure extraction doesn't break global scope dependencies
+- Progress tracker: "X/132 species discovered"
+- 12 unlockable achievements with toast notifications
+- Idle fact cards (30s timer)
+- Enhanced hover tooltips with funFact data
+- Quiz mode: "Which domain?" multiple choice
+- Exploration visual cue on visited nodes
 
-#### p25 — Accessibility (a11y)
-**Priority:** Medium | **Effort:** Medium
+### J7 — Data Enrichment
+**Effort:** Large | **Prompt:** `docs/PROMPTS/SPRINT_J7_DATA_ENRICHMENT.md`
 
-- [ ] Full keyboard navigation through tree nodes (arrow keys)
-- [ ] Screen reader announcements for node focus, panel open/close
-- [ ] ARIA tree role on SVG tree structure
-- [ ] Focus management: trap focus in panel when open, restore on close
-- [ ] Skip-to-content link
-- [ ] `prefers-reduced-motion` for all animations (currently 0 matches)
-- [ ] High contrast mode testing
+- Expand tree from 132 → 200+ species
+- IUCN conservation status with color-coded badges
+- Expand DNA_KNOWN from 36 → 60+ pairs
+- Expand FACTS library from 18 → 40+ facts
+- Add funFact to all nodes
 
-#### p26 — Rich Data Panels & Infographics
-**Priority:** Medium | **Effort:** Medium–Large
+### J8 — Offline & PWA
+**Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J8_PWA.md`
 
-- [ ] Increase font sizes, add descriptive paragraphs
-- [ ] Layered data sections (habitat, diet, morphology, fossil record)
-- [ ] Inline mini-infographics: size comparisons, range maps
-- [ ] Trait radar charts per species
-- [ ] Consistent panel visual identity (curated photos / GenAI artwork headers)
+- Hand-rolled service worker (cache-first for app shell)
+- Web app manifest (installable PWA)
+- Offline indicator banner
+- Stale-while-revalidate for Wikipedia photos
 
-#### p27 — Always-Visible Hominin Branch
-**Priority:** Medium | **Effort:** Medium
+### J9 — Guided Educational Tours
+**Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J9_GUIDED_TOURS.md`
 
-- [ ] Show full hominin family tree expanded on main canvas
-- [ ] No "explore deeper" required — visible at all times
-- [ ] Auto-layout to avoid crowding
-- [ ] Golden path emphasis, larger labels
-
----
-
-### Tier 3 — Scale & Performance (needed for 1K+ nodes)
-
-#### p28 — Lazy-Loaded Subtrees
-**Priority:** Medium (at 132 nodes) → **Critical** (at 1K+) | **Effort:** Medium
-
-- [ ] Load subtree data on demand (expand → fetch children)
-- [ ] Chunk large data files by domain/clade
-- [ ] Skeleton loading state for expanding nodes
-- [ ] Prefetch adjacent subtrees for snappy UX
-
-#### p29 — Inverted Search Index
-**Priority:** Low (at 132 nodes) → **Necessary** (at 1K+) | **Effort:** Medium
-
-- [ ] Build inverted index at init from node fields (name, latin, tags, desc)
-- [ ] Replace current linear scan with index lookup
-- [ ] Maintain fuzzy/bigram matching quality
-- [ ] Benchmark: target <10ms search at 1K+ nodes
-
-#### p30 — Viewport Culling (Quadtree)
-**Priority:** Low (at 132 nodes) → **Critical** (at 1K+) | **Effort:** High
-
-- [ ] Implement spatial index (quadtree) for visible-area queries
-- [ ] Render only nodes within current viewport + buffer zone
-- [ ] Update culling on pan/zoom
-- [ ] Benchmark: target 60fps at 1K+ nodes
+- "From LUCA to You" — 8-step human evolution path
+- "The Five Kingdoms" — 7-step domain tour
+- "Mass Extinctions" — 7-step timeline tour
+- Spotlight overlay + narration cards
+- First-visit prompt, "?" button for replay
 
 ---
 
-### Tier 4 — Low Priority (content & engagement)
+## Execution Order
 
-#### p31 — Discovery & Engagement Features
-**Priority:** Low | **Effort:** Medium
+```
+Sprint 1: J1 + J2 (foundation cleanup)
+Sprint 2: J3 (modularization)
+Sprint 3: J4 (accessibility)
+Sprint 4: J5 (performance)
+Sprint 5: J6 (engagement)
+Sprint 6: J7 (data enrichment)
+Sprint 7: J8 (PWA)
+Sprint 8: J9 (guided tours)
+```
 
-- [ ] Random fact cards on idle (use FACTS library)
-- [ ] "Did you know?" tooltip on node hover
-- [ ] Quiz mode: "Which domain does X belong to?"
-- [ ] Achievement system: "You've explored 50% of the tree"
-- [ ] Share a species card (generate image or link)
+## Deferred (Future Series)
 
-#### p32 — Data Enrichment (300+ nodes)
-**Priority:** Low | **Effort:** Large
-
-- [ ] Add more species (target: 300+ nodes)
-- [ ] Add conservation status (IUCN Red List) to node data
-- [ ] Add Wikipedia summary fetching for panel enrichment
-- [ ] Add iNaturalist observation counts
-- [ ] Add fossil record data for extinct species
-- [ ] Localize node descriptions to HE/RU
-
-#### p33 — AI-Generated Species Illustrations
-**Priority:** Low | **Effort:** Large
-
-- [ ] Generate illustrations using imagePrompts.js prompt library
-- [ ] Review generated images for scientific accuracy
-- [ ] Host in `assets/species/` directory
-- [ ] Wire ImageLoader to prefer local illustrations over Wikimedia URLs
-- [ ] Add image attribution metadata
-
-#### p34 — Naturalist Node Artwork
-**Priority:** Low | **Effort:** Large
-
-- [ ] Replace SVG silhouettes with pen-and-ink naturalist sketches for all 130+ nodes
-- [ ] Build asset pipeline (SVG/WebP format)
-- [ ] Consistent art style across all domains
-- [ ] Fallback chain integration with ImageLoader
-
-#### p35 — IndexedDB & Offline Mode
-**Priority:** Low (at 132 nodes) → **Nice-to-have** (at 1K+) | **Effort:** High
-
-- [ ] Service worker for static asset caching (index.html, JS, fonts)
-- [ ] Cache fetched Wikipedia photos in IndexedDB
-- [ ] Offline indicator in UI
-- [ ] Graceful fallback when APIs fail
-- [ ] Ensure service worker doesn't break GitHub Pages deployment
-
----
-
-## Scaling Readiness Matrix
-
-| # | Change | Effort | Impact at 132 nodes | Impact at 1K+ nodes |
-|---|--------|--------|---------------------|---------------------|
-| 1 | JSON data + schema validation (p21) | Medium | CI safety net | Essential |
-| 2 | Per-language translation files (p20) | Low | Cleaner code | Faster loads |
-| 3 | Lazy-loaded subtrees (p28) | Medium | Minimal | Critical |
-| 4 | CI link checker for photos (p22) | Low | Catches rot early | Same |
-| 5 | Inverted search index (p29) | Medium | Overkill | Necessary |
-| 6 | Viewport culling / quadtree (p30) | High | Overkill | Critical |
-| 7 | IndexedDB / offline (p35) | High | Overkill | Nice-to-have |
+- HE/RU i18n completeness and RTL polish
+- Node content localization (desc/detail/facts × 3 languages)
+- AI-generated species illustrations pipeline
+- Naturalist pen-and-ink node artwork
 
 ---
 
 ## Architectural Principles
 
-1. **No build step** — static files, CDN dependencies only
+1. **No build step** — static files, CDN dependencies, ES modules natively
 2. **GitHub Pages compatible** — no server-side logic
 3. **Vanilla JS** — no frameworks, no package manager
-4. **Incremental extraction** — move logic out of index.html gradually, not all at once
-5. **Data-driven** — content in JS data files, rendering logic separate
-6. **i18n first-class** — Hebrew RTL is not an afterthought
-7. **Museum-quality UX** — polish over features
-8. **Scale-aware** — build foundations now that won't block growth to 1K+ nodes
+4. **Data-driven** — content in JS data files, rendering logic separate
+5. **Museum-quality UX** — polish over features
+6. **English-first** — i18n infrastructure stays but expansion deferred
 
 ---
 
@@ -223,10 +165,12 @@
 
 | Date | Decision | Rationale |
 |------|----------|-----------|
-| 2026-03-10 | Keep all CSS inline in index.html | No build step; external style.css was deleted as dead code |
-| 2026-03-11 | Use Inter + JetBrains Mono + Heebo | Modern scientific look; Heebo covers EN/HE/RU |
-| 2026-03-12 | SVG silhouette icons over emojis | Consistent cross-platform rendering, professional aesthetic |
+| 2026-03-10 | Keep all CSS inline in index.html | No build step; external style.css was deleted |
+| 2026-03-11 | Use Inter + JetBrains Mono + Heebo | Modern scientific look |
+| 2026-03-12 | SVG silhouette icons over emojis | Cross-platform consistency |
 | 2026-03-13 | ImageLoader fallback chain | Generated → PHOTO_MAP → emoji; graceful degradation |
-| 2026-03-14 | Separate navStack from panelHistory | Quick ship; unification deferred to p23 |
-| 2026-03-15 | Roadmap created | Formalize priorities, reduce ad-hoc scope creep |
+| 2026-03-14 | Separate navStack from panelHistory | Quick ship; unification deferred to J2 |
+| 2026-03-15 | Roadmap created | Formalize priorities |
 | 2026-03-16 | Unified roadmap with scaling tiers | Reconciled duplicate phases, integrated data infrastructure priorities |
+| 2026-03-28 | J-series replaces p-series | Fresh start with 7-agent audit, English-only focus |
+| 2026-03-28 | Sprint prompt files per phase | Self-contained session instructions for reproducible execution |

@@ -41,25 +41,31 @@
 | p37 | Hominin pill chips — group nodes as collapsible pills, inline deep-dive data, overlay removed, standalone compare | PR #106 `claude/intelligent-payne` |
 | p38 | Mammal data upgrade — all 11 mammal nodes to Homo sapiens parity (5 facts, 6 tags, funFact, 5 altFacts, 3 links) | PR #110 `claude/dazzling-black` |
 
-### Upcoming (unified roadmap — see docs/PROMPTS/README.md)
+### Already shipped (not originally tracked as phases)
 
-| Tier | Phase | Milestone | Status |
-|------|-------|-----------|--------|
-| 1 | p20 | i18n completeness & per-language translation files | Pending |
-| 1 | p21 | JSON data + schema validation (CI safety net) | Pending |
-| 1 | p22 | CI photo link checker | Pending |
-| 1 | p23 | Navigation stack unification | Pending |
-| 2 | p25 | Accessibility (keyboard nav, ARIA, focus) | **Done** |
-| 2 | p26 | Rich data panels & visual identity | **Done** |
-| 2 | p27 | Always-visible hominin branch | Pending |
-| 3 | p28 | Lazy-loaded subtrees | Pending |
-| 3 | p29 | Inverted search index | Pending |
-| 3 | p30 | Viewport culling (quadtree) | Pending |
-| 4 | p31 | Discovery & engagement features | Pending |
-| 4 | p32 | Data enrichment (300+ nodes) | Pending |
-| 4 | p33 | AI-generated species illustrations | Pending |
-| 4 | p34 | Naturalist node artwork | Pending |
-| 4 | p35 | IndexedDB & offline mode | Pending |
+These features were built incrementally but never had their own phase number:
+
+- **Domain legend interactivity** — `toggleDomain()` / `resetDomains()` with click handlers, opacity/weight toggling, "Show All" reset. *(Covers old p25)*
+- **Rich species panels** — Photo hero image, funFact callout, detail paragraphs, facts table, tags, external links, hominin-specific brain/tools/DNA/fossils. *(Partially covers old p22)*
+- **Procedural SVG illustrations** — `generateSpeciesIllustration()` (440×200 SVG with gradients + domain motifs). *(Infrastructure for old p28)*
+- **Partial ARIA** — `role="toolbar"`, `role="combobox"`, `role="listbox"`, `aria-label` on all buttons. *(Partial old p26)*
+- **Hominin deep-dive view** — Full-screen view with filtering, timeline cards, compare mode, detail panels.
+
+### J-Series — Next Generation (English-only, focus: engaging, intuitive, accurate, fun)
+
+| Sprint | Phase | Goal | Status | Prompt |
+|--------|-------|------|--------|--------|
+| 1 | J1 | Design system cleanup — CSS vars, z-index, reduced-motion | Pending | `SPRINT_J1_DESIGN_CLEANUP.md` |
+| 1 | J2 | Navigation unification — merge stacks, smooth pan, keyboard | Pending | `SPRINT_J2_NAV_POLISH.md` |
+| 2 | J3 | Code modularization — split index.html → 12 ES modules | Pending | `SPRINT_J3_MODULARIZATION.md` |
+| 3 | J4 | Accessibility — keyboard tree nav, focus traps, 44px targets | Pending | `SPRINT_J4_ACCESSIBILITY.md` |
+| 4 | J5 | SVG performance — viewport culling, GPU compositing, 60fps | Pending | `SPRINT_J5_PERFORMANCE.md` |
+| 5 | J6 | Discovery & fun — achievements, quiz, progress, idle facts | Pending | `SPRINT_J6_ENGAGEMENT.md` |
+| 6 | J7 | Data enrichment — 200+ species, IUCN status, 60+ DNA pairs | Pending | `SPRINT_J7_DATA_ENRICHMENT.md` |
+| 7 | J8 | PWA & offline — service worker, manifest, offline indicator | Pending | `SPRINT_J8_PWA.md` |
+| 8 | J9 | Guided tours — 3 educational paths with spotlight overlay | Pending | `SPRINT_J9_GUIDED_TOURS.md` |
+
+All sprint prompts are in `docs/PROMPTS/`. To execute: open new session, say "Execute Sprint J[N]".
 
 ---
 

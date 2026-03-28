@@ -40,6 +40,7 @@
 | p36 | Timeline bar overhaul — segmented geological periods, custom thumb, sparkline, extinction popovers, speed control | PR #102 `claude/zen-burnell` |
 | p37 | Hominin pill chips — group nodes as collapsible pills, inline deep-dive data, overlay removed, standalone compare | PR #106 `claude/intelligent-payne` |
 | p38 | Mammal data upgrade — all 11 mammal nodes to Homo sapiens parity (5 facts, 6 tags, funFact, 5 altFacts, 3 links) | PR #110 `claude/dazzling-black` |
+| J1 | Design system cleanup — `--gold`→`--accent`, z-index scale, dead code, inline→CSS, reduced-motion, 768px breakpoints | PR #121 `claude/keen-noether` |
 
 ### Already shipped (not originally tracked as phases)
 

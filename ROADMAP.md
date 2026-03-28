@@ -47,15 +47,16 @@ Make Tree of Life the most **engaging, intuitive, accurate, and fun** phylogenet
 
 English-only. Focus: clear design, engaging, intuitive, accurate, fun.
 
-### J1 — Design System Cleanup
+### ✅ J1 — Design System Cleanup — **Done** (PR #121)
 **Effort:** Small | **Prompt:** `docs/PROMPTS/SPRINT_J1_DESIGN_CLEANUP.md`
 
-- Rename `--gold` → `--accent` (currently sky blue, not gold)
-- Consolidate duplicate light theme CSS rules
-- Define z-index scale as CSS custom properties
-- Remove dead CSS classes, convert inline JS styles → CSS classes
-- Add `prefers-reduced-motion` support
-- Unify mobile breakpoints to 768px
+- Renamed `--gold` → `--accent`, removed duplicate `--teal`/`--teal-dim` (~60 refs)
+- Consolidated duplicate light/dark `#panel` rules
+- Defined 13 z-index CSS custom properties, replaced ~30 magic numbers
+- Removed 3 dead CSS classes (`.search-result-*`)
+- Extracted 7 CSS utility classes from JS `cssText`
+- Added `reducedMotion()` JS helper + guards on node/intro animations
+- Unified mobile breakpoints: 3 components `600px` → `768px`
 
 ### J2 — Navigation & Interaction Polish
 **Effort:** Small | **Prompt:** `docs/PROMPTS/SPRINT_J2_NAV_POLISH.md`

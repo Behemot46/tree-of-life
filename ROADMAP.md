@@ -168,7 +168,9 @@ Sprint 8: J9 (guided tours)
 | 2026-03-10 | Keep all CSS inline in index.html | No build step; external style.css was deleted |
 | 2026-03-11 | Use Inter + JetBrains Mono + Heebo | Modern scientific look |
 | 2026-03-12 | SVG silhouette icons over emojis | Cross-platform consistency |
-| 2026-03-13 | ImageLoader fallback chain | Graceful degradation |
+| 2026-03-13 | ImageLoader fallback chain | Generated → PHOTO_MAP → emoji; graceful degradation |
+| 2026-03-14 | Separate navStack from panelHistory | Quick ship; unification deferred to J2 |
 | 2026-03-15 | Roadmap created | Formalize priorities |
+| 2026-03-16 | Unified roadmap with scaling tiers | Reconciled duplicate phases, integrated data infrastructure priorities |
 | 2026-03-28 | J-series replaces p-series | Fresh start with 7-agent audit, English-only focus |
 | 2026-03-28 | Sprint prompt files per phase | Self-contained session instructions for reproducible execution |

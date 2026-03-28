@@ -26,19 +26,31 @@
 | p19 | Roadmap & project health | `claude/keen-easley` |
 | p23 | DNA similarity calculator — species comparator with known + estimated data | `claude/crazy-villani` |
 
-### Upcoming
+### Already shipped (not originally tracked as phases)
 
-| # | Milestone | Goal | Status |
-|---|-----------|------|--------|
-| p20 | Naturalist node artwork | Replace all emoji/silhouette node icons with consistent high-quality artistic sketches (pen-and-ink naturalist style) for every node (~130+). Build asset pipeline, SVG/WebP format, fallback chain. | Pending |
-| p21 | Species panel visual identity | Replace emoji headers in species info panel with curated photos or GenAI artwork. Consistent framing/style, Wikimedia + AI-generated fallback pipeline. | Pending |
-| p22 | Rich data panels & infographics | Increase fonts, add descriptive paragraphs, layered data sections (habitat, diet, morphology, fossil record). Inline mini-infographics: size comparisons, range maps, trait radar charts. | Pending |
-| p23 | DNA similarity calculator | Two-species comparator: pick any two species, display estimated DNA similarity %. Visual output with divergence timeline, shared traits, "you share X% DNA with a banana" UX. | Done |
-| p24 | Always-visible hominin branch | Show full hominin family tree as expanded branch with twigs on main canvas — no "explore deeper" required. Auto-layout to avoid crowding, golden path emphasis, larger labels. | Pending |
-| p25 | Interactive legend & domain highlighting | Clicking a domain in the legend highlights/filters that subtree on the canvas. Visual feedback, toggle behavior. | Pending |
-| p26 | Accessibility & navigation cleanup | Keyboard nav, ARIA labels, focus management, screen reader support, reduced-motion. Unify `panelHistory`/`navStack` into single model. | Pending |
-| p27 | Performance & offline resilience | Viewport culling (render only visible nodes), lazy expansion, service worker caching, offline fallbacks, connection status indicator. | Pending |
-| p28 | Guided tours & educational mode | Walkthrough overlays narrating key evolutionary milestones (Great Oxidation, Cambrian Explosion, K-Pg). Step-by-step discovery paths for educational use. | Pending |
+These features were built incrementally but never had their own phase number:
+
+- **Domain legend interactivity** — `toggleDomain()` / `resetDomains()` with click handlers, opacity/weight toggling, "Show All" reset. *(Covers old p25)*
+- **Rich species panels** — Photo hero image, funFact callout, detail paragraphs, facts table, tags, external links, hominin-specific brain/tools/DNA/fossils. *(Partially covers old p22)*
+- **Procedural SVG illustrations** — `generateSpeciesIllustration()` (440×200 SVG with gradients + domain motifs). *(Infrastructure for old p28)*
+- **Partial ARIA** — `role="toolbar"`, `role="combobox"`, `role="listbox"`, `aria-label` on all buttons. *(Partial old p26)*
+- **Hominin deep-dive view** — Full-screen view with filtering, timeline cards, compare mode, detail panels.
+
+### J-Series — Next Generation (English-only, focus: engaging, intuitive, accurate, fun)
+
+| Sprint | Phase | Goal | Status | Prompt |
+|--------|-------|------|--------|--------|
+| 1 | J1 | Design system cleanup — CSS vars, z-index, reduced-motion | Pending | `SPRINT_J1_DESIGN_CLEANUP.md` |
+| 1 | J2 | Navigation unification — merge stacks, smooth pan, keyboard | Pending | `SPRINT_J2_NAV_POLISH.md` |
+| 2 | J3 | Code modularization — split index.html → 12 ES modules | Pending | `SPRINT_J3_MODULARIZATION.md` |
+| 3 | J4 | Accessibility — keyboard tree nav, focus traps, 44px targets | Pending | `SPRINT_J4_ACCESSIBILITY.md` |
+| 4 | J5 | SVG performance — viewport culling, GPU compositing, 60fps | Pending | `SPRINT_J5_PERFORMANCE.md` |
+| 5 | J6 | Discovery & fun — achievements, quiz, progress, idle facts | Pending | `SPRINT_J6_ENGAGEMENT.md` |
+| 6 | J7 | Data enrichment — 200+ species, IUCN status, 60+ DNA pairs | Pending | `SPRINT_J7_DATA_ENRICHMENT.md` |
+| 7 | J8 | PWA & offline — service worker, manifest, offline indicator | Pending | `SPRINT_J8_PWA.md` |
+| 8 | J9 | Guided tours — 3 educational paths with spotlight overlay | Pending | `SPRINT_J9_GUIDED_TOURS.md` |
+
+All sprint prompts are in `docs/PROMPTS/`. To execute: open new session, say "Execute Sprint J[N]".
 
 ---
 

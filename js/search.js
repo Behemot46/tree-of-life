@@ -1,41 +1,12 @@
 // ══════════════════════════════════════════════════════
-// SEARCH — fuzzy matching, photo verification, search index
+// SEARCH — fuzzy matching, search index, enrichment patching
 // ══════════════════════════════════════════════════════
 
-/* ===========================
-   PHOTO RELIABILITY LAYER
-   =========================== */
-const PHOTO_STATUS_CACHE=new Map();
-const PHOTO_VERIFY_PROMISES=new Map();
-function verifyPhotoUrl(url){
-  if(!url) return Promise.resolve(false);
-  const cached=PHOTO_STATUS_CACHE.get(url);
-  if(cached==="ok") return Promise.resolve(true);
-  if(cached==="bad") return Promise.resolve(false);
-  if(PHOTO_VERIFY_PROMISES.has(url))
-    return PHOTO_VERIFY_PROMISES.get(url);
-  const promise=new Promise(resolve=>{
-    const img=new Image();
-    img.onload=()=>{
-      PHOTO_STATUS_CACHE.set(url,"ok");
-      PHOTO_VERIFY_PROMISES.delete(url);
-      resolve(true);
-    };
-    img.onerror=()=>{
-      PHOTO_STATUS_CACHE.set(url,"bad");
-      PHOTO_VERIFY_PROMISES.delete(url);
-      resolve(false);
-    };
-    img.src=url;
-  });
-  PHOTO_VERIFY_PROMISES.set(url,promise);
-  return promise;
-}
+import { state, nodeMap, TAXON_I18N, HOMININ_SKIP_IDS } from './state.js';
 
-/* ===========================
-   SEARCH INDEX — fuzzy + multilingual
-   =========================== */
-function normalizeSearchText(str){
+// Uses globals: HOMININS, ENRICHMENT
+
+export function normalizeSearchText(str){
   return String(str||"")
     .toLowerCase()
     .normalize("NFKD")
@@ -57,8 +28,8 @@ function _fuzzyScore(a,b){
   return(2*inter)/(sa.size+sb.size);
 }
 
-function buildSearchIndex(){
-  searchIndex=[];
+export function buildSearchIndex(){
+  state.searchIndex=[];
   // Track IDs already added to prevent duplicates
   const addedIds = new Set();
   Object.values(nodeMap).forEach(n=>{
@@ -70,7 +41,7 @@ function buildSearchIndex(){
     const extraHaystack = n._hominData
       ? [n._hominData.name, n._hominData.short, (n._hominData.tags||[]).join(" ")].join(" ")
       : "";
-    searchIndex.push({
+    state.searchIndex.push({
       id:n.id,
       name:n._hominData ? n._hominData.name : n.name,
       nameHe:i18n?.he||'',
@@ -96,7 +67,7 @@ function buildSearchIndex(){
     addedIds.add(h.id);
     const i18n=TAXON_I18N[h.id];
     const extra=i18n?[i18n.he||'',i18n.ru||'']:[];
-    searchIndex.push({
+    state.searchIndex.push({
       id:treeId,
       name:h.name,
       nameHe:i18n?.he||'',
@@ -114,11 +85,11 @@ function buildSearchIndex(){
   });
 }
 
-function searchEntities(query){
+export function searchEntities(query){
   const q=normalizeSearchText(query);
   if(!q) return[];
   const scored=[];
-  for(const x of searchIndex){
+  for(const x of state.searchIndex){
     let score=0;
     // 1. Exact substring match (highest priority)
     const pos=x.haystack.indexOf(q);
@@ -149,12 +120,13 @@ function searchEntities(query){
   return scored.sort((a,b)=>b._score-a._score).slice(0,12);
 }
 
-
 // Patch enrichment data into the nodeMap
-Object.entries(ENRICHMENT).forEach(([id, data]) => {
-  const node = nodeMap[id];
-  if (node) {
-    if (data.altFacts) node.altFacts = data.altFacts;
-    if (data.links) node.links = data.links;
-  }
-});
+export function patchEnrichment(){
+  Object.entries(ENRICHMENT).forEach(([id, data]) => {
+    const node = nodeMap[id];
+    if (node) {
+      if (data.altFacts) node.altFacts = data.altFacts;
+      if (data.links) node.links = data.links;
+    }
+  });
+}

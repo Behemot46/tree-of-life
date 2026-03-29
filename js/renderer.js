@@ -1,44 +1,68 @@
 // ══════════════════════════════════════════════════════
-// RENDERER — SVG rendering, icons, branches, timeline, view switching
+// RENDERER — SVG render engine (branches, nodes, labels)
 // ══════════════════════════════════════════════════════
 
-// NODE_ICONS and getIconGroup() loaded from js/nodeIcons.js
+import { state, nodeMap, animDone, confirmedPhotoUrls, HUMAN_PATH } from './state.js';
+import { getVisible, getVisibleEdges } from './layout.js';
+import { reducedMotion } from './utils.js';
+import { getPlaybackNodeState, discoverNode, showDiscoveryCard } from './playback.js';
+import { nodeInEra } from './timeline.js';
 
-// ── HUMAN EVOLUTION PATH ──
-const HUMAN_PATH=new Set(['luca','eukaryota','animalia','vertebrates','mammals','primates','great-apes','hominini','group-homo','h_sapiens']);
+// ── Late-bound deps (avoid circular imports) ──
+let _showMainPanel, _showTip, _hideTip, _smoothPanTo, _layout;
+export function initRendererDeps(deps) {
+  _showMainPanel = deps.showMainPanel; _showTip = deps.showTip;
+  _hideTip = deps.hideTip; _smoothPanTo = deps.smoothPanTo;
+  _layout = deps.layout;
+}
+
+// ── DOM refs ──
+const branchLayer = document.getElementById('layer-branches');
+const nodesLayer = document.getElementById('layer-nodes');
 
 // ══════════════════════════════════════════════════════
-// RENDER
+// BRANCH PATH
 // ══════════════════════════════════════════════════════
-const branchLayer=document.getElementById('layer-branches');
-const nodesLayer=document.getElementById('layer-nodes');
-const viewport=document.getElementById('viewport');
-var applyT=()=>viewport.setAttribute('transform',`translate(${transform.x},${transform.y}) scale(${transform.s})`);
 
-function branchPath(x1,y1,x2,y2){
-  if(viewMode==='cladogram'){return `M${x1},${y1} H${(x1+x2)/2} V${y2} H${x2}`;}
-  if(viewMode==='chronological'){return `M${x1},${y1} L${x2},${y2}`;}
-  const mx=(x1+x2)/2,my=(y1+y2)/2;return `M${x1},${y1} Q${mx+(my-y1)*0.28},${my-(mx-x1)*0.28} ${x2},${y2}`;
+export function branchPath(x1,y1,x2,y2){
+  if(state.viewMode==='cladogram'){return `M${x1},${y1} H${(x1+x2)/2} V${y2} H${x2}`;}
+  if(state.viewMode==='chronological'){return `M${x1},${y1} L${x2},${y2}`;}
+  if(state.viewMode==='playback'){return `M${x1},${y1} C${x1+(x2-x1)*0.5},${y1} ${x1+(x2-x1)*0.5},${y2} ${x2},${y2}`;}
+  const dx=x2-x1,dy=y2-y1;
+  const dist=Math.hypot(dx,dy)||1;
+  const px=-dy/dist,py=dx/dist;
+  const seed=(((x1*7+y1*13+x2*11+y2*17)%1000)+1000)%1000/1000;
+  const wobble=(seed-0.5)*dist*0.06;
+  const c1x=x1+dx*0.3+px*(dist*0.18+wobble);
+  const c1y=y1+dy*0.3+py*(dist*0.18+wobble);
+  const c2x=x1+dx*0.7+px*(dist*0.08-wobble*0.5);
+  const c2y=y1+dy*0.7+py*(dist*0.08-wobble*0.5);
+  return `M${x1},${y1} C${c1x},${c1y} ${c2x},${c2y} ${x2},${y2}`;
 }
 
 /* ===========================
    RENDER SCHEDULER
    =========================== */
-function scheduleRender(force){
+
+export function scheduleRender(force=false){
   if(force){
-    renderQueued=false;
+    state.renderQueued=false;
     render();
     return;
   }
-  if(renderQueued) return;
-  renderQueued=true;
+  if(state.renderQueued) return;
+  state.renderQueued=true;
   requestAnimationFrame(()=>{
-    renderQueued=false;
+    state.renderQueued=false;
     render();
   });
 }
 
-function render(){
+// ══════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════
+
+export function render(){
   const branchFrag=document.createDocumentFragment();
   const nodesFrag=document.createDocumentFragment();
   const edges=getVisibleEdges(TREE);
@@ -46,43 +70,176 @@ function render(){
 
   // Branches
   const humanPathEdges=[];
+  const evoPathEdges=[];
   edges.forEach(({from,to})=>{
-    if(to._domain && to._domain!=='luca' && !activeDomains.has(to._domain)) return;
-    if(!showExtinct && to.extinct) return;
+    if(to._domain && to._domain!=='luca' && !state.activeDomains.has(to._domain)) return;
+    if(!state.showExtinct && to.extinct) return;
+
+    // Playback: skip branch if child is hidden
+    if(state.playbackMode){
+      const childState=state.playbackNodeStates.get(to.id)||getPlaybackNodeState(to);
+      if(childState==='hidden') return;
+    }
+
     const inEra=nodeInEra(to);
     const onHumanPath=HUMAN_PATH.has(from.id)&&HUMAN_PATH.has(to.id);
+    const onEvoPath=state.evoPathActive&&state.evoPathEdgeSet.has(from.id+'|'+to.id);
     const p=document.createElementNS('http://www.w3.org/2000/svg','path');
     p.setAttribute('d',branchPath(from._x,from._y,to._x,to._y));
     p.setAttribute('class','branch-path');
     p.setAttribute('data-branch','true');
-    const sw=onHumanPath?4:Math.max(2,4.5-to.depth*0.35);
-    const op=onHumanPath?0.9:(inEra?Math.max(0.4,0.85-to.depth*0.06):0.08);
-    p.setAttribute('stroke',onHumanPath?'var(--accent-primary)':to.color);
+    const isAccent=onHumanPath||onEvoPath;
+    const sw=isAccent?5:Math.max(2,6-to.depth*0.5);
+
+    // Playback: locked branches are dimmer
+    let op;
+    if(state.playbackMode){
+      const childState=state.playbackNodeStates.get(to.id)||getPlaybackNodeState(to);
+      op=childState==='locked'?0.12:(isAccent?0.9:(inEra?Math.max(0.3,0.8-to.depth*0.06):0.08));
+    } else {
+      op=isAccent?0.9:(inEra?Math.max(0.3,0.8-to.depth*0.06):0.08);
+    }
+    p.setAttribute('stroke',onEvoPath?'var(--accent-secondary)':(onHumanPath?'var(--accent-primary)':to.color));
     p.setAttribute('stroke-width',sw);
     p.setAttribute('stroke-opacity',op);
-    p.setAttribute('stroke-linecap','round');
-    p.setAttribute('stroke-linejoin','round');
     if(!animDone.has(to.id)){
-      const len=300;p.style.strokeDasharray=len;p.style.strokeDashoffset=len;
-      p.style.transition=`stroke-dashoffset ${0.3+to.depth*0.05}s cubic-bezier(.4,0,.2,1) ${to.depth*0.04}s`;
-      setTimeout(()=>{p.style.strokeDashoffset=0;},50);
+      const len=9999;p.style.strokeDasharray=len;p.style.strokeDashoffset=len;
+      if(state.playbackMode){
+        p.classList.add('branch-pb-grow');
+        setTimeout(()=>{p.style.strokeDashoffset=0;},30);
+      } else {
+        p.style.transition=`stroke-dashoffset ${0.3+to.depth*0.05}s cubic-bezier(.4,0,.2,1) ${to.depth*0.04}s`;
+        p.addEventListener('transitionend',function h(){p.style.strokeDasharray='';p.style.strokeDashoffset='';p.style.transition='';p.removeEventListener('transitionend',h);},{once:true});
+        setTimeout(()=>{p.style.strokeDashoffset=0;},50);
+      }
     }
     branchFrag.appendChild(p);
     if(onHumanPath) humanPathEdges.push(p);
+    if(onEvoPath) evoPathEdges.push(p);
   });
   // Re-append human path edges on top so they draw over other branches
   humanPathEdges.forEach(p=>branchFrag.appendChild(p));
+  // Evo path edges draw on top of everything
+  evoPathEdges.forEach(p=>branchFrag.appendChild(p));
 
   // Nodes
   const pendingLabels=[];
   nodes.forEach(n=>{
-    if(n._domain && n._domain!=='luca' && !activeDomains.has(n._domain)) return;
-    if(!showExtinct && n.extinct) return;
+    if(n._domain && n._domain!=='luca' && !state.activeDomains.has(n._domain)) return;
+    if(!state.showExtinct && n.extinct) return;
+
+    // Playback: skip hidden, render locked differently
+    const pbState=state.playbackMode?(state.playbackNodeStates.get(n.id)||getPlaybackNodeState(n)):null;
+    if(state.playbackMode&&pbState==='hidden') return;
+
+    if(state.playbackMode&&pbState==='locked'){
+      // Render locked silhouette node
+      const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+      g.setAttribute('class','node-group');
+      g.style.cursor='pointer';
+
+      // Hit area
+      const hit=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      hit.setAttribute('cx',n._x);hit.setAttribute('cy',n._y);hit.setAttribute('r',Math.max(n.r+14,22));
+      hit.setAttribute('fill','transparent');hit.style.cursor='pointer';
+      hit.addEventListener('click',e=>{e.stopPropagation();discoverNode(n);});
+      g.appendChild(hit);
+
+      // Locked circle (dashed, dim)
+      const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',n._x);c.setAttribute('cy',n._y);c.setAttribute('r',Math.max(n.r,8));
+      c.setAttribute('class','node-locked');
+      c.style.transformOrigin=`${n._x}px ${n._y}px`;
+      c.addEventListener('mouseenter',function(){_showTip('???','?');});
+      c.addEventListener('mouseleave',function(){_hideTip();});
+      c.addEventListener('click',e=>{e.stopPropagation();discoverNode(n);});
+      g.appendChild(c);
+
+      // Question mark icon
+      const qm=document.createElementNS('http://www.w3.org/2000/svg','text');
+      qm.setAttribute('x',n._x);qm.setAttribute('y',n._y+4);
+      qm.setAttribute('text-anchor','middle');qm.setAttribute('font-size',Math.max(10,n.r*0.8));
+      qm.setAttribute('fill','var(--parchment)');qm.setAttribute('fill-opacity','0.5');
+      qm.setAttribute('font-family','Inter,sans-serif');qm.setAttribute('font-weight','700');
+      qm.style.pointerEvents='none';
+      qm.textContent='?';
+      g.appendChild(qm);
+
+      g.addEventListener('contextmenu',e=>e.preventDefault());
+      nodesFrag.appendChild(g);
+      return; // skip normal node rendering for locked nodes
+    }
+
     const inEra=nodeInEra(n);
-    const isHighlighted=highlightedId===n.id;
+    const isHighlighted=state.highlightedId===n.id;
+    const isGroupChip=n.id&&n.id.startsWith('group-');
     const g=document.createElementNS('http://www.w3.org/2000/svg','g');
     g.setAttribute('class','node-group');
+    g.setAttribute('role','treeitem');
+    g.setAttribute('tabindex','-1');
+    g.setAttribute('aria-label',n.name+(n.latin?' ('+n.latin+')':'')+(n.extinct?' - extinct':''));
+    g.setAttribute('data-node-id',n.id);
+    if(n.children&&n.children.length) g.setAttribute('aria-expanded',String(!n._collapsed));
     g.style.cursor='pointer';
+
+    if(isGroupChip){
+      // ── PILL / CHIP rendering for hominin group nodes ──
+      const pillW=Math.max(n.name.length*7+32,100);
+      const pillH=28;
+      const px=n._x-pillW/2;
+      const py=n._y-pillH/2;
+      const colAlpha=n.color+'33';
+      const colBorder=n.color+'66';
+      const indicator=n._collapsed?'+':'\u2212';
+
+      const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+      fo.setAttribute('x',px);fo.setAttribute('y',py);
+      fo.setAttribute('width',pillW);fo.setAttribute('height',pillH);
+      fo.style.overflow='visible';
+
+      const chip=document.createElement('div');
+      chip.className='chip-badge';
+      chip.style.border=`1.5px solid ${colBorder}`;
+      chip.style.background=colAlpha;
+      chip.style.color=n.color;
+      chip.style.height=`${pillH}px`;
+      chip.textContent=`${n.icon} ${n.name} ${indicator}`;
+      chip.addEventListener('mouseenter',()=>{chip.style.borderColor=n.color;chip.style.background=n.color+'44';_showTip(n.name,n.icon);});
+      chip.addEventListener('mouseleave',()=>{chip.style.borderColor=colBorder;chip.style.background=colAlpha;_hideTip();});
+
+      fo.appendChild(chip);g.appendChild(fo);
+
+      // Highlight ring for search
+      if(isHighlighted){
+        const hl=document.createElementNS('http://www.w3.org/2000/svg','rect');
+        hl.setAttribute('x',px-4);hl.setAttribute('y',py-4);
+        hl.setAttribute('width',pillW+8);hl.setAttribute('height',pillH+8);
+        hl.setAttribute('rx','18');hl.setAttribute('fill','none');
+        hl.setAttribute('stroke','#0ea5e9');hl.setAttribute('stroke-width','2');hl.setAttribute('stroke-opacity','0.9');
+        g.appendChild(hl);
+      }
+
+      // Animate in
+      if(!animDone.has(n.id)){
+        if(reducedMotion()){
+          animDone.add(n.id);
+        } else {
+          g.style.opacity='0';g.style.transformOrigin=`${n._x}px ${n._y}px`;g.style.transform='scale(0.2)';
+          setTimeout(()=>{
+            g.style.transition=`opacity 0.45s ease ${n.depth*0.09}s, transform 0.45s cubic-bezier(.34,1.56,.64,1) ${n.depth*0.09}s`;
+            g.style.opacity='1';g.style.transform='scale(1)';
+            setTimeout(()=>animDone.add(n.id),550+n.depth*90);
+          },40);
+        }
+      }
+
+      // Left-click toggles collapse; double-click opens panel
+      g.addEventListener('click',e=>{e.stopPropagation();n._collapsed=!n._collapsed;scheduleRender();});
+      g.addEventListener('dblclick',e=>{e.stopPropagation();_showMainPanel(n);});
+      g.addEventListener('contextmenu',e=>{e.preventDefault();_showMainPanel(n);});
+      nodesFrag.appendChild(g);
+      return; // skip normal node rendering
+    }
 
     const onHumanPath=HUMAN_PATH.has(n.id);
 
@@ -93,6 +250,15 @@ function render(){
       pathRing.setAttribute('fill','none');pathRing.setAttribute('stroke','var(--accent-primary)');
       pathRing.setAttribute('stroke-width','2');pathRing.setAttribute('stroke-opacity','0.5');
       g.appendChild(pathRing);
+    }
+
+    // Evolutionary path accent ring (orange)
+    if(state.evoPathActive&&state.evoPathSet.has(n.id)&&n.depth>0){
+      const evoRing=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      evoRing.setAttribute('cx',n._x);evoRing.setAttribute('cy',n._y);evoRing.setAttribute('r',n.r+8);
+      evoRing.setAttribute('fill','none');evoRing.setAttribute('stroke','var(--accent-secondary)');
+      evoRing.setAttribute('stroke-width','2.5');evoRing.setAttribute('stroke-opacity','0.6');
+      g.appendChild(evoRing);
     }
 
     // Root pulse ring
@@ -115,30 +281,21 @@ function render(){
       g.appendChild(ring);
     }
 
-    // Hominini gateway — golden pulsing ring + Explore badge
+    // Hominini gateway — golden pulsing ring
     if(n.id==='hominini'){
       const gw=document.createElementNS('http://www.w3.org/2000/svg','circle');
       gw.setAttribute('cx',n._x);gw.setAttribute('cy',n._y);gw.setAttribute('r',n.r+12);
-      gw.setAttribute('fill','none');gw.setAttribute('stroke','#e8b86d');
+      gw.setAttribute('fill','none');gw.setAttribute('stroke','#c8883a');
       gw.setAttribute('stroke-width','2');gw.setAttribute('stroke-opacity','0.6');
       gw.style.animation='homininGlow 2.5s ease-in-out infinite';
       g.appendChild(gw);
-      const badgeFo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
-      const bw=64,bh=18;
-      badgeFo.setAttribute('x',n._x-bw/2);badgeFo.setAttribute('y',n._y+n.r+6);
-      badgeFo.setAttribute('width',bw);badgeFo.setAttribute('height',bh);
-      badgeFo.style.pointerEvents='none';
-      const badge=document.createElement('div');
-      badge.style.cssText='font-size:9px;font-family:"Heebo",sans-serif;color:#e8b86d;text-align:center;font-weight:700;letter-spacing:0.05em;opacity:0.85;';
-      badge.textContent='Explore \u2192';
-      badgeFo.appendChild(badge);g.appendChild(badgeFo);
     }
 
     // Highlight ring
     if(isHighlighted){
       const hl=document.createElementNS('http://www.w3.org/2000/svg','circle');
       hl.setAttribute('cx',n._x);hl.setAttribute('cy',n._y);hl.setAttribute('r',n.r+9);
-      hl.setAttribute('fill','none');hl.setAttribute('stroke','#0ea5e9');
+      hl.setAttribute('fill','none');hl.setAttribute('stroke','#c8883a');
       hl.setAttribute('stroke-width','2');hl.setAttribute('stroke-opacity','0.9');
       g.appendChild(hl);
     }
@@ -157,12 +314,7 @@ function render(){
     const hit=document.createElementNS('http://www.w3.org/2000/svg','circle');
     hit.setAttribute('cx',n._x);hit.setAttribute('cy',n._y);hit.setAttribute('r',Math.max(n.r+14,22));
     hit.setAttribute('fill','transparent');hit.style.cursor='pointer';
-    hit.addEventListener('click',e=>{
-      e.stopPropagation();
-      if(n.children?.length){n._collapsed=!n._collapsed;scheduleRender();}
-      else showMainPanel(n);
-    });
-    hit.addEventListener('dblclick',e=>{e.stopPropagation();showMainPanel(n);});
+    hit.addEventListener('click',e=>{e.stopPropagation();_showMainPanel(n);});
     g.appendChild(hit);
 
     // Main circle
@@ -174,17 +326,13 @@ function render(){
     c.setAttribute('fill-opacity',inEra?(n.depth===0?'1':n.depth<=1?'0.9':'0.8'):'0.15');
     c.style.stroke='var(--bg)';c.setAttribute('stroke-width','1.5');
     c.style.setProperty('--nc',n.color);
+    /* no glow filter on root */
     if(n.extinct){c.setAttribute('stroke-dasharray','4 2');c.setAttribute('opacity','0.6');}
     c.style.cursor = 'pointer';
     c.style.pointerEvents = 'all';
-    c.addEventListener('mouseenter', function(){ this.style.transform='scale(1.15)';this.style.transformOrigin='center';this.style.filter='brightness(1.2)'; showTip(n.name, n.icon); });
-    c.addEventListener('mouseleave', function(){ this.style.transform='scale(1)';this.style.filter=''; hideTip(); });
-    c.addEventListener('click', e=>{
-      e.stopPropagation();
-      if(n.children?.length){n._collapsed=!n._collapsed;scheduleRender();}
-      else showMainPanel(n);
-    });
-    c.addEventListener('dblclick', e=>{ e.stopPropagation(); showMainPanel(n); });
+    c.addEventListener('mouseenter', function(){ this.style.transform='scale(1.12)';this.style.transformOrigin='center';this.style.filter='drop-shadow(0 0 6px '+n.color+')'; _showTip(n.name, n.icon); });
+    c.addEventListener('mouseleave', function(){ this.style.transform='scale(1)';this.style.filter=''; _hideTip(); });
+    c.addEventListener('click', e=>{ e.stopPropagation(); _showMainPanel(n); });
     g.appendChild(c);
 
     // Species image (ImageLoader) or SVG silhouette icon fallback
@@ -196,10 +344,19 @@ function render(){
       function addSilhouette(){
         const ig=getIconGroup(n);
         const iconPath=NODE_ICONS[ig]||NODE_ICONS.default;
-        const s=Math.max(10,n.r*1.1);
+        const s=Math.max(12,n.r*1.2);
+        // Subtle background circle behind icon
+        const iconBg=document.createElementNS('http://www.w3.org/2000/svg','circle');
+        iconBg.setAttribute('cx',n._x);iconBg.setAttribute('cy',n._y);
+        iconBg.setAttribute('r',s*0.55);
+        iconBg.setAttribute('fill',n.color||'var(--text-muted)');
+        iconBg.setAttribute('opacity','0.12');
+        iconBg.style.pointerEvents='none';
+        g.appendChild(iconBg);
+        // Icon silhouette
         const icon=document.createElementNS('http://www.w3.org/2000/svg','path');
         icon.setAttribute('d',iconPath);
-        icon.setAttribute('fill',document.documentElement.getAttribute('data-theme')==='light'?'rgba(30,30,30,0.55)':'rgba(255,255,255,0.6)');
+        icon.setAttribute('fill',document.documentElement.getAttribute('data-theme')==='light'?'rgba(30,30,30,0.7)':'rgba(255,255,255,0.85)');
         icon.setAttribute('transform',`translate(${n._x-s/2},${n._y-s/2}) scale(${s/24})`);
         icon.style.pointerEvents='none';
         g.appendChild(icon);
@@ -209,33 +366,30 @@ function render(){
       addSilhouette();
 
       // Overlay species photo on top if available (via ImageLoader)
+      // Uses foreignObject + HTML img (SVG <image> fails cross-origin)
       if(typeof ImageLoader!=='undefined'&&imgR>=8){
-        const best=ImageLoader.getBestUrl(n);
+        const cachedUrl=confirmedPhotoUrls.get(n.id);
+        const best=cachedUrl ? {url:cachedUrl} : ImageLoader.getBestUrl(n);
         if(best.url){
           const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
           fo.setAttribute('x',n._x-imgR);fo.setAttribute('y',n._y-imgR);
           fo.setAttribute('width',imgSize);fo.setAttribute('height',imgSize);
           fo.style.pointerEvents='none';fo.style.overflow='hidden';
           const wrap=document.createElement('div');
-          wrap.style.cssText=`width:${imgSize}px;height:${imgSize}px;border-radius:50%;overflow:hidden;`;
+          wrap.className='node-img-wrap';
+          wrap.style.width=`${imgSize}px`;wrap.style.height=`${imgSize}px`;
           const htmlImg=document.createElement('img');
-          htmlImg.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
+          htmlImg.className='node-img';
           htmlImg.alt=n.name||'';
-          htmlImg.addEventListener('load',function(){
-            // Photo loaded — it naturally covers the silhouette underneath
-          });
-          let triedAltFmt=false;
-          htmlImg.addEventListener('error',function(){
-            // Try alternate format (.webp → .png) before giving up
-            if(best.source==='generated'&&!triedAltFmt){
-              triedAltFmt=true;
-              const altUrl=ImageLoader.getAlternateGeneratedUrl(n.id,htmlImg.src);
-              if(altUrl){htmlImg.src=altUrl;return;}
-            }
-            if(fo.parentNode) fo.remove();
-            if(best.source==='generated') ImageLoader.markFailed(n.id);
-          });
-          htmlImg.src=best.url;
+          if(cachedUrl){
+            htmlImg.addEventListener('error',function(){if(fo.parentNode)fo.remove();confirmedPhotoUrls.delete(n.id);});
+            htmlImg.src=cachedUrl;
+          } else {
+            ImageLoader.loadInto(n,htmlImg,{
+              onLoad:function(){confirmedPhotoUrls.set(n.id,htmlImg.src);},
+              onFallback:function(){if(fo.parentNode)fo.remove();}
+            });
+          }
           wrap.appendChild(htmlImg);fo.appendChild(wrap);g.appendChild(fo);
         }
       }
@@ -250,48 +404,75 @@ function render(){
       const ly=n._y+Math.sin(angleRad)*lDist;
       const cos=Math.cos(angleRad);
       const fontSize=n.depth===0?14:n.depth===1?12:sibCount>12?8:sibCount>8?9:10;
-      const textW=n.name.length*fontSize*0.55;
+      const labelText=n._hominData?n._hominData.short:n.name;
+      const textW=labelText.length*fontSize*0.55;
       const textH=fontSize+2;
       const anchor=cos<-0.15?'end':cos>0.15?'start':'middle';
       const bx=anchor==='end'?lx-textW:anchor==='start'?lx:lx-textW/2;
       pendingLabels.push({n,lx,ly,cos,fontSize,textW,textH,bx,by:ly-textH/2,anchor,g});
     }
 
-    // Collapse dot
+    // Expand/collapse badge (+/-)
     if(n.children?.length&&n.depth>0){
-      const dot=document.createElementNS('http://www.w3.org/2000/svg','circle');
-      dot.setAttribute('cx',n._x+n.r-3);dot.setAttribute('cy',n._y-n.r+3);dot.setAttribute('r','3.5');
-      dot.setAttribute('fill',n._collapsed?'#f97316':'#22c55e');
-      dot.style.stroke='var(--bg)';dot.setAttribute('stroke-width','1');
-      g.appendChild(dot);
+      const bx=n._x+n.r*0.6,by=n._y-n.r*0.6;
+      const bg=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      bg.setAttribute('cx',bx);bg.setAttribute('cy',by);bg.setAttribute('r','6');
+      bg.setAttribute('fill',n._collapsed?'#c8883a':'#5b9a6b');
+      bg.style.stroke='var(--bg)';bg.setAttribute('stroke-width','1.5');
+      g.appendChild(bg);
+      const label=document.createElementNS('http://www.w3.org/2000/svg','text');
+      label.setAttribute('x',bx);label.setAttribute('y',by);
+      label.setAttribute('text-anchor','middle');label.setAttribute('dominant-baseline','central');
+      label.setAttribute('fill','#fff');label.setAttribute('font-size','9');
+      label.setAttribute('font-weight','700');label.setAttribute('font-family','Inter,sans-serif');
+      label.style.pointerEvents='none';
+      label.textContent=n._collapsed?'+':'\u2212';
+      g.appendChild(label);
     }
 
-    // Animate in — only on initial page load, not on expand/collapse
-    if(!animDone.has(n.id)){
-      if(!window._initialAnimDone){
+    // Animate in (skip during playback — playback has its own locked->revealed animation)
+    if(!state.playbackMode&&!animDone.has(n.id)){
+      if(reducedMotion()){
+        animDone.add(n.id);
+      } else {
         g.style.opacity='0';g.style.transformOrigin=`${n._x}px ${n._y}px`;g.style.transform='scale(0.2)';
         setTimeout(()=>{
           g.style.transition=`opacity 0.45s ease ${n.depth*0.09}s, transform 0.45s cubic-bezier(.34,1.56,.64,1) ${n.depth*0.09}s`;
           g.style.opacity='1';g.style.transform='scale(1)';
           setTimeout(()=>animDone.add(n.id),550+n.depth*90);
         },40);
-      } else {
-        animDone.add(n.id);
       }
     }
 
-    // Events
+    // Events — left-click: expand/collapse branches, open panel for leaves
     g.addEventListener('click',e=>{
       e.stopPropagation();
-      if(n.children?.length){n._collapsed=!n._collapsed;scheduleRender();}
-      else showMainPanel(n);
+      if(state.playbackMode){showDiscoveryCard(n);return;}
+      if(n.children&&n.children.length){
+        n._collapsed=!n._collapsed;
+        _layout();scheduleRender(true);
+        // Auto-pan to show expanded children
+        if(!n._collapsed){
+          setTimeout(()=>{
+            const kids=getVisible(n).filter(k=>k._parent===n);
+            if(kids.length){
+              const cx=kids.reduce((s,k)=>s+k._x,0)/kids.length;
+              const cy=kids.reduce((s,k)=>s+k._y,0)/kids.length;
+              _smoothPanTo(cx,cy);
+            }
+          },100);
+        }
+      }else{
+        _showMainPanel(n);
+      }
     });
-    g.addEventListener('dblclick',e=>{e.stopPropagation();showMainPanel(n);});
-    g.addEventListener('contextmenu',e=>{e.preventDefault();if(n.children?.length){n._collapsed=!n._collapsed;scheduleRender();}});
+    // Double-click: always open panel (even for branch nodes)
+    g.addEventListener('dblclick',e=>{e.stopPropagation();e.preventDefault();if(!state.playbackMode)_showMainPanel(n);});
     nodesFrag.appendChild(g);
   });
 
   // Global label collision resolution
+  // Sort by priority: human path first, then depth 0-1, then by depth ascending
   pendingLabels.sort((a,b)=>{
     const aHP=HUMAN_PATH.has(a.n.id)?0:1;
     const bHP=HUMAN_PATH.has(b.n.id)?0:1;
@@ -306,6 +487,7 @@ function render(){
   }
   pendingLabels.forEach(lb=>{
     const onPath=HUMAN_PATH.has(lb.n.id);
+    // Always show depth 0-1 and human path nodes
     const forceShow=lb.n.depth<=1||onPath;
     if(!forceShow){
       for(const placed of placedBoxes){
@@ -322,181 +504,10 @@ function render(){
     svgText.setAttribute('font-family',"'Inter', sans-serif");
     svgText.setAttribute('font-weight',onPath||lb.n.depth<=1?'600':'400');
     svgText.setAttribute('class','node-label-text');
-    svgText.textContent=lb.n.name;
+    svgText.textContent=lb.n._hominData?lb.n._hominData.short:lb.n.name;
     lb.g.appendChild(svgText);
   });
 
   branchLayer.replaceChildren(branchFrag);
   nodesLayer.replaceChildren(nodesFrag);
 }
-
-// ══════════════════════════════════════════════════════
-// ERA BROWSER
-// ══════════════════════════════════════════════════════
-const eraSlider=document.getElementById('era-slider');
-const eraLabel=document.getElementById('era-label');
-const eraFill=document.getElementById('era-fill');
-
-function getEraName(v){
-  const keys=Object.keys(ERA_NAMES).map(Number).sort((a,b)=>a-b);
-  let best=keys[0];
-  for(const k of keys){if(v>=k)best=k;}
-  return ERA_NAMES[best]||`${v} Ma`;
-}
-
-const EXTINCTION_DETAILS=[
-  {mya:445,key:'ext_ordovician',pct:85,causeKey:'ext_cause_ordovician',survKey:'ext_surv_ordovician'},
-  {mya:370,key:'ext_devonian',pct:75,causeKey:'ext_cause_devonian',survKey:'ext_surv_devonian'},
-  {mya:252,key:'ext_permian',pct:96,causeKey:'ext_cause_permian',survKey:'ext_surv_permian'},
-  {mya:200,key:'ext_triassic',pct:80,causeKey:'ext_cause_triassic',survKey:'ext_surv_triassic'},
-  {mya:66,key:'ext_kpg',pct:76,causeKey:'ext_cause_kpg',survKey:'ext_surv_kpg'}
-];
-function buildExtinctionMarkers(){
-  const container=document.getElementById('extinction-markers');
-  if(!container)return;
-  container.innerHTML='';
-  EXTINCTION_DETAILS.forEach(ext=>{
-    const pct=(ext.mya/3800)*100;
-    const marker=document.createElement('div');
-    marker.className='ext-marker';
-    marker.style.left=`${100-pct}%`;
-    marker.addEventListener('click',()=>animateSliderTo(ext.mya));
-    const tooltip=document.createElement('div');
-    tooltip.className='ext-tooltip';
-    tooltip.innerHTML=`<div class="ext-tooltip-name">${t(ext.key)}</div><div class="ext-tooltip-stat">${ext.pct}% ${t('ext_lost')}</div><div class="ext-tooltip-cause">${t(ext.causeKey)}</div><div class="ext-tooltip-surv">${t(ext.survKey)}</div>`;
-    marker.appendChild(tooltip);
-    container.appendChild(marker);
-  });
-}
-
-const ERA_COLORS={
-  hadean:{dark:'rgba(120,50,30,0.12)',light:'rgba(120,50,30,0.08)'},
-  archean:{dark:'rgba(100,60,40,0.10)',light:'rgba(100,60,40,0.07)'},
-  proterozoic:{dark:'rgba(50,80,110,0.10)',light:'rgba(50,80,110,0.07)'},
-  cambrian:{dark:'rgba(30,100,100,0.10)',light:'rgba(30,100,100,0.07)'},
-  carboniferous:{dark:'rgba(20,80,30,0.12)',light:'rgba(20,80,30,0.09)'},
-  permian:{dark:'rgba(140,60,20,0.10)',light:'rgba(140,60,20,0.08)'},
-  triassic:{dark:'rgba(180,80,20,0.10)',light:'rgba(180,80,20,0.07)'},
-  cretaceous:{dark:'rgba(30,90,40,0.12)',light:'rgba(30,90,40,0.09)'},
-  cenozoic:{dark:'rgba(60,100,80,0.08)',light:'rgba(60,100,80,0.06)'}
-};
-const ERA_RANGES=[
-  {min:3800,max:4600,era:'hadean'},{min:2500,max:3800,era:'archean'},
-  {min:541,max:2500,era:'proterozoic'},{min:485,max:541,era:'cambrian'},
-  {min:299,max:359,era:'carboniferous'},{min:252,max:299,era:'permian'},
-  {min:200,max:252,era:'triassic'},{min:66,max:145,era:'cretaceous'},
-  {min:0,max:66,era:'cenozoic'}
-];
-function updateEraTint(mya){
-  const overlay=document.getElementById('era-tint-overlay');
-  if(!overlay)return;
-  const isLight=document.documentElement.getAttribute('data-theme')==='light';
-  for(const e of ERA_RANGES){
-    if(mya>=e.min&&mya<=e.max){
-      const c=ERA_COLORS[e.era];overlay.style.background=isLight?c.light:c.dark;return;
-    }
-  }
-  overlay.style.background='transparent';
-}
-
-function updateSpeciesCount(){
-  const all=Object.values(nodeMap);
-  const visible=all.filter(n=>nodeInEra(n));
-  const el=document.getElementById('era-species-count');
-  if(el)el.textContent=t('era_species_count').replace('{0}',visible.length).replace('{1}',all.length);
-}
-
-function toggleEraPlay(){
-  const btn=document.getElementById('era-play');
-  if(eraPlayId){
-    cancelAnimationFrame(eraPlayId);eraPlayId=null;
-    btn.textContent='\u25b6';btn.classList.remove('playing');btn.title=t('era_play');return;
-  }
-  btn.textContent='\u23f8';btn.classList.add('playing');btn.title=t('era_pause');
-  const startVal=parseInt(eraSlider.value);const startTime=performance.now();const duration=12000;
-  function step(now){
-    const elapsed=now-startTime;const progress=Math.min(1,elapsed/duration);
-    const newVal=Math.round(startVal*(1-progress));
-    eraSlider.value=newVal;currentEra=newVal;
-    eraFill.style.width=(newVal/3800*100)+'%';
-    eraLabel.textContent=getEraName(newVal);
-    updateEraTint(newVal);updateSpeciesCount();updatePresetHighlight(newVal);
-    scheduleRender();
-    if(progress<1){eraPlayId=requestAnimationFrame(step);}
-    else{eraPlayId=null;btn.textContent='\u25b6';btn.classList.remove('playing');btn.title=t('era_play');}
-  }
-  eraPlayId=requestAnimationFrame(step);
-}
-
-function animateSliderTo(target){
-  if(eraPlayId){cancelAnimationFrame(eraPlayId);eraPlayId=null;
-    const pb=document.getElementById('era-play');if(pb){pb.textContent='\u25b6';pb.classList.remove('playing');}}
-  const start=parseInt(eraSlider.value);const diff=target-start;
-  const startTime=performance.now();const duration=250;
-  function step(now){
-    const elapsed=now-startTime;const progress=Math.min(1,elapsed/duration);
-    const eased=progress<0.5?2*progress*progress:-1+(4-2*progress)*progress;
-    const newVal=Math.round(start+diff*eased);
-    eraSlider.value=newVal;currentEra=newVal;
-    eraFill.style.width=(newVal/3800*100)+'%';
-    eraLabel.textContent=getEraName(newVal);
-    updateEraTint(newVal);updateSpeciesCount();updatePresetHighlight(newVal);
-    scheduleRender();
-    if(progress<1)requestAnimationFrame(step);
-  }
-  requestAnimationFrame(step);
-}
-
-function updatePresetHighlight(mya){
-  document.querySelectorAll('.era-preset').forEach(btn=>{
-    const target=parseInt(btn.dataset.mya);
-    btn.classList.toggle('active',Math.abs(mya-target)<100);
-  });
-}
-
-function buildEraPresets(){
-  const container=document.getElementById('era-presets');if(!container)return;
-  const presets=[{mya:3800,key:'preset_luca'},{mya:2400,key:'preset_o2'},{mya:541,key:'preset_cambrian'},
-    {mya:200,key:'preset_dinos'},{mya:66,key:'preset_kpg'},{mya:0,key:'preset_now'}];
-  container.innerHTML='';
-  presets.forEach(p=>{
-    const btn=document.createElement('button');btn.className='era-preset';
-    btn.textContent=t(p.key);btn.dataset.mya=p.mya;
-    btn.addEventListener('click',()=>animateSliderTo(p.mya));
-    container.appendChild(btn);
-  });
-  updatePresetHighlight(currentEra);
-}
-
-function centerOnTree(scale){
-  const nodes=getVisible(TREE);
-  if(!nodes.length)return;
-  const xs=nodes.map(n=>n._x),ys=nodes.map(n=>n._y);
-  const cx=(Math.min(...xs)+Math.max(...xs))/2;
-  const cy=(Math.min(...ys)+Math.max(...ys))/2;
-  transform={x:window.innerWidth/2-cx*scale,y:window.innerHeight/2-cy*scale,s:scale};
-}
-function setViewMode(mode){
-  viewMode=mode;
-  document.querySelectorAll('.view-btn').forEach(btn=>{
-    btn.classList.toggle('active',btn.dataset.mode===mode);
-  });
-  layout();
-  if(mode==='radial'){centerOnTree(0.75);}
-  else if(mode==='cladogram'){centerOnTree(0.7);}
-  else if(mode==='chronological'){centerOnTree(0.65);}
-  scheduleRender(true);applyT();
-}
-
-eraSlider.addEventListener('input',()=>{
-  currentEra=parseInt(eraSlider.value);
-  const pct=(currentEra/3800)*100;
-  eraFill.style.width=pct+'%';
-  eraLabel.textContent=getEraName(currentEra);
-  updateEraTint(currentEra);
-  updateSpeciesCount();
-  updatePresetHighlight(currentEra);
-  if(eraPlayId){cancelAnimationFrame(eraPlayId);eraPlayId=null;
-    const pb=document.getElementById('era-play');if(pb){pb.textContent='\u25b6';pb.classList.remove('playing');}}
-  scheduleRender();
-});

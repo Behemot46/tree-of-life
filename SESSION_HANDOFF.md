@@ -1,33 +1,61 @@
-# Session Handoff — 2026-03-29 (Sprint J2 — Navigation & Interaction Polish)
+# Session Handoff — 2026-03-29 (Sprint J3 — Code Modularization)
 
 **Status: done**
-**Branch:** `claude/lucid-chebyshev`
+**Branch:** `claude/xenodochial-johnson`
 
 ## 1. Session Goal
-Execute Sprint J2 — unify navigation stacks, add smooth auto-pan, keyboard shortcuts help overlay, fix dead code.
+Split the 4,783-line inline `<script>` block in index.html into 17 focused ES modules using native `<script type="module">`. No build step.
 
 ## 2. What I Changed
 
-### Deleted stale modularized files
-- Removed `js/core.js`, `js/panel.js`, `js/renderer.js`, `js/search.js` — NOT loaded by any `<script>` tag, contained outdated `panelHistory`/`panelBack()` code
-- These were extracted copies from a prior modularization attempt; running code is all inline in index.html
+### index.html
+- Removed 4,777 lines of inline JavaScript (from ~7,040 lines to ~2,267 lines)
+- Added `<script type="module" src="js/app.js"></script>` after data script tags
+- All CSS and HTML markup unchanged
 
-### index.html — Navigation fixes
-- Fixed `smoothPanTo()` — `getElementById('tree-container')` → `getElementById('canvas-wrap')` (stale element ID)
-- Improved `restoreNavState()` — panel-to-panel back no longer flashes (skips close/reopen cycle)
-- Fixed `navBack()` — removed dead `hominin-view` reference (element doesn't exist)
-- Fixed `navHome()` — now closes DNA calc, evo-path, trivia, and kbd-help overlays
-- Fixed `openHomininView()` dead references → `navigateTo('hominini')` (2 call sites: hominini special panel + hominin deep dive button)
+### New ES module files (17 files)
+| File | Purpose |
+|------|---------|
+| `js/state.js` | Shared mutable state object + constants (HUMAN_PATH, TAXON_I18N) |
+| `js/utils.js` | reducedMotion(), preprocess(), hominin helpers, verifyPhotoUrl() |
+| `js/layout.js` | layout(), layoutRadial/Cladogram/Chronological/Playback |
+| `js/zoom.js` | applyT(), smoothPanTo(), centerOnTree/Root, pointer handlers |
+| `js/renderer.js` | render(), branchPath(), scheduleRender() |
+| `js/navigation.js` | navStack, pushNav/navBack/navHome, breadcrumb, tooltip |
+| `js/search.js` | buildSearchIndex(), searchEntities(), fuzzy matching |
+| `js/timeline.js` | Era slider, extinction markers, presets, sparkline |
+| `js/panel.js` | renderPanelContent(), showMainPanel(), species cards |
+| `js/hominin.js` | buildHomininTree(), compare mode |
+| `js/dnaCalc.js` | DNA similarity calculator modal |
+| `js/evoPath.js` | Evolutionary path comparison tool |
+| `js/trivia.js` | Trivia quiz game |
+| `js/playback.js` | Time-lapse playback mode |
+| `js/theme.js` | t(), setLang(), applyI18n(), toggleTheme() |
+| `js/engagement.js` | Toast, idle timer, intro, particles, generateSpeciesIllustration() |
+| `js/app.js` | Entry point: init(), window.* exposures, event listeners |
 
-### index.html — Smooth auto-pan
-- `navigateTo()` uses `smoothPanTo()` with 250ms delay before panel open (instant if `reducedMotion()`)
-- `showMainPanel()` calls `smoothPanTo()` to center viewport on clicked node
+### Deleted files
+- `js/core.js` — outdated p24 extraction copy (811 lines)
+- Old `js/renderer.js`, `js/panel.js`, `js/search.js` — replaced by new ES modules
 
-### index.html — Keyboard shortcuts help overlay
-- Added `<div id="kbd-help">` HTML overlay with 7 shortcut rows (Esc, Shift+Esc, F//, H, R, D, ?)
-- Added CSS for `.kbd-panel`, `.kbd-row`, `kbd` elements (dark/light theme, mobile responsive)
-- `?` key toggles overlay; Escape and backdrop click dismiss it
-- `navHome()` also dismisses the overlay
+### Other updates
+- `.github/workflows/deploy-check.yml` — added all 16 new module files to required list
+- `CLAUDE.md` — updated repo structure and architecture sections
+- `PROJECT_PROGRESS.md` — marked J3 done
+- `ROADMAP.md` — moved J3 to completed
+
+## 3. Architecture Notes
+- Data files (13) remain as classic `<script>` globals — unchanged
+- Application modules (17) use ES module imports/exports
+- Shared state via `state.js` — single mutable `state` object
+- Cross-module deps use late-binding (`initXxxDeps()`) to avoid circular imports
+- ~40 functions exposed on `window.*` for HTML onclick handlers
+
+## 4. Verification
+- 355 nodes, 354 branches rendered
+- Zero console errors
+- All features tested: navigateTo, theme toggle, view modes, DNA calc, evo path, trivia, domain toggle, panel open/close
+- Incorporates J2 changes: smoothPanTo fix, restoreNavState improvement, navHome overlay close, kbd-help overlay, navigateTo smooth pan
 
 ---
 

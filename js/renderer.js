@@ -1,0 +1,513 @@
+// ══════════════════════════════════════════════════════
+// RENDERER — SVG render engine (branches, nodes, labels)
+// ══════════════════════════════════════════════════════
+
+import { state, nodeMap, animDone, confirmedPhotoUrls, HUMAN_PATH } from './state.js';
+import { getVisible, getVisibleEdges } from './layout.js';
+import { reducedMotion } from './utils.js';
+import { getPlaybackNodeState, discoverNode, showDiscoveryCard } from './playback.js';
+import { nodeInEra } from './timeline.js';
+
+// ── Late-bound deps (avoid circular imports) ──
+let _showMainPanel, _showTip, _hideTip, _smoothPanTo, _layout;
+export function initRendererDeps(deps) {
+  _showMainPanel = deps.showMainPanel; _showTip = deps.showTip;
+  _hideTip = deps.hideTip; _smoothPanTo = deps.smoothPanTo;
+  _layout = deps.layout;
+}
+
+// ── DOM refs ──
+const branchLayer = document.getElementById('layer-branches');
+const nodesLayer = document.getElementById('layer-nodes');
+
+// ══════════════════════════════════════════════════════
+// BRANCH PATH
+// ══════════════════════════════════════════════════════
+
+export function branchPath(x1,y1,x2,y2){
+  if(state.viewMode==='cladogram'){return `M${x1},${y1} H${(x1+x2)/2} V${y2} H${x2}`;}
+  if(state.viewMode==='chronological'){return `M${x1},${y1} L${x2},${y2}`;}
+  if(state.viewMode==='playback'){return `M${x1},${y1} C${x1+(x2-x1)*0.5},${y1} ${x1+(x2-x1)*0.5},${y2} ${x2},${y2}`;}
+  const dx=x2-x1,dy=y2-y1;
+  const dist=Math.hypot(dx,dy)||1;
+  const px=-dy/dist,py=dx/dist;
+  const seed=(((x1*7+y1*13+x2*11+y2*17)%1000)+1000)%1000/1000;
+  const wobble=(seed-0.5)*dist*0.06;
+  const c1x=x1+dx*0.3+px*(dist*0.18+wobble);
+  const c1y=y1+dy*0.3+py*(dist*0.18+wobble);
+  const c2x=x1+dx*0.7+px*(dist*0.08-wobble*0.5);
+  const c2y=y1+dy*0.7+py*(dist*0.08-wobble*0.5);
+  return `M${x1},${y1} C${c1x},${c1y} ${c2x},${c2y} ${x2},${y2}`;
+}
+
+/* ===========================
+   RENDER SCHEDULER
+   =========================== */
+
+export function scheduleRender(force=false){
+  if(force){
+    state.renderQueued=false;
+    render();
+    return;
+  }
+  if(state.renderQueued) return;
+  state.renderQueued=true;
+  requestAnimationFrame(()=>{
+    state.renderQueued=false;
+    render();
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER
+// ══════════════════════════════════════════════════════
+
+export function render(){
+  const branchFrag=document.createDocumentFragment();
+  const nodesFrag=document.createDocumentFragment();
+  const edges=getVisibleEdges(TREE);
+  const nodes=getVisible(TREE);
+
+  // Branches
+  const humanPathEdges=[];
+  const evoPathEdges=[];
+  edges.forEach(({from,to})=>{
+    if(to._domain && to._domain!=='luca' && !state.activeDomains.has(to._domain)) return;
+    if(!state.showExtinct && to.extinct) return;
+
+    // Playback: skip branch if child is hidden
+    if(state.playbackMode){
+      const childState=state.playbackNodeStates.get(to.id)||getPlaybackNodeState(to);
+      if(childState==='hidden') return;
+    }
+
+    const inEra=nodeInEra(to);
+    const onHumanPath=HUMAN_PATH.has(from.id)&&HUMAN_PATH.has(to.id);
+    const onEvoPath=state.evoPathActive&&state.evoPathEdgeSet.has(from.id+'|'+to.id);
+    const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d',branchPath(from._x,from._y,to._x,to._y));
+    p.setAttribute('class','branch-path');
+    p.setAttribute('data-branch','true');
+    const isAccent=onHumanPath||onEvoPath;
+    const sw=isAccent?5:Math.max(2,6-to.depth*0.5);
+
+    // Playback: locked branches are dimmer
+    let op;
+    if(state.playbackMode){
+      const childState=state.playbackNodeStates.get(to.id)||getPlaybackNodeState(to);
+      op=childState==='locked'?0.12:(isAccent?0.9:(inEra?Math.max(0.3,0.8-to.depth*0.06):0.08));
+    } else {
+      op=isAccent?0.9:(inEra?Math.max(0.3,0.8-to.depth*0.06):0.08);
+    }
+    p.setAttribute('stroke',onEvoPath?'var(--accent-secondary)':(onHumanPath?'var(--accent-primary)':to.color));
+    p.setAttribute('stroke-width',sw);
+    p.setAttribute('stroke-opacity',op);
+    if(!animDone.has(to.id)){
+      const len=9999;p.style.strokeDasharray=len;p.style.strokeDashoffset=len;
+      if(state.playbackMode){
+        p.classList.add('branch-pb-grow');
+        setTimeout(()=>{p.style.strokeDashoffset=0;},30);
+      } else {
+        p.style.transition=`stroke-dashoffset ${0.3+to.depth*0.05}s cubic-bezier(.4,0,.2,1) ${to.depth*0.04}s`;
+        p.addEventListener('transitionend',function h(){p.style.strokeDasharray='';p.style.strokeDashoffset='';p.style.transition='';p.removeEventListener('transitionend',h);},{once:true});
+        setTimeout(()=>{p.style.strokeDashoffset=0;},50);
+      }
+    }
+    branchFrag.appendChild(p);
+    if(onHumanPath) humanPathEdges.push(p);
+    if(onEvoPath) evoPathEdges.push(p);
+  });
+  // Re-append human path edges on top so they draw over other branches
+  humanPathEdges.forEach(p=>branchFrag.appendChild(p));
+  // Evo path edges draw on top of everything
+  evoPathEdges.forEach(p=>branchFrag.appendChild(p));
+
+  // Nodes
+  const pendingLabels=[];
+  nodes.forEach(n=>{
+    if(n._domain && n._domain!=='luca' && !state.activeDomains.has(n._domain)) return;
+    if(!state.showExtinct && n.extinct) return;
+
+    // Playback: skip hidden, render locked differently
+    const pbState=state.playbackMode?(state.playbackNodeStates.get(n.id)||getPlaybackNodeState(n)):null;
+    if(state.playbackMode&&pbState==='hidden') return;
+
+    if(state.playbackMode&&pbState==='locked'){
+      // Render locked silhouette node
+      const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+      g.setAttribute('class','node-group');
+      g.style.cursor='pointer';
+
+      // Hit area
+      const hit=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      hit.setAttribute('cx',n._x);hit.setAttribute('cy',n._y);hit.setAttribute('r',Math.max(n.r+14,22));
+      hit.setAttribute('fill','transparent');hit.style.cursor='pointer';
+      hit.addEventListener('click',e=>{e.stopPropagation();discoverNode(n);});
+      g.appendChild(hit);
+
+      // Locked circle (dashed, dim)
+      const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',n._x);c.setAttribute('cy',n._y);c.setAttribute('r',Math.max(n.r,8));
+      c.setAttribute('class','node-locked');
+      c.style.transformOrigin=`${n._x}px ${n._y}px`;
+      c.addEventListener('mouseenter',function(){_showTip('???','?');});
+      c.addEventListener('mouseleave',function(){_hideTip();});
+      c.addEventListener('click',e=>{e.stopPropagation();discoverNode(n);});
+      g.appendChild(c);
+
+      // Question mark icon
+      const qm=document.createElementNS('http://www.w3.org/2000/svg','text');
+      qm.setAttribute('x',n._x);qm.setAttribute('y',n._y+4);
+      qm.setAttribute('text-anchor','middle');qm.setAttribute('font-size',Math.max(10,n.r*0.8));
+      qm.setAttribute('fill','var(--parchment)');qm.setAttribute('fill-opacity','0.5');
+      qm.setAttribute('font-family','Inter,sans-serif');qm.setAttribute('font-weight','700');
+      qm.style.pointerEvents='none';
+      qm.textContent='?';
+      g.appendChild(qm);
+
+      g.addEventListener('contextmenu',e=>e.preventDefault());
+      nodesFrag.appendChild(g);
+      return; // skip normal node rendering for locked nodes
+    }
+
+    const inEra=nodeInEra(n);
+    const isHighlighted=state.highlightedId===n.id;
+    const isGroupChip=n.id&&n.id.startsWith('group-');
+    const g=document.createElementNS('http://www.w3.org/2000/svg','g');
+    g.setAttribute('class','node-group');
+    g.setAttribute('role','treeitem');
+    g.setAttribute('tabindex','-1');
+    g.setAttribute('aria-label',n.name+(n.latin?' ('+n.latin+')':'')+(n.extinct?' - extinct':''));
+    g.setAttribute('data-node-id',n.id);
+    if(n.children&&n.children.length) g.setAttribute('aria-expanded',String(!n._collapsed));
+    g.style.cursor='pointer';
+
+    if(isGroupChip){
+      // ── PILL / CHIP rendering for hominin group nodes ──
+      const pillW=Math.max(n.name.length*7+32,100);
+      const pillH=28;
+      const px=n._x-pillW/2;
+      const py=n._y-pillH/2;
+      const colAlpha=n.color+'33';
+      const colBorder=n.color+'66';
+      const indicator=n._collapsed?'+':'\u2212';
+
+      const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+      fo.setAttribute('x',px);fo.setAttribute('y',py);
+      fo.setAttribute('width',pillW);fo.setAttribute('height',pillH);
+      fo.style.overflow='visible';
+
+      const chip=document.createElement('div');
+      chip.className='chip-badge';
+      chip.style.border=`1.5px solid ${colBorder}`;
+      chip.style.background=colAlpha;
+      chip.style.color=n.color;
+      chip.style.height=`${pillH}px`;
+      chip.textContent=`${n.icon} ${n.name} ${indicator}`;
+      chip.addEventListener('mouseenter',()=>{chip.style.borderColor=n.color;chip.style.background=n.color+'44';_showTip(n.name,n.icon);});
+      chip.addEventListener('mouseleave',()=>{chip.style.borderColor=colBorder;chip.style.background=colAlpha;_hideTip();});
+
+      fo.appendChild(chip);g.appendChild(fo);
+
+      // Highlight ring for search
+      if(isHighlighted){
+        const hl=document.createElementNS('http://www.w3.org/2000/svg','rect');
+        hl.setAttribute('x',px-4);hl.setAttribute('y',py-4);
+        hl.setAttribute('width',pillW+8);hl.setAttribute('height',pillH+8);
+        hl.setAttribute('rx','18');hl.setAttribute('fill','none');
+        hl.setAttribute('stroke','#0ea5e9');hl.setAttribute('stroke-width','2');hl.setAttribute('stroke-opacity','0.9');
+        g.appendChild(hl);
+      }
+
+      // Animate in
+      if(!animDone.has(n.id)){
+        if(reducedMotion()){
+          animDone.add(n.id);
+        } else {
+          g.style.opacity='0';g.style.transformOrigin=`${n._x}px ${n._y}px`;g.style.transform='scale(0.2)';
+          setTimeout(()=>{
+            g.style.transition=`opacity 0.45s ease ${n.depth*0.09}s, transform 0.45s cubic-bezier(.34,1.56,.64,1) ${n.depth*0.09}s`;
+            g.style.opacity='1';g.style.transform='scale(1)';
+            setTimeout(()=>animDone.add(n.id),550+n.depth*90);
+          },40);
+        }
+      }
+
+      // Left-click toggles collapse; double-click opens panel
+      g.addEventListener('click',e=>{e.stopPropagation();n._collapsed=!n._collapsed;scheduleRender();});
+      g.addEventListener('dblclick',e=>{e.stopPropagation();_showMainPanel(n);});
+      g.addEventListener('contextmenu',e=>{e.preventDefault();_showMainPanel(n);});
+      nodesFrag.appendChild(g);
+      return; // skip normal node rendering
+    }
+
+    const onHumanPath=HUMAN_PATH.has(n.id);
+
+    // Human evolution path accent ring
+    if(onHumanPath&&n.depth>0){
+      const pathRing=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      pathRing.setAttribute('cx',n._x);pathRing.setAttribute('cy',n._y);pathRing.setAttribute('r',n.r+7);
+      pathRing.setAttribute('fill','none');pathRing.setAttribute('stroke','var(--accent-primary)');
+      pathRing.setAttribute('stroke-width','2');pathRing.setAttribute('stroke-opacity','0.5');
+      g.appendChild(pathRing);
+    }
+
+    // Evolutionary path accent ring (orange)
+    if(state.evoPathActive&&state.evoPathSet.has(n.id)&&n.depth>0){
+      const evoRing=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      evoRing.setAttribute('cx',n._x);evoRing.setAttribute('cy',n._y);evoRing.setAttribute('r',n.r+8);
+      evoRing.setAttribute('fill','none');evoRing.setAttribute('stroke','var(--accent-secondary)');
+      evoRing.setAttribute('stroke-width','2.5');evoRing.setAttribute('stroke-opacity','0.6');
+      g.appendChild(evoRing);
+    }
+
+    // Root pulse ring
+    if(n.depth===0){
+      const glow=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      glow.setAttribute('cx',n._x);glow.setAttribute('cy',n._y);glow.setAttribute('r',n.r+14);
+      glow.setAttribute('fill','none');glow.setAttribute('stroke',n.color);
+      glow.setAttribute('stroke-width','1.5');glow.setAttribute('stroke-opacity','0.4');
+      glow.style.opacity='0.4';
+      g.appendChild(glow);
+    }
+
+    // Living pulse ring for Homo sapiens
+    if(n.id==='h_sapiens'){
+      const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      ring.setAttribute('cx',n._x);ring.setAttribute('cy',n._y);ring.setAttribute('r',n.r+10);
+      ring.setAttribute('fill','none');ring.setAttribute('stroke',n.color);
+      ring.setAttribute('stroke-width','1');ring.setAttribute('stroke-opacity','0.5');
+      ring.style.opacity='0.5';
+      g.appendChild(ring);
+    }
+
+    // Hominini gateway — golden pulsing ring
+    if(n.id==='hominini'){
+      const gw=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      gw.setAttribute('cx',n._x);gw.setAttribute('cy',n._y);gw.setAttribute('r',n.r+12);
+      gw.setAttribute('fill','none');gw.setAttribute('stroke','#c8883a');
+      gw.setAttribute('stroke-width','2');gw.setAttribute('stroke-opacity','0.6');
+      gw.style.animation='homininGlow 2.5s ease-in-out infinite';
+      g.appendChild(gw);
+    }
+
+    // Highlight ring
+    if(isHighlighted){
+      const hl=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      hl.setAttribute('cx',n._x);hl.setAttribute('cy',n._y);hl.setAttribute('r',n.r+9);
+      hl.setAttribute('fill','none');hl.setAttribute('stroke','#c8883a');
+      hl.setAttribute('stroke-width','2');hl.setAttribute('stroke-opacity','0.9');
+      g.appendChild(hl);
+    }
+
+    // Collapse ring
+    if(n.children&&n.children.length&&n.depth>0){
+      const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      ring.setAttribute('cx',n._x);ring.setAttribute('cy',n._y);ring.setAttribute('r',n.r+5);
+      ring.setAttribute('fill','none');ring.setAttribute('stroke',n.color);
+      ring.setAttribute('stroke-width','0.7');ring.setAttribute('stroke-opacity','0.2');
+      ring.setAttribute('stroke-dasharray','3 3');
+      g.appendChild(ring);
+    }
+
+    // Invisible hit area — much easier to click
+    const hit=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    hit.setAttribute('cx',n._x);hit.setAttribute('cy',n._y);hit.setAttribute('r',Math.max(n.r+14,22));
+    hit.setAttribute('fill','transparent');hit.style.cursor='pointer';
+    hit.addEventListener('click',e=>{e.stopPropagation();_showMainPanel(n);});
+    g.appendChild(hit);
+
+    // Main circle
+    const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+    c.setAttribute('cx',n._x);c.setAttribute('cy',n._y);c.setAttribute('r',Math.max(n.r,8));
+    c.setAttribute('class','node-circle nc-main');
+    c.setAttribute('data-depth',n.depth||0);
+    c.setAttribute('fill',n.depth===0?'url(#rootGrad)':n.color);
+    c.setAttribute('fill-opacity',inEra?(n.depth===0?'1':n.depth<=1?'0.9':'0.8'):'0.15');
+    c.style.stroke='var(--bg)';c.setAttribute('stroke-width','1.5');
+    c.style.setProperty('--nc',n.color);
+    /* no glow filter on root */
+    if(n.extinct){c.setAttribute('stroke-dasharray','4 2');c.setAttribute('opacity','0.6');}
+    c.style.cursor = 'pointer';
+    c.style.pointerEvents = 'all';
+    c.addEventListener('mouseenter', function(){ this.style.transform='scale(1.12)';this.style.transformOrigin='center';this.style.filter='drop-shadow(0 0 6px '+n.color+')'; _showTip(n.name, n.icon); });
+    c.addEventListener('mouseleave', function(){ this.style.transform='scale(1)';this.style.filter=''; _hideTip(); });
+    c.addEventListener('click', e=>{ e.stopPropagation(); _showMainPanel(n); });
+    g.appendChild(c);
+
+    // Species image (ImageLoader) or SVG silhouette icon fallback
+    if(inEra){
+      const imgR=Math.max(n.r,8);
+      const imgSize=imgR*2;
+
+      // Helper to render SVG silhouette icon (used as fallback)
+      function addSilhouette(){
+        const ig=getIconGroup(n);
+        const iconPath=NODE_ICONS[ig]||NODE_ICONS.default;
+        const s=Math.max(12,n.r*1.2);
+        // Subtle background circle behind icon
+        const iconBg=document.createElementNS('http://www.w3.org/2000/svg','circle');
+        iconBg.setAttribute('cx',n._x);iconBg.setAttribute('cy',n._y);
+        iconBg.setAttribute('r',s*0.55);
+        iconBg.setAttribute('fill',n.color||'var(--text-muted)');
+        iconBg.setAttribute('opacity','0.12');
+        iconBg.style.pointerEvents='none';
+        g.appendChild(iconBg);
+        // Icon silhouette
+        const icon=document.createElementNS('http://www.w3.org/2000/svg','path');
+        icon.setAttribute('d',iconPath);
+        icon.setAttribute('fill',document.documentElement.getAttribute('data-theme')==='light'?'rgba(30,30,30,0.7)':'rgba(255,255,255,0.85)');
+        icon.setAttribute('transform',`translate(${n._x-s/2},${n._y-s/2}) scale(${s/24})`);
+        icon.style.pointerEvents='none';
+        g.appendChild(icon);
+      }
+
+      // Always show silhouette icon first
+      addSilhouette();
+
+      // Overlay species photo on top if available (via ImageLoader)
+      // Uses foreignObject + HTML img (SVG <image> fails cross-origin)
+      if(typeof ImageLoader!=='undefined'&&imgR>=8){
+        const cachedUrl=confirmedPhotoUrls.get(n.id);
+        const best=cachedUrl ? {url:cachedUrl} : ImageLoader.getBestUrl(n);
+        if(best.url){
+          const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+          fo.setAttribute('x',n._x-imgR);fo.setAttribute('y',n._y-imgR);
+          fo.setAttribute('width',imgSize);fo.setAttribute('height',imgSize);
+          fo.style.pointerEvents='none';fo.style.overflow='hidden';
+          const wrap=document.createElement('div');
+          wrap.className='node-img-wrap';
+          wrap.style.width=`${imgSize}px`;wrap.style.height=`${imgSize}px`;
+          const htmlImg=document.createElement('img');
+          htmlImg.className='node-img';
+          htmlImg.alt=n.name||'';
+          if(cachedUrl){
+            htmlImg.addEventListener('error',function(){if(fo.parentNode)fo.remove();confirmedPhotoUrls.delete(n.id);});
+            htmlImg.src=cachedUrl;
+          } else {
+            ImageLoader.loadInto(n,htmlImg,{
+              onLoad:function(){confirmedPhotoUrls.set(n.id,htmlImg.src);},
+              onFallback:function(){if(fo.parentNode)fo.remove();}
+            });
+          }
+          wrap.appendChild(htmlImg);fo.appendChild(wrap);g.appendChild(fo);
+        }
+      }
+    }
+
+    // Label — compute position and store for global collision pass
+    if(inEra&&n.depth<=6){
+      const sibCount=n._parent?.children?.length||1;
+      const angleRad=n._angle-Math.PI/2;
+      const lDist=n.r+18+Math.max(0,(n.depth-3)*4);
+      const lx=n._x+Math.cos(angleRad)*lDist;
+      const ly=n._y+Math.sin(angleRad)*lDist;
+      const cos=Math.cos(angleRad);
+      const fontSize=n.depth===0?14:n.depth===1?12:sibCount>12?8:sibCount>8?9:10;
+      const labelText=n._hominData?n._hominData.short:n.name;
+      const textW=labelText.length*fontSize*0.55;
+      const textH=fontSize+2;
+      const anchor=cos<-0.15?'end':cos>0.15?'start':'middle';
+      const bx=anchor==='end'?lx-textW:anchor==='start'?lx:lx-textW/2;
+      pendingLabels.push({n,lx,ly,cos,fontSize,textW,textH,bx,by:ly-textH/2,anchor,g});
+    }
+
+    // Expand/collapse badge (+/-)
+    if(n.children?.length&&n.depth>0){
+      const bx=n._x+n.r*0.6,by=n._y-n.r*0.6;
+      const bg=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      bg.setAttribute('cx',bx);bg.setAttribute('cy',by);bg.setAttribute('r','6');
+      bg.setAttribute('fill',n._collapsed?'#c8883a':'#5b9a6b');
+      bg.style.stroke='var(--bg)';bg.setAttribute('stroke-width','1.5');
+      g.appendChild(bg);
+      const label=document.createElementNS('http://www.w3.org/2000/svg','text');
+      label.setAttribute('x',bx);label.setAttribute('y',by);
+      label.setAttribute('text-anchor','middle');label.setAttribute('dominant-baseline','central');
+      label.setAttribute('fill','#fff');label.setAttribute('font-size','9');
+      label.setAttribute('font-weight','700');label.setAttribute('font-family','Inter,sans-serif');
+      label.style.pointerEvents='none';
+      label.textContent=n._collapsed?'+':'\u2212';
+      g.appendChild(label);
+    }
+
+    // Animate in (skip during playback — playback has its own locked->revealed animation)
+    if(!state.playbackMode&&!animDone.has(n.id)){
+      if(reducedMotion()){
+        animDone.add(n.id);
+      } else {
+        g.style.opacity='0';g.style.transformOrigin=`${n._x}px ${n._y}px`;g.style.transform='scale(0.2)';
+        setTimeout(()=>{
+          g.style.transition=`opacity 0.45s ease ${n.depth*0.09}s, transform 0.45s cubic-bezier(.34,1.56,.64,1) ${n.depth*0.09}s`;
+          g.style.opacity='1';g.style.transform='scale(1)';
+          setTimeout(()=>animDone.add(n.id),550+n.depth*90);
+        },40);
+      }
+    }
+
+    // Events — left-click: expand/collapse branches, open panel for leaves
+    g.addEventListener('click',e=>{
+      e.stopPropagation();
+      if(state.playbackMode){showDiscoveryCard(n);return;}
+      if(n.children&&n.children.length){
+        n._collapsed=!n._collapsed;
+        _layout();scheduleRender(true);
+        // Auto-pan to show expanded children
+        if(!n._collapsed){
+          setTimeout(()=>{
+            const kids=getVisible(n).filter(k=>k._parent===n);
+            if(kids.length){
+              const cx=kids.reduce((s,k)=>s+k._x,0)/kids.length;
+              const cy=kids.reduce((s,k)=>s+k._y,0)/kids.length;
+              _smoothPanTo(cx,cy);
+            }
+          },100);
+        }
+      }else{
+        _showMainPanel(n);
+      }
+    });
+    // Double-click: always open panel (even for branch nodes)
+    g.addEventListener('dblclick',e=>{e.stopPropagation();e.preventDefault();if(!state.playbackMode)_showMainPanel(n);});
+    nodesFrag.appendChild(g);
+  });
+
+  // Global label collision resolution
+  // Sort by priority: human path first, then depth 0-1, then by depth ascending
+  pendingLabels.sort((a,b)=>{
+    const aHP=HUMAN_PATH.has(a.n.id)?0:1;
+    const bHP=HUMAN_PATH.has(b.n.id)?0:1;
+    if(aHP!==bHP) return aHP-bHP;
+    if(a.n.depth<=1 && b.n.depth>1) return -1;
+    if(b.n.depth<=1 && a.n.depth>1) return 1;
+    return a.n.depth-b.n.depth;
+  });
+  const placedBoxes=[];
+  function boxesOverlap(a,b){
+    return a.bx<b.bx+b.textW && a.bx+a.textW>b.bx && a.by<b.by+b.textH && a.by+a.textH>b.by;
+  }
+  pendingLabels.forEach(lb=>{
+    const onPath=HUMAN_PATH.has(lb.n.id);
+    // Always show depth 0-1 and human path nodes
+    const forceShow=lb.n.depth<=1||onPath;
+    if(!forceShow){
+      for(const placed of placedBoxes){
+        if(boxesOverlap(lb,placed)){return;}
+      }
+    }
+    placedBoxes.push(lb);
+    const svgText=document.createElementNS('http://www.w3.org/2000/svg','text');
+    svgText.setAttribute('x',lb.lx);svgText.setAttribute('y',lb.ly);
+    svgText.setAttribute('text-anchor',lb.anchor);
+    svgText.setAttribute('dominant-baseline','middle');
+    svgText.setAttribute('fill',onPath?'var(--accent-primary)':lb.n.depth===0?'#e8eaf0':lb.n.depth<=1?'rgba(160,164,176,0.95)':'rgba(107,112,128,0.85)');
+    svgText.setAttribute('font-size',lb.fontSize);
+    svgText.setAttribute('font-family',"'Inter', sans-serif");
+    svgText.setAttribute('font-weight',onPath||lb.n.depth<=1?'600':'400');
+    svgText.setAttribute('class','node-label-text');
+    svgText.textContent=lb.n._hominData?lb.n._hominData.short:lb.n.name;
+    lb.g.appendChild(svgText);
+  });
+
+  branchLayer.replaceChildren(branchFrag);
+  nodesLayer.replaceChildren(nodesFrag);
+}

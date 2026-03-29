@@ -56,9 +56,9 @@ These features were built incrementally but never had their own phase number:
 
 | Sprint | Phase | Goal | Status | Prompt |
 |--------|-------|------|--------|--------|
-| 1 | J1 | Design system cleanup — CSS vars, z-index, reduced-motion | Pending | `SPRINT_J1_DESIGN_CLEANUP.md` |
+| 1 | J1 | Design system cleanup — CSS vars, z-index, reduced-motion | Done | `SPRINT_J1_DESIGN_CLEANUP.md` |
 | 1 | J2 | Navigation unification — merge stacks, smooth pan, keyboard | Pending | `SPRINT_J2_NAV_POLISH.md` |
-| 2 | J3 | Code modularization — split index.html → 12 ES modules | Pending | `SPRINT_J3_MODULARIZATION.md` |
+| 2 | J3 | Code modularization — split index.html → 17 ES modules | Done | `SPRINT_J3_MODULARIZATION.md` |
 | 3 | J4 | Accessibility — keyboard tree nav, focus traps, 44px targets | Pending | `SPRINT_J4_ACCESSIBILITY.md` |
 | 4 | J5 | SVG performance — viewport culling, GPU compositing, 60fps | Pending | `SPRINT_J5_PERFORMANCE.md` |
 | 5 | J6 | Discovery & fun — achievements, quiz, progress, idle facts | Pending | `SPRINT_J6_ENGAGEMENT.md` |

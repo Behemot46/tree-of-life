@@ -66,12 +66,13 @@ English-only. Focus: clear design, engaging, intuitive, accurate, fun.
 - Smooth auto-pan to focused node
 - Keyboard: Escape = Back, Shift+Escape = Home
 
-### J3 — Code Modularization
+### ✅ J3 — Code Modularization — **Done**
 **Effort:** Large | **Prompt:** `docs/PROMPTS/SPRINT_J3_MODULARIZATION.md`
 
-- Split 4,251-line index.html inline JS → 12 ES modules
+- Split 4,783-line index.html inline JS → 17 ES modules + state.js
 - `<script type="module">` — no build step needed
-- Modules: app, renderer, layout, panel, navigation, search, timeline, hominin, dnaCalc, zoom, theme, utils
+- Modules: app, state, renderer, layout, panel, navigation, search, timeline, hominin, dnaCalc, evoPath, trivia, playback, zoom, theme, engagement, utils
+- Deleted outdated p24 extraction files (core.js + old renderer/panel/search)
 
 ### J4 — Accessibility Foundation
 **Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J4_ACCESSIBILITY.md`

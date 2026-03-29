@@ -58,13 +58,15 @@ English-only. Focus: clear design, engaging, intuitive, accurate, fun.
 - Added `reducedMotion()` JS helper + guards on node/intro animations
 - Unified mobile breakpoints: 3 components `600px` → `768px`
 
-### J2 — Navigation & Interaction Polish
+### J2 — Navigation & Interaction Polish ✅
 **Effort:** Small | **Prompt:** `docs/PROMPTS/SPRINT_J2_NAV_POLISH.md`
 
-- Merge `panelHistory` + `navStack` into single unified stack
-- Delete `panelBack()`, all navigation through `navBack()`
-- Smooth auto-pan to focused node
-- Keyboard: Escape = Back, Shift+Escape = Home
+- ✅ Unified navigation: `panelHistory`/`panelBack()` removed, all nav through `navStack`/`navBack()`
+- ✅ Smooth auto-pan (`smoothPanTo`) on `navigateTo()` and `showMainPanel()`
+- ✅ Keyboard: Escape = Back, Shift+Escape = Home, `?` = shortcuts help overlay
+- ✅ `navHome()` closes all overlays (DNA, evo-path, trivia, kbd-help)
+- ✅ Deleted stale modularized files (core.js, panel.js, renderer.js, search.js)
+- ✅ Fixed dead `openHomininView()` → `navigateTo('hominini')`
 
 ### ✅ J3 — Code Modularization — **Done**
 **Effort:** Large | **Prompt:** `docs/PROMPTS/SPRINT_J3_MODULARIZATION.md`
@@ -172,6 +174,7 @@ Sprint 8: J9 (guided tours)
 | 2026-03-12 | SVG silhouette icons over emojis | Cross-platform consistency |
 | 2026-03-13 | ImageLoader fallback chain | Generated → PHOTO_MAP → emoji; graceful degradation |
 | 2026-03-14 | Separate navStack from panelHistory | Quick ship; unification deferred to J2 |
+| 2026-03-29 | J2: Unified nav stack, deleted stale JS modules | panelHistory/panelBack removed; smooth pan; kbd help overlay |
 | 2026-03-15 | Roadmap created | Formalize priorities |
 | 2026-03-16 | Unified roadmap with scaling tiers | Reconciled duplicate phases, integrated data infrastructure priorities |
 | 2026-03-28 | J-series replaces p-series | Fresh start with 7-agent audit, English-only focus |

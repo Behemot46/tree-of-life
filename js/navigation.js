@@ -7,6 +7,7 @@ import { state, nodeMap, navStack } from './state.js';
 // ── Late-binding deps (set via initNavDeps) ──
 let _showMainPanel, _closePanel, _smoothPanTo, _scheduleRender;
 let _layout, _centerOnRoot, _applyT, _renderPanelContent;
+let _closeDnaCalc, _closeEvoPath, _closeTrivia;
 export function initNavDeps(deps) {
   _showMainPanel = deps.showMainPanel;
   _closePanel = deps.closePanel;
@@ -16,6 +17,9 @@ export function initNavDeps(deps) {
   _centerOnRoot = deps.centerOnRoot;
   _applyT = deps.applyT;
   _renderPanelContent = deps.renderPanelContent;
+  _closeDnaCalc = deps.closeDnaCalc;
+  _closeEvoPath = deps.closeEvoPath;
+  _closeTrivia = deps.closeTrivia;
 }
 
 // ── DOM elements ──
@@ -45,20 +49,23 @@ export function pushNav(url){
 }
 
 export function restoreNavState(s){
-  // Close everything first without pushing to stack
-  panel.classList.remove('open');
-  state.currentPanelNode=null;
-
-  if(s.type==='tree'){
-    updateBreadcrumb(null);
-  } else if(s.type==='panel'){
+  if(s.type==='panel'){
+    // Panel-to-panel: swap content without closing/reopening (avoids flash)
     const node=nodeMap[s.nodeId];
     if(node){
       state.currentPanelNode=node;
       _renderPanelContent(node);
       panel.classList.add('open');
       updateBreadcrumb(node);
+      if(node._x!==undefined){
+        if(typeof _smoothPanTo==='function') _smoothPanTo(node._x,node._y);
+      }
     }
+  } else {
+    // Close everything first without pushing to stack
+    panel.classList.remove('open');
+    state.currentPanelNode=null;
+    updateBreadcrumb(null);
   }
 }
 
@@ -67,8 +74,6 @@ export function navBack(){
     // Nothing in stack — close whatever is open
     const s=currentNavState();
     if(s.type!=='tree'){
-      const homView=document.getElementById('hominin-view');
-      if(homView) homView.classList.remove('open');
       panel.classList.remove('open');
       state.currentPanelNode=null;
       updateBreadcrumb(null);
@@ -83,6 +88,12 @@ export function navBack(){
 
 export function navHome(){
   navStack.length=0;
+  // Close all overlays
+  if(document.getElementById('dna-panel').classList.contains('open')&&typeof _closeDnaCalc==='function') _closeDnaCalc();
+  if(document.getElementById('evo-path-panel').classList.contains('open')&&typeof _closeEvoPath==='function') _closeEvoPath();
+  if(document.getElementById('trivia-panel').classList.contains('open')&&typeof _closeTrivia==='function') _closeTrivia();
+  const kbdHelp=document.getElementById('kbd-help');
+  if(kbdHelp) kbdHelp.classList.remove('visible');
   state.currentPanelNode=null;
   panel.classList.remove('open');
   updateBreadcrumb(null);

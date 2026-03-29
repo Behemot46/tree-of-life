@@ -528,7 +528,7 @@ export function renderSapiensPanel(node, panelEl) {
       </div>
 
       <!-- Hominin Deep Dive button -->
-      <button onclick="openHomininView()" style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#0ea5e9,#8b5cf6);color:white;cursor:pointer;font-family:Inter,sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:0.02em;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">🧬 Explore Human Evolution</button>
+      <button onclick="navigateTo('hominini')" style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#0ea5e9,#8b5cf6);color:white;cursor:pointer;font-family:Inter,sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:0.02em;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">🧬 Explore Human Evolution</button>
 
       <!-- Close button -->
       <button onclick="closePanel()" style="padding:10px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:Inter,sans-serif;font-size:13px;color:var(--color-text-secondary);">Close</button>
@@ -762,7 +762,7 @@ export function renderPanelContent(node) {
       ` : ''}
       ${(()=>{
         const isHom = node._hominData || node.id === 'hominini' || (node.id && node.id.startsWith('hom-'));
-        return isHom ? `<div class="panel-section"><button class="panel-cta" onclick="openHomininView()">🧬 Hominin Deep Dive</button></div>` : '';
+        return isHom ? `<div class="panel-section"><button class="panel-cta" onclick="navigateTo('hominini')">🧬 Hominin Deep Dive</button></div>` : '';
       })()}
     </div>
   `;
@@ -839,6 +839,10 @@ export function showMainPanel(n,url){
     panel.style.opacity = '1';
     panel.style.transform = '';
   });
+  // Smooth pan to center the node in the viewport
+  if(n._x!==undefined){
+    if(typeof _smoothPanTo==='function') _smoothPanTo(n._x,n._y);
+  }
   _updateBreadcrumb(n);
   _updateNavButtons();
 }

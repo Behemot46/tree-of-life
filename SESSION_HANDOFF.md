@@ -55,6 +55,7 @@ Split the 4,783-line inline `<script>` block in index.html into 17 focused ES mo
 - 355 nodes, 354 branches rendered
 - Zero console errors
 - All features tested: navigateTo, theme toggle, view modes, DNA calc, evo path, trivia, domain toggle, panel open/close
+- Incorporates J2 changes: smoothPanTo fix, restoreNavState improvement, navHome overlay close, kbd-help overlay, navigateTo smooth pan
 
 ---
 
@@ -63,34 +64,6 @@ Split the 4,783-line inline `<script>` block in index.html into 17 focused ES mo
 **Status: done**
 **Branch:** `claude/keen-noether`
 **PR:** #121
-
-## 1. Session Goal
-Execute Sprint J1 — clean the CSS foundation: rename CSS variables, add z-index scale, remove dead code, extract inline styles to classes, add reduced-motion JS guards.
-
-## 2. What I Changed
-
-### index.html — CSS block
-- Renamed `--gold`→`--accent`, `--gold-light`→`--accent-light`, `--gold-dim`→`--accent-dim`, `--gold-rgb`→`--accent-rgb`, `--gold-text`→`--accent-text`, `--gold-text-dim`→`--accent-text-dim` (~60 replacements)
-- Removed `--teal` and `--teal-dim` definitions (duplicates of `--accent-secondary`); replaced 1 `var(--teal)` usage
-- Added 13 z-index CSS custom properties (`--z-base` through `--z-tour-content`) to `:root`
-- Replaced ~30 global z-index magic numbers with `var(--z-*)` references (skipped local stacking contexts and inline attrs)
-- Deleted 3 dead CSS rules: `[data-theme="dark"] .search-result-item/name/meta`
-- Deleted 8 duplicate panel rules: `[data-theme="light/dark"] #panel` blocks
-- Unified 3 `@media(max-width:600px)` → `@media(max-width:768px)` (DNA calc, evo-path, trivia)
-- Added 7 new utility CSS classes: `.compare-banner`, `.compare-banner.visible`, `.intro-overlay`, `.offline-banner`, `.offline-banner.visible`, `.node-img-wrap`, `.node-img`, `.chip-badge`, `.compare-panel-open`
-
-### index.html — JS block
-- Added `const reducedMotion = () => matchMedia('(prefers-reduced-motion:reduce)').matches;`
-- Guarded group-chip node entrance animation with `reducedMotion()` check
-- Guarded regular node entrance animation with `reducedMotion()` check
-- Guarded `showIntro()` — skips overlay entirely if reduced motion
-- Replaced compare banner `style.cssText` with `className='compare-banner'` + `classList.add/remove('visible')`
-- Replaced intro overlay `style.cssText` with `className='intro-overlay'`
-- Replaced offline banner `style.cssText` with `className='offline-banner'` + `classList.toggle('visible')`
-- Replaced node image wrapper `style.cssText` with `className='node-img-wrap'` + dynamic width/height
-- Replaced node image `style.cssText` with `className='node-img'`
-- Replaced chip badge `style.cssText` with `className='chip-badge'` + dynamic border/bg/color/height inline
-- Replaced compare panel `style.display='flex'; style.flexDirection='column'` with `classList.add('compare-panel-open')`
 
 ---
 

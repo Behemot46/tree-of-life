@@ -17,7 +17,7 @@ export function applyT() {
 }
 
 export function smoothPanTo(wx,wy){
-  const svgR=document.getElementById('tree-container').getBoundingClientRect();
+  const svgR=(document.getElementById('canvas-wrap')||document.getElementById('svg')).getBoundingClientRect();
   const cx=svgR.width/2,cy=svgR.height/2;
   const tx=cx-wx*state.transform.s,ty=cy-wy*state.transform.s;
   const dx=tx-state.transform.x,dy=ty-state.transform.y;

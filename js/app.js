@@ -58,7 +58,7 @@ import { showToast, dismissToast, showSpeciesToast, showIdleToast, resetIdleTime
 
 initRendererDeps({ showMainPanel, showTip, hideTip, smoothPanTo, layout });
 initZoomDeps({ scheduleRender, layout, getVisible });
-initNavDeps({ showMainPanel, closePanel, smoothPanTo, scheduleRender, layout, centerOnRoot, applyT, renderPanelContent });
+initNavDeps({ showMainPanel, closePanel, smoothPanTo, scheduleRender, layout, centerOnRoot, applyT, renderPanelContent, closeDnaCalc, closeEvoPath, closeTrivia });
 initTimelineDeps({ scheduleRender, t, togglePlayback, pausePlayback });
 initPanelDeps({ pushNav, updateNavButtons, updateBreadcrumb, scheduleRender, smoothPanTo, focusNode, t, generateSpeciesIllustration, navBack, layout, applyT, centerOnRoot });
 initHomininDeps({ scheduleRender, showMainPanel, renderPanelContent, t });
@@ -140,12 +140,15 @@ function navigateTo(id){
   // Ensure path is not collapsed
   let c=n;while(c._parent){c._parent._collapsed=false;c=c._parent;}
   layout();scheduleRender(true);applyT();
-  // Pan to node
-  const cx=window.innerWidth/2,cy=window.innerHeight/2;
-  state.transform.x=cx-n._x*state.transform.s;
-  state.transform.y=cy-n._y*state.transform.s;
-  applyT();
-  showMainPanel(n,'?node='+encodeURIComponent(id));
+  // Smooth pan to node (instant if reduced motion)
+  if(reducedMotion()){
+    const cx=window.innerWidth/2,cy=window.innerHeight/2;
+    state.transform.x=cx-n._x*state.transform.s;state.transform.y=cy-n._y*state.transform.s;applyT();
+    showMainPanel(n,'?node='+encodeURIComponent(id));
+  } else {
+    smoothPanTo(n._x,n._y);
+    setTimeout(()=>showMainPanel(n,'?node='+encodeURIComponent(id)),250);
+  }
   setTimeout(()=>{state.highlightedId=null;scheduleRender();},2500);
 }
 
@@ -325,6 +328,9 @@ initEvoPathEvents();
 // ── Keyboard handlers ──
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
+    // Close keyboard help overlay first
+    const kbdHelp=document.getElementById('kbd-help');
+    if(kbdHelp&&kbdHelp.classList.contains('visible')){kbdHelp.classList.remove('visible');return;}
     if(state.playbackMode){exitPlaybackMode();return;}
     const _toastEl = document.getElementById('fact-toast');
     if(_toastEl && _toastEl.classList.contains('visible')){dismissToast();return;}
@@ -347,6 +353,12 @@ document.addEventListener('keydown',e=>{
   }
   // Prevent shortcuts firing while typing in any input/textarea
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.isContentEditable) return;
+  // Toggle keyboard help overlay
+  if(e.key==='?'){
+    const kbdHelp=document.getElementById('kbd-help');
+    if(kbdHelp) kbdHelp.classList.toggle('visible');
+    return;
+  }
   // Playback keyboard shortcuts
   if(state.playbackMode){
     if(e.key===' '){e.preventDefault();togglePlayback();}
@@ -424,6 +436,12 @@ document.getElementById('svg').addEventListener('keydown',function(e){
     }
   });
 })();
+
+// ── Keyboard help backdrop click ──
+const _kbdHelp=document.getElementById('kbd-help');
+if(_kbdHelp) _kbdHelp.addEventListener('click',function(e){
+  if(e.target===this) this.classList.remove('visible');
+});
 
 // ── Resize handler ──
 window.addEventListener('resize',()=>{layout();if(state.viewMode==='radial')centerOnRoot(state.transform.s);scheduleRender();applyT();});

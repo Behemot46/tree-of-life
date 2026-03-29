@@ -1847,6 +1847,34 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
   [dir="rtl"] #btn-tour-help{right:auto;left:0.5rem;}
 }
 
+/* ── KEYBOARD HELP OVERLAY ── */
+#kbd-help{
+  position:fixed;inset:0;z-index:var(--z-overlay);display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.6);opacity:0;pointer-events:none;transition:opacity 0.2s ease;
+}
+#kbd-help.visible{opacity:1;pointer-events:auto;}
+.kbd-panel{
+  background:var(--surface-raised,#1e2028);border:1px solid var(--border,rgba(255,255,255,0.1));
+  border-radius:var(--radius-lg,12px);padding:1.5rem 2rem;max-width:340px;width:90vw;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+.kbd-panel h3{
+  font-family:var(--font-head);font-size:1rem;font-weight:700;color:var(--text-primary);
+  margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem;
+}
+.kbd-row{display:flex;justify-content:space-between;align-items:center;padding:0.4rem 0;border-bottom:1px solid var(--divider,rgba(255,255,255,0.06));}
+.kbd-row:last-child{border-bottom:none;}
+.kbd-row span:first-child{font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}
+.kbd-keys{display:flex;gap:0.3rem;}
+kbd{
+  display:inline-block;font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:0.72rem;
+  background:var(--surface,#12141a);border:1px solid var(--border,rgba(255,255,255,0.12));
+  border-radius:4px;padding:2px 7px;color:var(--accent,#c8883a);line-height:1.6;
+}
+[data-theme="light"] .kbd-panel{background:var(--surface-raised,#fff);box-shadow:0 8px 32px rgba(0,0,0,0.12);}
+[data-theme="light"] kbd{background:var(--surface,#f5f5f5);color:var(--accent,#b07830);}
+@media(max-width:768px){.kbd-panel{padding:1.2rem 1.5rem;max-width:calc(100vw - 2rem);}}
+
 /* ── JS-EXTRACTED UTILITY CLASSES ── */
 .compare-banner{
   position:fixed;top:60px;left:50%;transform:translateX(-50%);
@@ -1928,6 +1956,20 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
 <div id="nav-ctrl">
   <button class="nav-btn" id="nav-back" aria-label="Go back"><span class="nav-arrow">←</span> <span id="nav-back-label">Back</span></button>
   <button class="nav-btn" id="nav-home" aria-label="Go to root"><span class="nav-arrow">⌂</span> <span id="nav-home-label">Home</span></button>
+</div>
+
+<!-- KEYBOARD HELP OVERLAY -->
+<div id="kbd-help" role="dialog" aria-label="Keyboard shortcuts">
+  <div class="kbd-panel">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="kbd-row"><span>Go back</span><div class="kbd-keys"><kbd>Esc</kbd></div></div>
+    <div class="kbd-row"><span>Go home</span><div class="kbd-keys"><kbd>Shift</kbd><kbd>Esc</kbd></div></div>
+    <div class="kbd-row"><span>Search</span><div class="kbd-keys"><kbd>F</kbd> or <kbd>/</kbd></div></div>
+    <div class="kbd-row"><span>Hominini</span><div class="kbd-keys"><kbd>H</kbd></div></div>
+    <div class="kbd-row"><span>Reset zoom</span><div class="kbd-keys"><kbd>R</kbd></div></div>
+    <div class="kbd-row"><span>Toggle theme</span><div class="kbd-keys"><kbd>D</kbd></div></div>
+    <div class="kbd-row"><span>This help</span><div class="kbd-keys"><kbd>?</kbd></div></div>
+  </div>
 </div>
 
 <!-- BREADCRUMB -->

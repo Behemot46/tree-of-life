@@ -65,6 +65,7 @@ These features were built incrementally but never had their own phase number:
 | 6 | J7 | Data enrichment — 200+ species, IUCN status, 60+ DNA pairs | Pending | `SPRINT_J7_DATA_ENRICHMENT.md` |
 | 7 | J8 | PWA & offline — service worker, manifest, offline indicator | Pending | `SPRINT_J8_PWA.md` |
 | 8 | J9 | Guided tours — 3 educational paths with spotlight overlay | Pending | `SPRINT_J9_GUIDED_TOURS.md` |
+| 9 | J10 | Image polish — 100% real photos, no emoji, fade-in loading | Pending | `SPRINT_J10_IMAGE_POLISH.md` |
 
 All sprint prompts are in `docs/PROMPTS/`. To execute: open new session, say "Execute Sprint J[N]".
 

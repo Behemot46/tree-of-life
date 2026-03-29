@@ -130,6 +130,16 @@ English-only. Focus: clear design, engaging, intuitive, accurate, fun.
 - Spotlight overlay + narration cards
 - First-visit prompt, "?" button for replay
 
+### J10 — Image & Visual Polish
+**Effort:** Large | **Prompt:** `docs/PROMPTS/SPRINT_J10_IMAGE_POLISH.md`
+
+- 100% PHOTO_MAP coverage — every node gets a real Wikimedia Commons photo
+- No emoji fallbacks anywhere — replaced with elegant SVG silhouette placeholders
+- Smooth fade-in image loading with shimmer skeletons
+- Image retry logic for transient network failures
+- Higher resolution (1280px) hero images for retina displays
+- Photo quality standards: real photos only, no illustrations or clipart
+
 ---
 
 ## Execution Order
@@ -143,6 +153,7 @@ Sprint 5: J6 (engagement)
 Sprint 6: J7 (data enrichment)
 Sprint 7: J8 (PWA)
 Sprint 8: J9 (guided tours)
+Sprint 9: J10 (image & visual polish)
 ```
 
 ## Deferred (Future Series)

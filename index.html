@@ -1847,6 +1847,34 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
   [dir="rtl"] #btn-tour-help{right:auto;left:0.5rem;}
 }
 
+/* ── KEYBOARD HELP OVERLAY ── */
+#kbd-help{
+  position:fixed;inset:0;z-index:var(--z-overlay);display:flex;align-items:center;justify-content:center;
+  background:rgba(0,0,0,0.6);opacity:0;pointer-events:none;transition:opacity 0.2s ease;
+}
+#kbd-help.visible{opacity:1;pointer-events:auto;}
+.kbd-panel{
+  background:var(--surface-raised,#1e2028);border:1px solid var(--border,rgba(255,255,255,0.1));
+  border-radius:var(--radius-lg,12px);padding:1.5rem 2rem;max-width:340px;width:90vw;
+  box-shadow:0 8px 32px rgba(0,0,0,0.4);
+}
+.kbd-panel h3{
+  font-family:var(--font-head);font-size:1rem;font-weight:700;color:var(--text-primary);
+  margin:0 0 1rem;display:flex;align-items:center;gap:0.5rem;
+}
+.kbd-row{display:flex;justify-content:space-between;align-items:center;padding:0.4rem 0;border-bottom:1px solid var(--divider,rgba(255,255,255,0.06));}
+.kbd-row:last-child{border-bottom:none;}
+.kbd-row span:first-child{font-family:var(--font-body);font-size:0.82rem;color:var(--text-secondary);}
+.kbd-keys{display:flex;gap:0.3rem;}
+kbd{
+  display:inline-block;font-family:var(--font-mono,'JetBrains Mono',monospace);font-size:0.72rem;
+  background:var(--surface,#12141a);border:1px solid var(--border,rgba(255,255,255,0.12));
+  border-radius:4px;padding:2px 7px;color:var(--accent,#c8883a);line-height:1.6;
+}
+[data-theme="light"] .kbd-panel{background:var(--surface-raised,#fff);box-shadow:0 8px 32px rgba(0,0,0,0.12);}
+[data-theme="light"] kbd{background:var(--surface,#f5f5f5);color:var(--accent,#b07830);}
+@media(max-width:768px){.kbd-panel{padding:1.2rem 1.5rem;max-width:calc(100vw - 2rem);}}
+
 /* ── JS-EXTRACTED UTILITY CLASSES ── */
 .compare-banner{
   position:fixed;top:60px;left:50%;transform:translateX(-50%);
@@ -1928,6 +1956,20 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
 <div id="nav-ctrl">
   <button class="nav-btn" id="nav-back" aria-label="Go back"><span class="nav-arrow">←</span> <span id="nav-back-label">Back</span></button>
   <button class="nav-btn" id="nav-home" aria-label="Go to root"><span class="nav-arrow">⌂</span> <span id="nav-home-label">Home</span></button>
+</div>
+
+<!-- KEYBOARD HELP OVERLAY -->
+<div id="kbd-help" role="dialog" aria-label="Keyboard shortcuts">
+  <div class="kbd-panel">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="kbd-row"><span>Go back</span><div class="kbd-keys"><kbd>Esc</kbd></div></div>
+    <div class="kbd-row"><span>Go home</span><div class="kbd-keys"><kbd>Shift</kbd><kbd>Esc</kbd></div></div>
+    <div class="kbd-row"><span>Search</span><div class="kbd-keys"><kbd>F</kbd> or <kbd>/</kbd></div></div>
+    <div class="kbd-row"><span>Hominini</span><div class="kbd-keys"><kbd>H</kbd></div></div>
+    <div class="kbd-row"><span>Reset zoom</span><div class="kbd-keys"><kbd>R</kbd></div></div>
+    <div class="kbd-row"><span>Toggle theme</span><div class="kbd-keys"><kbd>D</kbd></div></div>
+    <div class="kbd-row"><span>This help</span><div class="kbd-keys"><kbd>?</kbd></div></div>
+  </div>
 </div>
 
 <!-- BREADCRUMB -->
@@ -3317,7 +3359,7 @@ const viewport=document.getElementById('viewport');
 let transform={x:0,y:0,s:0.2};
 const applyT=()=>viewport.setAttribute('transform',`translate(${transform.x},${transform.y}) scale(${transform.s})`);
 function smoothPanTo(wx,wy){
-  const svgR=document.getElementById('tree-container').getBoundingClientRect();
+  const svgR=(document.getElementById('canvas-wrap')||document.getElementById('svg')).getBoundingClientRect();
   const cx=svgR.width/2,cy=svgR.height/2;
   const tx=cx-wx*transform.s,ty=cy-wy*transform.s;
   const dx=tx-transform.x,dy=ty-transform.y;
@@ -3852,20 +3894,26 @@ function pushNav(url){
   updateNavButtons();
 }
 function restoreNavState(s){
-  // Close everything first without pushing to stack
-  panel.classList.remove('open');
-  currentPanelNode=null;
-
-  if(s.type==='tree'){
-    updateBreadcrumb(null);
-  } else if(s.type==='panel'){
+  if(s.type==='panel'){
+    // Panel-to-panel: swap content without closing/reopening (avoids flash)
     const node=getNodeById(s.nodeId);
     if(node){
       currentPanelNode=node;
       renderPanelContent(node);
       panel.classList.add('open');
       updateBreadcrumb(node);
+      if(node._x!==undefined){
+        if(reducedMotion()){
+          const cx=window.innerWidth/2,cy=window.innerHeight/2;
+          transform.x=cx-node._x*transform.s;transform.y=cy-node._y*transform.s;applyT();
+        } else smoothPanTo(node._x,node._y);
+      }
     }
+  } else {
+    // Close everything first without pushing to stack
+    panel.classList.remove('open');
+    currentPanelNode=null;
+    updateBreadcrumb(null);
   }
 }
 function navBack(){
@@ -3873,8 +3921,6 @@ function navBack(){
     // Nothing in stack — close whatever is open
     const s=currentNavState();
     if(s.type!=='tree'){
-      const homView=document.getElementById('hominin-view');
-      if(homView) homView.classList.remove('open');
       panel.classList.remove('open');
       currentPanelNode=null;
       updateBreadcrumb(null);
@@ -3888,6 +3934,12 @@ function navBack(){
 }
 function navHome(){
   navStack.length=0;
+  // Close all overlays
+  if(document.getElementById('dna-panel').classList.contains('open')) closeDnaCalc();
+  if(document.getElementById('evo-path-panel').classList.contains('open')) closeEvoPath();
+  if(document.getElementById('trivia-panel').classList.contains('open')) closeTrivia();
+  const kbdHelp=document.getElementById('kbd-help');
+  if(kbdHelp) kbdHelp.classList.remove('visible');
   currentPanelNode=null;
   panel.classList.remove('open');
   updateBreadcrumb(null);
@@ -4694,7 +4746,7 @@ function renderSapiensPanel(node, panelEl) {
       </div>
 
       <!-- Hominin Deep Dive button -->
-      <button onclick="openHomininView()" style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#0ea5e9,#8b5cf6);color:white;cursor:pointer;font-family:Inter,sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:0.02em;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">🧬 Explore Human Evolution</button>
+      <button onclick="navigateTo('hominini')" style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#0ea5e9,#8b5cf6);color:white;cursor:pointer;font-family:Inter,sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:0.02em;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">🧬 Explore Human Evolution</button>
 
       <!-- Close button -->
       <button onclick="closePanel()" style="padding:10px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:Inter,sans-serif;font-size:13px;color:var(--color-text-secondary);">Close</button>
@@ -4927,7 +4979,7 @@ function renderPanelContent(node) {
       ` : ''}
       ${(()=>{
         const isHom = node._hominData || node.id === 'hominini' || (node.id && node.id.startsWith('hom-'));
-        return isHom ? `<div class="panel-section"><button class="panel-cta" onclick="openHomininView()">🧬 Hominin Deep Dive</button></div>` : '';
+        return isHom ? `<div class="panel-section"><button class="panel-cta" onclick="navigateTo('hominini')">🧬 Hominin Deep Dive</button></div>` : '';
       })()}
     </div>
   `;
@@ -5000,6 +5052,13 @@ function showMainPanel(n,url){
     panel.style.opacity = '1';
     panel.style.transform = '';
   });
+  // Smooth pan to center the node in the viewport
+  if(n._x!==undefined){
+    if(reducedMotion()){
+      const cx=window.innerWidth/2,cy=window.innerHeight/2;
+      transform.x=cx-n._x*transform.s;transform.y=cy-n._y*transform.s;applyT();
+    } else smoothPanTo(n._x,n._y);
+  }
   updateBreadcrumb(n);
   updateNavButtons();
 }
@@ -5533,12 +5592,15 @@ window.navigateTo=function(id){
   // Ensure path is not collapsed
   let c=n;while(c._parent){c._parent._collapsed=false;c=c._parent;}
   layout();scheduleRender(true);applyT();
-  // Pan to node
-  const cx=window.innerWidth/2,cy=window.innerHeight/2;
-  transform.x=cx-n._x*transform.s;
-  transform.y=cy-n._y*transform.s;
-  applyT();
-  showMainPanel(n,'?node='+encodeURIComponent(id));
+  // Smooth pan to node (instant if reduced motion)
+  if(reducedMotion()){
+    const cx=window.innerWidth/2,cy=window.innerHeight/2;
+    transform.x=cx-n._x*transform.s;transform.y=cy-n._y*transform.s;applyT();
+    showMainPanel(n,'?node='+encodeURIComponent(id));
+  } else {
+    smoothPanTo(n._x,n._y);
+    setTimeout(()=>showMainPanel(n,'?node='+encodeURIComponent(id)),250);
+  }
   setTimeout(()=>{highlightedId=null;scheduleRender();},2500);
 };
 
@@ -6450,6 +6512,9 @@ setTimeout(resetIdleTimer, 5000);
 // ══════════════════════════════════════════════════════
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
+    // Close keyboard help overlay first
+    const kbdHelp=document.getElementById('kbd-help');
+    if(kbdHelp&&kbdHelp.classList.contains('visible')){kbdHelp.classList.remove('visible');return;}
     if(playbackMode){exitPlaybackMode();return;}
     if(_toastEl.classList.contains('visible')){dismissToast();return;}
     if(document.getElementById('evo-path-panel').classList.contains('open')){closeEvoPath();return;}
@@ -6471,6 +6536,12 @@ document.addEventListener('keydown',e=>{
   }
   // Prevent shortcuts firing while typing in any input/textarea
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.isContentEditable) return;
+  // Toggle keyboard help overlay
+  if(e.key==='?'){
+    const kbdHelp=document.getElementById('kbd-help');
+    if(kbdHelp) kbdHelp.classList.toggle('visible');
+    return;
+  }
   // Playback keyboard shortcuts
   if(playbackMode){
     if(e.key===' '){e.preventDefault();togglePlayback();}
@@ -6482,6 +6553,11 @@ document.addEventListener('keydown',e=>{
   if(e.key==='h'||e.key==='H'){navigateTo('hominini');}
   if(e.key==='r'||e.key==='R'){layout();centerOnRoot(0.18);scheduleRender(true);applyT();}
   if(e.key==='d'){const toggle=document.getElementById('theme-btn');if(toggle)toggle.click();}
+});
+
+// Close keyboard help on backdrop click
+document.getElementById('kbd-help').addEventListener('click',function(e){
+  if(e.target===this) this.classList.remove('visible');
 });
 
 // ══════════════════════════════════════════════════════

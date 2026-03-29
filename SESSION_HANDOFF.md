@@ -1,36 +1,41 @@
-# Session Handoff — 2026-03-28 (Sprint J1 — Design System Cleanup)
+# Session Handoff — 2026-03-29 (Sprint J2 — Navigation & Interaction Polish)
+
+**Status: done**
+**Branch:** `claude/lucid-chebyshev`
+
+## 1. Session Goal
+Execute Sprint J2 — unify navigation stacks, add smooth auto-pan, keyboard shortcuts help overlay, fix dead code.
+
+## 2. What I Changed
+
+### Deleted stale modularized files
+- Removed `js/core.js`, `js/panel.js`, `js/renderer.js`, `js/search.js` — NOT loaded by any `<script>` tag, contained outdated `panelHistory`/`panelBack()` code
+- These were extracted copies from a prior modularization attempt; running code is all inline in index.html
+
+### index.html — Navigation fixes
+- Fixed `smoothPanTo()` — `getElementById('tree-container')` → `getElementById('canvas-wrap')` (stale element ID)
+- Improved `restoreNavState()` — panel-to-panel back no longer flashes (skips close/reopen cycle)
+- Fixed `navBack()` — removed dead `hominin-view` reference (element doesn't exist)
+- Fixed `navHome()` — now closes DNA calc, evo-path, trivia, and kbd-help overlays
+- Fixed `openHomininView()` dead references → `navigateTo('hominini')` (2 call sites: hominini special panel + hominin deep dive button)
+
+### index.html — Smooth auto-pan
+- `navigateTo()` uses `smoothPanTo()` with 250ms delay before panel open (instant if `reducedMotion()`)
+- `showMainPanel()` calls `smoothPanTo()` to center viewport on clicked node
+
+### index.html — Keyboard shortcuts help overlay
+- Added `<div id="kbd-help">` HTML overlay with 7 shortcut rows (Esc, Shift+Esc, F//, H, R, D, ?)
+- Added CSS for `.kbd-panel`, `.kbd-row`, `kbd` elements (dark/light theme, mobile responsive)
+- `?` key toggles overlay; Escape and backdrop click dismiss it
+- `navHome()` also dismisses the overlay
+
+---
+
+# Previous Session Handoff — 2026-03-28 (Sprint J1 — Design System Cleanup)
 
 **Status: done**
 **Branch:** `claude/keen-noether`
 **PR:** #121
-
-## 1. Session Goal
-Execute Sprint J1 — clean the CSS foundation: rename CSS variables, add z-index scale, remove dead code, extract inline styles to classes, add reduced-motion JS guards.
-
-## 2. What I Changed
-
-### index.html — CSS block
-- Renamed `--gold`→`--accent`, `--gold-light`→`--accent-light`, `--gold-dim`→`--accent-dim`, `--gold-rgb`→`--accent-rgb`, `--gold-text`→`--accent-text`, `--gold-text-dim`→`--accent-text-dim` (~60 replacements)
-- Removed `--teal` and `--teal-dim` definitions (duplicates of `--accent-secondary`); replaced 1 `var(--teal)` usage
-- Added 13 z-index CSS custom properties (`--z-base` through `--z-tour-content`) to `:root`
-- Replaced ~30 global z-index magic numbers with `var(--z-*)` references (skipped local stacking contexts and inline attrs)
-- Deleted 3 dead CSS rules: `[data-theme="dark"] .search-result-item/name/meta`
-- Deleted 8 duplicate panel rules: `[data-theme="light/dark"] #panel` blocks
-- Unified 3 `@media(max-width:600px)` → `@media(max-width:768px)` (DNA calc, evo-path, trivia)
-- Added 7 new utility CSS classes: `.compare-banner`, `.compare-banner.visible`, `.intro-overlay`, `.offline-banner`, `.offline-banner.visible`, `.node-img-wrap`, `.node-img`, `.chip-badge`, `.compare-panel-open`
-
-### index.html — JS block
-- Added `const reducedMotion = () => matchMedia('(prefers-reduced-motion:reduce)').matches;`
-- Guarded group-chip node entrance animation with `reducedMotion()` check
-- Guarded regular node entrance animation with `reducedMotion()` check
-- Guarded `showIntro()` — skips overlay entirely if reduced motion
-- Replaced compare banner `style.cssText` with `className='compare-banner'` + `classList.add/remove('visible')`
-- Replaced intro overlay `style.cssText` with `className='intro-overlay'`
-- Replaced offline banner `style.cssText` with `className='offline-banner'` + `classList.toggle('visible')`
-- Replaced node image wrapper `style.cssText` with `className='node-img-wrap'` + dynamic width/height
-- Replaced node image `style.cssText` with `className='node-img'`
-- Replaced chip badge `style.cssText` with `className='chip-badge'` + dynamic border/bg/color/height inline
-- Replaced compare panel `style.display='flex'; style.flexDirection='column'` with `classList.add('compare-panel-open')`
 
 ---
 

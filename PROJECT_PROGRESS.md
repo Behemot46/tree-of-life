@@ -63,7 +63,7 @@ These features were built incrementally but never had their own phase number:
 | 4 | J5 | SVG performance — viewport culling, GPU compositing, 60fps | Done | `SPRINT_J5_PERFORMANCE.md` |
 | 5 | J6 | Discovery & fun — achievements, quiz, progress, idle facts | Done | `SPRINT_J6_ENGAGEMENT.md` |
 | 6 | J7 | Data enrichment — 339 species, IUCN badges, 61 DNA pairs, 170 facts | **Done** | `SPRINT_J7_DATA_ENRICHMENT.md` |
-| 7 | J8 | PWA & offline — service worker, manifest, offline indicator | Pending | `SPRINT_J8_PWA.md` |
+| 7 | J8 | PWA & offline — manifest, icons, SW precache update, deploy-check | **Done** | `SPRINT_J8_PWA.md` |
 | 8 | J9 | Guided tours — 3 educational paths with spotlight overlay | Pending | `SPRINT_J9_GUIDED_TOURS.md` |
 | 9 | J10 | Image polish — 100% real photos, no emoji, fade-in loading | Pending | `SPRINT_J10_IMAGE_POLISH.md` |
 

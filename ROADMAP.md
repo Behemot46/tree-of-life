@@ -117,13 +117,14 @@ English-only. Focus: clear design, engaging, intuitive, accurate, fun.
 - funFact on all treeData.js nodes + 44 key treeExpansion.js species
 - Conservation badge rendering in species panel hero section
 
-### J8 — Offline & PWA
+### ✅ J8 — Offline & PWA — **Done**
 **Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J8_PWA.md`
 
-- Hand-rolled service worker (cache-first for app shell)
-- Web app manifest (installable PWA)
-- Offline indicator banner
-- Stale-while-revalidate for Wikipedia photos
+- Service worker with 39-file precache (cache-first app shell, network-first API, stale-while-revalidate images)
+- Web app manifest with SVG icons (192px, 512px, maskable)
+- Offline indicator banner (red bar, auto-shows on connection loss)
+- Apple PWA meta tags for iOS home screen
+- deploy-check.yml validates sw.js + manifest.json + all JS modules
 
 ### J9 — Guided Educational Tours
 **Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J9_GUIDED_TOURS.md`

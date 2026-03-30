@@ -60,7 +60,7 @@ These features were built incrementally but never had their own phase number:
 | 1 | J2 | Navigation unification — merge stacks, smooth pan, keyboard | Pending | `SPRINT_J2_NAV_POLISH.md` |
 | 2 | J3 | Code modularization — split index.html → 12 ES modules | Pending | `SPRINT_J3_MODULARIZATION.md` |
 | 3 | J4 | Accessibility — keyboard tree nav, focus traps, 44px targets | Pending | `SPRINT_J4_ACCESSIBILITY.md` |
-| 4 | J5 | SVG performance — viewport culling, GPU compositing, 60fps | Pending | `SPRINT_J5_PERFORMANCE.md` |
+| 4 | J5 | SVG performance — viewport culling, GPU compositing, 60fps | Done | `SPRINT_J5_PERFORMANCE.md` |
 | 5 | J6 | Discovery & fun — achievements, quiz, progress, idle facts | Pending | `SPRINT_J6_ENGAGEMENT.md` |
 | 6 | J7 | Data enrichment — 200+ species, IUCN status, 60+ DNA pairs | Pending | `SPRINT_J7_DATA_ENRICHMENT.md` |
 | 7 | J8 | PWA & offline — service worker, manifest, offline indicator | Pending | `SPRINT_J8_PWA.md` |

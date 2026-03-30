@@ -15,18 +15,44 @@
 
 ```
 tree-of-life/
-├── index.html           # Main SPA — markup, inline <style>, inline <script> (all rendering logic)
+├── index.html           # SPA — markup + inline <style> (~2,260 lines, no inline JS)
 ├── serve.js             # Local dev server (port 5555): node serve.js
 ├── assets/
 │   ├── placeholder.svg  # Fallback image when taxon photo is unavailable
 │   └── species/.gitkeep # Directory for future AI-generated species images
 └── js/
-    ├── treeData.js      # TREE object — full phylogenetic tree data (~130+ nodes)
-    ├── speciesData.js   # PHOTO_MAP, WIKI_TITLES, HOMININS, GREAT_APE_IDS, HOMININ_IDS
-    ├── uiData.js        # DEPTH_R, ERA_NAMES, EXTINCTIONS, ERA_TINTS, TRANSLATIONS (en/he/ru)
+    ├── # ── Data files (classic <script> globals) ──
+    ├── treeData.js      # TREE object — full phylogenetic tree data
+    ├── treeExpansion.js  # Enriches TREE with 300+ additional species
+    ├── speciesData.js   # PHOTO_MAP, WIKI_TITLES, HOMININS, ENRICHMENT
+    ├── uiData.js        # DEPTH_R, ERA_NAMES, EXTINCTIONS, ERA_TINTS, TRANSLATIONS
     ├── factLibrary.js   # FACTS constant — random facts for discovery feature
     ├── imagePrompts.js  # AI image prompt library for species illustrations
-    └── imageLoader.js   # Image loader with fallback chain (generated → PHOTO_MAP → emoji)
+    ├── imageLoader.js   # ImageLoader — fallback chain: generated → PHOTO_MAP → emoji
+    ├── dnaSimilarity.js # DNA_SIMILARITY_DATA, getDnaSimilarity()
+    ├── nodeIcons.js     # NODE_ICONS SVG paths + getIconGroup()
+    ├── triviaData.js    # TRIVIA_QUESTIONS — 200+ quiz questions
+    ├── primateData.js   # PRIMATE_DATA — taxonomy, genome, traits
+    ├── geoData.js       # GEO_DATA + BRANCH_DATA — geographic/enrichment data
+    ├── tour.js          # TOUR_STEPS — guided tour step definitions
+    ├── # ── Application modules (ES modules via <script type="module">) ──
+    ├── app.js           # Entry point — init(), window.* exposures, event listeners
+    ├── state.js         # Shared mutable state object + constants (HUMAN_PATH, TAXON_I18N)
+    ├── utils.js         # reducedMotion(), preprocess(), hominin helpers
+    ├── layout.js        # layout(), layoutRadial/Cladogram/Chronological/Playback
+    ├── zoom.js          # applyT(), smoothPanTo(), centerOnTree/Root, pointer handlers
+    ├── renderer.js      # render(), branchPath(), scheduleRender()
+    ├── navigation.js    # navStack, pushNav/navBack/navHome, breadcrumb, tooltip
+    ├── search.js        # buildSearchIndex(), searchEntities(), fuzzy matching
+    ├── timeline.js      # Era slider, extinction markers, presets, sparkline
+    ├── panel.js         # renderPanelContent(), showMainPanel(), species cards
+    ├── hominin.js       # buildHomininTree(), compare mode
+    ├── dnaCalc.js       # DNA similarity calculator modal
+    ├── evoPath.js       # Evolutionary path comparison tool
+    ├── trivia.js        # Trivia quiz game
+    ├── playback.js      # Time-lapse playback mode
+    ├── theme.js         # t(), setLang(), applyI18n(), toggleTheme()
+    └── engagement.js    # Toast notifications, idle timer, intro, particles
 ```
 
 ---
@@ -43,20 +69,15 @@ No install step needed. Open `http://localhost:5555` in a browser. Alternatively
 
 ## Architecture
 
-### Single-File Application
+### Modular Architecture (J3)
 
-All rendering logic, CSS, and HTML live in `index.html` (~3,800 lines). Data constants are extracted to 6 JS files loaded via `<script>` tags. There are no external CSS files.
+**Data layer:** 13 classic `<script>` files defining global constants (TREE, PHOTO_MAP, TRANSLATIONS, etc.).
 
-### Data Files
+**Application layer:** 17 ES modules loaded via `<script type="module" src="js/app.js">`. No build step — native browser module support.
 
-| File | Contents |
-|------|----------|
-| `js/treeData.js` | `TREE` object (nested phylogenetic tree, ~130+ nodes), `lightenColor()` |
-| `js/speciesData.js` | `PHOTO_MAP`, `WIKI_TITLES`, `HOMININS` (28 species), `GREAT_APE_IDS`, `HOMININ_IDS` |
-| `js/uiData.js` | `DEPTH_R`, `ERA_NAMES`, `EXTINCTIONS`, `ERA_TINTS`, `TRANSLATIONS` (en/he/ru) |
-| `js/factLibrary.js` | `FACTS` — random facts for the "Discover" feature |
-| `js/imagePrompts.js` | AI image prompt library for future species illustration generation |
-| `js/imageLoader.js` | `ImageLoader` — fallback chain: generated .webp → PHOTO_MAP → node.img → emoji |
+**Shared state:** All mutable state lives in `js/state.js` as a single exported `state` object. Modules import and mutate it directly.
+
+**Dependency injection:** Cross-module calls use late-binding (`initXxxDeps()` functions) to avoid circular imports. `app.js` wires all dependencies at startup.
 
 ### Rendering
 

@@ -58,29 +58,34 @@ English-only. Focus: clear design, engaging, intuitive, accurate, fun.
 - Added `reducedMotion()` JS helper + guards on node/intro animations
 - Unified mobile breakpoints: 3 components `600px` → `768px`
 
-### J2 — Navigation & Interaction Polish
+### J2 — Navigation & Interaction Polish ✅
 **Effort:** Small | **Prompt:** `docs/PROMPTS/SPRINT_J2_NAV_POLISH.md`
 
-- Merge `panelHistory` + `navStack` into single unified stack
-- Delete `panelBack()`, all navigation through `navBack()`
-- Smooth auto-pan to focused node
-- Keyboard: Escape = Back, Shift+Escape = Home
+- ✅ Unified navigation: `panelHistory`/`panelBack()` removed, all nav through `navStack`/`navBack()`
+- ✅ Smooth auto-pan (`smoothPanTo`) on `navigateTo()` and `showMainPanel()`
+- ✅ Keyboard: Escape = Back, Shift+Escape = Home, `?` = shortcuts help overlay
+- ✅ `navHome()` closes all overlays (DNA, evo-path, trivia, kbd-help)
+- ✅ Deleted stale modularized files (core.js, panel.js, renderer.js, search.js)
+- ✅ Fixed dead `openHomininView()` → `navigateTo('hominini')`
 
-### J3 — Code Modularization
+### ✅ J3 — Code Modularization — **Done**
 **Effort:** Large | **Prompt:** `docs/PROMPTS/SPRINT_J3_MODULARIZATION.md`
 
-- Split 4,251-line index.html inline JS → 12 ES modules
+- Split 4,783-line index.html inline JS → 17 ES modules + state.js
 - `<script type="module">` — no build step needed
-- Modules: app, renderer, layout, panel, navigation, search, timeline, hominin, dnaCalc, zoom, theme, utils
+- Modules: app, state, renderer, layout, panel, navigation, search, timeline, hominin, dnaCalc, evoPath, trivia, playback, zoom, theme, engagement, utils
+- Deleted outdated p24 extraction files (core.js + old renderer/panel/search)
 
-### J4 — Accessibility Foundation
+### ✅ J4 — Accessibility Foundation — **Done** (PR TBD)
 **Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J4_ACCESSIBILITY.md`
 
-- ARIA tree roles on SVG nodes, `aria-expanded`, `aria-selected`
-- Arrow-key tree navigation (Up/Down/Left/Right)
-- Focus trapping in modals, skip-to-content link
-- Touch targets ≥ 44px on mobile
-- `aria-live` announcements
+- WAI TreeView keyboard navigation: 4 distinct arrow keys (Right=expand/child, Left=collapse/parent, Down/Up=tree-order)
+- `aria-selected` on focused node, `tabindex="0"` on root (LUCA)
+- Focus traps for DNA calculator and Evo-path panels
+- Focus restoration on modal close (saves/restores trigger element)
+- `aria-live` announcements: panel close, expand/collapse, view mode change, search results
+- SVG `<title>` + `<desc>` for screen readers
+- All touch targets ≥ 44px on mobile (lang, theme, extinct, legend, zoom)
 
 ### ✅ J5 — SVG Performance — **Done** (PR TBD)
 **Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J5_PERFORMANCE.md`
@@ -128,6 +133,16 @@ English-only. Focus: clear design, engaging, intuitive, accurate, fun.
 - Spotlight overlay + narration cards
 - First-visit prompt, "?" button for replay
 
+### J10 — Image & Visual Polish
+**Effort:** Large | **Prompt:** `docs/PROMPTS/SPRINT_J10_IMAGE_POLISH.md`
+
+- 100% PHOTO_MAP coverage — every node gets a real Wikimedia Commons photo
+- No emoji fallbacks anywhere — replaced with elegant SVG silhouette placeholders
+- Smooth fade-in image loading with shimmer skeletons
+- Image retry logic for transient network failures
+- Higher resolution (1280px) hero images for retina displays
+- Photo quality standards: real photos only, no illustrations or clipart
+
 ---
 
 ## Execution Order
@@ -141,6 +156,7 @@ Sprint 5: J6 (engagement)
 Sprint 6: J7 (data enrichment)
 Sprint 7: J8 (PWA)
 Sprint 8: J9 (guided tours)
+Sprint 9: J10 (image & visual polish)
 ```
 
 ## Deferred (Future Series)
@@ -172,6 +188,7 @@ Sprint 8: J9 (guided tours)
 | 2026-03-12 | SVG silhouette icons over emojis | Cross-platform consistency |
 | 2026-03-13 | ImageLoader fallback chain | Generated → PHOTO_MAP → emoji; graceful degradation |
 | 2026-03-14 | Separate navStack from panelHistory | Quick ship; unification deferred to J2 |
+| 2026-03-29 | J2: Unified nav stack, deleted stale JS modules | panelHistory/panelBack removed; smooth pan; kbd help overlay |
 | 2026-03-15 | Roadmap created | Formalize priorities |
 | 2026-03-16 | Unified roadmap with scaling tiers | Reconciled duplicate phases, integrated data infrastructure priorities |
 | 2026-03-28 | J-series replaces p-series | Fresh start with 7-agent audit, English-only focus |

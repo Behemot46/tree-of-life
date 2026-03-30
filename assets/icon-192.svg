@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="24" fill="#1a1d23"/>
+  <!-- Trunk -->
+  <line x1="96" y1="160" x2="96" y2="70" stroke="#5b9a8b" stroke-width="4" stroke-linecap="round"/>
+  <!-- Main branches -->
+  <line x1="96" y1="100" x2="60" y2="60" stroke="#5b9a8b" stroke-width="3" stroke-linecap="round"/>
+  <line x1="96" y1="100" x2="132" y2="60" stroke="#5b9a8b" stroke-width="3" stroke-linecap="round"/>
+  <line x1="96" y1="80" x2="50" y2="45" stroke="#5b9a8b" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="96" y1="80" x2="142" y2="45" stroke="#5b9a8b" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="96" y1="70" x2="75" y2="35" stroke="#5b9a8b" stroke-width="2" stroke-linecap="round"/>
+  <line x1="96" y1="70" x2="117" y2="35" stroke="#5b9a8b" stroke-width="2" stroke-linecap="round"/>
+  <!-- Sub-branches -->
+  <line x1="60" y1="60" x2="40" y2="40" stroke="#5b9a8b" stroke-width="2" stroke-linecap="round"/>
+  <line x1="132" y1="60" x2="152" y2="40" stroke="#5b9a8b" stroke-width="2" stroke-linecap="round"/>
+  <!-- Domain dots -->
+  <circle cx="40" cy="38" r="6" fill="#ef4444"/><!-- Bacteria -->
+  <circle cx="50" cy="43" r="5" fill="#f59e0b"/><!-- Archaea -->
+  <circle cx="75" cy="33" r="5" fill="#a855f7"/><!-- Protists -->
+  <circle cx="60" cy="58" r="6" fill="#22c55e"/><!-- Plants -->
+  <circle cx="117" cy="33" r="5" fill="#f97316"/><!-- Fungi -->
+  <circle cx="132" cy="58" r="6" fill="#3b82f6"/><!-- Animals -->
+  <circle cx="142" cy="43" r="5" fill="#0ea5e9"/><!-- LUCA accent -->
+  <circle cx="152" cy="38" r="5" fill="#8b5cf6"/><!-- LUCA -->
+  <!-- Root glow -->
+  <circle cx="96" cy="160" r="4" fill="#8b5cf6" opacity="0.8"/>
+</svg>

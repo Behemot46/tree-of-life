@@ -1,4 +1,57 @@
-# Session Handoff — 2026-03-30 (Sprint J7 — Data Enrichment & Tree Expansion)
+# Session Handoff — 2026-03-30 (Sprint J8 — PWA & Offline Support)
+
+**Status: done**
+**Branch:** `claude/lucid-chaplygin`
+
+## 1. Session Goal
+Execute Sprint J8 — complete PWA support with manifest, icons, updated service worker precache, and deploy-check updates.
+
+## 2. What I Changed
+
+### sw.js — Updated precache list and bumped cache version
+- Bumped `CACHE_VERSION` from `'tol-v1'` to `'tol-v2'` to force cache refresh
+- Expanded `APP_SHELL` from 10 entries to 39 entries covering all JS files:
+  - 13 data modules (global `<script>` tags): treeData, treeExpansion, speciesData, uiData, factLibrary, imagePrompts, imageLoader, dnaSimilarity, nodeIcons, triviaData, primateData, geoData, tour
+  - 17 ES modules (imported by app.js): app, state, utils, layout, zoom, renderer, navigation, search, timeline, panel, hominin, dnaCalc, evoPath, trivia, playback, theme, engagement, quiz
+  - Plus `/`, `/index.html`, `/manifest.json`, `/assets/placeholder.svg`
+
+### manifest.json — **NEW**
+- Full PWA manifest with app name, description, display: standalone
+- 3 SVG icons: 192px (any), 512px (any), 512px (maskable)
+- background_color and theme_color: `#1a1d23`
+
+### assets/icon-192.svg, icon-512.svg, icon-maskable.svg — **NEW**
+- SVG app icons featuring branching tree with domain-colored dots
+- Maskable variant with safe zone insets for adaptive icons
+
+### index.html — Added PWA meta tags (4 lines after theme-color)
+- `<link rel="manifest" href="/manifest.json">`
+- `<meta name="apple-mobile-web-app-capable" content="yes">`
+- `<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">`
+- `<link rel="apple-touch-icon" href="/assets/icon-192.svg">`
+
+### .github/workflows/deploy-check.yml — Extended required files
+- Added `sw.js`, `manifest.json` to required file checks
+- Added all missing JS files: dnaSimilarity, nodeIcons, triviaData, primateData, geoData, tour, treeExpansion, quiz
+
+## 3. Key Architecture Notes
+- Service worker was already present from a prior session (sw.js + registration in app.js + offline banner)
+- This sprint completed the PWA by adding the manifest, icons, and comprehensive precache coverage
+- SW registration and offline banner live in `js/app.js` (lines ~767-787)
+- Offline banner CSS is in `index.html` inline `<style>` (`.offline-banner` class)
+- SVG icons used instead of PNG — valid in modern manifests, no build tooling needed
+
+## 4. Verified
+- Service worker registers and activates (state: "activated")
+- Manifest detected by browser (name, icons, display mode)
+- Offline banner present in DOM
+- Zero console errors on load
+- All 3 SVG icons render correctly
+- deploy-check.yml covers all 30+ JS files
+
+---
+
+# Previous Session Handoff — 2026-03-30 (Sprint J7 — Data Enrichment & Tree Expansion)
 
 **Status: done**
 **Branch:** `claude/zealous-swanson`

@@ -41,6 +41,7 @@
 | p37 | Hominin pill chips — group nodes as collapsible pills, inline deep-dive data, overlay removed, standalone compare | PR #106 `claude/intelligent-payne` |
 | p38 | Mammal data upgrade — all 11 mammal nodes to Homo sapiens parity (5 facts, 6 tags, funFact, 5 altFacts, 3 links) | PR #110 `claude/dazzling-black` |
 | J1 | Design system cleanup — `--gold`→`--accent`, z-index scale, dead code, inline→CSS, reduced-motion, 768px breakpoints | PR #121 `claude/keen-noether` |
+| J9 | Guided educational tours — 3 tour paths (LUCA→You, Five Kingdoms, Mass Extinctions), tour selector, spotlight overlay, auto-pan | `claude/pensive-satoshi` |
 
 ### Already shipped (not originally tracked as phases)
 

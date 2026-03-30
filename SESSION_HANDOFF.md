@@ -1,4 +1,56 @@
-# Session Handoff — 2026-03-28 (Sprint J1 — Design System Cleanup)
+# Session Handoff — 2026-03-30 (Sprint J9 — Guided Educational Tours)
+
+**Status: done**
+**Branch:** `claude/pensive-satoshi`
+
+## 1. Session Goal
+Execute Sprint J9 — build 3 guided educational tour paths with spotlight overlay, auto-pan to tree nodes, timeline animation, and a tour selector UI.
+
+## 2. What I Changed
+
+### js/tours.js (NEW — replaces js/tour.js)
+- Tour engine with multi-tour support: `TOURS` registry with 3 tour definitions
+- Tour selector UI: `showTourSelector()` builds modal with 3 clickable cards
+- Step target types: `null` (centered), CSS selector string, `{ nodeId }` (tree node), `{ mya }` (extinction marker)
+- Node navigation helper (`_tourNavToNode`): expands collapsed path, pans/zooms to center, highlights node via `highlightedId`
+- Timeline helper (`_tourNavToMya`): calls `animateSliderTo()`, spotlights extinction marker
+- Spotlight/card positioning refactored to accept rect objects (DOM elements, synthetic node rects, marker rects)
+- Keyboard: ArrowRight/Enter=next, ArrowLeft=prev, Escape=end
+
+### js/tour.js (DELETED)
+- Old 7-step UI onboarding tour replaced by multi-tour system
+
+### index.html
+- Script tag: `js/tour.js` → `js/tours.js`
+- Help button: `onclick="startTour()"` → `onclick="showTourSelector()"`
+- Auto-start: `setTimeout(startTour, 1200)` → `setTimeout(showTourSelector, 1200)`
+- Added ~45 lines of CSS for `.tour-selector-*` classes (overlay, modal, cards, mobile, light theme)
+
+### js/uiData.js
+- Removed 14 old single-tour step keys (tour_welcome_*, tour_search_*, etc.) from en/he/ru
+- Added ~50 new keys per language: selector UI, 3 tour names/descs, 22 step title/desc pairs
+- Kept shared keys: tour_next, tour_prev, tour_skip, tour_done, tour_of
+
+## 3. Tour Definitions
+
+| Tour | Steps | Targets |
+|------|-------|---------|
+| From LUCA to You | 8 | null → luca → eukaryota → animalia → vertebrates → mammals → primates → homo-sapiens |
+| The Five Kingdoms | 7 | null → bacteria → archaea → protists → fungi → plantae → animalia |
+| Mass Extinctions | 7 | #timeline(3800) → mya:445 → mya:370 → mya:252 → mya:200 → mya:66 → #timeline(0) |
+
+## 4. Verified
+- All 3 tours complete end-to-end, zero console errors
+- Spotlight highlights targets correctly (tree nodes, CSS elements, extinction markers)
+- Tree auto-pans to nodes, timeline animates to extinction Mya values
+- Keyboard navigation: Right/Enter=next, Left=prev, Escape=end
+- First-visit tour selector auto-appears after splash
+- "?" button opens selector on repeat visits
+- Mobile 375×812: cards stack vertically, tour card fixed at bottom
+
+---
+
+# Previous Session Handoff — 2026-03-28 (Sprint J1 — Design System Cleanup)
 
 **Status: done**
 **Branch:** `claude/keen-noether`

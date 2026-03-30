@@ -1955,6 +1955,57 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
   [dir="rtl"] #btn-tour-help{right:auto;left:0.5rem;}
 }
 
+/* ── TOUR SELECTOR ── */
+.tour-selector-overlay{
+  position:fixed;inset:0;z-index:var(--z-tour-content,1100);
+  background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;
+  padding:1rem;
+}
+.tour-selector{
+  background:var(--surface-raised,#23262d);border-radius:16px;padding:2rem;
+  max-width:520px;width:100%;text-align:center;border:1px solid var(--border,rgba(255,255,255,0.1));
+}
+.tour-selector-title{
+  font-family:var(--font-head);font-size:1.4rem;font-weight:700;
+  color:var(--text-primary,#e8e6e3);margin:0 0 0.4rem;
+}
+.tour-selector-subtitle{
+  font-family:var(--font-body);font-size:0.85rem;color:var(--text-secondary,#a09b93);
+  margin:0 0 1.5rem;
+}
+.tour-selector-cards{display:flex;gap:0.75rem;margin-bottom:1.25rem;}
+.tour-selector-card{
+  flex:1;display:flex;flex-direction:column;align-items:center;gap:0.4rem;
+  background:var(--surface,#1a1d23);border:1px solid var(--border,rgba(255,255,255,0.1));
+  border-radius:12px;padding:1.25rem 0.75rem;cursor:pointer;
+  transition:all 150ms ease;font-family:var(--font-body);
+}
+.tour-selector-card:hover{
+  border-color:var(--accent,#0ea5e9);transform:translateY(-2px);
+  box-shadow:0 4px 16px rgba(0,0,0,0.3);
+}
+.tour-selector-card-icon{font-size:2rem;line-height:1;}
+.tour-selector-card-name{font-size:0.85rem;font-weight:600;color:var(--text-primary,#e8e6e3);}
+.tour-selector-card-desc{font-size:0.72rem;color:var(--text-secondary,#a09b93);line-height:1.4;}
+.tour-selector-card-meta{
+  font-size:0.7rem;color:var(--accent,#0ea5e9);font-weight:500;
+  margin-top:0.25rem;
+}
+.tour-selector-later{
+  background:none;border:none;color:var(--text-muted,#6b6560);
+  font-family:var(--font-body);font-size:0.8rem;cursor:pointer;
+  padding:0.5rem 1rem;border-radius:8px;transition:color 150ms ease;
+}
+.tour-selector-later:hover{color:var(--text-secondary,#a09b93);}
+[data-theme="light"] .tour-selector{background:var(--surface-raised,#f8f5f0);border-color:var(--border,rgba(0,0,0,0.12));}
+[data-theme="light"] .tour-selector-card{background:var(--surface,#fff);border-color:var(--border,rgba(0,0,0,0.12));}
+[data-theme="light"] .tour-selector-overlay{background:rgba(0,0,0,0.5);}
+@media(max-width:768px){
+  .tour-selector-cards{flex-direction:column;}
+  .tour-selector{padding:1.5rem 1rem;}
+  .tour-selector-card{flex-direction:row;gap:0.75rem;padding:1rem;text-align:left;}
+  .tour-selector-card-icon{font-size:1.5rem;}
+}
 /* ── KEYBOARD HELP OVERLAY ── */
 #kbd-help{
   position:fixed;inset:0;z-index:var(--z-overlay);display:flex;align-items:center;justify-content:center;
@@ -2274,7 +2325,7 @@ kbd{
 <button id="evo-clear-overlay" onclick="clearEvoHighlight()">&#10005; <span id="i-evo-clear-overlay">Clear Path</span></button>
 
 <!-- GUIDED TOUR HELP BUTTON -->
-<button id="btn-tour-help" onclick="startTour()" aria-label="Guided tour" title="Guided Tour">?</button>
+<button id="btn-tour-help" onclick="showTourSelector()" aria-label="Guided tour" title="Guided Tour">?</button>
 
 <!-- DNA SIMILARITY CALCULATOR PANEL -->
 <div id="dna-panel" class="dna-panel" role="dialog" aria-label="DNA Similarity Calculator" aria-modal="true" aria-hidden="true">
@@ -2409,7 +2460,7 @@ kbd{
 <script src="js/triviaData.js"></script>
 <script src="js/primateData.js"></script>
 <script src="js/geoData.js"></script>
-<script src="js/tour.js"></script>
+<script src="js/tours.js"></script>
 
 <!-- Application (ES module entry point) -->
 <script type="module" src="js/app.js"></script>

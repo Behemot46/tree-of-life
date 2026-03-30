@@ -19,7 +19,7 @@ const APP_SHELL = [
   '/js/triviaData.js',
   '/js/primateData.js',
   '/js/geoData.js',
-  '/js/tour.js',
+  '/js/tours.js',
   // ES modules (imported by app.js)
   '/js/app.js',
   '/js/state.js',

@@ -242,7 +242,7 @@ function init(){
         _splash.style.display = 'none';
         animateTreeEntrance();
         if (!localStorage.getItem('tol-tour-done') && !new URLSearchParams(location.search).get('node')) {
-          setTimeout(typeof startTour !== 'undefined' ? startTour : () => {}, 1200);
+          setTimeout(typeof showTourSelector !== 'undefined' ? showTourSelector : () => {}, 1200);
         }
       }, 800);
     };
@@ -735,8 +735,19 @@ window.startTriviaGame = startTriviaGame;
 window.answerTrivia = answerTrivia;
 window.nextTriviaQuestion = nextTriviaQuestion;
 
-// Tour (global from tour.js loaded via <script> tag, not an ES module)
+// Tours (global from tours.js loaded via <script> tag, not an ES module)
+window.showTourSelector = typeof showTourSelector !== 'undefined' ? showTourSelector : () => {};
 window.startTour = typeof startTour !== 'undefined' ? startTour : () => {};
+window.endTour = typeof endTour !== 'undefined' ? endTour : () => {};
+
+// Expose state/functions needed by tours.js for node/timeline navigation
+window._tourState = state;
+window._tourNodeMap = nodeMap;
+window._tourLayout = layout;
+window._tourScheduleRender = scheduleRender;
+window._tourApplyT = applyT;
+window._tourAnimateSliderTo = animateSliderTo;
+window.t = t;
 
 // Helpers
 window.focusNode = focusNode;

@@ -126,13 +126,14 @@ English-only. Focus: clear design, engaging, intuitive, accurate, fun.
 - Apple PWA meta tags for iOS home screen
 - deploy-check.yml validates sw.js + manifest.json + all JS modules
 
-### J9 — Guided Educational Tours
+### ✅ J9 — Guided Educational Tours — **Done**
 **Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J9_GUIDED_TOURS.md`
 
 - "From LUCA to You" — 8-step human evolution path
 - "The Five Kingdoms" — 7-step domain tour
 - "Mass Extinctions" — 7-step timeline tour
 - Spotlight overlay + narration cards
+- Tour selector modal with 3 cards
 - First-visit prompt, "?" button for replay
 
 ### J10 — Image & Visual Polish

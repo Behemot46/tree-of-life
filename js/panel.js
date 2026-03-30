@@ -4,7 +4,7 @@
 
 import { state, nodeMap, navStack, HUMAN_PATH, confirmedPhotoUrls } from './state.js';
 import { reducedMotion, canonicalHomininId } from './utils.js';
-import { a11yAnnounce } from './engagement.js';
+import { a11yAnnounce, markExplored } from './engagement.js';
 
 // ── Late-binding deps (set via initPanelDeps) ──
 let _pushNav, _updateNavButtons, _updateBreadcrumb, _scheduleRender;
@@ -846,6 +846,7 @@ export function showMainPanel(n,url){
   }
   _updateBreadcrumb(n);
   _updateNavButtons();
+  markExplored(n.id);
 }
 
 // ── Close panel ──

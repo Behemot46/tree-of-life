@@ -3,6 +3,7 @@
 // ══════════════════════════════════════════════════════
 import { state, nodeMap } from './state.js';
 import { getPlaybackNodeState } from './playback.js';
+import { trackDomainToggle, trackExtinctionClick, checkAchievement } from './engagement.js';
 
 // Late-bound deps (set by app.js to avoid circular imports)
 let _scheduleRender, _t, _togglePlayback, _pausePlayback;
@@ -90,6 +91,7 @@ export function toggleDomain(domain) {
     el.style.fontWeight = state.activeDomains.has(d) ? '600' : '400';
   });
   _scheduleRender();
+  trackDomainToggle(domain);
 }
 
 export function resetDomains() {
@@ -133,6 +135,7 @@ export function buildExtinctionMarkers(){
       e.stopPropagation();
       showExtinctionPopover(ext,marker);
       animateSliderTo(ext.mya);
+      trackExtinctionClick(ext.mya);
     });
     container.appendChild(marker);
   });

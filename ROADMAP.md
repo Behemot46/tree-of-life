@@ -97,14 +97,14 @@ English-only. Focus: clear design, engaging, intuitive, accurate, fun.
 - Spatial hash for O(n) label collision detection
 - animDone.clear() on view mode switch for animation replay
 
-### J6 — Discovery & Fun
+### ✅ J6 — Discovery & Fun — **Done** (PR #127)
 **Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J6_ENGAGEMENT.md`
 
-- Progress tracker: "X/132 species discovered"
+- Progress tracker: "X/338 species discovered" with pill badge
 - 12 unlockable achievements with toast notifications
-- Idle fact cards (30s timer)
-- Enhanced hover tooltips with funFact data
-- Quiz mode: "Which domain?" multiple choice
+- Idle fact cards (45s timer, FACTS library integration)
+- Enhanced hover tooltips with funFact data (500ms delay)
+- Quiz mode: 5 random trivia questions from 200+ pool
 - Exploration visual cue on visited nodes
 
 ### J7 — Data Enrichment

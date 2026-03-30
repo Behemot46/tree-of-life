@@ -1,4 +1,56 @@
-# Session Handoff — 2026-03-30 (Sprint J5 — SVG Performance & Viewport Culling)
+# Session Handoff — 2026-03-30 (Sprint J6 — Discovery & Fun)
+
+**Status: done**
+**Branch:** `claude/adoring-elbakyan`
+
+## 1. Session Goal
+Execute Sprint J6 — engagement features: progress tracker, achievements, idle facts, enhanced tooltips, quiz mode, exploration visual cue. Built on top of modularized ES module codebase (J3).
+
+## 2. What I Changed
+
+### js/engagement.js — Extended (~100 lines added)
+- Progress tracker: `tol-explored` localStorage, `markExplored()`, `updateProgressBadge()`, `isExplored()`
+- 12-achievement system: `tol-achievements` localStorage, `_unlock()`, `_showAchievementToast()`
+- Tracking: `trackDomainToggle()`, `trackViewMode()`, `trackExtinctionClick()`, `trackDnaCompare()`
+- All exported as ES module functions
+
+### js/quiz.js — NEW (~105 lines)
+- ES module: `openQuiz()`, `closeQuiz()`, `answerQuestion()`, `initQuizEvents()`
+- 5 random questions from TRIVIA_QUESTIONS, immediate feedback, high score in localStorage
+
+### js/app.js — Import quiz, wire hooks
+- Import quiz functions, engagement tracking functions
+- `setViewMode()` → `trackViewMode(mode)`
+- Era slider → `checkAchievement('deep_time')` at 3800 Mya
+- `window.openQuiz` / `window.closeQuiz` exports
+- `updateProgressBadge()` + `initQuizEvents()` in `init()`
+
+### Module hooks (5 files)
+- `panel.js`: `markExplored(n.id)` in `showMainPanel()`
+- `timeline.js`: `trackDomainToggle()`, `trackExtinctionClick()`
+- `theme.js`: `checkAchievement('night_owl')` in `toggleTheme()`
+- `dnaCalc.js`: `trackDnaCompare()` in `showDnaResults()`
+- `renderer.js`: `isExplored()` for dimmed unexplored nodes, `n.funFact` passed to `showTip()`
+- `navigation.js`: Enhanced `showTip()` with 500ms funFact delay + "Did you know?" overlay
+
+### index.html — CSS (~95 lines) + HTML
+- Progress badge, achievement toast, quiz modal, enhanced tooltip styles
+- Mobile breakpoints at 768px and 480px
+- HTML: progress badge, quiz button, quiz overlay, achievement container
+
+## 3. Verified
+- Zero console errors
+- Progress badge: 1/338 after opening panel, persists across refresh
+- Achievements: first_steps, night_owl, view_master all trigger
+- Quiz: opens, answers, scores correctly
+- All localStorage keys persist
+
+## 4. Next Sprint
+J7 — Data Enrichment
+
+---
+
+# Previous Session Handoff — 2026-03-30 (Sprint J5 — SVG Performance & Viewport Culling)
 
 **Status: done**
 **Branch:** `claude/pedantic-dijkstra`

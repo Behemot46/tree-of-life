@@ -3,7 +3,7 @@
 // ══════════════════════════════════════════════════════
 
 import { state, nodeMap } from './state.js';
-import { a11yAnnounce } from './engagement.js';
+import { a11yAnnounce, trackDnaCompare } from './engagement.js';
 
 // ── Late-binding deps (set via initDnaCalcDeps) ──
 let _searchEntities, _t, _showMainPanel;
@@ -115,6 +115,7 @@ export function showDnaResults() {
   const nodeB = nodeMap[dnaSlotB.id];
   const result = estimateDnaSimilarity(nodeA, nodeB);
   if (!result) return;
+  trackDnaCompare();
 
   const resultsEl = document.getElementById('dna-results');
   resultsEl.style.display = 'block';

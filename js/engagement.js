@@ -1,5 +1,6 @@
 // ══════════════════════════════════════════════════════
-// ENGAGEMENT — toasts, particles, intro, loading, illustrations
+// ENGAGEMENT — toasts, particles, intro, loading, illustrations,
+//              progress tracker, achievements, exploration cue
 // ══════════════════════════════════════════════════════
 
 import { state, animDone, nodeMap } from './state.js';
@@ -502,4 +503,119 @@ export function generateSpeciesIllustration(node) {
      <text x="${W/2}" y="${H*0.85}" text-anchor="middle" font-family="'Inter',sans-serif" font-size="${Math.min(16,220/Math.max(node.name.length,1))}px" fill="${lighten(c,0.55)}" font-weight="600" opacity="0.9">${icon} ${node.name}</text>
      <text x="${W/2}" y="${H-8}" text-anchor="middle" font-family="'Inter',sans-serif" font-style="italic" font-size="11" fill="${rgba(c,0.5)}" letter-spacing="2">${node.latin||''}</text>`
   );
+}
+
+// ══════════════════════════════════════════════════════
+// PROGRESS TRACKER & ACHIEVEMENTS
+// ══════════════════════════════════════════════════════
+
+const EXPLORED_KEY = 'tol-explored';
+const ACHIEVE_KEY  = 'tol-achievements';
+const TRACK_KEY    = 'tol-engage-track';
+
+let _explored    = new Set(JSON.parse(localStorage.getItem(EXPLORED_KEY) || '[]'));
+let _achievements = new Set(JSON.parse(localStorage.getItem(ACHIEVE_KEY) || '[]'));
+let _tracking    = JSON.parse(localStorage.getItem(TRACK_KEY) || '{}');
+if (!_tracking.extinctionsClicked) _tracking.extinctionsClicked = [];
+if (!_tracking.dnaCompares) _tracking.dnaCompares = 0;
+if (!_tracking.domainsToggled) _tracking.domainsToggled = [];
+if (!_tracking.viewModes) _tracking.viewModes = [];
+
+const ACHIEVEMENTS = [
+  { id:'first_steps',        name:'First Steps',         icon:'\uD83D\uDC63', desc:'Explore your first species' },
+  { id:'curious_mind',       name:'Curious Mind',        icon:'\uD83D\uDD0D', desc:'Explore 10 species' },
+  { id:'explorer',           name:'Explorer',            icon:'\uD83E\uDDED', desc:'Explore 50 species' },
+  { id:'completionist',      name:'Completionist',       icon:'\uD83C\uDFC6', desc:'Explore every species in the tree' },
+  { id:'primatologist',      name:'Primatologist',       icon:'\uD83D\uDC12', desc:'Explore all primate species' },
+  { id:'deep_time',          name:'Deep Time Traveler',  icon:'\u231B',       desc:'Travel back to the origin of life' },
+  { id:'extinction_witness', name:'Extinction Witness',  icon:'\uD83D\uDC80', desc:'Visit all 5 mass extinction events' },
+  { id:'dna_wizard',         name:'DNA Wizard',          icon:'\uD83E\uDDEC', desc:'Compare 5 DNA pairs' },
+  { id:'quiz_champion',      name:'Quiz Champion',       icon:'\uD83C\uDF93', desc:'Score 100% on a quiz' },
+  { id:'night_owl',          name:'Night Owl',           icon:'\uD83C\uDF19', desc:'Toggle dark mode' },
+  { id:'domain_master',      name:'Domain Master',       icon:'\uD83D\uDD2C', desc:'Filter each domain individually' },
+  { id:'view_master',        name:'View Master',         icon:'\uD83D\uDC41\uFE0F', desc:'Use all 3 view modes' },
+];
+
+function _saveExplored() { localStorage.setItem(EXPLORED_KEY, JSON.stringify([..._explored])); }
+function _saveAchievements() { localStorage.setItem(ACHIEVE_KEY, JSON.stringify([..._achievements])); }
+function _saveTracking() { localStorage.setItem(TRACK_KEY, JSON.stringify(_tracking)); }
+
+export function updateProgressBadge() {
+  const countEl = document.getElementById('progress-count');
+  const totalEl = document.getElementById('progress-total');
+  if (countEl) countEl.textContent = _explored.size;
+  if (totalEl) totalEl.textContent = Object.keys(nodeMap).length;
+}
+
+export function markExplored(nodeId) {
+  if (!nodeId) return;
+  const wasNew = !_explored.has(nodeId);
+  _explored.add(nodeId);
+  if (wasNew) {
+    _saveExplored();
+    updateProgressBadge();
+    const badge = document.getElementById('progress-badge');
+    if (badge) { badge.classList.remove('pulse'); void badge.offsetWidth; badge.classList.add('pulse'); }
+    _checkExplorationAchievements();
+  }
+}
+
+export function isExplored(id) { return _explored.has(id); }
+
+function _checkExplorationAchievements() {
+  const count = _explored.size;
+  const total = Object.keys(nodeMap).length;
+  if (count >= 1)  _unlock('first_steps');
+  if (count >= 10) _unlock('curious_mind');
+  if (count >= 50) _unlock('explorer');
+  if (count >= total && total > 0) _unlock('completionist');
+  // Primatologist: check all primate subtree nodes
+  const primatesNode = nodeMap['primates'];
+  if (primatesNode) {
+    const ids = [];
+    (function collect(n) { ids.push(n.id); if (n.children) n.children.forEach(collect); })(primatesNode);
+    if (ids.length > 0 && ids.every(id => _explored.has(id))) _unlock('primatologist');
+  }
+}
+
+export function checkAchievement(id) { _unlock(id); }
+
+function _unlock(id) {
+  if (_achievements.has(id)) return;
+  _achievements.add(id);
+  _saveAchievements();
+  const def = ACHIEVEMENTS.find(a => a.id === id);
+  if (def) _showAchievementToast(def);
+}
+
+function _showAchievementToast(def) {
+  const container = document.getElementById('achievement-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'achievement-toast';
+  toast.innerHTML = `<span class="at-icon">${def.icon}</span><div class="at-body"><div class="at-title">Achievement Unlocked!</div><div class="at-name">${def.name}</div><div class="at-desc">${def.desc}</div></div>`;
+  container.appendChild(toast);
+  setTimeout(() => { if (toast.parentNode) toast.remove(); }, 3200);
+}
+
+export function trackDomainToggle(domain) {
+  if (!_tracking.domainsToggled.includes(domain)) { _tracking.domainsToggled.push(domain); _saveTracking(); }
+  if (_tracking.domainsToggled.length >= 6) _unlock('domain_master');
+}
+
+export function trackViewMode(mode) {
+  if (mode === 'playback') return;
+  if (!_tracking.viewModes.includes(mode)) { _tracking.viewModes.push(mode); _saveTracking(); }
+  if (_tracking.viewModes.length >= 3) _unlock('view_master');
+}
+
+export function trackExtinctionClick(mya) {
+  if (!_tracking.extinctionsClicked.includes(mya)) { _tracking.extinctionsClicked.push(mya); _saveTracking(); }
+  if (_tracking.extinctionsClicked.length >= 5) _unlock('extinction_witness');
+}
+
+export function trackDnaCompare() {
+  _tracking.dnaCompares = (_tracking.dnaCompares || 0) + 1;
+  _saveTracking();
+  if (_tracking.dnaCompares >= 5) _unlock('dna_wizard');
 }

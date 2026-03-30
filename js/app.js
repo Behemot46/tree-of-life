@@ -49,7 +49,10 @@ import { inferAppeared, enterPlaybackMode, exitPlaybackMode, startPlayback, paus
 import { t, setLang, applyI18n, applyTheme, toggleTheme, initThemeDeps } from './theme.js';
 
 // ── Engagement / UI effects ──
-import { showToast, dismissToast, showSpeciesToast, showIdleToast, resetIdleTimer, onUserActivity, a11yAnnounce, spawnParticles, showIntro, animateTreeEntrance, showLoading, hideLoading, generateSpeciesIllustration, initEngagementDeps } from './engagement.js';
+import { showToast, dismissToast, showSpeciesToast, showIdleToast, resetIdleTimer, onUserActivity, a11yAnnounce, spawnParticles, showIntro, animateTreeEntrance, showLoading, hideLoading, generateSpeciesIllustration, initEngagementDeps, markExplored, isExplored, updateProgressBadge, checkAchievement, trackDomainToggle, trackViewMode, trackExtinctionClick, trackDnaCompare } from './engagement.js';
+
+// ── Quiz ──
+import { openQuiz, closeQuiz, initQuizEvents } from './quiz.js';
 
 
 // ══════════════════════════════════════════════════════
@@ -111,6 +114,7 @@ function setViewMode(mode){
   else if(mode==='chronological'){centerOnTree(0.65);}
   scheduleRender(true);applyT();
   a11yAnnounce('Switched to '+mode+' view');
+  trackViewMode(mode);
 }
 
 
@@ -245,6 +249,9 @@ function init(){
       localStorage.setItem('hints-shown','1');
     }
   },3000);
+  // Initialize engagement progress badge and quiz events
+  updateProgressBadge();
+  initQuizEvents();
 }
 
 
@@ -263,6 +270,7 @@ eraSlider.addEventListener('input',()=>{
   eraLabel.textContent=getEraName(state.currentEra);
   updateEraTint(state.currentEra);
   updateSpeciesCount();
+  if(state.currentEra>=3800) checkAchievement('deep_time');
   if(state.playbackMode){
     pausePlayback();
     state.playbackCursor=state.currentEra;
@@ -693,6 +701,8 @@ window.resetPlayback = resetPlayback;
 
 // Toast
 window.dismissToast = dismissToast;
+window.openQuiz = openQuiz;
+window.closeQuiz = closeQuiz;
 
 // Timeline
 window.toggleEraPlay = toggleEraPlay;

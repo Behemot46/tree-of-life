@@ -3,6 +3,7 @@
 // ══════════════════════════════════════════════════════
 
 import { state, nodeMap } from './state.js';
+import { a11yAnnounce } from './engagement.js';
 
 // ── Late-binding deps (set via initDnaCalcDeps) ──
 let _searchEntities, _t, _showMainPanel;
@@ -21,6 +22,7 @@ let dnaSlotB = null;
 let dnaSearchTarget = null; // 'a' or 'b'
 
 export function openDnaCalc() {
+  state._panelTriggerFocus = document.activeElement;
   dnaSlotA = null;
   dnaSlotB = null;
   dnaSearchTarget = null;
@@ -28,6 +30,7 @@ export function openDnaCalc() {
   const panel = document.getElementById('dna-panel');
   panel.classList.add('open');
   panel.setAttribute('aria-hidden', 'false');
+  setTimeout(()=>{const first=panel.querySelector('button, input');if(first)first.focus();},100);
 }
 
 export function closeDnaCalc() {
@@ -35,6 +38,15 @@ export function closeDnaCalc() {
   panel.classList.remove('open');
   panel.setAttribute('aria-hidden', 'true');
   document.getElementById('dna-search-overlay').style.display = 'none';
+  a11yAnnounce('DNA calculator closed');
+  if(state._panelTriggerFocus){
+    if(state._panelTriggerFocus.isConnected) state._panelTriggerFocus.focus();
+    else if(state.focusedNodeId){
+      const g=document.querySelector('.node-group[data-node-id="'+state.focusedNodeId+'"]');
+      if(g) g.focus();
+    }
+    state._panelTriggerFocus=null;
+  }
 }
 
 export function resetDnaUI() {

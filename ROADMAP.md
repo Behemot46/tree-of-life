@@ -76,14 +76,16 @@ English-only. Focus: clear design, engaging, intuitive, accurate, fun.
 - Modules: app, state, renderer, layout, panel, navigation, search, timeline, hominin, dnaCalc, evoPath, trivia, playback, zoom, theme, engagement, utils
 - Deleted outdated p24 extraction files (core.js + old renderer/panel/search)
 
-### J4 — Accessibility Foundation
+### ✅ J4 — Accessibility Foundation — **Done** (PR TBD)
 **Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J4_ACCESSIBILITY.md`
 
-- ARIA tree roles on SVG nodes, `aria-expanded`, `aria-selected`
-- Arrow-key tree navigation (Up/Down/Left/Right)
-- Focus trapping in modals, skip-to-content link
-- Touch targets ≥ 44px on mobile
-- `aria-live` announcements
+- WAI TreeView keyboard navigation: 4 distinct arrow keys (Right=expand/child, Left=collapse/parent, Down/Up=tree-order)
+- `aria-selected` on focused node, `tabindex="0"` on root (LUCA)
+- Focus traps for DNA calculator and Evo-path panels
+- Focus restoration on modal close (saves/restores trigger element)
+- `aria-live` announcements: panel close, expand/collapse, view mode change, search results
+- SVG `<title>` + `<desc>` for screen readers
+- All touch targets ≥ 44px on mobile (lang, theme, extinct, legend, zoom)
 
 ### J5 — SVG Performance
 **Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J5_PERFORMANCE.md`

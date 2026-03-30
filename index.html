@@ -976,8 +976,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   }
   #search-input:focus { width: auto !important; }
   #extinct-toggle, #hominins-tab {
-    padding: 6px 10px !important;
+    padding: 10px 14px !important;
     font-size: 11px !important;
+    min-height: 44px;
   }
   #search-results {
     max-height: 45vh;
@@ -990,12 +991,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     right: auto;
     left: auto;
     position: fixed;
-    right: 38px;
+    right: 50px;
     z-index: 400;
   }
   .lang-btn {
-    min-width: 32px;
-    min-height: 32px;
+    min-width: 44px;
+    min-height: 44px;
     padding: 0.25rem 0.4rem;
     font-size: 0.6rem;
     display: inline-flex;
@@ -1005,11 +1006,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   #theme-btn {
     top: 0.55rem;
     right: 6px;
-    width: 32px;
-    height: 32px;
+    width: 44px !important;
+    height: 44px !important;
     font-size: 0.8rem;
   }
-  [dir="rtl"] #lang-switcher { right: auto; left: 38px; }
+  [dir="rtl"] #lang-switcher { right: auto; left: 50px; }
   [dir="rtl"] #theme-btn { right: auto; left: 6px; }
 
   /* ── DETAIL PANEL: bottom-sheet on mobile ── */
@@ -1098,7 +1099,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .leg-title { cursor: pointer; }
   .leg-row {
     font-size: 0.6rem;
-    min-height: 28px;
+    min-height: 44px;
     display: flex;
     align-items: center;
   }
@@ -1156,7 +1157,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .p-facts { grid-template-columns: 1fr !important; }
   #splash h1 { font-size: 1.4rem !important; }
   #zoom-ctrl { bottom: 5rem; right: 4px; }
-  .zbtn { width: 40px !important; height: 40px !important; }
+  .zbtn { width: 44px !important; height: 44px !important; }
 }
 
 /* ══════════════════════════════════════════════════════
@@ -1977,7 +1978,9 @@ kbd{
 
 <!-- SVG CANVAS -->
 <div id="canvas-wrap" tabindex="-1">
-  <svg id="svg" xmlns="http://www.w3.org/2000/svg" role="tree" aria-label="Interactive Tree of Life visualization showing evolutionary relationships" tabindex="0">
+  <svg id="svg" xmlns="http://www.w3.org/2000/svg" role="tree" aria-label="Interactive Tree of Life showing evolutionary relationships among 130+ species. Use arrow keys to navigate, Enter to open details." aria-labelledby="svg-title" aria-describedby="svg-desc" tabindex="0">
+    <title id="svg-title">Tree of Life — Interactive Phylogenetic Tree</title>
+    <desc id="svg-desc">Interactive phylogenetic tree showing approximately 130 species across 3.8 billion years of evolution. Navigate between species using arrow keys. Press Enter to view species details. Press Home to return to the root.</desc>
     <defs>
       <radialGradient id="rootGrad" cx="50%" cy="50%" r="50%">
         <stop offset="0%" stop-color="#a78bfa"/>

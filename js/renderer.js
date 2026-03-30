@@ -7,6 +7,7 @@ import { getVisible, getVisibleEdges } from './layout.js';
 import { reducedMotion } from './utils.js';
 import { getPlaybackNodeState, discoverNode, showDiscoveryCard } from './playback.js';
 import { nodeInEra } from './timeline.js';
+import { a11yAnnounce } from './engagement.js';
 
 // ── Late-bound deps (avoid circular imports) ──
 let _showMainPanel, _showTip, _hideTip, _smoothPanTo, _layout;
@@ -176,9 +177,10 @@ export function render(){
     const g=document.createElementNS('http://www.w3.org/2000/svg','g');
     g.setAttribute('class','node-group');
     g.setAttribute('role','treeitem');
-    g.setAttribute('tabindex','-1');
+    g.setAttribute('tabindex',n.id==='luca'?'0':'-1');
     g.setAttribute('aria-label',n.name+(n.latin?' ('+n.latin+')':'')+(n.extinct?' - extinct':''));
     g.setAttribute('data-node-id',n.id);
+    if(state.focusedNodeId===n.id) g.setAttribute('aria-selected','true');
     if(n.children&&n.children.length) g.setAttribute('aria-expanded',String(!n._collapsed));
     g.style.cursor='pointer';
 
@@ -234,7 +236,7 @@ export function render(){
       }
 
       // Left-click toggles collapse; double-click opens panel
-      g.addEventListener('click',e=>{e.stopPropagation();n._collapsed=!n._collapsed;scheduleRender();});
+      g.addEventListener('click',e=>{e.stopPropagation();n._collapsed=!n._collapsed;scheduleRender();a11yAnnounce(n.name+(n._collapsed?' collapsed':' expanded'));});
       g.addEventListener('dblclick',e=>{e.stopPropagation();_showMainPanel(n);});
       g.addEventListener('contextmenu',e=>{e.preventDefault();_showMainPanel(n);});
       nodesFrag.appendChild(g);
@@ -451,6 +453,7 @@ export function render(){
       if(n.children&&n.children.length){
         n._collapsed=!n._collapsed;
         _layout();scheduleRender(true);
+        a11yAnnounce(n.name+(n._collapsed?' collapsed':' expanded'));
         // Auto-pan to show expanded children
         if(!n._collapsed){
           setTimeout(()=>{
@@ -510,4 +513,11 @@ export function render(){
 
   branchLayer.replaceChildren(branchFrag);
   nodesLayer.replaceChildren(nodesFrag);
+
+  // Restore keyboard focus after DOM rebuild
+  if(state.focusedNodeId){
+    const _restoreId=state.focusedNodeId;
+    const g=document.querySelector('.node-group[data-node-id="'+_restoreId+'"]');
+    if(g) g.focus({preventScroll:true});
+  }
 }

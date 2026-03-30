@@ -107,6 +107,7 @@ export function startCompareFromPanel(nodeId){
 // Hook into showMainPanel to intercept clicks during compare mode + a11y
 export function interceptShowMainPanel(origShowMainPanel) {
   return function(n){
+    state._panelTriggerFocus = document.activeElement;
     if(compareMode && n._hominData){
       const hom=HOMININS.find(h=>h.id===n.id);
       if(hom){

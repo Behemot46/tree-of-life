@@ -92,6 +92,57 @@ sortChildrenByAge(TREE);
 // Patch enrichment data into the nodeMap
 patchEnrichment();
 
+// Patch funFact onto treeExpansion.js nodes that lack it (these nodes are added at runtime without funFact)
+(function patchFunFacts(){
+  const ff={
+    'lion':'A lion\'s roar reaches 114 decibels and can be heard 8 km away — it\'s not just territorial, it\'s a precise social signal that allows individuals to count and locate their pride mates in the dark.',
+    'tiger':'Tiger stripes are not just on their fur — their skin is striped too. No two tigers have the same pattern, making stripes as unique as human fingerprints.',
+    'polar-bear':'Polar bear fur is not white — it\'s transparent and hollow. Each hair is a fiber-optic strand that funnels ultraviolet light to the black skin beneath, which absorbs heat.',
+    'giant-panda':'Giant pandas have a "false thumb" — an enlarged radial sesamoid bone that acts as a sixth digit, evolved specifically for gripping bamboo. It\'s convergent evolution with the red panda\'s identical solution.',
+    'snow-leopard':'Snow leopards cannot roar — the hyoid bone in their throat is not fully ossified. Instead, they communicate with chuffs, wails, and a unique "prusten" puffing sound also used by tigers.',
+    'red-panda':'The red panda was classified in its own family for over 100 years before DNA analysis settled the debate — it is the sole living member of Ailuridae, more closely related to weasels than to giant pandas.',
+    'pangolin':'Pangolins are the world\'s most trafficked mammal — over a million were taken from the wild in the last decade. Their scales are pure keratin, identical in composition to human fingernails.',
+    'red-kangaroo':'Female red kangaroos can pause a pregnancy — a fertilized embryo enters dormancy while the pouch is occupied, resuming development only after the joey leaves. Two joeys at different stages can nurse simultaneously.',
+    'koala':'Koalas have fingerprints nearly indistinguishable from human fingerprints — independently evolved, they have fooled crime scene investigators. They sleep 20 hours a day to process toxic eucalyptus leaves.',
+    'moose':'A moose\'s antlers can grow 2.5 cm per day — the fastest-growing tissue of any animal on Earth. They are shed and regrown annually, requiring more calcium than the entire skeleton contains.',
+    'humpback-whale':'Humpback whale songs evolve like cultural fads — a new song style that appears in one ocean population is adopted across thousands of miles within two years, spreading from group to group like a hit record.',
+    'narwhal':'The narwhal\'s tusk is a tooth — specifically the left upper canine grown through the upper lip. It contains 10 million nerve endings and may be a sensory organ that detects salinity and temperature.',
+    'wolverine':'The wolverine has a superpower: a unique mucous membrane that lets it eat frozen carrion. It has been documented driving grizzly bears from kills three times its size through sheer ferocity.',
+    'hippopotamus':'Hippos secrete a red oily substance from their skin that acts as sunscreen, antiseptic, and moisturizer simultaneously — it is sometimes called "blood sweat" though it contains none of either.',
+    'bald-eagle':'Bald eagles were removed from the US Endangered Species List in 2007 after recovering from fewer than 500 breeding pairs in 1963 to over 9,800 today — one of conservation\'s greatest success stories.',
+    'condor':'California condors became extinct in the wild in 1987 — every living bird was captured. Through captive breeding, there are now 500+ birds including 300 in the wild, a conservation resurrection.',
+    'flamingo':'Flamingos are not born pink — their color comes entirely from carotenoid pigments in the algae and crustaceans they eat. A flamingo fed a colorless diet turns white within months.',
+    'barn-owl':'Barn owls can locate prey in total darkness by sound alone — their facial disc acts as a parabolic dish, and their asymmetrically placed ears triangulate sound in three dimensions.',
+    'cassowary':'The cassowary\'s casque is hollow and may function as a low-frequency amplifier — some researchers think it allows cassowaries to communicate in sounds too low for humans to hear.',
+    'hammerhead-shark':'The hammerhead\'s wide-set eyes give it 360-degree vertical vision — it can see above and below simultaneously, but has a blind spot directly in front of its nose.',
+    'chameleon':'Chameleons do not change color for camouflage — they change color to communicate mood and social status. The skin contains crystalline nanostructures that shift light reflection based on emotion.',
+    'tardigrade':'Tardigrades can survive in the vacuum of space, temperatures from -272°C to 150°C, radiation doses 1,000x lethal to humans, and pressures six times the deepest ocean. They enter cryptobiosis — virtual suspended animation.',
+    'firefly':'Firefly light is the most efficient light ever measured — nearly 100% of the energy becomes light with almost no heat. LED engineers have used firefly lantern geometry to improve LED efficiency by 50%.',
+    'atlas-moth':'The atlas moth has no mouth — it cannot eat. It survives its entire adult life on fat reserves from its caterpillar stage, living only 1-2 weeks solely to reproduce.',
+    'army-ant':'Army ant colonies are a superorganism — 700,000 individuals with no queen directing behavior. Complex collective intelligence emerges from simple rules followed by each ant, including building living bridges from their own bodies.',
+    'japanese-spider-crab':'The Japanese spider crab has the largest leg span of any arthropod — up to 3.7 meters. Despite their fearsome appearance, they are gentle omnivores that can live over 100 years.',
+    'garden-spider':'The garden spider rebuilds its entire web every single day — consuming the old silk to recycle proteins, then spinning a new geometrically perfect orb in under an hour.',
+    'hermit-crab':'Hermit crabs hold "vacancy chains" — when a new large shell arrives on the beach, crabs line up by size, then swap shells simultaneously in a coordinated chain, each one upgrading to the shell vacated by the crab ahead of it.',
+    'water-lily':'The giant water lily\'s leaf is a feat of structural engineering — a network of air-filled ribs on the underside distributes weight so evenly that a single leaf can support a human child.',
+    'orchid':'Orchids represent the most extreme evolutionary deception in nature — some species mimic female insects in both appearance and pheromone scent so precisely that male insects attempt to mate with them, inadvertently pollinating the flower.',
+    'bamboo':'Bamboo can grow 91 cm in a single day — the fastest growth of any plant on Earth. Some species flower only once every 120 years, then die simultaneously across entire forests.',
+    'cactus':'The saguaro cactus grows only 2.5 cm in its first decade of life but can live 200 years and store 750 liters of water in its accordion-like ribs after a single rainfall.',
+    'sundew':'The sundew\'s sticky tentacles move with detectable speed — a tentacle can curve around an insect in 10 seconds. The plant distinguishes food from debris: it ignores sand grains but responds to nitrogen-containing compounds.',
+    'cordyceps':'Cordyceps fungi are mind-controlling parasites — they infect ants, alter their behavior to climb to a precise height, force them to bite a leaf vein, then erupt through the skull. Each species targets a single host.',
+    'truffle':'Truffles cannot reproduce without animals — they grow entirely underground and rely on being eaten and their spores dispersed. They evolved an extraordinary smell to attract the mammals that dig them up.',
+    'lichen':'Lichen is not one organism but a symbiosis of fungus and algae — and recent research found a third partner, a yeast. They are the first colonizers of bare rock, creating soil that makes all terrestrial life possible.',
+    'chanterelle':'Chanterelles form mycorrhizal networks with tree roots that can span entire forests — they trade minerals the tree cannot access for sugars the fungus cannot photosynthesize. The network transfers nutrients between trees.',
+    'euglena':'Euglena is the organism that broke the animal-plant divide — it photosynthesizes in light and hunts for food in darkness, forcing 19th-century scientists to create an entirely new kingdom of life to classify it.',
+    'radiolarian':'Radiolarian skeletons are geometric perfection on a microscopic scale — intricate silica lattices that inspired architect Buckminster Fuller\'s geodesic dome. They have been building the same structures for 540 million years.',
+    'slime-mold':'Slime molds can solve mazes and optimize transport networks without a brain or nervous system. When grown on a map with food at major cities, they recreate the Tokyo rail network — the result of millions of years of trial and error.',
+    'stentor':'Stentor can regenerate an entirely new organism from a fragment 1/27th of its original volume — the smallest piece that can rebuild a complete functional cell of any known organism.'
+  };
+  Object.entries(ff).forEach(([id,fact])=>{
+    const n=nodeMap[id];
+    if(n && !n.funFact) n.funFact=fact;
+  });
+})();
+
 // Expose getNodeById globally
 window.getNodeById = id => nodeMap[id];
 

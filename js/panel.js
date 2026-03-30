@@ -666,6 +666,7 @@ export function renderPanelContent(node) {
       <div id="${panelFbId}" class="panel-hero-fb">${node.icon || '🌿'}</div>
       <div class="panel-hero-overlay"></div>
       ${node.extinct ? '<span class="panel-hero-badge">† EXTINCT</span>' : ''}
+      ${(()=>{const c=node.conservation||node.iucn;if(!c||c==='NE')return '';const map={CR:'Critically Endangered',EN:'Endangered',VU:'Vulnerable',NT:'Near Threatened',LC:'Least Concern'};return `<span class="pri-iucn pri-iucn-${c.toLowerCase()}">${map[c]||c}</span>`;})()}
       ${lineageBadge}
       <div class="panel-hero-meta">
         <div class="p-name">${node.name}</div>

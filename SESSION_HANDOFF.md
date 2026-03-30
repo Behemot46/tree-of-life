@@ -1,4 +1,46 @@
-# Session Handoff — 2026-03-30 (Sprint J6 — Discovery & Fun)
+# Session Handoff — 2026-03-30 (Sprint J7 — Data Enrichment & Tree Expansion)
+
+**Status: done**
+**Branch:** `claude/zealous-swanson`
+
+## 1. Session Goal
+Execute Sprint J7 — expand the tree to 200+ species, add IUCN conservation badges, backfill funFact, expand DNA pairs and facts.
+
+## 2. What I Changed
+
+### js/treeData.js — Conservation + funFact backfill on existing 158 nodes
+- Added `conservation:'XX'` field to 96 species-level nodes with IUCN status
+- Added `funFact:'...'` to all nodes that were missing one (69 backfilled)
+- Note: treeExpansion.js adds ~198 more nodes at runtime (339 total)
+
+### js/panel.js — Conservation badge rendering in hero section
+- Added badge rendering reading `node.conservation || node.iucn` using existing `pri-iucn` CSS classes
+- Renders CR/EN/VU/NT/LC badges below extinct badge in species panel hero
+
+### js/app.js — patchFunFacts() after preprocess
+- Added IIFE patching funFact onto 44 key treeExpansion.js nodes that lack it
+
+### js/speciesData.js — 31 new PHOTO_MAP entries
+- Total PHOTO_MAP coverage: 360+ entries
+
+### js/geoData.js — 44 new GEO_DATA + BRANCH_DATA entries
+- Geographic regions and branch-specific metadata for all new species
+
+### js/dnaSimilarity.js — 25 new DNA_KNOWN pairs
+- Total: 61 pairs (was 36)
+
+### js/factLibrary.js — 22 new facts
+- Total: 170 facts (was 148)
+
+## 3. Key Architecture Notes
+- `js/treeExpansion.js` (pre-existing) adds ~198 species at runtime using `add()` and `iucn()` functions
+- It uses `node.iucn` (not `node.conservation`) — badge rendering reads both
+- treeExpansion.js nodes don't have `funFact` natively — patched via `patchFunFacts()` IIFE in app.js (after preprocess)
+- Codebase now uses ES modules (J3+); conservation badge CSS (`pri-iucn` classes) is in index.html `<style>` block
+
+---
+
+# Previous Session Handoff — 2026-03-30 (Sprint J6 — Discovery & Fun)
 
 **Status: done**
 **Branch:** `claude/adoring-elbakyan`

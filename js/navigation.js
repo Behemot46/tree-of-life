@@ -179,15 +179,28 @@ document.addEventListener('mousemove', function(e) {
   }
 });
 
-export function showTip(text, icon) {
+let _funFactTimer = null;
+export function showTip(text, icon, funFact) {
   clearTimeout(_tipTimer);
+  clearTimeout(_funFactTimer);
   tooltipEl.innerHTML = (icon ? icon + ' ' : '') + text;
+  tooltipEl.classList.remove('tip-enhanced');
   tooltipEl.classList.add('visible');
+  if (funFact) {
+    _funFactTimer = setTimeout(() => {
+      tooltipEl.innerHTML = (icon ? icon + ' ' : '') + text +
+        '<div class="tip-dyk">Did you know?</div>' +
+        '<div class="tip-funfact">' + funFact + '</div>';
+      tooltipEl.classList.add('tip-enhanced');
+    }, 500);
+  }
 }
 
 export function hideTip() {
   clearTimeout(_tipTimer);
+  clearTimeout(_funFactTimer);
   _tipTimer = setTimeout(() => {
     tooltipEl.classList.remove('visible');
+    tooltipEl.classList.remove('tip-enhanced');
   }, 80);
 }

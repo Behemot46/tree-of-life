@@ -6,6 +6,7 @@ import { state, nodeMap, animDone, confirmedPhotoUrls, HUMAN_PATH } from './stat
 import { getVisible, getVisibleEdges } from './layout.js';
 import { reducedMotion } from './utils.js';
 import { getPlaybackNodeState, discoverNode, showDiscoveryCard } from './playback.js';
+import { isExplored } from './engagement.js';
 import { nodeInEra } from './timeline.js';
 import { a11yAnnounce } from './engagement.js';
 
@@ -372,14 +373,15 @@ export function render(){
     c.setAttribute('class','node-circle nc-main');
     c.setAttribute('data-depth',n.depth||0);
     c.setAttribute('fill',n.depth===0?'url(#rootGrad)':n.color);
-    c.setAttribute('fill-opacity',inEra?(n.depth===0?'1':n.depth<=1?'0.9':'0.8'):'0.15');
+    const _expl=isExplored(n.id);const _bOp=n.depth===0?1:n.depth<=1?0.9:0.8;
+    c.setAttribute('fill-opacity',inEra?String(_expl?_bOp:_bOp*0.65):'0.15');
     c.style.stroke='var(--bg)';c.setAttribute('stroke-width','1.5');
     c.style.setProperty('--nc',n.color);
     /* no glow filter on root */
     if(n.extinct){c.setAttribute('stroke-dasharray','4 2');c.setAttribute('opacity','0.6');}
     c.style.cursor = 'pointer';
     c.style.pointerEvents = 'all';
-    c.addEventListener('mouseenter', function(){ this.style.transform='scale(1.12)';this.style.transformOrigin='center';this.style.filter='drop-shadow(0 0 6px '+n.color+')'; _showTip(n.name, n.icon); });
+    c.addEventListener('mouseenter', function(){ this.style.transform='scale(1.12)';this.style.transformOrigin='center';this.style.filter='drop-shadow(0 0 6px '+n.color+')'; _showTip(n.name, n.icon, n.funFact); });
     c.addEventListener('mouseleave', function(){ this.style.transform='scale(1)';this.style.filter=''; _hideTip(); });
     c.addEventListener('click', e=>{ e.stopPropagation(); _showMainPanel(n); });
     g.appendChild(c);

@@ -3,6 +3,7 @@
 // ══════════════════════════════════════════════════════
 
 import { state } from './state.js';
+import { checkAchievement } from './engagement.js';
 
 // ── Late-binding deps (set via initThemeDeps) ──
 let _deps = {};
@@ -134,4 +135,5 @@ export function toggleTheme(){
   state.isDark=!state.isDark;
   localStorage.setItem('theme',state.isDark?'dark':'light');
   applyTheme();
+  checkAchievement('night_owl');
 }

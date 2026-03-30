@@ -58,65 +58,73 @@ English-only. Focus: clear design, engaging, intuitive, accurate, fun.
 - Added `reducedMotion()` JS helper + guards on node/intro animations
 - Unified mobile breakpoints: 3 components `600px` → `768px`
 
-### J2 — Navigation & Interaction Polish
+### J2 — Navigation & Interaction Polish ✅
 **Effort:** Small | **Prompt:** `docs/PROMPTS/SPRINT_J2_NAV_POLISH.md`
 
-- Merge `panelHistory` + `navStack` into single unified stack
-- Delete `panelBack()`, all navigation through `navBack()`
-- Smooth auto-pan to focused node
-- Keyboard: Escape = Back, Shift+Escape = Home
+- ✅ Unified navigation: `panelHistory`/`panelBack()` removed, all nav through `navStack`/`navBack()`
+- ✅ Smooth auto-pan (`smoothPanTo`) on `navigateTo()` and `showMainPanel()`
+- ✅ Keyboard: Escape = Back, Shift+Escape = Home, `?` = shortcuts help overlay
+- ✅ `navHome()` closes all overlays (DNA, evo-path, trivia, kbd-help)
+- ✅ Deleted stale modularized files (core.js, panel.js, renderer.js, search.js)
+- ✅ Fixed dead `openHomininView()` → `navigateTo('hominini')`
 
-### J3 — Code Modularization
+### ✅ J3 — Code Modularization — **Done**
 **Effort:** Large | **Prompt:** `docs/PROMPTS/SPRINT_J3_MODULARIZATION.md`
 
-- Split 4,251-line index.html inline JS → 12 ES modules
+- Split 4,783-line index.html inline JS → 17 ES modules + state.js
 - `<script type="module">` — no build step needed
-- Modules: app, renderer, layout, panel, navigation, search, timeline, hominin, dnaCalc, zoom, theme, utils
+- Modules: app, state, renderer, layout, panel, navigation, search, timeline, hominin, dnaCalc, evoPath, trivia, playback, zoom, theme, engagement, utils
+- Deleted outdated p24 extraction files (core.js + old renderer/panel/search)
 
-### J4 — Accessibility Foundation
+### ✅ J4 — Accessibility Foundation — **Done** (PR TBD)
 **Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J4_ACCESSIBILITY.md`
 
-- ARIA tree roles on SVG nodes, `aria-expanded`, `aria-selected`
-- Arrow-key tree navigation (Up/Down/Left/Right)
-- Focus trapping in modals, skip-to-content link
-- Touch targets ≥ 44px on mobile
-- `aria-live` announcements
+- WAI TreeView keyboard navigation: 4 distinct arrow keys (Right=expand/child, Left=collapse/parent, Down/Up=tree-order)
+- `aria-selected` on focused node, `tabindex="0"` on root (LUCA)
+- Focus traps for DNA calculator and Evo-path panels
+- Focus restoration on modal close (saves/restores trigger element)
+- `aria-live` announcements: panel close, expand/collapse, view mode change, search results
+- SVG `<title>` + `<desc>` for screen readers
+- All touch targets ≥ 44px on mobile (lang, theme, extinct, legend, zoom)
 
-### J5 — SVG Performance
+### ✅ J5 — SVG Performance — **Done** (PR TBD)
 **Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J5_PERFORMANCE.md`
 
-- Viewport culling — only render visible nodes
-- GPU compositing with `will-change: transform`
-- CSS-class animations instead of inline styles
-- rAF-debounced pointer pan
-- Target: 60fps with 300+ nodes
+- Viewport culling — only render visible nodes (100px margin)
+- GPU compositing with `will-change: transform` on #viewport
+- CSS-class animations (`.branch-entering`/`.node-entering`) replace inline styles
+- rAF-debounced pointermove and wheel handlers
+- Spatial hash for O(n) label collision detection
+- animDone.clear() on view mode switch for animation replay
 
-### J6 — Discovery & Fun
+### ✅ J6 — Discovery & Fun — **Done** (PR #127)
 **Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J6_ENGAGEMENT.md`
 
-- Progress tracker: "X/132 species discovered"
+- Progress tracker: "X/338 species discovered" with pill badge
 - 12 unlockable achievements with toast notifications
-- Idle fact cards (30s timer)
-- Enhanced hover tooltips with funFact data
-- Quiz mode: "Which domain?" multiple choice
+- Idle fact cards (45s timer, FACTS library integration)
+- Enhanced hover tooltips with funFact data (500ms delay)
+- Quiz mode: 5 random trivia questions from 200+ pool
 - Exploration visual cue on visited nodes
 
-### J7 — Data Enrichment
+### ✅ J7 — Data Enrichment — **Done**
 **Effort:** Large | **Prompt:** `docs/PROMPTS/SPRINT_J7_DATA_ENRICHMENT.md`
 
-- Expand tree from 132 → 200+ species
-- IUCN conservation status with color-coded badges
-- Expand DNA_KNOWN from 36 → 60+ pairs
-- Expand FACTS library from 18 → 40+ facts
-- Add funFact to all nodes
+- Expanded tree to 339 unique species (was 157 in treeData.js + 198 via treeExpansion.js)
+- IUCN conservation badges (CR/EN/VU/NT/LC) on 263 species with color-coded CSS
+- DNA_KNOWN expanded from 36 → 61 pairs
+- FACTS library expanded from 148 → 170 facts
+- funFact on all treeData.js nodes + 44 key treeExpansion.js species
+- Conservation badge rendering in species panel hero section
 
-### J8 — Offline & PWA
+### ✅ J8 — Offline & PWA — **Done**
 **Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J8_PWA.md`
 
-- Hand-rolled service worker (cache-first for app shell)
-- Web app manifest (installable PWA)
-- Offline indicator banner
-- Stale-while-revalidate for Wikipedia photos
+- Service worker with 39-file precache (cache-first app shell, network-first API, stale-while-revalidate images)
+- Web app manifest with SVG icons (192px, 512px, maskable)
+- Offline indicator banner (red bar, auto-shows on connection loss)
+- Apple PWA meta tags for iOS home screen
+- deploy-check.yml validates sw.js + manifest.json + all JS modules
 
 ### ✅ J9 — Guided Educational Tours — **Done**
 **Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J9_GUIDED_TOURS.md`
@@ -127,6 +135,16 @@ English-only. Focus: clear design, engaging, intuitive, accurate, fun.
 - Spotlight overlay + narration cards
 - Tour selector modal with 3 cards
 - First-visit prompt, "?" button for replay
+
+### J10 — Image & Visual Polish
+**Effort:** Large | **Prompt:** `docs/PROMPTS/SPRINT_J10_IMAGE_POLISH.md`
+
+- 100% PHOTO_MAP coverage — every node gets a real Wikimedia Commons photo
+- No emoji fallbacks anywhere — replaced with elegant SVG silhouette placeholders
+- Smooth fade-in image loading with shimmer skeletons
+- Image retry logic for transient network failures
+- Higher resolution (1280px) hero images for retina displays
+- Photo quality standards: real photos only, no illustrations or clipart
 
 ---
 
@@ -141,6 +159,7 @@ Sprint 5: J6 (engagement)
 Sprint 6: J7 (data enrichment)
 Sprint 7: J8 (PWA)
 Sprint 8: J9 (guided tours)
+Sprint 9: J10 (image & visual polish)
 ```
 
 ## Deferred (Future Series)
@@ -172,6 +191,7 @@ Sprint 8: J9 (guided tours)
 | 2026-03-12 | SVG silhouette icons over emojis | Cross-platform consistency |
 | 2026-03-13 | ImageLoader fallback chain | Generated → PHOTO_MAP → emoji; graceful degradation |
 | 2026-03-14 | Separate navStack from panelHistory | Quick ship; unification deferred to J2 |
+| 2026-03-29 | J2: Unified nav stack, deleted stale JS modules | panelHistory/panelBack removed; smooth pan; kbd help overlay |
 | 2026-03-15 | Roadmap created | Formalize priorities |
 | 2026-03-16 | Unified roadmap with scaling tiers | Reconciled duplicate phases, integrated data infrastructure priorities |
 | 2026-03-28 | J-series replaces p-series | Fresh start with 7-agent audit, English-only focus |

@@ -2,6 +2,14 @@
 // GUIDED TOURS — 3 educational tour paths
 // ══════════════════════════════════════════════════════
 
+// ── Bridge to ES module state (exposed by app.js via window._tour*) ──
+function _ts() { return window._tourState || {}; }
+function _nm() { return window._tourNodeMap || {}; }
+function _lay() { if (window._tourLayout) window._tourLayout(); }
+function _sr(f) { if (window._tourScheduleRender) window._tourScheduleRender(f); }
+function _at() { if (window._tourApplyT) window._tourApplyT(); }
+function _slide(v) { if (window._tourAnimateSliderTo) window._tourAnimateSliderTo(v); }
+
 // ── Tour Definitions ──
 
 var TOURS = {
@@ -40,14 +48,14 @@ var TOURS = {
     icon: '\u2604\uFE0F',
     steps: [
       { target: '#timeline', titleKey: 'tour_ext_s1_title', descKey: 'tour_ext_s1_desc', placement: 'above',
-        action: function() { if (typeof animateSliderTo === 'function') animateSliderTo(3800); } },
+        action: function() { _slide(3800); } },
       { target: { mya: 445 }, titleKey: 'tour_ext_s2_title', descKey: 'tour_ext_s2_desc', placement: 'above' },
       { target: { mya: 370 }, titleKey: 'tour_ext_s3_title', descKey: 'tour_ext_s3_desc', placement: 'above' },
       { target: { mya: 252 }, titleKey: 'tour_ext_s4_title', descKey: 'tour_ext_s4_desc', placement: 'above' },
       { target: { mya: 200 }, titleKey: 'tour_ext_s5_title', descKey: 'tour_ext_s5_desc', placement: 'above' },
       { target: { mya: 66 }, titleKey: 'tour_ext_s6_title', descKey: 'tour_ext_s6_desc', placement: 'above' },
       { target: '#timeline', titleKey: 'tour_ext_s7_title', descKey: 'tour_ext_s7_desc', placement: 'above',
-        action: function() { if (typeof animateSliderTo === 'function') animateSliderTo(0); } }
+        action: function() { _slide(0); } }
     ]
   }
 };
@@ -165,9 +173,10 @@ function endTour() {
   _tourCard = null;
   localStorage.setItem('tol-tour-done', '1');
   // Clear highlight
-  if (typeof highlightedId !== 'undefined') {
-    highlightedId = null;
-    if (typeof scheduleRender === 'function') scheduleRender();
+  var st = _ts();
+  if (st.highlightedId !== undefined) {
+    st.highlightedId = null;
+    _sr();
   }
   window.removeEventListener('resize', _tourOnResize);
   window.removeEventListener('keydown', _tourOnKey);
@@ -275,8 +284,8 @@ function _showTourStep(index) {
 // ── Node Navigation Helper ──
 
 function _tourNavToNode(nodeId, placement) {
-  if (typeof nodeMap === 'undefined') return;
-  var n = nodeMap[nodeId];
+  var nm = _nm();
+  var n = nm[nodeId];
   if (!n) return;
 
   // Expand path to node
@@ -286,22 +295,21 @@ function _tourNavToNode(nodeId, placement) {
     c = c._parent;
   }
 
-  if (typeof layout === 'function') layout();
-  if (typeof scheduleRender === 'function') scheduleRender(true);
+  _lay();
+  _sr(true);
 
   // Pan to center on node
   var cx = window.innerWidth / 2, cy = window.innerHeight / 2;
-  if (typeof transform !== 'undefined' && typeof applyT === 'function') {
-    transform.x = cx - n._x * transform.s;
-    transform.y = cy - n._y * transform.s;
-    applyT();
+  var st = _ts();
+  if (st.transform) {
+    st.transform.x = cx - n._x * st.transform.s;
+    st.transform.y = cy - n._y * st.transform.s;
+    _at();
   }
 
   // Highlight node
-  if (typeof highlightedId !== 'undefined') {
-    highlightedId = nodeId;
-    if (typeof scheduleRender === 'function') scheduleRender();
-  }
+  st.highlightedId = nodeId;
+  _sr();
 
   // Wait for render, then position spotlight
   setTimeout(function() {
@@ -314,9 +322,10 @@ function _tourNavToNode(nodeId, placement) {
 }
 
 function _getNodeScreenRect(n) {
-  var s = (typeof transform !== 'undefined') ? transform.s : 1;
-  var tx = (typeof transform !== 'undefined') ? transform.x : 0;
-  var ty = (typeof transform !== 'undefined') ? transform.y : 0;
+  var st = _ts();
+  var s = st.transform ? st.transform.s : 1;
+  var tx = st.transform ? st.transform.x : 0;
+  var ty = st.transform ? st.transform.y : 0;
   var screenX = n._x * s + tx;
   var screenY = n._y * s + ty;
   var r = (n.r || 12) * s;
@@ -336,21 +345,21 @@ function _getNodeScreenRect(n) {
 // ── Timeline/Extinction Navigation Helper ──
 
 function _tourNavToMya(mya, placement) {
-  if (typeof animateSliderTo === 'function') animateSliderTo(mya);
+  _slide(mya);
 
   // Wait for animation, then spotlight the extinction marker
   setTimeout(function() {
     if (!tourState.active) return;
 
     // Find the matching extinction marker by index
+    // EXTINCTION_DETAILS order: [445, 370, 252, 200, 66]
+    var EXT_MYA = [445, 370, 252, 200, 66];
     var markers = document.querySelectorAll('#extinction-markers .ext-marker');
     var markerEl = null;
-    if (typeof EXTINCTION_DETAILS !== 'undefined') {
-      for (var i = 0; i < EXTINCTION_DETAILS.length; i++) {
-        if (EXTINCTION_DETAILS[i].mya === mya && markers[i]) {
-          markerEl = markers[i];
-          break;
-        }
+    for (var i = 0; i < EXT_MYA.length; i++) {
+      if (EXT_MYA[i] === mya && markers[i]) {
+        markerEl = markers[i];
+        break;
       }
     }
 

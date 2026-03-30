@@ -376,6 +376,13 @@ svg{width:100%;height:100%;}
 .pri-iucn-en{color:#f97316;background:rgba(249,115,22,0.1);border-color:rgba(249,115,22,0.3);}
 .pri-iucn-vu{color:#eab308;background:rgba(234,179,8,0.1);border-color:rgba(234,179,8,0.3);}
 .pri-iucn-lc{color:#22c55e;background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.3);}
+.conservation-badge{font-size:10px;font-weight:700;letter-spacing:0.06em;padding:3px 10px;
+  border-radius:9999px;font-family:var(--font-sans);text-transform:uppercase;border:1px solid;display:inline-block;margin-top:4px;}
+.conservation-CR{color:#dc2626;background:rgba(220,38,38,0.12);border-color:rgba(220,38,38,0.35);}
+.conservation-EN{color:#ea580c;background:rgba(234,88,12,0.12);border-color:rgba(234,88,12,0.35);}
+.conservation-VU{color:#f59e0b;background:rgba(245,158,11,0.12);border-color:rgba(245,158,11,0.35);}
+.conservation-NT{color:#84cc16;background:rgba(132,204,22,0.12);border-color:rgba(132,204,22,0.35);}
+.conservation-LC{color:#22c55e;background:rgba(34,197,94,0.12);border-color:rgba(34,197,94,0.35);}
 .pri-cap-row{display:flex;gap:12px;flex-wrap:wrap;}
 .pri-cap-item{font-size:12px;color:var(--text-secondary);font-family:var(--font-sans);
   background:var(--surface-raised);border:1px solid var(--border);border-radius:6px;padding:4px 10px;}
@@ -2538,6 +2545,61 @@ sortChildrenByAge(TREE);
 // Hominini branch always visible — groups expanded, individual species collapsed
 // (p27: always-visible hominin branch)
 window.getNodeById = id=>nodeMap[id];
+
+// Patch funFact onto nodes added by treeExpansion.js that lack one
+(function patchFunFacts(){
+  const ff={
+    'lion':'A lion\'s roar reaches 114 decibels — as loud as a rock concert — and can be heard 8 kilometers away.',
+    'tiger':'Tiger stripes are not just on their fur — their skin underneath is also striped, and each pattern is unique like a fingerprint.',
+    'polar-bear':'Polar bear fur is actually transparent and hollow — it appears white because it scatters light, and their skin underneath is jet black.',
+    'giant-panda':'Giant pandas spend 12 hours a day eating bamboo — up to 38 kg daily — because they digest only 17% of what they consume.',
+    'snow-leopard':'Snow leopards can leap 15 meters in a single bound and use their thick, metre-long tail as a blanket to cover their face while sleeping.',
+    'red-panda':'The red panda was described 48 years before the giant panda — it is the original "panda," and the two are not closely related.',
+    'pangolin':'Pangolins are the world\'s most trafficked mammal — over 1 million have been poached in the last decade for their scales.',
+    'red-kangaroo':'Red kangaroos can cover 9 meters in a single leap and cruise at 56 km/h — and their hopping is more energy-efficient than running.',
+    'koala':'Koalas sleep up to 22 hours a day because eucalyptus leaves are so low in nutrition they must conserve every calorie.',
+    'moose':'A moose can dive 6 meters underwater to eat aquatic plants, closing its nostrils to keep water out.',
+    'hippopotamus':'Hippos secrete a red oily substance nicknamed "blood sweat" that acts as natural sunscreen and antibiotic.',
+    'wolverine':'Pound for pound, the wolverine is the strongest mammal on Earth — it can drag prey 10 times its own weight.',
+    'humpback-whale':'Humpback whale songs can travel 16,000 km across entire ocean basins, and each population composes its own evolving melody.',
+    'narwhal':'The narwhal\'s "horn" is actually a tooth — a left canine that spirals counterclockwise up to 3 metres and contains 10 million nerve endings.',
+    'sea-otter':'Sea otters hold hands while sleeping so they don\'t drift apart — and their appetite for urchins saves entire kelp forests.',
+    'bald-eagle':'Bald eagles build the largest bird nests — one found in Florida was 2.9 metres wide, 6 metres deep, and weighed nearly 3 tonnes.',
+    'condor':'The California condor went extinct in the wild in 1987 (only 27 left) and was brought back through captive breeding — now over 500 exist.',
+    'flamingo':'Flamingos are born white — their pink colour comes entirely from carotenoid pigments in the shrimp and algae they eat.',
+    'barn-owl':'A barn owl can locate prey in complete darkness using sound alone — its asymmetric ears create a 3D sound map.',
+    'cassowary':'The cassowary is often called the world\'s most dangerous bird — its dagger-like inner claw can deliver fatal kicks.',
+    'chameleon':'A chameleon\'s tongue accelerates at 41g — faster than a fighter jet — and snags prey in 0.07 seconds.',
+    'electric-eel':'The electric eel generates 860 volts — more than 7 times a household outlet — and is not actually an eel at all.',
+    'poison-dart-frog':'A single golden poison frog carries enough batrachotoxin to kill 10 adults — yet loses all toxicity in captivity.',
+    'tardigrade':'Tardigrades survived 10 days in the vacuum of outer space — they can endure temperatures from -272°C to 150°C.',
+    'firefly':'A firefly\'s bioluminescence is 100% efficient — zero energy is lost as heat, compared to an incandescent bulb\'s 10%.',
+    'atlas-moth':'The atlas moth has no mouth — it cannot eat and lives only 1-2 weeks as an adult, surviving solely on fat stored as a caterpillar.',
+    'army-ant':'An army ant colony of 200,000 individuals acts as a superorganism — soldiers link their bodies to form living bridges and bivouacs.',
+    'japanese-spider-crab':'The Japanese spider crab has the longest leg span of any arthropod — up to 3.8 metres from claw tip to claw tip.',
+    'garden-spider':'An orb-weaver spider rebuilds its entire web every single day — eating the old silk to recycle the protein.',
+    'hermit-crab':'Hermit crabs form orderly "vacancy chains" — when a larger shell appears, they queue by size and swap shells in sequence.',
+    'portuguese-man-o-war':'The Portuguese man o\' war is not a single animal but a colony of specialized organisms called zooids working as one.',
+    'hammerhead-shark':'A hammerhead shark\'s wide head gives it 360-degree vertical vision — it can see above and below simultaneously.',
+    'water-lily':'Water lilies are among the oldest flowering plants — their lineage split from other angiosperms over 130 million years ago.',
+    'orchid':'There are over 28,000 orchid species — more than mammals, birds, and reptiles combined — making them the largest plant family.',
+    'bamboo':'Bamboo can grow up to 91 cm in a single day — the fastest growth rate of any plant on Earth.',
+    'cactus':'Some cacti can live over 200 years and store hundreds of litres of water — the saguaro can hold up to 4,800 litres.',
+    'sundew':'A sundew\'s sticky tentacles can detect an insect within 0.1 seconds and curl around it in under a minute.',
+    'cordyceps':'Cordyceps infects an ant\'s brain, compelling it to climb to a precise height, bite a leaf vein, then die — perfectly positioned for spore dispersal.',
+    'truffle':'Truffles grow entirely underground and rely on animals to eat them and spread their spores — some species smell like chocolate or honey.',
+    'chanterelle':'Despite centuries of effort, chanterelles have never been successfully cultivated — they can only be wild-foraged.',
+    'lichen':'Lichens survived 16 months of exposure to outer space on the International Space Station — among the toughest life forms known.',
+    'euglena':'Euglena can both photosynthesize like a plant and hunt food like an animal — it switches strategies depending on light.',
+    'radiolarian':'Radiolarian skeletons are so beautiful and geometrically perfect that Ernst Haeckel\'s 19th-century drawings of them inspired Art Nouveau.',
+    'slime-mold':'A brainless slime mold placed on a map of Tokyo recreated the city\'s railway network in just 26 hours.',
+    'stentor':'Stentor can regenerate its entire body from a fragment just 1/100th of its original size — the champion regenerator of the single-cell world.',
+  };
+  Object.entries(ff).forEach(([id,fact])=>{
+    const n=nodeMap[id];
+    if(n && !n.funFact) n.funFact=fact;
+  });
+})();
 
 /* ===========================
    PHOTO RELIABILITY LAYER
@@ -4830,6 +4892,7 @@ function renderPanelContent(node) {
       <div id="${panelFbId}" class="panel-hero-fb">${node.icon || '🌿'}</div>
       <div class="panel-hero-overlay"></div>
       ${node.extinct ? '<span class="panel-hero-badge">† EXTINCT</span>' : ''}
+      ${(node.conservation || node.iucn) && (node.conservation || node.iucn) !== 'NE' ? `<span class="conservation-badge conservation-${node.conservation || node.iucn}">${{CR:'Critically Endangered',EN:'Endangered',VU:'Vulnerable',NT:'Near Threatened',LC:'Least Concern',EX:'Extinct'}[node.conservation || node.iucn] || (node.conservation || node.iucn)}</span>` : ''}
       ${lineageBadge}
       <div class="panel-hero-meta">
         <div class="p-name">${node.name}</div>

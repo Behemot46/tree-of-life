@@ -101,14 +101,15 @@ English-only. Focus: clear design, engaging, intuitive, accurate, fun.
 - Quiz mode: "Which domain?" multiple choice
 - Exploration visual cue on visited nodes
 
-### J7 — Data Enrichment
+### ✅ J7 — Data Enrichment — **Done**
 **Effort:** Large | **Prompt:** `docs/PROMPTS/SPRINT_J7_DATA_ENRICHMENT.md`
 
-- Expand tree from 132 → 200+ species
-- IUCN conservation status with color-coded badges
-- Expand DNA_KNOWN from 36 → 60+ pairs
-- Expand FACTS library from 18 → 40+ facts
-- Add funFact to all nodes
+- Expanded tree to 339 unique species (was 157 in treeData.js + 198 via treeExpansion.js)
+- IUCN conservation badges (CR/EN/VU/NT/LC) on 263 species with color-coded CSS
+- DNA_KNOWN expanded from 36 → 61 pairs
+- FACTS library expanded from 148 → 170 facts
+- funFact on all treeData.js nodes + 44 key treeExpansion.js species
+- Conservation badge rendering in species panel hero section
 
 ### J8 — Offline & PWA
 **Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J8_PWA.md`

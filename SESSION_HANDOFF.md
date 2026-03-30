@@ -1,4 +1,66 @@
-# Session Handoff — 2026-03-29 (Sprint J3 — Code Modularization)
+# Session Handoff — 2026-03-30 (Sprint J4 — Accessibility Foundation)
+
+**Status: done**
+**Branch:** `claude/condescending-dewdney`
+
+## 1. Session Goal
+Execute Sprint J4 — make the Tree of Life fully keyboard-navigable, screen-reader friendly, and comfortable on mobile touchscreens.
+
+## 2. What I Changed
+
+### index.html — CSS
+- All mobile touch targets ≥ 44px: `.lang-btn`, `#theme-btn`, `#extinct-toggle`, `.leg-row`, `.zbtn` (480px override)
+- Adjusted `#lang-switcher` right offset for wider theme button
+- Added `<title>` and `<desc>` inside SVG for older screen readers
+- Added `aria-labelledby` and `aria-describedby` on SVG element
+
+### js/state.js — New state variables
+- `state.focusedNodeId` — tracks keyboard-focused tree node for aria-selected and focus restore
+- `state._panelTriggerFocus` — saves DOM element that opened a modal for focus restoration on close
+
+### js/app.js — Keyboard navigation
+- Rewrote SVG keyboard handler to WAI TreeView spec (4 distinct arrow keys):
+  - ArrowRight: expand collapsed / move to first child
+  - ArrowLeft: collapse expanded / move to parent
+  - ArrowDown/Up: next/prev visible node in pre-order traversal
+- Added `getVisibleTreeOrder()` helper for correct tree-order traversal
+- Added `focusTreeNode()` helper with aria-selected tracking + announcements
+- Added focus traps for DNA panel and Evo-path panel (Tab wrapping + Escape closes)
+- Added view mode change announcement
+- Added search results count announcement
+
+### js/renderer.js — Accessibility rendering
+- Root node (LUCA) gets `tabindex="0"` for initial Tab entry
+- `aria-selected="true"` on keyboard-focused node
+- Synchronous focus restore after `replaceChildren` DOM rebuild
+- Expand/collapse click announcements via `a11yAnnounce()`
+
+### js/panel.js — Focus restoration
+- `closePanel()` announces "Panel closed" and restores focus to trigger element
+
+### js/dnaCalc.js — Accessible modal
+- `openDnaCalc()` saves trigger focus, auto-focuses first element
+- `closeDnaCalc()` announces close, restores focus
+
+### js/evoPath.js — Accessible modal
+- `openEvoPath()` saves trigger focus, auto-focuses first element
+- `closeEvoPath()` announces close, restores focus
+
+### js/hominin.js — Focus trigger
+- `interceptShowMainPanel()` saves `_panelTriggerFocus` before opening panel
+
+## 3. Verification
+- All keyboard navigation works: Right/Left expand/collapse, Down/Up tree-order, Home/End, Enter/Space
+- Focus restores to correct node after expand/collapse (synchronous post-render)
+- Panel opens on Enter, closes on Escape with focus returning to trigger
+- DNA and Evo-path panels have focus traps and focus restoration
+- All mobile touch targets ≥ 44px at 375×812 viewport
+- Zero console errors on desktop and mobile
+- 355 nodes rendered successfully
+
+---
+
+# Previous Session Handoff — 2026-03-29 (Sprint J3 — Code Modularization)
 
 **Status: done**
 **Branch:** `claude/xenodochial-johnson`

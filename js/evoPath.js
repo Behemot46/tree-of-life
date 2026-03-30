@@ -3,6 +3,7 @@
 // ══════════════════════════════════════════════════════
 
 import { state, nodeMap, HUMAN_PATH } from './state.js';
+import { a11yAnnounce } from './engagement.js';
 
 // ── Late-binding deps (set via initEvoPathDeps) ──
 let _searchEntities, _t, _scheduleRender, _smoothPanTo, _layout, _applyT;
@@ -54,14 +55,26 @@ export function getEvoFunFact(mya, lang) {
 }
 
 export function openEvoPath() {
-  document.getElementById('evo-path-panel').classList.add('open');
-  document.getElementById('evo-path-panel').setAttribute('aria-hidden','false');
+  state._panelTriggerFocus = document.activeElement;
+  const panel = document.getElementById('evo-path-panel');
+  panel.classList.add('open');
+  panel.setAttribute('aria-hidden','false');
+  setTimeout(()=>{const first=panel.querySelector('button, input');if(first)first.focus();},100);
 }
 
 export function closeEvoPath() {
   document.getElementById('evo-path-panel').classList.remove('open');
   document.getElementById('evo-path-panel').setAttribute('aria-hidden','true');
   document.getElementById('evo-search-overlay').style.display = 'none';
+  a11yAnnounce('Evolutionary path closed');
+  if(state._panelTriggerFocus){
+    if(state._panelTriggerFocus.isConnected) state._panelTriggerFocus.focus();
+    else if(state.focusedNodeId){
+      const g=document.querySelector('.node-group[data-node-id="'+state.focusedNodeId+'"]');
+      if(g) g.focus();
+    }
+    state._panelTriggerFocus=null;
+  }
 }
 
 export function openEvoSearch(slot) {

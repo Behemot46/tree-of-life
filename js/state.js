@@ -42,6 +42,10 @@ export const state = {
   currentLang: 'en',
   isDark: true,
 
+  // ── Accessibility ──
+  focusedNodeId: null,         // currently keyboard-focused tree node
+  _panelTriggerFocus: null,    // DOM element that opened the current modal (for focus restore)
+
   // ── Render internals ──
   renderQueued: false,
 

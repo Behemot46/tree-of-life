@@ -109,6 +109,7 @@ function setViewMode(mode){
   else if(mode==='cladogram'){centerOnTree(0.7);}
   else if(mode==='chronological'){centerOnTree(0.65);}
   scheduleRender(true);applyT();
+  a11yAnnounce('Switched to '+mode+' view');
 }
 
 
@@ -302,8 +303,10 @@ searchInput.addEventListener('input',()=>{
   if(!matches.length){
     searchResults.innerHTML=`<div style="padding:16px;text-align:center;font-size:13px;color:var(--color-text-muted);font-family:'Heebo',sans-serif;">${t('search_no_results')}</div>`;
     searchResults.classList.add('show');
+    a11yAnnounce('No results found');
   } else {
     searchResults.classList.add('show');
+    a11yAnnounce(matches.length+' results found');
   }
   searchInput.setAttribute('aria-expanded',matches.length>0?'true':'false');
 });
@@ -372,7 +375,28 @@ document.addEventListener('keydown',e=>{
   if(e.key==='d'){const toggle=document.getElementById('theme-btn');if(toggle)toggle.click();}
 });
 
-// ── SVG tree keyboard navigation (a11y) ──
+// ── SVG tree keyboard navigation (WAI TreeView pattern) ──
+
+// Pre-order traversal of visible (non-collapsed) tree nodes
+function getVisibleTreeOrder(){
+  const order=[];
+  (function walk(n){
+    order.push(n.id);
+    if(n.children&&!n._collapsed) n.children.forEach(walk);
+  })(TREE);
+  return order;
+}
+
+function focusTreeNode(id){
+  state.focusedNodeId=id;
+  const g=document.querySelector('.node-group[data-node-id="'+id+'"]');
+  if(g){
+    g.focus({preventScroll:true});
+    const label=g.getAttribute('aria-label');
+    a11yAnnounce(label||nodeMap[id]?.name||id);
+  }
+}
+
 document.getElementById('svg').addEventListener('keydown',function(e){
   const focused=document.activeElement;
   if(!focused||!focused.classList.contains('node-group')) return;
@@ -380,42 +404,70 @@ document.getElementById('svg').addEventListener('keydown',function(e){
   const node=nodeMap[nid];
   if(!node) return;
 
-  const allGroups=[...document.querySelectorAll('.node-group[data-node-id]')];
-  const idx=allGroups.indexOf(focused);
-
   if(e.key==='Enter'||e.key===' '){
     e.preventDefault();
     wrappedShowMainPanel(node);
     a11yAnnounce(node.name+' details opened');
     return;
   }
-  if(e.key==='ArrowDown'||e.key==='ArrowRight'){
+
+  // ArrowRight: expand collapsed → first child of expanded → noop on leaf
+  if(e.key==='ArrowRight'){
+    e.preventDefault();
+    if(node.children&&node.children.length){
+      if(node._collapsed){
+        node._collapsed=false;
+        state.focusedNodeId=nid;
+        layout();scheduleRender(true);
+        a11yAnnounce(node.name+' expanded, '+node.children.length+' children');
+      } else {
+        focusTreeNode(node.children[0].id);
+      }
+    }
+    return;
+  }
+
+  // ArrowLeft: collapse expanded → parent of collapsed/leaf
+  if(e.key==='ArrowLeft'){
     e.preventDefault();
     if(node.children&&node.children.length&&!node._collapsed){
-      const childG=document.querySelector(`.node-group[data-node-id="${node.children[0].id}"]`);
-      if(childG){childG.focus();a11yAnnounce(node.children[0].name);return;}
+      node._collapsed=true;
+      state.focusedNodeId=nid;
+      layout();scheduleRender(true);
+      a11yAnnounce(node.name+' collapsed');
+    } else if(node._parent){
+      focusTreeNode(node._parent.id);
     }
-    if(idx<allGroups.length-1){allGroups[idx+1].focus();a11yAnnounce(allGroups[idx+1].getAttribute('aria-label'));}
     return;
   }
-  if(e.key==='ArrowUp'||e.key==='ArrowLeft'){
+
+  // ArrowDown: next visible node in pre-order traversal
+  if(e.key==='ArrowDown'){
     e.preventDefault();
-    if(node._parent){
-      const parentG=document.querySelector(`.node-group[data-node-id="${node._parent.id}"]`);
-      if(parentG){parentG.focus();a11yAnnounce(node._parent.name);return;}
-    }
-    if(idx>0){allGroups[idx-1].focus();a11yAnnounce(allGroups[idx-1].getAttribute('aria-label'));}
+    const order=getVisibleTreeOrder();
+    const i=order.indexOf(nid);
+    if(i>=0&&i<order.length-1) focusTreeNode(order[i+1]);
     return;
   }
+
+  // ArrowUp: previous visible node in pre-order traversal
+  if(e.key==='ArrowUp'){
+    e.preventDefault();
+    const order=getVisibleTreeOrder();
+    const i=order.indexOf(nid);
+    if(i>0) focusTreeNode(order[i-1]);
+    return;
+  }
+
   if(e.key==='Home'){
     e.preventDefault();
-    const root=document.querySelector('.node-group[data-node-id="luca"]');
-    if(root){root.focus();a11yAnnounce('LUCA - root');}
+    focusTreeNode('luca');
     return;
   }
   if(e.key==='End'){
     e.preventDefault();
-    if(allGroups.length){allGroups[allGroups.length-1].focus();a11yAnnounce(allGroups[allGroups.length-1].getAttribute('aria-label'));}
+    const order=getVisibleTreeOrder();
+    if(order.length) focusTreeNode(order[order.length-1]);
     return;
   }
 });
@@ -429,6 +481,40 @@ document.getElementById('svg').addEventListener('keydown',function(e){
     if(!focusable.length) return;
     const first=focusable[0];
     const last=focusable[focusable.length-1];
+    if(e.shiftKey){
+      if(document.activeElement===first){e.preventDefault();last.focus();}
+    } else {
+      if(document.activeElement===last){e.preventDefault();first.focus();}
+    }
+  });
+})();
+
+// ── DNA panel focus trap (a11y) ──
+(function setupDnaFocusTrap(){
+  const dnaEl=document.getElementById('dna-panel');
+  dnaEl.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){closeDnaCalc();return;}
+    if(e.key!=='Tab') return;
+    const focusable=dnaEl.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if(!focusable.length) return;
+    const first=focusable[0],last=focusable[focusable.length-1];
+    if(e.shiftKey){
+      if(document.activeElement===first){e.preventDefault();last.focus();}
+    } else {
+      if(document.activeElement===last){e.preventDefault();first.focus();}
+    }
+  });
+})();
+
+// ── Evo-path panel focus trap (a11y) ──
+(function setupEvoFocusTrap(){
+  const evoEl=document.getElementById('evo-path-panel');
+  evoEl.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){closeEvoPath();return;}
+    if(e.key!=='Tab') return;
+    const focusable=evoEl.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if(!focusable.length) return;
+    const first=focusable[0],last=focusable[focusable.length-1];
     if(e.shiftKey){
       if(document.activeElement===first){e.preventDefault();last.focus();}
     } else {

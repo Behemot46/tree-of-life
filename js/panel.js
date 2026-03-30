@@ -4,6 +4,7 @@
 
 import { state, nodeMap, navStack, HUMAN_PATH, confirmedPhotoUrls } from './state.js';
 import { reducedMotion, canonicalHomininId } from './utils.js';
+import { a11yAnnounce } from './engagement.js';
 
 // ── Late-binding deps (set via initPanelDeps) ──
 let _pushNav, _updateNavButtons, _updateBreadcrumb, _scheduleRender;
@@ -854,6 +855,16 @@ export function closePanel(){
   _updateBreadcrumb(null);state.currentPanelNode=null;
   history.replaceState(null,'',location.pathname);
   _updateNavButtons();
+  a11yAnnounce('Panel closed');
+  // Restore focus to trigger element
+  if(state._panelTriggerFocus){
+    if(state._panelTriggerFocus.isConnected) state._panelTriggerFocus.focus();
+    else if(state.focusedNodeId){
+      const g=document.querySelector('.node-group[data-node-id="'+state.focusedNodeId+'"]');
+      if(g) g.focus();
+    }
+    state._panelTriggerFocus=null;
+  }
 }
 
 // ── Open Hominin View (expand hominini branch on tree) ──

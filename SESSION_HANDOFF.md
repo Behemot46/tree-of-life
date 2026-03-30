@@ -13,10 +13,12 @@ Execute Sprint J7 — expand the tree to 200+ species, add IUCN conservation bad
 - Added `funFact:'...'` to all nodes that were missing one (69 backfilled)
 - Note: treeExpansion.js adds ~198 more nodes at runtime (339 total)
 
-### index.html — Conservation badge rendering
-- Added 6 CSS classes: `.conservation-badge`, `.conservation-CR/EN/VU/NT/LC`
-- Added badge rendering in `renderPanelContent()` hero section reading `node.conservation || node.iucn`
-- Added `patchFunFacts()` IIFE patching funFact onto 44 key treeExpansion.js nodes
+### js/panel.js — Conservation badge rendering in hero section
+- Added badge rendering reading `node.conservation || node.iucn` using existing `pri-iucn` CSS classes
+- Renders CR/EN/VU/NT/LC badges below extinct badge in species panel hero
+
+### js/app.js — patchFunFacts() after preprocess
+- Added IIFE patching funFact onto 44 key treeExpansion.js nodes that lack it
 
 ### js/speciesData.js — 31 new PHOTO_MAP entries
 - Total PHOTO_MAP coverage: 360+ entries
@@ -33,8 +35,223 @@ Execute Sprint J7 — expand the tree to 200+ species, add IUCN conservation bad
 ## 3. Key Architecture Notes
 - `js/treeExpansion.js` (pre-existing) adds ~198 species at runtime using `add()` and `iucn()` functions
 - It uses `node.iucn` (not `node.conservation`) — badge rendering reads both
-- treeExpansion.js nodes don't have `funFact` natively — patched via inline IIFE in index.html
-- 17 remaining duplicate IDs between treeData.js and treeExpansion.js (pre-existing, not from this sprint)
+- treeExpansion.js nodes don't have `funFact` natively — patched via `patchFunFacts()` IIFE in app.js (after preprocess)
+- Codebase now uses ES modules (J3+); conservation badge CSS (`pri-iucn` classes) is in index.html `<style>` block
+
+---
+
+# Previous Session Handoff — 2026-03-30 (Sprint J6 — Discovery & Fun)
+
+**Status: done**
+**Branch:** `claude/adoring-elbakyan`
+
+## 1. Session Goal
+Execute Sprint J6 — engagement features: progress tracker, achievements, idle facts, enhanced tooltips, quiz mode, exploration visual cue. Built on top of modularized ES module codebase (J3).
+
+## 2. What I Changed
+
+### js/engagement.js — Extended (~100 lines added)
+- Progress tracker: `tol-explored` localStorage, `markExplored()`, `updateProgressBadge()`, `isExplored()`
+- 12-achievement system: `tol-achievements` localStorage, `_unlock()`, `_showAchievementToast()`
+- Tracking: `trackDomainToggle()`, `trackViewMode()`, `trackExtinctionClick()`, `trackDnaCompare()`
+- All exported as ES module functions
+
+### js/quiz.js — NEW (~105 lines)
+- ES module: `openQuiz()`, `closeQuiz()`, `answerQuestion()`, `initQuizEvents()`
+- 5 random questions from TRIVIA_QUESTIONS, immediate feedback, high score in localStorage
+
+### js/app.js — Import quiz, wire hooks
+- Import quiz functions, engagement tracking functions
+- `setViewMode()` → `trackViewMode(mode)`
+- Era slider → `checkAchievement('deep_time')` at 3800 Mya
+- `window.openQuiz` / `window.closeQuiz` exports
+- `updateProgressBadge()` + `initQuizEvents()` in `init()`
+
+### Module hooks (5 files)
+- `panel.js`: `markExplored(n.id)` in `showMainPanel()`
+- `timeline.js`: `trackDomainToggle()`, `trackExtinctionClick()`
+- `theme.js`: `checkAchievement('night_owl')` in `toggleTheme()`
+- `dnaCalc.js`: `trackDnaCompare()` in `showDnaResults()`
+- `renderer.js`: `isExplored()` for dimmed unexplored nodes, `n.funFact` passed to `showTip()`
+- `navigation.js`: Enhanced `showTip()` with 500ms funFact delay + "Did you know?" overlay
+
+### index.html — CSS (~95 lines) + HTML
+- Progress badge, achievement toast, quiz modal, enhanced tooltip styles
+- Mobile breakpoints at 768px and 480px
+- HTML: progress badge, quiz button, quiz overlay, achievement container
+
+## 3. Verified
+- Zero console errors
+- Progress badge: 1/338 after opening panel, persists across refresh
+- Achievements: first_steps, night_owl, view_master all trigger
+- Quiz: opens, answers, scores correctly
+- All localStorage keys persist
+
+## 4. Next Sprint
+J7 — Data Enrichment
+
+---
+
+# Previous Session Handoff — 2026-03-30 (Sprint J5 — SVG Performance & Viewport Culling)
+
+**Status: done**
+**Branch:** `claude/pedantic-dijkstra`
+
+## 1. Session Goal
+Execute Sprint J5 — achieve 60fps rendering by adding viewport culling, GPU compositing, CSS-class animations, rAF-debounced input handlers, and spatial hash label collision.
+
+## 2. What I Changed
+
+### index.html — CSS block
+- Added `#viewport { will-change: transform; }` for GPU compositing
+- Added `.branch-entering`/`.branch-entered` CSS classes for stroke-dashoffset animations
+- Added `.node-entering`/`.node-entered` CSS classes for opacity/transform animations
+- Both use `calc(var(--depth) * ...)` for depth-based timing delays
+- Added reduced-motion overrides for new animation classes
+- Added `#viewport { will-change: auto; }` in reduced-motion block
+
+### index.html — JS block
+- **Viewport culling**: Added `getViewBounds(margin)` and `isInView(wx,wy,vb)` helpers. In `render()`, branches skip if both endpoints off-screen, nodes skip if off-screen. 100px margin for smooth scrolling.
+- **Spatial hash**: Added `createSpatialHash(cellSize)` with `insert()` and `query()` methods. Replaced O(n^2) `placedBoxes` array in label collision with grid-based spatial hash (cellSize=100).
+- **rAF debouncing**: `pointermove` and `wheel` handlers now coalesce `applyT()` via `panRAF`/`zoomRAF` flags. `pointerup` flushes pending pan.
+- **CSS-class animations**: Branch animations use `.branch-entering`/`.branch-entered` instead of inline `strokeDasharray`/`strokeDashoffset`/`transition`. Node animations use `.node-entering`/`.node-entered` instead of inline `opacity`/`transform`/`transition`. Both set `--depth` CSS variable for timing. Batched via `animDeferred` array + single rAF after `replaceChildren()`.
+- **animDone.clear()**: Added in `setViewMode()` before `layout()` so entrance animations replay on view switch.
+- **Entrance cleanup**: `animateTreeEntrance()` now clears inline styles after completion to prevent overriding CSS class transitions.
+
+## 3. Verified
+- Zero console errors
+- All 3 view modes (radial, cladogram, chronological) render correctly
+- Viewport culling: zoomed-in renders 0-3 elements vs 354 at normal zoom
+- Mobile (375x812): culling reduces rendered elements further
+- Dark/light themes work
+- Labels render with spatial hash collision (271 labels)
+- animDone clears to 0 on view mode switch
+
+## 4. Next Sprint
+J6 — Discovery & Fun (achievements, quiz, progress tracker, idle facts)
+
+---
+
+# Session Handoff — 2026-03-30 (Sprint J4 — Accessibility Foundation)
+
+**Status: done**
+**Branch:** `claude/condescending-dewdney`
+
+## 1. Session Goal
+Execute Sprint J4 — make the Tree of Life fully keyboard-navigable, screen-reader friendly, and comfortable on mobile touchscreens.
+
+## 2. What I Changed
+
+### index.html — CSS
+- All mobile touch targets ≥ 44px: `.lang-btn`, `#theme-btn`, `#extinct-toggle`, `.leg-row`, `.zbtn` (480px override)
+- Adjusted `#lang-switcher` right offset for wider theme button
+- Added `<title>` and `<desc>` inside SVG for older screen readers
+- Added `aria-labelledby` and `aria-describedby` on SVG element
+
+### js/state.js — New state variables
+- `state.focusedNodeId` — tracks keyboard-focused tree node for aria-selected and focus restore
+- `state._panelTriggerFocus` — saves DOM element that opened a modal for focus restoration on close
+
+### js/app.js — Keyboard navigation
+- Rewrote SVG keyboard handler to WAI TreeView spec (4 distinct arrow keys):
+  - ArrowRight: expand collapsed / move to first child
+  - ArrowLeft: collapse expanded / move to parent
+  - ArrowDown/Up: next/prev visible node in pre-order traversal
+- Added `getVisibleTreeOrder()` helper for correct tree-order traversal
+- Added `focusTreeNode()` helper with aria-selected tracking + announcements
+- Added focus traps for DNA panel and Evo-path panel (Tab wrapping + Escape closes)
+- Added view mode change announcement
+- Added search results count announcement
+
+### js/renderer.js — Accessibility rendering
+- Root node (LUCA) gets `tabindex="0"` for initial Tab entry
+- `aria-selected="true"` on keyboard-focused node
+- Synchronous focus restore after `replaceChildren` DOM rebuild
+- Expand/collapse click announcements via `a11yAnnounce()`
+
+### js/panel.js — Focus restoration
+- `closePanel()` announces "Panel closed" and restores focus to trigger element
+
+### js/dnaCalc.js — Accessible modal
+- `openDnaCalc()` saves trigger focus, auto-focuses first element
+- `closeDnaCalc()` announces close, restores focus
+
+### js/evoPath.js — Accessible modal
+- `openEvoPath()` saves trigger focus, auto-focuses first element
+- `closeEvoPath()` announces close, restores focus
+
+### js/hominin.js — Focus trigger
+- `interceptShowMainPanel()` saves `_panelTriggerFocus` before opening panel
+
+## 3. Verification
+- All keyboard navigation works: Right/Left expand/collapse, Down/Up tree-order, Home/End, Enter/Space
+- Focus restores to correct node after expand/collapse (synchronous post-render)
+- Panel opens on Enter, closes on Escape with focus returning to trigger
+- DNA and Evo-path panels have focus traps and focus restoration
+- All mobile touch targets ≥ 44px at 375×812 viewport
+- Zero console errors on desktop and mobile
+- 355 nodes rendered successfully
+
+---
+
+# Previous Session Handoff — 2026-03-29 (Sprint J3 — Code Modularization)
+
+**Status: done**
+**Branch:** `claude/xenodochial-johnson`
+
+## 1. Session Goal
+Split the 4,783-line inline `<script>` block in index.html into 17 focused ES modules using native `<script type="module">`. No build step.
+
+## 2. What I Changed
+
+### index.html
+- Removed 4,777 lines of inline JavaScript (from ~7,040 lines to ~2,267 lines)
+- Added `<script type="module" src="js/app.js"></script>` after data script tags
+- All CSS and HTML markup unchanged
+
+### New ES module files (17 files)
+| File | Purpose |
+|------|---------|
+| `js/state.js` | Shared mutable state object + constants (HUMAN_PATH, TAXON_I18N) |
+| `js/utils.js` | reducedMotion(), preprocess(), hominin helpers, verifyPhotoUrl() |
+| `js/layout.js` | layout(), layoutRadial/Cladogram/Chronological/Playback |
+| `js/zoom.js` | applyT(), smoothPanTo(), centerOnTree/Root, pointer handlers |
+| `js/renderer.js` | render(), branchPath(), scheduleRender() |
+| `js/navigation.js` | navStack, pushNav/navBack/navHome, breadcrumb, tooltip |
+| `js/search.js` | buildSearchIndex(), searchEntities(), fuzzy matching |
+| `js/timeline.js` | Era slider, extinction markers, presets, sparkline |
+| `js/panel.js` | renderPanelContent(), showMainPanel(), species cards |
+| `js/hominin.js` | buildHomininTree(), compare mode |
+| `js/dnaCalc.js` | DNA similarity calculator modal |
+| `js/evoPath.js` | Evolutionary path comparison tool |
+| `js/trivia.js` | Trivia quiz game |
+| `js/playback.js` | Time-lapse playback mode |
+| `js/theme.js` | t(), setLang(), applyI18n(), toggleTheme() |
+| `js/engagement.js` | Toast, idle timer, intro, particles, generateSpeciesIllustration() |
+| `js/app.js` | Entry point: init(), window.* exposures, event listeners |
+
+### Deleted files
+- `js/core.js` — outdated p24 extraction copy (811 lines)
+- Old `js/renderer.js`, `js/panel.js`, `js/search.js` — replaced by new ES modules
+
+### Other updates
+- `.github/workflows/deploy-check.yml` — added all 16 new module files to required list
+- `CLAUDE.md` — updated repo structure and architecture sections
+- `PROJECT_PROGRESS.md` — marked J3 done
+- `ROADMAP.md` — moved J3 to completed
+
+## 3. Architecture Notes
+- Data files (13) remain as classic `<script>` globals — unchanged
+- Application modules (17) use ES module imports/exports
+- Shared state via `state.js` — single mutable `state` object
+- Cross-module deps use late-binding (`initXxxDeps()`) to avoid circular imports
+- ~40 functions exposed on `window.*` for HTML onclick handlers
+
+## 4. Verification
+- 355 nodes, 354 branches rendered
+- Zero console errors
+- All features tested: navigateTo, theme toggle, view modes, DNA calc, evo path, trivia, domain toggle, panel open/close
+- Incorporates J2 changes: smoothPanTo fix, restoreNavState improvement, navHome overlay close, kbd-help overlay, navigateTo smooth pan
 
 ---
 
@@ -43,34 +260,6 @@ Execute Sprint J7 — expand the tree to 200+ species, add IUCN conservation bad
 **Status: done**
 **Branch:** `claude/keen-noether`
 **PR:** #121
-
-## 1. Session Goal
-Execute Sprint J1 — clean the CSS foundation: rename CSS variables, add z-index scale, remove dead code, extract inline styles to classes, add reduced-motion JS guards.
-
-## 2. What I Changed
-
-### index.html — CSS block
-- Renamed `--gold`→`--accent`, `--gold-light`→`--accent-light`, `--gold-dim`→`--accent-dim`, `--gold-rgb`→`--accent-rgb`, `--gold-text`→`--accent-text`, `--gold-text-dim`→`--accent-text-dim` (~60 replacements)
-- Removed `--teal` and `--teal-dim` definitions (duplicates of `--accent-secondary`); replaced 1 `var(--teal)` usage
-- Added 13 z-index CSS custom properties (`--z-base` through `--z-tour-content`) to `:root`
-- Replaced ~30 global z-index magic numbers with `var(--z-*)` references (skipped local stacking contexts and inline attrs)
-- Deleted 3 dead CSS rules: `[data-theme="dark"] .search-result-item/name/meta`
-- Deleted 8 duplicate panel rules: `[data-theme="light/dark"] #panel` blocks
-- Unified 3 `@media(max-width:600px)` → `@media(max-width:768px)` (DNA calc, evo-path, trivia)
-- Added 7 new utility CSS classes: `.compare-banner`, `.compare-banner.visible`, `.intro-overlay`, `.offline-banner`, `.offline-banner.visible`, `.node-img-wrap`, `.node-img`, `.chip-badge`, `.compare-panel-open`
-
-### index.html — JS block
-- Added `const reducedMotion = () => matchMedia('(prefers-reduced-motion:reduce)').matches;`
-- Guarded group-chip node entrance animation with `reducedMotion()` check
-- Guarded regular node entrance animation with `reducedMotion()` check
-- Guarded `showIntro()` — skips overlay entirely if reduced motion
-- Replaced compare banner `style.cssText` with `className='compare-banner'` + `classList.add/remove('visible')`
-- Replaced intro overlay `style.cssText` with `className='intro-overlay'`
-- Replaced offline banner `style.cssText` with `className='offline-banner'` + `classList.toggle('visible')`
-- Replaced node image wrapper `style.cssText` with `className='node-img-wrap'` + dynamic width/height
-- Replaced node image `style.cssText` with `className='node-img'`
-- Replaced chip badge `style.cssText` with `className='chip-badge'` + dynamic border/bg/color/height inline
-- Replaced compare panel `style.display='flex'; style.flexDirection='column'` with `classList.add('compare-panel-open')`
 
 ---
 

@@ -104,6 +104,7 @@ function setViewMode(mode){
   document.querySelectorAll('.view-btn').forEach(btn=>{
     btn.classList.toggle('active',btn.dataset.mode===mode);
   });
+  animDone.clear();
   layout();
   if(mode==='radial'){centerOnRoot(0.18);}
   else if(mode==='cladogram'){centerOnTree(0.7);}

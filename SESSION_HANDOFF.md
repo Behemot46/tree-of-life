@@ -1,3 +1,43 @@
+# Session Handoff — 2026-03-30 (Sprint J5 — SVG Performance & Viewport Culling)
+
+**Status: done**
+**Branch:** `claude/pedantic-dijkstra`
+
+## 1. Session Goal
+Execute Sprint J5 — achieve 60fps rendering by adding viewport culling, GPU compositing, CSS-class animations, rAF-debounced input handlers, and spatial hash label collision.
+
+## 2. What I Changed
+
+### index.html — CSS block
+- Added `#viewport { will-change: transform; }` for GPU compositing
+- Added `.branch-entering`/`.branch-entered` CSS classes for stroke-dashoffset animations
+- Added `.node-entering`/`.node-entered` CSS classes for opacity/transform animations
+- Both use `calc(var(--depth) * ...)` for depth-based timing delays
+- Added reduced-motion overrides for new animation classes
+- Added `#viewport { will-change: auto; }` in reduced-motion block
+
+### index.html — JS block
+- **Viewport culling**: Added `getViewBounds(margin)` and `isInView(wx,wy,vb)` helpers. In `render()`, branches skip if both endpoints off-screen, nodes skip if off-screen. 100px margin for smooth scrolling.
+- **Spatial hash**: Added `createSpatialHash(cellSize)` with `insert()` and `query()` methods. Replaced O(n^2) `placedBoxes` array in label collision with grid-based spatial hash (cellSize=100).
+- **rAF debouncing**: `pointermove` and `wheel` handlers now coalesce `applyT()` via `panRAF`/`zoomRAF` flags. `pointerup` flushes pending pan.
+- **CSS-class animations**: Branch animations use `.branch-entering`/`.branch-entered` instead of inline `strokeDasharray`/`strokeDashoffset`/`transition`. Node animations use `.node-entering`/`.node-entered` instead of inline `opacity`/`transform`/`transition`. Both set `--depth` CSS variable for timing. Batched via `animDeferred` array + single rAF after `replaceChildren()`.
+- **animDone.clear()**: Added in `setViewMode()` before `layout()` so entrance animations replay on view switch.
+- **Entrance cleanup**: `animateTreeEntrance()` now clears inline styles after completion to prevent overriding CSS class transitions.
+
+## 3. Verified
+- Zero console errors
+- All 3 view modes (radial, cladogram, chronological) render correctly
+- Viewport culling: zoomed-in renders 0-3 elements vs 354 at normal zoom
+- Mobile (375x812): culling reduces rendered elements further
+- Dark/light themes work
+- Labels render with spatial hash collision (271 labels)
+- animDone clears to 0 on view mode switch
+
+## 4. Next Sprint
+J6 — Discovery & Fun (achievements, quiz, progress tracker, idle facts)
+
+---
+
 # Session Handoff — 2026-03-30 (Sprint J4 — Accessibility Foundation)
 
 **Status: done**

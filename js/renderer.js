@@ -21,6 +21,46 @@ export function initRendererDeps(deps) {
 const branchLayer = document.getElementById('layer-branches');
 const nodesLayer = document.getElementById('layer-nodes');
 
+// ── Viewport culling helpers ──
+function getViewBounds(margin){
+  const s=state.transform.s;
+  return{
+    minX:(0-margin-state.transform.x)/s,
+    maxX:(window.innerWidth+margin-state.transform.x)/s,
+    minY:(0-margin-state.transform.y)/s,
+    maxY:(window.innerHeight+margin-state.transform.y)/s
+  };
+}
+function isInView(wx,wy,vb){
+  return wx>=vb.minX&&wx<=vb.maxX&&wy>=vb.minY&&wy<=vb.maxY;
+}
+
+// ── Spatial hash for label collision ──
+function createSpatialHash(cellSize){
+  const grid=new Map();
+  function key(cx,cy){return cx+','+cy;}
+  function cellsFor(b){
+    const x0=Math.floor(b.bx/cellSize),y0=Math.floor(b.by/cellSize);
+    const x1=Math.floor((b.bx+b.textW)/cellSize),y1=Math.floor((b.by+b.textH)/cellSize);
+    const cells=[];
+    for(let cx=x0;cx<=x1;cx++)for(let cy=y0;cy<=y1;cy++)cells.push(key(cx,cy));
+    return cells;
+  }
+  return{
+    insert(b){for(const k of cellsFor(b)){let arr=grid.get(k);if(!arr){arr=[];grid.set(k,arr);}arr.push(b);}},
+    query(b){
+      const seen=new Set();const result=[];
+      const x0=Math.floor(b.bx/cellSize)-1,y0=Math.floor(b.by/cellSize)-1;
+      const x1=Math.floor((b.bx+b.textW)/cellSize)+1,y1=Math.floor((b.by+b.textH)/cellSize)+1;
+      for(let cx=x0;cx<=x1;cx++)for(let cy=y0;cy<=y1;cy++){
+        const arr=grid.get(key(cx,cy));
+        if(arr)for(const item of arr)if(!seen.has(item)){seen.add(item);result.push(item);}
+      }
+      return result;
+    }
+  };
+}
+
 // ══════════════════════════════════════════════════════
 // BRANCH PATH
 // ══════════════════════════════════════════════════════
@@ -68,6 +108,8 @@ export function render(){
   const nodesFrag=document.createDocumentFragment();
   const edges=getVisibleEdges(TREE);
   const nodes=getVisible(TREE);
+  const vb=getViewBounds(100);
+  const animDeferred=[];
 
   // Branches
   const humanPathEdges=[];
@@ -81,6 +123,8 @@ export function render(){
       const childState=state.playbackNodeStates.get(to.id)||getPlaybackNodeState(to);
       if(childState==='hidden') return;
     }
+    // Viewport culling: skip if both endpoints off-screen
+    if(!isInView(from._x,from._y,vb)&&!isInView(to._x,to._y,vb)) return;
 
     const inEra=nodeInEra(to);
     const onHumanPath=HUMAN_PATH.has(from.id)&&HUMAN_PATH.has(to.id);
@@ -104,14 +148,15 @@ export function render(){
     p.setAttribute('stroke-width',sw);
     p.setAttribute('stroke-opacity',op);
     if(!animDone.has(to.id)){
-      const len=9999;p.style.strokeDasharray=len;p.style.strokeDashoffset=len;
       if(state.playbackMode){
+        const len=9999;p.style.strokeDasharray=len;p.style.strokeDashoffset=len;
         p.classList.add('branch-pb-grow');
         setTimeout(()=>{p.style.strokeDashoffset=0;},30);
       } else {
-        p.style.transition=`stroke-dashoffset ${0.3+to.depth*0.05}s cubic-bezier(.4,0,.2,1) ${to.depth*0.04}s`;
-        p.addEventListener('transitionend',function h(){p.style.strokeDasharray='';p.style.strokeDashoffset='';p.style.transition='';p.removeEventListener('transitionend',h);},{once:true});
-        setTimeout(()=>{p.style.strokeDashoffset=0;},50);
+        p.style.setProperty('--depth',to.depth);
+        p.classList.add('branch-entering');
+        animDeferred.push(p);
+        p.addEventListener('transitionend',function h(){p.classList.remove('branch-entering','branch-entered');p.style.removeProperty('--depth');p.removeEventListener('transitionend',h);},{once:true});
       }
     }
     branchFrag.appendChild(p);
@@ -128,6 +173,9 @@ export function render(){
   nodes.forEach(n=>{
     if(n._domain && n._domain!=='luca' && !state.activeDomains.has(n._domain)) return;
     if(!state.showExtinct && n.extinct) return;
+
+    // Viewport culling: skip off-screen nodes
+    if(!isInView(n._x,n._y,vb)) return;
 
     // Playback: skip hidden, render locked differently
     const pbState=state.playbackMode?(state.playbackNodeStates.get(n.id)||getPlaybackNodeState(n)):null;
@@ -226,12 +274,11 @@ export function render(){
         if(reducedMotion()){
           animDone.add(n.id);
         } else {
-          g.style.opacity='0';g.style.transformOrigin=`${n._x}px ${n._y}px`;g.style.transform='scale(0.2)';
-          setTimeout(()=>{
-            g.style.transition=`opacity 0.45s ease ${n.depth*0.09}s, transform 0.45s cubic-bezier(.34,1.56,.64,1) ${n.depth*0.09}s`;
-            g.style.opacity='1';g.style.transform='scale(1)';
-            setTimeout(()=>animDone.add(n.id),550+n.depth*90);
-          },40);
+          g.style.transformOrigin=`${n._x}px ${n._y}px`;
+          g.style.setProperty('--depth',n.depth);
+          g.classList.add('node-entering');
+          animDeferred.push(g);
+          setTimeout(()=>animDone.add(n.id),550+n.depth*90);
         }
       }
 
@@ -437,12 +484,11 @@ export function render(){
       if(reducedMotion()){
         animDone.add(n.id);
       } else {
-        g.style.opacity='0';g.style.transformOrigin=`${n._x}px ${n._y}px`;g.style.transform='scale(0.2)';
-        setTimeout(()=>{
-          g.style.transition=`opacity 0.45s ease ${n.depth*0.09}s, transform 0.45s cubic-bezier(.34,1.56,.64,1) ${n.depth*0.09}s`;
-          g.style.opacity='1';g.style.transform='scale(1)';
-          setTimeout(()=>animDone.add(n.id),550+n.depth*90);
-        },40);
+        g.style.transformOrigin=`${n._x}px ${n._y}px`;
+        g.style.setProperty('--depth',n.depth);
+        g.classList.add('node-entering');
+        animDeferred.push(g);
+        setTimeout(()=>animDone.add(n.id),550+n.depth*90);
       }
     }
 
@@ -484,7 +530,7 @@ export function render(){
     if(b.n.depth<=1 && a.n.depth>1) return 1;
     return a.n.depth-b.n.depth;
   });
-  const placedBoxes=[];
+  const labelGrid=createSpatialHash(100);
   function boxesOverlap(a,b){
     return a.bx<b.bx+b.textW && a.bx+a.textW>b.bx && a.by<b.by+b.textH && a.by+a.textH>b.by;
   }
@@ -493,11 +539,12 @@ export function render(){
     // Always show depth 0-1 and human path nodes
     const forceShow=lb.n.depth<=1||onPath;
     if(!forceShow){
-      for(const placed of placedBoxes){
+      const nearby=labelGrid.query(lb);
+      for(const placed of nearby){
         if(boxesOverlap(lb,placed)){return;}
       }
     }
-    placedBoxes.push(lb);
+    labelGrid.insert(lb);
     const svgText=document.createElementNS('http://www.w3.org/2000/svg','text');
     svgText.setAttribute('x',lb.lx);svgText.setAttribute('y',lb.ly);
     svgText.setAttribute('text-anchor',lb.anchor);
@@ -513,6 +560,14 @@ export function render(){
 
   branchLayer.replaceChildren(branchFrag);
   nodesLayer.replaceChildren(nodesFrag);
+  // Batch-trigger entrance animations after DOM commit
+  if(animDeferred.length){
+    requestAnimationFrame(()=>{
+      for(const el of animDeferred){
+        el.classList.add(el.tagName==='path'?'branch-entered':'node-entered');
+      }
+    });
+  }
 
   // Restore keyboard focus after DOM rebuild
   if(state.focusedNodeId){

@@ -53,6 +53,8 @@ let pointerStart={x:0,y:0};
 let transformStart={x:0,y:0};
 const activePointers=new Map();
 let pinchGesture=null;
+let panRAF=0;
+let zoomRAF=0;
 
 export function initPointerEvents(){
   const svgEl=document.getElementById('svg');
@@ -73,16 +75,17 @@ export function initPointerEvents(){
     if(activePointers.size===1 && isPointerPanning){
       state.transform.x=transformStart.x+(e.clientX-pointerStart.x);
       state.transform.y=transformStart.y+(e.clientY-pointerStart.y);
-      applyT();
+      if(!panRAF){panRAF=requestAnimationFrame(()=>{panRAF=0;applyT();});}
     }
   });
   svgEl.addEventListener("pointerup",e=>{
     activePointers.delete(e.pointerId);
     if(activePointers.size===0){
       isPointerPanning=false;
+      if(panRAF){cancelAnimationFrame(panRAF);panRAF=0;applyT();}
     }
   });
-  svgEl.addEventListener('wheel',e=>{e.preventDefault();const f=e.deltaY<0?1.13:0.88;const rect=svgEl.getBoundingClientRect();const mx=e.clientX-rect.left,my=e.clientY-rect.top;const ns=Math.min(6,Math.max(0.05,state.transform.s*f));state.transform.x=mx-(mx-state.transform.x)*(ns/state.transform.s);state.transform.y=my-(my-state.transform.y)*(ns/state.transform.s);state.transform.s=ns;applyT();},{passive:false});
+  svgEl.addEventListener('wheel',e=>{e.preventDefault();const f=e.deltaY<0?1.13:0.88;const rect=svgEl.getBoundingClientRect();const mx=e.clientX-rect.left,my=e.clientY-rect.top;const ns=Math.min(6,Math.max(0.05,state.transform.s*f));state.transform.x=mx-(mx-state.transform.x)*(ns/state.transform.s);state.transform.y=my-(my-state.transform.y)*(ns/state.transform.s);state.transform.s=ns;if(!zoomRAF){zoomRAF=requestAnimationFrame(()=>{zoomRAF=0;applyT();});}},{passive:false});
 
   document.getElementById('btn-in').addEventListener('click',()=>{state.transform.s=Math.min(6,state.transform.s*1.2);applyT();});
   document.getElementById('btn-out').addEventListener('click',()=>{state.transform.s=Math.max(0.05,state.transform.s*0.83);applyT();});

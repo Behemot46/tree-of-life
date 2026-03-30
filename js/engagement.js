@@ -151,6 +151,11 @@ export function animateTreeEntrance() {
   setTimeout(() => {
     allBranches.forEach(b => { b.style.opacity = '1'; });
   }, 300);
+  // Clean up inline styles after entrance animation completes
+  setTimeout(() => {
+    allNodes.forEach(n => { n.style.opacity = ''; n.style.transform = ''; n.style.transformOrigin = ''; n.style.transition = ''; });
+    allBranches.forEach(b => { b.style.opacity = ''; b.style.transition = ''; });
+  }, depths.length * 180 + 400);
 }
 
 // ── Loading ──

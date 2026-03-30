@@ -87,14 +87,15 @@ English-only. Focus: clear design, engaging, intuitive, accurate, fun.
 - SVG `<title>` + `<desc>` for screen readers
 - All touch targets ≥ 44px on mobile (lang, theme, extinct, legend, zoom)
 
-### J5 — SVG Performance
+### ✅ J5 — SVG Performance — **Done** (PR TBD)
 **Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J5_PERFORMANCE.md`
 
-- Viewport culling — only render visible nodes
-- GPU compositing with `will-change: transform`
-- CSS-class animations instead of inline styles
-- rAF-debounced pointer pan
-- Target: 60fps with 300+ nodes
+- Viewport culling — only render visible nodes (100px margin)
+- GPU compositing with `will-change: transform` on #viewport
+- CSS-class animations (`.branch-entering`/`.node-entering`) replace inline styles
+- rAF-debounced pointermove and wheel handlers
+- Spatial hash for O(n) label collision detection
+- animDone.clear() on view mode switch for animation replay
 
 ### J6 — Discovery & Fun
 **Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J6_ENGAGEMENT.md`

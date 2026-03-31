@@ -1,4 +1,47 @@
-# Session Handoff — 2026-03-28 (Sprint J1 — Design System Cleanup)
+# Session Handoff — 2026-03-31 (Sprint J12 — Species Expansion + Hominin Deep-Dive)
+
+**Status: done**
+**Branch:** `claude/festive-dhawan`
+**PR:** #133
+
+## 1. Session Goal
+Execute Sprint J12 — Part 1: Add 28 new species to eliminate single-child branches. Part 2: Restore full-screen hominin deep-dive overlay.
+
+## 2. What I Changed
+
+### js/treeData.js — 28 new species nodes
+- **Euryarchaeota** (+2): halococcus, methanosarcina
+- **Chytrids** (+2): synchytrium, allomyces
+- **Echinoderms** (+3): sea-urchin, sea-cucumber, sea-lily
+- **Annelids** (+2): medicinal-leech, pompeii-worm
+- **Cetaceans** (+3): humpback-whale, sperm-whale, orca
+- **Primates** (+4): tarsier, ring-tailed-lemur, japanese-macaque, mandrill
+- **Enrichment** (+12): caecilian, chameleon, pangolin, star-nosed-mole, honey-badger, box-jellyfish, cuttlefish, atlas-moth, bombardier-beetle, lungfish, ginkgo, dragon-blood-tree
+- Tree: 126 → 154 static nodes (352 at runtime with hominins)
+
+### index.html — Hominin deep-dive overlay (HTML + CSS + JS)
+- Added `#hominin-view` overlay with header, filter tabs, species timeline, detail panel
+- Added ~80 lines of CSS for overlay layout, species cards, detail panel, mobile responsive
+- Added ~120 lines of inline JS: `openHomininView()`, `renderHominins()`, `showHominDetail()`, `toggleCompareMode()`, `toggleCompareSelect()`, filter tab listeners, close button handler
+
+### js/panel.js — Fixed crash + guarded null elements
+- Wrapped `getElementById('hom-close')` listener in null check (was crashing on load)
+
+### js/speciesData.js — PHOTO_MAP + WIKI_TITLES for all 28 new species
+### js/geoData.js — GEO_DATA for all 28 new species
+### js/nodeIcons.js — ID_MAP for all 28 new species
+
+## 3. Key Decisions
+- Hominin overlay JS added to inline `<script>` in index.html (not panel.js) because panel.js is not loaded via `<script src>` — it's an extracted-but-unused module
+- Kept floating "Human Evolution" button as tree navigation (`navigateTo('hominini')`); overlay opens from panel CTA "Deep Dive" button
+- `hominini→homo-sapiens` remains as single-child in static tree because `buildHomininTree()` dynamically populates it at runtime
+
+## 4. What's Next
+- J2 (Navigation Polish) or J3 (Code Modularization) are the next logical sprints
+
+---
+
+# Previous Session Handoff — 2026-03-28 (Sprint J1 — Design System Cleanup)
 
 **Status: done**
 **Branch:** `claude/keen-noether`

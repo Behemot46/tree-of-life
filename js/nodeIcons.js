@@ -147,17 +147,22 @@ function getIconGroup(n) {
     // Invertebrates
     'invertebrates': 'crustacean',
     'echinoderms': 'echinoderm', 'annelids': 'worm',
+    'platyhelminthes': 'worm', 'planarian': 'worm',
+    'tardigrada': 'microbe', 'tardigrade': 'microbe',
 
     // Arthropods
+    'arthropoda': 'crustacean',
     'insects': 'insect',
     'horseshoe-crab': 'arachnid', 'mantis-shrimp': 'crustacean',
     'honey-bee': 'butterfly',
 
     // Mollusks / Cephalopods
+    'mollusca': 'mollusk',
     'cephalopods': 'octopus', 'octopus': 'octopus', 'nautilus': 'mollusk',
 
-    // Fish
-    'vertebrates': 'fish',
+    // Chordates & Fish classes
+    'chordata': 'fish', 'vertebrates': 'fish',
+    'sarcopterygii': 'fish', 'chondrichthyes': 'shark', 'actinopterygii': 'fish',
     'fish': 'fish', 'coelacanth': 'fish', 'shark': 'shark',
 
     // Reptiles & Dinosaurs

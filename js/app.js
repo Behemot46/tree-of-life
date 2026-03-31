@@ -238,6 +238,7 @@ function init(){
       if (_dismissed) return;
       _dismissed = true;
       _splash.style.opacity = '0';
+      _splash.style.transform = 'scale(1.04)';
       setTimeout(() => {
         _splash.style.display = 'none';
         animateTreeEntrance();
@@ -246,7 +247,7 @@ function init(){
         }
       }, 800);
     };
-    setTimeout(_dismissSplash, 7000);
+    setTimeout(_dismissSplash, 4500);
     _splash.addEventListener('click', _dismissSplash);
   }
   function assignDomains(node, domain) {

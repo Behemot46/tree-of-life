@@ -432,8 +432,12 @@ export function render(){
           const htmlImg=document.createElement('img');
           htmlImg.className='node-img';
           htmlImg.alt=n.name||'';
+          htmlImg.addEventListener('load',function(){this.classList.add('loaded');});
           if(cachedUrl){
-            htmlImg.addEventListener('error',function(){if(fo.parentNode)fo.remove();confirmedPhotoUrls.delete(n.id);});
+            htmlImg.addEventListener('error',function(){
+              if(!this.dataset.retried){this.dataset.retried='1';this.src=cachedUrl+'?retry=1';}
+              else{if(fo.parentNode)fo.remove();confirmedPhotoUrls.delete(n.id);}
+            });
             htmlImg.src=cachedUrl;
           } else {
             ImageLoader.loadInto(n,htmlImg,{

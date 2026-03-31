@@ -41,6 +41,7 @@
 | p37 | Hominin pill chips — group nodes as collapsible pills, inline deep-dive data, overlay removed, standalone compare | PR #106 `claude/intelligent-payne` |
 | p38 | Mammal data upgrade — all 11 mammal nodes to Homo sapiens parity (5 facts, 6 tags, funFact, 5 altFacts, 3 links) | PR #110 `claude/dazzling-black` |
 | J1 | Design system cleanup — `--gold`→`--accent`, z-index scale, dead code, inline→CSS, reduced-motion, 768px breakpoints | PR #121 `claude/keen-noether` |
+| J9 | Guided educational tours — 3 tour paths (LUCA→You, Five Kingdoms, Mass Extinctions), tour selector, spotlight overlay, auto-pan | `claude/pensive-satoshi` |
 
 ### Already shipped (not originally tracked as phases)
 
@@ -56,15 +57,16 @@ These features were built incrementally but never had their own phase number:
 
 | Sprint | Phase | Goal | Status | Prompt |
 |--------|-------|------|--------|--------|
-| 1 | J1 | Design system cleanup — CSS vars, z-index, reduced-motion | Pending | `SPRINT_J1_DESIGN_CLEANUP.md` |
-| 1 | J2 | Navigation unification — merge stacks, smooth pan, keyboard | Pending | `SPRINT_J2_NAV_POLISH.md` |
-| 2 | J3 | Code modularization — split index.html → 12 ES modules | Pending | `SPRINT_J3_MODULARIZATION.md` |
-| 3 | J4 | Accessibility — keyboard tree nav, focus traps, 44px targets | Pending | `SPRINT_J4_ACCESSIBILITY.md` |
-| 4 | J5 | SVG performance — viewport culling, GPU compositing, 60fps | Pending | `SPRINT_J5_PERFORMANCE.md` |
-| 5 | J6 | Discovery & fun — achievements, quiz, progress, idle facts | Pending | `SPRINT_J6_ENGAGEMENT.md` |
-| 6 | J7 | Data enrichment — 200+ species, IUCN status, 60+ DNA pairs | Pending | `SPRINT_J7_DATA_ENRICHMENT.md` |
-| 7 | J8 | PWA & offline — service worker, manifest, offline indicator | Pending | `SPRINT_J8_PWA.md` |
+| 1 | J1 | Design system cleanup — CSS vars, z-index, reduced-motion | Done | `SPRINT_J1_DESIGN_CLEANUP.md` |
+| 1 | J2 | Navigation unification — merge stacks, smooth pan, keyboard | Done | `SPRINT_J2_NAV_POLISH.md` |
+| 2 | J3 | Code modularization — split index.html → 17 ES modules | Done | `SPRINT_J3_MODULARIZATION.md` |
+| 3 | J4 | Accessibility — keyboard tree nav, focus traps, 44px targets | Done | `SPRINT_J4_ACCESSIBILITY.md` |
+| 4 | J5 | SVG performance — viewport culling, GPU compositing, 60fps | Done | `SPRINT_J5_PERFORMANCE.md` |
+| 5 | J6 | Discovery & fun — achievements, quiz, progress, idle facts | Done | `SPRINT_J6_ENGAGEMENT.md` |
+| 6 | J7 | Data enrichment — 339 species, IUCN badges, 61 DNA pairs, 170 facts | **Done** | `SPRINT_J7_DATA_ENRICHMENT.md` |
+| 7 | J8 | PWA & offline — manifest, icons, SW precache update, deploy-check | **Done** | `SPRINT_J8_PWA.md` |
 | 8 | J9 | Guided tours — 3 educational paths with spotlight overlay | Pending | `SPRINT_J9_GUIDED_TOURS.md` |
+| 9 | J10 | Image polish — 100% real photos, no emoji, fade-in loading | Pending | `SPRINT_J10_IMAGE_POLISH.md` |
 
 All sprint prompts are in `docs/PROMPTS/`. To execute: open new session, say "Execute Sprint J[N]".
 

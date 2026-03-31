@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="64" fill="#1a1d23"/>
+  <!-- Trunk -->
+  <line x1="256" y1="420" x2="256" y2="180" stroke="#5b9a8b" stroke-width="8" stroke-linecap="round"/>
+  <!-- Main branches -->
+  <line x1="256" y1="260" x2="160" y2="155" stroke="#5b9a8b" stroke-width="6" stroke-linecap="round"/>
+  <line x1="256" y1="260" x2="352" y2="155" stroke="#5b9a8b" stroke-width="6" stroke-linecap="round"/>
+  <line x1="256" y1="210" x2="130" y2="115" stroke="#5b9a8b" stroke-width="5" stroke-linecap="round"/>
+  <line x1="256" y1="210" x2="382" y2="115" stroke="#5b9a8b" stroke-width="5" stroke-linecap="round"/>
+  <line x1="256" y1="180" x2="200" y2="90" stroke="#5b9a8b" stroke-width="4" stroke-linecap="round"/>
+  <line x1="256" y1="180" x2="312" y2="90" stroke="#5b9a8b" stroke-width="4" stroke-linecap="round"/>
+  <!-- Sub-branches -->
+  <line x1="160" y1="155" x2="105" y2="100" stroke="#5b9a8b" stroke-width="4" stroke-linecap="round"/>
+  <line x1="352" y1="155" x2="407" y2="100" stroke="#5b9a8b" stroke-width="4" stroke-linecap="round"/>
+  <line x1="130" y1="115" x2="95" y2="80" stroke="#5b9a8b" stroke-width="3" stroke-linecap="round"/>
+  <line x1="382" y1="115" x2="417" y2="80" stroke="#5b9a8b" stroke-width="3" stroke-linecap="round"/>
+  <!-- Domain dots -->
+  <circle cx="95" cy="77" r="14" fill="#ef4444"/>
+  <circle cx="105" cy="97" r="12" fill="#f59e0b"/>
+  <circle cx="130" cy="112" r="13" fill="#a855f7"/>
+  <circle cx="160" cy="152" r="14" fill="#22c55e"/>
+  <circle cx="200" cy="87" r="12" fill="#f97316"/>
+  <circle cx="312" cy="87" r="12" fill="#0ea5e9"/>
+  <circle cx="352" cy="152" r="14" fill="#3b82f6"/>
+  <circle cx="382" cy="112" r="13" fill="#8b5cf6"/>
+  <circle cx="407" cy="97" r="12" fill="#22c55e"/>
+  <circle cx="417" cy="77" r="14" fill="#ef4444"/>
+  <!-- Root glow -->
+  <circle cx="256" cy="420" r="10" fill="#8b5cf6" opacity="0.8"/>
+  <!-- Title text -->
+  <text x="256" y="475" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="28" font-weight="600" fill="#e2e8f0" letter-spacing="2">TREE OF LIFE</text>
+</svg>

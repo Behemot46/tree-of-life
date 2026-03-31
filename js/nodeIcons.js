@@ -186,7 +186,20 @@ function getIconGroup(n) {
     'orangutan': 'primate', 'gorilla': 'primate', 'chimpanzee': 'primate',
 
     // Hominins
-    'homo-sapiens': 'hominin', 'hominini': 'hominin'
+    'homo-sapiens': 'hominin', 'hominini': 'hominin',
+
+    // J12 — new species
+    'halococcus': 'archaea', 'methanosarcina': 'archaea',
+    'synchytrium': 'fungus', 'allomyces': 'fungus',
+    'sea-urchin': 'echinoderm', 'sea-cucumber': 'echinoderm', 'sea-lily': 'echinoderm',
+    'medicinal-leech': 'worm', 'pompeii-worm': 'worm',
+    'humpback-whale': 'whale', 'sperm-whale': 'whale', 'orca': 'whale',
+    'tarsier': 'primate', 'ring-tailed-lemur': 'primate', 'japanese-macaque': 'primate', 'mandrill': 'primate',
+    'pangolin': 'mammal', 'star-nosed-mole': 'mammal', 'honey-badger': 'mammal',
+    'caecilian': 'amphibian', 'chameleon': 'reptile',
+    'box-jellyfish': 'jellyfish', 'cuttlefish': 'squid',
+    'atlas-moth': 'butterfly', 'bombardier-beetle': 'insect',
+    'lungfish': 'fish', 'ginkgo': 'conifer', 'dragon-blood-tree': 'flower'
   };
 
   if (ID_MAP[id]) return ID_MAP[id];

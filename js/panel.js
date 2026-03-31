@@ -782,26 +782,27 @@ window.navigateTo=function(id){
 // HOMININ VIEW
 // ══════════════════════════════════════════════════════
 window.openHomininView=function(){
-  // Expand hominini and its child groups on the main tree, then zoom to them
-  const hom = nodeMap['hominini'];
-  if (!hom) return;
-  // Expand ancestors so hominini is visible
-  let cur = hom._parent;
-  while (cur) { cur._collapsed = false; cur = cur._parent; }
-  // Expand hominini and its 4 group nodes
-  hom._collapsed = false;
-  if (hom.children) hom.children.forEach(g => { g._collapsed = false; });
-  // Close any open panel
+  const hv=document.getElementById('hominin-view');
+  if(!hv) return;
+  pushNav();
   panel.classList.remove('open');
-  // Re-layout and render
-  layout();
-  // Zoom centered on hominini node at a readable scale
-  const s = 0.7;
-  transform = { x: window.innerWidth / 2 - hom._x * s, y: window.innerHeight / 2 - hom._y * s, s };
-  scheduleRender(true); applyT();
+  hv.classList.add('open');
+  selectedHominin=null;
+  currentHomFilter='all';
+  // Reset filter UI
+  document.querySelectorAll('.hom-filter').forEach(b=>b.classList.remove('active'));
+  const allBtn=document.querySelector('.hom-filter[data-filter="all"]');
+  if(allBtn) allBtn.classList.add('active');
+  renderHominins();
+  // Clear detail panel
+  const hp=document.getElementById('hom-panel');
+  if(hp) hp.innerHTML='<div class="hp-placeholder">Select a species to explore</div>';
+  updateNavButtons();
 };
-document.getElementById('hom-close').addEventListener('click',()=>{
+const homCloseBtn=document.getElementById('hom-close');
+if(homCloseBtn) homCloseBtn.addEventListener('click',()=>{
   document.getElementById('hominin-view').classList.remove('open');
+  selectedHominin=null;
   updateNavButtons();
 });
 

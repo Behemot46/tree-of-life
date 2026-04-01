@@ -16,6 +16,13 @@ export function leafCount(n){
   n.children.forEach(c=>{ sum+=leafCount(c); });
   return Math.max(1,sum);
 }
+/* Count all descendants (not just visible) for collapse badge */
+export function countDescendants(n){
+  if(!n.children||!n.children.length) return 0;
+  let c=n.children.length;
+  n.children.forEach(ch=>{ c+=countDescendants(ch); });
+  return c;
+}
 
 /* Subtree-weighted angle assignment — larger subtrees get proportionally more room */
 export function assignAngles(n,a0,a1){

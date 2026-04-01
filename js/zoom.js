@@ -32,6 +32,24 @@ export function smoothPanTo(wx,wy){
   requestAnimationFrame(tick);
 }
 
+export function smoothZoomTo(wx,wy,targetScale){
+  const svgR=(document.getElementById('canvas-wrap')||document.getElementById('svg')).getBoundingClientRect();
+  const cx=svgR.width/2,cy=svgR.height/2;
+  const ss=state.transform.s,ts=Math.min(2.0,Math.max(0.05,targetScale));
+  const sx=state.transform.x,sy=state.transform.y;
+  const tx=cx-wx*ts,ty=cy-wy*ts;
+  const dx=tx-sx,dy=ty-sy,ds=ts-ss;
+  const steps=24;let step=0;
+  function tick(){
+    step++;const t=step/steps;const ease=1-Math.pow(1-t,3);
+    state.transform.s=ss+ds*ease;
+    state.transform.x=sx+dx*ease;state.transform.y=sy+dy*ease;
+    applyT();
+    if(step<steps) requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
 export function centerOnTree(scale){
   const nodes=_getVisible(TREE);
   if(!nodes.length)return;

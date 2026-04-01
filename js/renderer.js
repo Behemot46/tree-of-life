@@ -3,7 +3,7 @@
 // ══════════════════════════════════════════════════════
 
 import { state, nodeMap, animDone, confirmedPhotoUrls, HUMAN_PATH } from './state.js';
-import { getVisible, getVisibleEdges } from './layout.js';
+import { getVisible, getVisibleEdges, countDescendants } from './layout.js';
 import { reducedMotion } from './utils.js';
 import { getPlaybackNodeState, discoverNode, showDiscoveryCard } from './playback.js';
 import { isExplored } from './engagement.js';
@@ -11,11 +11,12 @@ import { nodeInEra } from './timeline.js';
 import { a11yAnnounce } from './engagement.js';
 
 // ── Late-bound deps (avoid circular imports) ──
-let _showMainPanel, _showTip, _hideTip, _smoothPanTo, _layout;
+let _showMainPanel, _showTip, _hideTip, _smoothPanTo, _smoothZoomTo, _layout, _updateBreadcrumb;
 export function initRendererDeps(deps) {
   _showMainPanel = deps.showMainPanel; _showTip = deps.showTip;
   _hideTip = deps.hideTip; _smoothPanTo = deps.smoothPanTo;
-  _layout = deps.layout;
+  _smoothZoomTo = deps.smoothZoomTo; _layout = deps.layout;
+  _updateBreadcrumb = deps.updateBreadcrumb;
 }
 
 // ── DOM refs ──
@@ -74,11 +75,11 @@ export function branchPath(x1,y1,x2,y2){
   const dist=Math.hypot(dx,dy)||1;
   const px=-dy/dist,py=dx/dist;
   const seed=(((x1*7+y1*13+x2*11+y2*17)%1000)+1000)%1000/1000;
-  const wobble=(seed-0.5)*dist*0.06;
-  const c1x=x1+dx*0.3+px*(dist*0.18+wobble);
-  const c1y=y1+dy*0.3+py*(dist*0.18+wobble);
-  const c2x=x1+dx*0.7+px*(dist*0.08-wobble*0.5);
-  const c2y=y1+dy*0.7+py*(dist*0.08-wobble*0.5);
+  const wobble=(seed-0.5)*dist*0.10;
+  const c1x=x1+dx*0.3+px*(dist*0.22+wobble);
+  const c1y=y1+dy*0.3+py*(dist*0.22+wobble);
+  const c2x=x1+dx*0.7+px*(dist*0.10-wobble*0.5);
+  const c2y=y1+dy*0.7+py*(dist*0.10-wobble*0.5);
   return `M${x1},${y1} C${c1x},${c1y} ${c2x},${c2y} ${x2},${y2}`;
 }
 
@@ -135,15 +136,15 @@ export function render(){
     p.setAttribute('class','branch-path');
     p.setAttribute('data-branch','true');
     const isAccent=onHumanPath||onEvoPath;
-    const sw=isAccent?5:Math.max(2,6-to.depth*0.5);
+    const sw=isAccent?6:Math.max(3,8-to.depth*0.6);
 
     // Playback: locked branches are dimmer
     let op;
     if(state.playbackMode){
       const childState=state.playbackNodeStates.get(to.id)||getPlaybackNodeState(to);
-      op=childState==='locked'?0.12:(isAccent?0.9:(inEra?Math.max(0.3,0.8-to.depth*0.06):0.08));
+      op=childState==='locked'?0.12:(isAccent?0.95:(inEra?Math.max(0.4,0.85-to.depth*0.05):0.12));
     } else {
-      op=isAccent?0.9:(inEra?Math.max(0.3,0.8-to.depth*0.06):0.08);
+      op=isAccent?0.95:(inEra?Math.max(0.4,0.85-to.depth*0.05):0.12);
     }
     p.setAttribute('stroke',onEvoPath?'var(--accent-secondary)':(onHumanPath?'var(--accent-primary)':to.color));
     p.setAttribute('stroke-width',sw);
@@ -467,21 +468,25 @@ export function render(){
       pendingLabels.push({n,lx,ly,cos,fontSize,textW,textH,bx,by:ly-textH/2,anchor,g});
     }
 
-    // Expand/collapse badge (+/-)
+    // Expand/collapse badge with descendant count
     if(n.children?.length&&n.depth>0){
-      const bx=n._x+n.r*0.6,by=n._y-n.r*0.6;
+      const bx=n._x+n.r*0.7,by=n._y-n.r*0.7;
+      const totalKids=countDescendants(n);
       const bg=document.createElementNS('http://www.w3.org/2000/svg','circle');
-      bg.setAttribute('cx',bx);bg.setAttribute('cy',by);bg.setAttribute('r','6');
+      bg.setAttribute('cx',bx);bg.setAttribute('cy',by);
+      bg.setAttribute('r',n._collapsed?'10':'7');
       bg.setAttribute('fill',n._collapsed?'#c8883a':'#5b9a6b');
-      bg.style.stroke='var(--bg)';bg.setAttribute('stroke-width','1.5');
+      bg.style.stroke='var(--bg)';bg.setAttribute('stroke-width','2');
+      if(n._collapsed&&totalKids>5) bg.classList.add('badge-pulse');
       g.appendChild(bg);
       const label=document.createElementNS('http://www.w3.org/2000/svg','text');
       label.setAttribute('x',bx);label.setAttribute('y',by);
       label.setAttribute('text-anchor','middle');label.setAttribute('dominant-baseline','central');
-      label.setAttribute('fill','#fff');label.setAttribute('font-size','9');
+      label.setAttribute('fill','#fff');
+      label.setAttribute('font-size',n._collapsed?'9':'8');
       label.setAttribute('font-weight','700');label.setAttribute('font-family','Inter,sans-serif');
       label.style.pointerEvents='none';
-      label.textContent=n._collapsed?'+':'\u2212';
+      label.textContent=n._collapsed?String(totalKids):'\u2212';
       g.appendChild(label);
     }
 
@@ -503,19 +508,48 @@ export function render(){
       e.stopPropagation();
       if(state.playbackMode){showDiscoveryCard(n);return;}
       if(n.children&&n.children.length){
+        const wasCollapsed=n._collapsed;
+        // Auto-collapse siblings when expanding to keep tree focused
+        if(wasCollapsed && n._parent && n._parent.children){
+          n._parent.children.forEach(sib=>{
+            if(sib!==n && sib.children && !sib._collapsed) sib._collapsed=true;
+          });
+        }
         n._collapsed=!n._collapsed;
         _layout();scheduleRender(true);
         a11yAnnounce(n.name+(n._collapsed?' collapsed':' expanded'));
-        // Auto-pan to show expanded children
+        // Zoom-to-fit expanded children
         if(!n._collapsed){
           setTimeout(()=>{
             const kids=getVisible(n).filter(k=>k._parent===n);
-            if(kids.length){
-              const cx=kids.reduce((s,k)=>s+k._x,0)/kids.length;
-              const cy=kids.reduce((s,k)=>s+k._y,0)/kids.length;
-              _smoothPanTo(cx,cy);
-            }
+            if(!kids.length) return;
+            const allPts=[n,...kids];
+            const xs=allPts.map(k=>k._x),ys=allPts.map(k=>k._y);
+            const minX=Math.min(...xs),maxX=Math.max(...xs);
+            const minY=Math.min(...ys),maxY=Math.max(...ys);
+            const bw=maxX-minX||200,bh=maxY-minY||200;
+            const svgR=(document.getElementById('canvas-wrap')||document.getElementById('svg')).getBoundingClientRect();
+            const fitScale=Math.min(svgR.width*0.8/bw,svgR.height*0.8/bh);
+            const targetS=Math.min(2.0,Math.max(state.transform.s,fitScale));
+            _smoothZoomTo((minX+maxX)/2,(minY+maxY)/2,targetS);
+            if(_updateBreadcrumb) _updateBreadcrumb(n);
           },100);
+        } else {
+          // On collapse: zoom out to show parent context
+          if(n._parent){
+            setTimeout(()=>{
+              const sibs=n._parent.children||[n._parent];
+              const allPts=[n._parent,...sibs];
+              const xs=allPts.map(k=>k._x),ys=allPts.map(k=>k._y);
+              const bw=(Math.max(...xs)-Math.min(...xs))||200;
+              const bh=(Math.max(...ys)-Math.min(...ys))||200;
+              const svgR=(document.getElementById('canvas-wrap')||document.getElementById('svg')).getBoundingClientRect();
+              const fitScale=Math.min(svgR.width*0.7/bw,svgR.height*0.7/bh);
+              const targetS=Math.min(state.transform.s,fitScale);
+              _smoothZoomTo((Math.min(...xs)+Math.max(...xs))/2,(Math.min(...ys)+Math.max(...ys))/2,targetS);
+              if(_updateBreadcrumb) _updateBreadcrumb(n._parent);
+            },100);
+          }
         }
       }else{
         _showMainPanel(n);

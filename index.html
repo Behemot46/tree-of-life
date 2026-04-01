@@ -249,6 +249,11 @@ svg{width:100%;height:100%;}
 .node-circle:hover{filter:brightness(1.15);}
 .node-group:hover .nc-main{filter:brightness(1.15) drop-shadow(0 0 4px currentColor);}
 .branch-path{fill:none;stroke-linecap:round;stroke-linejoin:round;cursor:default;}
+.badge-pulse{animation:badgePulse 2s ease-in-out infinite;}
+@keyframes badgePulse{
+  0%,100%{filter:drop-shadow(0 0 2px rgba(200,136,58,0.3));}
+  50%{filter:drop-shadow(0 0 8px rgba(200,136,58,0.7));}
+}
 #viewport{will-change:transform;}
 .branch-entering{stroke-dasharray:9999;stroke-dashoffset:9999;}
 .branch-entered{stroke-dashoffset:0;transition:stroke-dashoffset calc(0.3s + var(--depth) * 0.05s) cubic-bezier(.4,0,.2,1) calc(var(--depth) * 0.04s);}

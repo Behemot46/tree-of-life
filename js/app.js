@@ -13,7 +13,7 @@ import { reducedMotion, canonicalHomininId, preprocess, sortChildrenByAge, homin
 import { layout, getVisible } from './layout.js';
 
 // ── Zoom / Pan ──
-import { applyT, smoothPanTo, centerOnTree, centerOnRoot, initZoomDeps, initPointerEvents } from './zoom.js';
+import { applyT, smoothPanTo, smoothZoomTo, centerOnTree, centerOnRoot, initZoomDeps, initPointerEvents } from './zoom.js';
 
 // ── Renderer ──
 import { render, scheduleRender, branchPath, initRendererDeps } from './renderer.js';
@@ -59,9 +59,9 @@ import { openQuiz, closeQuiz, initQuizEvents } from './quiz.js';
 // 1. WIRE LATE-BOUND DEPENDENCIES
 // ══════════════════════════════════════════════════════
 
-initRendererDeps({ showMainPanel, showTip, hideTip, smoothPanTo, layout });
+initRendererDeps({ showMainPanel, showTip, hideTip, smoothPanTo, smoothZoomTo, layout, updateBreadcrumb });
 initZoomDeps({ scheduleRender, layout, getVisible });
-initNavDeps({ showMainPanel, closePanel, smoothPanTo, scheduleRender, layout, centerOnRoot, applyT, renderPanelContent, closeDnaCalc, closeEvoPath, closeTrivia });
+initNavDeps({ showMainPanel, closePanel, smoothPanTo, smoothZoomTo, scheduleRender, layout, centerOnRoot, applyT, renderPanelContent, closeDnaCalc, closeEvoPath, closeTrivia });
 initTimelineDeps({ scheduleRender, t, togglePlayback, pausePlayback });
 initPanelDeps({ pushNav, updateNavButtons, updateBreadcrumb, scheduleRender, smoothPanTo, focusNode, t, generateSpeciesIllustration, navBack, layout, applyT, centerOnRoot });
 initHomininDeps({ scheduleRender, showMainPanel, renderPanelContent, t });

@@ -14,6 +14,7 @@ export const state = {
 
   // ── Panel ──
   currentPanelNode: null,
+  focusedBranch: null,
 
   // ── Transform (zoom/pan) ──
   transform: { x: 0, y: 0, s: 0.2 },
@@ -69,7 +70,7 @@ export const HUMAN_PATH = new Set([
   'primates','great-apes','hominini','group-homo','h_sapiens'
 ]);
 export const HOMININ_SKIP_IDS = new Set(['homo-naledi','homo-floresiensis','denisovan']);
-export const MIN_ARC_PX = 50;
+export const MIN_ARC_PX = 65;
 export const MAX_ARC_PER_LEAF = 80;
 export const PLAYBACK_LOCK_PREVIEW = 200;
 export const PLAYBACK_DURATION = 90000; // 90 seconds at 1x

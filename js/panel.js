@@ -854,7 +854,8 @@ export function showMainPanel(n,url){
 export function closePanel(){
   const p=document.getElementById('panel')||document.getElementById('info-panel');
   if(p){p.classList.remove('open');p.style.transform='';p.style.transition='';}
-  _updateBreadcrumb(null);state.currentPanelNode=null;
+  state.currentPanelNode=null;
+  if(state.focusedBranch) _updateBreadcrumb(state.focusedBranch); else _updateBreadcrumb(null);
   history.replaceState(null,'',location.pathname);
   _updateNavButtons();
   a11yAnnounce('Panel closed');

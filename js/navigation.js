@@ -5,13 +5,14 @@
 import { state, nodeMap, navStack } from './state.js';
 
 // ── Late-binding deps (set via initNavDeps) ──
-let _showMainPanel, _closePanel, _smoothPanTo, _scheduleRender;
+let _showMainPanel, _closePanel, _smoothPanTo, _smoothZoomTo, _scheduleRender;
 let _layout, _centerOnRoot, _applyT, _renderPanelContent;
 let _closeDnaCalc, _closeEvoPath, _closeTrivia;
 export function initNavDeps(deps) {
   _showMainPanel = deps.showMainPanel;
   _closePanel = deps.closePanel;
   _smoothPanTo = deps.smoothPanTo;
+  _smoothZoomTo = deps.smoothZoomTo;
   _scheduleRender = deps.scheduleRender;
   _layout = deps.layout;
   _centerOnRoot = deps.centerOnRoot;
@@ -95,6 +96,7 @@ export function navHome(){
   const kbdHelp=document.getElementById('kbd-help');
   if(kbdHelp) kbdHelp.classList.remove('visible');
   state.currentPanelNode=null;
+  state.focusedBranch=null;
   panel.classList.remove('open');
   updateBreadcrumb(null);
   // Reset zoom/pan
@@ -158,15 +160,37 @@ export function focusNode(id) {
 
 export function updateBreadcrumb(n){
   const bc=document.getElementById('breadcrumb');
-  if(!n){bc.classList.add('hidden');return;}
-  const path=getAncestors(n);
+  if(n) state.focusedBranch=n;
+  const target=n||state.focusedBranch;
+  if(!target){bc.classList.add('hidden');return;}
+  const path=getAncestors(target);
   if(path.length<1){bc.classList.add('hidden');return;}
   bc.classList.remove('hidden');
   bc.innerHTML=path.map((p,i)=>{
     const isLast=i===path.length-1;
-    return `<span class="bc-item ${isLast?'active':''}" onclick="${isLast?'':`showMainPanel(getNodeById('${p.id}'))`}">${p.icon} ${p.name}</span>${isLast?'':'<span class="bc-sep">›</span>'}`;
+    return `<span class="bc-item ${isLast?'active':''}" onclick="${isLast?'':`collapseBelow('${p.id}')`}">${p.icon} ${p.name}</span>${isLast?'':'<span class="bc-sep">›</span>'}`;
   }).join('');
 }
+/* Collapse everything below a given node and zoom to fit its children */
+window.collapseBelow=function(nodeId){
+  const node=nodeMap[nodeId];
+  if(!node) return;
+  function collapseAll(nd){if(nd.children) nd.children.forEach(c=>{c._collapsed=true;collapseAll(c);});}
+  collapseAll(node);
+  node._collapsed=false;
+  _layout();_scheduleRender(true);
+  setTimeout(()=>{
+    const kids=node.children||[];
+    const allPts=[node,...kids];
+    const xs=allPts.map(k=>k._x),ys=allPts.map(k=>k._y);
+    const bw=(Math.max(...xs)-Math.min(...xs))||200;
+    const bh=(Math.max(...ys)-Math.min(...ys))||200;
+    const svgR=(document.getElementById('canvas-wrap')||document.getElementById('svg')).getBoundingClientRect();
+    const fitScale=Math.min(svgR.width*0.8/bw,svgR.height*0.8/bh);
+    _smoothZoomTo((Math.min(...xs)+Math.max(...xs))/2,(Math.min(...ys)+Math.max(...ys))/2,Math.min(2.0,fitScale));
+    updateBreadcrumb(node);
+  },100);
+};
 
 // ── Tooltip ──
 

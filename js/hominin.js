@@ -3,7 +3,7 @@
 // ══════════════════════════════════════════════════════
 
 import { state, nodeMap } from './state.js';
-import { homininToTreeNode } from './utils.js';
+import { homininToTreeNode, canonicalHomininId } from './utils.js';
 
 // ── Late-binding deps (set via initHomininDeps) ──
 let _scheduleRender, _showMainPanel, _renderPanelContent, _t;
@@ -197,4 +197,188 @@ export function closeCompare(){
   cpanel.style.display='none';
   compareMode=false;
   compareSelected.clear();
+}
+
+// ══════════════════════════════════════════════════════
+// HOMININ DEEP-DIVE OVERLAY
+// ══════════════════════════════════════════════════════
+
+let currentHomFilter='all';
+let selectedHominin=null;
+
+export function openHomininOverlay(){
+  const view=document.getElementById('hominin-view');
+  if(!view) return;
+  currentHomFilter='all';
+  selectedHominin=null;
+  // Reset filter UI
+  view.querySelectorAll('.hom-filter').forEach(btn=>{
+    btn.classList.toggle('active',btn.dataset.filter==='all');
+    btn.setAttribute('aria-selected',btn.dataset.filter==='all'?'true':'false');
+  });
+  // Reset detail panel
+  const hp=document.getElementById('hom-panel');
+  if(hp) hp.innerHTML='<div class="hp-placeholder">Select a species to explore</div>';
+  // Render timeline and open
+  renderHominins();
+  view.classList.add('open');
+}
+
+export function closeHomininOverlay(){
+  const view=document.getElementById('hominin-view');
+  if(view) view.classList.remove('open');
+}
+
+export function renderHominins(){
+  const tl=document.getElementById('hom-timeline');
+  if(!tl) return;
+  const filtered=HOMININS.filter(h=>{
+    if(currentHomFilter==='all') return true;
+    if(currentHomFilter==='surviving') return h.status==='surviving';
+    return h.group===currentHomFilter;
+  });
+  tl.innerHTML='';
+  ERA_GROUPS.forEach(eg=>{
+    const items=filtered.filter(eg.filter);
+    if(!items.length) return;
+    const group=document.createElement('div');group.className='hom-era-group';
+    const title=document.createElement('div');title.className='hom-era-title';title.textContent=eg.label;
+    group.appendChild(title);
+    items.sort((a,b)=>b.mya[0]-a.mya[0]).forEach(h=>{
+      const el=document.createElement('div');
+      el.className=`hom-species hs-status-${h.status}${selectedHominin===h.id?' selected':''}${compareMode&&compareSelected.has(h.id)?' selected':''}`;
+      el.setAttribute('data-hominin-id',h.id);
+      el.setAttribute('tabindex','0');
+      el.setAttribute('role','button');
+      el.setAttribute('aria-label',`${h.short} — ${h.name}, ${h.mya[0]}–${h.mya[1]} million years ago`);
+      const brainMax=h.brain[1]||h.brain[0];
+      const brainPct=brainMax?(brainMax/MAX_BRAIN*100):0;
+      const hasTools=h.tools&&h.tools!=='None known'&&h.tools!=='None';
+      const hasFire=h.fire&&h.fire!=='No';
+      const hasLang=h.language&&h.language!=='None';
+      el.innerHTML=`
+        <div class="hs-icon">${h.icon}</div>
+        <div class="hs-info">
+          <div class="hs-name">${h.short}</div>
+          <div class="hs-latin">${h.name}</div>
+          <div class="hs-mya">${h.mya[0]}–${h.mya[1]} Ma</div>
+          ${brainMax?`<div class="hs-brain"><div class="brain-bar-wrap"><div class="brain-bar-fill" style="width:${brainPct}%;background:${h.color}"></div></div><span class="brain-label">${brainMax} cm³</span></div>`:''}
+          <div class="hs-icons-row">${hasTools?'🔧 Tools':''} ${hasFire?'🔥 Fire':''} ${hasLang?'🗣 Language':''}</div>
+          <div class="hs-tags">${(h.tags||[]).slice(0,3).map(tg=>`<span class="hs-tag">${tg}</span>`).join('')}</div>
+        </div>`;
+      const clickHandler=()=>{
+        if(compareMode){toggleCompareSelect(h.id);}
+        else{selectedHominin=h.id;renderHominins();showHominDetail(h);}
+      };
+      el.addEventListener('click',clickHandler);
+      el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();clickHandler();}});
+      group.appendChild(el);
+    });
+    tl.appendChild(group);
+  });
+}
+
+export function showHominDetail(h){
+  const p=document.getElementById('hom-panel');
+  if(!p) return;
+  const brainMax=h.brain[1]||h.brain[0];
+  const neanPct=h.dna&&h.dna.neanderthal!=null?h.dna.neanderthal:null;
+  const denPct=h.dna&&h.dna.denisovan!=null?h.dna.denisovan:null;
+  p.innerHTML=`
+    <div class="hp-accent" style="background:linear-gradient(to right,${h.color},transparent)"></div>
+    <div class="hp-top">
+      <div class="hp-icon">${h.icon}</div>
+      <div>
+        <div class="hp-name">${h.short}</div>
+        <div class="hp-latin">${h.name}</div>
+        <div class="hp-mya">${h.mya[0]}–${h.mya[1]} Ma ago</div>
+      </div>
+    </div>
+    <div class="hp-desc">${h.desc}</div>
+    <div class="hp-section">KEY FACTS</div>
+    <div class="hp-facts">
+      ${brainMax?`<div class="hp-fact"><div class="hp-fact-l">Brain</div><div class="hp-fact-v">${h.brain[0]}–${h.brain[1]} cm³</div></div>`:''}
+      ${h.height?`<div class="hp-fact"><div class="hp-fact-l">Height</div><div class="hp-fact-v">${h.height}</div></div>`:''}
+      ${h.weight?`<div class="hp-fact"><div class="hp-fact-l">Weight</div><div class="hp-fact-v">${h.weight}</div></div>`:''}
+      ${h.habitat?`<div class="hp-fact"><div class="hp-fact-l">Habitat</div><div class="hp-fact-v">${h.habitat}</div></div>`:''}
+    </div>
+    <div class="hp-section">CAPABILITIES</div>
+    <div class="hp-facts">
+      <div class="hp-fact"><div class="hp-fact-l">Tools</div><div class="hp-fact-v">${h.tools||'—'}</div></div>
+      <div class="hp-fact"><div class="hp-fact-l">Fire</div><div class="hp-fact-v">${h.fire||'—'}</div></div>
+      <div class="hp-fact"><div class="hp-fact-l">Language</div><div class="hp-fact-v">${h.language||'—'}</div></div>
+    </div>
+    ${h.sites?`<div class="hp-section">FOSSIL SITES</div><div class="hp-detail">${h.sites}</div>`:''}
+    ${neanPct!=null||denPct!=null?`
+    <div class="hp-section">DNA INTROGRESSION</div>
+    ${neanPct!=null?`<div class="hp-dna"><span style="font-size:0.7rem;color:var(--text-secondary);width:80px">Neanderthal</span><div class="dna-fill"><div class="dna-fill-inner" style="width:${Math.min(100,neanPct*25)}%;background:#7A9BAA"></div></div><span style="font-size:0.7rem;color:#7A9BAA;font-family:var(--font-mono)">${neanPct}%</span></div>`:''}
+    ${denPct!=null?`<div class="hp-dna"><span style="font-size:0.7rem;color:var(--text-secondary);width:80px">Denisovan</span><div class="dna-fill"><div class="dna-fill-inner" style="width:${Math.min(100,denPct*20)}%;background:#7A8BAA"></div></div><span style="font-size:0.7rem;color:#7A8BAA;font-family:var(--font-mono)">${denPct}%</span></div>`:''}
+    `:''}
+    <div class="hp-detail" style="margin-top:0.8rem">${h.detail||''}</div>
+    <div class="hp-tags">${(h.tags||[]).map(tg=>`<span class="hp-tag">${tg}</span>`).join('')}</div>
+    <button class="panel-cta" onclick="viewHomininOnTree('${h.id}')" style="margin-top:0.8rem">🌳 View on Tree</button>
+  `;
+}
+
+function toggleCompareSelect(hId){
+  if(compareSelected.has(hId)){
+    compareSelected.delete(hId);
+  } else if(compareSelected.size<4){
+    compareSelected.add(hId);
+  }
+  const hint=document.getElementById('compare-hint');
+  if(hint) hint.textContent=`(${compareSelected.size} selected)`;
+  renderHominins();
+}
+
+export function toggleCompareMode(){
+  compareMode=!compareMode;
+  if(!compareMode){
+    if(compareSelected.size>=2) showComparePanel();
+    compareSelected.clear();
+  } else {
+    compareSelected.clear();
+  }
+  const btn=document.getElementById('compare-btn');
+  if(btn) btn.classList.toggle('active',compareMode);
+  const hint=document.getElementById('compare-hint');
+  if(hint) hint.style.display=compareMode?'inline':'none';
+  renderHominins();
+}
+
+export function viewHomininOnTree(hId){
+  // Close the overlay, navigate to the hominin on the tree
+  closeHomininOverlay();
+  const canonId=canonicalHomininId(hId);
+  // Use the global navigateTo which handles expand + zoom + panel
+  if(window.navigateTo) window.navigateTo(canonId||hId);
+}
+
+export function initHomininOverlay(){
+  // Close button
+  const closeBtn=document.getElementById('hom-close');
+  if(closeBtn) closeBtn.addEventListener('click',closeHomininOverlay);
+  // Filter buttons
+  document.querySelectorAll('.hom-filter').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.hom-filter').forEach(b=>{
+        b.classList.remove('active');
+        b.setAttribute('aria-selected','false');
+      });
+      btn.classList.add('active');
+      btn.setAttribute('aria-selected','true');
+      currentHomFilter=btn.dataset.filter;
+      renderHominins();
+    });
+  });
+  // Escape key closes overlay
+  document.addEventListener('keydown',e=>{
+    if(e.key==='Escape'){
+      const view=document.getElementById('hominin-view');
+      if(view&&view.classList.contains('open')){
+        e.stopPropagation();
+        closeHomininOverlay();
+      }
+    }
+  });
 }

@@ -890,6 +890,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 [data-theme="light"] #bg{background:var(--bg);}
 [data-theme="light"] #header{background:linear-gradient(to bottom,var(--bg) 40%,transparent);}
 [data-theme="light"] #panel{background:var(--surface);border-left-color:var(--border);}
+@keyframes homininGlow{
+  0%,100%{stroke-opacity:0.3;stroke-width:2;}
+  50%{stroke-opacity:0.8;stroke-width:3;}
+}
 [data-theme="light"] #hominin-view{background:var(--surface-overlay);}
 [data-theme="light"] #legend{background:var(--glass-bg,var(--surface));border-color:var(--glass-border,var(--border));}
 [data-theme="light"] #zoom-ctrl .zbtn{background:var(--glass-bg,rgba(248,250,252,0.85));backdrop-filter:var(--glass-blur,blur(12px));border-color:var(--glass-border,var(--border));}

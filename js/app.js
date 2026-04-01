@@ -28,10 +28,10 @@ import { buildSearchIndex, searchEntities, normalizeSearchText, patchEnrichment 
 import { nodeInEra, toggleExtinct, toggleDomain, resetDomains, getEraName, buildExtinctionMarkers, showExtinctionPopover, updateEraTint, updateSpeciesCount, updateThumbPosition, updateEraTimeRange, toggleEraPlay, animateSliderTo, updatePresetHighlight, buildEraPresets, buildEraSegments, buildDensitySparkline, initThumbDrag, initSpeedButtons, initTimelineDeps } from './timeline.js';
 
 // ── Panel ──
-import { renderPanelContent, showMainPanel, closePanel, openHominins, openHomininView, buildHeroFallback, getBranchType, renderBranchSection, renderMiniMap, renderPrimateCard, renderSapiensPanel, initPanelDeps, initPanelListeners } from './panel.js';
+import { renderPanelContent, showMainPanel, closePanel, openHominins, openHomininView, setHomininOverlayOpener, buildHeroFallback, getBranchType, renderBranchSection, renderMiniMap, renderPrimateCard, renderSapiensPanel, initPanelDeps, initPanelListeners } from './panel.js';
 
 // ── Hominin / Compare ──
-import { buildHomininTree, showComparePanel, closeCompare, finishCompare, cancelCompare, startCompareFromPanel, interceptShowMainPanel, initHomininDeps } from './hominin.js';
+import { buildHomininTree, showComparePanel, closeCompare, finishCompare, cancelCompare, startCompareFromPanel, interceptShowMainPanel, initHomininDeps, openHomininOverlay, closeHomininOverlay, renderHominins, showHominDetail, toggleCompareMode, viewHomininOnTree, initHomininOverlay } from './hominin.js';
 
 // ── DNA Calculator ──
 import { openDnaCalc, closeDnaCalc, resetDnaUI, openDnaSearch, selectDnaSpecies, dnaPreset, showDnaResults, animateCounter, initDnaCalcDeps, initDnaCalcEvents } from './dnaCalc.js';
@@ -65,6 +65,7 @@ initNavDeps({ showMainPanel, closePanel, smoothPanTo, smoothZoomTo, scheduleRend
 initTimelineDeps({ scheduleRender, t, togglePlayback, pausePlayback });
 initPanelDeps({ pushNav, updateNavButtons, updateBreadcrumb, scheduleRender, smoothPanTo, focusNode, t, generateSpeciesIllustration, navBack, layout, applyT, centerOnRoot });
 initHomininDeps({ scheduleRender, showMainPanel, renderPanelContent, t });
+setHomininOverlayOpener(openHomininOverlay);
 initDnaCalcDeps({ searchEntities, t, showMainPanel });
 initEvoPathDeps({ searchEntities, t, scheduleRender, smoothPanTo, layout, applyT });
 initTriviaDeps({ t, navigateTo: (...args) => navigateTo(...args) });
@@ -382,6 +383,9 @@ initPointerEvents();
 
 // ── Panel listeners (close, svg click) ──
 initPanelListeners();
+
+// ── Hominin overlay listeners (close, filters, escape) ──
+initHomininOverlay();
 
 // ── DNA Calculator events ──
 initDnaCalcEvents();
@@ -707,6 +711,8 @@ window.enterPlaybackMode = enterPlaybackMode;
 window.showMainPanel = wrappedShowMainPanel;
 window.closePanel = closePanel;
 window.openHomininView = openHomininView;
+window.toggleCompareMode = toggleCompareMode;
+window.viewHomininOnTree = viewHomininOnTree;
 window.closeCompare = closeCompare;
 window.finishCompare = finishCompare;
 window.cancelCompare = cancelCompare;

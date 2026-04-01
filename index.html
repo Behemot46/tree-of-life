@@ -612,6 +612,140 @@ svg{width:100%;height:100%;}
   color:var(--accent-primary);font-family:var(--font-sans);text-decoration:none;transition:all 0.2s;}
 .panel-link-pill:hover{background:var(--accent-primary);color:white;border-color:var(--accent-primary);}
 
+/* ══════════════════════════════════════════════════════ */
+/* ── J18: TABBED PANEL SYSTEM ──                        */
+/* ══════════════════════════════════════════════════════ */
+
+/* ── TAB BAR ── */
+.panel-tabs{display:flex;gap:0;border-bottom:1px solid var(--border);background:var(--surface);
+  overflow-x:auto;scrollbar-width:none;flex-shrink:0;padding:0 var(--sp-4);}
+.panel-tabs::-webkit-scrollbar{display:none;}
+.panel-tab{position:relative;padding:10px 14px;font-size:0.72rem;font-weight:600;
+  font-family:var(--font-sans);letter-spacing:0.04em;color:var(--text-muted);
+  background:none;border:none;cursor:pointer;white-space:nowrap;
+  transition:color var(--transition-fast);}
+.panel-tab:hover{color:var(--text-secondary);}
+.panel-tab.active{color:var(--accent-primary);}
+.panel-tab.active::after{content:'';position:absolute;bottom:0;left:14px;right:14px;height:2px;
+  background:var(--accent-primary);border-radius:1px 1px 0 0;}
+.panel-tab:focus-visible{outline:2px solid var(--accent-primary);outline-offset:-2px;border-radius:var(--radius-sm);}
+
+/* ── TAB CONTENT ── */
+.panel-tab-content{display:none;flex-direction:column;gap:var(--sp-4);padding:var(--sp-4) 0;}
+.panel-tab-content.active{display:flex;}
+
+/* ── STAT BARS (gamified) ── */
+.stat-archetype{display:inline-flex;align-items:center;gap:6px;font-size:0.65rem;font-weight:700;
+  letter-spacing:0.12em;text-transform:uppercase;padding:4px 14px;border-radius:var(--radius-full);
+  background:var(--accent-primary-dim);border:1px solid rgba(var(--accent-rgb),0.25);
+  color:var(--accent-primary);font-family:var(--font-sans);}
+.stat-bar-group{display:flex;flex-direction:column;gap:10px;}
+.stat-bar{display:flex;align-items:center;gap:10px;}
+.stat-bar-label{min-width:80px;font-size:0.625rem;font-weight:600;letter-spacing:0.08em;
+  text-transform:uppercase;color:var(--text-secondary);font-family:var(--font-sans);}
+.stat-bar-track{flex:1;height:8px;background:var(--surface-raised);border-radius:4px;overflow:hidden;}
+.stat-bar-fill{height:100%;border-radius:4px;
+  background:linear-gradient(90deg,var(--accent-primary),var(--accent-secondary));
+  transition:width 0.6s cubic-bezier(0.34,1.56,0.64,1);will-change:width;}
+.stat-bar-value{min-width:24px;font-size:0.72rem;font-weight:600;color:var(--text-primary);
+  font-family:var(--font-mono);text-align:right;}
+@media(prefers-reduced-motion:reduce){.stat-bar-fill{transition:none;}}
+
+/* ── STRENGTHS / WEAKNESSES GRID ── */
+.sw-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--sp-2);}
+.sw-card{padding:10px 12px;background:var(--surface-raised);border-radius:var(--radius-md);
+  border-left:3px solid transparent;transition:all var(--transition-fast);}
+.sw-card:hover{background:var(--color-button-hover,var(--surface-raised));transform:translateY(-1px);}
+.sw-card.strength{border-left-color:var(--accent-success);}
+.sw-card.weakness{border-left-color:var(--accent-danger);}
+[dir="rtl"] .sw-card{border-left:none;border-right:3px solid transparent;}
+[dir="rtl"] .sw-card.strength{border-right-color:var(--accent-success);}
+[dir="rtl"] .sw-card.weakness{border-right-color:var(--accent-danger);}
+.sw-card-icon{font-size:16px;margin-bottom:4px;}
+.sw-card-label{font-size:0.65rem;font-weight:700;color:var(--text-primary);
+  font-family:var(--font-sans);letter-spacing:0.02em;margin-bottom:2px;}
+.sw-card-desc{font-size:0.625rem;color:var(--text-secondary);font-family:var(--font-sans);line-height:1.5;}
+
+/* ── RANGE MINIMAP ── */
+.range-minimap{width:100%;border-radius:var(--radius-md);overflow:hidden;
+  background:var(--surface-raised);border:1px solid var(--border);padding:var(--sp-3);}
+.range-minimap svg{width:100%;height:auto;display:block;}
+.range-continent{fill:var(--border);stroke:var(--surface);stroke-width:0.5;transition:fill 0.4s,opacity 0.4s;}
+.range-continent.highlighted{fill:var(--accent-secondary);opacity:0.65;}
+.range-ocean-highlight{fill:rgba(91,154,139,0.15);}
+.range-dot{fill:var(--accent-primary);}
+@keyframes rangePulse{0%{r:3;opacity:0.6}100%{r:8;opacity:0}}
+.range-dot-pulse{fill:var(--accent-primary);animation:rangePulse 2s ease-out infinite;}
+@media(prefers-reduced-motion:reduce){.range-dot-pulse{animation:none;r:4;opacity:0.5;}}
+.range-caption{font-size:0.625rem;color:var(--text-secondary);margin-top:var(--sp-2);
+  font-family:var(--font-sans);line-height:1.5;}
+
+/* ── IUCN DETAIL SCALE ── */
+.iucn-scale{display:flex;gap:2px;align-items:flex-end;}
+.iucn-seg{flex:1;height:20px;border-radius:3px;opacity:0.3;transition:all 0.3s;display:flex;
+  align-items:center;justify-content:center;font-size:0.5rem;font-weight:700;
+  font-family:var(--font-sans);color:transparent;letter-spacing:0.04em;}
+.iucn-seg.active{opacity:1;height:26px;color:white;box-shadow:0 2px 8px rgba(0,0,0,0.2);}
+.iucn-seg-EX{background:#1a1a1a;}.iucn-seg-EW{background:#542344;}
+.iucn-seg-CR{background:#d32f2f;}.iucn-seg-EN{background:#e65100;}
+.iucn-seg-VU{background:#f9a825;}.iucn-seg-NT{background:#7cb342;}
+.iucn-seg-LC{background:#388e3c;}
+.iucn-label{font-size:0.56rem;color:var(--text-secondary);font-family:var(--font-sans);
+  text-align:center;margin-top:4px;}
+
+/* ── DECORATIVE LEAF DIVIDER ── */
+.panel-leaf-divider{display:flex;align-items:center;gap:10px;margin:var(--sp-2) 0;}
+.panel-leaf-divider::before,.panel-leaf-divider::after{content:'';flex:1;height:1px;
+  background:var(--border);}
+.panel-leaf-divider svg{flex-shrink:0;opacity:0.4;}
+
+/* ── ORNAMENTAL SECTION HEADER ── */
+.panel-orn-hdr{display:flex;align-items:center;gap:8px;margin-bottom:var(--sp-2);}
+.panel-orn-hdr svg{flex-shrink:0;opacity:0.5;}
+.panel-orn-hdr span{font-size:0.625rem;font-weight:700;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--accent-primary);font-family:var(--font-sans);}
+
+/* ── ECOLOGY DATA CARD ── */
+.eco-card{display:flex;gap:var(--sp-3);padding:var(--sp-3);background:var(--surface-raised);
+  border-radius:var(--radius-md);border:1px solid var(--border);}
+.eco-card-icon{font-size:18px;flex-shrink:0;}
+.eco-card-label{font-size:0.56rem;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--text-muted);font-family:var(--font-sans);margin-bottom:2px;}
+.eco-card-value{font-size:0.78rem;color:var(--text-primary);font-family:var(--font-sans);line-height:1.5;}
+
+/* ── LINEAGE PATH (evolution tab) ── */
+.lineage-path{display:flex;flex-direction:column;gap:0;position:relative;
+  padding-left:20px;border-left:2px solid var(--border);}
+[dir="rtl"] .lineage-path{padding-left:0;padding-right:20px;border-left:none;border-right:2px solid var(--border);}
+.lineage-step{position:relative;padding:6px 0;font-size:0.72rem;color:var(--text-secondary);
+  font-family:var(--font-sans);}
+.lineage-step::before{content:'';position:absolute;left:-24px;top:50%;width:10px;height:10px;
+  border-radius:50%;background:var(--surface-raised);border:2px solid var(--border);transform:translateY(-50%);}
+[dir="rtl"] .lineage-step::before{left:auto;right:-24px;}
+.lineage-step.current{color:var(--accent-primary);font-weight:600;}
+.lineage-step.current::before{background:var(--accent-primary);border-color:var(--accent-primary);}
+
+/* ── J18 LIGHT THEME OVERRIDES ── */
+[data-theme="light"] .panel-tabs{background:rgba(255,255,255,0.95);}
+[data-theme="light"] .panel-tab.active{color:var(--accent);}
+[data-theme="light"] .panel-tab.active::after{background:var(--accent);}
+[data-theme="light"] .stat-bar-track{background:#e8e4de;}
+[data-theme="light"] .range-continent{fill:#d0d5db;}
+[data-theme="light"] .range-continent.highlighted{fill:var(--accent-secondary);opacity:0.5;}
+[data-theme="light"] .range-ocean-highlight{fill:rgba(91,154,139,0.1);}
+[data-theme="light"] .sw-card{background:rgba(0,0,0,0.03);}
+[data-theme="light"] .sw-card:hover{background:rgba(0,0,0,0.06);}
+[data-theme="light"] .eco-card{background:rgba(0,0,0,0.03);border-color:rgba(0,0,0,0.08);}
+
+/* ── J18 MOBILE OVERRIDES ── */
+@media(max-width:600px){
+  .panel-tabs{padding:0 var(--sp-3);}
+  .panel-tab{padding:8px 10px;font-size:0.65rem;}
+  .panel-tab-content{padding:var(--sp-3) 0;}
+  .sw-grid{grid-template-columns:1fr;}
+  .stat-bar-label{min-width:60px;font-size:0.56rem;}
+}
+
 /* ── LEGEND ── */
 #legend{position:fixed;bottom:4.5rem;left:1.2rem;z-index:var(--z-nav);
   background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius-md);
@@ -2253,6 +2387,7 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
 <script src="js/triviaData.js"></script>
 <script src="js/primateData.js"></script>
 <script src="js/geoData.js"></script>
+<script src="js/speciesStats.js"></script>
 <script src="js/tour.js"></script>
 <script>
 // Register PHOTO_MAP (from speciesData.js) with ImageLoader for tree node rendering
@@ -4815,120 +4950,184 @@ function renderPanelContent(node) {
 
   // Lineage badge
   const GREAT_APE_SET = new Set(['great-apes','gorilla','orangutan','chimpanzee','homo-sapiens']);
-  const isHominin = node._hominData || node._hominin || (node.tags && (node.tags.includes('Hominin') || node.tags.includes('Human evolution')));
+  const isHominid = node._hominData || node._hominin || (node.tags && (node.tags.includes('Hominin') || node.tags.includes('Human evolution')));
   const isGreatApe = GREAT_APE_SET.has(node.id);
   let lineageBadge = '';
-  if (isHominin) lineageBadge = '<span class="panel-hero-lineage human">🧬 Human Lineage</span>';
-  else if (isGreatApe) lineageBadge = '<span class="panel-hero-lineage ape">🦍 Great Apes</span>';
+  if (isHominid) lineageBadge = '<span class="panel-hero-lineage human">\u{1F9EC} Human Lineage</span>';
+  else if (isGreatApe) lineageBadge = '<span class="panel-hero-lineage ape">\u{1F98D} Great Apes</span>';
 
-  // Branch type for customized sections
+  // Feature flags
+  const hasStats = (typeof SPECIES_STATS !== 'undefined') && SPECIES_STATS[node.id];
+  const isHominin = node._hominData || node.id === 'hominini' || (node.id && node.id.startsWith('hom-'));
   const branchType = getBranchType(node);
+
+  // IUCN compact badge
+  let iucnBadge = '';
+  if (node.iucn && node.iucn !== 'NE') {
+    const iucnMap = {EX:{bg:'#000'},EW:{bg:'#542344'},CR:{bg:'#d32f2f'},EN:{bg:'#e65100'},VU:{bg:'#f9a825'},NT:{bg:'#7cb342'},LC:{bg:'#388e3c'},DD:{bg:'#757575'}};
+    const info = iucnMap[node.iucn];
+    if (info) {
+      const tc = ['VU','NT'].includes(node.iucn) ? '#000' : '#fff';
+      iucnBadge = `<span style="background:${info.bg};color:${tc};font-size:10px;padding:2px 8px;border-radius:9999px;font-family:Inter,sans-serif;font-weight:600;letter-spacing:0.05em;">IUCN: ${node.iucn}</span>`;
+    }
+  }
+
+  // ── Stat bars helper ──
+  function _renderStatBars() {
+    if (!hasStats) return '';
+    const stats = SPECIES_STATS[node.id];
+    const names = ['size','speed','intelligence','sociality','adaptability','danger'];
+    const labels = {size:'Size',speed:'Speed',intelligence:'Intelligence',sociality:'Sociality',adaptability:'Adaptability',danger:'Danger'};
+    let html = '';
+    if (stats.archetype) html += `<div class="panel-section"><span class="stat-archetype">${stats.archetype}</span></div>`;
+    html += `<div class="panel-section"><div class="panel-orn-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="1.5"><path d="M12 2L9 7H3l5 4-2 7 6-4 6 4-2-7 5-4h-6z"/></svg><span>STATS</span></div><div class="stat-bar-group">`;
+    for (const name of names) {
+      const v = (stats.stats && stats.stats[name]) || 0;
+      html += `<div class="stat-bar"><span class="stat-bar-label">${labels[name]}</span><div class="stat-bar-track"><div class="stat-bar-fill" data-width="${v*10}%" style="width:0%"></div></div><span class="stat-bar-value">${v}</span></div>`;
+    }
+    html += `</div></div>`;
+    return html;
+  }
+
+  // ── Strengths/Weaknesses helper ──
+  function _renderSW() {
+    if (!hasStats) return '';
+    const stats = SPECIES_STATS[node.id];
+    const s = stats.strengths || [], w = stats.weaknesses || [];
+    if (!s.length && !w.length) return '';
+    let html = `<div class="panel-section"><div class="panel-orn-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="1.5"><path d="M12 2L9 7H3l5 4-2 7 6-4 6 4-2-7 5-4h-6z"/></svg><span>STRENGTHS & WEAKNESSES</span></div><div class="sw-grid">`;
+    for (const item of s) html += `<div class="sw-card strength"><div class="sw-card-icon">${item.icon}</div><div class="sw-card-label">${item.label}</div><div class="sw-card-desc">${item.desc}</div></div>`;
+    for (const item of w) html += `<div class="sw-card weakness"><div class="sw-card-icon">${item.icon}</div><div class="sw-card-label">${item.label}</div><div class="sw-card-desc">${item.desc}</div></div>`;
+    html += `</div></div>`;
+    return html;
+  }
+
+  // ── IUCN detail scale ──
+  function _renderIUCN() {
+    if (!node.iucn || node.iucn === 'NE') return '';
+    const codes = ['EX','EW','CR','EN','VU','NT','LC'];
+    const names = {EX:'Extinct',EW:'Extinct Wild',CR:'Critical',EN:'Endangered',VU:'Vulnerable',NT:'Near Threat.',LC:'Least Concern'};
+    let html = `<div class="panel-section"><div class="panel-orn-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="1.5"><path d="M12 2L9 7H3l5 4-2 7 6-4 6 4-2-7 5-4h-6z"/></svg><span>CONSERVATION STATUS</span></div><div class="iucn-scale">`;
+    for (const c of codes) html += `<div class="iucn-seg iucn-seg-${c}${c === node.iucn ? ' active' : ''}">${c}</div>`;
+    html += `</div>`;
+    if (names[node.iucn]) html += `<div class="iucn-label">${names[node.iucn]}</div>`;
+    html += `</div>`;
+    return html;
+  }
+
+  // ── Hominin data helper ──
+  function _renderHominin() {
+    const h = node._hominData;
+    if (!h) return '';
+    const brainMax = h.brain && (h.brain[1] || h.brain[0]);
+    const neanPct = h.dna && h.dna.neanderthal != null ? h.dna.neanderthal : null;
+    const denPct = h.dna && h.dna.denisovan != null ? h.dna.denisovan : null;
+    let html = '';
+    if (brainMax) {
+      html += `<div class="panel-section"><div class="p-section">\u{1F9E0} BRAIN VOLUME</div><div class="panel-bar-wrap"><div class="panel-bar"><div class="panel-bar-fill" style="width:${Math.round(brainMax/1750*100)}%;background:${h.color}"></div></div><span class="panel-bar-label">${brainMax} cm\u00B3</span></div></div>`;
+    }
+    const hasTools = h.tools && h.tools !== 'None known' && h.tools !== 'None';
+    const hasFire = h.fire && h.fire !== 'No';
+    const hasLang = h.language && h.language !== 'None';
+    if (hasTools || hasFire || hasLang) {
+      html += `<div class="panel-section"><div class="panel-caps">`;
+      if (hasTools) html += `<span class="panel-cap">\u{1FAA8} ${h.tools}</span>`;
+      if (hasFire) html += `<span class="panel-cap">\u{1F525} ${h.fire}</span>`;
+      if (hasLang) html += `<span class="panel-cap">\u{1F5E3}\uFE0F ${h.language}</span>`;
+      html += `</div></div>`;
+    }
+    if (neanPct != null || denPct != null) {
+      html += `<div class="panel-section"><div class="p-section">\u{1F9EC} DNA LEGACY</div>`;
+      if (neanPct != null) html += `<div class="panel-bar-wrap" style="margin-bottom:4px"><span style="min-width:75px;font-size:0.72rem;color:var(--text-secondary)">Neanderthal</span><div class="panel-bar" style="height:6px"><div class="panel-bar-fill" style="width:${Math.min(100,neanPct*25)}%;background:#7A9BAA"></div></div><span class="panel-bar-label">${neanPct}%</span></div>`;
+      if (denPct != null) html += `<div class="panel-bar-wrap"><span style="min-width:75px;font-size:0.72rem;color:var(--text-secondary)">Denisovan</span><div class="panel-bar" style="height:6px"><div class="panel-bar-fill" style="width:${Math.min(100,denPct*20)}%;background:#7A8BAA"></div></div><span class="panel-bar-label">${denPct}%</span></div>`;
+      if (h.dna && h.dna.note) html += `<div style="font-size:0.65rem;color:var(--text-secondary);font-style:italic;margin-top:4px">${h.dna.note}</div>`;
+      html += `</div>`;
+    }
+    if (h.sites && h.sites.length) {
+      html += `<div class="panel-section"><div class="p-section">\u{1F4CD} FOSSIL SITES</div><div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6">${h.sites.join(' \u00B7 ')}</div></div>`;
+    }
+    return html;
+  }
+
+  // ── Lineage path helper ──
+  function _renderLineage() {
+    const ancestors = getAncestors(node);
+    if (ancestors.length <= 1) return '';
+    let html = `<div class="panel-section"><div class="panel-orn-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="1.5"><path d="M12 2L9 7H3l5 4-2 7 6-4 6 4-2-7 5-4h-6z"/></svg><span>LINEAGE</span></div><div class="lineage-path">`;
+    for (let i = 0; i < ancestors.length; i++) {
+      const a = ancestors[i];
+      const isCurrent = i === ancestors.length - 1;
+      html += `<div class="lineage-step${isCurrent ? ' current' : ''}">${a.name}${a.appeared ? ' <span style="font-family:var(--font-mono);font-size:0.625rem;opacity:0.6;">' + a.appeared + ' Mya</span>' : ''}</div>`;
+    }
+    html += `</div></div>`;
+    return html;
+  }
+
+  // ── Leaf divider ──
+  const _leaf = `<div class="panel-leaf-divider"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="1.5"><path d="M12 2C6.5 6 4 12 4 18c0 1 .5 2 1.5 2.5C8 19 10 14 12 10c2 4 4 9 6.5 10.5 1-.5 1.5-1.5 1.5-2.5 0-6-2.5-12-8-16z"/></svg></div>`;
+
+  // ══════════════════════════════════════════════════════
+  // BUILD TABBED HTML
+  // ══════════════════════════════════════════════════════
 
   p.innerHTML = `
     <div class="panel-hero">
       <img id="${panelImgId}" alt="${node.name}" style="display:none;" />
-      <div id="${panelFbId}" class="panel-hero-fb">${node.icon || '🌿'}</div>
+      <div id="${panelFbId}" class="panel-hero-fb">${node.icon || '\u{1F33F}'}</div>
       <div class="panel-hero-overlay"></div>
-      ${node.extinct ? '<span class="panel-hero-badge">† EXTINCT</span>' : ''}
+      ${node.extinct ? '<span class="panel-hero-badge">\u2020 EXTINCT</span>' : ''}
       ${lineageBadge}
       <div class="panel-hero-meta">
         <div class="p-name">${node.name}</div>
         ${node.latin ? `<div class="p-latin">${node.latin}</div>` : ''}
-        ${node.era ? `<div class="p-era">📅 ${node.era}${node.appeared ? ' · ' + node.appeared + ' Mya' : ''}</div>` : ''}
+        ${node.era ? `<div class="p-era">\u{1F4C5} ${node.era}${node.appeared ? ' \u00B7 ' + node.appeared + ' Mya' : ''}</div>` : ''}
       </div>
       <div id="${panelCrId}" class="panel-hero-credit">${staticCredit}</div>
-      <button class="p-close" onclick="closePanel()">✕</button>
+      <button class="p-close" onclick="closePanel()" aria-label="Close">\u2715</button>
     </div>
+
+    <div class="panel-tabs" role="tablist" aria-label="Species information">
+      <button class="panel-tab active" data-tab="overview" role="tab" aria-selected="true" tabindex="0">Overview</button>
+      <button class="panel-tab" data-tab="stats" role="tab" aria-selected="false" tabindex="-1" style="${hasStats ? '' : 'display:none'}">Stats</button>
+      <button class="panel-tab" data-tab="ecology" role="tab" aria-selected="false" tabindex="-1">Ecology</button>
+      <button class="panel-tab" data-tab="evolution" role="tab" aria-selected="false" tabindex="-1">Evolution</button>
+    </div>
+
     <div class="panel-body">
-      ${node.desc ? `<div class="panel-section"><p class="p-desc" style="margin:0">${node.desc}</p></div>` : ''}
-      ${node.funFact ? `
-        <div class="panel-section">
-          <div class="panel-funfact">
-            <div class="panel-funfact-label">💡 DID YOU KNOW</div>
-            <p class="panel-funfact-text">${node.funFact}</p>
-          </div>
-        </div>
-      ` : ''}
-      ${node.detail ? `<div class="panel-section"><p class="p-detail" style="margin:0">${node.detail}</p></div>` : ''}
-      ${renderMiniMap(node.id, node.color)}
-      ${node.facts && node.facts.length ? `
-        <div class="panel-section">
-          <div class="p-facts">
-            ${node.facts.map(f => `
-              <div class="fact-card" style="border-left:3px solid ${node.color}">
-                <div class="fact-l">${f.l}</div>
-                <div class="fact-v">${f.v}</div>
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      ` : ''}
-      ${node.tags && node.tags.length ? `
-        <div class="panel-section" style="display:flex;flex-wrap:wrap;gap:6px;">
-          ${node.tags.map(tag => `<span class="p-tag">${tag}</span>`).join('')}
-        </div>
-      ` : ''}
-      ${renderBranchSection(node, branchType)}
-      ${(()=>{
-        const h = node._hominData;
-        if (!h) return '';
-        const brainMax = h.brain && (h.brain[1] || h.brain[0]);
-        let html = '';
-        if (brainMax) {
-          html += `<div class="panel-section">
-            <div class="p-section">🧠 BRAIN VOLUME</div>
-            <div class="panel-bar-wrap">
-              <div class="panel-bar"><div class="panel-bar-fill" style="width:${Math.round(brainMax/1750*100)}%;background:${h.color}"></div></div>
-              <span class="panel-bar-label">${brainMax} cm³</span>
-            </div>
-          </div>`;
-        }
-        const hasTools = h.tools && h.tools !== 'None known' && h.tools !== 'None';
-        const hasFire = h.fire && h.fire !== 'No';
-        const hasLang = h.language && h.language !== 'None';
-        if (hasTools || hasFire || hasLang) {
-          html += `<div class="panel-section"><div class="panel-caps">`;
-          if (hasTools) html += `<span class="panel-cap">🪨 ${h.tools}</span>`;
-          if (hasFire)  html += `<span class="panel-cap">🔥 ${h.fire}</span>`;
-          if (hasLang)  html += `<span class="panel-cap">🗣️ ${h.language}</span>`;
-          html += `</div></div>`;
-        }
-        const neanPct = h.dna && h.dna.neanderthal != null ? h.dna.neanderthal : null;
-        const denPct  = h.dna && h.dna.denisovan != null ? h.dna.denisovan : null;
-        if (neanPct != null || denPct != null) {
-          html += `<div class="panel-section"><div class="p-section">🧬 DNA LEGACY</div>`;
-          if (neanPct != null) html += `<div class="panel-bar-wrap" style="margin-bottom:4px"><span style="min-width:75px;font-size:0.72rem;color:var(--text-secondary)">Neanderthal</span><div class="panel-bar" style="height:6px"><div class="panel-bar-fill" style="width:${Math.min(100,neanPct*25)}%;background:#7A9BAA"></div></div><span class="panel-bar-label">${neanPct}%</span></div>`;
-          if (denPct != null) html += `<div class="panel-bar-wrap"><span style="min-width:75px;font-size:0.72rem;color:var(--text-secondary)">Denisovan</span><div class="panel-bar" style="height:6px"><div class="panel-bar-fill" style="width:${Math.min(100,denPct*20)}%;background:#7A8BAA"></div></div><span class="panel-bar-label">${denPct}%</span></div>`;
-          if (h.dna && h.dna.note) html += `<div style="font-size:0.65rem;color:var(--text-secondary);font-style:italic;margin-top:4px">${h.dna.note}</div>`;
-          html += `</div>`;
-        }
-        if (h.sites && h.sites.length) {
-          html += `<div class="panel-section"><div class="p-section">📍 FOSSIL SITES</div>
-            <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6">${h.sites.join(' · ')}</div></div>`;
-        }
-        return html;
-      })()}
-      ${node.tipFact ? `<div class="panel-section"><div class="panel-tip">🌿 ${node.tipFact}</div></div>` : ''}
-      ${node.altFacts && node.altFacts.length ? `
-        <div class="panel-section">
-          <div class="p-section">📚 MORE FACTS</div>
-          <div style="display:flex;flex-direction:column;gap:6px">
-            ${node.altFacts.map(f => `<div class="panel-altfact">${f}</div>`).join('')}
-          </div>
-        </div>
-      ` : ''}
-      ${node.links && node.links.length ? `
-        <div class="panel-section">
-          <div class="p-section">🔗 LEARN MORE</div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px">
-            ${node.links.map(lnk => `<a href="${lnk.url}" target="_blank" rel="noopener noreferrer" class="panel-link">↗ ${lnk.label}</a>`).join('')}
-          </div>
-        </div>
-      ` : ''}
-      ${(()=>{
-        const isHom = node._hominData || node.id === 'hominini' || (node.id && node.id.startsWith('hom-'));
-        return isHom ? `<div class="panel-section"><button class="panel-cta" onclick="openHomininView()">🧬 Hominin Deep Dive</button></div>` : '';
-      })()}
+      <!-- OVERVIEW TAB -->
+      <div class="panel-tab-content active" data-tab="overview">
+        ${iucnBadge ? `<div class="panel-section">${iucnBadge}</div>` : ''}
+        ${node.desc ? `<div class="panel-section"><p class="p-desc" style="margin:0">${node.desc}</p></div>` : ''}
+        ${node.funFact ? `<div class="panel-section"><div class="panel-funfact"><div class="panel-funfact-label">\u{1F4A1} DID YOU KNOW</div><p class="panel-funfact-text">${node.funFact}</p></div></div>` : ''}
+        ${node.tags && node.tags.length ? `<div class="panel-section" style="display:flex;flex-wrap:wrap;gap:6px">${node.tags.map(tag => `<span class="p-tag">${tag}</span>`).join('')}</div>` : ''}
+        ${node.tipFact ? `<div class="panel-section"><div class="panel-tip">\u{1F33F} ${node.tipFact}</div></div>` : ''}
+      </div>
+
+      <!-- STATS TAB -->
+      <div class="panel-tab-content" data-tab="stats">
+        ${_renderStatBars()}
+        ${_leaf}
+        ${_renderSW()}
+        ${node.facts && node.facts.length ? `<div class="panel-section"><div class="panel-orn-hdr"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-primary)" stroke-width="1.5"><path d="M12 2L9 7H3l5 4-2 7 6-4 6 4-2-7 5-4h-6z"/></svg><span>KEY DATA</span></div><div class="p-facts">${node.facts.map(f => `<div class="fact-card" style="border-left:3px solid ${node.color}"><div class="fact-l">${f.l}</div><div class="fact-v">${f.v}</div></div>`).join('')}</div></div>` : ''}
+      </div>
+
+      <!-- ECOLOGY TAB -->
+      <div class="panel-tab-content" data-tab="ecology">
+        ${renderMiniMap(node.id, node.color)}
+        ${renderBranchSection(node, branchType)}
+        ${_renderIUCN()}
+        ${node.altFacts && node.altFacts.length ? `<div class="panel-section"><div class="p-section">\u{1F4DA} MORE FACTS</div><div style="display:flex;flex-direction:column;gap:6px">${node.altFacts.map(f => `<div class="panel-altfact">${f}</div>`).join('')}</div></div>` : ''}
+        ${node.links && node.links.length ? `<div class="panel-section"><div class="p-section">\u{1F517} LEARN MORE</div><div style="display:flex;flex-wrap:wrap;gap:6px">${node.links.map(lnk => `<a href="${lnk.url}" target="_blank" rel="noopener noreferrer" class="panel-link">\u2197 ${lnk.label}</a>`).join('')}</div></div>` : ''}
+      </div>
+
+      <!-- EVOLUTION TAB -->
+      <div class="panel-tab-content" data-tab="evolution">
+        ${node.appeared ? `<div class="panel-section"><div class="eco-card"><div class="eco-card-icon">\u{23F3}</div><div><div class="eco-card-label">Appeared</div><div class="eco-card-value">${node.appeared} million years ago${node.era ? ' \u00B7 ' + node.era : ''}</div></div></div></div>` : ''}
+        ${_renderLineage()}
+        ${node.detail ? `<div class="panel-section"><p class="p-detail" style="margin:0">${node.detail}</p></div>` : ''}
+        ${_renderHominin()}
+        ${isHominin ? `<div class="panel-section"><button class="panel-cta" onclick="openHomininView()">\u{1F9EC} Hominin Deep Dive</button></div>` : ''}
+      </div>
     </div>
   `;
 
@@ -4937,13 +5136,56 @@ function renderPanelContent(node) {
     const body = p.querySelector('.panel-body');
     if (body) {
       const backBtn = document.createElement('button');
-      backBtn.textContent = '← Back';
+      backBtn.textContent = '\u2190 Back';
       backBtn.onclick = navBack;
       backBtn.className = 'btn-back';
       backBtn.style.marginBottom = '4px';
       body.insertBefore(backBtn, body.firstChild);
     }
   }
+
+  // Initialize tab switching
+  (function initTabs() {
+    const tabs = p.querySelectorAll('.panel-tab');
+    const contents = p.querySelectorAll('.panel-tab-content');
+    const body = p.querySelector('.panel-body');
+    function activate(tabName) {
+      tabs.forEach(t => {
+        const on = t.dataset.tab === tabName;
+        t.classList.toggle('active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+        t.tabIndex = on ? 0 : -1;
+      });
+      contents.forEach(c => {
+        const on = c.dataset.tab === tabName;
+        c.classList.toggle('active', on);
+        if (on) {
+          c.querySelectorAll('.panel-section').forEach(s => { s.style.animation = 'none'; s.offsetHeight; s.style.animation = ''; });
+          if (tabName === 'stats') {
+            c.querySelectorAll('.stat-bar-fill[data-width]').forEach(el => { el.style.width = '0%'; });
+            setTimeout(() => {
+              c.querySelectorAll('.stat-bar-fill[data-width]').forEach(el => { el.style.width = el.dataset.width; });
+            }, 50);
+          }
+        }
+      });
+      if (body) body.scrollTop = 0;
+    }
+    tabs.forEach(t => t.addEventListener('click', () => activate(t.dataset.tab)));
+    // Keyboard nav
+    const tabBar = p.querySelector('.panel-tabs');
+    if (tabBar) tabBar.addEventListener('keydown', e => {
+      const vis = Array.from(tabs).filter(t => t.style.display !== 'none');
+      const idx = vis.indexOf(document.activeElement);
+      if (idx < 0) return;
+      let next = -1;
+      if (e.key === 'ArrowRight') next = (idx + 1) % vis.length;
+      else if (e.key === 'ArrowLeft') next = (idx - 1 + vis.length) % vis.length;
+      else if (e.key === 'Home') next = 0;
+      else if (e.key === 'End') next = vis.length - 1;
+      if (next >= 0) { e.preventDefault(); vis[next].focus(); activate(vis[next].dataset.tab); }
+    });
+  })();
 
   // Load image via ImageLoader (proper fallback chain)
   const imgEl = document.getElementById(panelImgId);
@@ -4959,7 +5201,6 @@ function renderPanelContent(node) {
         imgEl.style.display = 'none';
         fbEl.style.display = 'flex';
       };
-      // Timeout: if image hasn't loaded after 6s, show fallback
       setTimeout(() => {
         if (!imgEl.complete || imgEl.naturalWidth === 0) {
           imgEl.style.display = 'none';
@@ -4967,7 +5208,6 @@ function renderPanelContent(node) {
         }
       }, 6000);
     }
-    // Also try Wikipedia API for a potentially better photo
     if (wikiTitle) {
       fetchWikiPhoto(node.id, wikiTitle, imgEl, fbEl, crEl);
     }

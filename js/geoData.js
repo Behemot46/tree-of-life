@@ -698,3 +698,75 @@ const BRANCH_DATA = {
     ability: 'Larger brain than H. habilis; debated whether separate species or variant'
   },
 };
+
+// ══════════════════════════════════════════════════════
+// CONTINENT PATHS — simplified SVG outlines for range minimap
+// ViewBox: 0 0 360 180 (equirectangular projection)
+// ══════════════════════════════════════════════════════
+
+const CONTINENT_PATHS = {
+  'north-america': 'M10,25 L30,18 50,20 65,15 80,18 90,25 95,35 100,40 95,55 90,60 80,65 85,70 80,80 75,85 60,90 55,85 50,75 45,70 35,65 30,55 20,50 15,45 10,40 8,32 Z',
+  'south-america': 'M60,95 L70,92 78,98 82,110 80,120 78,130 74,140 68,150 60,158 55,155 52,145 54,135 56,125 55,115 52,105 55,98 Z',
+  'europe': 'M155,20 L165,18 175,22 180,28 178,35 182,38 178,42 172,45 168,42 160,44 155,40 150,38 148,32 150,26 Z',
+  'africa': 'M150,50 L160,48 175,50 185,55 190,65 192,80 188,95 185,110 178,120 170,128 160,130 155,125 148,115 145,100 142,85 144,70 146,60 Z',
+  'asia': 'M180,15 L200,12 220,15 240,18 255,20 270,25 280,30 285,40 275,50 265,55 260,65 250,60 240,55 235,50 230,55 220,52 210,50 200,45 190,42 182,38 178,35 180,28 Z',
+  'oceania': 'M250,110 L265,105 280,108 290,115 285,125 278,132 265,135 255,130 248,122 Z M295,118 L300,115 305,120 300,125 295,122 Z',
+  'antarctica': 'M60,172 L100,170 140,171 180,170 220,171 260,172 300,170 300,180 60,180 Z'
+};
+
+// ══════════════════════════════════════════════════════
+// REGION CENTROIDS — x,y positions on 360x180 viewBox
+// for placing pulsing dots on the range minimap
+// ══════════════════════════════════════════════════════
+
+const REGION_CENTROIDS = {
+  'north-america':  [60, 50],
+  'central-america': [55, 80],
+  'south-america':  [65, 125],
+  'europe':         [165, 35],
+  'north-africa':   [165, 60],
+  'west-africa':    [150, 75],
+  'east-africa':    [180, 90],
+  'southern-africa': [170, 120],
+  'africa':         [168, 85],
+  'west-asia':      [195, 50],
+  'central-asia':   [215, 40],
+  'south-asia':     [230, 55],
+  'east-asia':      [255, 40],
+  'southeast-asia': [255, 60],
+  'asia':           [235, 45],
+  'oceania':        [270, 118],
+  'arctic':         [180, 10],
+  'worldwide':      null,
+  'marine-global':  null,
+  'marine-deep':    null,
+  'freshwater':     null
+};
+
+// ══════════════════════════════════════════════════════
+// REGION → CONTINENT mapping for highlighting
+// ══════════════════════════════════════════════════════
+
+const REGION_TO_CONTINENT = {
+  'north-america':  'north-america',
+  'central-america': 'north-america',
+  'south-america':  'south-america',
+  'europe':         'europe',
+  'north-africa':   'africa',
+  'west-africa':    'africa',
+  'east-africa':    'africa',
+  'southern-africa': 'africa',
+  'africa':         'africa',
+  'west-asia':      'asia',
+  'central-asia':   'asia',
+  'south-asia':     'asia',
+  'east-asia':      'asia',
+  'southeast-asia': 'asia',
+  'asia':           'asia',
+  'oceania':        'oceania',
+  'arctic':         null,
+  'worldwide':      null,
+  'marine-global':  null,
+  'marine-deep':    null,
+  'freshwater':     null
+};

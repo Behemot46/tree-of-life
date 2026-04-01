@@ -1,3 +1,41 @@
+# Session Handoff — 2026-04-01 (Sprint J15 — Species Map Replacement)
+
+**Status: done**
+**Branch:** `claude/optimistic-gates`
+**PR:** #136
+
+## 1. Session Goal
+Replace the flawed inline SVG world map (16 crude L-line polygons) with realistic continent outlines for the species distribution mini-map shown in detail panels.
+
+## 2. What I Changed
+
+### js/mapPaths.js (NEW — ~170 lines)
+- `MAP_PATHS` constant: 16 region keys, each mapping to an array of SVG path d-strings
+- Realistic continent outlines in 800×400 equirectangular coordinate space
+- Supports disconnected landmasses (islands, archipelagos) via path arrays
+
+### js/panel.js — renderMiniMap() rewrite
+- Replaced local `landRegions` crude polygons with global `MAP_PATHS` reference
+- Updated viewBox from `"30 10 300 175"` to `"0 0 800 400"`
+- Added graceful degradation: returns `''` if `MAP_PATHS` unavailable
+- Iterates path arrays per region (multiple `<path>` elements per region)
+
+### index.html — CSS + script tag
+- Adjusted `.mini-map .region` stroke-width from `0.3` to `0.8` for new coordinate space
+- Added `<script src="js/mapPaths.js"></script>` after geoData.js
+
+## 3. What's NOT Changed
+- All 156+ GEO_DATA entries (region keys, labels, types)
+- Africa super-region expansion logic
+- Marine/worldwide/fossil/endemic rendering logic
+- CSS classes and dark/light theme support
+
+## 4. What's Next
+- J2: Navigation polish
+- Further map improvements: hover tooltips, region labels
+
+---
+
 # Session Handoff — 2026-03-31 (Sprint J12 — Species Expansion + Hominin Deep-Dive)
 
 **Status: done**

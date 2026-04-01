@@ -155,42 +155,25 @@ export function renderBranchSection(node, branchType) {
 export function renderMiniMap(nodeId, nodeColor) {
   const geo = (typeof GEO_DATA !== 'undefined') ? GEO_DATA[nodeId] : null;
   if (!geo || !geo.regions || !geo.regions.length) return '';
+  if (typeof MAP_PATHS === 'undefined') return '';
   const active = new Set(geo.regions);
   const isWorldwide = active.has('worldwide');
   const isMarine = active.has('marine-global') || active.has('marine-deep') || active.has('freshwater');
   const color = nodeColor || 'var(--accent-primary)';
-  // Simplified world map paths (Robinson-style projection)
-  const landRegions = {
-    'north-america':  'M45,30 L95,25 L105,55 L85,75 L60,70 L40,50Z',
-    'central-america':'M60,70 L85,75 L80,90 L65,85Z',
-    'south-america':  'M70,90 L90,85 L100,115 L90,155 L70,160 L60,130 L65,100Z',
-    'europe':         'M150,25 L185,20 L190,45 L175,50 L155,50 L145,40Z',
-    'north-africa':   'M135,55 L185,50 L190,75 L135,75Z',
-    'west-africa':    'M125,75 L145,75 L145,95 L125,95Z',
-    'east-africa':    'M165,75 L190,75 L185,105 L165,105Z',
-    'southern-africa':'M145,105 L180,105 L175,135 L155,140 L140,125Z',
-    'africa':         'M125,55 L190,50 L195,75 L190,105 L180,135 L155,140 L135,125 L120,95 L125,75Z',
-    'west-asia':      'M185,40 L215,35 L220,60 L195,65 L185,55Z',
-    'central-asia':   'M215,30 L250,25 L255,50 L220,55Z',
-    'south-asia':     'M215,55 L245,50 L250,80 L235,90 L215,80Z',
-    'east-asia':      'M250,25 L290,20 L295,60 L260,65 L250,50Z',
-    'southeast-asia': 'M255,65 L290,60 L300,95 L275,100 L255,85Z',
-    'oceania':        'M275,110 L310,105 L315,130 L290,135 L275,125Z',
-    'antarctica':     'M60,170 L300,170 L310,180 L50,180Z'
-  };
-  // Ocean background for marine species
+  // Build SVG paths from MAP_PATHS (realistic continent outlines)
   let paths = '';
   if (isMarine) {
-    paths += `<rect x="30" y="10" width="300" height="175" rx="4" style="fill:${color};opacity:0.25"/>`;
+    paths += `<rect x="0" y="0" width="800" height="400" rx="8" style="fill:${color};opacity:0.2"/>`;
   }
-  for (const [rid, d] of Object.entries(landRegions)) {
+  for (const [rid, dArr] of Object.entries(MAP_PATHS)) {
     const isActive = isWorldwide || active.has(rid) ||
       (active.has('africa') && (rid === 'north-africa' || rid === 'west-africa' || rid === 'east-africa' || rid === 'southern-africa'));
-    if (isMarine && !isActive) {
-      // For marine species, land is neutral, ocean is highlighted
-      paths += `<path class="region" d="${d}"/>`;
-    } else {
-      paths += `<path class="region${isActive ? ' active' : ''}" d="${d}" ${isActive ? `style="fill:${color}"` : ''}/>`;
+    for (const d of dArr) {
+      if (isMarine && !isActive) {
+        paths += `<path class="region" d="${d}"/>`;
+      } else {
+        paths += `<path class="region${isActive ? ' active' : ''}" d="${d}" ${isActive ? `style="fill:${color}"` : ''}/>`;
+      }
     }
   }
   const typeIcon = geo.type === 'fossil' ? '🦴' : geo.type === 'endemic' ? '📌' : '🌍';
@@ -198,7 +181,7 @@ export function renderMiniMap(nodeId, nodeColor) {
   return `<div class="panel-section">
     <div class="p-section">📍 ${typeLabel.toUpperCase()}</div>
     <div class="mini-map">
-      <svg viewBox="30 10 300 175" xmlns="http://www.w3.org/2000/svg">${paths}</svg>
+      <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">${paths}</svg>
     </div>
     <div class="mini-map-caption">
       <span class="mini-map-dot" style="background:${color}"></span>

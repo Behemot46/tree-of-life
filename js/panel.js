@@ -633,7 +633,7 @@ export function renderPanelContent(node) {
   const panelCrId  = 'pc-' + node.id.replace(/[^a-z0-9]/g, '_');
 
   // Lineage badge
-  const GREAT_APE_SET = new Set(['great-apes','gorilla','orangutan','chimpanzee','homo-sapiens']);
+  const GREAT_APE_SET = new Set(['great-apes','gorilla','orangutan','chimpanzee','bonobo','homo-sapiens']);
   const isHominin = node._hominData || node._hominin || (node.tags && (node.tags.includes('Hominin') || node.tags.includes('Human evolution')));
   const isGreatApe = GREAT_APE_SET.has(node.id);
   let lineageBadge = '';

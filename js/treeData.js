@@ -1610,7 +1610,16 @@ const TREE = {
                               detail:'Over 40 distinct chimpanzee cultures have been documented, with skills — such as different tool-use techniques — passed socially across generations, never discovered independently. Their genome differs from ours by only ~1.2%.',
                               funFact:'Different chimpanzee communities use different tools and techniques — a form of culture — and young chimps spend years being taught by their mothers, exactly as human children do.',
                               facts:[{l:'Diverged from humans',v:'~6–7 Mya'},{l:'DNA similarity',v:'98.7%'},{l:'Cultures documented',v:'40+'},{l:'Lifespan',v:'~40–50 years (wild)'},{l:'Status',v:'Endangered'}],
-                              tags:['Closest relative','Stone tools','Culture','Political alliances','Grief','Self-medicating'],tipFact:'You share more DNA with a chimp than a mouse shares with a rat.',children:[]}
+                              tags:['Closest relative','Stone tools','Culture','Political alliances','Grief','Self-medicating'],tipFact:'You share more DNA with a chimp than a mouse shares with a rat.',children:[]},
+                            {id:'bonobo',icon:'🐒',color:'#c05a3e',r:10,appeared:2,extinct:null,
+                              img:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Apeldoorn_Apenheul_zoo_Bonobo.jpg/640px-Apeldoorn_Apenheul_zoo_Bonobo.jpg',
+                              imgCredit:'Ltshears, CC BY-SA 3.0',
+                              name:'Bonobo',latin:'Pan paniscus',era:'~2 Million Years Ago',
+                              desc:'Our closest relative alongside the chimpanzee — 98.7% shared DNA. Bonobos are more gracile than chimps, with a flatter face, pink lips, and a matriarchal society that resolves conflicts through social bonding rather than aggression.',
+                              detail:'Found only south of the Congo River in the DRC. Bonobos walk bipedally more often than any other great ape besides humans. Their population is estimated at 15,000–20,000 individuals.',
+                              funFact:'Bonobos are the only great ape with a female-dominated society — conflicts are resolved through social bonding, not fighting.',
+                              facts:[{l:'Appeared',v:'~2 Mya'},{l:'DNA match',v:'98.7% with humans'},{l:'IUCN',v:'Endangered'},{l:'Population',v:'~15,000–20,000'},{l:'Range',v:'DRC (Congo Basin)'}],
+                              tags:['Matriarchal','Bipedal tendency','Tool use','Fruit diet','Social bonding','Pan genus'],tipFact:'Bonobos are the only great ape with a female-dominated society.',children:[]}
                           ]},
                         {id:'tarsier',icon:'👀',color:lightenColor('#c03a3a','species'),r:9,appeared:55,extinct:null,
                           name:'Philippine tarsier',latin:'Carlito syrichta',era:'Eocene',

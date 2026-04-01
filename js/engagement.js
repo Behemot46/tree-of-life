@@ -411,7 +411,7 @@ export function generateSpeciesIllustration(node) {
   }
 
   // PRIMATES / GREAT APES / HUMANS
-  if (['primates','great-apes','chimpanzee','gorilla','orangutan','hominini','h_sapiens'].includes(id) || (nodeMap[id] && nodeMap[id]._hominin)) {
+  if (['primates','great-apes','chimpanzee','gorilla','orangutan','bonobo','hominini','h_sapiens'].includes(id) || (nodeMap[id] && nodeMap[id]._hominin)) {
     return wrap(darken(c,0.78),
       `<ellipse cx="${W/2}" cy="${H*0.38}" rx="38" ry="40" fill="${rgba(c,0.55)}" filter="url(#ig_glow)"/>
        <ellipse cx="${W/2}" cy="${H*0.38}" rx="26" ry="28" fill="${lighten(c,0.15)}" opacity="0.5"/>

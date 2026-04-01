@@ -46,7 +46,6 @@ export function applyI18n(){
   set('i-p-traits',t('p_traits'));
   set('i-p-evo',t('p_evo'));
   set('i-p-sub',t('p_sub'));
-  set('i-btn-hominin',t('btn_hominin'));
   // Trivia i18n
   set('i-btn-trivia',t('trivia_btn'));
   set('i-trivia-title',t('trivia_title'));

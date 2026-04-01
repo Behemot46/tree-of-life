@@ -178,6 +178,16 @@ body.dragging{cursor:grabbing;}
 .sr-item .sri-name{font-weight:500;}
 .sr-item .sri-sub{font-size:0.68rem;color:var(--text-secondary);margin-left:auto;}
 
+/* ── SEARCH PILLS (extinct toggle, hominins tab) ── */
+.search-pill{font-family:var(--font-sans);font-size:0.8rem;padding:0.3rem 0.75rem;
+  border-radius:var(--radius-full);border:1px solid var(--border);background:var(--surface);
+  cursor:pointer;color:var(--text-secondary);white-space:nowrap;flex-shrink:0;
+  display:inline-flex;align-items:center;gap:6px;transition:all var(--transition-fast);}
+.search-pill:hover{border-color:var(--accent-primary);color:var(--text-primary);background:var(--accent-primary-dim);}
+.search-pill:active{transform:scale(0.97);}
+[data-theme="light"] .search-pill{background:var(--surface);border-color:var(--border);color:var(--text-secondary);}
+[data-theme="light"] .search-pill:hover{border-color:var(--accent-primary);color:var(--accent-primary);}
+
 /* ── BREADCRUMB ── */
 #breadcrumb{position:fixed;top:4.2rem;left:50%;transform:translateX(-50%);z-index:var(--z-nav);
   display:flex;align-items:center;gap:0;pointer-events:all;
@@ -196,7 +206,7 @@ body.dragging{cursor:grabbing;}
   pointer-events:all;opacity:0;transform:translateY(-6px);transition:opacity 0.25s ease,transform 0.25s ease;visibility:hidden;}
 #nav-ctrl.visible{opacity:1;transform:translateY(0);visibility:visible;}
 .nav-btn{padding:0.3rem 0.7rem;background:var(--glass-bg);border:1px solid var(--glass-border);
-  border-radius:8px;color:var(--accent);font-size:0.7rem;font-family:var(--font-body);
+  border-radius:8px;color:var(--accent);font-size:0.8rem;font-family:var(--font-body);
   cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;transition:all var(--transition-fast);
   backdrop-filter:var(--glass-blur);letter-spacing:0.03em;white-space:nowrap;box-shadow:var(--shadow-1);}
 .nav-btn:hover{background:var(--accent-primary-dim);border-color:var(--accent);color:var(--parchment);box-shadow:var(--shadow-2);}
@@ -1148,9 +1158,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     padding: 0.5rem 1rem 0.5rem 2.2rem;
   }
   #search-input:focus { width: auto !important; }
-  #extinct-toggle, #hominins-tab {
-    padding: 10px 14px !important;
-    font-size: 11px !important;
+  .search-pill {
+    padding: 10px 14px;
+    font-size: 0.75rem;
     min-height: 44px;
   }
   #search-results {
@@ -1257,6 +1267,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     border-radius: 10px;
   }
 
+  /* ── FAB GROUP: compact on mobile ── */
+  .fab-group { bottom: 14rem; left: 0.6rem; gap: 0.4rem; }
+  [dir="rtl"] .fab-group { left: auto; right: 0.6rem; }
+  .fab { padding: 0.4rem 0.7rem; font-size: 0.72rem; }
+  .fab--tour { width: 34px; height: 34px; }
+
   /* ── LEGEND: collapsible, horizontal compact ── */
   #legend {
     bottom: 5rem;
@@ -1319,9 +1335,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     left: 8px !important;
     right: 8px !important;
   }
-  #extinct-toggle, #hominins-tab {
-    padding: 5px 8px !important;
-    font-size: 10px !important;
+  .search-pill {
+    padding: 5px 8px;
+    font-size: 0.7rem;
   }
   #lang-switcher { display: none; }
   #theme-btn { top: 0.4rem; right: 4px; }
@@ -1331,6 +1347,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   #splash h1 { font-size: 1.4rem !important; }
   #zoom-ctrl { bottom: 5rem; right: 4px; }
   .zbtn { width: 44px !important; height: 44px !important; }
+  /* FAB: icon-only circles on small screens */
+  .fab-group { bottom: 5.5rem; left: 0.4rem; gap: 0.35rem; }
+  .fab span:not(.fab-icon) { display: none; }
+  .fab { padding: 0.5rem; border-radius: 50%; width: 42px; height: 42px; justify-content: center; }
+  .fab-icon { font-size: 1.1rem; }
+  .fab--tour { width: 42px; height: 42px; font-size: 1.1rem; }
 }
 
 /* ══════════════════════════════════════════════════════
@@ -1376,8 +1398,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ── TIMELINE CONTROLS ROW ── */
 #tl-controls{display:flex;align-items:center;justify-content:space-between;margin-top:0.3rem;gap:0.5rem;}
 #era-presets{display:flex;gap:0.3rem;flex-wrap:wrap;flex:1;}
-.era-preset{padding:0.2rem 0.55rem;border:1px solid rgba(14,165,233,0.2);border-radius:var(--radius-full);
-  font-size:0.6rem;color:var(--text-secondary);cursor:pointer;transition:all var(--transition-fast);
+.era-preset{padding:0.3rem 0.65rem;border:1px solid rgba(14,165,233,0.2);border-radius:var(--radius-full);
+  font-size:0.75rem;color:var(--text-secondary);cursor:pointer;transition:all var(--transition-fast);
   font-family:var(--font-body);background:transparent;white-space:nowrap;display:flex;align-items:center;gap:0.25rem;}
 .era-preset:hover{border-color:var(--accent-primary);color:var(--text-primary);}
 .era-preset.active{background:var(--accent-primary-dim);border-color:var(--accent-primary);color:var(--accent-primary);}
@@ -1397,7 +1419,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 #era-play:active{transform:scale(0.97);}
 [data-theme="light"] #era-play{background:rgba(2,132,199,0.08);border-color:rgba(2,132,199,0.2);color:var(--accent-primary);}
 #tl-speed-group{display:flex;gap:0;border-radius:var(--radius-full);overflow:hidden;border:1px solid var(--border);}
-.tl-speed-btn{padding:0.15rem 0.4rem;font-size:0.55rem;font-family:var(--font-mono);
+.tl-speed-btn{padding:0.25rem 0.5rem;font-size:0.72rem;font-family:var(--font-mono);
   color:var(--text-secondary);background:transparent;border:none;cursor:pointer;transition:all var(--transition-fast);}
 .tl-speed-btn:hover{color:var(--text-primary);background:var(--accent-primary-dim);}
 .tl-speed-btn.active{color:var(--accent-primary);background:var(--accent-primary-dim);font-weight:600;}
@@ -1411,8 +1433,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 #view-toggle{position:fixed;top:5rem;right:1.2rem;z-index:var(--z-search);display:flex;gap:0;
   background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;
   overflow:hidden;backdrop-filter:var(--glass-blur);pointer-events:all;box-shadow:var(--shadow-1);}
-.view-btn{padding:0.3rem 0.6rem;border:none;background:transparent;color:var(--text-secondary);
-  font-size:0.6rem;cursor:pointer;transition:all var(--transition-fast);font-family:var(--font-body);
+.view-btn{padding:0.4rem 0.75rem;border:none;background:transparent;color:var(--text-secondary);
+  font-size:0.78rem;cursor:pointer;transition:all var(--transition-fast);font-family:var(--font-body);
   display:flex;align-items:center;gap:0.3rem;letter-spacing:0.04em;white-space:nowrap;}
 .view-btn:hover{color:var(--accent);background:var(--accent-primary-dim);}
 .view-btn.active{background:var(--accent-primary-dim);color:var(--accent-light);}
@@ -1432,7 +1454,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   #era-track{height:12px;}
   #tl-thumb{width:14px;height:20px;}
   .era-seg-label{display:none;}
-  .era-preset{font-size:0.5rem;padding:0.12rem 0.4rem;}
+  .era-preset{font-size:0.65rem;padding:0.2rem 0.5rem;}
   .era-preset-icon{display:none;}
   #tl-speed-group{display:none;}
   #era-play{width:26px;height:26px;font-size:0.65rem;}
@@ -1442,20 +1464,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ══════════════════════════════════════════════════════ */
 /* DNA SIMILARITY CALCULATOR                              */
 /* ══════════════════════════════════════════════════════ */
-#btn-dna-calc{
-  position:fixed;bottom:23rem;left:1.2rem;z-index:var(--z-nav);
-  padding:0.5rem 1rem;border-radius:var(--radius-full);
-  border:1px solid var(--glass-border);background:var(--glass-bg);
-  color:var(--text-primary);font-family:var(--font-sans);font-size:0.75rem;
-  cursor:pointer;transition:all var(--transition-normal);
-  box-shadow:var(--shadow-1);pointer-events:all;backdrop-filter:var(--glass-blur);
-}
-#btn-dna-calc:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim);box-shadow:var(--shadow-2);}
-#btn-dna-calc:active{transform:scale(0.97);}
-[data-theme="light"] #btn-dna-calc{background:var(--glass-bg);border-color:var(--glass-border);color:var(--text-secondary);box-shadow:var(--shadow-1);}
-[data-theme="light"] #btn-dna-calc:hover{border-color:var(--accent-primary);color:var(--accent-primary);}
-[dir="rtl"] #btn-dna-calc{left:auto;right:1.2rem;}
-
 .dna-panel{
   position:fixed;inset:0;z-index:var(--z-overlay);display:none;align-items:center;justify-content:center;
   background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);
@@ -1544,8 +1552,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 /* Mobile */
 @media(max-width:768px){
-  #btn-dna-calc{bottom:8.5rem;left:0.6rem;padding:0.4rem 0.7rem;font-size:0.65rem;}
-  [dir="rtl"] #btn-dna-calc{left:auto;right:0.6rem;}
   .dna-panel-inner{padding:1rem;width:96vw;max-height:95vh;}
   .dna-percent-num{font-size:2.4rem;}
   .dna-selectors{flex-direction:column;gap:0.3rem;}
@@ -1585,19 +1591,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ══════════════════════════════════════════════════════ */
 /* EVOLUTIONARY PATH FINDER                               */
 /* ══════════════════════════════════════════════════════ */
-#btn-evo-path{
-  position:fixed;bottom:7.2rem;left:1.2rem;z-index:var(--z-nav);
-  padding:0.5rem 1rem;border-radius:var(--radius-full);
-  border:1px solid var(--border);background:var(--surface);
-  color:var(--text-primary);font-family:var(--font-sans);font-size:0.75rem;
-  cursor:pointer;transition:all var(--transition-normal);
-  box-shadow:0 2px 8px rgba(0,0,0,0.2);pointer-events:all;
-}
-#btn-evo-path:hover{border-color:var(--accent-secondary);color:var(--accent-secondary);background:rgba(249,115,22,0.1);}
-[data-theme="light"] #btn-evo-path{background:rgba(248,242,230,0.92);border-color:rgba(138,90,24,0.2);color:var(--text-secondary);box-shadow:0 2px 8px rgba(0,0,0,0.08);}
-[data-theme="light"] #btn-evo-path:hover{border-color:var(--accent-secondary);color:var(--accent-secondary);}
-[dir="rtl"] #btn-evo-path{left:auto;right:1.2rem;}
-
 .evo-panel{
   position:fixed;inset:0;z-index:var(--z-overlay);display:none;align-items:center;justify-content:center;
   background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);
@@ -1748,8 +1741,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 #evo-clear-overlay.show{display:inline-flex;}
 
 @media(max-width:768px){
-  #btn-evo-path{bottom:6.2rem;left:0.6rem;padding:0.4rem 0.7rem;font-size:0.65rem;}
-  [dir="rtl"] #btn-evo-path{left:auto;right:0.6rem;}
   .evo-panel-inner{padding:1rem;width:96vw;max-height:95vh;}
   .evo-selectors{flex-direction:column;gap:0.3rem;}
   .evo-arrow{transform:rotate(90deg);}
@@ -1759,17 +1750,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 
 /* ── TRIVIA GAME ── */
-#btn-trivia{
-  position:fixed;bottom:25.5rem;left:1.2rem;z-index:var(--z-nav);
-  padding:0.45rem 0.85rem;border-radius:var(--radius-full);
-  border:1px solid var(--glass-border);background:var(--glass-bg);
-  color:var(--text-primary);font-family:var(--font-sans);font-size:0.72rem;
-  cursor:pointer;display:inline-flex;align-items:center;gap:6px;
-  transition:all var(--transition-fast);letter-spacing:0.03em;backdrop-filter:var(--glass-blur);box-shadow:var(--shadow-1);
-}
-#btn-trivia:hover{border-color:var(--accent-primary);color:var(--accent-primary);}
-[dir="rtl"] #btn-trivia{left:auto;right:1.2rem;}
-
 .trivia-panel{
   position:fixed;inset:0;z-index:var(--z-overlay);display:none;align-items:center;justify-content:center;
   background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);
@@ -1898,8 +1878,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 [data-theme="light"] .trivia-option:hover:not(.answered){background:rgba(14,165,233,0.08);}
 
 @media(max-width:768px){
-  #btn-trivia{bottom:12rem;left:0.6rem;padding:0.4rem 0.7rem;font-size:0.65rem;}
-  [dir="rtl"] #btn-trivia{left:auto;right:0.6rem;}
   .trivia-panel-inner{padding:1rem;width:96vw;max-height:95vh;}
   .trivia-question-text{font-size:0.88rem;}
 }
@@ -1924,8 +1902,7 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
 .lang-btn:focus-visible,.view-btn:focus-visible,.hom-filter:focus-visible,
 .era-preset:focus-visible,.dna-preset:focus-visible,.dna-slot:focus-visible,
 .p-close:focus-visible,#theme-btn:focus-visible,.btn-back:focus-visible,
-#extinct-toggle:focus-visible,#hominins-tab:focus-visible,#btn-hominin:focus-visible,
-#btn-dna-calc:focus-visible,.leg-row:focus-visible{
+.search-pill:focus-visible,.fab:focus-visible,.leg-row:focus-visible{
   outline:2px solid var(--accent-primary);outline-offset:2px;
   box-shadow:0 0 0 4px var(--accent-primary-dim);
 }
@@ -2000,28 +1977,53 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
 .tour-btn-next:hover{filter:brightness(1.15);}
 .tour-btn-prev,.tour-btn-skip{background:transparent;border:1px solid var(--border,rgba(255,255,255,0.12));color:var(--text-secondary);}
 .tour-btn-prev:hover,.tour-btn-skip:hover{border-color:var(--accent);color:var(--text-primary);}
-#btn-tour-help{
-  position:fixed;bottom:15rem;right:1.2rem;z-index:var(--z-nav);
-  width:32px;height:32px;border-radius:50%;
-  background:var(--surface);border:1px solid var(--border,rgba(255,255,255,0.1));
-  color:var(--text-secondary);font-size:0.9rem;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--font-sans);font-weight:600;
-  transition:all 150ms ease;
+/* ── FLOATING ACTION BUTTONS (FAB) ── */
+.fab-group{
+  position:fixed;bottom:5rem;left:1.2rem;z-index:var(--z-nav);
+  display:flex;flex-direction:column;gap:0.5rem;
+  pointer-events:none;
 }
-#btn-tour-help:hover{background:var(--surface-raised);color:var(--accent);border-color:var(--accent);}
+[dir="rtl"] .fab-group{left:auto;right:1.2rem;}
+.fab{
+  pointer-events:all;display:inline-flex;align-items:center;gap:0.45rem;
+  padding:0.5rem 1rem;border-radius:var(--radius-full);
+  border:1px solid var(--glass-border);background:var(--glass-bg);
+  backdrop-filter:var(--glass-blur);
+  color:var(--text-primary);font-family:var(--font-sans);
+  font-size:0.8rem;font-weight:500;letter-spacing:0.02em;
+  cursor:pointer;white-space:nowrap;
+  box-shadow:var(--shadow-1);transition:all var(--transition-normal);
+}
+.fab:hover{
+  border-color:var(--accent-primary);color:var(--accent-primary);
+  background:var(--accent-dim);
+  box-shadow:var(--shadow-2),0 0 12px rgba(14,165,233,0.15);
+  transform:translateY(-1px);
+}
+.fab:active{transform:scale(0.97);}
+.fab:focus-visible{outline:2px solid var(--accent-primary);outline-offset:2px;}
+[data-theme="light"] .fab{
+  background:var(--glass-bg);border-color:var(--glass-border);
+  color:var(--text-secondary);box-shadow:var(--shadow-1);
+}
+[data-theme="light"] .fab:hover{
+  border-color:var(--accent-primary);color:var(--accent-primary);
+  background:var(--accent-primary-dim);
+}
+.fab-icon{font-size:1rem;line-height:1;flex-shrink:0;}
+.fab--tour{
+  width:38px;height:38px;padding:0;justify-content:center;
+  border-radius:50%;font-weight:700;font-size:1rem;
+}
 [data-theme="light"] .tour-spotlight{box-shadow:0 0 0 9999px rgba(0,0,0,0.5);animation:tourPulseLight 2s ease infinite;}
 @keyframes tourPulseLight{
   0%,100%{box-shadow:0 0 0 9999px rgba(0,0,0,0.5),0 0 0 0 rgba(14,165,233,0.4);}
   50%{box-shadow:0 0 0 9999px rgba(0,0,0,0.5),0 0 12px 4px rgba(14,165,233,0.2);}
 }
-[dir="rtl"] #btn-tour-help{right:auto;left:1.2rem;}
 [dir="rtl"] .tour-card-foot{flex-direction:row-reverse;}
 [dir="rtl"] .tour-card-nav{flex-direction:row-reverse;}
 @media(max-width:768px){
   .tour-card{max-width:calc(100vw - 2rem);}
-  #btn-tour-help{bottom:16rem;right:0.5rem;}
-  [dir="rtl"] #btn-tour-help{right:auto;left:0.5rem;}
 }
 
 /* ── TOUR SELECTOR ── */
@@ -2176,10 +2178,10 @@ kbd{
   <span id="search-icon" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--text-secondary);opacity:0.6;font-size:0.8rem;pointer-events:none;" aria-hidden="true">🔍</span>
   <input id="search-input" type="text" placeholder="Search species…" autocomplete="off" aria-label="Search species by name, latin name, or description" role="combobox" aria-expanded="false" aria-controls="search-results">
   <div id="search-results" role="listbox"></div>
-  <button id="extinct-toggle" onclick="toggleExtinct()" aria-label="Toggle visibility of extinct species" style="font-family:'Inter',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;display:inline-flex;align-items:center;gap:6px;color:var(--text-secondary);white-space:nowrap;flex-shrink:0;">
+  <button id="extinct-toggle" class="search-pill" onclick="toggleExtinct()" aria-label="Toggle visibility of extinct species">
     <span>†</span><span id="extinct-label"></span>
   </button>
-  <button id="hominins-tab" onclick="navigateTo('hominini')" aria-label="Navigate to Hominin family tree" style="font-family:'Inter',sans-serif;font-size:12px;padding:4px 12px;border-radius:9999px;border:1px solid var(--border);background:var(--surface);cursor:pointer;color:var(--text-secondary);white-space:nowrap;flex-shrink:0;">
+  <button id="hominins-tab" class="search-pill" onclick="navigateTo('hominini')" aria-label="Navigate to Hominin family tree">
     🧬 <span id="i-btn-hominins">Hominins</span>
   </button>
   <button id="btn-quiz" onclick="openQuiz()" aria-label="Open quiz">🧪 <span id="quiz-label">Quiz</span></button>
@@ -2352,14 +2354,19 @@ kbd{
   <button class="zbtn" id="btn-random" title="Random species" aria-label="Jump to random species" style="font-size:0.9rem;">🎲</button>
 </div>
 
-<!-- HUMAN EVOLUTION SHORTCUT -->
-<button id="btn-hominin" onclick="navigateTo('hominini')" aria-label="Navigate to Human Evolution branch" title="Human Evolution">🧬 <span id="i-btn-hominin">Human Evolution</span></button>
-
-<!-- DNA SIMILARITY CALCULATOR BUTTON -->
-<button id="btn-dna-calc" onclick="openDnaCalc()" aria-label="Open DNA Similarity Calculator" title="DNA Compare">🧬 <span id="i-btn-dna-calc">DNA Compare</span></button>
-
-<!-- EVOLUTIONARY PATH FINDER BUTTON -->
-<button id="btn-evo-path" onclick="openEvoPath()" aria-label="Evolutionary Path finder" title="Evo Path">🌿 <span id="i-btn-evo-path">Evo Path</span></button>
+<!-- FLOATING ACTION BUTTONS -->
+<div class="fab-group" role="toolbar" aria-label="Quick actions">
+  <button id="btn-tour-help" class="fab fab--tour" onclick="showTourSelector()" aria-label="Guided tour" title="Guided Tour">?</button>
+  <button id="btn-trivia" class="fab" onclick="openTrivia()" aria-label="Play Evolution Trivia" title="Evolution Trivia">
+    <span class="fab-icon">🧠</span> <span id="i-btn-trivia">Trivia</span>
+  </button>
+  <button id="btn-dna-calc" class="fab" onclick="openDnaCalc()" aria-label="Open DNA Similarity Calculator" title="DNA Compare">
+    <span class="fab-icon">🧬</span> <span id="i-btn-dna-calc">DNA Compare</span>
+  </button>
+  <button id="btn-evo-path" class="fab" onclick="openEvoPath()" aria-label="Evolutionary Path finder" title="Evo Path">
+    <span class="fab-icon">🌿</span> <span id="i-btn-evo-path">Evo Path</span>
+  </button>
+</div>
 
 <!-- EVOLUTIONARY PATH FINDER PANEL -->
 <div id="evo-path-panel" class="evo-panel" aria-hidden="true">
@@ -2420,9 +2427,6 @@ kbd{
 <!-- Floating clear-path overlay -->
 <button id="evo-clear-overlay" onclick="clearEvoHighlight()">&#10005; <span id="i-evo-clear-overlay">Clear Path</span></button>
 
-<!-- GUIDED TOUR HELP BUTTON -->
-<button id="btn-tour-help" onclick="showTourSelector()" aria-label="Guided tour" title="Guided Tour">?</button>
-
 <!-- DNA SIMILARITY CALCULATOR PANEL -->
 <div id="dna-panel" class="dna-panel" role="dialog" aria-label="DNA Similarity Calculator" aria-modal="true" aria-hidden="true">
   <div class="dna-panel-inner">
@@ -2479,9 +2483,6 @@ kbd{
     </div>
   </div>
 </div>
-
-<!-- TRIVIA GAME BUTTON -->
-<button id="btn-trivia" onclick="openTrivia()" aria-label="Play Evolution Trivia" title="Evolution Trivia">🧠 <span id="i-btn-trivia">Trivia</span></button>
 
 <!-- TRIVIA GAME PANEL -->
 <div id="trivia-panel" class="trivia-panel" aria-hidden="true" onclick="if(event.target===this)closeTrivia()">

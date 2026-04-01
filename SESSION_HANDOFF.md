@@ -1,3 +1,52 @@
+# Session Handoff — 2026-04-01 (Sprint J18 — Museum-Quality Species Info Panel)
+
+**Status: done**
+**Branch:** `claude/inspiring-yonath`
+**PR:** #139
+
+## 1. Session Goal
+Transform the single-scroll species info panel into a 4-tab museum-quality experience with gamified stat bars, strengths/weaknesses character sheets, IUCN scale, lineage paths, and decorative naturalist elements.
+
+## 2. What I Changed
+
+### New file: `js/speciesStats.js` (~370 lines)
+- `SPECIES_STATS` constant with gamified profiles for 28 iconic species
+- Each entry: archetype string, 6 numeric stats (1-10), 3 strengths, 3 weaknesses
+
+### Enhanced `js/geoData.js` (+80 lines)
+- Added `CONTINENT_PATHS` — simplified SVG path data for 7 continents (360x180 viewBox)
+- Added `REGION_CENTROIDS` — maps 21 region strings to [x,y] coordinates
+- Added `REGION_TO_CONTINENT` — maps sub-regions to parent continents
+
+### `index.html` — CSS (~130 lines added)
+- Tab system: `.panel-tabs`, `.panel-tab`, `.panel-tab.active`
+- Stat bars: `.stat-bar-group`, `.stat-bar-fill` with gradient + spring transition
+- Strengths/weaknesses: `.sw-grid`, `.sw-card.strength`, `.sw-card.weakness`
+- IUCN scale: `.iucn-scale`, `.iucn-seg.active`
+- Decorative: `.panel-leaf-divider`, `.panel-orn-hdr`
+- Ecology cards, lineage path, all with light/RTL/mobile/reduced-motion overrides
+
+### `index.html` — JS (renderPanelContent rewrite)
+- 4-tab panel: Overview, Stats (hidden if no data), Ecology, Evolution
+- ARIA tablist pattern with keyboard navigation
+- Stat bar animation via setTimeout(50) trigger
+- Preserves existing helpers: renderMiniMap, renderBranchSection, renderSapiensPanel, navStack/navBack
+
+### `js/panel.js` — defensive fix
+- Made panel-close event listener defensive (null check)
+
+## 3. Key Decisions
+- Wrote to index.html's renderPanelContent (not panel.js) since that's the active version
+- Reused existing helpers rather than reimplementing
+- Stats tab auto-hides for species without SPECIES_STATS entries
+
+## 4. What's Next
+- Clean up dead code in panel.js (old renderPanelContent + unused helpers)
+- Consider adding more species to SPECIES_STATS (currently 28 of 132 nodes)
+- Potential: interactive stat comparison between two species
+
+---
+
 # Session Handoff — 2026-03-28 (Sprint J1 — Design System Cleanup)
 
 **Status: done**

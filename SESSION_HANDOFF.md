@@ -1,3 +1,51 @@
+# Session Handoff — 2026-04-01 (Sprint J15 — Species Map Replacement)
+
+**Status: done**
+**Branch:** `claude/optimistic-gates`
+**PR:** #136
+
+## 1. Session Goal
+Replace the flawed inline SVG world map (16 crude L-line polygons) with realistic continent outlines for the species distribution mini-map shown in detail panels.
+
+## 2. What I Changed
+
+### js/mapPaths.js (NEW — ~170 lines)
+- `MAP_PATHS` constant: 16 region keys, each mapping to an array of SVG path d-strings
+- Realistic continent outlines in 800×400 equirectangular coordinate space
+- Supports disconnected landmasses (islands, archipelagos) via path arrays
+
+### index.html — JS block
+- Rewrote `renderMiniMap()` to use `MAP_PATHS` instead of inline `landRegions` object
+- Updated viewBox from `"30 10 300 175"` to `"0 0 800 400"`
+- Added graceful degradation: returns `''` if `MAP_PATHS` unavailable
+- Iterates path arrays per region (multiple `<path>` elements per region)
+
+### index.html — CSS block
+- Adjusted `.mini-map .region` stroke-width from `0.3` to `0.8` for new coordinate space
+
+### index.html — script tags
+- Added `<script src="js/mapPaths.js"></script>` after geoData.js, before tour.js
+
+## 3. What's NOT Changed
+- All 156 GEO_DATA entries (region keys, labels, types) — untouched
+- Africa super-region expansion logic — carried forward
+- Marine/worldwide/fossil/endemic rendering logic — same
+- CSS classes (.mini-map, .region, .region.active, .mini-map-caption) — same
+- Dark/light theme support — uses same CSS custom properties
+
+## 4. Verified
+- All 14 land region keys from GEO_DATA exist in MAP_PATHS
+- Tested: single region, multi-region, Africa super-key, marine, worldwide, fossil
+- Light + dark theme: proper fills and strokes
+- Mobile (375×812): max-height 100px constraint works
+- Zero console errors
+
+## 5. What's Next
+- J2: Navigation polish
+- Further map improvements: hover tooltips, region labels, interactive zoom
+
+---
+
 # Session Handoff — 2026-03-28 (Sprint J1 — Design System Cleanup)
 
 **Status: done**

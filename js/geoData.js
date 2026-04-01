@@ -48,6 +48,10 @@ const GEO_DATA = {
   'amoebozoa':        { regions: ['worldwide', 'freshwater'], label: 'Soil, freshwater, and marine worldwide', type: 'habitat' },
   'amoeba-proteus':   { regions: ['worldwide', 'freshwater'], label: 'Freshwater ponds, ditches, and slow streams', type: 'habitat' },
   'volvox':           { regions: ['worldwide', 'freshwater'], label: 'Freshwater ponds and ditches worldwide', type: 'habitat' },
+  'euglena':          { regions: ['worldwide', 'freshwater'], label: 'Freshwater ponds, ditches, and nutrient-rich water worldwide', type: 'habitat' },
+  'radiolarian':      { regions: ['marine-global'], label: 'Open ocean worldwide; surface to deep water', type: 'habitat' },
+  'slime-mold':       { regions: ['worldwide'], label: 'Forest floors, decaying wood, leaf litter worldwide', type: 'habitat' },
+  'stentor':          { regions: ['worldwide', 'freshwater'], label: 'Freshwater ponds, lakes, and quiet streams worldwide', type: 'habitat' },
 
   // ── FUNGI ──
   'fungi':            { regions: ['worldwide'], label: 'Terrestrial, freshwater, and marine worldwide', type: 'habitat' },
@@ -60,6 +64,10 @@ const GEO_DATA = {
   'psilocybe':        { regions: ['central-america', 'north-america', 'south-america', 'southeast-asia'], label: 'Tropical and subtropical forests, dung, wood chips', type: 'habitat' },
   'chytrids':         { regions: ['worldwide', 'freshwater'], label: 'Freshwater and moist soil worldwide', type: 'habitat' },
   'batrachochytrium': { regions: ['worldwide'], label: 'Amphibian skin worldwide; causing global amphibian decline', type: 'habitat' },
+  'truffle':          { regions: ['europe', 'north-america', 'east-asia'], label: 'Temperate forests of Europe, North America, and East Asia; underground', type: 'habitat' },
+  'cordyceps':        { regions: ['worldwide'], label: 'Tropical and temperate forests worldwide; on insect hosts', type: 'habitat' },
+  'chanterelle':      { regions: ['europe', 'north-america', 'east-asia', 'africa'], label: 'Temperate and tropical forests worldwide', type: 'habitat' },
+  'lichen':           { regions: ['worldwide'], label: 'Every terrestrial habitat from tropics to polar regions; rocks, bark, soil', type: 'habitat' },
 
   // ── PLANTS ──
   'plantae':          { regions: ['worldwide'], label: 'Terrestrial and freshwater habitats worldwide', type: 'habitat' },
@@ -78,6 +86,11 @@ const GEO_DATA = {
   'ferns':            { regions: ['worldwide'], label: 'Tropical and temperate forests worldwide', type: 'habitat' },
   'tree-fern':        { regions: ['oceania', 'southeast-asia', 'south-america'], label: 'Tropical and southern temperate rainforests', type: 'habitat' },
   'azolla':           { regions: ['worldwide', 'freshwater'], label: 'Freshwater surfaces worldwide; Arctic Azolla Event 49 Mya', type: 'habitat' },
+  'water-lily':       { regions: ['worldwide', 'freshwater'], label: 'Freshwater ponds, lakes, and slow rivers on every continent', type: 'habitat' },
+  'orchid':           { regions: ['worldwide'], label: 'Every continent except Antarctica; greatest diversity in tropics', type: 'habitat' },
+  'bamboo':           { regions: ['south-asia', 'southeast-asia', 'east-asia', 'south-america', 'africa'], label: 'Tropical and subtropical regions of Asia, Africa, and the Americas', type: 'habitat' },
+  'cactus':           { regions: ['north-america', 'central-america', 'south-america'], label: 'Deserts and arid regions of the Americas; one species native to Africa', type: 'habitat' },
+  'sundew':           { regions: ['worldwide'], label: 'Bogs and wetlands on every continent except Antarctica', type: 'habitat' },
 
   // ── ANIMALS — INVERTEBRATES ──
   'animalia':       { regions: ['worldwide'], label: 'Every habitat on Earth', type: 'habitat' },
@@ -94,6 +107,14 @@ const GEO_DATA = {
   'coral':          { regions: ['marine-global'], label: 'Tropical and subtropical shallow seas; reef belt 30°N-30°S', type: 'habitat' },
   'echinoderms':    { regions: ['marine-global'], label: 'All oceans, intertidal to abyssal', type: 'habitat' },
   'annelids':       { regions: ['worldwide', 'marine-global', 'freshwater'], label: 'Soil, marine, and freshwater worldwide', type: 'habitat' },
+  'tardigrade':         { regions: ['worldwide'], label: 'Every habitat on Earth — soil, deep sea, mountaintops, Antarctic ice', type: 'habitat' },
+  'firefly':            { regions: ['worldwide'], label: 'Temperate and tropical regions worldwide; moist habitats', type: 'habitat' },
+  'atlas-moth':         { regions: ['south-asia', 'southeast-asia', 'east-asia'], label: 'Tropical and subtropical forests of South and Southeast Asia', type: 'habitat' },
+  'army-ant':           { regions: ['central-america', 'south-america', 'africa', 'south-asia', 'southeast-asia'], label: 'Tropical forests of the Americas, Africa, and Asia', type: 'habitat' },
+  'japanese-spider-crab': { regions: ['east-asia'], label: 'Pacific Ocean around Japan; 50-600 m depth', type: 'habitat' },
+  'garden-spider':      { regions: ['europe', 'north-america', 'east-asia'], label: 'Gardens, meadows, and woodlands of the Northern Hemisphere', type: 'habitat' },
+  'hermit-crab':        { regions: ['marine-global'], label: 'Tropical and temperate coastal waters and shorelines worldwide', type: 'habitat' },
+  'portuguese-man-o-war': { regions: ['marine-global'], label: 'Tropical and subtropical Atlantic, Pacific, and Indian oceans', type: 'habitat' },
 
   // ── ANIMALS — VERTEBRATES ──
   'vertebrates':      { regions: ['worldwide'], label: 'Every habitat on Earth', type: 'habitat' },
@@ -107,12 +128,36 @@ const GEO_DATA = {
   'peregrine-falcon': { regions: ['worldwide'], label: 'Every continent except Antarctica; most widespread raptor', type: 'habitat' },
   'komodo-dragon':    { regions: ['southeast-asia'], label: 'Komodo, Rinca, Flores, and Gili Motang islands, Indonesia', type: 'endemic' },
   'tuatara':          { regions: ['oceania'], label: 'Small offshore islands of New Zealand', type: 'endemic' },
+  'chameleon':        { regions: ['africa', 'south-asia', 'southeast-asia', 'europe'], label: 'Africa (especially Madagascar), southern Europe, and South Asia', type: 'habitat' },
+  'electric-eel':     { regions: ['south-america', 'freshwater'], label: 'Amazon and Orinoco river basins, South America', type: 'habitat' },
+  'poison-dart-frog': { regions: ['central-america', 'south-america'], label: 'Tropical rainforests of Central and South America', type: 'habitat' },
+  'hammerhead-shark': { regions: ['marine-global'], label: 'Tropical and warm temperate oceans worldwide; coastal and pelagic', type: 'habitat' },
+  'bald-eagle':       { regions: ['north-america'], label: 'North America from Alaska to northern Mexico; near water', type: 'habitat' },
+  'condor':           { regions: ['north-america', 'south-america'], label: 'Andes of South America; California, USA (reintroduced)', type: 'habitat' },
+  'flamingo':         { regions: ['africa', 'south-america', 'europe', 'south-asia', 'central-america'], label: 'Alkaline and saline lakes in Africa, the Americas, and southern Eurasia', type: 'habitat' },
+  'barn-owl':         { regions: ['worldwide'], label: 'Every continent except Antarctica; the most widespread owl', type: 'habitat' },
+  'cassowary':        { regions: ['oceania', 'southeast-asia'], label: 'Tropical rainforests of New Guinea and northeastern Australia', type: 'habitat' },
   'mammals':          { regions: ['worldwide'], label: 'Every terrestrial, marine, and aerial habitat', type: 'habitat' },
   'cetaceans':        { regions: ['marine-global'], label: 'All oceans; some river dolphins in freshwater', type: 'habitat' },
   'blue-whale':       { regions: ['marine-global'], label: 'All oceans; migrates pole-to-equator seasonally', type: 'habitat' },
   'naked-mole-rat':   { regions: ['east-africa'], label: 'Arid grasslands of Ethiopia, Somalia, Kenya', type: 'endemic' },
   'platypus':         { regions: ['oceania'], label: 'Eastern Australia and Tasmania; freshwater streams', type: 'endemic' },
   'primates':         { regions: ['africa', 'south-asia', 'southeast-asia', 'south-america', 'east-asia'], label: 'Tropical forests of Africa, Asia, and the Americas', type: 'habitat' },
+  'lion':             { regions: ['africa', 'south-asia'], label: 'Sub-Saharan Africa and Gir Forest, India', type: 'habitat' },
+  'tiger':            { regions: ['south-asia', 'southeast-asia', 'east-asia'], label: 'India, Southeast Asia, Siberia, and Sumatra', type: 'habitat' },
+  'polar-bear':       { regions: ['north-america', 'europe', 'central-asia'], label: 'Arctic sea ice — Canada, Russia, Norway, Greenland, Alaska', type: 'habitat' },
+  'giant-panda':      { regions: ['east-asia'], label: 'Mountain bamboo forests of central China (Sichuan, Shaanxi, Gansu)', type: 'endemic' },
+  'snow-leopard':     { regions: ['central-asia', 'south-asia', 'east-asia'], label: 'High mountain ranges — Himalayas, Altai, Hindu Kush, Tian Shan', type: 'habitat' },
+  'red-panda':        { regions: ['south-asia', 'east-asia'], label: 'Temperate forests of the eastern Himalayas and southwestern China', type: 'habitat' },
+  'pangolin':         { regions: ['africa', 'south-asia', 'southeast-asia'], label: 'Tropical forests and savannas of Africa and Asia', type: 'habitat' },
+  'red-kangaroo':     { regions: ['oceania'], label: 'Arid and semi-arid interior of Australia', type: 'habitat' },
+  'koala':            { regions: ['oceania'], label: 'Eucalyptus forests of eastern and southeastern Australia', type: 'endemic' },
+  'moose':            { regions: ['north-america', 'europe', 'east-asia'], label: 'Boreal and mixed forests of North America, Scandinavia, and Russia', type: 'habitat' },
+  'hippopotamus':     { regions: ['africa'], label: 'Rivers, lakes, and wetlands of sub-Saharan Africa', type: 'habitat' },
+  'wolverine':        { regions: ['north-america', 'europe', 'east-asia'], label: 'Boreal forests and tundra of North America, Scandinavia, and Siberia', type: 'habitat' },
+  'humpback-whale':   { regions: ['marine-global'], label: 'All oceans; migrates from polar feeding grounds to tropical breeding waters', type: 'habitat' },
+  'narwhal':          { regions: ['north-america', 'europe'], label: 'Arctic waters — Canadian Archipelago, Greenland, Svalbard', type: 'habitat' },
+  'sea-otter':        { regions: ['north-america', 'east-asia'], label: 'North Pacific coast — Alaska, California, Russia, Japan (historically)', type: 'habitat' },
 
   // ── GREAT APES ──
   'great-apes': { regions: ['africa', 'southeast-asia'], label: 'Tropical forests of Africa and Southeast Asia', type: 'habitat' },
@@ -154,6 +199,35 @@ const GEO_DATA = {
   'h_luzonensis':        { regions: ['southeast-asia'], label: 'Callao Cave, Luzon, Philippines — 67 Kya', type: 'fossil' },
   'h_sapiens':           { regions: ['worldwide'], label: 'Originated in Africa ~300 Kya; now every continent', type: 'habitat' },
   'homo-sapiens':        { regions: ['worldwide'], label: 'Originated in Africa ~300 Kya; now every continent', type: 'habitat' },
+  // J12 — new species
+  'halococcus':          { regions: ['worldwide'], label: 'Salt mines and evaporites worldwide', type: 'habitat' },
+  'methanosarcina':      { regions: ['worldwide'], label: 'Wetlands, sediments, ruminant guts worldwide', type: 'habitat' },
+  'synchytrium':         { regions: ['europe', 'north-america'], label: 'Temperate agricultural regions', type: 'habitat' },
+  'allomyces':           { regions: ['worldwide'], label: 'Freshwater and soil worldwide', type: 'habitat' },
+  'sea-urchin':          { regions: ['marine-global'], label: 'Temperate and tropical oceans', type: 'habitat' },
+  'sea-cucumber':        { regions: ['marine-global'], label: 'All oceans, shallow to deep sea', type: 'habitat' },
+  'sea-lily':            { regions: ['marine-global'], label: 'Deep ocean, tropical reefs', type: 'habitat' },
+  'medicinal-leech':     { regions: ['europe'], label: 'European freshwater marshes and ponds', type: 'habitat' },
+  'pompeii-worm':        { regions: ['marine-deep'], label: 'Hydrothermal vents, East Pacific Rise', type: 'habitat' },
+  'humpback-whale':      { regions: ['marine-global'], label: 'All oceans, seasonal migration', type: 'habitat' },
+  'sperm-whale':         { regions: ['marine-global'], label: 'Deep waters of all oceans', type: 'habitat' },
+  'orca':                { regions: ['marine-global'], label: 'All oceans, poles to tropics', type: 'habitat' },
+  'tarsier':             { regions: ['southeast-asia'], label: 'Philippines', type: 'endemic' },
+  'ring-tailed-lemur':   { regions: ['africa'], label: 'Madagascar (southwest)', type: 'endemic' },
+  'japanese-macaque':    { regions: ['east-asia'], label: 'Japanese archipelago', type: 'endemic' },
+  'mandrill':            { regions: ['africa'], label: 'Central African rainforests', type: 'habitat' },
+  'pangolin':            { regions: ['southeast-asia'], label: 'Southeast Asian tropical forests', type: 'habitat' },
+  'star-nosed-mole':     { regions: ['north-america'], label: 'Eastern North America wetlands', type: 'habitat' },
+  'honey-badger':        { regions: ['africa', 'south-asia', 'west-asia'], label: 'Africa, Middle East, India', type: 'habitat' },
+  'caecilian':           { regions: ['south-america', 'africa', 'southeast-asia'], label: 'Tropical regions worldwide', type: 'habitat' },
+  'chameleon':           { regions: ['africa'], label: 'Madagascar and East Africa', type: 'habitat' },
+  'box-jellyfish':       { regions: ['southeast-asia', 'oceania'], label: 'Indo-Pacific tropical waters', type: 'habitat' },
+  'cuttlefish':          { regions: ['europe', 'africa'], label: 'Mediterranean and Eastern Atlantic', type: 'habitat' },
+  'atlas-moth':          { regions: ['southeast-asia', 'south-asia'], label: 'South and Southeast Asian forests', type: 'habitat' },
+  'bombardier-beetle':   { regions: ['europe', 'north-america', 'africa'], label: 'Temperate woodland worldwide', type: 'habitat' },
+  'lungfish':            { regions: ['oceania'], label: 'Freshwater rivers of Queensland, Australia', type: 'endemic' },
+  'ginkgo':              { regions: ['east-asia'], label: 'Native to China; cultivated worldwide', type: 'habitat' },
+  'dragon-blood-tree':   { regions: ['west-asia'], label: 'Socotra Island, Yemen', type: 'endemic' },
 };
 
 
@@ -696,5 +770,323 @@ const BRANCH_DATA = {
     lifespan: 'Unknown',
     conservation: 'Extinct (~1.9 Mya)',
     ability: 'Larger brain than H. habilis; debated whether separate species or variant'
+  },
+
+  // ── NEW MAMMALS ──
+  'lion': {
+    diet: 'Carnivore; large ungulates, zebra, wildebeest',
+    lifespan: '10-14 years (wild), 20+ years (captivity)',
+    conservation: 'Vulnerable; ~23,000 remaining, declining 43% in 21 years',
+    size: 'Males 190 kg, females 130 kg; up to 2.5 m length',
+    ability: 'Only social cat; cooperative hunting in prides'
+  },
+  'tiger': {
+    diet: 'Carnivore; deer, wild boar, water buffalo',
+    lifespan: '10-15 years (wild), 20-26 years (captivity)',
+    conservation: 'Endangered; ~4,500 remaining in the wild',
+    size: 'Males up to 300 kg, 3.3 m total length',
+    ability: 'Largest living cat; powerful swimmers; solitary apex predator'
+  },
+  'polar-bear': {
+    diet: 'Carnivore; ringed seals, bearded seals, walrus',
+    lifespan: '25-30 years in the wild',
+    conservation: 'Vulnerable; ~22,000-31,000 remaining; threatened by sea ice loss',
+    size: 'Males 350-700 kg; largest living land carnivore',
+    ability: 'Swims 100+ km in open ocean; black skin under white fur absorbs heat'
+  },
+  'giant-panda': {
+    diet: 'Herbivore; 99% bamboo, eats 12-38 kg per day',
+    lifespan: '20 years (wild), 30+ years (captivity)',
+    conservation: 'Vulnerable; ~1,860 in the wild; recovering due to conservation efforts',
+    size: '70-125 kg; 1.2-1.9 m length',
+    ability: 'Pseudothumb (enlarged wrist bone) for gripping bamboo; solitary lifestyle'
+  },
+  'snow-leopard': {
+    diet: 'Carnivore; bharal, ibex, marmots, hares',
+    lifespan: '10-12 years (wild), 20+ years (captivity)',
+    conservation: 'Vulnerable; 4,000-6,500 estimated in the wild',
+    size: '22-55 kg; tail nearly as long as body for balance',
+    ability: 'Leaps up to 15 m; lives at 3,000-5,500 m altitude; cannot roar'
+  },
+  'red-panda': {
+    diet: 'Herbivore; mostly bamboo leaves and shoots, some fruit and insects',
+    lifespan: '8-10 years (wild), 15 years (captivity)',
+    conservation: 'Endangered; fewer than 10,000 remaining; habitat fragmentation',
+    size: '3-6 kg; 50-64 cm body length plus 28-49 cm tail',
+    ability: 'Extended wrist bone acts as false thumb; arboreal lifestyle in cold mountain forests'
+  },
+  'pangolin': {
+    diet: 'Insectivore; ants and termites using 40 cm sticky tongue',
+    lifespan: '~20 years',
+    conservation: 'Critically Endangered (3 of 8 species); most trafficked mammal on Earth',
+    size: '1.6-33 kg depending on species; 30-100 cm body length',
+    ability: 'Only mammal with keratinous scales; rolls into armored ball; no teeth'
+  },
+  'red-kangaroo': {
+    diet: 'Herbivore; grasses and shrubs of arid Australia',
+    lifespan: '12-18 years in the wild',
+    conservation: 'Least Concern; ~11 million individuals',
+    size: 'Males up to 90 kg, 1.8 m tall; largest living marsupial',
+    ability: 'Hops at 56 km/h; energy-efficient pentapedal locomotion using tail as fifth limb'
+  },
+  'koala': {
+    diet: 'Herbivore; eucalyptus leaves exclusively; selects from ~50 of 700+ species',
+    lifespan: '13-18 years in the wild',
+    conservation: 'Vulnerable; declining from habitat loss, bushfire, disease, and climate change',
+    size: '4-15 kg; 60-85 cm length',
+    ability: 'Sleeps 18-22 hours/day; fingerprints nearly identical to humans; cecum 2 m long for digesting toxic leaves'
+  },
+  'moose': {
+    diet: 'Herbivore; aquatic plants, bark, twigs, willows',
+    lifespan: '15-25 years in the wild',
+    conservation: 'Least Concern; ~1.5 million worldwide',
+    size: 'Males up to 700 kg, 2.1 m at shoulder; largest living deer',
+    ability: 'Antlers span up to 1.8 m; dives to eat aquatic plants; closes nostrils underwater'
+  },
+  'hippopotamus': {
+    diet: 'Herbivore; grazes 35 kg of grass nightly',
+    lifespan: '40-50 years in the wild',
+    conservation: 'Vulnerable; ~115,000-130,000 remaining',
+    size: '1,300-1,800 kg; 3.5-5 m length; third-largest land animal',
+    ability: 'Secretes red "blood sweat" sunscreen; most dangerous large animal in Africa; runs 30 km/h'
+  },
+  'wolverine': {
+    diet: 'Omnivore; carrion, small mammals, birds, berries',
+    lifespan: '5-13 years in the wild',
+    conservation: 'Least Concern globally; threatened in southern range',
+    size: '9-25 kg; 65-107 cm body length',
+    ability: 'Strongest bite relative to size of any mammal; travels 24 km/day; climbs near-vertical cliffs'
+  },
+  'humpback-whale': {
+    diet: 'Carnivore; krill and small schooling fish',
+    lifespan: '~80-90 years',
+    conservation: 'Least Concern (recovered); ~80,000 from near extinction',
+    size: '25-30 tonnes; 12-16 m length',
+    ability: 'Complex songs last up to 20 minutes; bubble-net feeding; migrates 25,000 km/year'
+  },
+  'narwhal': {
+    diet: 'Carnivore; Greenland halibut, Arctic cod, squid, shrimp',
+    lifespan: '~50 years',
+    conservation: 'Least Concern; ~80,000 estimated; threatened by climate change',
+    size: '800-1,600 kg; tusk up to 3 m long',
+    ability: 'Tusk is a sensory organ with 10 million nerve endings; dives to 1,500 m'
+  },
+  'sea-otter': {
+    diet: 'Carnivore; sea urchins, crabs, clams, abalone',
+    lifespan: '15-20 years',
+    conservation: 'Endangered; ~106,000 remaining; keystone species for kelp forests',
+    size: '14-45 kg; 1-1.5 m length',
+    ability: 'Densest fur of any mammal (1 million hairs/cm2); uses rocks as tools to crack shellfish'
+  },
+
+  // ── NEW BIRDS ──
+  'bald-eagle': {
+    diet: 'Carnivore; fish, waterfowl, small mammals',
+    lifespan: '20-30 years in the wild',
+    conservation: 'Least Concern (recovered); from 417 pairs in 1963 to 300,000+ today',
+    size: '3-6.3 kg; 1.8-2.3 m wingspan',
+    ability: 'Eyesight 4-8x sharper than humans; builds largest bird nests (up to 2.7 tonnes); US national symbol'
+  },
+  'condor': {
+    diet: 'Scavenger; exclusively carrion',
+    lifespan: '50-70 years',
+    conservation: 'Critically Endangered (California Condor, ~500); Andean Condor Vulnerable',
+    size: '8-15 kg; 2.7-3.2 m wingspan; largest flying land bird',
+    ability: 'Soars on thermals to 4,600 m without flapping; California Condor recovered from 22 individuals'
+  },
+  'flamingo': {
+    diet: 'Omnivore; brine shrimp, algae, crustaceans filtered through lamellae',
+    lifespan: '20-30 years (wild), 50+ years (captivity)',
+    conservation: 'Variable by species; Lesser Flamingo Near Threatened',
+    size: '1.1-1.5 m tall; 2-4 kg',
+    ability: 'Pink coloration from carotenoid pigments in diet; stands on one leg to conserve heat; filter-feeder'
+  },
+  'barn-owl': {
+    diet: 'Carnivore; rodents, voles, shrews, small birds',
+    lifespan: '~4 years (wild); up to 15 years',
+    conservation: 'Least Concern; most widespread owl species',
+    size: '250-480 g; 80-95 cm wingspan',
+    ability: 'Asymmetrical ears pinpoint prey by sound in total darkness; silent flight from serrated feathers'
+  },
+  'cassowary': {
+    diet: 'Omnivore; fallen fruit, fungi, insects, small vertebrates',
+    lifespan: '40-50 years',
+    conservation: 'Least Concern (Southern); endangered in parts of Australia',
+    size: 'Up to 60 kg, 1.8 m tall; second-heaviest living bird',
+    ability: 'Dagger-like claw up to 12 cm; can run 50 km/h; critical seed disperser for 238+ rainforest species'
+  },
+
+  // ── NEW REPTILES/AMPHIBIANS ──
+  'chameleon': {
+    diet: 'Insectivore; captures prey with ballistic tongue (2x body length)',
+    lifespan: '2-10 years depending on species',
+    conservation: 'Variable; many species threatened; 40% of species in Madagascar',
+    size: '1.5 cm (Brookesia nana) to 68 cm (Parson\'s chameleon)',
+    ability: 'Independent eye movement; color change for communication; zygodactylous feet for gripping'
+  },
+  'electric-eel': {
+    diet: 'Carnivore; fish, amphibians, invertebrates',
+    lifespan: '10-15 years',
+    conservation: 'Least Concern',
+    size: 'Up to 2.5 m long, 20 kg',
+    ability: 'Generates up to 860 volts; not a true eel (knifefish order); uses electric field for navigation and hunting'
+  },
+  'poison-dart-frog': {
+    diet: 'Insectivore; ants, mites, termites (toxins derived from diet)',
+    lifespan: '3-15 years',
+    conservation: 'Variable; many species Endangered or Critically Endangered',
+    size: '1-6 cm; tiny but extremely toxic',
+    ability: 'Golden poison frog carries enough toxin to kill 10 humans; aposematic coloration warns predators'
+  },
+
+  // ── NEW FISH ──
+  'hammerhead-shark': {
+    diet: 'Carnivore; stingrays, fish, squid, crustaceans',
+    lifespan: '20-30 years',
+    conservation: 'Critically Endangered (Great Hammerhead); most species declining',
+    size: 'Up to 6.1 m (Great Hammerhead); 230-450 kg',
+    ability: 'Cephalofoil head provides 360-degree vision and enhanced electroreception for detecting buried prey'
+  },
+
+  // ── NEW INVERTEBRATES ──
+  'tardigrade': {
+    size: '0.1-1.5 mm',
+    diet: 'Plant cells, algae, small invertebrates',
+    lifespan: '~2 years active; survives decades in cryptobiosis',
+    conservation: 'Least Concern; ubiquitous and extremely resilient',
+    ability: 'Survives vacuum of space, -272C, 150C, 6,000 atm pressure, and extreme radiation'
+  },
+  'firefly': {
+    size: '5-25 mm',
+    diet: 'Larvae: snails, worms; adults: nectar or nothing',
+    lifespan: '~2 months as adults; 1-2 years as larvae',
+    conservation: 'Many species declining; threatened by light pollution and habitat loss',
+    ability: 'Bioluminescence via luciferin-luciferase reaction; species-specific flash patterns for mating'
+  },
+  'atlas-moth': {
+    size: 'Wingspan up to 30 cm; largest moth species by wing area',
+    diet: 'Adults do not eat (no functional mouthparts); larvae eat citrus and other leaves',
+    lifespan: '1-2 weeks as adults',
+    conservation: 'Not evaluated; locally common',
+    ability: 'Wingtip patterns mimic snake heads to deter predators; cocoon silk used for fabric (fagara silk)'
+  },
+  'army-ant': {
+    size: '3-12 mm workers; queen up to 5 cm',
+    diet: 'Carnivore; insects, spiders, small vertebrates raided in swarms',
+    lifespan: 'Workers: months; queen: 10-20 years',
+    conservation: 'Least Concern; ecologically vital',
+    ability: 'Nomadic bivouac colonies of 200,000-700,000; form living bridges and rafts with their bodies'
+  },
+  'japanese-spider-crab': {
+    size: 'Leg span up to 3.7 m; body 40 cm; largest living arthropod',
+    diet: 'Omnivore; shellfish, dead animals, algae, plants',
+    lifespan: 'Up to 100 years',
+    conservation: 'Not evaluated; harvested as delicacy',
+    ability: 'Largest leg span of any arthropod; decorates shell with sponges and anemones for camouflage'
+  },
+  'garden-spider': {
+    size: 'Female 13-30 mm body length; males much smaller',
+    diet: 'Carnivore; flying insects caught in orb web',
+    lifespan: '~1 year',
+    conservation: 'Least Concern; common and widespread',
+    ability: 'Builds geometric orb web up to 40 cm wide with stabilimentum; recycles silk nightly'
+  },
+  'hermit-crab': {
+    size: '1-15 cm depending on species',
+    diet: 'Omnivore; algae, detritus, small invertebrates',
+    lifespan: '1-10 years (marine); up to 30 years (coconut crab relative)',
+    conservation: 'Variable; shell availability limits populations',
+    ability: 'Occupies empty gastropod shells for protection; forms shell-exchange chains with other crabs'
+  },
+  'portuguese-man-o-war': {
+    size: 'Float: 15-30 cm; tentacles up to 30 m long',
+    diet: 'Carnivore; fish and plankton paralyzed by nematocysts',
+    lifespan: '~1 year',
+    conservation: 'Least Concern; abundant',
+    ability: 'Not a single animal but a colonial organism of 4 specialized polyps (siphonophore); sails on wind'
+  },
+
+  // ── NEW PLANTS ──
+  'water-lily': {
+    pollination: 'Beetles and flies; some species self-pollinate',
+    conservation: 'Least Concern; some species locally threatened',
+    record: 'Giant water lily (Victoria amazonica) leaves reach 3 m diameter, support 45 kg',
+    ecoRole: 'Shade aquatic habitats, reduce algae growth, provide shelter for fish and amphibians'
+  },
+  'orchid': {
+    pollination: 'Highly specialized; species-specific pollinators including bees, moths, and birds',
+    conservation: 'Many species threatened; most-traded CITES plant family',
+    record: 'Largest plant family with 28,000+ species; some mimic female insects for pollination',
+    ecoRole: 'Epiphytes in tropical forests; mycorrhizal partnerships; indicator species for habitat health'
+  },
+  'bamboo': {
+    pollination: 'Wind-pollinated; mass flowering events every 40-120 years',
+    conservation: 'Variable; some species threatened by habitat conversion',
+    record: 'Fastest-growing plant — up to 91 cm/day; some species reach 30 m tall',
+    ecoRole: 'Carbon sequestration; soil erosion prevention; critical panda habitat; 1,500+ uses in construction and crafts'
+  },
+  'cactus': {
+    pollination: 'Bats, bees, birds, moths; some self-pollinate',
+    conservation: '31% of species threatened; illegal collection and habitat loss',
+    record: 'Saguaro cactus lives 150-200 years and stores 4,800 liters of water',
+    ecoRole: 'Keystone desert species; provides water and shelter for birds, bats, and insects in arid ecosystems'
+  },
+  'sundew': {
+    pollination: 'Insects (different species from prey); some self-pollinate',
+    conservation: 'Variable; wetland drainage threatens many species',
+    record: 'Over 200 species; sticky mucilage traps curl around prey in minutes',
+    ecoRole: 'Carnivorous adaptation to nutrient-poor bogs; supplements nitrogen and phosphorus from insect prey'
+  },
+
+  // ── NEW FUNGI ──
+  'truffle': {
+    substrate: 'Ectomycorrhizal with oak, hazel, beech, and pine roots',
+    symbiosis: 'Mutualistic — exchanges soil minerals for plant sugars',
+    edibility: 'Prized gourmet delicacy; white truffle up to $4,000/kg',
+    dispersal: 'Underground fruiting body; relies on animals (squirrels, pigs, insects) digging up spores'
+  },
+  'cordyceps': {
+    substrate: 'Insect hosts — ants, caterpillars, beetles, spiders',
+    symbiosis: 'Parasitic — hijacks host behavior before killing it',
+    edibility: 'Ophiocordyceps sinensis used in traditional Chinese medicine; $20,000+/kg',
+    dispersal: 'Spores released from stalk growing out of dead host; species-specific targeting'
+  },
+  'chanterelle': {
+    substrate: 'Ectomycorrhizal with oaks, conifers, and beeches',
+    symbiosis: 'Mutualistic — nutrient exchange with tree roots',
+    edibility: 'Choice edible mushroom; peppery apricot aroma; cannot be cultivated commercially',
+    dispersal: 'Wind-dispersed basidiospores; fruiting after rain in summer and autumn'
+  },
+  'lichen': {
+    substrate: 'Rock, bark, soil, man-made surfaces',
+    symbiosis: 'Mutualistic composite — fungus + alga or cyanobacterium (and sometimes yeast)',
+    edibility: 'Some edible (Iceland moss, rock tripe); reindeer lichen critical for caribou',
+    dispersal: 'Soredia and fragments; extremely slow growth (0.5-5 mm/year); some are 4,500+ years old'
+  },
+
+  // ── NEW PROTISTS ──
+  'euglena': {
+    cellType: 'Flagellate protist with chloroplasts',
+    metabolism: 'Mixotrophic — photosynthetic in light, heterotrophic in dark',
+    habitat: 'Freshwater ponds, ditches, nutrient-rich waters',
+    relevance: 'Classic model for studying photosynthesis and cell motility; eyespot detects light direction'
+  },
+  'radiolarian': {
+    cellType: 'Amoeboid protist with silica skeleton',
+    metabolism: 'Heterotroph with photosynthetic algal symbionts',
+    habitat: 'Open ocean plankton worldwide',
+    relevance: 'Intricate geometric shells; siliceous ooze on ocean floor used for geological dating'
+  },
+  'slime-mold': {
+    cellType: 'Amoebozoan (plasmodial or cellular)',
+    metabolism: 'Heterotroph — engulfs bacteria and decaying matter',
+    habitat: 'Forest floor leaf litter and decaying wood',
+    relevance: 'No brain yet solves mazes and optimizes networks; used to model city planning and rail systems'
+  },
+  'stentor': {
+    cellType: 'Ciliate protist (trumpet-shaped)',
+    metabolism: 'Heterotroph — filter-feeds on bacteria and algae',
+    habitat: 'Freshwater ponds, lakes, and quiet streams',
+    relevance: 'Largest single-celled organism visible to naked eye (up to 2 mm); remarkable regeneration ability'
   },
 };

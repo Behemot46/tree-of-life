@@ -147,17 +147,22 @@ function getIconGroup(n) {
     // Invertebrates
     'invertebrates': 'crustacean',
     'echinoderms': 'echinoderm', 'annelids': 'worm',
+    'platyhelminthes': 'worm', 'planarian': 'worm',
+    'tardigrada': 'microbe', 'tardigrade': 'microbe',
 
     // Arthropods
+    'arthropoda': 'crustacean',
     'insects': 'insect',
     'horseshoe-crab': 'arachnid', 'mantis-shrimp': 'crustacean',
     'honey-bee': 'butterfly',
 
     // Mollusks / Cephalopods
+    'mollusca': 'mollusk',
     'cephalopods': 'octopus', 'octopus': 'octopus', 'nautilus': 'mollusk',
 
-    // Fish
-    'vertebrates': 'fish',
+    // Chordates & Fish classes
+    'chordata': 'fish', 'vertebrates': 'fish',
+    'sarcopterygii': 'fish', 'chondrichthyes': 'shark', 'actinopterygii': 'fish',
     'fish': 'fish', 'coelacanth': 'fish', 'shark': 'shark',
 
     // Reptiles & Dinosaurs
@@ -181,7 +186,20 @@ function getIconGroup(n) {
     'orangutan': 'primate', 'gorilla': 'primate', 'chimpanzee': 'primate',
 
     // Hominins
-    'homo-sapiens': 'hominin', 'hominini': 'hominin'
+    'homo-sapiens': 'hominin', 'hominini': 'hominin',
+
+    // J12 — new species
+    'halococcus': 'archaea', 'methanosarcina': 'archaea',
+    'synchytrium': 'fungus', 'allomyces': 'fungus',
+    'sea-urchin': 'echinoderm', 'sea-cucumber': 'echinoderm', 'sea-lily': 'echinoderm',
+    'medicinal-leech': 'worm', 'pompeii-worm': 'worm',
+    'humpback-whale': 'whale', 'sperm-whale': 'whale', 'orca': 'whale',
+    'tarsier': 'primate', 'ring-tailed-lemur': 'primate', 'japanese-macaque': 'primate', 'mandrill': 'primate',
+    'pangolin': 'mammal', 'star-nosed-mole': 'mammal', 'honey-badger': 'mammal',
+    'caecilian': 'amphibian', 'chameleon': 'reptile',
+    'box-jellyfish': 'jellyfish', 'cuttlefish': 'squid',
+    'atlas-moth': 'butterfly', 'bombardier-beetle': 'insect',
+    'lungfish': 'fish', 'ginkgo': 'conifer', 'dragon-blood-tree': 'flower'
   };
 
   if (ID_MAP[id]) return ID_MAP[id];

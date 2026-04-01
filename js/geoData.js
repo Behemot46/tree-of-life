@@ -119,6 +119,7 @@ const GEO_DATA = {
   'orangutan':  { regions: ['southeast-asia'], label: 'Rainforests of Borneo and Sumatra', type: 'endemic' },
   'gorilla':    { regions: ['africa'], label: 'Tropical forests of Central and West Africa', type: 'endemic' },
   'chimpanzee': { regions: ['africa'], label: 'Tropical forests and savannas of Central and West Africa', type: 'habitat' },
+  'bonobo':     { regions: ['africa'], label: 'Dense rainforests south of the Congo River, DRC', type: 'habitat' },
   'hominini':   { regions: ['africa'], label: 'Originated in Africa; human lineage went worldwide', type: 'habitat' },
 
   // ── HOMININS ──
@@ -547,6 +548,13 @@ const BRANCH_DATA = {
     lifespan: '~33 years in the wild',
     conservation: 'Endangered; ~170,000-300,000 remaining',
     ability: 'Closest living relative to humans (98.7% DNA); tool use, culture, warfare, altruism'
+  },
+  'bonobo': {
+    size: '1.1-1.5 m standing, 30-45 kg',
+    diet: 'Omnivore — primarily fruit, supplemented with leaves, seeds, insects',
+    lifespan: '~40 years in the wild',
+    conservation: 'Endangered; ~15,000-20,000 remaining',
+    ability: 'Matriarchal society; resolves conflict through social bonding; walks bipedally more than other apes'
   },
 
   // ── HOMININS ──

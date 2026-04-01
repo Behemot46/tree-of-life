@@ -767,7 +767,7 @@ const WIKI_TITLES = {
   'mammalia':'Mammal','cetaceans':'Cetacea','blue-whale':'Blue_whale',
   'naked-mole-rat':'Naked_mole-rat','platypus':'Platypus','african-elephant':'African_elephant',
   'primates':'Primate','great-apes':'Hominidae','gorilla':'Western_gorilla',
-  'orangutan':'Orangutan','chimpanzee':'Chimpanzee',
+  'orangutan':'Orangutan','chimpanzee':'Chimpanzee','bonobo':'Bonobo',
   'hominini':'Hominini','h_sapiens':'Human',
   'group-proto':'Hominini','group-australopith':'Australopithecus',
   'group-paranthropus':'Paranthropus','group-homo':'Homo_(genus)',
@@ -894,7 +894,7 @@ const PHOTO_MAP = {
   'african-elephant':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/African_Bush_Elephant.jpg/640px-African_Bush_Elephant.jpg', credit:'Muhammad Mahdi Karim, GFDL 1.2'},
   // Primates & great apes
   'primates':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/A_chimpanzee_at_the_Kumasi_Zoo.jpg/960px-A_chimpanzee_at_the_Kumasi_Zoo.jpg', credit:'Thomas Lersch, CC BY-SA 3.0'},
-  'great-apes':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Gorilla_Male_Global.jpg/960px-Gorilla_Male_Global.jpg', credit:'Brocken Inaglory, CC BY-SA 3.0'},
+  'great-apes':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/66/Evidence_as_to_Man%27s_Place_in_Naturep2.jpg/960px-Evidence_as_to_Man%27s_Place_in_Naturep2.jpg', credit:'T.H. Huxley (1863), Public Domain'},
   'gorilla':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Gorilla_Male_Global.jpg/960px-Gorilla_Male_Global.jpg', credit:'Brocken Inaglory, CC BY-SA 3.0'},
   'orangutan':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/Orang_Utan%2C_Semenggok_Forest_Reserve%2C_Sarawak%2C_Borneo%2C_Malaysia.JPG/640px-Orang_Utan%2C_Semenggok_Forest_Reserve%2C_Sarawak%2C_Borneo%2C_Malaysia.JPG', credit:'Thorsten Bachner, CC BY-SA 3.0'},
   'chimpanzee':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/A_chimpanzee_at_the_Kumasi_Zoo.jpg/960px-A_chimpanzee_at_the_Kumasi_Zoo.jpg', credit:'Thomas Lersch, CC BY-SA 3.0'},
@@ -950,7 +950,7 @@ const PHOTO_MAP = {
   'invertebrates':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Invertebrate_montage_%282022%29.jpg/640px-Invertebrate_montage_%282022%29.jpg', credit:'Wikipedia, CC BY-SA 4.0'},
   'vertebrates':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/Vertebrata_002.png/640px-Vertebrata_002.png', credit:'Wikipedia, CC BY-SA 3.0'},
   'annelids':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Annelida_collage_%282%29.png/640px-Annelida_collage_%282%29.png', credit:'Wikipedia, CC BY-SA 4.0'},
-  'hominini':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/ff/A_chimpanzee_at_the_Kumasi_Zoo.jpg/960px-A_chimpanzee_at_the_Kumasi_Zoo.jpg', credit:'Thomas Lersch, CC BY-SA 3.0'},
+  'hominini':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Mrs_Ples_Face.jpg/960px-Mrs_Ples_Face.jpg', credit:'Jose Braga, CC BY-SA 4.0'},
   'amoebozoa':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Leocarpus_fragilis_10649909.jpg/640px-Leocarpus_fragilis_10649909.jpg', credit:'Zack Abbey, CC BY 4.0'},
   'paramecium':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Paramecium.jpg/640px-Paramecium.jpg', credit:'Barfooz, CC BY-SA 3.0'},
   'stramenopiles':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Stramenopiles_diversity.png/640px-Stramenopiles_diversity.png', credit:'Wikipedia, CC BY-SA 4.0'},
@@ -1010,7 +1010,7 @@ const PHOTO_MAP = {
   'snow-leopard':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Irbis4.JPG/330px-Irbis4.JPG', credit:'Bernard Landgraf, CC BY-SA 3.0'},
   'orca':                  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/37/Killerwhales_jumping.jpg/320px-Killerwhales_jumping.jpg', credit:'Robert Pitman, Public Domain'},
   'red-panda':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/RedPandaFullBody.JPG/320px-RedPandaFullBody.JPG', credit:'Greg Hume, CC BY-SA 3.0'},
-  'bonobo':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Bonobo_009.jpg/330px-Bonobo_009.jpg', credit:'Pierre Fidenci, CC BY-SA 2.5'},
+  'bonobo':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Apeldoorn_Apenheul_zoo_Bonobo.jpg/640px-Apeldoorn_Apenheul_zoo_Bonobo.jpg', credit:'Ltshears, CC BY-SA 3.0'},
   'saltwater-crocodile':   {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Crocodylus_porosus_-_Wilhelma.jpg/330px-Crocodylus_porosus_-_Wilhelma.jpg', credit:'Charles J. Sharp, CC BY-SA 4.0'},
   'green-sea-turtle':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Green_turtle_swimming_over_coral_reefs_in_Kona.jpg/330px-Green_turtle_swimming_over_coral_reefs_in_Kona.jpg', credit:'Brocken Inaglory, CC BY-SA 3.0'},
   'king-cobra':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Ophiophagus_hannah2.jpg/330px-Ophiophagus_hannah2.jpg', credit:'Michael Allen Smith, CC BY-SA 2.0'},
@@ -1033,5 +1033,5 @@ const PHOTO_MAP = {
   'common-starfish':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Asterias_rubens.jpg/640px-Asterias_rubens.jpg', credit:'Hans Hillewaert, CC BY-SA 4.0'},
 };
 
-const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','hominini'];
+const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','bonobo','hominini'];
 const HOMININ_IDS   = ['homo-sapiens','h_erectus','h_habilis','h_neanderthalensis','h_heidelbergensis','h_floresiensis','h_naledi','h_luzonensis','denisovan','au_afarensis','au_africanus','sahelanthropus','ardipithecus_r'];

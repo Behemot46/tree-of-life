@@ -43,6 +43,7 @@
 | J1 | Design system cleanup — `--gold`→`--accent`, z-index scale, dead code, inline→CSS, reduced-motion, 768px breakpoints | PR #121 `claude/keen-noether` |
 | J9 | Guided educational tours — 3 tour paths (LUCA→You, Five Kingdoms, Mass Extinctions), tour selector, spotlight overlay, auto-pan | `claude/pensive-satoshi` |
 | J15 | Species map replacement — realistic continent outlines replacing crude polygons, new `js/mapPaths.js`, 800×400 equirectangular viewBox | PR #136 `claude/optimistic-gates` |
+| J17 | Hominin lineage explorer — functional deep-dive overlay with 28 species, filters, detail panel, compare mode, View on Tree | `claude/frosty-chebyshev` |
 
 ### Already shipped (not originally tracked as phases)
 

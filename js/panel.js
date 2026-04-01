@@ -512,7 +512,7 @@ export function renderSapiensPanel(node, panelEl) {
       </div>
 
       <!-- Hominin Deep Dive button -->
-      <button onclick="navigateTo('hominini')" style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#0ea5e9,#8b5cf6);color:white;cursor:pointer;font-family:Inter,sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:0.02em;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">🧬 Explore Human Evolution</button>
+      <button onclick="openHomininView()" style="width:100%;padding:14px;border-radius:10px;border:none;background:linear-gradient(135deg,#0ea5e9,#8b5cf6);color:white;cursor:pointer;font-family:Inter,sans-serif;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:0.02em;transition:opacity 0.2s;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">🧬 Explore Human Evolution</button>
 
       <!-- Close button -->
       <button onclick="closePanel()" style="padding:10px;border-radius:8px;border:1px solid var(--color-button-border);background:var(--color-button-bg);cursor:pointer;font-family:Inter,sans-serif;font-size:13px;color:var(--color-text-secondary);">Close</button>
@@ -747,7 +747,7 @@ export function renderPanelContent(node) {
       ` : ''}
       ${(()=>{
         const isHom = node._hominData || node.id === 'hominini' || (node.id && node.id.startsWith('hom-'));
-        return isHom ? `<div class="panel-section"><button class="panel-cta" onclick="navigateTo('hominini')">🧬 Hominin Deep Dive</button></div>` : '';
+        return isHom ? `<div class="panel-section"><button class="panel-cta" onclick="openHomininView()">🧬 Hominin Deep Dive</button></div>` : '';
       })()}
     </div>
   `;
@@ -853,25 +853,15 @@ export function closePanel(){
   }
 }
 
-// ── Open Hominin View (expand hominini branch on tree) ──
+// ── Open Hominin View (open the deep-dive overlay) ──
+let _openHomininOverlay;
+export function setHomininOverlayOpener(fn){ _openHomininOverlay=fn; }
 export function openHomininView(){
-  // Expand hominini and its child groups on the main tree, then zoom to them
-  const hom = nodeMap['hominini'];
-  if (!hom) return;
-  // Expand ancestors so hominini is visible
-  let cur = hom._parent;
-  while (cur) { cur._collapsed = false; cur = cur._parent; }
-  // Expand hominini and its 4 group nodes
-  hom._collapsed = false;
-  if (hom.children) hom.children.forEach(g => { g._collapsed = false; });
-  // Close any open panel
+  // Close any open panel first
   panel.classList.remove('open');
-  // Re-layout and render
-  _layout();
-  // Zoom centered on hominini node at a readable scale
-  const s = 0.7;
-  state.transform = { x: window.innerWidth / 2 - hom._x * s, y: window.innerHeight / 2 - hom._y * s, s };
-  _scheduleRender(true); _applyT();
+  state.currentPanelNode=null;
+  // Open the hominin deep-dive overlay
+  if(_openHomininOverlay) _openHomininOverlay();
 }
 
 // ── Wire up DOM event listeners ──

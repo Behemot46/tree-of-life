@@ -1,3 +1,58 @@
+# Session Handoff — 2026-04-01 (Sprint J17 — Hominin Lineage Explorer)
+
+**Status: done**
+**Branch:** `claude/frosty-chebyshev`
+
+## 1. Session Goal
+Make "Explore Hominin Lineage" fully functional. The `openHomininView()` function existed in panel.js but only zoomed the tree — it didn't open the `#hominin-view` overlay. The overlay HTML/CSS existed (from J12) but had zero JS to populate it. Filter buttons, close button, compare toggle, species cards, and detail panel were all inert.
+
+## 2. What I Changed
+
+### index.html — CSS
+- Added `@keyframes homininGlow` (golden pulsing ring animation for hominini node)
+
+### js/hominin.js — ~200 lines added
+- `openHomininOverlay()` — opens the overlay, resets filters, populates timeline
+- `closeHomininOverlay()` — closes the overlay
+- `renderHominins()` — populates `#hom-timeline` with 28 species across 6 ERA_GROUPS, filtered by active pill
+- `showHominDetail(h)` — renders species detail in `#hom-panel` (brain, capabilities, fossils, DNA, tags)
+- `toggleCompareMode()` — toggle compare mode with selection tracking
+- `viewHomininOnTree(hId)` — closes overlay, navigates to species on main tree
+- `initHomininOverlay()` — wires close button, filter pills, Escape key
+
+### js/panel.js — Modified openHomininView()
+- Rewrote to close the panel and call `openHomininOverlay()` via late-bound dep
+- Added `setHomininOverlayOpener()` for dependency injection
+- Changed both CTA buttons (sapiens panel + generic hominin panel) from `navigateTo('hominini')` to `openHomininView()`
+
+### js/app.js — Wiring
+- Imported all new exports from hominin.js
+- Imported `setHomininOverlayOpener` from panel.js
+- Called `setHomininOverlayOpener(openHomininOverlay)` during init
+- Called `initHomininOverlay()` during event setup
+- Added `window.toggleCompareMode` and `window.viewHomininOnTree` exports
+
+## 3. What's NOT Changed
+- Tree rendering, layout, search, navigation
+- Existing compare panel (standalone overlay)
+- Species data files (treeData.js, speciesData.js)
+
+## 4. Verification
+- Overlay opens with 28 species across 6 era groups
+- All 5 filter pills work (all:28, proto:4, australopith:8, paranthropus:3, homo:13)
+- Species detail panel shows with facts, capabilities, DNA, "View on Tree" button
+- Compare mode toggles on/off correctly
+- Close button and Escape key close the overlay
+- "View on Tree" navigates to species on main tree with panel open
+- Light/dark theme both work
+- Zero console errors throughout
+
+## 5. What's Next
+- J2: Navigation polish
+- J3: Code modularization (further)
+
+---
+
 # Session Handoff — 2026-04-01 (Sprint J15 — Species Map Replacement)
 
 **Status: done**

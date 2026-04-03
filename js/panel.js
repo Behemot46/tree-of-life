@@ -5,6 +5,7 @@
 import { state, nodeMap, navStack, HUMAN_PATH, confirmedPhotoUrls } from './state.js';
 import { reducedMotion, canonicalHomininId } from './utils.js';
 import { a11yAnnounce, markExplored } from './engagement.js';
+import { MAP_PATHS } from './mapPaths.js';
 
 // ── Late-binding deps (set via initPanelDeps) ──
 let _pushNav, _updateNavButtons, _updateBreadcrumb, _scheduleRender;

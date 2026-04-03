@@ -5,7 +5,7 @@
 // (arrays because regions may have disconnected landmasses)
 // ══════════════════════════════════════════════════════════════
 
-const MAP_PATHS = {
+export const MAP_PATHS = {
 
   'north-america': [
     // Mainland North America (Canada + USA + Alaska)

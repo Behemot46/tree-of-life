@@ -11,7 +11,7 @@
    phylogenetic visualization.
    ═══════════════════════════════════════════════════════════════ */
 
-const IMAGE_PROMPTS = {
+export const IMAGE_PROMPTS = {
   // ── LUCA ──
   'luca': {
     prompt: 'Photorealistic rendering of a hydrothermal vent on the ancient ocean floor, mineral-rich superheated water billowing from rocky chimneys, primitive single-celled organisms visible as faint translucent clusters on the rocks, deep ocean darkness with bioluminescent glow, 3.8 billion years ago',
@@ -696,6 +696,6 @@ const IMAGE_PROMPTS = {
 };
 
 /* Retrieve prompt data for a node ID */
-function getImagePrompt(nodeId) {
+export function getImagePrompt(nodeId) {
   return IMAGE_PROMPTS[nodeId] || null;
 }

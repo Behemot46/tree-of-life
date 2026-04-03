@@ -3,6 +3,7 @@
 // ══════════════════════════════════════════════════════
 
 import { checkAchievement } from './engagement.js';
+import { TRIVIA_QUESTIONS } from './triviaData.js';
 
 const HIGH_SCORE_KEY = 'tol-quiz-high';
 const QUESTION_COUNT = 5;
@@ -16,7 +17,7 @@ function _getHighScore() { return parseInt(localStorage.getItem(HIGH_SCORE_KEY) 
 function _setHighScore(val) { localStorage.setItem(HIGH_SCORE_KEY, String(val)); }
 
 function _pickQuestions(n) {
-  if (typeof TRIVIA_QUESTIONS === 'undefined' || !TRIVIA_QUESTIONS.length) return [];
+  if (!TRIVIA_QUESTIONS || !TRIVIA_QUESTIONS.length) return [];
   const shuffled = [...TRIVIA_QUESTIONS].sort(() => Math.random() - 0.5);
   return shuffled.slice(0, n);
 }

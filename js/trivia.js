@@ -3,6 +3,7 @@
 // ══════════════════════════════════════════════════════
 
 import { state, nodeMap } from './state.js';
+import { TRIVIA_QUESTIONS } from './triviaData.js';
 
 // ── Late-binding deps (set via initTriviaDeps) ──
 let _t, _navigateTo;

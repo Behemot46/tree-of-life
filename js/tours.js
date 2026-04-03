@@ -2,17 +2,24 @@
 // GUIDED TOURS — 3 educational tour paths
 // ══════════════════════════════════════════════════════
 
-// ── Bridge to ES module state (exposed by app.js via window._tour*) ──
-function _ts() { return window._tourState || {}; }
-function _nm() { return window._tourNodeMap || {}; }
-function _lay() { if (window._tourLayout) window._tourLayout(); }
-function _sr(f) { if (window._tourScheduleRender) window._tourScheduleRender(f); }
-function _at() { if (window._tourApplyT) window._tourApplyT(); }
-function _slide(v) { if (window._tourAnimateSliderTo) window._tourAnimateSliderTo(v); }
+// ── Dependencies injected from app.js via initTourDeps() ──
+let _deps = {};
+
+export function initTourDeps(deps) {
+  _deps = deps;
+}
+
+function _ts() { return _deps.state || {}; }
+function _nm() { return _deps.nodeMap || {}; }
+function _lay() { if (_deps.layout) _deps.layout(); }
+function _sr(f) { if (_deps.scheduleRender) _deps.scheduleRender(f); }
+function _at() { if (_deps.applyT) _deps.applyT(); }
+function _slide(v) { if (_deps.animateSliderTo) _deps.animateSliderTo(v); }
+function t(key) { return _deps.t ? _deps.t(key) : key; }
 
 // ── Tour Definitions ──
 
-var TOURS = {
+export var TOURS = {
   luca: {
     nameKey: 'tour_luca_name',
     descKey: 'tour_luca_desc',
@@ -62,7 +69,7 @@ var TOURS = {
 
 // ── Tour State ──
 
-var tourState = { active: false, step: 0, tourId: null };
+export var tourState = { active: false, step: 0, tourId: null };
 var _tourCurrentSteps = [];
 var _tourSpotlight = null;
 var _tourCard = null;
@@ -73,7 +80,7 @@ var _tourSelectorEl = null;
 
 // ── Tour Selector UI ──
 
-function showTourSelector() {
+export function showTourSelector() {
   if (tourState.active) return;
   if (_tourSelectorEl) _tourSelectorEl.remove();
 
@@ -139,7 +146,7 @@ function _closeTourSelector() {
 
 // ── Tour Engine ──
 
-function startTour(tourId) {
+export function startTour(tourId) {
   if (tourState.active) return;
   var tour = TOURS[tourId];
   if (!tour) return;
@@ -160,7 +167,7 @@ function startTour(tourId) {
   window.addEventListener('keydown', _tourOnKey);
 }
 
-function endTour() {
+export function endTour() {
   if (!_tourOverlay) return;
   tourState.active = false;
   tourState.tourId = null;

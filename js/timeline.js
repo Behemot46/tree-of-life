@@ -4,6 +4,7 @@
 import { state, nodeMap } from './state.js';
 import { getPlaybackNodeState } from './playback.js';
 import { trackDomainToggle, trackExtinctionClick, checkAchievement } from './engagement.js';
+import { ERA_NAMES, TIMELINE_SEGMENTS } from './uiData.js';
 
 // Late-bound deps (set by app.js to avoid circular imports)
 let _scheduleRender, _t, _togglePlayback, _pausePlayback;

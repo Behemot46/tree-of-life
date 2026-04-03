@@ -1,7 +1,7 @@
 // ══════════════════════════════════════════════════════
 // TRIVIA QUESTIONS — 200 evolution trivia questions
 // ══════════════════════════════════════════════════════
-const TRIVIA_QUESTIONS = (() => {
+export const TRIVIA_QUESTIONS = (() => {
   const questions = [
   {id:1,question:"What do we call animals that eat only plants?",answers:["Carnivores","Herbivores","Omnivores","Insectivores"],correct:1,difficulty:1,category:"Ecology",funFact:"Some herbivores, like cows, have four-chambered stomachs to digest tough plant material.",learnMoreUrl:"https://www.youtube.com/watch?v=nE-4gMnFFMg"},
   {id:2,question:"Which of these is NOT a dinosaur?",answers:["Triceratops","Pteranodon","Stegosaurus","Velociraptor"],correct:1,difficulty:1,category:"Dinosaurs",funFact:"Pteranodon was a flying reptile (pterosaur), not a dinosaur!",learnMoreUrl:"https://www.youtube.com/watch?v=1wP_nSPUTCg"},

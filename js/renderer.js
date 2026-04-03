@@ -9,6 +9,7 @@ import { getPlaybackNodeState, discoverNode, showDiscoveryCard } from './playbac
 import { isExplored } from './engagement.js';
 import { nodeInEra } from './timeline.js';
 import { a11yAnnounce } from './engagement.js';
+import { TREE, NODE_ICONS, getIconGroup, ImageLoader } from './data.js';
 
 // ── Late-bound deps (avoid circular imports) ──
 let _showMainPanel, _showTip, _hideTip, _smoothPanTo, _smoothZoomTo, _layout, _updateBreadcrumb;
@@ -419,7 +420,7 @@ export function render(){
 
       // Overlay species photo on top if available (via ImageLoader)
       // Uses foreignObject + HTML img (SVG <image> fails cross-origin)
-      if(typeof ImageLoader!=='undefined'&&imgR>=8){
+      if(ImageLoader&&imgR>=8){
         const cachedUrl=confirmedPhotoUrls.get(n.id);
         const best=cachedUrl ? {url:cachedUrl} : ImageLoader.getBestUrl(n);
         if(best.url){

@@ -54,6 +54,11 @@ import { showToast, dismissToast, showSpeciesToast, showIdleToast, resetIdleTime
 // ── Quiz ──
 import { openQuiz, closeQuiz, initQuizEvents } from './quiz.js';
 
+// ── Data (barrel + direct for niche modules) ──
+import { TREE, lightenColor, PHOTO_MAP, FACTS, ImageLoader } from './data.js';
+import { expandTree } from './treeExpansion.js';
+import { initTourDeps, showTourSelector, startTour, endTour } from './tours.js';
+
 
 // ══════════════════════════════════════════════════════
 // 1. WIRE LATE-BOUND DEPENDENCIES
@@ -79,12 +84,15 @@ initEngagementDeps({ t, navigateTo: (...args) => navigateTo(...args), showMainPa
 // ══════════════════════════════════════════════════════
 
 // Register PHOTO_MAP (from speciesData.js) with ImageLoader for tree node rendering
-if(typeof ImageLoader!=='undefined'&&typeof PHOTO_MAP!=='undefined'&&ImageLoader.registerPhotoMap){
+if(ImageLoader&&PHOTO_MAP&&ImageLoader.registerPhotoMap){
   ImageLoader.registerPhotoMap(PHOTO_MAP);
 }
 
 // Build hominin subtree
 buildHomininTree();
+
+// Expand tree (adds ~200 species with IUCN data)
+expandTree(TREE, lightenColor);
 
 // Preprocess tree
 preprocess(TREE);
@@ -742,18 +750,11 @@ window.startTriviaGame = startTriviaGame;
 window.answerTrivia = answerTrivia;
 window.nextTriviaQuestion = nextTriviaQuestion;
 
-// Tours (global from tours.js loaded via <script> tag, not an ES module)
-window.showTourSelector = typeof showTourSelector !== 'undefined' ? showTourSelector : () => {};
-window.startTour = typeof startTour !== 'undefined' ? startTour : () => {};
-window.endTour = typeof endTour !== 'undefined' ? endTour : () => {};
-
-// Expose state/functions needed by tours.js for node/timeline navigation
-window._tourState = state;
-window._tourNodeMap = nodeMap;
-window._tourLayout = layout;
-window._tourScheduleRender = scheduleRender;
-window._tourApplyT = applyT;
-window._tourAnimateSliderTo = animateSliderTo;
+// Tours
+initTourDeps({ state, nodeMap, layout, scheduleRender, applyT, animateSliderTo, t });
+window.showTourSelector = showTourSelector;
+window.startTour = startTour;
+window.endTour = endTour;
 window.t = t;
 
 // Helpers

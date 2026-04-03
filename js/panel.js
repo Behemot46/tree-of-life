@@ -5,6 +5,10 @@
 import { state, nodeMap, navStack, HUMAN_PATH, confirmedPhotoUrls } from './state.js';
 import { reducedMotion, canonicalHomininId } from './utils.js';
 import { a11yAnnounce, markExplored } from './engagement.js';
+import { PHOTO_MAP, WIKI_TITLES, NODE_ICONS, getIconGroup, FACTS, ImageLoader } from './data.js';
+import { MAP_PATHS } from './mapPaths.js';
+import { PRIMATE_DATA } from './primateData.js';
+import { GEO_DATA, BRANCH_DATA } from './geoData.js';
 
 // ── Late-binding deps (set via initPanelDeps) ──
 let _pushNav, _updateNavButtons, _updateBreadcrumb, _scheduleRender;
@@ -115,7 +119,7 @@ export function getBranchType(node) {
 
 // ── Panel helper: render branch-specific section ──
 export function renderBranchSection(node, branchType) {
-  const bd = (typeof BRANCH_DATA !== 'undefined') ? BRANCH_DATA[node.id] : null;
+  const bd = BRANCH_DATA ? BRANCH_DATA[node.id] : null;
   if (!bd) return '';
   let html = '';
   if (branchType === 'microbe' || branchType === 'protist') {
@@ -153,9 +157,9 @@ export function renderBranchSection(node, branchType) {
 
 // ── Panel helper: render mini world map ──
 export function renderMiniMap(nodeId, nodeColor) {
-  const geo = (typeof GEO_DATA !== 'undefined') ? GEO_DATA[nodeId] : null;
+  const geo = GEO_DATA ? GEO_DATA[nodeId] : null;
   if (!geo || !geo.regions || !geo.regions.length) return '';
-  if (typeof MAP_PATHS === 'undefined') return '';
+  if (!MAP_PATHS) return '';
   const active = new Set(geo.regions);
   const isWorldwide = active.has('worldwide');
   const isMarine = active.has('marine-global') || active.has('marine-deep') || active.has('freshwater');
@@ -192,7 +196,7 @@ export function renderMiniMap(nodeId, nodeColor) {
 
 // ── Primate enriched card helper ──
 export function renderPrimateCard(node) {
-  const pd = (typeof PRIMATE_DATA !== 'undefined') ? (PRIMATE_DATA[node.id] || null) : null;
+  const pd = PRIMATE_DATA ? (PRIMATE_DATA[node.id] || null) : null;
   const h = node._hominData || null;
   if (!pd && !h) return '';
 
@@ -379,7 +383,7 @@ export function renderPrimateCard(node) {
 export function renderSapiensPanel(node, panelEl) {
   const h = node._hominData;
   const photoEntry = PHOTO_MAP[node.id];
-  const generatedUrl = (typeof ImageLoader!=='undefined') ? ImageLoader.getGeneratedUrl(node.id) : null;
+  const generatedUrl = (ImageLoader) ? ImageLoader.getGeneratedUrl(node.id) : null;
   const heroImg = generatedUrl || (photoEntry && photoEntry.url) || node.img || '';
   const heroCredit = generatedUrl ? 'AI-generated illustration' : (photoEntry && photoEntry.credit) || node.imgCredit || '';
   const brainMax = h && h.brain ? (h.brain[1]||h.brain[0]) : 1500;
@@ -523,7 +527,7 @@ export function renderSapiensPanel(node, panelEl) {
 // ── Panel hero SVG silhouette fallback ──
 export function buildHeroFallback(node) {
   const ig = getIconGroup(node);
-  const iconPath = (typeof NODE_ICONS !== 'undefined' && NODE_ICONS[ig]) || (typeof NODE_ICONS !== 'undefined' && NODE_ICONS.default) || '';
+  const iconPath = (NODE_ICONS && NODE_ICONS[ig]) || (NODE_ICONS && NODE_ICONS.default) || '';
   const color = node.color || '#c8883a';
   return `<div style="display:flex;width:100%;height:100%;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,${color}22 0%,${color}08 60%,transparent 100%),var(--surface-raised);">
     <svg viewBox="0 0 40 40" width="120" height="120" style="opacity:0.7;filter:drop-shadow(0 2px 8px ${color}44);">

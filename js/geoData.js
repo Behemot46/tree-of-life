@@ -2,7 +2,7 @@
 // GEO DATA — geographic distribution for all tree nodes
 // ══════════════════════════════════════════════════════
 
-const GEO_DATA = {
+export const GEO_DATA = {
   // ── ROOT & DOMAINS ──
   'luca':       { regions: ['marine-deep'], label: 'Hydrothermal vents, ancient ocean floor', type: 'fossil' },
   'bacteria':   { regions: ['worldwide'], label: 'Every habitat on Earth', type: 'habitat' },
@@ -236,7 +236,7 @@ const GEO_DATA = {
 // BRANCH DATA — species-specific display data for panels
 // ══════════════════════════════════════════════════════
 
-const BRANCH_DATA = {
+export const BRANCH_DATA = {
   // ── BACTERIA ──
   'ecoli': {
     cellType: 'Gram-negative bacterium',

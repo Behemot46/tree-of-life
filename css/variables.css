@@ -1,0 +1,105 @@
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ── SKIP TO CONTENT ── */
+.skip-link{position:absolute;top:-100%;left:50%;transform:translateX(-50%);
+  padding:0.6rem 1.2rem;background:var(--accent-primary);color:#fff;font-size:0.85rem;
+  font-family:var(--font-sans);font-weight:600;border-radius:0 0 var(--radius-md) var(--radius-md);
+  z-index:var(--z-tour);text-decoration:none;transition:top 0.2s ease;}
+.skip-link:focus{top:0;outline:2px solid var(--accent-primary);outline-offset:2px;}
+
+/* ── FOCUS VISIBLE ── */
+:focus-visible{outline:2px solid var(--accent-primary);outline-offset:2px;}
+button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,.lang-btn:focus-visible,
+.view-btn:focus-visible,.hom-filter:focus-visible,.era-preset:focus-visible{
+  outline:2px solid var(--accent-primary);outline-offset:2px;}
+:root{
+  /* ── Core surfaces (warm charcoal) ── */
+  --bg:#141618;
+  --surface:#1c1f24;
+  --surface-raised:#252930;
+  --surface-overlay:rgba(20,22,24,0.97);
+  /* ── Text hierarchy (warm off-whites) ── */
+  --parchment:#e6e1d8;
+  --text-primary:#e6e1d8;
+  --text-secondary:#9a9488;
+  --text-muted:#6b6560;
+  --text-dim:rgba(230,225,216,0.50);
+  --text-faint:rgba(230,225,216,0.30);
+  /* ── Primary accent: warm amber ── */
+  --accent:#c8883a;
+  --accent-light:#daa04d;
+  --accent-dim:rgba(200,136,58,0.15);
+  --accent-rgb:200,136,58;
+  /* ── Semantic colors ── */
+  --terra:#c45c4a;
+  --sage:#5b9a6b;
+  --accent-primary:#c8883a;
+  --accent-primary-dim:rgba(200,136,58,0.12);
+  --accent-secondary:#5b9a8b;
+  --accent-secondary-dim:rgba(91,154,139,0.12);
+  --accent-success:#5b9a6b;
+  --accent-danger:#c45c4a;
+  --panel-bg:rgba(28,31,36,0.97);
+  /* ── Borders (warm tint) ── */
+  --border:#2e2a26;
+  --divider:#2e2a26;
+  /* ── Typography ── */
+  --font-head:'Inter',system-ui,sans-serif;
+  --font-body:'Inter',system-ui,sans-serif;
+  --font-display:'Inter',system-ui,sans-serif;
+  --font-sans:'Inter',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono','Fira Code',monospace;
+  /* ── Elevation system ── */
+  --shadow-1:0 1px 3px rgba(0,0,0,0.12),0 1px 2px rgba(0,0,0,0.08);
+  --shadow-2:0 4px 12px rgba(0,0,0,0.15),0 2px 4px rgba(0,0,0,0.08);
+  --shadow-3:0 8px 32px rgba(0,0,0,0.2),0 4px 8px rgba(0,0,0,0.1);
+  /* ── Spacing scale ── */
+  --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:24px;--sp-6:32px;--sp-7:48px;
+  /* ── Typography scale ── */
+  --text-xs:0.7rem;--text-sm:0.8rem;--text-base:0.875rem;--text-md:1rem;--text-lg:1.25rem;--text-xl:1.5rem;--text-2xl:2rem;
+  /* ── Animation ── */
+  --ease-standard:cubic-bezier(0.2,0,0,1);
+  --ease-decelerate:cubic-bezier(0,0,0,1);
+  --duration-fast:150ms;--duration-normal:250ms;--duration-slow:400ms;
+  --transition-fast:150ms cubic-bezier(0.2,0,0,1);
+  --transition-normal:250ms cubic-bezier(0.2,0,0,1);
+  /* ── Glassmorphism ── */
+  --glass-bg:rgba(28,31,36,0.75);
+  --glass-border:rgba(255,255,255,0.06);
+  --glass-blur:blur(16px);
+  /* ── Semantic (legacy compat) ── */
+  --color-canvas:#141618;
+  --color-canvas-alt:#1c1f24;
+  --color-panel-bg:#1c1f24;
+  --color-panel-border:#2e2a26;
+  --color-text-primary:#e6e1d8;
+  --color-text-secondary:#9a9488;
+  --color-text-muted:#6b6560;
+  --color-accent:#c8883a;
+  --color-divider:#2e2a26;
+  --color-button-bg:#252930;
+  --color-button-border:#3a3530;
+  --color-button-hover:#302c28;
+  /* ── Radius ── */
+  --radius-sm:6px;
+  --radius-md:10px;
+  --radius-lg:14px;
+  --radius-full:9999px;
+  /* ── Z-index scale ── */
+  --z-base:0;
+  --z-tree:1;
+  --z-controls:100;
+  --z-nav:200;
+  --z-search:300;
+  --z-panel:400;
+  --z-toast:500;
+  --z-modal:1000;
+  --z-overlay:1100;
+  --z-splash:9999;
+  --z-tour:10000;
+  --z-tour-target:10001;
+  --z-tour-content:10002;
+}
+html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--parchment);}
+body{font-family:var(--font-body);user-select:none;cursor:grab;}
+body.dragging{cursor:grabbing;}

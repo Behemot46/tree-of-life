@@ -1,0 +1,24 @@
+/* ── MAIN SVG ── */
+#canvas-wrap{position:fixed;inset:0;z-index:var(--z-tree);}
+svg{width:100%;height:100%;}
+.node-group{cursor:pointer;}
+.node-circle{transition:r var(--transition-fast),opacity var(--transition-fast),filter var(--transition-normal);cursor:pointer;}
+.node-circle:hover{filter:brightness(1.15);}
+.node-group:hover .nc-main{filter:brightness(1.15) drop-shadow(0 0 4px currentColor);}
+.branch-path{fill:none;stroke-linecap:round;stroke-linejoin:round;cursor:default;}
+.badge-pulse{animation:badgePulse 2s ease-in-out infinite;}
+@keyframes badgePulse{
+  0%,100%{filter:drop-shadow(0 0 2px rgba(200,136,58,0.3));}
+  50%{filter:drop-shadow(0 0 8px rgba(200,136,58,0.7));}
+}
+#viewport{will-change:transform;}
+.branch-entering{stroke-dasharray:9999;stroke-dashoffset:9999;}
+.branch-entered{stroke-dashoffset:0;transition:stroke-dashoffset calc(0.3s + var(--depth) * 0.05s) cubic-bezier(.4,0,.2,1) calc(var(--depth) * 0.04s);}
+.node-entering{opacity:0;transform:scale(0.2);}
+.node-entered{opacity:1;transform:scale(1);transition:opacity 0.45s ease calc(var(--depth) * 0.09s),transform 0.45s cubic-bezier(.34,1.56,.64,1) calc(var(--depth) * 0.09s);}
+.node-label-text{pointer-events:none;font-family:var(--font-sans);font-size:14px;}
+.node-species-img{pointer-events:none;opacity:0;transition:opacity var(--transition-normal);}
+.node-species-img[href]{opacity:1;}
+.node-pulse{pointer-events:none;}
+
+/* (Hominin view removed — groups rendered as inline pill chips in tree) */

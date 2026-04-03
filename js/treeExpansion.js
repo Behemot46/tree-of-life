@@ -1,6 +1,6 @@
 // js/treeExpansion.js — Phase p32: Data Enrichment
 // Expands tree from ~130 to 300+ species with IUCN conservation data
-(function expandTree() {
+export function expandTree(TREE, lightenColor) {
   function find(node, id) {
     if (node.id === id) return node;
     if (node.children) for (const c of node.children) { const f = find(c, id); if (f) return f; }
@@ -1326,5 +1326,5 @@
   let count = 0;
   (function countNodes(n) { count++; if (n.children) n.children.forEach(countNodes); })(TREE);
   console.log('[TreeExpansion] Total nodes after expansion: ' + count);
-})();
+}
 

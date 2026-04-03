@@ -3,6 +3,7 @@
 // ══════════════════════════════════════════════════════
 
 import { state, nodeMap, navStack } from './state.js';
+import { TREE } from './data.js';
 
 // ── Late-binding deps (set via initNavDeps) ──
 let _showMainPanel, _closePanel, _smoothPanTo, _smoothZoomTo, _scheduleRender;

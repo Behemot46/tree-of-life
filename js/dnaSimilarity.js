@@ -7,7 +7,7 @@
  * Key: sorted "idA|idB" (using actual nodeMap IDs), value: { percent, source, note? }
  * Note: h_sapiens is the runtime ID for Homo sapiens (built by buildHomininTree)
  */
-const DNA_KNOWN = {
+export const DNA_KNOWN = {
   // Great apes
   'chimpanzee|h_sapiens':       { percent: 98.8, source: 'Nature 2005', note: 'Our closest living relative' },
   'gorilla|h_sapiens':          { percent: 98.4, source: 'Nature 2012' },
@@ -98,7 +98,7 @@ const DNA_KNOWN = {
  * Uses a piecewise linear decay model.
  * This is educational, not scientifically precise.
  */
-function estimateFromDivergence(mya) {
+export function estimateFromDivergence(mya) {
   if (mya <= 0) return 100;
   if (mya <= 1) return 99.9;
   if (mya <= 7) return 99.5 - (mya / 7) * 1.0;
@@ -116,7 +116,7 @@ function estimateFromDivergence(mya) {
  * Find Lowest Common Ancestor of two nodes.
  * Walks _parent chains to find the shared ancestor.
  */
-function findLCA(nodeA, nodeB) {
+export function findLCA(nodeA, nodeB) {
   if (!nodeA || !nodeB) return null;
   const ancestorsA = new Set();
   let cur = nodeA;
@@ -136,7 +136,7 @@ function findLCA(nodeA, nodeB) {
  * Main estimation function.
  * Returns { percent, divergenceMya, method, source?, note?, lca? }
  */
-function estimateDnaSimilarity(nodeA, nodeB) {
+export function estimateDnaSimilarity(nodeA, nodeB) {
   if (!nodeA || !nodeB) return null;
   if (nodeA.id === nodeB.id) {
     return { percent: 100, divergenceMya: 0, method: 'identical', note: 'Same species!', lca: nodeA };
@@ -177,7 +177,7 @@ function estimateDnaSimilarity(nodeA, nodeB) {
 /**
  * Fun facts keyed by similarity threshold (show fact if percent >= threshold).
  */
-const DNA_FUN_FACTS = [
+export const DNA_FUN_FACTS = [
   { threshold: 99,  text: 'Closer than many dog breeds are to each other!' },
   { threshold: 97,  text: 'You share more DNA with {b} than a horse shares with a zebra.' },
   { threshold: 90,  text: 'Despite looking very different, most of your genetic code is shared.' },
@@ -188,7 +188,7 @@ const DNA_FUN_FACTS = [
   { threshold: 0,   text: 'All life on Earth shares a common ancestor ~3.8 billion years ago.' },
 ];
 
-function getDnaFunFact(percent, speciesName) {
+export function getDnaFunFact(percent, speciesName) {
   for (const fact of DNA_FUN_FACTS) {
     if (percent >= fact.threshold) {
       return fact.text.replace('{b}', speciesName || 'this species');

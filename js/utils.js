@@ -3,6 +3,7 @@
 // ══════════════════════════════════════════════════════
 
 import { nodeMap, PHOTO_STATUS_CACHE, PHOTO_VERIFY_PROMISES } from './state.js';
+import { HOMININS, MAX_BRAIN, HOMININ_ID_ALIASES } from './data.js';
 
 // ── REDUCED MOTION HELPER ──
 export const reducedMotion=()=>matchMedia('(prefers-reduced-motion:reduce)').matches;

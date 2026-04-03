@@ -2,7 +2,7 @@
 // FACT LIBRARY — 130+ trilingual facts for loading screen,
 // species panel, node tooltip, discovery toast
 // ══════════════════════════════════════════════════════
-const FACTS = (() => {
+export const FACTS = (() => {
 
   const facts = [
     // ─────────────────────────────────────────────────────

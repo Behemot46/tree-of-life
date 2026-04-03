@@ -5,7 +5,7 @@
 // Single-path, no strokes — recognizable at 10–26px rendered size.
 // 48 distinct categories (merged from two parallel p20 implementations).
 
-const NODE_ICONS = {
+export const NODE_ICONS = {
   // ── Bacteria & Archaea ─────────────────────────────
   bacteria:    'M12 4c-1.5 0-3 .8-3 2.5v11c0 1.7 1.5 2.5 3 2.5s3-.8 3-2.5v-11C15 4.8 13.5 4 12 4z',
   spirochete:  'M6 6c2 1 2 3 0 4s-2 3 0 4 2 3 0 4c2 1 2 3 0 4M18 6c-2 1-2 3 0 4s2 3 0 4-2 3 0 4c-2 1-2 3 0 4',
@@ -87,7 +87,7 @@ const NODE_ICONS = {
 // Maps every node ID in the TREE to the best matching icon category.
 // Falls back through ancestry walk if no direct match is found.
 
-function getIconGroup(n) {
+export function getIconGroup(n) {
   var id = n.id;
 
   // ── Direct ID → icon mappings ──────────────────────

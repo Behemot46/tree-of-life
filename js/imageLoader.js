@@ -11,7 +11,7 @@
    - Lazy, non-blocking loading
    ═══════════════════════════════════════════════════════════════ */
 
-const ImageLoader = (() => {
+export const ImageLoader = (() => {
   /* Set of node IDs whose generated image failed to load this session */
   const failedIds = new Set();
 

@@ -4,6 +4,7 @@
 
 import { state } from './state.js';
 import { checkAchievement } from './engagement.js';
+import { TRANSLATIONS } from './uiData.js';
 
 // ── Late-binding deps (set via initThemeDeps) ──
 let _deps = {};

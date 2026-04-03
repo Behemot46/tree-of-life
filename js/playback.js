@@ -2,6 +2,7 @@
 // PLAYBACK — Time-lapse playback of evolutionary history
 // ══════════════════════════════════════════════════════
 import { state, nodeMap, animDone, PLAYBACK_LOCK_PREVIEW, PLAYBACK_DURATION } from './state.js';
+import { EXTINCTIONS } from './uiData.js';
 
 // Late-bound deps (set by app.js to avoid circular imports)
 let _layout, _centerOnTree, _scheduleRender, _applyT, _buildEraPresets, _getEraName, _updateEraTint, _updateSpeciesCount, _t;
@@ -25,7 +26,7 @@ export function buildPlaybackEvents(){
     const mya=n.appeared!==undefined&&n.appeared!==null?n.appeared:inferAppeared(n);
     state.playbackEvents.push({mya,type:'node',id:n.id,node:n});
   });
-  if(typeof EXTINCTIONS!=='undefined'){
+  if(EXTINCTIONS){
     EXTINCTIONS.forEach(ext=>{
       state.playbackEvents.push({mya:ext.mya,type:'extinction',data:ext});
     });

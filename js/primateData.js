@@ -4,7 +4,7 @@
 // taxonomy, genome, physical traits, behavior, conservation
 // ══════════════════════════════════════════════════════
 
-const PRIMATE_DATA = {
+export const PRIMATE_DATA = {
 
   // ── GROUP NODES ──────────────────────────────────────
 

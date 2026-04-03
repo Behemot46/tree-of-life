@@ -6,6 +6,7 @@ import { state, nodeMap, navStack, HUMAN_PATH, confirmedPhotoUrls } from './stat
 import { reducedMotion, canonicalHomininId } from './utils.js';
 import { a11yAnnounce, markExplored } from './engagement.js';
 import { MAP_PATHS } from './mapPaths.js';
+import { PRIMATE_DATA } from './primateData.js';
 
 // ── Late-binding deps (set via initPanelDeps) ──
 let _pushNav, _updateNavButtons, _updateBreadcrumb, _scheduleRender;
@@ -193,7 +194,7 @@ export function renderMiniMap(nodeId, nodeColor) {
 
 // ── Primate enriched card helper ──
 export function renderPrimateCard(node) {
-  const pd = (typeof PRIMATE_DATA !== 'undefined') ? (PRIMATE_DATA[node.id] || null) : null;
+  const pd = PRIMATE_DATA ? (PRIMATE_DATA[node.id] || null) : null;
   const h = node._hominData || null;
   if (!pd && !h) return '';
 

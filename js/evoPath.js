@@ -7,6 +7,7 @@ import { a11yAnnounce } from './engagement.js';
 import { findLCA } from './dnaSimilarity.js';
 import { FACTS } from './factLibrary.js';
 import { ImageLoader } from './imageLoader.js';
+import { PHOTO_MAP } from './speciesData.js';
 
 // ── Late-binding deps (set via initEvoPathDeps) ──
 let _searchEntities, _t, _scheduleRender, _smoothPanTo, _layout, _applyT;

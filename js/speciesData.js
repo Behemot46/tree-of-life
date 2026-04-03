@@ -5,7 +5,7 @@
 // ══════════════════════════════════════════════════════
 // SPECIES ENRICHMENT — alt facts + educational links
 // ══════════════════════════════════════════════════════
-const ENRICHMENT = {
+export const ENRICHMENT = {
   'luca': {
     altFacts:[
       'LUCA likely lived in hydrothermal vents 3.8–4 billion years ago, where chemical energy replaced sunlight.',
@@ -735,7 +735,7 @@ const ENRICHMENT = {
 };
 
 // Wikipedia article titles for each node
-const WIKI_TITLES = {
+export const WIKI_TITLES = {
   'luca':'Hydrothermal_vent','bacteria':'Bacteria','cyanobacteria':'Cyanobacteria',
   'prochlorococcus':'Prochlorococcus','proteobacteria':'Proteobacteria','ecoli':'Escherichia_coli',
   'helicobacter':'Helicobacter_pylori','vibrio-cholerae':'Vibrio_cholerae',
@@ -810,7 +810,7 @@ const WIKI_TITLES = {
   'lungfish':'Australian_lungfish','ginkgo':'Ginkgo','dragon-blood-tree':'Dracaena_cinnabari',
 };
 
-const PHOTO_MAP = {
+export const PHOTO_MAP = {
   // Bacteria & microbes
   'luca':                  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Inactive_hydrothermal_vents%2C_Galapagos_Rift_%28Expl6488_9667229132%29.jpg/320px-Inactive_hydrothermal_vents%2C_Galapagos_Rift_%28Expl6488_9667229132%29.jpg', credit:'NOAA/Wikipedia, CC BY 2.0'},
   'bacteria':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Bacteria_collage.jpg/320px-Bacteria_collage.jpg', credit:'Wikipedia, CC BY-SA 3.0'},
@@ -1105,5 +1105,5 @@ const PHOTO_MAP = {
   'radiolarian':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Acantharia.jpg/330px-Acantharia.jpg', credit:'Ernst Haeckel, Public Domain'},
   'stentor':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Stentor_coeruleus.jpg/330px-Stentor_coeruleus.jpg', credit:'Picturepest, CC BY 2.0'},};
 
-const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','bonobo','hominini'];
-const HOMININ_IDS   = ['homo-sapiens','h_erectus','h_habilis','h_neanderthalensis','h_heidelbergensis','h_floresiensis','h_naledi','h_luzonensis','denisovan','au_afarensis','au_africanus','sahelanthropus','ardipithecus_r'];
+export const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','bonobo','hominini'];
+export const HOMININ_IDS   = ['homo-sapiens','h_erectus','h_habilis','h_neanderthalensis','h_heidelbergensis','h_floresiensis','h_naledi','h_luzonensis','denisovan','au_afarensis','au_africanus','sahelanthropus','ardipithecus_r'];

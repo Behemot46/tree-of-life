@@ -57,6 +57,7 @@ import { openQuiz, closeQuiz, initQuizEvents } from './quiz.js';
 // ── Data (converted to ES modules) ──
 import { FACTS } from './factLibrary.js';
 import { ImageLoader } from './imageLoader.js';
+import { PHOTO_MAP } from './speciesData.js';
 
 
 // ══════════════════════════════════════════════════════
@@ -83,7 +84,7 @@ initEngagementDeps({ t, navigateTo: (...args) => navigateTo(...args), showMainPa
 // ══════════════════════════════════════════════════════
 
 // Register PHOTO_MAP (from speciesData.js) with ImageLoader for tree node rendering
-if(ImageLoader&&typeof PHOTO_MAP!=='undefined'&&ImageLoader.registerPhotoMap){
+if(ImageLoader&&PHOTO_MAP&&ImageLoader.registerPhotoMap){
   ImageLoader.registerPhotoMap(PHOTO_MAP);
 }
 

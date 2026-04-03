@@ -11,6 +11,7 @@ import { GEO_DATA, BRANCH_DATA } from './geoData.js';
 import { NODE_ICONS, getIconGroup } from './nodeIcons.js';
 import { FACTS } from './factLibrary.js';
 import { ImageLoader } from './imageLoader.js';
+import { PHOTO_MAP, WIKI_TITLES } from './speciesData.js';
 
 // ── Late-binding deps (set via initPanelDeps) ──
 let _pushNav, _updateNavButtons, _updateBreadcrumb, _scheduleRender;

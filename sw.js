@@ -1,11 +1,22 @@
 // Tree of Life — Service Worker
 // Cache-first for app shell, network-first for API/images
 
-const CACHE_VERSION = 'tol-v2';
+const CACHE_VERSION = 'tol-v3';
 const APP_SHELL = [
   '/',
   '/index.html',
   '/manifest.json',
+  // External CSS files
+  '/css/variables.css',
+  '/css/layout.css',
+  '/css/tree.css',
+  '/css/timeline.css',
+  '/css/panel.css',
+  '/css/hominin.css',
+  '/css/features.css',
+  '/css/theme.css',
+  '/css/rtl.css',
+  '/css/responsive.css',
   // Data modules (global <script> tags)
   '/js/treeData.js',
   '/js/treeExpansion.js',

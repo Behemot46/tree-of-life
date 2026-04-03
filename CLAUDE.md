@@ -15,29 +15,42 @@
 
 ```
 tree-of-life/
-├── index.html           # SPA — markup + inline <style> (~2,260 lines, no inline JS)
+├── index.html           # SPA — pure HTML markup (~462 lines)
 ├── serve.js             # Local dev server (port 5555): node serve.js
+├── css/                 # External stylesheets (10 files)
+│   ├── variables.css    # CSS custom properties, reset, focus styles
+│   ├── layout.css       # Header, search, breadcrumb, nav controls
+│   ├── tree.css         # SVG tree rendering, node/branch styles
+│   ├── timeline.css     # Era browser, extinction markers, playback
+│   ├── panel.css        # Species detail panel, hero images, cards
+│   ├── hominin.css      # Hominin deep-dive overlay, compare cards
+│   ├── features.css     # Legend, zoom, tooltip, quiz, DNA, evo path, tours
+│   ├── theme.css        # Light theme overrides, dark mode polish
+│   ├── rtl.css          # Hebrew RTL layout overrides
+│   └── responsive.css   # Mobile breakpoints, reduced motion, high contrast
 ├── assets/
 │   ├── placeholder.svg  # Fallback image when taxon photo is unavailable
 │   └── species/.gitkeep # Directory for future AI-generated species images
-└── js/
-    ├── # ── Data files (classic <script> globals) ──
+└── js/                  # All ES modules — single entry: app.js
+    ├── # ── Data modules ──
+    ├── data.js          # Barrel re-exports for widely-shared constants
     ├── treeData.js      # TREE object — full phylogenetic tree data
-    ├── treeExpansion.js  # Enriches TREE with 300+ additional species
-    ├── speciesData.js   # PHOTO_MAP, WIKI_TITLES, HOMININS, ENRICHMENT
-    ├── uiData.js        # DEPTH_R, ERA_NAMES, EXTINCTIONS, ERA_TINTS, TRANSLATIONS
-    ├── factLibrary.js   # FACTS constant — random facts for discovery feature
-    ├── imagePrompts.js  # AI image prompt library for species illustrations
+    ├── treeExpansion.js  # expandTree() — adds 300+ species with IUCN data
+    ├── speciesData.js   # PHOTO_MAP, WIKI_TITLES, ENRICHMENT
+    ├── uiData.js        # DEPTH_R, ERA_NAMES, EXTINCTIONS, TRANSLATIONS
+    ├── factLibrary.js   # FACTS — random facts for discovery feature
+    ├── imagePrompts.js  # AI image prompt library (unused)
     ├── imageLoader.js   # ImageLoader — fallback chain: generated → PHOTO_MAP → emoji
-    ├── dnaSimilarity.js # DNA_SIMILARITY_DATA, getDnaSimilarity()
+    ├── dnaSimilarity.js # DNA_KNOWN, estimateDnaSimilarity(), findLCA()
     ├── nodeIcons.js     # NODE_ICONS SVG paths + getIconGroup()
     ├── triviaData.js    # TRIVIA_QUESTIONS — 200+ quiz questions
     ├── primateData.js   # PRIMATE_DATA — taxonomy, genome, traits
-    ├── geoData.js       # GEO_DATA + BRANCH_DATA — geographic/enrichment data
-    ├── tour.js          # TOUR_STEPS — guided tour step definitions
-    ├── # ── Application modules (ES modules via <script type="module">) ──
+    ├── geoData.js       # GEO_DATA + BRANCH_DATA — geographic data
+    ├── mapPaths.js      # MAP_PATHS — continent outlines for mini-map
+    ├── tours.js         # Guided tour engine (3 tours)
+    ├── # ── Application modules ──
     ├── app.js           # Entry point — init(), window.* exposures, event listeners
-    ├── state.js         # Shared mutable state object + constants (HUMAN_PATH, TAXON_I18N)
+    ├── state.js         # Shared mutable state object + constants
     ├── utils.js         # reducedMotion(), preprocess(), hominin helpers
     ├── layout.js        # layout(), layoutRadial/Cladogram/Chronological/Playback
     ├── zoom.js          # applyT(), smoothPanTo(), centerOnTree/Root, pointer handlers
@@ -50,6 +63,7 @@ tree-of-life/
     ├── dnaCalc.js       # DNA similarity calculator modal
     ├── evoPath.js       # Evolutionary path comparison tool
     ├── trivia.js        # Trivia quiz game
+    ├── quiz.js          # Multiple-choice quiz mode
     ├── playback.js      # Time-lapse playback mode
     ├── theme.js         # t(), setLang(), applyI18n(), toggleTheme()
     └── engagement.js    # Toast notifications, idle timer, intro, particles
@@ -69,11 +83,13 @@ No install step needed. Open `http://localhost:5555` in a browser. Alternatively
 
 ## Architecture
 
-### Modular Architecture (J3)
+### Modular Architecture
 
-**Data layer:** 13 classic `<script>` files defining global constants (TREE, PHOTO_MAP, TRANSLATIONS, etc.).
+**CSS layer:** 10 external stylesheets in `css/` directory, loaded via `<link>` tags.
 
-**Application layer:** 17 ES modules loaded via `<script type="module" src="js/app.js">`. No build step — native browser module support.
+**Data layer:** 14 ES module files with explicit exports. Widely-shared constants re-exported via `js/data.js` barrel.
+
+**Application layer:** 18 ES modules loaded via `<script type="module" src="js/app.js">`. No build step — native browser module support.
 
 **Shared state:** All mutable state lives in `js/state.js` as a single exported `state` object. Modules import and mutate it directly.
 
@@ -118,8 +134,8 @@ No install step needed. Open `http://localhost:5555` in a browser. Alternatively
 
 ### CSS Architecture
 
-- All CSS lives in the `<style>` block inside `index.html`'s `<head>` (~550 lines)
-- **No external stylesheet** — `style.css` was removed as dead code
+- CSS lives in 10 external files in the `css/` directory, loaded via `<link>` tags
+- Organized by concern: variables, layout, tree, timeline, panel, hominin, features, theme, rtl, responsive
 - **CSS custom properties** control all colors — defined in `:root` (dark default) and `[data-theme="light"]`
 - `data-theme` attribute on `<html>` controls the active theme
 - Theme preference persisted in `localStorage` key `theme`
@@ -165,8 +181,8 @@ No install step needed. Open `http://localhost:5555` in a browser. Alternatively
 
 1. **No tests** — verify changes by running locally and testing in browser.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
-3. **index.html is large** (~3,800 lines). Be careful with edits; search for context before modifying.
-4. **Global scope** — data constants (`TREE`, `PHOTO_MAP`, `TRANSLATIONS`, etc.) are globals loaded via `<script>` tags.
+3. **index.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
+4. **ES modules everywhere** — all data and application files use `export`/`import`. No global `<script>` tags.
 5. **D3.js** — loaded from CDN but not actively used by the current renderer.
 6. **CORS** — all APIs permit browser-side calls. Do not add a server proxy unless needed.
 
@@ -178,14 +194,14 @@ No install step needed. Open `http://localhost:5555` in a browser. Alternatively
 
 1. Edit files directly — no build step required
 2. Test in browser at `http://localhost:5555` (run `node serve.js`)
-3. Edit CSS in `index.html`'s inline `<style>` block (no external stylesheet)
+3. Edit CSS in the appropriate file under `css/` (organized by concern)
 4. Verify all three languages (`?lang=en`, `?lang=he`, `?lang=ru`) if touching UI text
 
 ### Adding a New Data Module
 
-1. Create `js/newmodule.js` with global constants
-2. Add `<script src="js/newmodule.js"></script>` to `index.html` before the main `<script>` block (line ~820)
-3. Reference the constants in the inline `<script>` code
+1. Create `js/newmodule.js` with `export const` declarations
+2. Import it in consuming ES modules (e.g., `import { FOO } from './newmodule.js'`)
+3. If widely shared (4+ consumers), add a re-export to `js/data.js`
 
 ### Deployment
 

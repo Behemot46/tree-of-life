@@ -11,6 +11,7 @@ import { nodeInEra } from './timeline.js';
 import { a11yAnnounce } from './engagement.js';
 import { NODE_ICONS, getIconGroup } from './nodeIcons.js';
 import { ImageLoader } from './imageLoader.js';
+import { TREE } from './treeData.js';
 
 // ── Late-bound deps (avoid circular imports) ──
 let _showMainPanel, _showTip, _hideTip, _smoothPanTo, _smoothZoomTo, _layout, _updateBreadcrumb;

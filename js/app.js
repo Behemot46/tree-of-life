@@ -58,6 +58,7 @@ import { openQuiz, closeQuiz, initQuizEvents } from './quiz.js';
 import { FACTS } from './factLibrary.js';
 import { ImageLoader } from './imageLoader.js';
 import { PHOTO_MAP } from './speciesData.js';
+import { TREE, lightenColor } from './treeData.js';
 
 
 // ══════════════════════════════════════════════════════

@@ -4,6 +4,7 @@
 
 import { state, nodeMap, TAXON_I18N, HOMININ_SKIP_IDS } from './state.js';
 import { ENRICHMENT } from './speciesData.js';
+import { HOMININS } from './treeData.js';
 
 // Uses globals: HOMININS, ENRICHMENT
 

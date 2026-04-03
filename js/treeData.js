@@ -1,4 +1,4 @@
-function lightenColor(hex, level) {
+export function lightenColor(hex, level) {
   const factors = { domain: 1.0, phylum: 0.80, class: 0.60, order: 0.40, species: 0.25 };
   const factor = factors[level] || 1.0;
   const r = parseInt(hex.slice(1,3), 16);
@@ -7,7 +7,7 @@ function lightenColor(hex, level) {
   const mix = (c) => Math.round(c * factor + 255 * (1 - factor));
   return 'rgb('+mix(r)+','+mix(g)+','+mix(b)+')';
 }
-const TREE = {
+export const TREE = {
   id:'luca',icon:'🌐',color:'#8b5cf6',r:26,appeared:3800,extinct:null,img:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Oceanic_spreading.jpg/400px-Oceanic_spreading.jpg',imgCredit:'Hydrothermal vent: NOAA (Public Domain)',
   name:'LUCA',latin:'Last Universal Common Ancestor',era:'~3.8 Billion Years Ago',
   desc:'The Last Universal Common Ancestor — a single-celled microorganism from which every living thing on Earth descends. LUCA likely inhabited hydrothermal vents on the ancient ocean floor, harvesting chemical energy from mineral-rich superheated water. It possessed DNA-based heredity, RNA-based ribosomes, and a lipid membrane — the three foundational features of all life.',
@@ -1797,7 +1797,7 @@ const TREE = {
 // ══════════════════════════════════════════════════════
 // HOMININS DATA
 // ══════════════════════════════════════════════════════
-const HOMININS = [
+export const HOMININS = [
   {id:'sahelanthropus',group:'proto',name:'Sahelanthropus tchadensis',short:'Sahelanthropus',icon:'🦴',color:'#8B5E3C',status:'extinct',mya:[7,6],brain:[320,380],height:'~120cm',weight:'~30–50kg',habitat:'Forested lake margin, Chad',tools:'None known',fire:'No',language:'None',sites:['Toros-Menalla, Chad'],desc:'The oldest known member of the human lineage — possibly. Discovered in Chad in 2001, dates to 6–7 million years ago, shortly after the human-chimp split. Its small canine teeth and possible bipedal posture suggest it belongs on the human side of the divide, but debate continues.',detail:'The skull was crushed flat and required meticulous 3D reconstruction. In 2022, a femur tentatively attributed to Sahelanthropus suggested it walked upright.',funFact:'The skull of Sahelanthropus was so crushed when discovered that it took years of 3D reconstruction to reveal a face 7 million years old — the oldest candidate for a human ancestor ever found.',facts:[{l:'Lived',v:'~7–6 Mya'},{l:'Discovered',v:'2001, Chad'},{l:'Brain vol.',v:'~320–380 cm³'},{l:'Bipedal?',v:'Debated'}],tags:['Possible biped','Reduced canines','Human-chimp split era','Chad','Toumaï'],dna:{note:'Pre-DNA record'}},
   {id:'orrorin',group:'proto',name:'Orrorin tugenensis',short:'Orrorin',icon:'🦴',color:'#7a5530',status:'extinct',mya:[6.1,5.7],brain:[null,null],height:'~120cm',weight:'~35–50kg',habitat:'Mixed forest, Kenya',tools:'None known',fire:'No',language:'None',sites:['Tugen Hills, Kenya'],desc:'"Original Man" in Tugen. Represented mainly by femur bones showing clear adaptations for bipedal walking. Yet the hands show curved phalanges for tree-climbing, suggesting a dual lifestyle typical of early hominins.',detail:'The femoral morphology is strikingly similar to Australopithecus and even early Homo, causing some to propose Orrorin may be directly ancestral to Homo.',funFact:'Orrorin\'s femur shows clear signs of bipedal walking 6 million years ago — yet its curved fingers reveal it still climbed trees, living a dual life between ground and canopy.',facts:[{l:'Lived',v:'~6.1–5.7 Mya'},{l:'Key fossil',v:'Femur (bipedal)'},{l:'Locomotion',v:'Biped + arboreal'}],tags:['Early biped','Thick enamel','Curved phalanges','Tugen Hills','Millennium Man'],dna:{note:'Pre-DNA record'}},
   {id:'ardipithecus_r',group:'proto',name:'Ardipithecus ramidus',short:'Ar. ramidus',icon:'🦴',color:'#a07050',status:'extinct',mya:[4.4,4.3],brain:[280,350],height:'~120cm',weight:'~50kg',habitat:'Woodland, Ethiopia',tools:'None known',fire:'No',language:'None',sites:['Aramis, Ethiopia'],desc:'"Ardi" — the 4.4-million-year-old near-complete skeleton rewrote our understanding of human origins. Ardipithecus ramidus walked upright but retained a grasping big toe for climbing. Crucially, it lacked the large canines of chimps, suggesting human social evolution began earlier than thought.',detail:'Ardi\'s foot combines an opposable big toe (ape-like) with rigid midfoot bones (bipedal). This mosaic suggests bipedalism did not evolve from a chimp-like ancestor.',funFact:'Ardi\'s skeleton shattered the assumption that humans evolved from a chimp-like ancestor — her anatomy shows the human-chimp ancestor looked nothing like a modern chimpanzee.',facts:[{l:'Lived',v:'~4.4 Mya'},{l:'Discovered',v:'1994 (pub. 2009)'},{l:'Brain vol.',v:'~280–350 cm³'},{l:'Key fossil',v:'"Ardi" — near-complete'}],tags:['Mosaic anatomy','Opposable big toe','Woodland biped','Rewrote origins'],dna:{note:'Pre-DNA record'}},
@@ -1831,8 +1831,8 @@ const HOMININS = [
   {id:'denisovan',group:'Archaic Homo',name:'Denisovans',short:'The Ghost Lineage',icon:'👤',color:'#7a6a55',status:'extinct',mya:[0.5,0.03],brain:[1200,1400],height:'Unknown',weight:'Unknown',habitat:'Asia — Siberia to Southeast Asia',tools:'Advanced stone and bone tools',fire:'Yes',language:'Possible',sites:['Denisova Cave, Siberia','Xiahe, Tibet','Tam Ngu Hao, Laos'],img:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Denisova_Cave_main_gallery.jpg/320px-Denisova_Cave_main_gallery.jpg',imgCredit:'Демин Алексей Барнаул, CC BY-SA 3.0',desc:'Known almost entirely from DNA — only a finger bone, teeth, and jaw have been found. Yet their genome has been fully sequenced. Up to 6% of modern Melanesian DNA is Denisovan.',detail:'Denisovans interbred with modern humans in Asia. The gene variant allowing Tibetans to live at high altitude — EPAS1 — comes from Denisovans. They may have ranged from Siberia to Southeast Asia.',funFact:'We know an entire human species from a single finger bone — yet their DNA lives on in millions of people today, and gave Tibetans the gene allowing them to breathe at high altitude.',facts:[{l:'Known fossils',v:'Finger bone, teeth, jaw'},{l:'DNA in modern humans',v:'Up to 6% in Melanesians'},{l:'Gift to Tibetans',v:'High-altitude breathing gene'}],tags:['Ghost lineage','DNA only','Interbreeding'],dna:{haplogroup:'Unknown',neanderthal:'Interbred',denisovan:'100%'}}
 ];
 
-const MAX_BRAIN = 1750;
-const ERA_GROUPS = [
+export const MAX_BRAIN = 1750;
+export const ERA_GROUPS = [
   {label:'Proto-Hominins (7–3 Ma)',filter:n=>n.group==='proto'},
   {label:'Australopithecus (4–1.7 Ma)',filter:n=>n.group==='australopith'},
   {label:'Paranthropus (2.7–1.2 Ma)',filter:n=>n.group==='paranthropus'},
@@ -1844,7 +1844,7 @@ const ERA_GROUPS = [
 /* ===========================
    UNIFIED HOMININ MODEL
    =========================== */
-const HOMININ_ID_ALIASES={
+export const HOMININ_ID_ALIASES={
   "homo-sapiens":"h_sapiens",
   "homo-naledi":"h_naledi",
   "homo-floresiensis":"h_floresiensis",

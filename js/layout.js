@@ -4,6 +4,7 @@
 
 import { state, MIN_ARC_PX, MAX_ARC_PER_LEAF } from './state.js';
 import { DEPTH_R } from './uiData.js';
+import { TREE } from './treeData.js';
 
 // Uses globals: DEPTH_R, TREE
 

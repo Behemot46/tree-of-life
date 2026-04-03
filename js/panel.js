@@ -7,6 +7,7 @@ import { reducedMotion, canonicalHomininId } from './utils.js';
 import { a11yAnnounce, markExplored } from './engagement.js';
 import { MAP_PATHS } from './mapPaths.js';
 import { PRIMATE_DATA } from './primateData.js';
+import { GEO_DATA, BRANCH_DATA } from './geoData.js';
 
 // ── Late-binding deps (set via initPanelDeps) ──
 let _pushNav, _updateNavButtons, _updateBreadcrumb, _scheduleRender;
@@ -117,7 +118,7 @@ export function getBranchType(node) {
 
 // ── Panel helper: render branch-specific section ──
 export function renderBranchSection(node, branchType) {
-  const bd = (typeof BRANCH_DATA !== 'undefined') ? BRANCH_DATA[node.id] : null;
+  const bd = BRANCH_DATA ? BRANCH_DATA[node.id] : null;
   if (!bd) return '';
   let html = '';
   if (branchType === 'microbe' || branchType === 'protist') {
@@ -155,7 +156,7 @@ export function renderBranchSection(node, branchType) {
 
 // ── Panel helper: render mini world map ──
 export function renderMiniMap(nodeId, nodeColor) {
-  const geo = (typeof GEO_DATA !== 'undefined') ? GEO_DATA[nodeId] : null;
+  const geo = GEO_DATA ? GEO_DATA[nodeId] : null;
   if (!geo || !geo.regions || !geo.regions.length) return '';
   if (!MAP_PATHS) return '';
   const active = new Set(geo.regions);

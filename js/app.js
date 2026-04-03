@@ -59,6 +59,7 @@ import { FACTS } from './factLibrary.js';
 import { ImageLoader } from './imageLoader.js';
 import { PHOTO_MAP } from './speciesData.js';
 import { TREE, lightenColor } from './treeData.js';
+import { expandTree } from './treeExpansion.js';
 
 
 // ══════════════════════════════════════════════════════
@@ -91,6 +92,9 @@ if(ImageLoader&&PHOTO_MAP&&ImageLoader.registerPhotoMap){
 
 // Build hominin subtree
 buildHomininTree();
+
+// Expand tree (adds ~200 species with IUCN data)
+expandTree(TREE, lightenColor);
 
 // Preprocess tree
 preprocess(TREE);

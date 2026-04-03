@@ -14,6 +14,7 @@ import { GEO_DATA, BRANCH_DATA } from './geoData.js';
 let _pushNav, _updateNavButtons, _updateBreadcrumb, _scheduleRender;
 let _smoothPanTo, _focusNode, _t, _generateSpeciesIllustration;
 let _navBack, _layout, _applyT, _centerOnRoot;
+let _openSapiens;
 export function initPanelDeps(deps) {
   _pushNav = deps.pushNav;
   _updateNavButtons = deps.updateNavButtons;
@@ -27,6 +28,7 @@ export function initPanelDeps(deps) {
   _layout = deps.layout;
   _applyT = deps.applyT;
   _centerOnRoot = deps.centerOnRoot;
+  _openSapiens = deps.openSapiens;
 }
 
 // ── DOM refs ──
@@ -818,6 +820,10 @@ export function openHominins(nodeId) {
 // ── Show main panel for a node ──
 export function showMainPanel(n,url){
   if(!n || (state.currentPanelNode && state.currentPanelNode.id === n.id)) return;
+  if (n.id === 'h_sapiens' || n.id === 'hominini') {
+    if (_openSapiens) _openSapiens();
+    return;
+  }
   _pushNav(url); // record state before transition
   state.currentPanelNode=n;
   renderPanelContent(n);

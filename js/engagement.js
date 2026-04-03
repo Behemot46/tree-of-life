@@ -5,8 +5,7 @@
 
 import { state, animDone, nodeMap } from './state.js';
 import { reducedMotion } from './utils.js';
-import { FACTS } from './factLibrary.js';
-import { HOMININS } from './treeData.js';
+import { FACTS, HOMININS } from './data.js';
 
 // ── Late-binding deps (set via initEngagementDeps) ──
 let _deps = {};

@@ -5,13 +5,10 @@
 import { state, nodeMap, navStack, HUMAN_PATH, confirmedPhotoUrls } from './state.js';
 import { reducedMotion, canonicalHomininId } from './utils.js';
 import { a11yAnnounce, markExplored } from './engagement.js';
+import { PHOTO_MAP, WIKI_TITLES, NODE_ICONS, getIconGroup, FACTS, ImageLoader } from './data.js';
 import { MAP_PATHS } from './mapPaths.js';
 import { PRIMATE_DATA } from './primateData.js';
 import { GEO_DATA, BRANCH_DATA } from './geoData.js';
-import { NODE_ICONS, getIconGroup } from './nodeIcons.js';
-import { FACTS } from './factLibrary.js';
-import { ImageLoader } from './imageLoader.js';
-import { PHOTO_MAP, WIKI_TITLES } from './speciesData.js';
 
 // ── Late-binding deps (set via initPanelDeps) ──
 let _pushNav, _updateNavButtons, _updateBreadcrumb, _scheduleRender;

@@ -2,7 +2,7 @@
 // ZOOM — Pan, zoom, and center viewport functions
 // ══════════════════════════════════════════════════════
 import { state } from './state.js';
-import { TREE } from './treeData.js';
+import { TREE } from './data.js';
 
 // Late-bound deps (set by app.js to avoid circular imports)
 let _scheduleRender, _layout, _getVisible;

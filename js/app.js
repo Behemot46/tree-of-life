@@ -54,11 +54,8 @@ import { showToast, dismissToast, showSpeciesToast, showIdleToast, resetIdleTime
 // ── Quiz ──
 import { openQuiz, closeQuiz, initQuizEvents } from './quiz.js';
 
-// ── Data (converted to ES modules) ──
-import { FACTS } from './factLibrary.js';
-import { ImageLoader } from './imageLoader.js';
-import { PHOTO_MAP } from './speciesData.js';
-import { TREE, lightenColor } from './treeData.js';
+// ── Data (barrel + direct for niche modules) ──
+import { TREE, lightenColor, PHOTO_MAP, FACTS, ImageLoader } from './data.js';
 import { expandTree } from './treeExpansion.js';
 import { initTourDeps, showTourSelector, startTour, endTour } from './tours.js';
 

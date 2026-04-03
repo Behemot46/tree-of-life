@@ -5,7 +5,7 @@
 import { state, nodeMap } from './state.js';
 import { a11yAnnounce, trackDnaCompare } from './engagement.js';
 import { estimateDnaSimilarity, getDnaFunFact } from './dnaSimilarity.js';
-import { ImageLoader } from './imageLoader.js';
+import { ImageLoader } from './data.js';
 
 // ── Late-binding deps (set via initDnaCalcDeps) ──
 let _searchEntities, _t, _showMainPanel;

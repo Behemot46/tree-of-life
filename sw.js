@@ -1,7 +1,7 @@
 // Tree of Life — Service Worker
 // Cache-first for app shell, network-first for API/images
 
-const CACHE_VERSION = 'tol-v3';
+const CACHE_VERSION = 'tol-v4';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -30,6 +30,7 @@ const APP_SHELL = [
   '/js/triviaData.js',
   '/js/primateData.js',
   '/js/geoData.js',
+  '/js/mapPaths.js',
   '/js/tours.js',
   // ES modules (imported by app.js)
   '/js/app.js',

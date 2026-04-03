@@ -156,7 +156,7 @@ export function renderBranchSection(node, branchType) {
 export function renderMiniMap(nodeId, nodeColor) {
   const geo = (typeof GEO_DATA !== 'undefined') ? GEO_DATA[nodeId] : null;
   if (!geo || !geo.regions || !geo.regions.length) return '';
-  if (typeof MAP_PATHS === 'undefined') return '';
+  if (!MAP_PATHS) return '';
   const active = new Set(geo.regions);
   const isWorldwide = active.has('worldwide');
   const isMarine = active.has('marine-global') || active.has('marine-deep') || active.has('freshwater');

@@ -10,6 +10,7 @@ import { PRIMATE_DATA } from './primateData.js';
 import { GEO_DATA, BRANCH_DATA } from './geoData.js';
 import { NODE_ICONS, getIconGroup } from './nodeIcons.js';
 import { FACTS } from './factLibrary.js';
+import { ImageLoader } from './imageLoader.js';
 
 // ── Late-binding deps (set via initPanelDeps) ──
 let _pushNav, _updateNavButtons, _updateBreadcrumb, _scheduleRender;
@@ -384,7 +385,7 @@ export function renderPrimateCard(node) {
 export function renderSapiensPanel(node, panelEl) {
   const h = node._hominData;
   const photoEntry = PHOTO_MAP[node.id];
-  const generatedUrl = (typeof ImageLoader!=='undefined') ? ImageLoader.getGeneratedUrl(node.id) : null;
+  const generatedUrl = (ImageLoader) ? ImageLoader.getGeneratedUrl(node.id) : null;
   const heroImg = generatedUrl || (photoEntry && photoEntry.url) || node.img || '';
   const heroCredit = generatedUrl ? 'AI-generated illustration' : (photoEntry && photoEntry.credit) || node.imgCredit || '';
   const brainMax = h && h.brain ? (h.brain[1]||h.brain[0]) : 1500;

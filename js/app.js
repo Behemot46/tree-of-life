@@ -60,6 +60,7 @@ import { ImageLoader } from './imageLoader.js';
 import { PHOTO_MAP } from './speciesData.js';
 import { TREE, lightenColor } from './treeData.js';
 import { expandTree } from './treeExpansion.js';
+import { initTourDeps, showTourSelector, startTour, endTour } from './tours.js';
 
 
 // ══════════════════════════════════════════════════════
@@ -752,18 +753,11 @@ window.startTriviaGame = startTriviaGame;
 window.answerTrivia = answerTrivia;
 window.nextTriviaQuestion = nextTriviaQuestion;
 
-// Tours (global from tours.js loaded via <script> tag, not an ES module)
-window.showTourSelector = typeof showTourSelector !== 'undefined' ? showTourSelector : () => {};
-window.startTour = typeof startTour !== 'undefined' ? startTour : () => {};
-window.endTour = typeof endTour !== 'undefined' ? endTour : () => {};
-
-// Expose state/functions needed by tours.js for node/timeline navigation
-window._tourState = state;
-window._tourNodeMap = nodeMap;
-window._tourLayout = layout;
-window._tourScheduleRender = scheduleRender;
-window._tourApplyT = applyT;
-window._tourAnimateSliderTo = animateSliderTo;
+// Tours
+initTourDeps({ state, nodeMap, layout, scheduleRender, applyT, animateSliderTo, t });
+window.showTourSelector = showTourSelector;
+window.startTour = startTour;
+window.endTour = endTour;
 window.t = t;
 
 // Helpers

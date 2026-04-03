@@ -9,6 +9,7 @@ import { MAP_PATHS } from './mapPaths.js';
 import { PRIMATE_DATA } from './primateData.js';
 import { GEO_DATA, BRANCH_DATA } from './geoData.js';
 import { NODE_ICONS, getIconGroup } from './nodeIcons.js';
+import { FACTS } from './factLibrary.js';
 
 // ── Late-binding deps (set via initPanelDeps) ──
 let _pushNav, _updateNavButtons, _updateBreadcrumb, _scheduleRender;

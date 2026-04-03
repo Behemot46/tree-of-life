@@ -5,6 +5,7 @@
 import { state, nodeMap, HUMAN_PATH } from './state.js';
 import { a11yAnnounce } from './engagement.js';
 import { findLCA } from './dnaSimilarity.js';
+import { FACTS } from './factLibrary.js';
 
 // ── Late-binding deps (set via initEvoPathDeps) ──
 let _searchEntities, _t, _scheduleRender, _smoothPanTo, _layout, _applyT;

@@ -4,6 +4,7 @@
 
 import { state, nodeMap } from './state.js';
 import { homininToTreeNode, canonicalHomininId } from './utils.js';
+import { FACTS } from './factLibrary.js';
 
 // ── Late-binding deps (set via initHomininDeps) ──
 let _scheduleRender, _showMainPanel, _renderPanelContent, _t;

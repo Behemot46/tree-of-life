@@ -54,6 +54,9 @@ import { showToast, dismissToast, showSpeciesToast, showIdleToast, resetIdleTime
 // ── Quiz ──
 import { openQuiz, closeQuiz, initQuizEvents } from './quiz.js';
 
+// ── Data (converted to ES modules) ──
+import { FACTS } from './factLibrary.js';
+
 
 // ══════════════════════════════════════════════════════
 // 1. WIRE LATE-BOUND DEPENDENCIES

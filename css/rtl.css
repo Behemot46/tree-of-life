@@ -1,0 +1,46 @@
+/* ── RTL (Hebrew) ── */
+[dir="rtl"] #header{flex-direction:row-reverse;}
+[dir="rtl"] #lang-switcher{right:auto;left:1.2rem;}
+[dir="rtl"] #theme-btn{right:auto;left:1.2rem;}
+[dir="rtl"] #search-wrap{left:auto;right:50%;transform:translateX(50%);}
+[dir="rtl"] #search-input{text-align:right;direction:rtl;}
+[dir="rtl"] #panel{right:auto;left:-500px;border-left:none;border-right:1px solid var(--border);transition:left 0.3s cubic-bezier(0.16,1,0.3,1);}
+[dir="rtl"] #panel.open{left:0;right:auto;}
+[dir="rtl"] .panel-scroll{direction:rtl;}
+[dir="rtl"] #legend{left:auto;right:1.2rem;}
+[dir="rtl"] #zoom-ctrl{right:auto;left:1.2rem;}
+[dir="rtl"] .p-top{flex-direction:row-reverse;}
+[dir="rtl"] .bc-sep{transform:scaleX(-1);display:inline-block;}
+/* (Removed hominin RTL overrides — view deleted) */
+
+
+[lang="he"],[lang="he"] *{font-family:'Heebo','Inter',sans-serif;}
+[lang="he"] #breadcrumb {
+  flex-direction: row-reverse;
+}
+[lang="he"] {
+  direction: rtl;
+  font-family: 'Heebo','Inter',sans-serif;
+}
+[lang="he"] #header {
+  flex-direction: row-reverse;
+}
+[lang="he"] #panel {
+  border-left: none;
+  border-right: 1px solid var(--border);
+}
+[lang="he"] .panel__fun-fact,
+[lang="he"] [style*="border-left:3px solid"] {
+  border-left: none !important;
+  border-right: 3px solid var(--accent-primary);
+  border-radius: 8px 0 0 8px;
+}
+/* ── RTL: NEW PANEL ELEMENTS ── */
+[dir="rtl"] .panel-hero-badge{right:auto;left:10px;}
+[dir="rtl"] .panel-hero-lineage{left:auto;right:10px;}
+[dir="rtl"] .panel-hero-meta{text-align:right;}
+[dir="rtl"] .panel-hero-credit{right:auto;left:8px;}
+[dir="rtl"] .panel-funfact{border-left:none;border-right:3px solid var(--accent-primary);
+  border-radius:var(--radius-md) 0 0 var(--radius-md);}
+[dir="rtl"] .panel-funfact::before{right:auto;left:-20px;}
+[dir="rtl"] .panel-body{direction:rtl;}

@@ -8,6 +8,7 @@ import { a11yAnnounce, markExplored } from './engagement.js';
 import { MAP_PATHS } from './mapPaths.js';
 import { PRIMATE_DATA } from './primateData.js';
 import { GEO_DATA, BRANCH_DATA } from './geoData.js';
+import { NODE_ICONS, getIconGroup } from './nodeIcons.js';
 
 // ── Late-binding deps (set via initPanelDeps) ──
 let _pushNav, _updateNavButtons, _updateBreadcrumb, _scheduleRender;
@@ -526,7 +527,7 @@ export function renderSapiensPanel(node, panelEl) {
 // ── Panel hero SVG silhouette fallback ──
 export function buildHeroFallback(node) {
   const ig = getIconGroup(node);
-  const iconPath = (typeof NODE_ICONS !== 'undefined' && NODE_ICONS[ig]) || (typeof NODE_ICONS !== 'undefined' && NODE_ICONS.default) || '';
+  const iconPath = (NODE_ICONS && NODE_ICONS[ig]) || (NODE_ICONS && NODE_ICONS.default) || '';
   const color = node.color || '#c8883a';
   return `<div style="display:flex;width:100%;height:100%;align-items:center;justify-content:center;background:radial-gradient(ellipse at center,${color}22 0%,${color}08 60%,transparent 100%),var(--surface-raised);">
     <svg viewBox="0 0 40 40" width="120" height="120" style="opacity:0.7;filter:drop-shadow(0 2px 8px ${color}44);">

@@ -618,3 +618,102 @@ td.ours .sap-span-dates{color:rgba(var(--accent-rgb),0.6);}
   .sap-tl-event{opacity:1;transform:none;}
   .sap-tl-event.now::before{animation:none;}
 }
+
+/* ══════════════════════════════════════════════════════
+   RESPONSIVE
+   ══════════════════════════════════════════════════════ */
+@media(max-width:768px){
+  .sap-compare-table{display:none;}
+  .sap-mobile-cards{display:block;}
+  .sap-card-grid{grid-template-columns:1fr;}
+  .sap-card-hero{height:130px;}
+  .sapiens-drawer{width:100vw;}
+  .sap-section-inner{padding:0 16px;}
+  .sap-density-grid{grid-template-columns:1fr;}
+  .sap-energy-wrap{flex-direction:column;align-items:center;}
+  .sap-map-controls{flex-wrap:wrap;gap:8px;}
+}
+
+@media(max-width:480px){
+  .sap-hero-title{font-size:36px;}
+  .sap-hero-counters{flex-direction:column;gap:24px;}
+  .sap-counter-divider{
+    width:48px;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(var(--accent-rgb),0.3),transparent);
+  }
+  .sap-hero-pill{font-size:12px;padding:8px 18px;}
+  .sap-timeline{padding-left:36px;}
+  .sap-timeline::before{left:13px;}
+  .sap-tl-event::before{left:-31px;}
+  .sap-tl-event.major::before,.sap-tl-event.now::before{left:-33px;}
+}
+
+/* ══════════════════════════════════════════════════════
+   LIGHT THEME
+   ══════════════════════════════════════════════════════ */
+[data-theme="light"] .sapiens-overlay{background:var(--bg);}
+[data-theme="light"] .sap-hero-bg{opacity:0.35;filter:saturate(0.5) brightness(0.8);}
+[data-theme="light"] .sap-hero-gradient{
+  background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0.5) 50%,var(--bg) 100%);
+}
+[data-theme="light"] .sap-hero-glow{
+  background:radial-gradient(circle,rgba(var(--accent-rgb),0.08) 0%,transparent 70%);
+}
+[data-theme="light"] .sapiens-close{background:rgba(255,255,255,0.7);border-color:rgba(0,0,0,0.1);}
+[data-theme="light"] .sapiens-drawer{
+  background:rgba(255,255,255,0.97);border-left-color:rgba(0,0,0,0.08);
+  box-shadow:-8px 0 40px rgba(0,0,0,0.1);
+}
+[data-theme="light"] .sapiens-drawer-close{background:rgba(255,255,255,0.8);border-color:rgba(0,0,0,0.1);}
+[data-theme="light"] .sap-compare-table{background:rgba(255,255,255,0.6);border-color:rgba(0,0,0,0.06);}
+[data-theme="light"] .sap-compare-table thead th{background:rgba(245,243,240,0.8);}
+[data-theme="light"] .sap-compare-table td{border-bottom-color:rgba(0,0,0,0.04);}
+[data-theme="light"] .sap-compare-table td.ours{background:rgba(var(--accent-rgb),0.06);}
+[data-theme="light"] .sap-card{background:rgba(255,255,255,0.6);border-color:rgba(0,0,0,0.06);}
+[data-theme="light"] .sap-card:hover{box-shadow:0 12px 40px rgba(0,0,0,0.1);}
+[data-theme="light"] .sap-card-badge{background:rgba(255,255,255,0.9);border-color:rgba(var(--accent-rgb),0.2);}
+[data-theme="light"] .sap-map-frame{background:#e8e4de;border-color:rgba(0,0,0,0.06);}
+[data-theme="light"] .sap-map-img{opacity:0.5;filter:saturate(0.4) brightness(0.9);}
+[data-theme="light"] .sap-map-tooltip{background:rgba(255,255,255,0.95);border-color:rgba(0,0,0,0.1);}
+[data-theme="light"] .sap-scale-callout{background:rgba(var(--accent-rgb),0.06);border-color:rgba(var(--accent-rgb),0.15);}
+[data-theme="light"] .sap-swipe-card{background:rgba(255,255,255,0.6);border-color:rgba(0,0,0,0.06);}
+[data-theme="light"] .sap-swipe-card.ours{background:rgba(var(--accent-rgb),0.06);}
+[data-theme="light"] .sap-skull-item img{background:rgba(0,0,0,0.03);}
+[data-theme="light"] .sap-density-card{background:rgba(0,0,0,0.02);border-color:rgba(0,0,0,0.04);}
+[data-theme="light"] .sap-density-card.ours{background:rgba(var(--accent-rgb),0.06);}
+[data-theme="light"] .sap-insight{background:rgba(var(--accent-rgb),0.06);}
+[data-theme="light"] .sap-timeline::before{
+  background:linear-gradient(180deg,
+    rgba(var(--accent-rgb),0.1) 0%,rgba(var(--accent-rgb),0.2) 50%,
+    rgba(var(--accent-rgb),0.4) 80%,rgba(var(--accent-rgb),0.7) 100%);
+}
+[data-theme="light"] .sap-era-text{background:var(--bg);}
+
+/* ══════════════════════════════════════════════════════
+   RTL (Hebrew)
+   ══════════════════════════════════════════════════════ */
+[dir="rtl"] .sap-hero-content{direction:rtl;}
+[dir="rtl"] .sapiens-close{right:auto;left:16px;}
+[dir="rtl"] .sapiens-drawer{right:auto;left:-480px;border-left:none;border-right:1px solid rgba(var(--accent-rgb),0.08);}
+[dir="rtl"] .sapiens-drawer.open{left:0;right:auto;}
+[dir="rtl"] .sapiens-drawer-close{float:left;margin:14px 0 0 14px;}
+[dir="rtl"] .sap-timeline{padding-left:0;padding-right:48px;}
+[dir="rtl"] .sap-timeline::before{left:auto;right:19px;}
+[dir="rtl"] .sap-tl-event{text-align:right;}
+[dir="rtl"] .sap-tl-event::before{left:auto;right:-37px;}
+[dir="rtl"] .sap-tl-event.major::before,[dir="rtl"] .sap-tl-event.now::before{left:auto;right:-39px;}
+[dir="rtl"] .sap-tl-event:hover{transform:translateX(-4px);}
+[dir="rtl"] .sap-tl-event.sap-tl-visible:hover{transform:translateX(-4px);}
+[dir="rtl"] .sap-era-label::before{left:auto;right:-29px;}
+[dir="rtl"] .sap-compare-table td:first-child{text-align:left;border-right:none;border-left:1px solid rgba(var(--accent-rgb),0.04);}
+[dir="rtl"] .sap-section-inner{text-align:right;}
+[dir="rtl"] .sap-card-badge{left:auto;right:24px;}
+[dir="rtl"] .sap-card-body{text-align:right;}
+[dir="rtl"] .sap-growth-timeline{padding-left:0;padding-right:20px;}
+[dir="rtl"] .sap-growth-timeline::before{left:auto;right:5px;}
+[dir="rtl"] .sap-growth-item{padding-left:0;padding-right:16px;}
+[dir="rtl"] .sap-growth-item::before{left:auto;right:-19px;}
+[dir="rtl"] .sap-simple-timeline{padding-left:0;padding-right:20px;}
+[dir="rtl"] .sap-simple-timeline::before{left:auto;right:5px;}
+[dir="rtl"] .sap-simple-item{padding-left:0;padding-right:16px;}
+[dir="rtl"] .sap-simple-item::before{left:auto;right:-19px;}

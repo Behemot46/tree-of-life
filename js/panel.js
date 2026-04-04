@@ -673,7 +673,11 @@ export function openHominins(nodeId) {
 // ── Show main panel for a node ──
 export function showMainPanel(n,url){
   if(!n || (state.currentPanelNode && state.currentPanelNode.id === n.id)) return;
-  if (n.id === 'h_sapiens' || n.id === 'hominini') {
+  if (n.id === 'hominini') {
+    openHomininView();
+    return;
+  }
+  if (n.id === 'h_sapiens') {
     if (_openSapiens) _openSapiens();
     return;
   }

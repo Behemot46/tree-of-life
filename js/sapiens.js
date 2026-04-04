@@ -112,6 +112,16 @@ export function openSapiens() {
   document.body.appendChild(overlay);
   requestAnimationFrame(() => overlay.classList.add('open'));
 
+  // Fade scroll indicator on first scroll
+  const scrollEl = overlay.querySelector('.sapiens-scroll');
+  if (scrollEl) {
+    scrollEl.addEventListener('scroll', function onFirst() {
+      const indicator = overlay.querySelector('.sap-hero-scroll');
+      if (indicator) indicator.style.opacity = '0';
+      scrollEl.removeEventListener('scroll', onFirst);
+    }, { passive: true });
+  }
+
   // Keyboard handler
   overlay._onKey = e => {
     if (e.key === 'Escape') {
@@ -189,6 +199,9 @@ function buildHero() {
         <span>${txt({ en: 'Explore', he: 'גלה', ru: 'Узнать' })}</span>
         <div class="sap-scroll-line"></div>
       </div>
+      <button class="sap-view-tree" id="sap-view-tree-btn">
+        ${txt({ en: '🌳 View on Tree', he: '🌳 הצג בעץ', ru: '🌳 Показать на дереве' })}
+      </button>
     </div>
   `;
 
@@ -209,6 +222,16 @@ function buildHero() {
           </div>
         `;
       });
+    });
+
+    // Wire "View on Tree" button
+    const viewTreeBtn = sec.querySelector('#sap-view-tree-btn');
+    if (viewTreeBtn) viewTreeBtn.addEventListener('click', () => {
+      closeSapiens();
+      const n = nodeMap['h_sapiens'];
+      if (n && n._x !== undefined && _smoothPanTo) {
+        setTimeout(() => _smoothPanTo(n._x, n._y), 350);
+      }
     });
 
     // Animate counters (essential tier — always plays)

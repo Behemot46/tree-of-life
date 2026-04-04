@@ -717,3 +717,20 @@ td.ours .sap-span-dates{color:rgba(var(--accent-rgb),0.6);}
 [dir="rtl"] .sap-simple-timeline::before{left:auto;right:5px;}
 [dir="rtl"] .sap-simple-item{padding-left:0;padding-right:16px;}
 [dir="rtl"] .sap-simple-item::before{left:auto;right:-19px;}
+
+/* ── View on Tree button ── */
+.sap-view-tree{
+  position:fixed;bottom:24px;right:24px;z-index:calc(var(--z-toast) + 15);
+  padding:10px 20px;border-radius:var(--radius-full);
+  border:1px solid rgba(var(--accent-rgb),0.2);
+  background:rgba(20,22,24,0.8);backdrop-filter:blur(12px);
+  color:var(--accent);font-family:var(--font-body);font-size:13px;font-weight:500;
+  cursor:pointer;transition:all 0.3s ease;
+  box-shadow:0 4px 16px rgba(0,0,0,0.3);
+}
+.sap-view-tree:hover{
+  background:rgba(var(--accent-rgb),0.12);border-color:rgba(var(--accent-rgb),0.4);
+  transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,0.4);
+}
+[data-theme="light"] .sap-view-tree{background:rgba(255,255,255,0.85);box-shadow:0 4px 16px rgba(0,0,0,0.1);}
+[dir="rtl"] .sap-view-tree{right:auto;left:24px;}

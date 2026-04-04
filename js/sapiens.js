@@ -7,6 +7,7 @@ import { reducedMotion } from './utils.js';
 import {
   SAPIENS_HERO, MIGRATION_ROUTES, MIGRATION_ORIGIN, MIGRATION_MAP_IMAGE,
   TRAIT_CARDS, SKULL_IMAGES, NEURAL_DENSITY, BRAIN_ENERGY, BRAIN_TIMELINE,
+  COMPARISON_SPECIES, MAX_BRAIN_CC, MAX_LIVED_KA,
 } from './sapiensData.js';
 
 // ── Late-binding deps ──
@@ -102,7 +103,8 @@ export function openSapiens() {
   scroll.appendChild(buildHero());
   scroll.appendChild(buildMigrationMap());
   scroll.appendChild(buildTraitCards());
-  // Sections 4-5 will be added in Tasks 6-7
+  scroll.appendChild(buildComparisonTable());
+  // Section 5 will be added in Task 7
 
   // Lock body scroll and show
   document.body.style.overflow = 'hidden';
@@ -867,6 +869,336 @@ function buildTechDrawer(el) {
       </div>
     </div>
   `;
+}
+
+// ══════════════════════════════════════════════════════
+// SECTION 4: COMPARISON TABLE
+// ══════════════════════════════════════════════════════
+
+function buildComparisonTable() {
+  const sec = document.createElement('section');
+  sec.className = 'sapiens-section sap-comparison';
+
+  // ── Header ──
+  const header = document.createElement('div');
+  header.className = 'sap-section-header';
+  header.innerHTML = `
+    <div class="sap-overline">${txt({ en: '⚔️ The Relatives', he: '⚔️ הקרובים', ru: '⚔️ Родственники' })}</div>
+    <h2 class="sap-section-title">${txt({ en: 'Us vs. Our Closest Kin', he: 'אנחנו מול קרובינו', ru: 'Мы и наши ближайшие родственники' })}</h2>
+    <p class="sap-section-subtitle">${txt({ en: 'Click any species to visit their page in the tree.', he: 'לחץ על מין כלשהו כדי לבקר בעמוד שלו בעץ.', ru: 'Нажмите на вид, чтобы перейти на его страницу в дереве.' })}</p>
+  `;
+  sec.appendChild(header);
+
+  // ── Row definitions ──
+  const ROW_LABELS = [
+    { key: 'brain',    label: { en: 'Brain',    he: 'מוח',     ru: 'Мозг'    } },
+    { key: 'height',   label: { en: 'Height',   he: 'גובה',    ru: 'Рост'    } },
+    { key: 'lifespan', label: { en: 'Lifespan', he: 'תקופה',   ru: 'Период'  } },
+    { key: 'tools',    label: { en: 'Tools',    he: 'כלים',    ru: 'Орудия'  } },
+    { key: 'language', label: { en: 'Language', he: 'שפה',     ru: 'Язык'    } },
+    { key: 'art',      label: { en: 'Art',      he: 'אמנות',   ru: 'Искусство' } },
+    { key: 'dna',      label: { en: 'DNA vs Us',he: 'DNA לעומתנו', ru: 'ДНК vs нас' } },
+    { key: 'status',   label: { en: 'Status',   he: 'מצב',     ru: 'Статус'  } },
+  ];
+  const TOOL_EMOJIS = ['🪵', '🪨', '🔧', '⚙️', '🚀'];
+
+  // ── Helper: cell builders ──
+  function buildBrainCell(sp, isSapiens) {
+    const pct = Math.round(sp.brain / MAX_BRAIN_CC * 100);
+    let barClass = 'default';
+    if (isSapiens) barClass = 'accent';
+    else if (sp.id === 'neanderthal') barClass = 'blue';
+    const td = document.createElement('td');
+    if (isSapiens) td.className = 'ours';
+    td.innerHTML = `
+      <div class="sap-brain-cell">
+        <div class="sap-brain-bar-wrap">
+          <div class="sap-brain-bar ${barClass}" style="width:${pct}%"></div>
+        </div>
+        <div class="sap-brain-val">${sp.brain.toLocaleString()} cc</div>
+      </div>`;
+    return td;
+  }
+
+  function buildHeightCell(sp, isSapiens) {
+    const hVal = typeof sp.height === 'string'
+      ? parseFloat(sp.height)
+      : sp.height / 100; // convert cm to m if needed
+    const heightM = sp.height > 10 ? sp.height / 100 : sp.height; // cm → m
+    const barH = Math.round(heightM / 1.8 * 38);
+    const td = document.createElement('td');
+    if (isSapiens) td.className = 'ours';
+    td.innerHTML = `
+      <div class="sap-height-cell">
+        <div class="sap-height-figure">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:0;">
+            <div class="sap-figure-head"></div>
+            <div class="sap-figure-bar" style="height:${barH}px"></div>
+          </div>
+        </div>
+        <div class="sap-height-val">${heightM.toFixed(2)} m</div>
+      </div>`;
+    return td;
+  }
+
+  function buildLifespanCell(sp, isSapiens) {
+    const { from, to } = sp.lived;
+    const isAlive = to === 0;
+    const leftPct = ((MAX_LIVED_KA - from) / MAX_LIVED_KA * 100).toFixed(1);
+    const rightPct = isAlive ? 0 : ((to / MAX_LIVED_KA) * 100).toFixed(1);
+    const widthPct = (100 - parseFloat(leftPct) - parseFloat(rightPct)).toFixed(1);
+    const barClass = isSapiens ? 'accent' : 'default';
+    const dateLabel = isAlive
+      ? `${from.toLocaleString()} Ka → now`
+      : `${from.toLocaleString()} – ${to.toLocaleString()} Ka`;
+    const nowDot = isAlive
+      ? `<div class="sap-now-dot" style="background:var(${isSapiens ? '--accent' : '--text-dim'});box-shadow:0 0 6px var(${isSapiens ? '--accent' : '--text-dim'});"></div>`
+      : '';
+    const td = document.createElement('td');
+    if (isSapiens) td.className = 'ours';
+    td.innerHTML = `
+      <div class="sap-span-cell">
+        <div class="sap-span-bar-track">
+          <div class="sap-span-bar ${barClass}" style="left:${leftPct}%;width:${widthPct}%;"></div>
+          ${nowDot}
+        </div>
+        <div class="sap-span-dates">${dateLabel}</div>
+      </div>`;
+    return td;
+  }
+
+  function buildToolsCell(sp, isSapiens) {
+    const icons = TOOL_EMOJIS.map((e, i) =>
+      `<span class="${i < sp.tools ? '' : 'dim'}">${e}</span>`
+    ).join('');
+    const td = document.createElement('td');
+    if (isSapiens) td.className = 'ours';
+    td.innerHTML = `<div class="sap-tool-scale">${icons}</div>`;
+    return td;
+  }
+
+  function buildTextCell(text, isSapiens) {
+    const td = document.createElement('td');
+    if (isSapiens) td.className = 'ours';
+    td.textContent = text;
+    return td;
+  }
+
+  function buildArtCell(sp, isSapiens) {
+    const td = document.createElement('td');
+    if (isSapiens) td.className = 'ours';
+    if (sp.art === 'yes')      td.textContent = '🎨 ✅';
+    else if (sp.art === 'debated') td.textContent = '🤔 debated';
+    else                       td.textContent = '❌';
+    return td;
+  }
+
+  function buildDnaCell(sp, isSapiens) {
+    const td = document.createElement('td');
+    if (isSapiens) td.className = 'ours';
+    td.textContent = sp.dna !== null ? sp.dna + '%' : '—';
+    return td;
+  }
+
+  function buildStatusCell(sp, isSapiens) {
+    const td = document.createElement('td');
+    if (isSapiens) td.className = 'ours';
+    if (sp.status === 'alive') {
+      td.innerHTML = `<span class="sap-status-badge alive">🟢 Alive</span>`;
+    } else {
+      td.innerHTML = `<span class="sap-status-badge extinct">💀 ~${sp.status}</span>`;
+    }
+    return td;
+  }
+
+  // ── Desktop Table ──
+  const tableWrap = document.createElement('div');
+  tableWrap.style.width = '100%';
+
+  const table = document.createElement('table');
+  table.className = 'sap-compare-table';
+
+  // thead
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  // Empty category column
+  const thEmpty = document.createElement('th');
+  headerRow.appendChild(thEmpty);
+
+  COMPARISON_SPECIES.forEach(sp => {
+    const th = document.createElement('th');
+    const isSapiens = !!sp.highlight;
+    const spDiv = document.createElement('div');
+    spDiv.className = 'sap-th-species' + (isSapiens ? ' ours' : '');
+    spDiv.innerHTML = `
+      <div class="sap-th-photo">${sp.emoji}</div>
+      <div class="sap-th-name">${txt(sp.name)}</div>
+      <div class="sap-th-latin">${sp.latin}</div>
+    `;
+    spDiv.style.cursor = 'pointer';
+    spDiv.addEventListener('click', () => {
+      closeSapiens();
+      setTimeout(() => {
+        const node = nodeMap[sp.nodeId];
+        if (node && _showMainPanel) _showMainPanel(node);
+      }, 400);
+    });
+    th.appendChild(spDiv);
+    headerRow.appendChild(th);
+  });
+
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+
+  // tbody
+  const tbody = document.createElement('tbody');
+
+  ROW_LABELS.forEach(row => {
+    const tr = document.createElement('tr');
+    // Category label cell
+    const tdLabel = document.createElement('td');
+    tdLabel.textContent = txt(row.label);
+    tr.appendChild(tdLabel);
+
+    COMPARISON_SPECIES.forEach(sp => {
+      const isSapiens = !!sp.highlight;
+      let td;
+      if (row.key === 'brain')    td = buildBrainCell(sp, isSapiens);
+      else if (row.key === 'height')   td = buildHeightCell(sp, isSapiens);
+      else if (row.key === 'lifespan') td = buildLifespanCell(sp, isSapiens);
+      else if (row.key === 'tools')    td = buildToolsCell(sp, isSapiens);
+      else if (row.key === 'language') td = buildTextCell(txt(sp.language), isSapiens);
+      else if (row.key === 'art')      td = buildArtCell(sp, isSapiens);
+      else if (row.key === 'dna')      td = buildDnaCell(sp, isSapiens);
+      else if (row.key === 'status')   td = buildStatusCell(sp, isSapiens);
+      tr.appendChild(td);
+    });
+
+    tbody.appendChild(tr);
+  });
+
+  table.appendChild(tbody);
+  tableWrap.appendChild(table);
+  sec.appendChild(tableWrap);
+
+  // ── Mobile Swipe Cards ──
+  const mobileCards = document.createElement('div');
+  mobileCards.className = 'sap-mobile-cards';
+
+  const swipeContainer = document.createElement('div');
+  swipeContainer.className = 'sap-swipe-container';
+
+  COMPARISON_SPECIES.forEach(sp => {
+    const isSapiens = !!sp.highlight;
+    const card = document.createElement('div');
+    card.className = 'sap-swipe-card' + (isSapiens ? ' ours' : '');
+
+    const heightM = sp.height > 10 ? sp.height / 100 : sp.height;
+    const artText = sp.art === 'yes' ? '🎨 Yes' : sp.art === 'debated' ? '🤔 Debated' : '❌ No';
+    const dnaText = sp.dna !== null ? sp.dna + '%' : '—';
+    const statusText = sp.status === 'alive' ? '🟢 Alive' : '💀 ~' + sp.status;
+    const toolIcons = TOOL_EMOJIS.map((e, i) =>
+      `<span style="opacity:${i < sp.tools ? 1 : 0.15}">${e}</span>`).join('');
+    const livedText = sp.lived.to === 0
+      ? `${sp.lived.from.toLocaleString()} Ka → now`
+      : `${sp.lived.from.toLocaleString()} – ${sp.lived.to.toLocaleString()} Ka`;
+
+    card.innerHTML = `
+      <div class="sap-swipe-header">
+        <div class="sap-swipe-avatar">${sp.emoji}</div>
+        <div>
+          <div class="sap-swipe-name">${txt(sp.name)}</div>
+          <div class="sap-swipe-latin">${sp.latin}</div>
+        </div>
+      </div>
+      <div class="sap-swipe-row">
+        <span class="sap-swipe-cat">${txt({ en: 'Brain', he: 'מוח', ru: 'Мозг' })}</span>
+        <span class="sap-swipe-val">${sp.brain.toLocaleString()} cc</span>
+      </div>
+      <div class="sap-swipe-row">
+        <span class="sap-swipe-cat">${txt({ en: 'Height', he: 'גובה', ru: 'Рост' })}</span>
+        <span class="sap-swipe-val">${heightM.toFixed(2)} m</span>
+      </div>
+      <div class="sap-swipe-row">
+        <span class="sap-swipe-cat">${txt({ en: 'Lifespan', he: 'תקופה', ru: 'Период' })}</span>
+        <span class="sap-swipe-val" style="font-size:11px;">${livedText}</span>
+      </div>
+      <div class="sap-swipe-row">
+        <span class="sap-swipe-cat">${txt({ en: 'Tools', he: 'כלים', ru: 'Орудия' })}</span>
+        <span class="sap-swipe-val" style="font-family:var(--font-body)">${toolIcons}</span>
+      </div>
+      <div class="sap-swipe-row">
+        <span class="sap-swipe-cat">${txt({ en: 'Language', he: 'שפה', ru: 'Язык' })}</span>
+        <span class="sap-swipe-val" style="font-size:11px;text-align:right;max-width:140px;">${txt(sp.language)}</span>
+      </div>
+      <div class="sap-swipe-row">
+        <span class="sap-swipe-cat">${txt({ en: 'Art', he: 'אמנות', ru: 'Искусство' })}</span>
+        <span class="sap-swipe-val">${artText}</span>
+      </div>
+      <div class="sap-swipe-row">
+        <span class="sap-swipe-cat">${txt({ en: 'DNA', he: 'DNA', ru: 'ДНК' })}</span>
+        <span class="sap-swipe-val">${dnaText}</span>
+      </div>
+      <div class="sap-swipe-row">
+        <span class="sap-swipe-cat">${txt({ en: 'Status', he: 'מצב', ru: 'Статус' })}</span>
+        <span class="sap-swipe-val">${statusText}</span>
+      </div>
+    `;
+
+    // Click header to navigate
+    card.querySelector('.sap-swipe-header').style.cursor = 'pointer';
+    card.querySelector('.sap-swipe-header').addEventListener('click', () => {
+      closeSapiens();
+      setTimeout(() => {
+        const node = nodeMap[sp.nodeId];
+        if (node && _showMainPanel) _showMainPanel(node);
+      }, 400);
+    });
+
+    swipeContainer.appendChild(card);
+  });
+
+  mobileCards.appendChild(swipeContainer);
+
+  // Dot indicators
+  const dotsEl = document.createElement('div');
+  dotsEl.className = 'sap-swipe-dots';
+  COMPARISON_SPECIES.forEach((_, i) => {
+    const dot = document.createElement('div');
+    dot.className = 'sap-swipe-dot' + (i === 0 ? ' active' : '');
+    dotsEl.appendChild(dot);
+  });
+  mobileCards.appendChild(dotsEl);
+
+  // Update dots on scroll
+  swipeContainer.addEventListener('scroll', () => {
+    const cards = swipeContainer.querySelectorAll('.sap-swipe-card');
+    const dots = dotsEl.querySelectorAll('.sap-swipe-dot');
+    const scrollLeft = swipeContainer.scrollLeft;
+    const cardWidth = cards[0] ? cards[0].offsetWidth + 16 : 296; // 280px + 16px gap
+    const activeIdx = Math.round(scrollLeft / cardWidth);
+    dots.forEach((d, i) => d.classList.toggle('active', i === activeIdx));
+  }, { passive: true });
+
+  // Touch swipe gesture (snap to nearest card)
+  let touchStartX = 0;
+  swipeContainer.addEventListener('touchstart', e => {
+    touchStartX = e.touches[0].clientX;
+  }, { passive: true });
+  swipeContainer.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    const cards = swipeContainer.querySelectorAll('.sap-swipe-card');
+    if (!cards.length) return;
+    const cardWidth = cards[0].offsetWidth + 16;
+    const current = Math.round(swipeContainer.scrollLeft / cardWidth);
+    let next = current;
+    if (dx < -40) next = Math.min(current + 1, cards.length - 1);
+    else if (dx > 40) next = Math.max(current - 1, 0);
+    swipeContainer.scrollTo({ left: next * cardWidth, behavior: 'smooth' });
+  }, { passive: true });
+
+  sec.appendChild(mobileCards);
+  return sec;
 }
 
 // ── DNA drawer ──

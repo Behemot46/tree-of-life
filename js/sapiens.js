@@ -12,12 +12,10 @@ import {
 } from './sapiensData.js';
 
 // ── Late-binding deps ──
-let _pushNav, _navBack, _showMainPanel, _t, _scheduleRender, _smoothPanTo;
+let _pushNav, _showMainPanel, _scheduleRender, _smoothPanTo;
 export function initSapiensDeps(deps) {
   _pushNav = deps.pushNav;
-  _navBack = deps.navBack;
   _showMainPanel = deps.showMainPanel;
-  _t = deps.t;
   _scheduleRender = deps.scheduleRender;
   _smoothPanTo = deps.smoothPanTo;
 }
@@ -65,7 +63,7 @@ function parseCounterValue(val) {
 
 export function openSapiens() {
   if (overlay) return;
-  _pushNav();
+  _pushNav('?node=h_sapiens');
 
   overlay = document.createElement('div');
   overlay.className = 'sapiens-overlay';

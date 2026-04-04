@@ -20,7 +20,7 @@
 [data-theme="light"] .title-sub{color:var(--text-secondary) !important;}
 /* ── SEARCH BAR ── */
 #search-wrap{position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:var(--z-search);
-  display:flex;align-items:center;gap:0;pointer-events:all;}
+  display:flex;align-items:center;gap:8px;pointer-events:all;max-width:calc(100% - 10rem);}
 #search-input{background:var(--glass-bg);border:1px solid var(--glass-border);
   border-radius:var(--radius-full);padding:0.5rem 1rem 0.5rem 2.2rem;color:var(--text-primary);
   font-family:var(--font-sans);font-size:0.813rem;width:240px;outline:none;

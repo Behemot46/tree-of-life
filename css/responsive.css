@@ -36,14 +36,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ══ MOBILE ENGAGEMENT ══ */
 /* ── MOBILE ENGAGEMENT ── */
 @media(max-width:768px){
-  #progress-badge{top:auto;bottom:11rem;right:0.5rem;left:auto;font-size:11px;padding:3px 8px;}
+  #progress-badge{top:auto;bottom:11rem;left:0.5rem;right:auto;font-size:11px;padding:3px 8px;}
   #achievement-container{bottom:60px;right:10px;left:10px;}
   .achievement-toast{min-width:auto;width:100%;}
   #quiz-modal{max-width:95vw;padding:16px;}
   #btn-quiz{padding:3px 8px;font-size:11px;}
 }
 @media(max-width:480px){
-  #progress-badge{font-size:10px;padding:2px 6px;bottom:10.5rem;right:0.3rem;}
+  #progress-badge{font-size:10px;padding:2px 6px;bottom:10.5rem;left:0.3rem;right:auto;}
 }
 
 /* ══════════════════════════════════════════════════════
@@ -197,7 +197,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   }
 
   /* ── FAB GROUP: compact on mobile ── */
-  .fab-group { bottom: 14rem; left: 0.6rem; gap: 0.4rem; }
+  .fab-group { bottom: 16rem; left: 0.6rem; gap: 0.4rem; }
   [dir="rtl"] .fab-group { left: auto; right: 0.6rem; }
   .fab { padding: 0.4rem 0.7rem; font-size: 0.72rem; }
   .fab--tour { width: 34px; height: 34px; }
@@ -273,7 +273,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   #zoom-ctrl { bottom: 5rem; right: 4px; }
   .zbtn { width: 44px !important; height: 44px !important; }
   /* FAB: icon-only circles on small screens */
-  .fab-group { bottom: 5.5rem; left: 0.4rem; gap: 0.35rem; }
+  .fab-group { bottom: 14rem; left: 0.4rem; gap: 0.35rem; }
   .fab span:not(.fab-icon) { display: none; }
   .fab { padding: 0.5rem; border-radius: 50%; width: 42px; height: 42px; justify-content: center; }
   .fab-icon { font-size: 1.1rem; }
@@ -294,7 +294,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ══ MOBILE FOR NEW ELEMENTS ══ */
 /* ── MOBILE FOR NEW ELEMENTS ── */
 @media (max-width: 768px) {
-  #view-toggle{top:auto;bottom:18rem;right:0.6rem;flex-direction:column;}
+  #view-toggle{top:auto;bottom:20rem;right:0.6rem;flex-direction:column;}
   .view-btn+.view-btn{border-left:none;border-top:1px solid var(--border);}
   #timeline{padding:0.3rem 0.6rem 0.5rem;}
   #era-label{font-size:0.6rem;}

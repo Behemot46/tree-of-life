@@ -167,9 +167,19 @@ export function updateBreadcrumb(n){
   const path=getAncestors(target);
   if(path.length<1){bc.classList.add('hidden');return;}
   bc.classList.remove('hidden');
-  bc.innerHTML=path.map((p,i)=>{
-    const isLast=i===path.length-1;
-    return `<span class="bc-item ${isLast?'active':''}" onclick="${isLast?'':`collapseBelow('${p.id}')`}">${p.icon} ${p.name}</span>${isLast?'':'<span class="bc-sep">›</span>'}`;
+
+  // Truncate middle for deep paths (>6 levels)
+  let displayPath=path;
+  if(path.length>6){
+    displayPath=[path[0],{id:'_ellipsis',name:'…',icon:'',color:''},...path.slice(-3)];
+  }
+
+  bc.innerHTML=displayPath.map((p,i)=>{
+    const isLast=i===displayPath.length-1;
+    const color=p.color||'var(--parchment)';
+    const style=isLast?`color:${color};font-weight:600`:`color:${color};opacity:0.5`;
+    if(p.id==='_ellipsis') return `<span class="bc-item" style="opacity:0.3">…</span><span class="bc-sep">›</span>`;
+    return `<span class="bc-item ${isLast?'active':''}" style="${style}" onclick="${isLast?'':`collapseBelow('${p.id}')`}">${p.icon} ${p.name}</span>${isLast?'':'<span class="bc-sep">›</span>'}`;
   }).join('');
 }
 /* Collapse everything below a given node and zoom to fit its children */
@@ -224,8 +234,13 @@ export function showTip(text, icon, funFact) {
 export function hideTip() {
   clearTimeout(_tipTimer);
   clearTimeout(_funFactTimer);
+  // Dismiss immediately — no delay (prevents stuck tooltip)
   _tipTimer = setTimeout(() => {
     tooltipEl.classList.remove('visible');
     tooltipEl.classList.remove('tip-enhanced');
-  }, 80);
+  }, 30);
 }
+
+// Dismiss tooltip on any canvas interaction (pan, click, zoom)
+document.addEventListener('pointerdown', () => { hideTip(); }, true);
+document.addEventListener('wheel', () => { hideTip(); }, { passive: true });

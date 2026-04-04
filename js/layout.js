@@ -6,8 +6,6 @@ import { state, MIN_ARC_PX, MAX_ARC_PER_LEAF } from './state.js';
 import { DEPTH_R } from './uiData.js';
 import { TREE } from './data.js';
 
-// Uses globals: DEPTH_R, TREE
-
 export function getVisible(n){let a=[n];if(n.children&&!n._collapsed)n.children.forEach(c=>a=a.concat(getVisible(c)));return a;}
 export function getVisibleEdges(n){let a=[];if(n.children&&!n._collapsed){n.children.forEach(c=>{a.push({from:n,to:c});a=a.concat(getVisibleEdges(c));});}return a;}
 
@@ -100,62 +98,75 @@ export function layoutRadial(){const cx=window.innerWidth/2,cy=window.innerHeigh
 export function layoutCladogram(){
   const isRtl=document.documentElement.dir==='rtl';
   const W=window.innerWidth,H=window.innerHeight;
-  const margin=120;
-  const depthSpacing=Math.min(200,(W-margin*2)/8);
-  const GROUP_GAP_LEAVES=1.5;
+  const marginL=100,marginR=80,marginV=80;
+  const isMobile=W<768;
+  const nodeSize=isMobile?44:52;
+  const minGap=nodeSize+16; // node + breathing room
+  const maxGap=nodeSize+60; // prevent excessive vertical stretch
+  const GROUP_GAP_FACTOR=1.5;
+
+  function maxDepthFn(n,d){
+    if(!n.children||!n.children.length||n._collapsed) return d;
+    let m=d;
+    n.children.forEach(c=>{m=Math.max(m,maxDepthFn(c,d+1));});
+    return m;
+  }
+  const mxd=Math.max(1,maxDepthFn(TREE,0));
+  // Wider horizontal spacing: at least 200px per depth, up to 350px for shallow trees
+  const depthSpacing=Math.min(350,Math.max(200,(W-marginL-marginR)/Math.max(mxd,2)));
+
   function countLeaves(n){
-    if(!n.children||!n.children.length||n._collapsed)return 1;
-    let c=0;n.children.forEach(ch=>c+=countLeaves(ch));
-    // Add virtual gap leaves for hominin group boundaries
+    if(!n.children||!n.children.length||n._collapsed) return 1;
+    let c=0;
+    n.children.forEach(ch=>c+=countLeaves(ch));
     if(n.id==='hominini'){
       const groups=n.children.filter(ch=>ch._isHomininGroup);
-      c+=Math.max(0,(groups.length-1))*GROUP_GAP_LEAVES;
+      c+=Math.max(0,(groups.length-1))*GROUP_GAP_FACTOR;
     }
     return c;
   }
   const totalLeaves=countLeaves(TREE);
-  const leafSpacing=Math.max(36,(H-margin*2)/totalLeaves);
+  // Cap vertical spacing to prevent portrait stretch
+  const leafSpacing=Math.min(maxGap,Math.max(minGap,(H-marginV*2)/totalLeaves));
+
   let leafIdx=0;
   let lastHomininGroup=null;
+
   function assign(n,depth){
     if(!n.children||!n.children.length||n._collapsed){
-      // Insert vertical gap between hominin groups
-      if(n._parent && n._parent._isHomininGroup){
+      if(n._parent&&n._parent._isHomininGroup){
         const gid=n._parent.id;
-        if(lastHomininGroup && lastHomininGroup!==gid) leafIdx+=GROUP_GAP_LEAVES;
+        if(lastHomininGroup&&lastHomininGroup!==gid) leafIdx+=GROUP_GAP_FACTOR;
         lastHomininGroup=gid;
       }
-      const x=margin+depth*depthSpacing;
-      n._x=isRtl?W-x:x;n._y=margin+leafIdx*leafSpacing;n._angle=0;leafIdx++;
+      const x=marginL+depth*depthSpacing;
+      n._x=isRtl?W-x:x;
+      n._y=marginV+leafIdx*leafSpacing;
+      n._angle=0;
+      leafIdx++;
     } else {
       n.children.forEach(c=>assign(c,depth+1));
       const ys=n.children.map(c=>c._y);
-      const x=margin+depth*depthSpacing;
-      n._x=isRtl?W-x:x;n._y=(Math.min(...ys)+Math.max(...ys))/2;n._angle=0;
+      const x=marginL+depth*depthSpacing;
+      n._x=isRtl?W-x:x;
+      n._y=(Math.min(...ys)+Math.max(...ys))/2;
+      n._angle=0;
     }
   }
   assign(TREE,0);
+
+  // Assign sibling indices for stagger animation
+  function assignSibIndex(n){
+    if(n.children&&!n._collapsed){
+      n.children.forEach((c,i)=>{c._sibIndex=i;assignSibIndex(c);});
+    }
+  }
+  assignSibIndex(TREE);
 }
 
 export function layoutChronological(){
-  const W=window.innerWidth,H=window.innerHeight;
-  const margin=100;const maxTime=3800;
-  function timeToX(mya){return margin+(1-mya/maxTime)*(W-margin*2);}
-  const domainOrder=['bacteria','archaea','protists','fungi','plantae','animalia'];
-  const laneH=(H-margin*2)/domainOrder.length;
-  function hashCode(s){let h=0;for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0;}return h;}
-  function getDomainLane(n){const d=n._domain||'luca';const idx=domainOrder.indexOf(d);return idx>=0?idx:Math.floor(domainOrder.length/2);}
-  function assign(n){
-    const mya=n.appeared||3800;
-    n._x=timeToX(mya);
-    const lane=getDomainLane(n);
-    const laneTop=margin+lane*laneH;
-    const laneCenter=laneTop+laneH/2;
-    const jitter=((hashCode(n.id||'x')%100)-50)/50*laneH*0.35;
-    n._y=laneCenter+jitter;n._angle=0;
-    if(n.children&&!n._collapsed)n.children.forEach(c=>assign(c));
-  }
-  assign(TREE);
+  // TODO: timeline view deferred — fall back to cladogram
+  layoutCladogram();
 }
 
 /* Infer appeared value for nodes missing it (use parent's value) */

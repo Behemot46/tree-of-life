@@ -8,7 +8,7 @@ import { TREE } from './data.js';
 // ── Late-binding deps (set via initNavDeps) ──
 let _showMainPanel, _closePanel, _smoothPanTo, _smoothZoomTo, _scheduleRender;
 let _layout, _centerOnRoot, _applyT, _renderPanelContent;
-let _closeDnaCalc, _closeEvoPath, _closeTrivia;
+let _closeDnaCalc, _closeEvoPath, _closeGame;
 export function initNavDeps(deps) {
   _showMainPanel = deps.showMainPanel;
   _closePanel = deps.closePanel;
@@ -21,7 +21,7 @@ export function initNavDeps(deps) {
   _renderPanelContent = deps.renderPanelContent;
   _closeDnaCalc = deps.closeDnaCalc;
   _closeEvoPath = deps.closeEvoPath;
-  _closeTrivia = deps.closeTrivia;
+  _closeGame = deps.closeGame;
 }
 
 // ── DOM elements ──
@@ -93,7 +93,7 @@ export function navHome(){
   // Close all overlays
   if(document.getElementById('dna-panel').classList.contains('open')&&typeof _closeDnaCalc==='function') _closeDnaCalc();
   if(document.getElementById('evo-path-panel').classList.contains('open')&&typeof _closeEvoPath==='function') _closeEvoPath();
-  if(document.getElementById('trivia-panel').classList.contains('open')&&typeof _closeTrivia==='function') _closeTrivia();
+  if(document.getElementById('game-panel').classList.contains('open')&&typeof _closeGame==='function') _closeGame();
   const kbdHelp=document.getElementById('kbd-help');
   if(kbdHelp) kbdHelp.classList.remove('visible');
   state.currentPanelNode=null;

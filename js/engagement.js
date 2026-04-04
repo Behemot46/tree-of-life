@@ -51,7 +51,7 @@ export function showIdleToast() {
   if (panel.classList.contains('open')) return;
   if (document.getElementById('dna-panel')?.classList.contains('open')) return;
   if (document.getElementById('evo-path-panel')?.classList.contains('open')) return;
-  if (document.getElementById('trivia-panel')?.classList.contains('open')) return;
+  if (document.getElementById('game-panel')?.classList.contains('open')) return;
   const splash = document.getElementById('splash');
   if (splash && splash.style.display !== 'none') return;
   if (_toastEl.classList.contains('visible')) return;

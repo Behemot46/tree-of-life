@@ -39,8 +39,8 @@ import { openDnaCalc, closeDnaCalc, resetDnaUI, openDnaSearch, selectDnaSpecies,
 // ── Evolutionary Path ──
 import { openEvoPath, closeEvoPath, openEvoSearch, fillEvoSlot, selectEvoSpecies, evoPreset, computeEvoPath, showEvoOnTree, clearEvoPath, clearEvoHighlight, getEvoFunFact, initEvoPathDeps, initEvoPathEvents } from './evoPath.js';
 
-// ── Trivia ──
-import { openTrivia, closeTrivia, startTriviaGame, showTriviaQuestion, answerTrivia, nextTriviaQuestion, showTriviaResults, getTriviaLabel, initTriviaDeps } from './trivia.js';
+// ── Unified Game ──
+import { openGame, closeGame, initGameEvents, initGameDeps } from './game.js';
 
 // ── Playback ──
 import { inferAppeared, enterPlaybackMode, exitPlaybackMode, startPlayback, pausePlayback, togglePlayback, setPlaybackSpeed, resetPlayback, skipToNextEvent, buildPlaybackControls, updatePlaybackControlState, updatePlaybackStates, initPlaybackDeps } from './playback.js';
@@ -51,8 +51,6 @@ import { t, setLang, applyI18n, applyTheme, toggleTheme, initThemeDeps } from '.
 // ── Engagement / UI effects ──
 import { showToast, dismissToast, showSpeciesToast, showIdleToast, resetIdleTimer, onUserActivity, a11yAnnounce, spawnParticles, showIntro, animateTreeEntrance, generateSpeciesIllustration, initEngagementDeps, markExplored, isExplored, updateProgressBadge, checkAchievement, trackDomainToggle, trackViewMode, trackExtinctionClick, trackDnaCompare } from './engagement.js';
 
-// ── Quiz ──
-import { openQuiz, closeQuiz, initQuizEvents } from './quiz.js';
 
 // ── Data (barrel + direct for niche modules) ──
 import { TREE, lightenColor, PHOTO_MAP, FACTS, ImageLoader } from './data.js';
@@ -73,7 +71,7 @@ window._onRenderComplete=renderMinimap;
 
 initRendererDeps({ showMainPanel, showTip, hideTip, smoothPanTo, smoothZoomTo, layout, updateBreadcrumb });
 initZoomDeps({ scheduleRender, layout, getVisible });
-initNavDeps({ showMainPanel, closePanel, smoothPanTo, smoothZoomTo, scheduleRender, layout, centerOnRoot, applyT, renderPanelContent, closeDnaCalc, closeEvoPath, closeTrivia });
+initNavDeps({ showMainPanel, closePanel, smoothPanTo, smoothZoomTo, scheduleRender, layout, centerOnRoot, applyT, renderPanelContent, closeDnaCalc, closeEvoPath, closeGame });
 initTimelineDeps({ scheduleRender, t, togglePlayback, pausePlayback });
 initPanelDeps({ pushNav, updateNavButtons, updateBreadcrumb, scheduleRender, smoothPanTo, focusNode, t, generateSpeciesIllustration, navBack, layout, applyT, centerOnRoot, openSapiens });
 initSapiensDeps({ pushNav, navBack, showMainPanel, t, scheduleRender, smoothPanTo });
@@ -81,7 +79,7 @@ initHomininDeps({ scheduleRender, showMainPanel, renderPanelContent, t });
 setHomininOverlayOpener(openHomininOverlay);
 initDnaCalcDeps({ searchEntities, t, showMainPanel });
 initEvoPathDeps({ searchEntities, t, scheduleRender, smoothPanTo, layout, applyT });
-initTriviaDeps({ t, navigateTo: (...args) => navigateTo(...args) });
+initGameDeps({ t, navigateTo: (...args) => navigateTo(...args) });
 initPlaybackDeps({ layout, centerOnTree, scheduleRender, applyT, buildEraPresets, getEraName, updateEraTint, updateSpeciesCount, t });
 initThemeDeps({ buildEraPresets, buildExtinctionMarkers, buildEraSegments, updateSpeciesCount, buildDensitySparkline, scheduleRender });
 initEngagementDeps({ t, navigateTo: (...args) => navigateTo(...args), showMainPanel });
@@ -335,7 +333,7 @@ function init(){
   },3000);
   // Initialize engagement progress badge and quiz events
   updateProgressBadge();
-  initQuizEvents();
+  initGameEvents();
 }
 
 
@@ -434,7 +432,7 @@ document.addEventListener('keydown',e=>{
     const _toastEl = document.getElementById('fact-toast');
     if(_toastEl && _toastEl.classList.contains('visible')){dismissToast();return;}
     if(document.getElementById('evo-path-panel').classList.contains('open')){closeEvoPath();return;}
-    if(document.getElementById('trivia-panel').classList.contains('open')){closeTrivia();return;}
+    if(document.getElementById('game-panel').classList.contains('open')){closeGame();return;}
     // Close search dropdown first if open (not a nav action)
     if(searchResults.classList.contains('show')){
       searchResults.classList.remove('show');
@@ -767,11 +765,8 @@ window.clearEvoPath = clearEvoPath;
 window.clearEvoHighlight = clearEvoHighlight;
 
 // Trivia
-window.openTrivia = openTrivia;
-window.closeTrivia = closeTrivia;
-window.startTriviaGame = startTriviaGame;
-window.answerTrivia = answerTrivia;
-window.nextTriviaQuestion = nextTriviaQuestion;
+window.openGame = openGame;
+window.closeGame = closeGame;
 
 // Tours
 initTourDeps({ state, nodeMap, layout, scheduleRender, applyT, animateSliderTo, t });
@@ -794,8 +789,6 @@ window.resetPlayback = resetPlayback;
 
 // Toast
 window.dismissToast = dismissToast;
-window.openQuiz = openQuiz;
-window.closeQuiz = closeQuiz;
 
 // Timeline
 window.toggleEraPlay = toggleEraPlay;

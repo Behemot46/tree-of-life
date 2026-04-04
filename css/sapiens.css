@@ -202,3 +202,97 @@
 @media(prefers-reduced-motion:reduce){
   .sap-scroll-line{animation:none;opacity:0.4;}
 }
+
+/* ── Migration Map (Section 2) ── */
+.sap-migration{padding:80px 24px 64px;align-items:flex-start;justify-content:flex-start;}
+
+.sap-section-header{margin-bottom:32px;width:100%;}
+.sap-section-title{font-size:clamp(28px,5vw,48px);font-weight:200;color:var(--text-primary);margin:8px 0 12px;}
+.sap-section-subtitle{font-size:15px;color:var(--text-dim);line-height:1.65;max-width:600px;}
+
+.sap-map-frame{
+  position:relative;width:100%;border-radius:16px;
+  overflow:hidden;background:#0c1015;
+  border:1px solid rgba(var(--accent-rgb),0.06);
+  box-shadow:0 4px 24px rgba(0,0,0,0.4);margin-bottom:20px;
+}
+.sap-map-img{
+  display:block;width:100%;height:auto;
+  opacity:0.3;filter:saturate(0.3) brightness(0.5);
+}
+.sap-map-svg{position:absolute;inset:0;width:100%;height:100%;}
+
+/* Routes */
+.sap-route-bg{fill:none;stroke:rgba(var(--accent-rgb),0.04);stroke-width:1.2;stroke-linecap:round;}
+.sap-route-active{fill:none;stroke:var(--accent);stroke-width:1.6;stroke-linecap:round;
+  filter:drop-shadow(0 0 4px rgba(var(--accent-rgb),0.3));opacity:0;}
+.sap-route-flow{fill:none;stroke:rgba(var(--accent-rgb),0.4);stroke-width:1.6;
+  stroke-linecap:round;stroke-dasharray:3 8;opacity:0;}
+.sap-route.visible .sap-route-active{opacity:1;}
+.sap-route.visible .sap-route-flow{opacity:0.5;animation:sapRouteFlow 2s linear infinite;}
+@keyframes sapRouteFlow{to{stroke-dashoffset:-22;}}
+
+/* Origin dot */
+.sap-origin-glow{fill:rgba(var(--accent-rgb),0.12);animation:sapOriginGlow 3s ease-in-out infinite;}
+@keyframes sapOriginGlow{0%,100%{opacity:0.6;}50%{opacity:0.2;}}
+.sap-origin-pulse{fill:none;stroke:var(--accent);stroke-width:0.6;animation:sapOriginPulse 3s ease-out infinite;}
+@keyframes sapOriginPulse{0%{r:4;opacity:0.5;}100%{r:16;opacity:0;}}
+.sap-origin-core{fill:var(--accent);filter:drop-shadow(0 0 6px rgba(var(--accent-rgb),0.6));}
+
+/* Destination dots */
+.sap-dest{opacity:0;transition:opacity 0.5s ease;}
+.sap-dest.visible{opacity:1;}
+.sap-dest-glow{fill:rgba(var(--accent-rgb),0.1);}
+.sap-dest-core{fill:var(--accent);}
+.sap-dest-label{font-family:var(--font-mono);font-size:5.5px;fill:rgba(var(--accent-rgb),0.5);letter-spacing:0.3px;}
+
+/* Tooltip */
+.sap-map-tooltip{
+  position:absolute;padding:10px 14px;
+  background:rgba(12,16,21,0.95);backdrop-filter:blur(16px);
+  border:1px solid rgba(var(--accent-rgb),0.15);border-radius:10px;
+  max-width:200px;pointer-events:none;opacity:0;
+  transition:opacity 0.2s ease;z-index:5;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+}
+.sap-map-tooltip.visible{opacity:1;}
+.sap-tt-date{font-family:var(--font-mono);font-size:13px;color:var(--accent);font-weight:500;}
+.sap-tt-place{font-size:13px;color:var(--text-primary);margin-top:3px;}
+.sap-tt-site{font-size:11px;color:var(--text-faint);margin-top:5px;line-height:1.35;}
+
+/* Controls */
+.sap-map-controls{
+  display:flex;align-items:center;gap:14px;padding:0 2px;
+}
+.sap-play-btn{
+  width:32px;height:32px;border-radius:50%;flex-shrink:0;
+  border:1px solid rgba(var(--accent-rgb),0.2);
+  background:rgba(var(--accent-rgb),0.04);color:var(--accent);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s ease;
+}
+.sap-play-btn:hover{background:rgba(var(--accent-rgb),0.1);border-color:rgba(var(--accent-rgb),0.35);}
+.sap-map-bound{font-family:var(--font-mono);font-size:10px;color:rgba(var(--accent-rgb),0.35);white-space:nowrap;}
+.sap-map-slider{
+  flex:1;-webkit-appearance:none;appearance:none;height:2px;
+  background:linear-gradient(90deg,rgba(var(--accent-rgb),0.25),rgba(var(--accent-rgb),0.06));
+  border-radius:1px;outline:none;
+}
+.sap-map-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;width:14px;height:14px;border-radius:50%;
+  background:var(--accent);cursor:grab;
+  box-shadow:0 0 12px rgba(var(--accent-rgb),0.3),0 0 4px rgba(var(--accent-rgb),0.5);
+}
+.sap-map-slider::-webkit-slider-thumb:hover{transform:scale(1.2);}
+.sap-map-time{
+  font-family:var(--font-mono);font-size:13px;font-weight:500;
+  color:var(--accent);min-width:72px;text-align:center;
+  padding:4px 10px;background:rgba(var(--accent-rgb),0.06);
+  border-radius:6px;border:1px solid rgba(var(--accent-rgb),0.1);
+}
+
+@media(prefers-reduced-motion:reduce){
+  .sap-route-flow{animation:none;}
+  .sap-origin-glow{animation:none;opacity:0.4;}
+  .sap-origin-pulse{animation:none;opacity:0;}
+}

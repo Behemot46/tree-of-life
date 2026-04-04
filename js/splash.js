@@ -77,11 +77,10 @@ export function initSplash(canvas, opts) {
   // ── Build tree layout ──
   treeLayout = buildUpwardTree(splashData, W, H);
 
-  // ── Text sequence for Phase 1 ──
-  const splashFact = facts.getSplashFact ? facts.getSplashFact(lang) : facts.getLoadingFact(lang);
+  // ── Text sequence for Phase 1 (stats only, no fact — fact shows in Phase 3) ──
   const countText = tpl(t_fn('splash_species_count'), { count: speciesCount });
   const domainText = tpl(t_fn('splash_domains_count'), { count: domainCount });
-  const textSeq = [splashFact, countText, domainText];
+  const textSeq = [countText, domainText];
 
   // ── Era milestones for Phase 2 caption ──
   const eraMilestones = [
@@ -456,9 +455,9 @@ export function initSplash(canvas, opts) {
       const subAlpha = easeQuad(Math.min(1, Math.max(0, (t - 0.3) / 0.5)));
       drawText(t_fn('splash_subtitle'), W / 2, H * 0.12 + titleSize * 1.1, titleSize * 0.32, 300, PARCHMENT, subAlpha);
 
-      // Fact with icon
-      const factAlpha = easeQuad(Math.min(1, Math.max(0, (t - 0.6) / 0.4)));
-      drawText(readyFact, W / 2, H - 60, Math.min(W * 0.035, 18), 300, PARCHMENT, factAlpha * 0.7);
+      // Fact with icon — appears early and stays visible
+      const factAlpha = easeQuad(Math.min(1, Math.max(0, (t - 0.3) / 0.4)));
+      drawText(readyFact, W / 2, H - 60, Math.min(W * 0.035, 18), 300, PARCHMENT, factAlpha * 0.85);
 
       // Click hint
       const hintAlpha = easeQuad(Math.min(1, Math.max(0, (t - 0.8) / 0.2)));

@@ -49,7 +49,7 @@ import { inferAppeared, enterPlaybackMode, exitPlaybackMode, startPlayback, paus
 import { t, setLang, applyI18n, applyTheme, toggleTheme, initThemeDeps } from './theme.js';
 
 // ── Engagement / UI effects ──
-import { showToast, dismissToast, showSpeciesToast, showIdleToast, resetIdleTimer, onUserActivity, a11yAnnounce, spawnParticles, showIntro, animateTreeEntrance, showLoading, hideLoading, generateSpeciesIllustration, initEngagementDeps, markExplored, isExplored, updateProgressBadge, checkAchievement, trackDomainToggle, trackViewMode, trackExtinctionClick, trackDnaCompare } from './engagement.js';
+import { showToast, dismissToast, showSpeciesToast, showIdleToast, resetIdleTimer, onUserActivity, a11yAnnounce, spawnParticles, showIntro, animateTreeEntrance, generateSpeciesIllustration, initEngagementDeps, markExplored, isExplored, updateProgressBadge, checkAchievement, trackDomainToggle, trackViewMode, trackExtinctionClick, trackDnaCompare } from './engagement.js';
 
 // ── Quiz ──
 import { openQuiz, closeQuiz, initQuizEvents } from './quiz.js';
@@ -58,6 +58,8 @@ import { openQuiz, closeQuiz, initQuizEvents } from './quiz.js';
 import { TREE, lightenColor, PHOTO_MAP, FACTS, ImageLoader } from './data.js';
 import { expandTree } from './treeExpansion.js';
 import { initTourDeps, showTourSelector, startTour, endTour } from './tours.js';
+import { initSplash } from './splash.js';
+import { ERA_NAMES } from './uiData.js';
 import { openSapiens, closeSapiens, initSapiensDeps } from './sapiens.js';
 
 // ── Minimap ──
@@ -249,31 +251,36 @@ const wrappedShowMainPanel = interceptShowMainPanel(showMainPanel);
 // ══════════════════════════════════════════════════════
 
 function init(){
-  showLoading();
-  const _splash = document.getElementById('splash');
-  const _taglineEl = document.getElementById('splash-tagline');
-  if (_splash && _taglineEl) {
-    _taglineEl.textContent = FACTS.getLoadingFact(state.currentLang);
-    const _splashTitle = document.getElementById('splash-title');
-    const _splashYears = document.getElementById('splash-years');
-    if(_splashTitle) _splashTitle.textContent = t('title');
-    if(_splashYears) _splashYears.textContent = t('splash_years');
-    let _dismissed = false;
-    const _dismissSplash = () => {
-      if (_dismissed) return;
-      _dismissed = true;
-      _splash.style.opacity = '0';
-      _splash.style.transform = 'scale(1.04)';
-      setTimeout(() => {
-        _splash.style.display = 'none';
+  // ── Splash animation ──
+  const _splashCanvas = document.getElementById('splash-canvas');
+  const _splashFallback = document.getElementById('splash-fallback');
+
+  // Fallback: if Canvas doesn't init within 500ms, show CSS fallback
+  setTimeout(() => {
+    if (_splashCanvas && !_splashCanvas.dataset.ready && _splashFallback) {
+      _splashCanvas.style.display = 'none';
+      _splashFallback.style.display = 'flex';
+      _splashFallback.addEventListener('click', () => {
+        const s = document.getElementById('splash');
+        if (s) { s.style.opacity = '0'; setTimeout(() => { s.style.display = 'none'; animateTreeEntrance(); }, 500); }
+      });
+    }
+  }, 500);
+
+  if (_splashCanvas) {
+    initSplash(_splashCanvas, {
+      tree: TREE,
+      photoMap: PHOTO_MAP,
+      t,
+      facts: FACTS,
+      eraNames: ERA_NAMES,
+      onDone: () => {
         animateTreeEntrance();
         if (!localStorage.getItem('tol-tour-done') && !new URLSearchParams(location.search).get('node')) {
-          setTimeout(typeof showTourSelector !== 'undefined' ? showTourSelector : () => {}, 1200);
+          setTimeout(showTourSelector, 1200);
         }
-      }, 800);
-    };
-    setTimeout(_dismissSplash, 4500);
-    _splash.addEventListener('click', _dismissSplash);
+      }
+    });
   }
   function assignDomains(node, domain) {
     node._domain = domain;

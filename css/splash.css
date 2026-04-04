@@ -1,0 +1,70 @@
+/* ── DNA SPLASH SCREEN ── */
+
+#splash {
+  position: fixed;
+  inset: 0;
+  background: #141618;
+  z-index: var(--z-splash, 9999);
+  transition: opacity 0.5s ease;
+}
+
+#splash-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ── Skip button ── */
+#splash-skip {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  font-family: var(--font-sans, 'Inter', sans-serif);
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: rgba(230, 225, 216, 0.4);
+  cursor: pointer;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+#splash-skip:hover {
+  color: rgba(230, 225, 216, 0.7);
+}
+
+/* ── CSS-only fallback ── */
+#splash-fallback {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: #e6e1d8;
+  text-align: center;
+  cursor: pointer;
+  font-family: var(--font-sans, 'Inter', sans-serif);
+}
+
+#splash-fallback h1 {
+  font-size: clamp(2rem, 6vw, 4rem);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+#splash-fallback p {
+  color: rgba(154, 148, 136, 0.6);
+  font-size: 16px;
+  max-width: 480px;
+  line-height: 1.6;
+}
+
+/* ── Reduced motion: skip animation entirely ── */
+@media (prefers-reduced-motion: reduce) {
+  #splash { transition: none; }
+  #splash-canvas { display: none; }
+  #splash-fallback { display: flex !important; }
+  #splash-skip { display: none; }
+}

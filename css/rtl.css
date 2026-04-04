@@ -1,7 +1,7 @@
 /* ── RTL (Hebrew) ── */
 [dir="rtl"] #header{flex-direction:row-reverse;}
-[dir="rtl"] #lang-switcher{right:auto;left:1.2rem;}
-[dir="rtl"] #theme-btn{right:auto;left:1.2rem;}
+[dir="rtl"] #lang-switcher{right:auto;left:calc(0.5rem + 36px + 0.4rem);}
+[dir="rtl"] #theme-btn{right:auto;left:0.5rem;}
 [dir="rtl"] #search-wrap{left:auto;right:50%;transform:translateX(50%);}
 [dir="rtl"] #search-input{text-align:right;direction:rtl;}
 [dir="rtl"] #panel{right:auto;left:-500px;border-left:none;border-right:1px solid var(--border);transition:left 0.3s cubic-bezier(0.16,1,0.3,1);}

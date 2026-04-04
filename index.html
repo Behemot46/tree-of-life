@@ -78,7 +78,7 @@
 </div>
 
 <!-- SEARCH -->
-<div id="search-wrap" style="position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:300;pointer-events:all;display:flex;align-items:center;gap:8px;max-width:calc(100% - 10rem);">
+<div id="search-wrap">
   <span id="search-icon" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--text-secondary);opacity:0.6;font-size:0.8rem;pointer-events:none;" aria-hidden="true">🔍</span>
   <input id="search-input" type="text" placeholder="Search species…" autocomplete="off" aria-label="Search species by name, latin name, or description" role="combobox" aria-expanded="false" aria-controls="search-results">
   <div id="search-results" role="listbox"></div>
@@ -88,7 +88,7 @@
   <button id="hominins-tab" class="search-pill" onclick="navigateTo('hominini')" aria-label="Navigate to Hominin family tree">
     🧬 <span id="i-btn-hominins">Hominins</span>
   </button>
-  <button id="btn-quiz" onclick="openQuiz()" aria-label="Open quiz">🧪 <span id="quiz-label">Quiz</span></button>
+  <button id="btn-quiz" class="search-pill" onclick="openQuiz()" aria-label="Open quiz">🧪 <span id="quiz-label">Quiz</span></button>
 </div>
 
 <!-- NAV CONTROLS -->

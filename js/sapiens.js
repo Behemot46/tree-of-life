@@ -4,7 +4,10 @@
 
 import { state, nodeMap, navStack } from './state.js';
 import { reducedMotion } from './utils.js';
-import { SAPIENS_HERO, MIGRATION_ROUTES, MIGRATION_ORIGIN, MIGRATION_MAP_IMAGE } from './sapiensData.js';
+import {
+  SAPIENS_HERO, MIGRATION_ROUTES, MIGRATION_ORIGIN, MIGRATION_MAP_IMAGE,
+  TRAIT_CARDS, SKULL_IMAGES, NEURAL_DENSITY, BRAIN_ENERGY, BRAIN_TIMELINE,
+} from './sapiensData.js';
 
 // ── Late-binding deps ──
 let _pushNav, _navBack, _showMainPanel, _t, _scheduleRender, _smoothPanTo;
@@ -98,7 +101,8 @@ export function openSapiens() {
   // Build sections
   scroll.appendChild(buildHero());
   scroll.appendChild(buildMigrationMap());
-  // Sections 3-5 will be added in Tasks 5-7
+  scroll.appendChild(buildTraitCards());
+  // Sections 4-5 will be added in Tasks 6-7
 
   // Lock body scroll and show
   document.body.style.overflow = 'hidden';
@@ -535,4 +539,383 @@ function animateCounters(sec) {
     }
     requestAnimationFrame(tick);
   });
+}
+
+// ══════════════════════════════════════════════════════
+// SECTION 3: TRAIT CARDS
+// ══════════════════════════════════════════════════════
+
+function buildTraitCards() {
+  const sec = document.createElement('section');
+  sec.className = 'sapiens-section sap-traits';
+
+  // ── Header ──
+  const header = document.createElement('div');
+  header.className = 'sap-section-header';
+  header.innerHTML = `
+    <div class="sap-overline">${txt({ en: '🔬 What Defines Us', he: '🔬 מה מגדיר אותנו', ru: '🔬 Что нас определяет' })}</div>
+    <h2 class="sap-section-title">${txt({ en: 'What Makes Us <em>Us</em>', he: 'מה גורם לנו להיות <em>אנחנו</em>', ru: 'Что делает нас <em>нами</em>' })}</h2>
+    <p class="sap-section-subtitle">${txt({ en: '👇 Tap a card to go deeper', he: '👇 הקש על כרטיסייה כדי לעמוק יותר', ru: '👇 Нажмите карточку для подробностей' })}</p>
+  `;
+  sec.appendChild(header);
+
+  // ── Card grid ──
+  const grid = document.createElement('div');
+  grid.className = 'sap-card-grid';
+
+  TRAIT_CARDS.forEach(card => {
+    const el = document.createElement('div');
+    el.className = 'sap-card';
+    el.setAttribute('role', 'button');
+    el.setAttribute('tabindex', '0');
+    el.setAttribute('aria-label', txt(card.label));
+
+    el.innerHTML = `
+      <div class="sap-card-hero">
+        <img src="${card.heroImage}" alt="" loading="lazy"
+             onerror="this.style.display='none'"/>
+      </div>
+      <div class="sap-card-badge">${card.icon}</div>
+      <div class="sap-card-body">
+        <div class="sap-card-label">${txt(card.label)}</div>
+        <div class="sap-card-stat-row">
+          <span class="sap-card-stat">${card.stat}</span>
+          <span class="sap-card-unit">${txt(card.unit)}</span>
+        </div>
+        <p class="sap-card-desc">${txt(card.desc)}</p>
+        <div class="sap-card-fun">${txt(card.funFact)}</div>
+        <span class="sap-card-cta">${txt(card.cta)} →</span>
+      </div>
+    `;
+
+    // Click / keyboard → open drawer
+    const openFn = () => {
+      if (card.id === 'brain')      openDrawer(buildBrainDrawer);
+      else if (card.id === 'language')  openDrawer(buildLanguageDrawer);
+      else if (card.id === 'technology') openDrawer(buildTechDrawer);
+      else if (card.id === 'dna')   openDrawer(buildDnaDrawer);
+    };
+    el.addEventListener('click', openFn);
+    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openFn(); } });
+
+    grid.appendChild(el);
+  });
+
+  sec.appendChild(grid);
+  return sec;
+}
+
+// ══════════════════════════════════════════════════════
+// DRAWER BUILDERS
+// ══════════════════════════════════════════════════════
+
+// ── Brain drawer ──
+function buildBrainDrawer(el) {
+  // Header
+  el.innerHTML = `
+    <div class="sap-drawer-hero" style="background:linear-gradient(135deg,#1a0e0a 0%,#0e1015 100%);">
+      <div class="sap-drawer-hero-content">
+        <div class="sap-drawer-emoji">🧠</div>
+        <div class="sap-drawer-title">${txt({ en: 'The Remarkable Brain', he: 'המוח המדהים', ru: 'Удивительный мозг' })}</div>
+        <div class="sap-drawer-subtitle">${txt({ en: '86 billion neurons. 3× larger than expected.', he: '86 מיליארד נוירונים. פי 3 גדול מהמצופה.', ru: '86 миллиардов нейронов. В 3× крупнее ожидаемого.' })}</div>
+      </div>
+    </div>
+    <div class="sap-drawer-body" id="sap-brain-body"></div>
+  `;
+
+  const body = el.querySelector('#sap-brain-body');
+
+  // ── 1. Skull lineup ──
+  const skullLabel = document.createElement('div');
+  skullLabel.className = 'sap-section-label';
+  skullLabel.textContent = txt({ en: 'BRAIN VOLUME COMPARISON', he: 'השוואת נפח מוח', ru: 'СРАВНЕНИЕ ОБЪЁМА МОЗГА' });
+  body.appendChild(skullLabel);
+
+  const lineup = document.createElement('div');
+  lineup.className = 'sap-skull-lineup';
+
+  Object.values(SKULL_IMAGES).forEach(skull => {
+    const item = document.createElement('div');
+    item.className = 'sap-skull-item' + (skull.highlight ? ' highlight' : '') + (skull.surprise ? ' surprise' : '');
+
+    const imgSrc = skull.url.replace('{W}', '200');
+    const imgEl = document.createElement('img');
+    imgEl.src = imgSrc;
+    imgEl.alt = txt(skull.name);
+    imgEl.style.height = skull.height + 'px';
+    imgEl.onerror = function() {
+      this.style.display = 'none';
+      const fb = document.createElement('div');
+      fb.className = 'sap-skull-fallback';
+      fb.textContent = skull.emoji;
+      item.insertBefore(fb, item.firstChild);
+    };
+    item.appendChild(imgEl);
+
+    const info = document.createElement('div');
+    info.className = 'sap-skull-info';
+    info.innerHTML = `
+      <div class="sap-skull-name">${txt(skull.name)}</div>
+      <div class="sap-skull-volume">${skull.volume} cc</div>
+    `;
+    item.appendChild(info);
+    lineup.appendChild(item);
+  });
+
+  body.appendChild(lineup);
+
+  const proportionNote = document.createElement('p');
+  proportionNote.style.cssText = 'font-size:10px;color:var(--text-faint);text-align:center;margin-bottom:20px;';
+  proportionNote.textContent = '↑ ' + txt({ en: 'photos sized proportionally to brain volume', he: 'תמונות בגודל פרופורציונלי לנפח המוח', ru: 'фотографии пропорциональны объёму мозга' });
+  body.appendChild(proportionNote);
+
+  // ── 2. Insight callout ──
+  const insight = document.createElement('div');
+  insight.className = 'sap-insight';
+  insight.innerHTML = `
+    <span class="sap-insight-emoji">🤯</span>
+    <div class="sap-insight-text">
+      <strong>${txt({ en: 'Wait — Neanderthals had bigger brains?', he: 'רגע — לניאנדרתלים היו מוחות גדולים יותר?', ru: 'Подождите — у неандертальцев был мозг больше?' })}</strong><br>
+      ${txt({ en: 'Yes — Neanderthals averaged ~1,500 cc vs. our ~1,400 cc. But brain size alone doesn\'t determine intelligence. The organization matters: sapiens have proportionally larger prefrontal cortices, more cortical neurons, and denser long-range connectivity.', he: 'כן — ניאנדרתלים ממוצעו כ-1,500 סמ"ק לעומת כ-1,400 סמ"ק שלנו. אך גודל המוח לבדו אינו קובע אינטליגנציה. הארגון חשוב: לספיינס יש קליפות מוח קדם-מצחיות גדולות יחסית, יותר נוירונים קורטיקליים וחיבוריות ארוכת טווח צפופה יותר.', ru: 'Да — у неандертальцев в среднем ~1 500 см³ против нашего ~1 400 см³. Но размер мозга сам по себе не определяет интеллект. Важна организация: у сапиенсов пропорционально большая префронтальная кора, больше корковых нейронов и более плотная дальняя связность.' })}
+    </div>
+  `;
+  body.appendChild(insight);
+
+  const divider1 = document.createElement('div');
+  divider1.className = 'sap-divider';
+  body.appendChild(divider1);
+
+  // ── 3. Neural density ──
+  const densityLabel = document.createElement('div');
+  densityLabel.className = 'sap-section-label';
+  densityLabel.textContent = txt({ en: 'NEURAL DENSITY & STRUCTURE', he: 'צפיפות ומבנה עצבי', ru: 'НЕЙРОННАЯ ПЛОТНОСТЬ И СТРУКТУРА' });
+  body.appendChild(densityLabel);
+
+  const densityGrid = document.createElement('div');
+  densityGrid.className = 'sap-density-grid';
+
+  NEURAL_DENSITY.forEach((item, idx) => {
+    const card = document.createElement('div');
+    card.className = 'sap-density-card' + (idx === 0 ? ' ours' : '');
+    card.innerHTML = `
+      <div class="sap-density-species">${txt(item.title)}</div>
+      <div class="sap-density-val">${item.value}</div>
+      <div class="sap-density-unit">${txt(item.unit)}</div>
+    `;
+    densityGrid.appendChild(card);
+  });
+  body.appendChild(densityGrid);
+
+  const divider2 = document.createElement('div');
+  divider2.className = 'sap-divider';
+  body.appendChild(divider2);
+
+  // ── 4. Energy budget ──
+  const energyLabel = document.createElement('div');
+  energyLabel.className = 'sap-section-label';
+  energyLabel.textContent = txt({ en: 'THE ENERGY BUDGET', he: 'תקציב האנרגיה', ru: 'ЭНЕРГЕТИЧЕСКИЙ БЮДЖЕТ' });
+  body.appendChild(energyLabel);
+
+  // SVG donut — radius 40, circumference ≈ 251.3
+  const circ = 2 * Math.PI * 40;
+  const brainPct = 0.2;
+  const brainDash = circ * brainPct;
+  const restDash = circ * (1 - brainPct);
+
+  const energyWrap = document.createElement('div');
+  energyWrap.className = 'sap-energy-wrap';
+  energyWrap.innerHTML = `
+    <div class="sap-ring-chart">
+      <svg viewBox="0 0 120 120">
+        <circle class="sap-ring-bg" cx="60" cy="60" r="40"/>
+        <circle class="sap-ring-rest" cx="60" cy="60" r="40"
+          stroke-dasharray="${restDash.toFixed(1)} ${brainDash.toFixed(1)}"
+          stroke-dashoffset="${(-brainDash).toFixed(1)}"/>
+        <circle class="sap-ring-brain" cx="60" cy="60" r="40"
+          stroke-dasharray="${brainDash.toFixed(1)} ${(circ - brainDash).toFixed(1)}"/>
+      </svg>
+      <div class="sap-ring-center">
+        <span class="sap-ring-pct">20%</span>
+        <span class="sap-ring-label">${txt({ en: 'of energy', he: 'מהאנרגיה', ru: 'энергии' })}</span>
+      </div>
+    </div>
+    <div class="sap-energy-facts">
+      ${BRAIN_ENERGY.map(f => `
+        <div class="sap-energy-fact">
+          <span>${f.emoji}</span>
+          <span>${txt(f.text)}</span>
+        </div>
+      `).join('')}
+    </div>
+  `;
+  body.appendChild(energyWrap);
+
+  const divider3 = document.createElement('div');
+  divider3.className = 'sap-divider';
+  body.appendChild(divider3);
+
+  // ── 5. Growth timeline ──
+  const timelineLabel = document.createElement('div');
+  timelineLabel.className = 'sap-section-label';
+  timelineLabel.textContent = txt({ en: 'BRAIN GROWTH TIMELINE', he: 'ציר הזמן של צמיחת המוח', ru: 'ХРОНОЛОГИЯ РОСТА МОЗГА' });
+  body.appendChild(timelineLabel);
+
+  const timeline = document.createElement('div');
+  timeline.className = 'sap-growth-timeline';
+
+  BRAIN_TIMELINE.forEach(item => {
+    const entry = document.createElement('div');
+    entry.className = 'sap-growth-item';
+    entry.innerHTML = `
+      <div class="sap-growth-date">${item.date} ${item.unit}</div>
+      <div class="sap-growth-text"><strong>${txt(item.title)}</strong> — ${txt(item.desc)}</div>
+    `;
+    timeline.appendChild(entry);
+  });
+  body.appendChild(timeline);
+}
+
+// ── Language drawer ──
+function buildLanguageDrawer(el) {
+  el.innerHTML = `
+    <div class="sap-drawer-hero" style="background:linear-gradient(135deg,#0a120f 0%,#0e1015 100%);">
+      <div class="sap-drawer-hero-content">
+        <div class="sap-drawer-emoji">💬</div>
+        <div class="sap-drawer-title">${txt({ en: 'Language & Symbolic Thought', he: 'שפה וחשיבה סמלית', ru: 'Язык и символическое мышление' })}</div>
+        <div class="sap-drawer-subtitle">${txt({ en: '7,000+ languages. One unique ability.', he: '7,000+ שפות. יכולת ייחודית אחת.', ru: '7 000+ языков. Одна уникальная способность.' })}</div>
+      </div>
+    </div>
+    <div class="sap-drawer-body">
+      <div class="sap-section-label">${txt({ en: 'COMMUNICATION EVOLUTION', he: 'אבולוציית התקשורת', ru: 'ЭВОЛЮЦИЯ КОММУНИКАЦИИ' })}</div>
+      <div class="sap-simple-timeline">
+        <div class="sap-simple-item">
+          <div class="sap-growth-date">2 Ma</div>
+          <div class="sap-growth-text"><strong>${txt({ en: 'Gestures 🤲', he: 'מחוות 🤲', ru: 'Жесты 🤲' })}</strong> — ${txt({ en: 'Early Homo uses hands and body to communicate intent and coordinate hunts.', he: 'הומו הקדום משתמש בידיים ובגוף כדי לתקשר כוונות ולתאם ציד.', ru: 'Ранние Homo используют руки и тело для общения и координации охоты.' })}</div>
+        </div>
+        <div class="sap-simple-item">
+          <div class="sap-growth-date">500 Ka</div>
+          <div class="sap-growth-text"><strong>${txt({ en: 'Vocal sounds 🗣️', he: 'צלילים קוליים 🗣️', ru: 'Голосовые звуки 🗣️' })}</strong> — ${txt({ en: 'Descended larynx in H. heidelbergensis enables broader phoneme range. FOXP2 gene appears.', he: 'גרון יורד ב-H. heidelbergensis מאפשר טווח פונמות רחב יותר. גן FOXP2 מופיע.', ru: 'Опустившаяся гортань у H. heidelbergensis расширяет диапазон фонем. Появляется ген FOXP2.' })}</div>
+        </div>
+        <div class="sap-simple-item">
+          <div class="sap-growth-date">100 Ka</div>
+          <div class="sap-growth-text"><strong>${txt({ en: 'Symbolic language 💬', he: 'שפה סמלית 💬', ru: 'Символический язык 💬' })}</strong> — ${txt({ en: 'Ochre engravings at Blombos Cave hint at abstract symbolic capacity. Full syntax likely emerges.', he: 'חריטות אוכר במערת בלומבוס מרמזות על יכולת סמלית מופשטת. סינתקס מלא ככל הנראה צומח.', ru: 'Гравюры охрой в пещере Бломбос намекают на абстрактную символическую способность. Вероятно, возникает полный синтаксис.' })}</div>
+        </div>
+        <div class="sap-simple-item">
+          <div class="sap-growth-date">5 Ka</div>
+          <div class="sap-growth-text"><strong>${txt({ en: 'Writing ✏️', he: 'כתיבה ✏️', ru: 'Письменность ✏️' })}</strong> — ${txt({ en: 'Sumerian cuneiform and Egyptian hieroglyphs allow knowledge to persist across generations.', he: 'הכתב הסומרי והכתב ההיראוגליפי המצרי מאפשרים לידע להתמיד לאורך דורות.', ru: 'Шумерская клинопись и египетские иероглифы позволяют знаниям сохраняться через поколения.' })}</div>
+        </div>
+        <div class="sap-simple-item">
+          <div class="sap-growth-date">~30 yrs</div>
+          <div class="sap-growth-text"><strong>${txt({ en: 'Internet 🌐', he: 'אינטרנט 🌐', ru: 'Интернет 🌐' })}</strong> — ${txt({ en: 'Instant global communication. 5 billion connected people share ideas in milliseconds.', he: 'תקשורת גלובלית מיידית. 5 מיליארד אנשים מחוברים חולקים רעיונות במילי-שניות.', ru: 'Мгновенная глобальная коммуникация. 5 миллиардов подключённых людей делятся идеями за миллисекунды.' })}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ── Technology drawer ──
+function buildTechDrawer(el) {
+  el.innerHTML = `
+    <div class="sap-drawer-hero" style="background:linear-gradient(135deg,#0e0e0a 0%,#0e1015 100%);">
+      <div class="sap-drawer-hero-content">
+        <div class="sap-drawer-emoji">🔧</div>
+        <div class="sap-drawer-title">${txt({ en: 'Technology & Cumulative Culture', he: 'טכנולוגיה ותרבות מצטברת', ru: 'Технология и накопленная культура' })}</div>
+        <div class="sap-drawer-subtitle">${txt({ en: '3.3 million years of making things.', he: '3.3 מיליון שנות יצירה.', ru: '3,3 миллиона лет создания вещей.' })}</div>
+      </div>
+    </div>
+    <div class="sap-drawer-body">
+      <div class="sap-section-label">${txt({ en: 'THE EXPONENTIAL CURVE', he: 'העקומה האקספוננציאלית', ru: 'ЭКСПОНЕНЦИАЛЬНАЯ КРИВАЯ' })}</div>
+      <div class="sap-bar-compare">
+        <div class="sap-bar-row">
+          <span class="sap-bar-label">${txt({ en: 'Stone tools', he: 'כלי אבן', ru: 'Каменные орудия' })}</span>
+          <div class="sap-bar-track">
+            <div class="sap-bar-fill accent" style="width:99%;">
+              ${txt({ en: '3.3M years', he: '3.3 מיליון שנה', ru: '3,3 млн лет' })}
+            </div>
+          </div>
+        </div>
+        <div class="sap-bar-row">
+          <span class="sap-bar-label">${txt({ en: 'Everything else', he: 'כל השאר', ru: 'Всё остальное' })}</span>
+          <div class="sap-bar-track">
+            <div class="sap-bar-fill dim" style="width:1%;">&nbsp;</div>
+          </div>
+        </div>
+        <p style="font-size:11px;color:var(--text-faint);margin-top:8px;">${txt({ en: '99% of tool-use history = stone. The last ~10,000 years = everything else.', he: '99% מההיסטוריה של שימוש בכלים = אבן. 10,000 השנים האחרונות = כל השאר.', ru: '99% истории использования орудий = камень. Последние ~10 000 лет = всё остальное.' })}</p>
+      </div>
+      <div class="sap-section-label">${txt({ en: 'KEY MILESTONES', he: 'אבני דרך מרכזיות', ru: 'КЛЮЧЕВЫЕ ВЕХИ' })}</div>
+      <div class="sap-simple-timeline">
+        <div class="sap-simple-item">
+          <div class="sap-growth-date">3.3 Ma</div>
+          <div class="sap-growth-text">⛏️ <strong>${txt({ en: 'Lomekwi stone tools', he: 'כלי אבן לומקווי', ru: 'Каменные орудия Ломекви' })}</strong> — ${txt({ en: 'Oldest known deliberately flaked stone tools, predating genus Homo.', he: 'כלי הצור המעוצבים המוכרים הקדומים ביותר, המקדימים את סוג הומו.', ru: 'Древнейшие известные намеренно сколотые каменные орудия, предшествующие роду Homo.' })}</div>
+        </div>
+        <div class="sap-simple-item">
+          <div class="sap-growth-date">1.8 Ma</div>
+          <div class="sap-growth-text">🔥 <strong>${txt({ en: 'Controlled fire', he: 'אש מבוקרת', ru: 'Контролируемый огонь' })}</strong> — ${txt({ en: 'Cooking unlocks calorie surplus, drives brain expansion, enables global migration.', he: 'בישול משחרר עודף קלוריות, מניע התרחבות מוח ומאפשר הגירה גלובלית.', ru: 'Приготовление пищи высвобождает избыток калорий, стимулирует рост мозга, позволяет глобальную миграцию.' })}</div>
+        </div>
+        <div class="sap-simple-item">
+          <div class="sap-growth-date">10 Ka</div>
+          <div class="sap-growth-text">🌾 <strong>${txt({ en: 'Agriculture', he: 'חקלאות', ru: 'Сельское хозяйство' })}</strong> — ${txt({ en: 'Domestication of wheat and animals. Population density surges. Cities emerge.', he: 'אילוף חיטה ובעלי חיים. צפיפות האוכלוסייה מזנקת. ערים צומחות.', ru: 'Одомашнивание пшеницы и животных. Плотность населения резко возрастает. Появляются города.' })}</div>
+        </div>
+        <div class="sap-simple-item">
+          <div class="sap-growth-date">270 yrs</div>
+          <div class="sap-growth-text">⚙️ <strong>${txt({ en: 'Industrial Revolution', he: 'המהפכה התעשייתית', ru: 'Промышленная революция' })}</strong> — ${txt({ en: 'Steam power, mechanization, exponential energy use begins.', he: 'כוח קיטור, מיכון, השימוש האקספוננציאלי באנרגיה מתחיל.', ru: 'Паровая энергия, механизация, начало экспоненциального использования энергии.' })}</div>
+        </div>
+        <div class="sap-simple-item">
+          <div class="sap-growth-date">~30 yrs</div>
+          <div class="sap-growth-text">🖥️ <strong>${txt({ en: 'Digital age', he: 'עידן הדיגיטל', ru: 'Цифровой век' })}</strong> — ${txt({ en: 'Smartphones, AI, quantum computing. The ratchet effect runs at internet speed.', he: 'סמארטפונים, בינה מלאכותית, מחשוב קוונטי. אפקט המחגר רץ במהירות האינטרנט.', ru: 'Смартфоны, ИИ, квантовые вычисления. Эффект храповика работает на скорости интернета.' })}</div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ── DNA drawer ──
+function buildDnaDrawer(el) {
+  el.innerHTML = `
+    <div class="sap-drawer-hero" style="background:linear-gradient(135deg,#0a0e14 0%,#0e1015 100%);">
+      <div class="sap-drawer-hero-content">
+        <div class="sap-drawer-emoji">🧬</div>
+        <div class="sap-drawer-title">${txt({ en: 'DNA & Shared Ancestry', he: 'DNA ואבות משותפים', ru: 'ДНК и общее происхождение' })}</div>
+        <div class="sap-drawer-subtitle">${txt({ en: '99.9% identical. The 0.1% tells our whole story.', he: '99.9% זהה. 0.1% מספר את כל הסיפור שלנו.', ru: '99,9% идентичны. 0,1% рассказывает всю нашу историю.' })}</div>
+      </div>
+    </div>
+    <div class="sap-drawer-body">
+      <div class="sap-section-label">${txt({ en: 'THE 0.1% THAT VARIES', he: '0.1% שמשתנה', ru: '0,1%, КОТОРЫЕ ВАРЬИРУЮТСЯ' })}</div>
+      <p class="sap-drawer-prose">${txt({ en: 'That tiny 0.1% variation drives all visible human diversity — <strong>skin color</strong>, <strong>eye shape</strong>, <strong>height</strong>, <strong>disease susceptibility</strong>, and many other traits. Yet it represents just ~3 million base pairs out of 3 billion.', he: '0.1% השונות הקטנה הזו מניעה את כל המגוון האנושי הנראה לעין — <strong>צבע עור</strong>, <strong>צורת עיניים</strong>, <strong>גובה</strong>, <strong>רגישות למחלות</strong> ותכונות רבות אחרות. עם זאת, הוא מייצג רק כ-3 מיליון זוגות בסיס מתוך 3 מיליארד.', ru: 'Эти крошечные 0,1% вариации определяют всё видимое человеческое разнообразие — <strong>цвет кожи</strong>, <strong>форму глаз</strong>, <strong>рост</strong>, <strong>восприимчивость к болезням</strong> и многие другие черты. Но это всего ~3 миллиона пар оснований из 3 миллиардов.' })}</p>
+
+      <div class="sap-divider"></div>
+
+      <div class="sap-section-label">${txt({ en: 'ARCHAIC HUMAN ANCESTRY', he: 'מוצא אנושי ארכאי', ru: 'ПРОИСХОЖДЕНИЕ ОТ АРХАИЧНЫХ ЛЮДЕЙ' })}</div>
+      <div class="sap-bar-compare">
+        <div class="sap-bar-row">
+          <span class="sap-bar-label">${txt({ en: 'Neanderthal', he: 'ניאנדרתל', ru: 'Неандерталец' })}</span>
+          <div class="sap-bar-track">
+            <div class="sap-bar-fill accent" style="width:40%;">
+              1–4%
+            </div>
+          </div>
+        </div>
+        <p style="font-size:11px;color:var(--text-faint);margin:0 0 16px 90px;">${txt({ en: 'Non-African humans carry 1–4% Neanderthal DNA from interbreeding ~60,000 years ago.', he: 'בני אדם לא-אפריקאיים נושאים 1–4% DNA ניאנדרתלי מהיברידיזציה לפני כ-60,000 שנה.', ru: 'Не-африканские люди несут 1–4% неандертальской ДНК от скрещивания ~60 000 лет назад.' })}</p>
+        <div class="sap-bar-row">
+          <span class="sap-bar-label">${txt({ en: 'Denisovan', he: 'דניסובי', ru: 'Денисовец' })}</span>
+          <div class="sap-bar-track">
+            <div class="sap-bar-fill dim" style="width:50%;">
+              0.5–5%
+            </div>
+          </div>
+        </div>
+        <p style="font-size:11px;color:var(--text-faint);margin:0 0 4px 90px;">${txt({ en: 'Oceanian populations (Papuans, Aboriginal Australians) carry up to 5% Denisovan DNA — highest of any population.', he: 'אוכלוסיות אוקייניות (פפואים, אוסטרלים ילידיים) נושאות עד 5% DNA דניסובי — הגבוה מכל אוכלוסייה.', ru: 'Океанийские популяции (папуасы, аборигены Австралии) несут до 5% денисовской ДНК — наибольший показатель среди всех популяций.' })}</p>
+      </div>
+
+      <div class="sap-divider"></div>
+
+      <div class="sap-insight">
+        <span class="sap-insight-emoji">🌍</span>
+        <div class="sap-insight-text">
+          <strong>${txt({ en: 'We are all Africans', he: 'כולנו אפריקאים', ru: 'Мы все африканцы' })}</strong><br>
+          ${txt({ en: 'The greatest human genetic diversity exists within Africa — meaning all non-African populations are subsets of African variation. Every human alive today traces their ancestry to East Africa within the last 300,000 years.', he: 'המגוון הגנטי האנושי הגדול ביותר קיים באפריקה — כלומר כל האוכלוסיות הלא-אפריקאיות הן תת-קבוצות של הווריאציה האפריקאית. כל אדם חי כיום עוקב אחר אבותיו במזרח אפריקה בתוך 300,000 השנים האחרונות.', ru: 'Наибольшее человеческое генетическое разнообразие существует в Африке — это означает, что все не-африканские популяции являются подмножеством африканской вариации. Каждый ныне живущий человек прослеживает своих предков до Восточной Африки за последние 300 000 лет.' })}
+        </div>
+      </div>
+    </div>
+  `;
 }

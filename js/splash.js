@@ -11,8 +11,6 @@ const NUM_PAIRS = 16;
 
 export function initSplash(canvas, opts) {
   const { tree, photoMap, t: t_fn, facts, eraNames, onDone } = opts;
-  console.log('[splash] initSplash called, canvas:', canvas?.tagName, 'tree children:', tree?.children?.length);
-
   // ── Compute dynamic data from tree ──
   let speciesCount = 0;
   function countNodes(node) { speciesCount++; if (node.children) node.children.forEach(countNodes); }
@@ -42,6 +40,7 @@ export function initSplash(canvas, opts) {
   if (!ctx) return;
 
   let W, H;
+  let treeLayout = null;
   function resize() {
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     W = window.innerWidth;
@@ -49,8 +48,8 @@ export function initSplash(canvas, opts) {
     canvas.width = W * dpr;
     canvas.height = H * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    // Rebuild tree layout on resize
-    if (treeLayout.nodes.length > 0) {
+    // Rebuild tree layout on resize (skip initial call before tree is built)
+    if (treeLayout && treeLayout.nodes.length > 0) {
       const rebuilt = buildUpwardTree(splashData, W, H);
       treeLayout.nodes = rebuilt.nodes;
       treeLayout.edges = rebuilt.edges;
@@ -61,7 +60,6 @@ export function initSplash(canvas, opts) {
 
   // Signal canvas is ready
   canvas.dataset.ready = '1';
-  console.log('[splash] canvas ready, W:', W, 'H:', H, 'nodes:', splashNodes.length, 'isReturn:', isReturn);
 
   // ── State ──
   const isReturn = localStorage.getItem('tol-splash-seen') === '1';
@@ -77,7 +75,7 @@ export function initSplash(canvas, opts) {
   let done = false;
 
   // ── Build tree layout ──
-  let treeLayout = buildUpwardTree(splashData, W, H);
+  treeLayout = buildUpwardTree(splashData, W, H);
 
   // ── Text sequence for Phase 1 ──
   const splashFact = facts.getSplashFact ? facts.getSplashFact(lang) : facts.getLoadingFact(lang);
@@ -133,8 +131,9 @@ export function initSplash(canvas, opts) {
       const t = i / (NUM_PAIRS - 1);
       const y = cy - verticalSpan / 2 + t * verticalSpan;
       const phase = t * Math.PI * 3 + time * rotSpeed;
+      // Two strands offset by π for true double helix interweaving
       const lx = cx + Math.sin(phase) * amplitude;
-      const rx = cx - Math.sin(phase) * amplitude;
+      const rx = cx + Math.sin(phase + Math.PI) * amplitude;
       const z = Math.cos(phase);
       pairs.push({ i, t, y, lx, rx, z, phase });
     }
@@ -472,16 +471,11 @@ export function initSplash(canvas, opts) {
   // ══════════════════════════════════════════════════════
   // MAIN RENDER LOOP
   // ══════════════════════════════════════════════════════
-  let frameCount = 0;
   function render(ts) {
-    try {
     if (lastTs === null) lastTs = ts;
     const dt = (ts - lastTs) / 1000;
     lastTs = ts;
     elapsed += dt * (ff ? 10 : 1);
-    frameCount++;
-    if (frameCount === 1) console.log('[splash] first frame, elapsed:', elapsed);
-
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = BG;
     ctx.fillRect(0, 0, W, H);
@@ -500,13 +494,9 @@ export function initSplash(canvas, opts) {
     }
 
     animId = requestAnimationFrame(render);
-    } catch(err) {
-      console.error('[splash] render error:', err);
-    }
   }
 
   // ── Start ──
-  console.log('[splash] starting animation, timing:', JSON.stringify(timing), 'nodes:', treeLayout.nodes.length, 'edges:', treeLayout.edges.length, 'sample pos:', treeLayout.nodes[0]?.x?.toFixed(0), treeLayout.nodes[0]?.y?.toFixed(0));
   animId = requestAnimationFrame(render);
 
   // ── Skip button ──

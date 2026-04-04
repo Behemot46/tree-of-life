@@ -223,11 +223,11 @@
 .sap-map-svg{position:absolute;inset:0;width:100%;height:100%;}
 
 /* Routes — fine lines, slow continuous flow */
-.sap-route-bg{fill:none;stroke:rgba(var(--accent-rgb),0.03);stroke-width:0.5;stroke-linecap:round;}
-.sap-route-active{fill:none;stroke:var(--accent);stroke-width:0.7;stroke-linecap:round;
-  filter:drop-shadow(0 0 2px rgba(var(--accent-rgb),0.15));opacity:0;
+.sap-route-bg{fill:none;stroke:rgba(var(--accent-rgb),0.02);stroke-width:0.35;stroke-linecap:round;}
+.sap-route-active{fill:none;stroke:var(--accent);stroke-width:0.5;stroke-linecap:round;
+  filter:drop-shadow(0 0 1.5px rgba(var(--accent-rgb),0.12));opacity:0;
   stroke-dasharray:200;stroke-dashoffset:200;transition:stroke-dashoffset 2.5s ease-in-out,opacity 0.6s ease;}
-.sap-route-flow{fill:none;stroke:rgba(var(--accent-rgb),0.25);stroke-width:0.7;
+.sap-route-flow{fill:none;stroke:rgba(var(--accent-rgb),0.2);stroke-width:0.5;
   stroke-linecap:round;stroke-dasharray:1 4;opacity:0;}
 .sap-route.visible .sap-route-active{opacity:0.7;stroke-dashoffset:0;}
 .sap-route.visible .sap-route-flow{opacity:0.3;animation:sapRouteFlow 5s linear infinite;}
@@ -334,30 +334,30 @@
   background:linear-gradient(180deg,rgba(20,22,24,0.1) 0%,rgba(20,22,24,0.85) 100%);
 }
 .sap-card-badge{
-  position:absolute;bottom:-20px;left:24px;z-index:2;
-  width:44px;height:44px;border-radius:12px;
+  position:absolute;bottom:-14px;left:24px;z-index:2;
+  width:36px;height:36px;border-radius:10px;
   background:rgba(28,31,36,0.9);backdrop-filter:blur(12px);
   border:1px solid rgba(var(--accent-rgb),0.15);
-  display:flex;align-items:center;justify-content:center;font-size:22px;
+  display:flex;align-items:center;justify-content:center;font-size:18px;
   box-shadow:0 4px 12px rgba(0,0,0,0.3);
 }
 
-.sap-card-body{padding:28px 24px 24px;}
+.sap-card-body{padding:22px 24px 20px;}
 .sap-card-label{
-  font-size:10px;font-weight:600;letter-spacing:2.5px;
-  text-transform:uppercase;color:var(--accent);margin-bottom:12px;
+  font-size:11px;font-weight:600;letter-spacing:2.5px;
+  text-transform:uppercase;color:var(--accent);margin-bottom:10px;
 }
 .sap-card-stat-row{display:flex;align-items:baseline;gap:8px;margin-bottom:6px;}
-.sap-card-stat{font-family:var(--font-mono);font-size:clamp(26px,3vw,34px);font-weight:600;color:var(--text-primary);line-height:1.1;}
-.sap-card-unit{font-size:14px;font-weight:300;color:rgba(var(--accent-rgb),0.7);}
-.sap-card-desc{font-size:14px;font-weight:400;color:rgba(230,225,216,0.65);line-height:1.55;margin-bottom:16px;}
+.sap-card-stat{font-family:var(--font-mono);font-size:clamp(28px,3.2vw,36px);font-weight:600;color:var(--text-primary);line-height:1.1;}
+.sap-card-unit{font-size:15px;font-weight:300;color:rgba(var(--accent-rgb),0.7);}
+.sap-card-desc{font-size:15px;font-weight:400;color:rgba(230,225,216,0.65);line-height:1.55;margin-bottom:14px;}
 .sap-card-fun{
-  font-size:12px;color:rgba(var(--accent-rgb),0.55);line-height:1.5;
-  padding:10px 14px;background:rgba(var(--accent-rgb),0.04);border-radius:10px;margin-bottom:16px;
+  font-size:13px;color:rgba(var(--accent-rgb),0.55);line-height:1.5;
+  padding:10px 14px;background:rgba(var(--accent-rgb),0.04);border-radius:10px;margin-bottom:14px;
 }
 .sap-card-cta{
   display:inline-flex;align-items:center;gap:8px;
-  font-size:13px;font-weight:500;color:rgba(var(--accent-rgb),0.6);
+  font-size:14px;font-weight:500;color:rgba(var(--accent-rgb),0.6);
   transition:color 0.2s ease,gap 0.2s ease;
 }
 .sap-card:hover .sap-card-cta{color:var(--accent);gap:12px;}

@@ -527,8 +527,8 @@ function buildMigrationMap() {
         stopPlay();
       } else {
         if (parseInt(slider.value, 10) >= 300) {
-          slider.value = '0';
-          updateMap(0);
+          slider.value = '150'; // start at 150Ka — when Out of Africa began
+          updateMap(150);
         }
         startPlay();
       }
@@ -569,7 +569,9 @@ function buildMigrationMap() {
 
     // Auto-play on scroll into view
     onVisible(sec, () => {
-      if (!playing && parseInt(slider.value, 10) === 0) {
+      if (!playing && parseInt(slider.value, 10) <= 150) {
+        slider.value = '150'; // start at 150Ka
+        updateMap(150);
         startPlay();
       }
     }, { essential: true, threshold: 0.3 });

@@ -101,7 +101,7 @@ export const MIGRATION_ROUTES = [
   },
   {
     id: 'americas',
-    path: 'M 82 22 Q 88 14 94 7 Q 4 6 14 16 Q 18 22 20 28',
+    path: 'M 82 22 Q 89 14 95 7 Q 5 6 15 15 Q 20 20 25 25',
     date: 15,
     label: { en: 'Americas', he: 'אמריקה', ru: 'Америка' },
     site: { en: 'Via Beringia; Monte Verde, Chile', he: 'דרך ברינגיה; מונטה וורדה, צ\'ילה', ru: 'Через Берингию; Монте-Верде, Чили' },

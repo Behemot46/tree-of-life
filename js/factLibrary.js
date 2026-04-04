@@ -234,14 +234,14 @@ export const FACTS = (() => {
     // ─────────────────────────────────────────────────────
     // SPLASH — cinematic facts for DNA splash screen
     // ─────────────────────────────────────────────────────
-    { id:'splash_01', en:'Every living cell reads the same genetic code.', he:'כל תא חי קורא את אותו קוד גנטי.', ru:'Каждая живая клетка читает один и тот же генетический код.', tags:['genetics','splash'], species:null, loading:true, panel:false, tooltip:false, discovery:true },
-    { id:'splash_02', en:'You share 60% of your DNA with a banana.', he:'אתה חולק 60% מה-DNA שלך עם בננה.', ru:'Вы разделяете 60% ДНК с бананом.', tags:['genetics','splash'], species:null, loading:true, panel:false, tooltip:false, discovery:true },
-    { id:'splash_03', en:'The first photosynthesis turned the sky blue.', he:'הפוטוסינתזה הראשונה הפכה את השמים לכחולים.', ru:'Первый фотосинтез окрасил небо в голубой цвет.', tags:['evolution','splash'], species:null, loading:true, panel:false, tooltip:false, discovery:true },
-    { id:'splash_04', en:'All life on Earth descends from a single ancestor.', he:'כל החיים על פני כדור הארץ מגיעים מאב קדמון אחד.', ru:'Вся жизнь на Земле произошла от одного предка.', tags:['evolution','splash'], species:null, loading:true, panel:false, tooltip:false, discovery:true },
-    { id:'splash_05', en:'Your body contains more bacterial cells than human ones.', he:'בגוף שלך יש יותר תאי חיידקים מתאים אנושיים.', ru:'В вашем теле больше бактериальных клеток, чем человеческих.', tags:['biology','splash'], species:null, loading:true, panel:false, tooltip:false, discovery:true },
-    { id:'splash_06', en:'Fungi are closer to animals than to plants.', he:'פטריות קרובות יותר לבעלי חיים מאשר לצמחים.', ru:'Грибы ближе к животным, чем к растениям.', tags:['taxonomy','splash'], species:null, loading:true, panel:false, tooltip:false, discovery:true },
-    { id:'splash_07', en:'Octopuses have three hearts and blue blood.', he:'לתמנונים יש שלושה לבבות ודם כחול.', ru:'У осьминогов три сердца и голубая кровь.', tags:['biology','splash'], species:null, loading:true, panel:false, tooltip:false, discovery:true },
-    { id:'splash_08', en:'Sharks are older than trees.', he:'כרישים עתיקים יותר מעצים.', ru:'Акулы древнее деревьев.', tags:['evolution','splash'], species:null, loading:true, panel:false, tooltip:false, discovery:true },
+    { id:'splash_01', en:'Every living cell reads the same genetic code.', he:'כל תא חי קורא את אותו קוד גנטי.', ru:'Каждая живая клетка читает один и тот же генетический код.', icon:'🧬', tags:['genetics','splash'], species:null, loading:true, panel:false, tooltip:false, discovery:true },
+    { id:'splash_02', en:'You share 60% of your DNA with a banana.', he:'אתה חולק 60% מה-DNA שלך עם בננה.', ru:'Вы разделяете 60% ДНК с бананом.', icon:'🍌', tags:['genetics','splash'], species:null, loading:true, panel:false, tooltip:false, discovery:true },
+    { id:'splash_03', en:'The first photosynthesis turned the sky blue.', he:'הפוטוסינתזה הראשונה הפכה את השמים לכחולים.', ru:'Первый фотосинтез окрасил небо в голубой цвет.', icon:'☀️', tags:['evolution','splash'], species:null, loading:true, panel:false, tooltip:false, discovery:true },
+    { id:'splash_04', en:'All life on Earth descends from a single ancestor.', he:'כל החיים על פני כדור הארץ מגיעים מאב קדמון אחד.', ru:'Вся жизнь на Земле произошла от одного предка.', icon:'🌍', tags:['evolution','splash'], species:null, loading:true, panel:false, tooltip:false, discovery:true },
+    { id:'splash_05', en:'Your body contains more bacterial cells than human ones.', he:'בגוף שלך יש יותר תאי חיידקים מתאים אנושיים.', ru:'В вашем теле больше бактериальных клеток, чем человеческих.', icon:'🦠', tags:['biology','splash'], species:null, loading:true, panel:false, tooltip:false, discovery:true },
+    { id:'splash_06', en:'Fungi are closer to animals than to plants.', he:'פטריות קרובות יותר לבעלי חיים מאשר לצמחים.', ru:'Грибы ближе к животным, чем к растениям.', icon:'🍄', tags:['taxonomy','splash'], species:null, loading:true, panel:false, tooltip:false, discovery:true },
+    { id:'splash_07', en:'Octopuses have three hearts and blue blood.', he:'לתמנונים יש שלושה לבבות ודם כחול.', ru:'У осьминогов три сердца и голубая кровь.', icon:'🐙', tags:['biology','splash'], species:null, loading:true, panel:false, tooltip:false, discovery:true },
+    { id:'splash_08', en:'Sharks are older than trees.', he:'כרישים עתיקים יותר מעצים.', ru:'Акулы древнее деревьев.', icon:'🦈', tags:['evolution','splash'], species:null, loading:true, panel:false, tooltip:false, discovery:true },
   ];
 
   // ── Domain tag lookup for node ancestry matching ────
@@ -318,7 +318,8 @@ export const FACTS = (() => {
   function getSplashFact(lang) {
     const pool = facts.filter(f => f.tags && f.tags.includes('splash'));
     const f = pool[Math.floor(Math.random() * pool.length)];
-    return f[lang] || f.en;
+    const text = f[lang] || f.en;
+    return f.icon ? f.icon + '  ' + text : text;
   }
 
   return {

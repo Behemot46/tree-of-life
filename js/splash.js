@@ -456,9 +456,9 @@ export function initSplash(canvas, opts) {
       const subAlpha = easeQuad(Math.min(1, Math.max(0, (t - 0.3) / 0.5)));
       drawText(t_fn('splash_subtitle'), W / 2, H * 0.12 + titleSize * 1.1, titleSize * 0.32, 300, PARCHMENT, subAlpha);
 
-      // Fact
+      // Fact with icon
       const factAlpha = easeQuad(Math.min(1, Math.max(0, (t - 0.6) / 0.4)));
-      drawText(readyFact, W / 2, H - 60, Math.min(W * 0.03, 16), 300, PARCHMENT, factAlpha * 0.5);
+      drawText(readyFact, W / 2, H - 60, Math.min(W * 0.035, 18), 300, PARCHMENT, factAlpha * 0.7);
 
       // Click hint
       const hintAlpha = easeQuad(Math.min(1, Math.max(0, (t - 0.8) / 0.2)));

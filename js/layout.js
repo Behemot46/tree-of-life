@@ -98,11 +98,9 @@ export function layoutRadial(){const cx=window.innerWidth/2,cy=window.innerHeigh
 export function layoutCladogram(){
   const isRtl=document.documentElement.dir==='rtl';
   const W=window.innerWidth,H=window.innerHeight;
-  const marginL=100,marginR=80,marginV=80;
+  const marginL=60,marginR=40,marginV=40;
   const isMobile=W<768;
   const nodeSize=isMobile?44:52;
-  const minGap=nodeSize+16; // node + breathing room
-  const maxGap=nodeSize+60; // prevent excessive vertical stretch
   const GROUP_GAP_FACTOR=1.5;
 
   function maxDepthFn(n,d){
@@ -112,8 +110,6 @@ export function layoutCladogram(){
     return m;
   }
   const mxd=Math.max(1,maxDepthFn(TREE,0));
-  // Wider horizontal spacing: at least 200px per depth, up to 350px for shallow trees
-  const depthSpacing=Math.min(350,Math.max(200,(W-marginL-marginR)/Math.max(mxd,2)));
 
   function countLeaves(n){
     if(!n.children||!n.children.length||n._collapsed) return 1;
@@ -126,8 +122,27 @@ export function layoutCladogram(){
     return c;
   }
   const totalLeaves=countLeaves(TREE);
-  // Cap vertical spacing to prevent portrait stretch
-  const leafSpacing=Math.min(maxGap,Math.max(minGap,(H-marginV*2)/totalLeaves));
+
+  // Compute spacing to target a landscape aspect ratio (~viewport proportions)
+  // Total width  = mxd * depthSpacing
+  // Total height = totalLeaves * leafSpacing
+  // We want width/height ≈ viewport W/H (landscape)
+  const minLeafGap=isMobile?56:72;  // minimum vertical gap per leaf
+  const maxLeafGap=nodeSize+40;     // maximum vertical gap per leaf (92px)
+  const minDepthGap=isMobile?120:180; // minimum horizontal gap per depth
+  const maxDepthGap=600;
+
+  // Start with a comfortable leaf gap and compute depth gap to match aspect ratio
+  let leafSpacing=Math.max(minLeafGap,Math.min(maxLeafGap,(H-marginV*2)/Math.max(totalLeaves,1)));
+  const treeH=totalLeaves*leafSpacing;
+  // Match viewport aspect ratio: depthSpacing = (W/H) * treeH / mxd
+  let depthSpacing=Math.max(minDepthGap,Math.min(maxDepthGap,(W/Math.max(H,1))*treeH/Math.max(mxd,1)));
+
+  // If tree is very bushy (many leaves), ensure it's still readable
+  if(totalLeaves>30){
+    leafSpacing=Math.max(minLeafGap,Math.min(72,(H*0.8)/totalLeaves));
+    depthSpacing=Math.max(minDepthGap,Math.min(maxDepthGap,(W/Math.max(H,1))*(totalLeaves*leafSpacing)/Math.max(mxd,1)));
+  }
 
   let leafIdx=0;
   let lastHomininGroup=null;

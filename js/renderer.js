@@ -195,7 +195,9 @@ export function render(){
   const nodesFrag=document.createDocumentFragment();
   const edges=getVisibleEdges(TREE);
   const nodes=getVisible(TREE);
-  const vb=getViewBounds(300);
+  // Scale culling margin by inverse zoom so branches aren't culled when zoomed out
+  const cullMargin=Math.max(300,600/Math.max(state.transform.s,0.05));
+  const vb=getViewBounds(cullMargin);
   const animDeferred=[];
   const nodeR=getNodeR();
   const nodeD=nodeR*2;
@@ -604,17 +606,17 @@ export function render(){
     }
 
     // ── LABELS ──
-    if(inEra&&n.depth<=6){
+    if(inEra){
       const labelText=n._hominData?n._hominData.short:n.name;
       const latinText=n.latin||'';
       let lx,ly,anchor,fontSize;
 
       if(isCladogram){
-        // Horizontal: label below node, centered
-        fontSize=n.depth===0?14:11;
-        lx=n._x;
-        ly=n._y+nodeR+14;
-        anchor='middle';
+        // Horizontal: label to the right of node
+        fontSize=n.depth===0?13:n.depth<=1?12:10;
+        lx=n._x+nodeR+8;
+        ly=n._y;
+        anchor='start';
       } else {
         // Radial: label positioned by angle from center
         const sibCount=n._parent?.children?.length||1;
@@ -655,6 +657,7 @@ export function render(){
       if(state.playbackMode){showDiscoveryCard(n);return;}
       if(n.children&&n.children.length){
         const wasCollapsed=n._collapsed;
+        // Auto-collapse siblings when expanding (keep tree focused)
         if(wasCollapsed&&n._parent&&n._parent.children){
           n._parent.children.forEach(sib=>{
             if(sib!==n&&sib.children&&!sib._collapsed) sib._collapsed=true;
@@ -663,32 +666,35 @@ export function render(){
         n._collapsed=!n._collapsed;
         _layout();scheduleRender(true);
         a11yAnnounce(n.name+(n._collapsed?' collapsed':' expanded'));
-        if(!n._collapsed){
-          setTimeout(()=>{
+
+        // Zoom-to-fit after expand/collapse
+        setTimeout(()=>{
+          let allPts;
+          if(!n._collapsed){
+            // Expanded: fit node + direct children
             const kids=getVisible(n).filter(k=>k._parent===n);
             if(!kids.length) return;
-            const allPts=[n,...kids];
-            const xs=allPts.map(k=>k._x),ys=allPts.map(k=>k._y);
-            const bw=(Math.max(...xs)-Math.min(...xs))||200;
-            const bh=(Math.max(...ys)-Math.min(...ys))||200;
-            const svgR=(document.getElementById('canvas-wrap')||document.getElementById('svg')).getBoundingClientRect();
-            const fitScale=Math.min(svgR.width*0.8/bw,svgR.height*0.8/bh);
-            _smoothZoomTo((Math.min(...xs)+Math.max(...xs))/2,(Math.min(...ys)+Math.max(...ys))/2,Math.min(2.0,Math.max(state.transform.s,fitScale)));
+            allPts=[n,...kids];
+          } else if(n._parent){
+            // Collapsed with parent: fit parent + siblings
+            allPts=[n._parent,...(n._parent.children||[])];
+          } else {
+            // Root collapsed: just center on it
+            _smoothPanTo(n._x,n._y);
             if(_updateBreadcrumb) _updateBreadcrumb(n);
-          },100);
-        } else if(n._parent){
-          setTimeout(()=>{
-            const sibs=n._parent.children||[n._parent];
-            const allPts=[n._parent,...sibs];
-            const xs=allPts.map(k=>k._x),ys=allPts.map(k=>k._y);
-            const bw=(Math.max(...xs)-Math.min(...xs))||200;
-            const bh=(Math.max(...ys)-Math.min(...ys))||200;
-            const svgR=(document.getElementById('canvas-wrap')||document.getElementById('svg')).getBoundingClientRect();
-            const fitScale=Math.min(svgR.width*0.7/bw,svgR.height*0.7/bh);
-            _smoothZoomTo((Math.min(...xs)+Math.max(...xs))/2,(Math.min(...ys)+Math.max(...ys))/2,Math.min(state.transform.s,fitScale));
-            if(_updateBreadcrumb) _updateBreadcrumb(n._parent);
-          },100);
-        }
+            return;
+          }
+          const xs=allPts.map(k=>k._x),ys=allPts.map(k=>k._y);
+          const bw=(Math.max(...xs)-Math.min(...xs))||200;
+          const bh=(Math.max(...ys)-Math.min(...ys))||200;
+          const svgR=(document.getElementById('canvas-wrap')||document.getElementById('svg')).getBoundingClientRect();
+          const fitScale=Math.min(svgR.width*0.8/bw,svgR.height*0.8/bh);
+          const clampedScale=Math.min(2.0,Math.max(0.05,fitScale));
+          // On expand: don't zoom in past current level; on collapse: don't zoom out past current
+          const targetScale=n._collapsed?Math.min(state.transform.s,clampedScale):Math.max(0.05,Math.min(clampedScale,Math.max(state.transform.s,clampedScale)));
+          _smoothZoomTo((Math.min(...xs)+Math.max(...xs))/2,(Math.min(...ys)+Math.max(...ys))/2,targetScale);
+          if(_updateBreadcrumb) _updateBreadcrumb(n._collapsed&&n._parent?n._parent:n);
+        },100);
       } else {
         _showMainPanel(n);
       }
@@ -714,7 +720,7 @@ export function render(){
     return a.bx<b.bx+b.textW&&a.bx+a.textW>b.bx&&a.by<b.by+b.textH&&a.by+a.textH>b.by;
   }
   pendingLabels.forEach(lb=>{
-    const forceShow=lb.n.depth<=1||lb.onHumanPath;
+    const forceShow=isCladogram||lb.n.depth<=1||lb.onHumanPath;
     if(!forceShow){
       const nearby=labelGrid.query(lb);
       for(const placed of nearby){

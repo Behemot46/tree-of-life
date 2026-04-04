@@ -177,7 +177,17 @@ function setViewMode(mode){
   animDone.clear();
   layout();
   if(mode==='radial'){centerOnRoot(0.18);}
-  else if(mode==='cladogram'){centerOnTree(0.7);}
+  else if(mode==='cladogram'){
+    // Fit entire visible tree into viewport
+    const vis=getVisible(TREE);
+    if(vis.length){
+      const xs=vis.map(n=>n._x),ys=vis.map(n=>n._y);
+      const bw=(Math.max(...xs)-Math.min(...xs))||400;
+      const bh=(Math.max(...ys)-Math.min(...ys))||400;
+      const fitS=Math.min(window.innerWidth*0.85/bw,window.innerHeight*0.85/bh,1.0);
+      centerOnTree(Math.max(0.05,fitS));
+    }
+  }
   scheduleRender(true);applyT();
   a11yAnnounce('Switched to '+mode+' view');
   trackViewMode(mode);

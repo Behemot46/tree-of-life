@@ -62,10 +62,10 @@ export const MIGRATION_ROUTES = [
   },
   {
     id: 'south-asia',
-    path: 'M 63 27 Q 70 26 76 29',
+    path: 'M 63 27 Q 67 28 72 28 Q 75 28 76 29',
     date: 70,
     label: { en: 'South Asia', he: 'דרום אסיה', ru: 'Южная Азия' },
-    site: { en: 'Madjedbebe, India', he: 'מדג\'דבבה, הודו', ru: 'Мадьедбебе, Индия' },
+    site: { en: 'Coastal route via Arabia & India', he: 'מסלול חופי דרך ערב והודו', ru: 'Прибрежный маршрут через Аравию и Индию' },
   },
   {
     id: 'australia',
@@ -97,7 +97,7 @@ export const MIGRATION_ROUTES = [
   },
   {
     id: 'americas',
-    path: 'M 85 25 Q 88 28 30 30',
+    path: 'M 85 25 Q 90 15 95 8 Q 5 5 15 18 Q 20 24 22 30',
     date: 15,
     label: { en: 'The Americas', he: 'אמריקה', ru: 'Америка' },
     site: { en: 'Monte Verde, Chile', he: 'מונטה וורדה, צ\'ילה', ru: 'Монте-Верде, Чили' },

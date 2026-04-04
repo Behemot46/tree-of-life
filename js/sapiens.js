@@ -465,7 +465,7 @@ function buildMigrationMap() {
     function startPlay() {
       playing = true;
       playBtn.innerHTML = `<svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><rect x="0" y="0" width="3.5" height="10"/><rect x="6.5" y="0" width="3.5" height="10"/></svg>`;
-      const duration = 10000; // 10 seconds
+      const duration = 25000; // 25 seconds — slow contemplative pace
       const startVal = parseInt(slider.value, 10);
       const remaining = 300 - startVal;
       const startTime = performance.now();

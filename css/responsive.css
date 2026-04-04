@@ -39,7 +39,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   #progress-badge{top:auto;bottom:11rem;left:0.5rem;right:auto;font-size:11px;padding:3px 8px;}
   #achievement-container{bottom:60px;right:10px;left:10px;}
   .achievement-toast{min-width:auto;width:100%;}
-  #quiz-modal{max-width:95vw;padding:16px;}
   #btn-quiz{padding:3px 8px;font-size:11px;}
 }
 @media(max-width:480px){

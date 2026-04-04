@@ -88,7 +88,7 @@
   <button id="hominins-tab" class="search-pill" onclick="navigateTo('hominini')" aria-label="Navigate to Hominin family tree">
     🧬 <span id="i-btn-hominins">Hominins</span>
   </button>
-  <button id="btn-quiz" class="search-pill" onclick="openQuiz()" aria-label="Open quiz">🧪 <span id="quiz-label">Quiz</span></button>
+  <button id="btn-quiz" class="search-pill" onclick="openGame()" aria-label="Open quiz">🧪 <span id="quiz-label">Quiz</span></button>
 </div>
 
 <!-- NAV CONTROLS -->
@@ -276,7 +276,7 @@
 <!-- FLOATING ACTION BUTTONS -->
 <div class="fab-group" role="toolbar" aria-label="Quick actions">
   <button id="btn-tour-help" class="fab fab--tour" onclick="showTourSelector()" aria-label="Guided tour" title="Guided Tour">?</button>
-  <button id="btn-trivia" class="fab" onclick="openTrivia()" aria-label="Play Evolution Trivia" title="Evolution Trivia">
+  <button id="btn-trivia" class="fab" onclick="openGame()" aria-label="Play Evolution Challenge" title="Evolution Challenge">
     <span class="fab-icon">🧠</span> <span id="i-btn-trivia">Trivia</span>
   </button>
   <button id="btn-dna-calc" class="fab" onclick="openDnaCalc()" aria-label="Open DNA Similarity Calculator" title="DNA Compare">
@@ -403,30 +403,15 @@
   </div>
 </div>
 
-<!-- TRIVIA GAME PANEL -->
-<div id="trivia-panel" class="trivia-panel" aria-hidden="true" onclick="if(event.target===this)closeTrivia()">
+<!-- UNIFIED GAME PANEL -->
+<div id="game-panel" class="trivia-panel" aria-hidden="true">
   <div class="trivia-panel-inner">
-    <!-- Start Phase -->
-    <div id="trivia-start">
-      <div class="trivia-header">
-        <div class="trivia-title" id="i-trivia-title">🧠 Evolution Trivia</div>
-        <button class="btn-back" onclick="closeTrivia()" aria-label="Close">✕</button>
-      </div>
-      <div class="trivia-subtitle" id="i-trivia-subtitle">Test your knowledge of life's history</div>
-      <div class="trivia-rules" id="i-trivia-rules">15 questions · 3 lives · Difficulty increases<br>Easy → Medium → Hard → Expert → Master</div>
-      <div class="trivia-difficulty-preview">
-        <span class="trivia-diff-badge easy">Easy 10pts</span>
-        <span class="trivia-diff-badge medium">Medium 20pts</span>
-        <span class="trivia-diff-badge hard">Hard 30pts</span>
-        <span class="trivia-diff-badge expert">Expert 50pts</span>
-        <span class="trivia-diff-badge master">Master 100pts</span>
-      </div>
-      <button class="trivia-start-btn" onclick="startTriviaGame()" id="i-trivia-start-btn">Start Game</button>
-    </div>
+    <!-- Mode Selector -->
+    <div id="game-mode-select"></div>
     <!-- Question Phase -->
-    <div id="trivia-question" style="display:none"></div>
+    <div id="game-question" style="display:none"></div>
     <!-- Result Phase -->
-    <div id="trivia-result" style="display:none"></div>
+    <div id="game-result" style="display:none"></div>
   </div>
 </div>
 
@@ -473,8 +458,6 @@
 <div id="shortcuts-hint" style="position:fixed;bottom:8px;right:8px;font-family:'Inter',sans-serif;font-size:11px;color:var(--color-text-muted);background:var(--color-canvas);border:1px solid var(--color-divider);border-radius:6px;padding:4px 10px;opacity:0;transition:opacity 300ms ease;pointer-events:none;z-index:50;">
   <span id="i-shortcuts-hint">Press <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">/</kbd> to search &nbsp;·&nbsp; <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">D</kbd> dark mode &nbsp;·&nbsp; <kbd style="background:var(--color-button-bg);border:1px solid var(--color-button-border);border-radius:3px;padding:1px 5px;font-size:10px;">Esc</kbd> close</span>
 </div>
-<!-- QUIZ OVERLAY -->
-<div id="quiz-overlay" class="hidden"><div id="quiz-modal"></div></div>
 <!-- ACHIEVEMENT TOAST CONTAINER -->
 <div id="achievement-container" aria-live="polite"></div>
 </body>

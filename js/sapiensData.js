@@ -53,68 +53,72 @@ export const SAPIENS_HERO = {
 // 2. MIGRATION_ROUTES (SVG Q-bezier on 100×50 viewBox)
 // ---------------------------------------------------------------------------
 export const MIGRATION_ROUTES = [
+  // Equirectangular 100×50: x=0 is 180°W, x=50 is 0°(Greenwich), x=100 is 180°E
+  // y=0 is 90°N, y=25 is equator, y=50 is 90°S
+  // East Africa origin ≈ x:56, y:31 (Ethiopia/Rift Valley)
+  // Routes form a branching tree: Origin → Middle East → (Europe | Central Asia → East Asia → Americas) and → (South Asia → Australia → Polynesia)
   {
     id: 'middle-east',
-    path: 'M 53 30 Q 58 26 63 27',
+    path: 'M 56 31 Q 58 27 60 24',
     date: 120,
-    label: { en: 'Out of Africa', he: 'יציאה מאפריקה', ru: 'Из Африки' },
+    label: { en: 'Middle East', he: 'המזרח התיכון', ru: 'Ближний Восток' },
     site: { en: 'Skhul & Qafzeh, Israel', he: 'סחול וקפזה, ישראל', ru: 'Схул и Кафзе, Израиль' },
   },
   {
     id: 'south-asia',
-    path: 'M 63 27 Q 67 28 72 28 Q 75 28 76 29',
+    path: 'M 60 24 Q 64 26 68 27 Q 72 28 75 28',
     date: 70,
     label: { en: 'South Asia', he: 'דרום אסיה', ru: 'Южная Азия' },
     site: { en: 'Coastal route via Arabia & India', he: 'מסלול חופי דרך ערב והודו', ru: 'Прибрежный маршрут через Аравию и Индию' },
   },
   {
     id: 'australia',
-    path: 'M 76 29 Q 82 33 82 37',
+    path: 'M 75 28 Q 79 32 82 38',
     date: 65,
     label: { en: 'Australia', he: 'אוסטרליה', ru: 'Австралия' },
-    site: { en: 'Madjedbebe, Australia', he: 'מדג\'דבבה, אוסטרליה', ru: 'Мадьедбебе, Австралия' },
+    site: { en: 'Madjedbebe — 90km sea crossing', he: 'מדג\'דבבה — חציית ים 90 ק"מ', ru: 'Маджедбебе — 90 км по морю' },
   },
   {
     id: 'europe',
-    path: 'M 63 27 Q 57 20 53 20',
+    path: 'M 60 24 Q 55 19 50 17',
     date: 45,
     label: { en: 'Europe', he: 'אירופה', ru: 'Европа' },
     site: { en: 'Bacho Kiro, Bulgaria', he: 'בכו קירו, בולגריה', ru: 'Бачо Киро, Болгария' },
   },
   {
     id: 'central-asia',
-    path: 'M 63 27 Q 70 22 74 24',
+    path: 'M 60 24 Q 66 20 72 18',
     date: 40,
     label: { en: 'Central Asia', he: 'מרכז אסיה', ru: 'Центральная Азия' },
-    site: { en: 'Shuidonggou, China', he: 'שויידונגגו, סין', ru: 'Шуйдунгоу, Китай' },
+    site: { en: 'Steppe corridor', he: 'מסדרון הערבה', ru: 'Степной коридор' },
   },
   {
     id: 'east-asia',
-    path: 'M 74 24 Q 80 22 85 25',
+    path: 'M 72 18 Q 78 19 82 22',
     date: 35,
     label: { en: 'East Asia', he: 'מזרח אסיה', ru: 'Восточная Азия' },
     site: { en: 'Tianyuan Cave, China', he: 'מערת טיאניואן, סין', ru: 'Пещера Тяньюань, Китай' },
   },
   {
     id: 'americas',
-    path: 'M 85 25 Q 90 15 95 8 Q 5 5 15 18 Q 20 24 22 30',
+    path: 'M 82 22 Q 88 14 94 7 Q 4 6 14 16 Q 18 22 20 28',
     date: 15,
-    label: { en: 'The Americas', he: 'אמריקה', ru: 'Америка' },
-    site: { en: 'Monte Verde, Chile', he: 'מונטה וורדה, צ\'ילה', ru: 'Монте-Верде, Чили' },
+    label: { en: 'Americas', he: 'אמריקה', ru: 'Америка' },
+    site: { en: 'Via Beringia; Monte Verde, Chile', he: 'דרך ברינגיה; מונטה וורדה, צ\'ילה', ru: 'Через Берингию; Монте-Верде, Чили' },
   },
   {
     id: 'polynesia',
-    path: 'M 82 37 Q 90 38 94 36',
+    path: 'M 82 38 Q 88 37 93 35',
     date: 3,
     label: { en: 'Polynesia', he: 'פולינזיה', ru: 'Полинезия' },
-    site: { en: 'Easter Island / Rapa Nui', he: 'אי הפסחא / ראפה נואי', ru: 'Остров Пасхи / Рапа-Нуи' },
+    site: { en: 'Open-ocean navigation', he: 'ניווט באוקיינוס הפתוח', ru: 'Навигация в открытом океане' },
   },
 ];
 
 // ---------------------------------------------------------------------------
 // 3. MIGRATION_ORIGIN
 // ---------------------------------------------------------------------------
-export const MIGRATION_ORIGIN = { x: 53, y: 30, date: 300 };
+export const MIGRATION_ORIGIN = { x: 56, y: 31, date: 300 }; // East Africa (Rift Valley)
 
 // ---------------------------------------------------------------------------
 // 4. MIGRATION_MAP_IMAGE

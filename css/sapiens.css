@@ -240,12 +240,25 @@
 @keyframes sapOriginPulse{0%{r:3;opacity:0.4;}100%{r:12;opacity:0;}}
 .sap-origin-core{fill:var(--accent);filter:drop-shadow(0 0 4px rgba(var(--accent-rgb),0.4));}
 
+/* Continent labels */
+.sap-continent-label{
+  font-family:var(--font-sans);font-size:2.2px;font-weight:600;
+  fill:rgba(230,225,216,0.08);letter-spacing:0.8px;
+  text-anchor:middle;pointer-events:none;
+}
+
+/* Origin label */
+.sap-origin-label{
+  font-family:var(--font-mono);font-size:2.8px;font-weight:500;
+  fill:var(--accent);opacity:0.6;
+}
+
 /* Destination dots */
 .sap-dest{opacity:0;transition:opacity 0.8s ease;}
 .sap-dest.visible{opacity:1;}
 .sap-dest-glow{fill:rgba(var(--accent-rgb),0.06);}
-.sap-dest-core{fill:var(--accent);r:0.6;}
-.sap-dest-label{font-family:var(--font-mono);font-size:3.5px;fill:rgba(var(--accent-rgb),0.35);letter-spacing:0.2px;}
+.sap-dest-core{fill:var(--accent);}
+.sap-dest-label{font-family:var(--font-mono);font-size:2.5px;fill:rgba(var(--accent-rgb),0.4);letter-spacing:0.2px;}
 
 /* Tooltip */
 .sap-map-tooltip{
@@ -286,8 +299,8 @@
 }
 .sap-map-slider::-webkit-slider-thumb:hover{transform:scale(1.2);}
 .sap-map-time{
-  font-family:var(--font-mono);font-size:13px;font-weight:500;
-  color:var(--accent);min-width:72px;text-align:center;
+  font-family:var(--font-mono);font-size:12px;font-weight:500;
+  color:var(--accent);min-width:88px;text-align:center;
   padding:4px 10px;background:rgba(var(--accent-rgb),0.06);
   border-radius:6px;border:1px solid rgba(var(--accent-rgb),0.1);
 }

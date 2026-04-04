@@ -306,6 +306,26 @@ function buildMigrationMap() {
     svg.appendChild(g);
   });
 
+  // Static continent labels — positioned to not overlap routes/dots
+  const continentLabels = [
+    { text: 'AFRICA', x: 51, y: 37 },
+    { text: 'EUROPE', x: 48, y: 13 },
+    { text: 'ASIA', x: 72, y: 12 },
+    { text: 'AUSTRALIA', x: 83, y: 44 },
+    { text: 'N. AMERICA', x: 18, y: 16 },
+    { text: 'S. AMERICA', x: 22, y: 37 },
+    { text: 'PACIFIC', x: 90, y: 30 },
+  ];
+  continentLabels.forEach(cl => {
+    const t = document.createElementNS(svgNS, 'text');
+    t.setAttribute('class', 'sap-continent-label');
+    t.setAttribute('x', cl.x);
+    t.setAttribute('y', cl.y);
+    t.setAttribute('text-anchor', 'middle');
+    t.textContent = cl.text;
+    svg.appendChild(t);
+  });
+
   // Origin dot
   const originG = document.createElementNS(svgNS, 'g');
   originG.setAttribute('class', 'sap-origin');
@@ -332,14 +352,33 @@ function buildMigrationMap() {
   coreCircle.setAttribute('r', '2');
   originG.appendChild(coreCircle);
 
+  // Origin label
+  const originLabel = document.createElementNS(svgNS, 'text');
+  originLabel.setAttribute('class', 'sap-origin-label');
+  originLabel.setAttribute('x', ox + 3);
+  originLabel.setAttribute('y', oy + 1);
+  originLabel.textContent = '★ 300,000 yrs ago';
   svg.appendChild(originG);
+  svg.appendChild(originLabel);
 
-  // Destination dots
+  // Destination dots — show date at each arrival point
+  // Offset labels to avoid overlapping with dots and continent labels
+  const labelOffsets = {
+    'middle-east': { dx: 2.5, dy: -1.5 },
+    'south-asia': { dx: 2, dy: -1.5 },
+    'australia': { dx: 0, dy: 3.5 },
+    'europe': { dx: -3, dy: -1 },
+    'central-asia': { dx: 2, dy: -1.5 },
+    'east-asia': { dx: 2, dy: -1.5 },
+    'americas': { dx: 2, dy: -1.5 },
+    'polynesia': { dx: 0, dy: -2 },
+  };
+
   MIGRATION_ROUTES.forEach(r => {
-    // Extract endpoint from path
     const coords = r.path.match(/[\d.]+/g);
     const ex = parseFloat(coords[coords.length - 2]);
     const ey = parseFloat(coords[coords.length - 1]);
+    const off = labelOffsets[r.id] || { dx: 0, dy: -2 };
 
     const destG = document.createElementNS(svgNS, 'g');
     destG.setAttribute('class', 'sap-dest');
@@ -351,22 +390,21 @@ function buildMigrationMap() {
     destGlow.setAttribute('class', 'sap-dest-glow');
     destGlow.setAttribute('cx', ex);
     destGlow.setAttribute('cy', ey);
-    destGlow.setAttribute('r', '3.5');
+    destGlow.setAttribute('r', '2');
     destG.appendChild(destGlow);
 
     const destCore = document.createElementNS(svgNS, 'circle');
     destCore.setAttribute('class', 'sap-dest-core');
     destCore.setAttribute('cx', ex);
     destCore.setAttribute('cy', ey);
-    destCore.setAttribute('r', '1.5');
+    destCore.setAttribute('r', '0.8');
     destG.appendChild(destCore);
 
     const destLabel = document.createElementNS(svgNS, 'text');
     destLabel.setAttribute('class', 'sap-dest-label');
-    destLabel.setAttribute('x', ex);
-    destLabel.setAttribute('y', ey - 4);
-    destLabel.setAttribute('text-anchor', 'middle');
-    destLabel.textContent = txt(r.label);
+    destLabel.setAttribute('x', ex + off.dx);
+    destLabel.setAttribute('y', ey + off.dy);
+    destLabel.textContent = (r.date * 1000).toLocaleString();
     destG.appendChild(destLabel);
 
     svg.appendChild(destG);
@@ -393,7 +431,7 @@ function buildMigrationMap() {
 
   const boundStart = document.createElement('span');
   boundStart.className = 'sap-map-bound';
-  boundStart.textContent = '300 Ka';
+  boundStart.textContent = '300,000 yrs';
 
   const slider = document.createElement('input');
   slider.type = 'range';
@@ -409,7 +447,7 @@ function buildMigrationMap() {
 
   const timeDisplay = document.createElement('div');
   timeDisplay.className = 'sap-map-time';
-  timeDisplay.textContent = '300 Ka';
+  timeDisplay.textContent = '300,000';
 
   controls.appendChild(playBtn);
   controls.appendChild(boundStart);
@@ -425,7 +463,7 @@ function buildMigrationMap() {
 
     function updateMap(sliderVal) {
       const currentKa = 300 - sliderVal;
-      timeDisplay.textContent = currentKa > 0 ? `${currentKa} Ka` : txt({ en: 'Present', he: 'הווה', ru: 'Сейчас' });
+      timeDisplay.textContent = currentKa > 0 ? (currentKa * 1000).toLocaleString() : txt({ en: 'Present', he: 'הווה', ru: 'Сейчас' });
 
       routes.forEach(routeEl => {
         const routeDate = parseInt(routeEl.dataset.date, 10);
@@ -506,7 +544,7 @@ function buildMigrationMap() {
 
       destEl.addEventListener('mouseenter', evt => {
         tooltip.innerHTML = `
-          <div class="sap-tt-date">${route.date} Ka</div>
+          <div class="sap-tt-date">${(route.date * 1000).toLocaleString()} years ago</div>
           <div class="sap-tt-place">${txt(route.label)}</div>
           <div class="sap-tt-site">${txt(route.site)}</div>
         `;
@@ -819,15 +857,15 @@ function buildLanguageDrawer(el) {
           <div class="sap-growth-text"><strong>${txt({ en: 'Gestures 🤲', he: 'מחוות 🤲', ru: 'Жесты 🤲' })}</strong> — ${txt({ en: 'Early Homo uses hands and body to communicate intent and coordinate hunts.', he: 'הומו הקדום משתמש בידיים ובגוף כדי לתקשר כוונות ולתאם ציד.', ru: 'Ранние Homo используют руки и тело для общения и координации охоты.' })}</div>
         </div>
         <div class="sap-simple-item">
-          <div class="sap-growth-date">500 Ka</div>
+          <div class="sap-growth-date">500,000 yrs</div>
           <div class="sap-growth-text"><strong>${txt({ en: 'Vocal sounds 🗣️', he: 'צלילים קוליים 🗣️', ru: 'Голосовые звуки 🗣️' })}</strong> — ${txt({ en: 'Descended larynx in H. heidelbergensis enables broader phoneme range. FOXP2 gene appears.', he: 'גרון יורד ב-H. heidelbergensis מאפשר טווח פונמות רחב יותר. גן FOXP2 מופיע.', ru: 'Опустившаяся гортань у H. heidelbergensis расширяет диапазон фонем. Появляется ген FOXP2.' })}</div>
         </div>
         <div class="sap-simple-item">
-          <div class="sap-growth-date">100 Ka</div>
+          <div class="sap-growth-date">100,000 yrs</div>
           <div class="sap-growth-text"><strong>${txt({ en: 'Symbolic language 💬', he: 'שפה סמלית 💬', ru: 'Символический язык 💬' })}</strong> — ${txt({ en: 'Ochre engravings at Blombos Cave hint at abstract symbolic capacity. Full syntax likely emerges.', he: 'חריטות אוכר במערת בלומבוס מרמזות על יכולת סמלית מופשטת. סינתקס מלא ככל הנראה צומח.', ru: 'Гравюры охрой в пещере Бломбос намекают на абстрактную символическую способность. Вероятно, возникает полный синтаксис.' })}</div>
         </div>
         <div class="sap-simple-item">
-          <div class="sap-growth-date">5 Ka</div>
+          <div class="sap-growth-date">5,000 yrs</div>
           <div class="sap-growth-text"><strong>${txt({ en: 'Writing ✏️', he: 'כתיבה ✏️', ru: 'Письменность ✏️' })}</strong> — ${txt({ en: 'Sumerian cuneiform and Egyptian hieroglyphs allow knowledge to persist across generations.', he: 'הכתב הסומרי והכתב ההיראוגליפי המצרי מאפשרים לידע להתמיד לאורך דורות.', ru: 'Шумерская клинопись и египетские иероглифы позволяют знаниям сохраняться через поколения.' })}</div>
         </div>
         <div class="sap-simple-item">
@@ -879,7 +917,7 @@ function buildTechDrawer(el) {
           <div class="sap-growth-text">🔥 <strong>${txt({ en: 'Controlled fire', he: 'אש מבוקרת', ru: 'Контролируемый огонь' })}</strong> — ${txt({ en: 'Cooking unlocks calorie surplus, drives brain expansion, enables global migration.', he: 'בישול משחרר עודף קלוריות, מניע התרחבות מוח ומאפשר הגירה גלובלית.', ru: 'Приготовление пищи высвобождает избыток калорий, стимулирует рост мозга, позволяет глобальную миграцию.' })}</div>
         </div>
         <div class="sap-simple-item">
-          <div class="sap-growth-date">10 Ka</div>
+          <div class="sap-growth-date">10,000 yrs</div>
           <div class="sap-growth-text">🌾 <strong>${txt({ en: 'Agriculture', he: 'חקלאות', ru: 'Сельское хозяйство' })}</strong> — ${txt({ en: 'Domestication of wheat and animals. Population density surges. Cities emerge.', he: 'אילוף חיטה ובעלי חיים. צפיפות האוכלוסייה מזנקת. ערים צומחות.', ru: 'Одомашнивание пшеницы и животных. Плотность населения резко возрастает. Появляются города.' })}</div>
         </div>
         <div class="sap-simple-item">
@@ -972,9 +1010,10 @@ function buildComparisonTable() {
     const rightPct = isAlive ? 0 : ((to / MAX_LIVED_KA) * 100).toFixed(1);
     const widthPct = (100 - parseFloat(leftPct) - parseFloat(rightPct)).toFixed(1);
     const barClass = isSapiens ? 'accent' : 'default';
+    const fmtKa = v => (v * 1000).toLocaleString();
     const dateLabel = isAlive
-      ? `${from.toLocaleString()} Ka → now`
-      : `${from.toLocaleString()} – ${to.toLocaleString()} Ka`;
+      ? `${fmtKa(from)} → now`
+      : `${fmtKa(from)} – ${fmtKa(to)} yrs ago`;
     const nowDot = isAlive
       ? `<div class="sap-now-dot" style="background:var(${isSapiens ? '--accent' : '--text-dim'});box-shadow:0 0 6px var(${isSapiens ? '--accent' : '--text-dim'});"></div>`
       : '';
@@ -1123,9 +1162,10 @@ function buildComparisonTable() {
     const statusText = sp.status === 'alive' ? '🟢 Alive' : '💀 ~' + sp.status;
     const toolIcons = TOOL_EMOJIS.map((e, i) =>
       `<span style="opacity:${i < sp.tools ? 1 : 0.15}">${e}</span>`).join('');
+    const fmtKa2 = v => (v * 1000).toLocaleString();
     const livedText = sp.lived.to === 0
-      ? `${sp.lived.from.toLocaleString()} Ka → now`
-      : `${sp.lived.from.toLocaleString()} – ${sp.lived.to.toLocaleString()} Ka`;
+      ? `${fmtKa2(sp.lived.from)} → now`
+      : `${fmtKa2(sp.lived.from)} – ${fmtKa2(sp.lived.to)}`;
 
     card.innerHTML = `
       <div class="sap-swipe-header">

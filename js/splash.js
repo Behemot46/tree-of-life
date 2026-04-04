@@ -20,8 +20,8 @@ export function initSplash(canvas, opts) {
   const domainCount = tree.children ? tree.children.length : 0;
 
   // ── Select ~30 representative nodes for splash tree ──
-  const splashNodes = selectSplashNodes(tree);
-  splashNodes.sort((a, b) => b.appeared - a.appeared);
+  const splashData = selectSplashNodes(tree);
+  const splashNodes = splashData.nodes;
 
   // ── Preload photos ──
   const images = preloadPhotos(splashNodes, photoMap, 6);
@@ -51,7 +51,7 @@ export function initSplash(canvas, opts) {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     // Rebuild tree layout on resize
     if (treeLayout.nodes.length > 0) {
-      const rebuilt = buildUpwardTree(splashNodes, W, H);
+      const rebuilt = buildUpwardTree(splashData, W, H);
       treeLayout.nodes = rebuilt.nodes;
       treeLayout.edges = rebuilt.edges;
     }
@@ -77,7 +77,7 @@ export function initSplash(canvas, opts) {
   let done = false;
 
   // ── Build tree layout ──
-  let treeLayout = buildUpwardTree(splashNodes, W, H);
+  let treeLayout = buildUpwardTree(splashData, W, H);
 
   // ── Text sequence for Phase 1 ──
   const splashFact = facts.getSplashFact ? facts.getSplashFact(lang) : facts.getLoadingFact(lang);
@@ -506,7 +506,7 @@ export function initSplash(canvas, opts) {
   }
 
   // ── Start ──
-  console.log('[splash] starting animation, timing:', JSON.stringify(timing), 'treeLayout nodes:', treeLayout.nodes.length);
+  console.log('[splash] starting animation, timing:', JSON.stringify(timing), 'nodes:', treeLayout.nodes.length, 'edges:', treeLayout.edges.length, 'sample pos:', treeLayout.nodes[0]?.x?.toFixed(0), treeLayout.nodes[0]?.y?.toFixed(0));
   animId = requestAnimationFrame(render);
 
   // ── Skip button ──
@@ -550,71 +550,75 @@ export function initSplash(canvas, opts) {
 }
 
 // ══════════════════════════════════════════════════════
-// HELPER: Select ~30 representative nodes from tree
+// HELPER: Select ~30 representative nodes + edges from tree
+// Walks the actual tree structure to preserve real parent-child topology.
 // ══════════════════════════════════════════════════════
 function selectSplashNodes(tree) {
   const nodes = [];
-  function walk(node, depth) {
-    if (depth <= 3) {
-      nodes.push({
-        name: node.name, id: node.id,
-        appeared: node.appeared || 0,
-        color: node.color || '#888',
-        depth
-      });
+  const edges = []; // [parentId, childId]
+
+  function walk(node, parentId, depth) {
+    if (depth > 4) return;       // cap depth
+    if (nodes.length >= 35) return; // cap total
+
+    nodes.push({
+      id: node.id,
+      name: node.name,
+      appeared: node.appeared || 0,
+      color: node.color || '#888',
+      depth
+    });
+
+    if (parentId !== null) {
+      edges.push([parentId, node.id]);
     }
-    if (node.children) node.children.forEach(ch => walk(ch, depth + 1));
+
+    if (node.children) {
+      // At depth 3+, only take first 2 children to keep count manageable
+      const limit = depth >= 3 ? 2 : node.children.length;
+      for (let i = 0; i < Math.min(limit, node.children.length); i++) {
+        if (nodes.length >= 35) break;
+        walk(node.children[i], node.id, depth + 1);
+      }
+    }
   }
-  walk(tree, 0);
-  return nodes.slice(0, 35);
+
+  walk(tree, null, 0);
+  return { nodes, edges };
 }
 
 // ══════════════════════════════════════════════════════
-// HELPER: Build upward tree layout
+// HELPER: Build upward tree layout from nodes + edges
+// Root at bottom, leaves at top. Uses the real tree edges.
 // ══════════════════════════════════════════════════════
-function buildUpwardTree(species, W, H) {
-  // Build adjacency from depth: group by depth, assign parent as nearest node at depth-1
-  const byDepth = {};
-  species.forEach(s => {
-    if (!byDepth[s.depth]) byDepth[s.depth] = [];
-    byDepth[s.depth].push(s);
-  });
+function buildUpwardTree(splashData, W, H) {
+  const { nodes: species, edges } = splashData;
 
-  const depths = Object.keys(byDepth).map(Number).sort((a, b) => a - b);
-  const maxDepth = depths[depths.length - 1] || 1;
+  const maxDepth = Math.max(1, ...species.map(s => s.depth));
   const marginTop = H * 0.08;
   const marginBot = H * 0.12;
   const marginX = W * 0.08;
   const usableH = H - marginTop - marginBot;
 
-  // Assign y by depth (root at bottom, leaves at top)
+  // Build node map
   const nodeMap = {};
   species.forEach(s => {
-    nodeMap[s.id] = { ...s, x: 0, y: 0, r: Math.max(3, 7 - s.depth * 0.8), children: [] };
+    nodeMap[s.id] = {
+      ...s,
+      x: 0,
+      y: H - marginBot - (s.depth / maxDepth) * usableH,
+      r: Math.max(3, 7 - s.depth * 0.8)
+    };
   });
 
-  Object.values(nodeMap).forEach(n => {
-    n.y = H - marginBot - (n.depth / maxDepth) * usableH;
-  });
-
-  // Build parent-child edges by linking each node to nearest parent-depth node
-  const edges = [];
+  // Build childrenOf from real edges
   const childrenOf = {};
-  for (let di = 1; di < depths.length; di++) {
-    const parentDepth = depths[di - 1];
-    const childDepth = depths[di];
-    const parents = byDepth[parentDepth];
-    const children = byDepth[childDepth];
-    // Simple round-robin assignment
-    children.forEach((child, ci) => {
-      const parent = parents[ci % parents.length];
-      if (!childrenOf[parent.id]) childrenOf[parent.id] = [];
-      childrenOf[parent.id].push(child.id);
-      edges.push([parent.id, child.id]);
-    });
-  }
+  edges.forEach(([pid, cid]) => {
+    if (!childrenOf[pid]) childrenOf[pid] = [];
+    childrenOf[pid].push(cid);
+  });
 
-  // Recursive x-spread
+  // Recursive x-spread (same algorithm as mockup)
   function getLeafCount(id) {
     const ch = childrenOf[id];
     if (!ch || ch.length === 0) return 1;
@@ -623,6 +627,7 @@ function buildUpwardTree(species, W, H) {
 
   function layoutX(id, xMin, xMax) {
     const node = nodeMap[id];
+    if (!node) return;
     const ch = childrenOf[id];
     if (!ch || ch.length === 0) {
       node.x = (xMin + xMax) / 2;
@@ -635,24 +640,26 @@ function buildUpwardTree(species, W, H) {
       layoutX(cid, cursor, cursor + share * (xMax - xMin));
       cursor += share * (xMax - xMin);
     });
-    const cxs = ch.map(c => nodeMap[c].x);
-    node.x = cxs.reduce((a, b) => a + b, 0) / cxs.length;
+    const cxs = ch.filter(c => nodeMap[c]).map(c => nodeMap[c].x);
+    if (cxs.length > 0) {
+      node.x = cxs.reduce((a, b) => a + b, 0) / cxs.length;
+    } else {
+      node.x = (xMin + xMax) / 2;
+    }
   }
 
-  // Find root (depth 0)
+  // Root is the first node (depth 0)
   const root = species.find(s => s.depth === 0);
   if (root) {
     layoutX(root.id, marginX, W - marginX);
-  } else {
-    // Fallback: spread evenly
-    species.forEach((s, i) => {
-      nodeMap[s.id].x = marginX + (i / (species.length - 1 || 1)) * (W - 2 * marginX);
-    });
   }
 
-  const nodes = Object.values(nodeMap);
-  const edgeList = edges.map(([pid, cid]) => [nodeMap[pid], nodeMap[cid]]);
-  return { nodes, edges: edgeList };
+  const nodeList = Object.values(nodeMap);
+  const edgeList = edges
+    .filter(([pid, cid]) => nodeMap[pid] && nodeMap[cid])
+    .map(([pid, cid]) => [nodeMap[pid], nodeMap[cid]]);
+
+  return { nodes: nodeList, edges: edgeList };
 }
 
 // ══════════════════════════════════════════════════════

@@ -8,6 +8,7 @@ import {
   SAPIENS_HERO, MIGRATION_ROUTES, MIGRATION_ORIGIN, MIGRATION_MAP_IMAGE,
   TRAIT_CARDS, SKULL_IMAGES, NEURAL_DENSITY, BRAIN_ENERGY, BRAIN_TIMELINE,
   COMPARISON_SPECIES, MAX_BRAIN_CC, MAX_LIVED_KA,
+  TIMELINE_EVENTS, TIMELINE_ERAS,
 } from './sapiensData.js';
 
 // ── Late-binding deps ──
@@ -104,7 +105,7 @@ export function openSapiens() {
   scroll.appendChild(buildMigrationMap());
   scroll.appendChild(buildTraitCards());
   scroll.appendChild(buildComparisonTable());
-  // Section 5 will be added in Task 7
+  scroll.appendChild(buildTimeline());
 
   // Lock body scroll and show
   document.body.style.overflow = 'hidden';
@@ -1198,6 +1199,149 @@ function buildComparisonTable() {
   }, { passive: true });
 
   sec.appendChild(mobileCards);
+  return sec;
+}
+
+// ══════════════════════════════════════════════════════
+// SECTION 5: TIMELINE
+// ══════════════════════════════════════════════════════
+
+function buildTimeline() {
+  const sec = document.createElement('section');
+  sec.className = 'sapiens-section sap-timeline-section';
+
+  // ── Section inner wrapper ──
+  const inner = document.createElement('div');
+  inner.className = 'sap-section-inner';
+  sec.appendChild(inner);
+
+  // ── Header ──
+  const header = document.createElement('div');
+  header.className = 'sap-section-header';
+  header.innerHTML = `
+    <div class="sap-overline">${txt({ en: '📜 Our Story', he: '📜 הסיפור שלנו', ru: '📜 Наша история' })}</div>
+    <h2 class="sap-section-title">${txt({ en: '300,000 Years in One Scroll', he: '300,000 שנה בגלילה אחת', ru: '300 000 лет в одной прокрутке' })}</h2>
+    <p class="sap-section-subtitle">${txt({ en: 'Spacing is logarithmic — recent events are stretched to reveal how much happened in the last 10,000 years.', he: 'המרווח לוגריתמי — אירועים אחרונים נמתחים כדי לחשוף כמה קרה ב-10,000 השנים האחרונות.', ru: 'Интервалы логарифмические — недавние события растянуты, чтобы показать, как много произошло за последние 10 000 лет.' })}</p>
+    <p class="sap-section-subtitle" style="margin-top:6px;font-size:12px;opacity:0.6;">${txt({ en: '🔍 Click any event to learn more', he: '🔍 לחץ על כל אירוע כדי ללמוד עוד', ru: '🔍 Нажмите на любое событие, чтобы узнать больше' })}</p>
+  `;
+  inner.appendChild(header);
+
+  // ── Logarithmic scale ──
+  function logScale(date) {
+    if (date <= 0) return 1;
+    const maxLog = Math.log10(300000);
+    return 1 - Math.log10(Math.max(date, 1)) / maxLog;
+  }
+
+  // ── Build era map for fast lookup ──
+  const eraMap = {};
+  TIMELINE_ERAS.forEach(era => { eraMap[era.id] = era; });
+
+  // ── Group events by era ──
+  const eraGroups = {};
+  TIMELINE_ERAS.forEach(era => { eraGroups[era.id] = []; });
+  TIMELINE_EVENTS.forEach(ev => {
+    if (eraGroups[ev.era]) eraGroups[ev.era].push(ev);
+  });
+
+  // ── Build flat ordered list for gap calculation ──
+  const allEvents = [];
+  TIMELINE_ERAS.forEach(era => {
+    eraGroups[era.id].forEach(ev => allEvents.push(ev));
+  });
+
+  // ── Timeline container ──
+  const timeline = document.createElement('div');
+  timeline.className = 'sap-timeline';
+  inner.appendChild(timeline);
+
+  let globalEventIndex = 0;
+
+  TIMELINE_ERAS.forEach(era => {
+    const events = eraGroups[era.id];
+    if (!events.length) return;
+
+    // Era separator
+    const eraLabel = document.createElement('div');
+    eraLabel.className = 'sap-era-label';
+    eraLabel.innerHTML = `<span class="sap-era-text">${txt(era.label)}</span>`;
+    timeline.appendChild(eraLabel);
+
+    events.forEach(ev => {
+      const i = globalEventIndex;
+      globalEventIndex++;
+
+      // Calculate logarithmic margin-top
+      let marginTop = 20;
+      if (i > 0) {
+        const prevDate = allEvents[i - 1].date;
+        const gap = Math.max(20, Math.round(
+          (logScale(ev.date) - logScale(prevDate)) * 600
+        ));
+        marginTop = gap;
+      }
+
+      const el = document.createElement('div');
+      el.className = 'sap-tl-event' + (ev.major ? ' major' : '') + (ev.now ? ' now' : '');
+      el.style.marginTop = marginTop + 'px';
+
+      const dateLabel = ev.now
+        ? txt({ en: 'Present', he: 'הווה', ru: 'Настоящее' })
+        : txt({ en: `${ev.date.toLocaleString()} years ago`, he: `לפני ${ev.date.toLocaleString()} שנה`, ru: `${ev.date.toLocaleString()} лет назад` });
+
+      el.innerHTML = `
+        <div class="sap-tl-date">${ev.emoji} ${dateLabel}</div>
+        <div class="sap-tl-title">${txt(ev.title)}</div>
+        <div class="sap-tl-desc">${txt(ev.desc)}</div>
+        <div class="sap-tl-expand">${txt({ en: '→ read more', he: '→ קרא עוד', ru: '→ читать далее' })}</div>
+      `;
+
+      // Click handler → drawer
+      el.addEventListener('click', () => {
+        openDrawer(content => {
+          content.innerHTML = `
+            <div style="padding:32px 28px;">
+              <div style="font-size:32px;margin-bottom:12px;">${ev.emoji}</div>
+              <div style="font-family:var(--font-mono);font-size:12px;color:rgba(var(--accent-rgb),0.5);margin-bottom:8px;">${dateLabel}</div>
+              <h3 style="font-size:22px;font-weight:400;color:var(--text-primary);margin-bottom:16px;line-height:1.3;">${txt(ev.title)}</h3>
+              <div style="font-size:15px;color:var(--text-dim);line-height:1.7;">${txt(ev.desc)}</div>
+            </div>
+          `;
+        });
+      });
+
+      // IntersectionObserver for staggered fade-in
+      onVisible(el, target => {
+        target.classList.add('sap-tl-visible');
+      }, { threshold: 0.1 });
+
+      timeline.appendChild(el);
+    });
+  });
+
+  // ── 1.7% Callout ──
+  const callout = document.createElement('div');
+  callout.className = 'sap-scale-callout';
+  callout.innerHTML = `
+    <div class="sap-big-stat">1.7%</div>
+    <div class="sap-big-label">
+      ${txt({
+        en: 'All of <strong>recorded human history</strong> — every empire, every book, every war, every song — fits into <strong>1.7%</strong> of our species\' existence.',
+        he: 'כל <strong>ההיסטוריה האנושית המתועדת</strong> — כל אימפריה, כל ספר, כל מלחמה, כל שיר — נכנסת ל-<strong>1.7%</strong> מקיום המין שלנו.',
+        ru: 'Вся <strong>задокументированная история человечества</strong> — каждая империя, каждая книга, каждая война, каждая песня — умещается в <strong>1,7%</strong> существования нашего вида.',
+      })}
+    </div>
+    <div class="sap-scale-strip">
+      <div class="sap-pre-history"><span>295,000 ${txt({ en: 'YEARS', he: 'שנים', ru: 'ЛЕТ' })}</span></div>
+      <div class="sap-recorded"></div>
+    </div>
+    <div class="sap-strip-labels">
+      <span>${txt({ en: '300,000 years ago', he: 'לפני 300,000 שנה', ru: '300 000 лет назад' })}</span>
+      <span class="sap-recorded-label">${txt({ en: '← 5,000 years of "history"', he: '← 5,000 שנות "היסטוריה"', ru: '← 5 000 лет «истории»' })}</span>
+    </div>
+  `;
+  inner.appendChild(callout);
+
   return sec;
 }
 

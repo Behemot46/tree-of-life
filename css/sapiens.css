@@ -536,3 +536,85 @@ td.ours .sap-span-dates{color:rgba(var(--accent-rgb),0.6);}
 .sap-swipe-dots{display:flex;justify-content:center;gap:8px;padding:16px 0;}
 .sap-swipe-dot{width:6px;height:6px;border-radius:50%;background:rgba(240,235,227,0.1);}
 .sap-swipe-dot.active{background:var(--accent);width:18px;border-radius:3px;}
+
+/* ── Timeline (Section 5) ── */
+.sap-timeline-section{
+  padding:80px 24px 64px;align-items:flex-start;justify-content:flex-start;
+  min-height:auto;
+}
+.sap-timeline-section .sap-section-inner{max-width:720px;}
+
+.sap-timeline{position:relative;padding-left:48px;}
+.sap-timeline::before{
+  content:'';position:absolute;left:19px;top:0;bottom:0;width:2px;
+  background:linear-gradient(180deg,
+    rgba(var(--accent-rgb),0.06) 0%,rgba(var(--accent-rgb),0.12) 20%,
+    rgba(var(--accent-rgb),0.2) 50%,rgba(var(--accent-rgb),0.35) 80%,
+    rgba(var(--accent-rgb),0.6) 100%);
+  border-radius:1px;
+}
+
+.sap-era-label{position:relative;padding:20px 0 16px;}
+.sap-era-text{
+  font-size:9px;font-weight:600;letter-spacing:3px;text-transform:uppercase;
+  color:rgba(var(--accent-rgb),0.3);padding:4px 12px;background:var(--bg);
+  position:relative;z-index:1;
+}
+
+.sap-tl-event{position:relative;padding:0 0 8px;cursor:pointer;transition:transform 0.2s ease;}
+.sap-tl-event:hover{transform:translateX(4px);}
+.sap-tl-event::before{
+  content:'';position:absolute;left:-37px;top:6px;width:10px;height:10px;
+  border-radius:50%;background:rgba(var(--accent-rgb),0.15);
+  border:2px solid rgba(var(--accent-rgb),0.25);transition:all 0.3s ease;z-index:2;
+}
+.sap-tl-event:hover::before{
+  background:rgba(var(--accent-rgb),0.3);border-color:rgba(var(--accent-rgb),0.5);
+  box-shadow:0 0 8px rgba(var(--accent-rgb),0.2);
+}
+.sap-tl-event.major::before{width:14px;height:14px;left:-39px;top:4px;background:rgba(var(--accent-rgb),0.25);border-color:rgba(var(--accent-rgb),0.4);}
+.sap-tl-event.major:hover::before{background:var(--accent);border-color:var(--accent);box-shadow:0 0 12px rgba(var(--accent-rgb),0.4);}
+.sap-tl-event.now::before{
+  width:14px;height:14px;left:-39px;top:4px;
+  background:var(--accent);border-color:var(--accent);
+  box-shadow:0 0 16px rgba(var(--accent-rgb),0.4);
+  animation:sapNowPulse 2.5s ease-in-out infinite;
+}
+@keyframes sapNowPulse{0%,100%{box-shadow:0 0 12px rgba(var(--accent-rgb),0.3);}50%{box-shadow:0 0 24px rgba(var(--accent-rgb),0.5);}}
+
+.sap-tl-date{font-family:var(--font-mono);font-size:12px;font-weight:500;color:rgba(var(--accent-rgb),0.5);margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.sap-tl-event.major .sap-tl-date{color:rgba(var(--accent-rgb),0.7);}
+.sap-tl-event.now .sap-tl-date{color:var(--accent);}
+.sap-tl-title{font-size:15px;font-weight:500;color:rgba(240,235,227,0.65);margin-bottom:4px;line-height:1.3;}
+.sap-tl-event.major .sap-tl-title{color:rgba(240,235,227,0.8);font-weight:600;}
+.sap-tl-event.now .sap-tl-title{color:var(--text-primary);}
+.sap-tl-desc{font-size:13px;color:var(--text-faint);line-height:1.5;}
+.sap-tl-event:hover .sap-tl-desc{color:var(--text-dim);}
+.sap-tl-expand{display:inline-flex;align-items:center;gap:4px;margin-top:6px;font-size:11px;color:rgba(var(--accent-rgb),0.3);opacity:0;transition:opacity 0.2s ease;}
+.sap-tl-event:hover .sap-tl-expand{opacity:1;}
+
+/* Fade-in animation */
+.sap-tl-event{opacity:0;transform:translateY(12px);transition:opacity 0.5s ease,transform 0.5s ease;}
+.sap-tl-event.sap-tl-visible{opacity:1;transform:translateY(0);}
+.sap-tl-event.sap-tl-visible:hover{transform:translateX(4px);}
+
+/* 1.7% Callout */
+.sap-scale-callout{
+  margin-top:48px;padding:20px 24px;
+  background:rgba(var(--accent-rgb),0.04);border:1px solid rgba(var(--accent-rgb),0.1);
+  border-radius:14px;text-align:center;
+}
+.sap-big-stat{font-family:var(--font-mono);font-size:clamp(32px,5vw,48px);font-weight:600;color:var(--accent);margin-bottom:8px;}
+.sap-big-label{font-size:14px;color:var(--text-dim);line-height:1.5;}
+.sap-big-label strong{color:rgba(240,235,227,0.75);}
+.sap-scale-strip{margin-top:20px;display:flex;height:20px;border-radius:6px;overflow:hidden;}
+.sap-pre-history{flex:98.3;background:linear-gradient(90deg,rgba(240,235,227,0.04),rgba(240,235,227,0.06));display:flex;align-items:center;justify-content:center;}
+.sap-pre-history span{font-size:9px;color:var(--text-faint);letter-spacing:1px;}
+.sap-recorded{flex:1.7;background:linear-gradient(90deg,rgba(var(--accent-rgb),0.3),rgba(var(--accent-rgb),0.5));}
+.sap-strip-labels{display:flex;justify-content:space-between;margin-top:6px;font-size:10px;color:var(--text-faint);}
+.sap-recorded-label{color:rgba(var(--accent-rgb),0.5);text-align:right;}
+
+@media(prefers-reduced-motion:reduce){
+  .sap-tl-event{opacity:1;transform:none;}
+  .sap-tl-event.now::before{animation:none;}
+}

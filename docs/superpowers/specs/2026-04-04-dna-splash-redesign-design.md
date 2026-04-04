@@ -36,10 +36,12 @@ Replace the current static splash screen with a cinematic Canvas 2D animation wh
 - As strands separate, they begin curving and branching (quadratic bezier subdivision)
 - Strand endpoints start migrating toward their target tree-node positions
 
-**Text overlays (sequential, ~0.6s each with fade-in/fade-out):**
+**Text overlays (sequential, ~0.5s each with 0.1s gap between):**
 1. A random cinematic fact from `FACTS.getSplashFact(lang)` (e.g., "Every living cell reads the same genetic code")
 2. Dynamic stat: `"{N} species"` — `N` counted at runtime by walking TREE (`t('splash_species_count', { count })`)
 3. `"{D} domains → 1 tree"` — `D` counted from TREE's top-level children (`t('splash_domains_count', { count })`)
+
+Each item: 150ms fade-in → 200ms hold → 150ms fade-out → 100ms gap. Total: 0.5s × 3 + 0.1s × 2 = 1.7s, fitting the 2s phase window. Fade-out of one must complete before fade-in of next starts — no overlap.
 
 ### Phase 2 — FILL (3.5s – 5.5s)
 
@@ -82,6 +84,8 @@ All text rendered via `ctx.fillText()` on Canvas — no DOM text overlays.
 
 **Template interpolation:** The `t()` function returns raw strings. `splash.js` handles `{placeholder}` replacement itself via a simple `str.replace(/\{(\w+)\}/g, (_, k) => vars[k])` — no changes to the i18n system.
 
+**Canvas RTL (Hebrew):** When `lang === 'he'`, set `ctx.direction = 'rtl'` and `ctx.textAlign = 'right'` before drawing text. Verify that template interpolation strings like `"{count} מינים"` render with the number on the correct side. Canvas RTL is less forgiving than DOM — test explicitly.
+
 ## Interaction
 
 ### Click/Touch to Enter
@@ -116,13 +120,14 @@ If Canvas fails to initialize within 500ms, a CSS-only fallback is shown:
   - Title: `"Tree of Life"`
   - Subtitle: `"3.8 Billion Years of Evolution"`
   - `"Click to explore"`
-- `splash.js` sets a 500ms timeout on init. If `canvasReady` flag hasn't been set by then, the fallback elements are shown (`display: block`)
+- `splash.js` sets translated text on fallback elements immediately on init (before the 500ms timeout starts) via `t()`, so they're ready in the correct language if Canvas fails
+- A 500ms timeout checks the `canvasReady` flag. If not set, fallback elements are shown (`display: block`)
 - If Canvas initializes successfully, the fallback elements remain hidden
 - Fallback is clickable — same transition behavior as the skip button
 
 ## Performance
 
-- **Photo preloading:** During Phases 0–1 (~2s of helix animation), preload ~30 species images from PHOTO_MAP as `Image` objects. By Phase 2, most are ready for `ctx.drawImage()`. Failed loads get a solid domain-colored circle fallback.
+- **Photo preloading:** During Phases 0–1 (~2s of helix animation), preload ~30 species images from PHOTO_MAP as `Image` objects, with a concurrency limit of 6 simultaneous fetches to avoid saturating slow mobile connections. Remaining images continue loading during Phase 2 as nodes are filled. By Phase 2 start, most are ready for `ctx.drawImage()`. Failed loads get a solid domain-colored circle fallback.
 - **No blocking:** Tree data loads in parallel with the animation. The splash doesn't depend on tree initialization completing.
 - **Instant start:** Canvas draws first frame synchronously on init — no blank screen, no spinner.
 - **Mobile:** Canvas scales to viewport via CSS (`width: 100%; height: 100%`) with internal resolution matching `devicePixelRatio` (capped at 2x for performance). Animation timing unchanged — Canvas handles 30-40 nodes at 60fps on any modern phone.
@@ -184,6 +189,8 @@ Before integrating into the project, build a standalone mockup at `mockups/splas
 - Click-to-enter, skip button, auto-transition all functional
 - Responsive (works at mobile viewport)
 - Hardcoded sample data (no imports from project JS) — the mockup is self-contained
+
+The mockup must include a debug toggle button (e.g., "Reset First Visit" / "Simulate Return Visit") that sets/clears the `tol-splash-seen` localStorage key so both the full and compressed animation paths can be tested without clearing browser data.
 
 This mockup is the acceptance criterion: if it looks and feels right in the browser, we proceed with integration.
 

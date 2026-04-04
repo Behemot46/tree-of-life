@@ -99,6 +99,24 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,.lang-btn:focus-
   --z-tour:10000;
   --z-tour-target:10001;
   --z-tour-content:10002;
+  /* ── Tree Redesign ── */
+  --tree-node-size:52px;
+  --tree-node-size-mobile:44px;
+  --tree-node-fill:#1a0f08;
+  --tree-branch-brown:#8b6a3a;
+  --tree-branch-brown-light:#c4a882;
+  --tree-human-path:#c8883a;
+  --tree-human-path-light:#a06a28;
+  --tree-photo-opacity:0.93;
+  --tree-photo-opacity-hover:1;
+  --tree-sibling-dim:0.3;
+  --tree-ghost-size:18px;
+  --tree-label-name-size:11px;
+  --tree-label-latin-size:9px;
+  --tree-label-name-size-mobile:10px;
+  --tree-label-latin-size-mobile:8px;
+  --tree-minimap-w:120px;
+  --tree-minimap-h:80px;
 }
 html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--parchment);}
 body{font-family:var(--font-body);user-select:none;cursor:grab;}

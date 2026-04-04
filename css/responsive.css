@@ -15,7 +15,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ══ HIGH CONTRAST ══ */
 /* ── HIGH CONTRAST ── */
 @media (forced-colors: active) {
-  .node-circle { stroke: CanvasText !important; fill: Canvas !important; }
+  .node-border { stroke: CanvasText !important; fill: Canvas !important; }
   .panel-accent { background: Highlight !important; }
   .panel-nav-btn, .panel-tag, .panel-link { border: 1px solid ButtonText !important; }
   .badge-extinct { background: Mark !important; color: MarkText !important; }
@@ -372,7 +372,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   }
   .particle { display: none !important; }
   #splash { transition: none !important; }
-  .node-circle { transition: none !important; }
+  .node-border { transition: none !important; }
   .branch-path { transition: none !important; stroke-dasharray: none !important; stroke-dashoffset: 0 !important; }
   .branch-entering,.branch-entered { transition: none !important; stroke-dasharray: none !important; stroke-dashoffset: 0 !important; }
   .node-entering,.node-entered { transition: none !important; opacity: 1 !important; transform: none !important; }

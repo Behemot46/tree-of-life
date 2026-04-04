@@ -571,7 +571,7 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,
 }
 /* SVG node focus ring — outline doesn't work on SVG, use stroke */
 .node-group:focus-visible{outline:none;}
-.node-group:focus-visible .nc-main{
+.node-group:focus-visible .node-border{
   stroke:var(--accent-primary) !important;stroke-width:3 !important;stroke-opacity:1 !important;
 }
 

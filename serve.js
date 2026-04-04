@@ -26,7 +26,7 @@ http.createServer((req, res) => {
       res.end('Not found');
       return;
     }
-    res.writeHead(200, { 'Content-Type': mime[ext] || 'text/plain' });
+    res.writeHead(200, { 'Content-Type': mime[ext] || 'text/plain', 'Cache-Control': 'no-cache, no-store, must-revalidate' });
     res.end(data);
   });
 }).listen(port, () => {

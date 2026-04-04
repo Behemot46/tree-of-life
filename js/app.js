@@ -60,6 +60,10 @@ import { expandTree } from './treeExpansion.js';
 import { initTourDeps, showTourSelector, startTour, endTour } from './tours.js';
 import { openSapiens, closeSapiens, initSapiensDeps } from './sapiens.js';
 
+// ── Minimap ──
+import { renderMinimap } from './minimap.js';
+window._onRenderComplete=renderMinimap;
+
 
 // ══════════════════════════════════════════════════════
 // 1. WIRE LATE-BOUND DEPENDENCIES
@@ -165,6 +169,7 @@ window.getNodeById = id => nodeMap[id];
 function setViewMode(mode){
   if(state.playbackMode&&mode!=='playback') exitPlaybackMode();
   if(mode==='playback'){enterPlaybackMode();return;}
+  if(mode==='chronological') mode='cladogram';
   state.viewMode=mode;
   document.querySelectorAll('.view-btn').forEach(btn=>{
     btn.classList.toggle('active',btn.dataset.mode===mode);
@@ -172,8 +177,17 @@ function setViewMode(mode){
   animDone.clear();
   layout();
   if(mode==='radial'){centerOnRoot(0.18);}
-  else if(mode==='cladogram'){centerOnTree(0.7);}
-  else if(mode==='chronological'){centerOnTree(0.65);}
+  else if(mode==='cladogram'){
+    // Fit entire visible tree into viewport
+    const vis=getVisible(TREE);
+    if(vis.length){
+      const xs=vis.map(n=>n._x),ys=vis.map(n=>n._y);
+      const bw=(Math.max(...xs)-Math.min(...xs))||400;
+      const bh=(Math.max(...ys)-Math.min(...ys))||400;
+      const fitS=Math.min(window.innerWidth*0.85/bw,window.innerHeight*0.85/bh,1.0);
+      centerOnTree(Math.max(0.05,fitS));
+    }
+  }
   scheduleRender(true);applyT();
   a11yAnnounce('Switched to '+mode+' view');
   trackViewMode(mode);

@@ -57,6 +57,11 @@
   --color-button-bg:#f3efe9;
   --color-button-border:#ddd5c8;
   --color-button-hover:#e8e0d4;
+  /* ── Tree Redesign (light) ── */
+  --tree-node-fill:#f0ebe4;
+  --tree-branch-brown:#c4a882;
+  --tree-human-path:#a06a28;
+  --tree-photo-opacity:0.95;
 }
 [data-theme="light"] body{background:var(--bg);color:var(--parchment);}
 [data-theme="light"] #bg{background:var(--bg);}
@@ -105,7 +110,7 @@
 [data-theme="light"] .era-tick{color:var(--text-secondary);}
 [data-theme="light"] #era-label{color:var(--text-primary);}
 [data-theme="light"] .p-tag{color:var(--accent-primary);background:var(--accent-primary-dim);border-color:rgba(var(--accent-rgb),0.2);}
-[data-theme="light"] .node-label-text{fill:var(--text-secondary);}
+[data-theme="light"] .node-label-name{fill:var(--text-secondary);}
 [data-theme="light"] .bc-item{color:var(--text-secondary);}
 [data-theme="light"] .bc-item.active{color:var(--text-primary);}
 [data-theme="light"] .fact-l{color:var(--text-secondary);}

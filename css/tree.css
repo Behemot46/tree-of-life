@@ -1,24 +1,139 @@
+/* ══════════════════════════════════════════════════════
+   TREE.CSS — Photo nodes, living wood branches, animations
+   ══════════════════════════════════════════════════════ */
+
 /* ── MAIN SVG ── */
 #canvas-wrap{position:fixed;inset:0;z-index:var(--z-tree);}
 svg{width:100%;height:100%;}
+#viewport{will-change:transform;}
+
+/* ── NODE GROUPS ── */
 .node-group{cursor:pointer;}
-.node-circle{transition:r var(--transition-fast),opacity var(--transition-fast),filter var(--transition-normal);cursor:pointer;}
-.node-circle:hover{filter:brightness(1.15);}
-.node-group:hover .nc-main{filter:brightness(1.15) drop-shadow(0 0 4px currentColor);}
+
+/* ── PHOTO NODE CIRCLES ── */
+.node-border{transition:filter var(--transition-fast);}
+.node-group:hover .node-border{
+  filter:brightness(1.4) drop-shadow(0 0 6px var(--nc,currentColor));
+}
+
+/* Photo wrapper inside foreignObject */
+.node-img-wrap{
+  border-radius:50%;
+  overflow:hidden;
+  pointer-events:none;
+}
+.node-img{
+  width:100%;height:100%;
+  object-fit:cover;
+  border-radius:50%;
+  opacity:var(--tree-photo-opacity);
+  transition:opacity var(--transition-fast);
+}
+.node-img.loaded{opacity:var(--tree-photo-opacity);}
+.node-group:hover .node-img.loaded{opacity:var(--tree-photo-opacity-hover);}
+
+/* ── SILHOUETTE FALLBACK ── */
+.node-fallback-icon{pointer-events:none;}
+
+/* ── LABELS ── */
+.node-label-name{
+  pointer-events:none;
+  font-family:var(--font-sans);
+  font-weight:600;
+  font-size:var(--tree-label-name-size);
+}
+.node-label-latin{
+  pointer-events:none;
+  font-family:var(--font-sans);
+  font-style:italic;
+  font-weight:400;
+  font-size:var(--tree-label-latin-size);
+  fill:rgba(255,255,255,0.35);
+}
+[data-theme="light"] .node-label-latin{fill:rgba(0,0,0,0.45);}
+
+/* ── COLLAPSED INDICATORS ── */
+.node-stack-card{pointer-events:none;}
+.node-ghost{pointer-events:none;}
+.node-ghost-wrap{border-radius:50%;overflow:hidden;pointer-events:none;}
+.node-ghost-img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.node-badge-bg{fill:rgba(255,255,255,0.1);}
+[data-theme="light"] .node-badge-bg{fill:rgba(0,0,0,0.06);}
+
+/* ── BRANCHES ── */
 .branch-path{fill:none;stroke-linecap:round;stroke-linejoin:round;cursor:default;}
+
+/* Human path overlay */
+.branch-human-path{fill:none;stroke:var(--tree-human-path);stroke-linecap:round;pointer-events:none;}
+[data-theme="light"] .branch-human-path{stroke:var(--tree-human-path-light);}
+
+/* Human path golden arrow */
+.human-path-arrow{cursor:pointer;transition:filter var(--transition-fast);}
+.human-path-arrow:hover{filter:brightness(1.3) drop-shadow(0 0 4px var(--tree-human-path));}
+
+/* Human path dashed continuation */
+.human-path-dash{fill:none;stroke:var(--tree-human-path);stroke-dasharray:4 3;stroke-width:1;opacity:0.2;pointer-events:none;}
+
+/* ── BRANCH ANIMATIONS ── */
+.branch-entering{stroke-dasharray:9999;stroke-dashoffset:9999;}
+.branch-entered{stroke-dashoffset:0;transition:stroke-dashoffset 0.4s cubic-bezier(.4,0,.2,1) calc(var(--stagger,0) * 80ms);}
+
+/* ── NODE ANIMATIONS ��─ */
+.node-entering{opacity:0;transform:translateX(-8px);}
+.node-entered{
+  opacity:1;transform:translateX(0);
+  transition:opacity 0.3s ease calc(var(--stagger,0) * 80ms),
+             transform 0.3s ease calc(var(--stagger,0) * 80ms);
+}
+
+/* Sibling dimming */
+.node-group.dimmed{opacity:var(--tree-sibling-dim);transition:opacity 0.2s ease;}
+.branch-path.dimmed{opacity:calc(var(--tree-sibling-dim) * 0.5);transition:opacity 0.2s ease;}
+.node-group.undimmed,.branch-path.undimmed{opacity:1;transition:opacity 0.2s ease;}
+
+/* ── HOMININ GROUP CHIPS ── */
+.chip-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:0 12px;border-radius:14px;
+  font-family:var(--font-sans);font-size:12px;font-weight:500;
+  white-space:nowrap;cursor:pointer;
+  transition:background var(--transition-fast),border-color var(--transition-fast);
+}
+
+/* ── BADGE PULSE ── */
 .badge-pulse{animation:badgePulse 2s ease-in-out infinite;}
 @keyframes badgePulse{
   0%,100%{filter:drop-shadow(0 0 2px rgba(200,136,58,0.3));}
   50%{filter:drop-shadow(0 0 8px rgba(200,136,58,0.7));}
 }
-#viewport{will-change:transform;}
-.branch-entering{stroke-dasharray:9999;stroke-dashoffset:9999;}
-.branch-entered{stroke-dashoffset:0;transition:stroke-dashoffset calc(0.3s + var(--depth) * 0.05s) cubic-bezier(.4,0,.2,1) calc(var(--depth) * 0.04s);}
-.node-entering{opacity:0;transform:scale(0.2);}
-.node-entered{opacity:1;transform:scale(1);transition:opacity 0.45s ease calc(var(--depth) * 0.09s),transform 0.45s cubic-bezier(.34,1.56,.64,1) calc(var(--depth) * 0.09s);}
-.node-label-text{pointer-events:none;font-family:var(--font-sans);font-size:14px;}
-.node-species-img{pointer-events:none;opacity:0;transition:opacity var(--transition-normal);}
-.node-species-img[href]{opacity:1;}
-.node-pulse{pointer-events:none;}
 
-/* (Hominin view removed — groups rendered as inline pill chips in tree) */
+/* ── PLAYBACK LOCKED NODE ── */
+.node-locked{fill:none;stroke:var(--text-muted);stroke-width:1.5;stroke-dasharray:4 3;opacity:0.35;}
+
+/* ── MINI-MAP ── */
+#minimap{
+  position:fixed;bottom:16px;right:16px;
+  width:var(--tree-minimap-w);height:var(--tree-minimap-h);
+  background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);
+  border-radius:8px;border:1px solid rgba(255,255,255,0.08);
+  z-index:var(--z-controls);opacity:1;transition:opacity 0.3s ease;
+  pointer-events:all;overflow:hidden;
+}
+#minimap.faded{opacity:0.15;}
+#minimap svg{width:100%;height:100%;}
+.minimap-viewport{fill:rgba(255,255,255,0.08);stroke:rgba(255,255,255,0.4);stroke-width:1;cursor:grab;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .node-label-name{font-size:var(--tree-label-name-size-mobile);}
+  .node-label-latin{font-size:var(--tree-label-latin-size-mobile);}
+  #minimap{display:none;}
+}
+
+/* ── REDUCED MOTION ── */
+@media(prefers-reduced-motion:reduce){
+  .branch-entered{transition:none;}
+  .node-entered{transition:none;}
+  .node-group.dimmed,.branch-path.dimmed,
+  .node-group.undimmed,.branch-path.undimmed{transition:none;}
+}

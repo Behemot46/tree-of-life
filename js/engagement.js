@@ -129,8 +129,8 @@ export function showIntro(){
 // ── LUCA Opening Animation ──
 
 export function animateTreeEntrance() {
-  const allNodes = document.querySelectorAll('.node-circle[data-depth]');
-  const allBranches = document.querySelectorAll('path[data-branch]');
+  const allNodes = document.querySelectorAll('.node-group');
+  const allBranches = document.querySelectorAll('.branch-path');
   allNodes.forEach(n => {
     n.style.opacity = '0';
     n.style.transform = 'scale(0)';
@@ -141,23 +141,24 @@ export function animateTreeEntrance() {
     b.style.opacity = '0';
     b.style.transition = 'opacity 300ms ease';
   });
-  const depths = [0,1,2,3,4,5];
-  depths.forEach((depth,i) => {
+  // Stagger nodes in batches by DOM order
+  const batchSize = Math.max(1, Math.ceil(allNodes.length / 6));
+  for (let i = 0; i < allNodes.length; i++) {
+    const delay = Math.floor(i / batchSize) * 180;
     setTimeout(() => {
-      document.querySelectorAll(`.node-circle[data-depth="${depth}"]`).forEach(el => {
-        el.style.opacity = '1';
-        el.style.transform = 'scale(1)';
-      });
-    }, i * 180);
-  });
+      allNodes[i].style.opacity = '1';
+      allNodes[i].style.transform = 'scale(1)';
+    }, delay);
+  }
   setTimeout(() => {
     allBranches.forEach(b => { b.style.opacity = '1'; });
   }, 300);
   // Clean up inline styles after entrance animation completes
+  const totalDuration = Math.ceil(allNodes.length / batchSize) * 180 + 400;
   setTimeout(() => {
     allNodes.forEach(n => { n.style.opacity = ''; n.style.transform = ''; n.style.transformOrigin = ''; n.style.transition = ''; });
     allBranches.forEach(b => { b.style.opacity = ''; b.style.transition = ''; });
-  }, depths.length * 180 + 400);
+  }, totalDuration);
 }
 
 // ── Loading ──

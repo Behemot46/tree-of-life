@@ -130,12 +130,27 @@
         <feGaussianBlur stdDeviation="9" result="blur"/>
         <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
       </filter>
+      <linearGradient id="branch-grad-template" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#8b6a3a"/>
+        <stop offset="100%" stop-color="#8b6a3a"/>
+      </linearGradient>
+      <radialGradient id="human-path-glow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#c8883a" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="#c8883a" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="node-fallback-grad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#8b6a3a" stop-opacity="0.25"/>
+        <stop offset="100%" stop-color="#8b6a3a" stop-opacity="0.05"/>
+      </radialGradient>
     </defs>
     <g id="viewport">
       <g id="layer-branches"></g>
       <g id="layer-nodes"></g>
     </g>
   </svg>
+  <div id="minimap" class="faded" aria-hidden="true">
+    <svg id="minimap-svg" viewBox="0 0 120 80"></svg>
+  </div>
 </div>
 
 <!-- TOOLTIP -->
@@ -235,7 +250,7 @@
 
   <button class="view-btn active" data-mode="radial" onclick="setViewMode('radial')">&#9673; Radial</button>
 
-  <button class="view-btn" data-mode="chronological" onclick="setViewMode('chronological')">&#8594; Timeline</button>
+  <button class="view-btn" data-mode="chronological" onclick="setViewMode('chronological')" style="display:none">&#8594; Timeline</button>
 
   <button class="view-btn" data-mode="cladogram" onclick="setViewMode('cladogram')">&#9500; Cladogram</button>
 

@@ -28,7 +28,7 @@ import { buildSearchIndex, searchEntities, normalizeSearchText, patchEnrichment 
 import { nodeInEra, toggleExtinct, toggleDomain, resetDomains, getEraName, buildExtinctionMarkers, showExtinctionPopover, updateEraTint, updateSpeciesCount, updateThumbPosition, updateEraTimeRange, toggleEraPlay, animateSliderTo, updatePresetHighlight, buildEraPresets, buildEraSegments, buildDensitySparkline, initThumbDrag, initSpeedButtons, initTimelineDeps } from './timeline.js';
 
 // ── Panel ──
-import { renderPanelContent, showMainPanel, closePanel, openHominins, openHomininView, setHomininOverlayOpener, buildHeroFallback, getBranchType, renderBranchSection, renderMiniMap, renderPrimateCard, renderSapiensPanel, initPanelDeps, initPanelListeners } from './panel.js';
+import { renderPanelContent, showMainPanel, closePanel, openHominins, openHomininView, setHomininOverlayOpener, buildHeroFallback, getBranchType, renderBranchSection, renderMiniMap, renderPrimateCard, initPanelDeps, initPanelListeners } from './panel.js';
 
 // ── Hominin / Compare ──
 import { buildHomininTree, showComparePanel, closeCompare, finishCompare, cancelCompare, startCompareFromPanel, interceptShowMainPanel, initHomininDeps, openHomininOverlay, closeHomininOverlay, renderHominins, showHominDetail, toggleCompareMode, viewHomininOnTree, initHomininOverlay } from './hominin.js';
@@ -58,6 +58,7 @@ import { openQuiz, closeQuiz, initQuizEvents } from './quiz.js';
 import { TREE, lightenColor, PHOTO_MAP, FACTS, ImageLoader } from './data.js';
 import { expandTree } from './treeExpansion.js';
 import { initTourDeps, showTourSelector, startTour, endTour } from './tours.js';
+import { openSapiens, closeSapiens, initSapiensDeps } from './sapiens.js';
 
 
 // ══════════════════════════════════════════════════════
@@ -68,7 +69,8 @@ initRendererDeps({ showMainPanel, showTip, hideTip, smoothPanTo, smoothZoomTo, l
 initZoomDeps({ scheduleRender, layout, getVisible });
 initNavDeps({ showMainPanel, closePanel, smoothPanTo, smoothZoomTo, scheduleRender, layout, centerOnRoot, applyT, renderPanelContent, closeDnaCalc, closeEvoPath, closeTrivia });
 initTimelineDeps({ scheduleRender, t, togglePlayback, pausePlayback });
-initPanelDeps({ pushNav, updateNavButtons, updateBreadcrumb, scheduleRender, smoothPanTo, focusNode, t, generateSpeciesIllustration, navBack, layout, applyT, centerOnRoot });
+initPanelDeps({ pushNav, updateNavButtons, updateBreadcrumb, scheduleRender, smoothPanTo, focusNode, t, generateSpeciesIllustration, navBack, layout, applyT, centerOnRoot, openSapiens });
+initSapiensDeps({ pushNav, navBack, showMainPanel, t, scheduleRender, smoothPanTo });
 initHomininDeps({ scheduleRender, showMainPanel, renderPanelContent, t });
 setHomininOverlayOpener(openHomininOverlay);
 initDnaCalcDeps({ searchEntities, t, showMainPanel });

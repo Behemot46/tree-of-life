@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DNA Splash — Tree of Life</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 100%; height: 100%; overflow: hidden; background: #141618; }
+  body { font-family: 'Inter', sans-serif; color: #f2e8d0; }
+
+  #splash {
+    position: fixed; inset: 0; z-index: 9999;
+    background: #141618;
+    display: flex; align-items: center; justify-content: center;
+  }
+  #splash canvas { display: block; width: 100%; height: 100%; }
+
+  #splash.dismissed { display: none; }
+
+  /* Skip button */
+  #skip-btn {
+    position: fixed; bottom: 24px; right: 24px; z-index: 10001;
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    color: #f2e8d0; font-family: 'Inter', sans-serif; font-size: 13px;
+    padding: 6px 16px; border-radius: 20px; cursor: pointer;
+    opacity: 0; transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  #skip-btn.visible { opacity: 0.4; pointer-events: auto; }
+  #skip-btn:hover { opacity: 0.7; }
+
+  /* Debug panel */
+  #debug {
+    position: fixed; top: 8px; left: 8px; z-index: 10002;
+    display: flex; gap: 6px;
+  }
+  #debug button {
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+    color: #aaa; font-family: 'Inter', sans-serif; font-size: 11px;
+    padding: 4px 10px; border-radius: 4px; cursor: pointer;
+  }
+  #debug button:hover { background: rgba(255,255,255,0.12); color: #ddd; }
+
+  /* CSS fallback */
+  #fallback {
+    position: fixed; inset: 0; z-index: 10000;
+    background: #141618; display: none;
+    flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; gap: 16px;
+  }
+  #fallback h1 { font-size: 36px; font-weight: 300; color: #c8883a; }
+  #fallback p { font-size: 16px; font-weight: 300; color: #f2e8d0; opacity: 0.7; }
+  #fallback .click-hint { font-size: 14px; opacity: 0.4; margin-top: 20px; cursor: pointer; }
+
+  /* Reduced motion fallback */
+  @media (prefers-reduced-motion: reduce) {
+    #splash canvas { display: none; }
+    #fallback { display: flex !important; }
+    #skip-btn { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <canvas id="c"></canvas>
+</div>
+
+<button id="skip-btn">Skip</button>
+
+<div id="debug">
+  <button onclick="resetFirstVisit()">Reset First Visit</button>
+  <button onclick="simulateReturn()">Simulate Return</button>
+  <button onclick="replay()">Replay</button>
+</div>
+
+<div id="fallback">
+  <h1>Tree of Life</h1>
+  <p>3.8 Billion Years of Evolution</p>
+  <p class="click-hint" onclick="document.getElementById('fallback').style.display='none';document.getElementById('splash').classList.add('dismissed');">Click to explore</p>
+</div>
+
+<script>
+// ============================================================
+// A. CONSTANTS + SAMPLE DATA
+// ============================================================
+const BG = '#141618';
+const GOLD = '#c8883a';
+const PARCHMENT = '#f2e8d0';
+const DOMAIN_COLORS = ['#ef4444','#f59e0b','#40b8b0','#8b5cf6'];
+
+const SAMPLE_SPECIES = [
+  { id:'luca', name:'LUCA', appeared:3800, color:'#8b5cf6', photo:null, depth:0 },
+  { id:'bacteria', name:'Bacteria', appeared:3500, color:'#ef4444', photo:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/EscherichiaColi_NIAID.jpg/320px-EscherichiaColi_NIAID.jpg', depth:1 },
+  { id:'cyanobacteria', name:'Cyanobacteria', appeared:2700, color:'#ef4444', photo:null, depth:2 },
+  { id:'proteobacteria', name:'Proteobacteria', appeared:2500, color:'#ef4444', photo:null, depth:2 },
+  { id:'firmicutes', name:'Firmicutes', appeared:2500, color:'#ef4444', photo:null, depth:2 },
+  { id:'archaea', name:'Archaea', appeared:3500, color:'#f59e0b', photo:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Halobacteria.jpg/320px-Halobacteria.jpg', depth:1 },
+  { id:'euryarchaeota', name:'Euryarchaeota', appeared:3000, color:'#f59e0b', photo:null, depth:2 },
+  { id:'crenarchaeota', name:'Crenarchaeota', appeared:3000, color:'#f59e0b', photo:null, depth:2 },
+  { id:'eukaryota', name:'Eukaryota', appeared:2100, color:'#40b8b0', photo:null, depth:1 },
+  { id:'fungi', name:'Fungi', appeared:800, color:'#e67e22', photo:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Amanita_muscaria_3_vliegenzwammen_op_rij.jpg/320px-Amanita_muscaria_3_vliegenzwammen_op_rij.jpg', depth:2 },
+  { id:'plants', name:'Plants', appeared:500, color:'#27ae60', photo:null, depth:2 },
+  { id:'algae', name:'Algae', appeared:1200, color:'#27ae60', photo:null, depth:3 },
+  { id:'ferns', name:'Ferns', appeared:360, color:'#27ae60', photo:null, depth:3 },
+  { id:'flowering', name:'Flowering Plants', appeared:130, color:'#27ae60', photo:null, depth:3 },
+  { id:'protists', name:'Protists', appeared:1500, color:'#9b59b6', photo:null, depth:2 },
+  { id:'animals', name:'Animals', appeared:600, color:'#2980b9', photo:null, depth:2 },
+  { id:'arthropoda', name:'Arthropoda', appeared:530, color:'#2980b9', photo:null, depth:3 },
+  { id:'mollusca', name:'Mollusca', appeared:530, color:'#2980b9', photo:null, depth:3 },
+  { id:'fish', name:'Fish', appeared:500, color:'#2980b9', photo:null, depth:3 },
+  { id:'amphibians', name:'Amphibians', appeared:370, color:'#2980b9', photo:null, depth:3 },
+  { id:'reptiles', name:'Reptiles', appeared:312, color:'#2980b9', photo:null, depth:3 },
+  { id:'mammals', name:'Mammals', appeared:200, color:'#2980b9', photo:null, depth:3 },
+  { id:'birds', name:'Birds', appeared:160, color:'#2980b9', photo:null, depth:3 },
+  { id:'primates', name:'Primates', appeared:65, color:'#2980b9', photo:null, depth:4 },
+  { id:'great_apes', name:'Great Apes', appeared:15, color:'#2980b9', photo:null, depth:4 },
+  { id:'hominini', name:'Hominini', appeared:7, color:'#2980b9', photo:null, depth:4 },
+  { id:'homo_sapiens', name:'Homo sapiens', appeared:0.3, color:'#2980b9', photo:null, depth:4 },
+];
+
+const TREE_EDGES = [
+  ['luca','bacteria'],['luca','archaea'],['luca','eukaryota'],
+  ['bacteria','cyanobacteria'],['bacteria','proteobacteria'],['bacteria','firmicutes'],
+  ['archaea','euryarchaeota'],['archaea','crenarchaeota'],
+  ['eukaryota','fungi'],['eukaryota','plants'],['eukaryota','protists'],['eukaryota','animals'],
+  ['plants','algae'],['plants','ferns'],['plants','flowering'],
+  ['animals','arthropoda'],['animals','mollusca'],['animals','fish'],['animals','amphibians'],
+  ['animals','reptiles'],['animals','mammals'],['animals','birds'],
+  ['mammals','primates'],
+  ['primates','great_apes'],
+  ['great_apes','hominini'],
+  ['hominini','homo_sapiens'],
+];
+
+const FACTS = [
+  'All life shares the same genetic code',
+  'Mitochondria were once free-living bacteria',
+  'Humans share 60% of DNA with bananas',
+  'The oldest fossils are 3.5 billion years old',
+  'Over 99% of all species that ever lived are extinct',
+];
+
+const SEQ_TEXTS = [
+  FACTS[Math.floor(Math.random() * FACTS.length)],
+  '27 species across 3 domains',
+  '3 domains \u2192 1 tree',
+];
+
+const ERA_CAPTIONS = [
+  { mya: 3500, label: '3,500 Mya \u2014 Bacteria' },
+  { mya: 2100, label: '2,100 Mya \u2014 Eukaryota' },
+  { mya: 200, label: '200 Mya \u2014 Mammals' },
+  { mya: 0.3, label: '0.3 Mya \u2014 Homo sapiens' },
+];
+
+// ============================================================
+// B. PHOTO PRELOADER
+// ============================================================
+const photoCache = {};
+let preloadQueue = [];
+let preloadActive = 0;
+const MAX_CONCURRENT = 6;
+
+function startPreload() {
+  preloadQueue = SAMPLE_SPECIES.filter(s => s.photo).map(s => ({ id: s.id, url: s.photo }));
+  pumpPreload();
+}
+
+function pumpPreload() {
+  while (preloadActive < MAX_CONCURRENT && preloadQueue.length > 0) {
+    const item = preloadQueue.shift();
+    preloadActive++;
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => { photoCache[item.id] = img; preloadActive--; pumpPreload(); };
+    img.onerror = () => { preloadActive--; pumpPreload(); };
+    img.src = item.url;
+  }
+}
+
+// ============================================================
+// C. TREE LAYOUT BUILDER
+// ============================================================
+let treeNodes = [];
+let treeEdgeList = [];
+
+function buildTreeLayout(w, h) {
+  const nodeMap = {};
+  SAMPLE_SPECIES.forEach(s => {
+    nodeMap[s.id] = { ...s, children: [], x: 0, y: 0, r: 0 };
+  });
+  const childrenOf = {};
+  TREE_EDGES.forEach(([pid, cid]) => {
+    if (!childrenOf[pid]) childrenOf[pid] = [];
+    childrenOf[pid].push(cid);
+  });
+
+  const maxDepth = Math.max(...SAMPLE_SPECIES.map(s => s.depth));
+  const marginTop = h * 0.08;
+  const marginBot = h * 0.12;
+  const usableH = h - marginTop - marginBot;
+
+  // Assign y by depth (root at bottom)
+  Object.values(nodeMap).forEach(n => {
+    n.y = h - marginBot - (n.depth / maxDepth) * usableH;
+    n.r = Math.max(3, 7 - n.depth * 0.8);
+  });
+
+  // Recursive x-spread
+  function getLeafCount(id) {
+    const ch = childrenOf[id];
+    if (!ch || ch.length === 0) return 1;
+    return ch.reduce((s, c) => s + getLeafCount(c), 0);
+  }
+
+  function layoutX(id, xMin, xMax) {
+    const node = nodeMap[id];
+    const ch = childrenOf[id];
+    if (!ch || ch.length === 0) {
+      node.x = (xMin + xMax) / 2;
+      return;
+    }
+    const totalLeaves = ch.reduce((s, c) => s + getLeafCount(c), 0);
+    let cursor = xMin;
+    ch.forEach(cid => {
+      const share = getLeafCount(cid) / totalLeaves;
+      const cxMin = cursor;
+      const cxMax = cursor + share * (xMax - xMin);
+      layoutX(cid, cxMin, cxMax);
+      cursor = cxMax;
+    });
+    // Parent x = average of children
+    const cxs = ch.map(c => nodeMap[c].x);
+    node.x = cxs.reduce((a, b) => a + b, 0) / cxs.length;
+  }
+
+  const marginX = w * 0.08;
+  layoutX('luca', marginX, w - marginX);
+
+  treeNodes = Object.values(nodeMap);
+  treeEdgeList = TREE_EDGES.map(([pid, cid]) => [nodeMap[pid], nodeMap[cid]]);
+  return { nodes: treeNodes, edges: treeEdgeList };
+}
+
+// ============================================================
+// D. HELIX GEOMETRY
+// ============================================================
+const NUM_PAIRS = 16;
+
+function getHelixPositions(cx, cy, amplitude, verticalSpan, time, rotSpeed) {
+  const pairs = [];
+  for (let i = 0; i < NUM_PAIRS; i++) {
+    const t = i / (NUM_PAIRS - 1); // 0..1
+    const y = cy - verticalSpan / 2 + t * verticalSpan;
+    const phase = t * Math.PI * 3 + time * rotSpeed;
+    const lx = cx + Math.sin(phase) * amplitude;
+    const rx = cx - Math.sin(phase) * amplitude;
+    const z = Math.cos(phase); // -1..1, for depth ordering
+    pairs.push({ i, t, y, lx, rx, z, phase });
+  }
+  return pairs;
+}
+
+// ============================================================
+// E. PHASE TIMING CONFIG
+// ============================================================
+const PHASE = {
+  HELIX:    { start: 0,   end: 1.5  },
+  UNRAVEL:  { start: 1.5, end: 3.5  },
+  FILL:     { start: 3.5, end: 5.5  },
+  READY:    { start: 5.5, end: 7.0  },
+};
+
+const PHASE_COMPRESSED = {
+  HELIX:    { start: 0,   end: 0    },
+  UNRAVEL:  { start: 0,   end: 0    },
+  FILL:     { start: 0,   end: 2.0  },
+  READY:    { start: 2.0, end: 3.0  },
+};
+
+const AUTO_DISMISS = 12;
+
+// ============================================================
+// F. MAIN RENDER LOOP
+// ============================================================
+let canvas, ctx;
+let W, H, dpr;
+let startTime = 0;
+let speedMultiplier = 1;
+let dismissed = false;
+let isReturnVisitor = false;
+let phases;
+let animId;
+
+function getElapsed() {
+  return (performance.now() - startTime) / 1000 * speedMultiplier;
+}
+
+function frame() {
+  if (dismissed) return;
+  const elapsed = getElapsed();
+  const p = phases;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = BG;
+  ctx.fillRect(0, 0, W, H);
+
+  if (elapsed < p.UNRAVEL.start) {
+    drawPhaseHelix(elapsed, p);
+  } else if (elapsed < p.FILL.start) {
+    drawPhaseUnravel(elapsed, p);
+  } else if (elapsed < p.READY.start) {
+    drawPhaseFill(elapsed, p);
+  } else {
+    drawPhaseReady(elapsed, p);
+  }
+
+  // Auto-dismiss
+  if (elapsed > AUTO_DISMISS / speedMultiplier) {
+    dismiss();
+    return;
+  }
+
+  animId = requestAnimationFrame(frame);
+}
+
+// ============================================================
+// G. drawPhaseHelix()
+// ============================================================
+function drawPhaseHelix(elapsed, p) {
+  const dur = p.HELIX.end - p.HELIX.start;
+  const t = Math.min(1, (elapsed - p.HELIX.start) / dur);
+  const cx = W / 2;
+  const cy = H / 2;
+  const amp = Math.min(W, H) * 0.08;
+  const vSpan = H * 0.55;
+
+  // Fade in
+  const fadeIn = easeQuad(Math.min(1, t * 3));
+
+  ctx.save();
+  ctx.globalAlpha = fadeIn;
+
+  const pairs = getHelixPositions(cx, cy, amp, vSpan, elapsed, 2.5);
+  drawHelixFull(pairs, cx, cy, amp, 1.0, 1.0);
+
+  ctx.restore();
+
+  // Big number text: fade in at 0.3s, fade out at 1.3s
+  const numFadeIn = smoothstep(0.3, 0.6, elapsed);
+  const numFadeOut = 1 - smoothstep(1.1, 1.4, elapsed);
+  const numAlpha = numFadeIn * numFadeOut;
+
+  if (numAlpha > 0.01) {
+    ctx.save();
+    ctx.globalAlpha = numAlpha;
+    const fontSize = Math.min(W * 0.09, 72);
+    drawText('3,800,000,000', cx, cy - fontSize * 0.3, fontSize, 200, PARCHMENT);
+    drawText('years of evolution', cx, cy + fontSize * 0.7, fontSize * 0.32, 300, PARCHMENT);
+    ctx.restore();
+  }
+}
+
+// ============================================================
+// H. drawPhaseUnravel()
+// ============================================================
+function drawPhaseUnravel(elapsed, p) {
+  const dur = p.UNRAVEL.end - p.UNRAVEL.start;
+  const t = (elapsed - p.UNRAVEL.start) / dur; // 0..1
+  const cx = W / 2;
+  const cy = H / 2;
+  const amp = Math.min(W, H) * 0.08;
+  const vSpan = H * 0.55;
+
+  // Rotation slows to stop
+  const rotSpeed = 2.5 * (1 - easeQuad(Math.min(1, t * 1.5)));
+  const rotTime = p.UNRAVEL.start + (elapsed - p.UNRAVEL.start); // frozen time progression
+
+  // Rungs fade out over first 40% of unravel
+  const rungOpacity = 1 - easeQuad(Math.min(1, t / 0.4));
+
+  // Strand drift apart factor
+  const driftT = easeQuad(Math.min(1, Math.max(0, (t - 0.15) / 0.85)));
+
+  // Get helix positions (with slowing rotation)
+  const pairs = getHelixPositions(cx, cy, amp, vSpan, rotTime, rotSpeed);
+
+  // If tree not built yet, build it
+  if (treeNodes.length === 0) buildTreeLayout(W, H);
+
+  // Sort species by appeared (oldest first) for fill order
+  const sortedByAge = [...SAMPLE_SPECIES].sort((a, b) => b.appeared - a.appeared);
+
+  // Draw morphing: lerp helix points toward tree positions
+  ctx.save();
+
+  // Map helix pairs to tree nodes: distribute pairs across nodes
+  // We have NUM_PAIRS helix pairs and ~27 tree nodes
+  // The strands morph: each pair lerps toward the closest tree node
+  // For simplicity: assign each helix pair index to a node index proportionally
+  const nodeCount = treeNodes.length;
+
+  // Draw edges morphing in
+  if (driftT > 0.3) {
+    const edgeAlpha = easeQuad(Math.min(1, (driftT - 0.3) / 0.7));
+    ctx.save();
+    ctx.globalAlpha = edgeAlpha * 0.6;
+    ctx.strokeStyle = GOLD;
+    ctx.lineWidth = 1.2;
+    treeEdgeList.forEach(([parent, child]) => {
+      ctx.beginPath();
+      ctx.moveTo(parent.x, parent.y);
+      // Quadratic curve for organic feel
+      const cpx = (parent.x + child.x) / 2;
+      const cpy = parent.y;
+      ctx.quadraticCurveTo(cpx, cpy, child.x, child.y);
+      ctx.stroke();
+    });
+    ctx.restore();
+  }
+
+  // Draw morphing helix/strand points
+  for (let i = 0; i < NUM_PAIRS; i++) {
+    const pair = pairs[i];
+    // Map this pair to two tree nodes
+    const ni1 = Math.floor((i / NUM_PAIRS) * nodeCount) % nodeCount;
+    const ni2 = Math.floor(((i + NUM_PAIRS / 2) / NUM_PAIRS) * nodeCount) % nodeCount;
+    const tn1 = treeNodes[ni1];
+    const tn2 = treeNodes[ni2];
+
+    // Left strand point lerps to tree node 1
+    const lx = lerp(pair.lx, tn1.x, driftT);
+    const ly = lerp(pair.y, tn1.y, driftT);
+    // Right strand point lerps to tree node 2
+    const rx = lerp(pair.rx, tn2.x, driftT);
+    const ry = lerp(pair.y, tn2.y, driftT);
+
+    // Draw rungs (fading)
+    if (rungOpacity > 0.01) {
+      ctx.save();
+      ctx.globalAlpha = rungOpacity * 0.5;
+      ctx.strokeStyle = DOMAIN_COLORS[i % 4];
+      ctx.lineWidth = 0.8;
+      ctx.beginPath();
+      ctx.moveTo(lx, ly);
+      ctx.lineTo(rx, ry);
+      ctx.stroke();
+
+      // Nucleotide circles on rungs
+      ctx.globalAlpha = rungOpacity;
+      ctx.fillStyle = DOMAIN_COLORS[i % 4];
+      ctx.beginPath();
+      ctx.arc(lerp(lx, rx, 0.35), lerp(ly, ry, 0.35), 2.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(lerp(lx, rx, 0.65), lerp(ly, ry, 0.65), 2.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // Draw strand dots (morphing into node positions)
+    const dotAlpha = lerp(0.7, 1, driftT);
+    const dotR = lerp(2, tn1.r, driftT);
+
+    ctx.save();
+    ctx.globalAlpha = dotAlpha;
+    ctx.fillStyle = lerp(1, 0, driftT) > 0.5 ? GOLD : tn1.color;
+    ctx.beginPath();
+    ctx.arc(lx, ly, dotR, 0, Math.PI * 2);
+    ctx.fill();
+    if (driftT < 0.7) {
+      ctx.fillStyle = lerp(1, 0, driftT) > 0.5 ? GOLD : tn2.color;
+      ctx.beginPath();
+      ctx.arc(rx, ry, lerp(2, tn2.r, driftT), 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  // Draw tree nodes fading in (as drift completes)
+  if (driftT > 0.5) {
+    const nodeAlpha = easeQuad((driftT - 0.5) / 0.5);
+    treeNodes.forEach(n => {
+      ctx.save();
+      ctx.globalAlpha = nodeAlpha;
+      ctx.strokeStyle = n.color;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    });
+  }
+
+  ctx.restore();
+
+  // Sequential text overlays
+  // 3 texts, each: 150ms fade-in, 200ms hold, 150ms fade-out, 100ms gap = 600ms each
+  const textStart = p.UNRAVEL.start + dur * 0.05;
+  const textUnit = 0.6; // seconds per text
+  for (let i = 0; i < SEQ_TEXTS.length; i++) {
+    const ts = textStart + i * textUnit;
+    const localT = elapsed - ts;
+    if (localT < 0 || localT > textUnit) continue;
+    const fi = smoothstep(0, 0.15, localT);
+    const fo = 1 - smoothstep(0.35, 0.5, localT);
+    const alpha = fi * fo;
+    if (alpha > 0.01) {
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      const fs = Math.min(W * 0.04, 28);
+      drawText(SEQ_TEXTS[i], W / 2, H / 2, fs, 300, PARCHMENT);
+      ctx.restore();
+    }
+  }
+}
+
+// ============================================================
+// I. drawPhaseFill()
+// ============================================================
+function drawPhaseFill(elapsed, p) {
+  const dur = p.FILL.end - p.FILL.start;
+  const t = (elapsed - p.FILL.start) / dur; // 0..1
+
+  if (treeNodes.length === 0) buildTreeLayout(W, H);
+
+  // Draw edges
+  ctx.save();
+  ctx.strokeStyle = GOLD;
+  ctx.lineWidth = 1.2;
+  ctx.globalAlpha = 0.6;
+  treeEdgeList.forEach(([parent, child]) => {
+    ctx.beginPath();
+    ctx.moveTo(parent.x, parent.y);
+    const cpx = (parent.x + child.x) / 2;
+    const cpy = parent.y;
+    ctx.quadraticCurveTo(cpx, cpy, child.x, child.y);
+    ctx.stroke();
+  });
+  ctx.restore();
+
+  // Sort by appeared (oldest first) for fill order
+  const sorted = [...treeNodes].sort((a, b) => b.appeared - a.appeared);
+  const fillDurEach = dur / sorted.length;
+
+  let currentEra = '';
+
+  sorted.forEach((n, idx) => {
+    const fillStart = idx * fillDurEach;
+    const localT = t * dur - fillStart;
+    const filled = localT > 0;
+    const fillProgress = Math.min(1, localT / (fillDurEach * 2));
+
+    // Update era caption
+    if (filled) {
+      for (const ec of ERA_CAPTIONS) {
+        if (n.appeared <= ec.mya) currentEra = ec.label;
+      }
+    }
+
+    ctx.save();
+    if (filled) {
+      // Ring pulse
+      const pulseT = Math.min(1, localT / 0.4);
+      if (pulseT < 1) {
+        const pulseR = n.r + pulseT * 12;
+        ctx.globalAlpha = (1 - pulseT) * 0.5;
+        ctx.strokeStyle = n.color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, pulseR, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+
+      // Filled node
+      ctx.globalAlpha = Math.min(1, fillProgress * 2);
+
+      // Try photo
+      const img = photoCache[n.id];
+      if (img && img.complete && img.naturalWidth > 0) {
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(img, n.x - n.r, n.y - n.r, n.r * 2, n.r * 2);
+      } else {
+        // Color circle fallback
+        ctx.fillStyle = n.color;
+        ctx.beginPath();
+        ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // Border
+      ctx.globalAlpha = 1;
+      ctx.strokeStyle = n.color;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+      ctx.stroke();
+    } else {
+      // Empty circle
+      ctx.strokeStyle = n.color;
+      ctx.lineWidth = 1;
+      ctx.globalAlpha = 0.4;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+    ctx.restore();
+  });
+
+  // Era caption
+  if (currentEra) {
+    ctx.save();
+    ctx.globalAlpha = 0.7;
+    const fs = Math.min(W * 0.035, 22);
+    drawText(currentEra, W / 2, H - 40, fs, 300, GOLD);
+    ctx.restore();
+  }
+}
+
+// ============================================================
+// J. drawPhaseReady()
+// ============================================================
+function drawPhaseReady(elapsed, p) {
+  const dur = p.READY.end - p.READY.start;
+  const t = (elapsed - p.READY.start) / dur;
+
+  if (treeNodes.length === 0) buildTreeLayout(W, H);
+
+  // Breathing effect
+  const breathe = 1 + 0.03 * Math.sin(elapsed * 2.5);
+
+  // Draw edges
+  ctx.save();
+  ctx.strokeStyle = GOLD;
+  ctx.lineWidth = 1.2;
+  ctx.globalAlpha = 0.6;
+  treeEdgeList.forEach(([parent, child]) => {
+    ctx.beginPath();
+    ctx.moveTo(parent.x, parent.y);
+    const cpx = (parent.x + child.x) / 2;
+    const cpy = parent.y;
+    ctx.quadraticCurveTo(cpx, cpy, child.x, child.y);
+    ctx.stroke();
+  });
+  ctx.restore();
+
+  // Draw filled nodes with breathing
+  treeNodes.forEach(n => {
+    const r = n.r * breathe;
+    ctx.save();
+
+    const img = photoCache[n.id];
+    if (img && img.complete && img.naturalWidth > 0) {
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+      ctx.clip();
+      ctx.drawImage(img, n.x - r, n.y - r, r * 2, r * 2);
+    } else {
+      ctx.fillStyle = n.color;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+
+    ctx.save();
+    ctx.strokeStyle = n.color;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.restore();
+  });
+
+  // Title fade in
+  const titleAlpha = easeQuad(Math.min(1, t * 2));
+  if (titleAlpha > 0.01) {
+    ctx.save();
+    ctx.globalAlpha = titleAlpha;
+    const titleSize = Math.min(W * 0.08, 56);
+    drawText('Tree of Life', W / 2, H * 0.12, titleSize, 300, GOLD);
+
+    const subAlpha = easeQuad(Math.min(1, Math.max(0, (t - 0.3) / 0.5)));
+    ctx.globalAlpha = subAlpha;
+    drawText('3.8 Billion Years of Evolution', W / 2, H * 0.12 + titleSize * 1.1, titleSize * 0.32, 300, PARCHMENT);
+
+    // Random fact
+    const factAlpha = easeQuad(Math.min(1, Math.max(0, (t - 0.6) / 0.4)));
+    ctx.globalAlpha = factAlpha * 0.5;
+    const factText = FACTS[0];
+    drawText(factText, W / 2, H - 60, Math.min(W * 0.03, 16), 300, PARCHMENT);
+
+    // Click hint
+    const hintAlpha = easeQuad(Math.min(1, Math.max(0, (t - 0.8) / 0.2)));
+    ctx.globalAlpha = hintAlpha * 0.35;
+    drawText('Click anywhere to explore', W / 2, H - 30, Math.min(W * 0.025, 14), 300, PARCHMENT);
+
+    ctx.restore();
+  }
+}
+
+// ============================================================
+// K. DRAW HELPERS
+// ============================================================
+function drawText(text, x, y, size, weight, color) {
+  ctx.fillStyle = color;
+  ctx.font = `${weight} ${size}px Inter, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, x, y);
+}
+
+function drawHelixFull(pairs, cx, cy, amp, strandAlpha, rungAlpha) {
+  // Draw rungs (back ones first, then strands, then front rungs)
+  const backPairs = pairs.filter(p => p.z < 0);
+  const frontPairs = pairs.filter(p => p.z >= 0);
+
+  // Back rungs
+  drawRungs(backPairs, rungAlpha * 0.4);
+
+  // Draw backbone strands as smooth curves
+  drawStrand(pairs, 'l', strandAlpha);
+  drawStrand(pairs, 'r', strandAlpha);
+
+  // Front rungs
+  drawRungs(frontPairs, rungAlpha * 0.8);
+}
+
+function drawStrand(pairs, side, alpha) {
+  if (pairs.length < 2) return;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.strokeStyle = GOLD;
+  ctx.lineWidth = 1.8;
+  ctx.beginPath();
+  const key = side === 'l' ? 'lx' : 'rx';
+  ctx.moveTo(pairs[0][key], pairs[0].y);
+  for (let i = 1; i < pairs.length; i++) {
+    const prev = pairs[i - 1];
+    const curr = pairs[i];
+    const cpx = (prev[key] + curr[key]) / 2;
+    const cpy = (prev.y + curr.y) / 2;
+    ctx.quadraticCurveTo(prev[key], prev.y, cpx, cpy);
+  }
+  const last = pairs[pairs.length - 1];
+  ctx.lineTo(last[key], last.y);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawRungs(pairs, alpha) {
+  pairs.forEach(p => {
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = DOMAIN_COLORS[p.i % 4];
+    ctx.lineWidth = 0.8;
+    ctx.beginPath();
+    ctx.moveTo(p.lx, p.y);
+    ctx.lineTo(p.rx, p.y);
+    ctx.stroke();
+
+    // Nucleotide circles
+    const mx1 = lerp(p.lx, p.rx, 0.35);
+    const mx2 = lerp(p.lx, p.rx, 0.65);
+    ctx.fillStyle = DOMAIN_COLORS[p.i % 4];
+    ctx.globalAlpha = alpha * 1.3;
+    ctx.beginPath();
+    ctx.arc(mx1, p.y, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(mx2, p.y, 2.5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+// ============================================================
+// MATH HELPERS
+// ============================================================
+function lerp(a, b, t) { return a + (b - a) * t; }
+function easeQuad(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+function smoothstep(edge0, edge1, x) {
+  const t = Math.max(0, Math.min(1, (x - edge0) / (edge1 - edge0)));
+  return t * t * (3 - 2 * t);
+}
+
+// ============================================================
+// L. INTERACTION HANDLERS
+// ============================================================
+function dismiss() {
+  if (dismissed) return;
+  dismissed = true;
+  cancelAnimationFrame(animId);
+  document.getElementById('splash').classList.add('dismissed');
+  document.getElementById('skip-btn').classList.remove('visible');
+  localStorage.setItem('tol-splash-seen', 'true');
+}
+
+function handleClick(e) {
+  // Ignore if clicking debug buttons
+  if (e.target.closest('#debug')) return;
+  if (e.target.id === 'skip-btn') {
+    dismiss();
+    return;
+  }
+
+  const elapsed = getElapsed();
+  if (elapsed > phases.READY.start) {
+    dismiss();
+  } else {
+    // Fast-forward: 10x speed
+    speedMultiplier = 10;
+  }
+}
+
+// ============================================================
+// M. CANVAS INIT
+// ============================================================
+function initCanvas() {
+  canvas = document.getElementById('c');
+  if (!canvas || !canvas.getContext) return false;
+  ctx = canvas.getContext('2d');
+  if (!ctx) return false;
+  resize();
+  return true;
+}
+
+function resize() {
+  dpr = Math.min(window.devicePixelRatio || 1, 2);
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+  // Rebuild tree layout on resize
+  if (treeNodes.length > 0) buildTreeLayout(W, H);
+}
+
+// ============================================================
+// N. INIT + FALLBACK
+// ============================================================
+function init() {
+  // Check reduced motion
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.getElementById('fallback').style.display = 'flex';
+    document.getElementById('splash').classList.add('dismissed');
+    return;
+  }
+
+  // Canvas fallback timeout
+  const fallbackTimer = setTimeout(() => {
+    document.getElementById('fallback').style.display = 'flex';
+    document.getElementById('splash').classList.add('dismissed');
+  }, 500);
+
+  if (!initCanvas()) {
+    return; // Fallback timer will fire
+  }
+
+  clearTimeout(fallbackTimer);
+
+  // Check return visitor
+  isReturnVisitor = localStorage.getItem('tol-splash-seen') === 'true';
+  phases = isReturnVisitor ? PHASE_COMPRESSED : PHASE;
+
+  // Build tree
+  buildTreeLayout(W, H);
+
+  // Start preloading photos
+  startPreload();
+
+  // Start animation
+  startTime = performance.now();
+  speedMultiplier = 1;
+  dismissed = false;
+  frame();
+
+  // Show skip button after 1s
+  setTimeout(() => {
+    if (!dismissed) document.getElementById('skip-btn').classList.add('visible');
+  }, 1000);
+
+  // Listeners
+  window.addEventListener('resize', resize);
+  window.addEventListener('click', handleClick);
+}
+
+init();
+
+// ============================================================
+// O. DEBUG CONTROLS
+// ============================================================
+function resetFirstVisit() {
+  localStorage.removeItem('tol-splash-seen');
+  location.reload();
+}
+
+function simulateReturn() {
+  localStorage.setItem('tol-splash-seen', 'true');
+  location.reload();
+}
+
+function replay() {
+  localStorage.removeItem('tol-splash-seen');
+  location.reload();
+}
+</script>
+</body>
+</html>

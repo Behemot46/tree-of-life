@@ -268,19 +268,27 @@ function init(){
   }, 500);
 
   if (_splashCanvas) {
-    initSplash(_splashCanvas, {
-      tree: TREE,
-      photoMap: PHOTO_MAP,
-      t,
-      facts: FACTS,
-      eraNames: ERA_NAMES,
-      onDone: () => {
-        animateTreeEntrance();
-        if (!localStorage.getItem('tol-tour-done') && !new URLSearchParams(location.search).get('node')) {
-          setTimeout(showTourSelector, 1200);
+    try {
+      initSplash(_splashCanvas, {
+        tree: TREE,
+        photoMap: PHOTO_MAP,
+        t,
+        facts: FACTS,
+        eraNames: ERA_NAMES,
+        onDone: () => {
+          animateTreeEntrance();
+          if (!localStorage.getItem('tol-tour-done') && !new URLSearchParams(location.search).get('node')) {
+            setTimeout(showTourSelector, 1200);
+          }
         }
-      }
-    });
+      });
+    } catch(err) {
+      console.error('[splash] initSplash crashed:', err);
+      // Fallback: just hide splash
+      const s = document.getElementById('splash');
+      if (s) s.style.display = 'none';
+      animateTreeEntrance();
+    }
   }
   function assignDomains(node, domain) {
     node._domain = domain;

@@ -11,6 +11,7 @@ const NUM_PAIRS = 16;
 
 export function initSplash(canvas, opts) {
   const { tree, photoMap, t: t_fn, facts, eraNames, onDone } = opts;
+  console.log('[splash] initSplash called, canvas:', canvas?.tagName, 'tree children:', tree?.children?.length);
 
   // ── Compute dynamic data from tree ──
   let speciesCount = 0;
@@ -60,6 +61,7 @@ export function initSplash(canvas, opts) {
 
   // Signal canvas is ready
   canvas.dataset.ready = '1';
+  console.log('[splash] canvas ready, W:', W, 'H:', H, 'nodes:', splashNodes.length, 'isReturn:', isReturn);
 
   // ── State ──
   const isReturn = localStorage.getItem('tol-splash-seen') === '1';
@@ -470,11 +472,15 @@ export function initSplash(canvas, opts) {
   // ══════════════════════════════════════════════════════
   // MAIN RENDER LOOP
   // ══════════════════════════════════════════════════════
+  let frameCount = 0;
   function render(ts) {
+    try {
     if (lastTs === null) lastTs = ts;
     const dt = (ts - lastTs) / 1000;
     lastTs = ts;
     elapsed += dt * (ff ? 10 : 1);
+    frameCount++;
+    if (frameCount === 1) console.log('[splash] first frame, elapsed:', elapsed);
 
     ctx.clearRect(0, 0, W, H);
     ctx.fillStyle = BG;
@@ -494,9 +500,13 @@ export function initSplash(canvas, opts) {
     }
 
     animId = requestAnimationFrame(render);
+    } catch(err) {
+      console.error('[splash] render error:', err);
+    }
   }
 
   // ── Start ──
+  console.log('[splash] starting animation, timing:', JSON.stringify(timing), 'treeLayout nodes:', treeLayout.nodes.length);
   animId = requestAnimationFrame(render);
 
   // ── Skip button ──

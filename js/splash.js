@@ -62,7 +62,7 @@ export function initSplash(canvas, opts) {
   canvas.dataset.ready = '1';
 
   // ── State ──
-  const isReturn = localStorage.getItem('tol-splash-seen') === '1';
+  const isReturn = false; // Always show full animation
   const lang = document.documentElement.lang || 'en';
   const timing = isReturn
     ? { helix: 0, unravel: 0, fill: 1.5, ready: 2.5, auto: 7.5 }
@@ -154,7 +154,7 @@ export function initSplash(canvas, opts) {
     ctx.save();
     ctx.globalAlpha = alpha;
     ctx.strokeStyle = GOLD;
-    ctx.lineWidth = 1.8;
+    ctx.lineWidth = 2.5;
     ctx.beginPath();
     const key = side === 'l' ? 'lx' : 'rx';
     ctx.moveTo(pairs[0][key], pairs[0].y);
@@ -176,7 +176,7 @@ export function initSplash(canvas, opts) {
       ctx.save();
       ctx.globalAlpha = alpha;
       ctx.strokeStyle = DOMAIN_COLORS[p.i % 4];
-      ctx.lineWidth = 0.8;
+      ctx.lineWidth = 1.2;
       ctx.beginPath();
       ctx.moveTo(p.lx, p.y);
       ctx.lineTo(p.rx, p.y);
@@ -184,12 +184,12 @@ export function initSplash(canvas, opts) {
       const mx1 = lerp(p.lx, p.rx, 0.35);
       const mx2 = lerp(p.lx, p.rx, 0.65);
       ctx.fillStyle = DOMAIN_COLORS[p.i % 4];
-      ctx.globalAlpha = alpha * 1.3;
+      ctx.globalAlpha = Math.min(1, alpha * 1.3);
       ctx.beginPath();
-      ctx.arc(mx1, p.y, 2.5, 0, Math.PI * 2);
+      ctx.arc(mx1, p.y, 3.5, 0, Math.PI * 2);
       ctx.fill();
       ctx.beginPath();
-      ctx.arc(mx2, p.y, 2.5, 0, Math.PI * 2);
+      ctx.arc(mx2, p.y, 3.5, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     });
@@ -252,15 +252,13 @@ export function initSplash(canvas, opts) {
     const t = Math.min(1, el / dur);
     const cx = W / 2;
     const cy = H / 2;
-    const amp = Math.min(W, H) * 0.08;
-    const vSpan = H * 0.55;
+    const amp = Math.min(W, H) * 0.15;
+    const vSpan = H * 0.65;
 
+    // Fade helix in: multiply alpha into each sub-draw
     const fadeIn = easeQuad(Math.min(1, t * 3));
-    ctx.save();
-    ctx.globalAlpha = fadeIn;
     const pairs = getHelixPositions(cx, cy, amp, vSpan, el, 2.5);
-    drawHelixFull(pairs, 1.0, 1.0);
-    ctx.restore();
+    drawHelixFull(pairs, fadeIn, fadeIn);
 
     // Big number text
     const numFadeIn = smoothstep(0.3, 0.6, el);
@@ -282,8 +280,8 @@ export function initSplash(canvas, opts) {
     const t = el / dur;
     const cx = W / 2;
     const cy = H / 2;
-    const amp = Math.min(W, H) * 0.08;
-    const vSpan = H * 0.55;
+    const amp = Math.min(W, H) * 0.15;
+    const vSpan = H * 0.65;
 
     const rotSpeed = 2.5 * (1 - easeQuad(Math.min(1, t * 1.5)));
     const rotTime = timing.helix + el;

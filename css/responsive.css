@@ -242,9 +242,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     grid-template-columns: 1fr !important;
   }
 
-  /* ── SPLASH: scale down ── */
-  #splash h1 { font-size: clamp(1.6rem,6vw,2.5rem) !important; }
-
   /* ── TOOLTIP: hidden on touch (use panel instead) ── */
   #tooltip { display: none !important; }
 
@@ -273,7 +270,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   #legend { display: none; }
   #panel { max-height: 80vh; }
   .p-facts { grid-template-columns: 1fr !important; }
-  #splash h1 { font-size: 1.4rem !important; }
   #zoom-ctrl { bottom: 5rem; right: 4px; }
   .zbtn { width: 44px !important; height: 44px !important; }
   /* FAB: icon-only circles on small screens */
@@ -371,7 +367,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     scroll-behavior:auto !important;
   }
   .particle { display: none !important; }
-  #splash { transition: none !important; }
   .node-border { transition: none !important; }
   .branch-path { transition: none !important; stroke-dasharray: none !important; stroke-dashoffset: 0 !important; }
   .branch-entering,.branch-entered { transition: none !important; stroke-dasharray: none !important; stroke-dashoffset: 0 !important; }

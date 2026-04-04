@@ -33,8 +33,6 @@ export function applyI18n(){
   const set=(id,v)=>{const e=el(id);if(e)e.textContent=v;};
   set('i-title',t('title'));
   set('i-subtitle',t('subtitle'));
-  set('splash-title',t('title'));
-  set('splash-years',t('splash_years'));
   const si=el('search-input');if(si)si.placeholder=t('search_ph');
   set('i-leg-title',t('leg_title'));
   set('i-leg-luca',t('leg_luca'));

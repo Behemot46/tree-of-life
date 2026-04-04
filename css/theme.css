@@ -155,16 +155,6 @@
 [data-theme="dark"] kbd{background:var(--surface-raised);border-color:var(--border);color:var(--text-primary);}
 [data-theme="dark"] #splash{background:var(--bg);}
 
-/* ── SPLASH POLISH ── */
-@keyframes splashFadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-@keyframes splashLineGrow{from{width:0;opacity:0}to{width:60px;opacity:1}}
-#splash{opacity:1;}
-#splash .splash-child{opacity:0;animation:splashFadeUp 800ms ease forwards;}
-#splash h1{font-family:'Inter',var(--font-head);font-size:clamp(2rem,6vw,4rem);letter-spacing:-0.02em;margin-bottom:8px;font-weight:700;text-shadow:0 0 40px rgba(200,136,58,0.35),0 0 80px rgba(200,136,58,0.15);}
-#splash{transform-origin:center;will-change:opacity,transform;}
-#splash .splash-line{opacity:0;animation:splashLineGrow 600ms ease forwards;}
-#splash .tagline{font-family:var(--font-sans);font-size:clamp(0.9rem,2vw,1.1rem);opacity:0.75;max-width:480px;text-align:center;line-height:1.6;}
-
 /* ── PANEL ANIMATION ── */
 #panel{transition:transform 250ms ease,opacity 250ms ease,right 0.5s cubic-bezier(0.16,1,0.3,1);}
 #panel.panel-enter{transform:translateX(100%);opacity:0;}

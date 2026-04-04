@@ -161,67 +161,6 @@ export function animateTreeEntrance() {
   }, totalDuration);
 }
 
-// ── Loading ──
-
-export function showLoading() {
-  /* Tree grows directly inside #splash — no separate loader overlay needed */
-  const container = document.getElementById('splash-tree-container');
-  if (!container) return null;
-  container.innerHTML = `
-    <style>
-      @keyframes loadBranchGrow{from{stroke-dashoffset:80;opacity:0}to{stroke-dashoffset:0;opacity:1}}
-      @keyframes loadNodePulse{from{r:0;opacity:0}to{opacity:1}}
-      @keyframes loadNodeGlow{0%,100%{filter:drop-shadow(0 0 2px currentColor)}50%{filter:drop-shadow(0 0 8px currentColor)}}
-      .load-branch{stroke-dasharray:80;opacity:0;animation:loadBranchGrow 0.7s ease forwards}
-      .load-node{opacity:0;animation:loadNodePulse 0.4s ease forwards}
-      .load-leaf{opacity:0;animation:loadNodePulse 0.4s ease forwards, loadNodeGlow 1.5s ease-in-out 3.0s infinite}
-    </style>
-    <svg width="200" height="180" viewBox="0 0 200 180" fill="none">
-      <!-- Stage 1: Root + trunk (0s\u20130.8s) -->
-      <circle cx="100" cy="170" r="5" fill="#8b5cf6" class="load-node" style="animation-delay:0s"/>
-      <line x1="100" y1="165" x2="100" y2="120" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round" class="load-branch" style="animation-delay:0.2s"/>
-
-      <!-- Stage 2: First fork \u2014 2 main branches (0.8s\u20131.8s) -->
-      <line x1="100" y1="120" x2="55" y2="85" stroke="#ef4444" stroke-width="2" stroke-linecap="round" class="load-branch" style="animation-delay:0.6s"/>
-      <line x1="100" y1="120" x2="145" y2="85" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" class="load-branch" style="animation-delay:0.7s"/>
-      <circle cx="55" cy="85" r="4" fill="#ef4444" class="load-node" style="animation-delay:1.0s"/>
-      <circle cx="145" cy="85" r="4" fill="#3b82f6" class="load-node" style="animation-delay:1.1s"/>
-
-      <!-- Stage 3: Second fork \u2014 4 sub-branches (1.8s\u20133.0s) -->
-      <line x1="55" y1="85" x2="28" y2="52" stroke="#22c55e" stroke-width="1.5" stroke-linecap="round" class="load-branch" style="animation-delay:1.4s"/>
-      <line x1="55" y1="85" x2="78" y2="52" stroke="#f59e0b" stroke-width="1.5" stroke-linecap="round" class="load-branch" style="animation-delay:1.5s"/>
-      <line x1="145" y1="85" x2="122" y2="52" stroke="#14b8a6" stroke-width="1.5" stroke-linecap="round" class="load-branch" style="animation-delay:1.7s"/>
-      <line x1="145" y1="85" x2="172" y2="52" stroke="#f97316" stroke-width="1.5" stroke-linecap="round" class="load-branch" style="animation-delay:1.8s"/>
-      <circle cx="28" cy="52" r="3" fill="#22c55e" class="load-node" style="animation-delay:1.9s"/>
-      <circle cx="78" cy="52" r="3" fill="#f59e0b" class="load-node" style="animation-delay:2.0s"/>
-      <circle cx="122" cy="52" r="3" fill="#14b8a6" class="load-node" style="animation-delay:2.0s"/>
-      <circle cx="172" cy="52" r="3" fill="#f97316" class="load-node" style="animation-delay:2.1s"/>
-
-      <!-- Stage 4: Leaf bloom \u2014 8 terminal nodes (3.0s\u20134.2s) -->
-      <line x1="28" y1="52" x2="14" y2="25" stroke="#22c55e" stroke-width="1" stroke-linecap="round" class="load-branch" style="animation-delay:2.2s"/>
-      <line x1="28" y1="52" x2="42" y2="28" stroke="#10b981" stroke-width="1" stroke-linecap="round" class="load-branch" style="animation-delay:2.3s"/>
-      <line x1="78" y1="52" x2="65" y2="25" stroke="#eab308" stroke-width="1" stroke-linecap="round" class="load-branch" style="animation-delay:2.4s"/>
-      <line x1="78" y1="52" x2="92" y2="28" stroke="#f59e0b" stroke-width="1" stroke-linecap="round" class="load-branch" style="animation-delay:2.5s"/>
-      <line x1="122" y1="52" x2="108" y2="25" stroke="#06b6d4" stroke-width="1" stroke-linecap="round" class="load-branch" style="animation-delay:2.5s"/>
-      <line x1="122" y1="52" x2="136" y2="28" stroke="#14b8a6" stroke-width="1" stroke-linecap="round" class="load-branch" style="animation-delay:2.6s"/>
-      <line x1="172" y1="52" x2="158" y2="25" stroke="#f97316" stroke-width="1" stroke-linecap="round" class="load-branch" style="animation-delay:2.7s"/>
-      <line x1="172" y1="52" x2="186" y2="28" stroke="#a855f7" stroke-width="1" stroke-linecap="round" class="load-branch" style="animation-delay:2.7s"/>
-      <circle cx="14" cy="25" r="2.5" fill="#22c55e" class="load-leaf" style="animation-delay:2.8s"/>
-      <circle cx="42" cy="28" r="2.5" fill="#10b981" class="load-leaf" style="animation-delay:2.8s"/>
-      <circle cx="65" cy="25" r="2.5" fill="#eab308" class="load-leaf" style="animation-delay:2.9s"/>
-      <circle cx="92" cy="28" r="2.5" fill="#f59e0b" class="load-leaf" style="animation-delay:2.9s"/>
-      <circle cx="108" cy="25" r="2.5" fill="#06b6d4" class="load-leaf" style="animation-delay:3.0s"/>
-      <circle cx="136" cy="28" r="2.5" fill="#14b8a6" class="load-leaf" style="animation-delay:3.0s"/>
-      <circle cx="158" cy="25" r="2.5" fill="#f97316" class="load-leaf" style="animation-delay:3.0s"/>
-      <circle cx="186" cy="28" r="2.5" fill="#a855f7" class="load-leaf" style="animation-delay:3.0s"/>
-    </svg>
-  `;
-  return container;
-}
-
-export function hideLoading(loader) {
-  /* Tree animation lives inside splash now — no separate loader to remove */
-}
 
 // ══════════════════════════════════════════════════════
 // PROCEDURAL SPECIES ILLUSTRATION

@@ -39,17 +39,20 @@
 <link rel="stylesheet" href="css/theme.css">
 <link rel="stylesheet" href="css/rtl.css">
 <link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet" href="css/splash.css">
 <link rel="stylesheet" href="css/sapiens.css">
 </head>
 <body>
 <a href="#canvas-wrap" class="skip-link" id="skip-link">Skip to Tree of Life</a>
 <div aria-live="polite" aria-atomic="true" class="sr-only" id="a11y-announce"></div>
-<div id="splash" style="position:fixed;inset:0;background:#141618;display:flex;align-items:center;justify-content:center;z-index:9999;flex-direction:column;gap:16px;transition:opacity 0.8s ease;">
-  <div id="splash-tree-container" style="margin-bottom:12px;"></div>
-  <div id="splash-years" class="splash-child" style="font-family:'Inter',sans-serif;font-size:13px;letter-spacing:3px;text-transform:uppercase;color:rgba(154,148,136,0.6);animation-delay:1.0s;">3,800,000,000 years of evolution</div>
-  <h1 id="splash-title" class="splash-child" style="font-family:'Inter',sans-serif;font-size:clamp(48px,8vw,96px);font-weight:700;color:#e6e1d8;letter-spacing:-2px;line-height:1;margin:0;animation-delay:2.0s;">Tree of Life</h1>
-  <div class="splash-line" style="width:60px;height:1px;background:rgba(200,136,58,0.4);animation-delay:3.0s;"></div>
-  <div id="splash-tagline" class="splash-child" style="font-family:'Inter',sans-serif;font-style:normal;font-size:16px;color:rgba(154,148,136,0.6);max-width:480px;text-align:center;line-height:1.6;animation-delay:3.5s;"></div>
+<div id="splash">
+  <canvas id="splash-canvas"></canvas>
+  <div id="splash-skip"></div>
+  <div id="splash-fallback">
+    <h1 id="splash-fb-title">Tree of Life</h1>
+    <p id="splash-fb-subtitle">3.8 Billion Years of Evolution</p>
+    <p id="splash-fb-click">Click to explore</p>
+  </div>
 </div>
 <div id="bg"></div>
 <div id="era-tint-overlay"></div>

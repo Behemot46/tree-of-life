@@ -58,13 +58,21 @@
 <div id="era-tint-overlay"></div>
 <div id="particles"></div>
 
-<!-- LANGUAGE SWITCHER -->
-<div id="lang-switcher" role="toolbar" aria-label="Language selector">
-  <button class="lang-btn active" data-lang="en" onclick="setLang('en')" aria-label="Switch to English" aria-pressed="true">EN</button>
-  <button class="lang-btn" data-lang="he" onclick="setLang('he')" aria-label="Switch to Hebrew" aria-pressed="false">עב</button>
-  <button class="lang-btn" data-lang="ru" onclick="setLang('ru')" aria-label="Switch to Russian" aria-pressed="false">РУ</button>
+<!-- TOP-RIGHT CONTROLS (view toggle + lang + theme in one flex row) -->
+<div id="top-right-controls">
+  <div id="view-toggle" role="toolbar" aria-label="View mode selector">
+    <button class="view-btn active" data-mode="radial" onclick="setViewMode('radial')">&#9673; Radial</button>
+    <button class="view-btn" data-mode="chronological" onclick="setViewMode('chronological')" style="display:none">&#8594; Timeline</button>
+    <button class="view-btn" data-mode="cladogram" onclick="setViewMode('cladogram')">&#9500; Cladogram</button>
+    <button class="view-btn" data-mode="playback" onclick="enterPlaybackMode()" id="i-view-playback">&#9654; Playback</button>
+  </div>
+  <div id="lang-switcher" role="toolbar" aria-label="Language selector">
+    <button class="lang-btn active" data-lang="en" onclick="setLang('en')" aria-label="Switch to English" aria-pressed="true">EN</button>
+    <button class="lang-btn" data-lang="he" onclick="setLang('he')" aria-label="Switch to Hebrew" aria-pressed="false">עב</button>
+    <button class="lang-btn" data-lang="ru" onclick="setLang('ru')" aria-label="Switch to Russian" aria-pressed="false">РУ</button>
+  </div>
+  <button id="theme-btn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle dark mode">☀</button>
 </div>
-<button id="theme-btn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle dark mode">☀</button>
 
 <!-- PROGRESS BADGE -->
 <div id="progress-badge" aria-label="Species explored">🔬 <span id="progress-count">0</span>/<span id="progress-total">0</span></div>
@@ -246,20 +254,6 @@
 </div>
 
 
-
-<!-- VIEW TOGGLE -->
-
-<div id="view-toggle" role="toolbar" aria-label="View mode selector">
-
-  <button class="view-btn active" data-mode="radial" onclick="setViewMode('radial')">&#9673; Radial</button>
-
-  <button class="view-btn" data-mode="chronological" onclick="setViewMode('chronological')" style="display:none">&#8594; Timeline</button>
-
-  <button class="view-btn" data-mode="cladogram" onclick="setViewMode('cladogram')">&#9500; Cladogram</button>
-
-  <button class="view-btn" data-mode="playback" onclick="enterPlaybackMode()" id="i-view-playback">&#9654; Playback</button>
-
-</div>
 
 <!-- PLAYBACK OVERLAYS -->
 <div id="discovery-card-container"></div>

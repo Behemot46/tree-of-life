@@ -1,5 +1,5 @@
 /* ── LANGUAGE SWITCHER ── */
-#lang-switcher{position:fixed;top:0.5rem;right:calc(0.5rem + 36px + 0.4rem);z-index:var(--z-panel);display:flex;align-items:center;gap:0.25rem;pointer-events:all;}
+#lang-switcher{display:flex;align-items:center;gap:0.25rem;}
 .lang-btn{padding:0.35rem 0.65rem;border:1px solid var(--glass-border);border-radius:var(--radius-sm);
   background:var(--glass-bg);color:var(--text-secondary);font-size:0.688rem;font-weight:600;
   letter-spacing:0.06em;cursor:pointer;transition:all var(--transition-fast);font-family:var(--font-sans);backdrop-filter:var(--glass-blur);}
@@ -7,7 +7,7 @@
 .lang-btn.active{background:var(--accent-primary-dim);border-color:var(--accent-primary);color:var(--accent-primary);}
 
 /* ── THEME TOGGLE ── */
-#theme-btn{position:fixed;top:0.5rem;right:0.5rem;z-index:var(--z-panel);width:30px;height:30px;
+#theme-btn{width:30px;height:30px;
   border-radius:var(--radius-sm);background:var(--glass-bg);border:1px solid var(--glass-border);
   color:var(--text-secondary);font-size:0.85rem;cursor:pointer;
   display:flex;align-items:center;justify-content:center;transition:all var(--transition-fast);backdrop-filter:var(--glass-blur);}

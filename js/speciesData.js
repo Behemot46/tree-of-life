@@ -1796,6 +1796,244 @@ export const ENRICHMENT = {
       {label:'U.S. Fish & Wildlife', url:'https://www.fws.gov/species/california-condor-gymnogyps-californianus'},
     ]
   },
+  'reptiles': {
+    altFacts:[
+      'Reptiles were the first fully terrestrial vertebrates — the evolution of the amniotic egg 312 million years ago freed them from needing water to reproduce.',
+      'Modern reptiles include turtles, crocodilians, lizards, snakes, and the tuatara — but birds are also technically reptiles, making them the most diverse "reptile" group.',
+      'The dinosaurs in this tree\'s bird lineage were reptiles — every chicken, sparrow, and eagle is a living dinosaur and a member of class Reptilia.',
+      'Reptiles dominated Earth for over 180 million years during the Mesozoic Era — the "Age of Reptiles" lasted 50× longer than the entire existence of Homo sapiens.',
+      'Many reptiles can regrow lost tails, and some can shift sex based on incubation temperature — crocodilians and turtles produce males or females depending on nest warmth.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Reptile'},
+      {label:'Reptile Database', url:'https://reptile-database.reptarium.cz/'},
+      {label:'San Diego Zoo Wildlife', url:'https://animals.sandiegozoo.org/animals?type=reptiles'},
+    ]
+  },
+  'amphibians': {
+    altFacts:[
+      'Amphibians were the first vertebrates to walk on land — about 370 million years ago, fish-like tetrapods hauled themselves onto shore and changed the course of evolution.',
+      'Amphibian skin is so thin and permeable that many species can breathe through it — some lungless salamanders have no lungs at all and rely entirely on skin respiration.',
+      'The global amphibian crisis is the worst extinction event since the dinosaurs — 41% of amphibian species are threatened, largely due to the chytrid fungus Batrachochytrium.',
+      'The class name Amphibia comes from Greek amphi (both) + bios (life), reflecting their dual life — aquatic larvae with gills that metamorphose into air-breathing terrestrial adults.',
+      'Amphibians produce a pharmacy of bioactive skin compounds — painkillers, antibiotics, and antiviral agents. The phantasmal poison frog\'s epibatidine is 200× more potent than morphine.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Amphibian'},
+      {label:'AmphibiaWeb', url:'https://amphibiaweb.org/'},
+      {label:'IUCN Amphibian Specialist Group', url:'https://www.iucn-amphibians.org/'},
+    ]
+  },
+  'green-sea-turtle': {
+    altFacts:[
+      'Green sea turtles navigate thousands of kilometers across open ocean to the exact beach where they hatched — imprinting on Earth\'s magnetic signature at birth as an internal GPS.',
+      'Despite weighing up to 315 kg, green turtles can swim at 35 km/h in short bursts and hold their breath for up to 5 hours while sleeping underwater.',
+      'Sea turtles are ancient reptiles — they diverged from other reptiles about 200 million years ago, predating the dinosaur extinction by over 130 million years.',
+      'The "green" in green sea turtle refers not to their shell but to the green color of their body fat, tinted by the seagrass and algae they eat.',
+      'Green turtle grazing maintains healthy seagrass meadows — without them, seagrass beds become overgrown and collapse, losing their role as critical carbon sinks.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Green_sea_turtle'},
+      {label:'WWF', url:'https://www.worldwildlife.org/species/green-turtle'},
+      {label:'Sea Turtle Conservancy', url:'https://conserveturtles.org/'},
+    ]
+  },
+  'king-cobra': {
+    altFacts:[
+      'The king cobra is the only snake in the world that builds a nest for its eggs — the female constructs a mound of leaves and guards it fiercely for 60-90 days.',
+      'A single bite delivers enough neurotoxin to kill an Asian elephant or 20 humans — yet king cobras are shy and will flee if given the chance.',
+      'King cobras eat almost exclusively other snakes — their genus name Ophiophagus literally means "snake-eater." They are immune to the venom of the snakes they consume.',
+      'In Hindu mythology, cobras (nagas) are sacred guardians of treasure and water. King cobras are revered across South and Southeast Asia.',
+      'King cobras can raise the front third of their body off the ground when threatened — standing eye-to-eye with a human — and will growl rather than hiss, a sound unique among snakes.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/King_cobra'},
+      {label:'National Geographic', url:'https://www.nationalgeographic.com/animals/reptiles/facts/king-cobra'},
+      {label:'IUCN Red List', url:'https://www.iucnredlist.org/species/177540/1491874'},
+    ]
+  },
+  'saltwater-crocodile': {
+    altFacts:[
+      'The saltwater crocodile has the strongest bite ever measured — 3,700 PSI — yet its jaw-opening muscles are so weak that a few layers of duct tape can hold its mouth shut.',
+      'Saltwater crocs can swim in the open ocean for weeks, riding currents across 500+ km of sea — they\'ve been tracked moving between Australia and Southeast Asian islands.',
+      'Crocodilians are archosaurs — the same group that includes dinosaurs and birds. A crocodile is more closely related to a sparrow than to any lizard.',
+      'The species name Crocodylus porosus means "pored crocodile," referring to the sensory pits on their snout that detect water pressure changes — essentially a sixth sense.',
+      'Saltwater crocodiles survived the K-Pg extinction that killed the non-avian dinosaurs — their lineage has been essentially unchanged for 80 million years.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Saltwater_crocodile'},
+      {label:'Australia Zoo', url:'https://www.australiazoo.com.au/our-animals/reptiles/crocodilians/saltwater-crocodile'},
+      {label:'National Geographic', url:'https://www.nationalgeographic.com/animals/reptiles/facts/saltwater-crocodile'},
+    ]
+  },
+  'chameleon': {
+    altFacts:[
+      'Chameleons don\'t change color for camouflage — they change color to communicate mood, social status, and temperature. The skin contains nanocrystal lattices that shift light reflection.',
+      'A chameleon\'s tongue accelerates at 2,590 m/s² — 264 g of force — and reaches prey in 20 milliseconds, faster than a jet fighter catapult.',
+      'Chameleons are a specialized clade of lizards — over half of all species live in Madagascar, suggesting the island was a major center of their evolution.',
+      'The name "chameleon" comes from Greek chamai (on the ground) + leon (lion) = "ground lion." Ancient Aristotle studied their color change.',
+      'Each of a chameleon\'s eyes moves independently, giving 360-degree vision. When prey is spotted, both eyes converge to provide stereoscopic depth perception for the tongue strike.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Chameleon'},
+      {label:'San Diego Zoo Wildlife', url:'https://animals.sandiegozoo.org/animals/chameleon'},
+      {label:'National Geographic', url:'https://www.nationalgeographic.com/animals/reptiles/facts/chameleon'},
+    ]
+  },
+  'anaconda': {
+    altFacts:[
+      'The green anaconda is the heaviest snake on Earth — up to 250 kg and 9 meters long — yet moves through water with surprising grace and stealth.',
+      'Anacondas kill by constriction, tightening each time the prey exhales until the heart can no longer pump. They swallow prey whole, including caimans and capybaras.',
+      'Anacondas are boas — members of the family Boidae — which are more distantly related to pythons than they appear. The two groups convergently evolved similar body plans.',
+      'The name "anaconda" may come from the Tamil anai-kondra (elephant killer) or the Sinhalese hena-kanda (thunder snake).',
+      'Female anacondas are much larger than males and sometimes eat their mates after breeding — providing nutrients for the 7-month gestation of up to 80 live young.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Green_anaconda'},
+      {label:'National Geographic', url:'https://www.nationalgeographic.com/animals/reptiles/facts/green-anaconda'},
+      {label:'Smithsonian National Zoo', url:'https://nationalzoo.si.edu/animals/green-anaconda'},
+    ]
+  },
+  'gecko': {
+    altFacts:[
+      'Gecko toe pads use van der Waals forces — weak molecular attractions between billions of microscopic hair-like setae and any surface — no glue, suction, or chemicals involved.',
+      'A gecko\'s adhesion is so strong that a single toe can support its entire body weight, yet it peels off effortlessly by changing the angle — inspiring self-cleaning adhesive tape.',
+      'Geckos are one of the most species-rich lizard families, with over 2,000 species — they diverged from other lizards about 200 million years ago.',
+      'The word "gecko" comes from the Malay ge\'kok or Javanese toké, imitating the distinctive clicking call that many species produce at night.',
+      'Most geckos lack eyelids and instead lick their eyes clean with their tongue. Some species have UV vision and can see color in near-total darkness.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Gecko'},
+      {label:'San Diego Zoo Wildlife', url:'https://animals.sandiegozoo.org/animals/gecko'},
+      {label:'Nature — gecko adhesion', url:'https://www.nature.com/articles/35025141'},
+    ]
+  },
+  'python': {
+    altFacts:[
+      'Pythons have infrared-sensing pit organs along their lips that detect temperature differences of 0.003°C — they can "see" the body heat of prey in total darkness.',
+      'A python\'s jaw is not dislocated when feeding — instead, the two halves of the lower jaw are connected by elastic ligaments, and each side walks forward independently to swallow prey.',
+      'Pythons are among the most ancient snakes — the family Pythonidae diverged from other snakes about 70 million years ago. They retain vestigial pelvic bones and tiny hind leg claws.',
+      'The name "python" comes from the mythological Greek serpent Python, slain by Apollo at Delphi. The Oracle at Delphi was originally called Pythia.',
+      'Female Burmese pythons can raise their body temperature by "shivering" their muscles to incubate eggs — they coil around the clutch and generate heat for months.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Pythonidae'},
+      {label:'Reptile Database', url:'https://reptile-database.reptarium.cz/advanced_search?taxon=Pythonidae'},
+      {label:'National Geographic', url:'https://www.nationalgeographic.com/animals/reptiles/facts/burmese-python'},
+    ]
+  },
+  'iguana': {
+    altFacts:[
+      'Marine iguanas in the Galápagos are the world\'s only sea-going lizards — they dive up to 12 meters to graze on algae, then bask on rocks and sneeze crystallized salt from nasal glands.',
+      'Green iguanas can survive falls from 15 meters onto hard ground or water, landing on their hind legs — a useful skill for a tree-dwelling reptile escaping predators.',
+      'Iguanas are part of the squamate order — closely related to other lizards and snakes in this tree, sharing a common ancestor about 200 million years ago.',
+      'The word "iguana" comes from the Taíno iwana, adopted by Spanish colonists. The marine iguana\'s species name cristatus means "crested."',
+      'Charles Darwin was so unimpressed by marine iguanas he called them "disgusting, clumsy lizards" — yet they became a key exhibit in his theory of adaptation to environment.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Iguana'},
+      {label:'Galápagos Conservation Trust', url:'https://galapagosconservation.org.uk/wildlife/marine-iguana/'},
+      {label:'San Diego Zoo Wildlife', url:'https://animals.sandiegozoo.org/animals/green-iguana'},
+    ]
+  },
+  'leatherback-turtle': {
+    altFacts:[
+      'The leatherback turtle dives to 1,280 meters — deeper than most military submarines — making it the deepest-diving reptile on Earth.',
+      'Leatherbacks can maintain a body temperature 18°C above the surrounding water using countercurrent heat exchangers — unique among reptiles and approaching warm-blooded physiology.',
+      'Leatherbacks are the most ancient living turtle lineage — virtually unchanged for 100 million years. They outlasted the dinosaurs, but may not outlast plastic bags.',
+      'The name "leatherback" refers to its unique shell — instead of bony scutes, it has a flexible, leathery carapace with embedded bone pieces, reducing drag for deep diving.',
+      'Leatherbacks eat their body weight in jellyfish every day (~200 kg) — they mistake floating plastic bags for jellyfish, a leading cause of death for the species.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Leatherback_sea_turtle'},
+      {label:'Sea Turtle Conservancy', url:'https://conserveturtles.org/information-about-sea-turtles-leatherback-sea-turtle/'},
+      {label:'IUCN Red List', url:'https://www.iucnredlist.org/species/6494/43526147'},
+    ]
+  },
+  'golden-poison-frog': {
+    altFacts:[
+      'One golden poison frog carries enough batrachotoxin to kill 10 adult humans — making it the most toxic animal on Earth, gram for gram.',
+      'The frog\'s toxin works by permanently opening sodium channels in nerve cells, causing uncontrollable muscle contraction and heart failure within minutes.',
+      'Poison dart frogs are closely related to other tree frogs in the order Anura — their toxicity evolved from dietary sequestration of alkaloids from the ants and beetles they eat.',
+      'The Emberá people of Colombia tip blowgun darts with the frog\'s skin secretions — the toxin remains potent for over a year. The scientific name Phyllobates terribilis means "terrifying leaf-climber."',
+      'Captive-bred golden poison frogs are completely harmless — they become non-toxic because they lack the specific wild insect diet that provides the alkaloid precursors.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Golden_poison_frog'},
+      {label:'AmphibiaWeb', url:'https://amphibiaweb.org/species/1894'},
+      {label:'Smithsonian', url:'https://nationalzoo.si.edu/animals/golden-poison-frog'},
+    ]
+  },
+  'axolotl': {
+    altFacts:[
+      'Axolotls can regenerate entire limbs, spinal cord, heart tissue, and parts of their brain with zero scarring — a superpower that scientists are studying for potential human medical applications.',
+      'Unlike most amphibians, axolotls never metamorphose — they retain their larval gills and aquatic form throughout life, a condition called neoteny.',
+      'Axolotls are salamanders, closely related to the tiger salamander — they\'re part of the ancient amphibian lineage that first walked on land 370 million years ago.',
+      'The name "axolotl" comes from Nahuatl atl (water) + xolotl (monster/deity) — Xolotl was the Aztec god of fire and lightning who transformed into an axolotl to escape sacrifice.',
+      'Wild axolotls may number fewer than 1,000, confined to the canals of Lake Xochimilco in Mexico City — yet millions exist in laboratories and aquariums worldwide.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Axolotl'},
+      {label:'IUCN Red List', url:'https://www.iucnredlist.org/species/1095/53947766'},
+      {label:'National Geographic', url:'https://www.nationalgeographic.com/animals/amphibians/facts/axolotl'},
+    ]
+  },
+  'chinese-giant-salamander': {
+    altFacts:[
+      'The Chinese giant salamander can reach 1.8 meters — the largest amphibian on Earth — and has remained essentially unchanged for 170 million years.',
+      'It detects prey using a lateral line system similar to fish — sensing vibrations in the water to locate crayfish, frogs, and fish in total darkness.',
+      'Giant salamanders belong to the most ancient salamander family (Cryptobranchidae), which diverged from other salamanders about 170 million years ago — they\'re living fossils.',
+      'Called wáwa yú (baby fish) in Chinese for the crying sound it makes when distressed. Despite being critically endangered, it is considered a luxury food item.',
+      'Recent genetic studies revealed that what was thought to be one species is actually at least five distinct species — some already extinct before they were even described.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Chinese_giant_salamander'},
+      {label:'ZSL Conservation', url:'https://www.zsl.org/conservation/regions/asia/chinese-giant-salamander'},
+      {label:'IUCN Red List', url:'https://www.iucnredlist.org/species/3854/22469898'},
+    ]
+  },
+  'caecilian': {
+    altFacts:[
+      'Caecilians are the least-known order of amphibians — limbless, mostly blind, worm-like burrowers that most biologists have never seen alive.',
+      'Some caecilian mothers grow a nutrient-rich outer skin layer that their young scrape off and eat — a form of parental care called dermatotrophy found nowhere else in nature.',
+      'Caecilians are true amphibians, more closely related to frogs and salamanders than to snakes or worms — despite looking almost identical to earthworms.',
+      'The name "caecilian" comes from Latin caecus (blind) — most species have tiny eyes hidden beneath skin or bone, and some have none at all.',
+      'Some aquatic caecilians have a unique retractable tentacle between the eye and nostril — a sensory organ found in no other vertebrate.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Caecilian'},
+      {label:'AmphibiaWeb', url:'https://amphibiaweb.org/lists/Gymnophiona.shtml'},
+      {label:'Natural History Museum', url:'https://www.nhm.ac.uk/discover/what-is-a-caecilian.html'},
+    ]
+  },
+  'giant-salamander': {
+    altFacts:[
+      'Japanese giant salamanders can live over 80 years — the longest-lived amphibian — and grow to 1.5 meters in cool mountain streams.',
+      'They are nocturnal ambush predators that sit motionless on the river bottom, detecting prey through lateral line vibrations — then strike with a powerful sideways snap.',
+      'Japanese giant salamanders are in the same ancient family as the Chinese giant salamander — Cryptobranchidae, a lineage essentially unchanged since the Jurassic.',
+      'Called ōsanshōuo (大山椒魚, "giant pepper fish") in Japanese because their skin secretions smell like Japanese pepper. They are a protected national monument.',
+      'Giant salamanders breathe almost entirely through their heavily wrinkled skin — the folds increase surface area for gas exchange, as their lungs are too small to meet oxygen demands.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Japanese_giant_salamander'},
+      {label:'IUCN Red List', url:'https://www.iucnredlist.org/species/1273/3375181'},
+      {label:'Japan Times', url:'https://www.japantimes.co.jp/news/giant-salamander/'},
+    ]
+  },
+  'red-eyed-tree-frog': {
+    altFacts:[
+      'Red-eyed tree frog embryos can detect approaching snake vibrations through the egg membrane and hatch prematurely — dropping into water below to escape, days before normal hatching.',
+      'The brilliant red eyes may serve as a "startle defense" — when a sleeping frog is disturbed, it opens its eyes wide, the flash of red potentially confusing a predator long enough to escape.',
+      'Red-eyed tree frogs are part of the neotropical tree frog family Phyllomedusidae — related to other tree frogs but not closely related to poison dart frogs despite sharing habitat.',
+      'The species name Agalychnis callidryas means "beautiful tree nymph" — from Greek kallos (beauty) + dryas (tree nymph).',
+      'Despite their vivid coloring, red-eyed tree frogs are not poisonous — their bright colors are a bluff (Batesian mimicry) that makes predators assume they\'re toxic.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Agalychnis_callidryas'},
+      {label:'National Geographic', url:'https://www.nationalgeographic.com/animals/amphibians/facts/red-eyed-tree-frog'},
+      {label:'Smithsonian', url:'https://nationalzoo.si.edu/animals/red-eyed-tree-frog'},
+    ]
+  },
 };
 
 // Wikipedia article titles for each node

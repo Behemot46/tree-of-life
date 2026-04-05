@@ -196,7 +196,22 @@ patchEnrichment();
     'arctic-tern':'The Arctic tern sees more daylight than any other animal — it migrates from Arctic to Antarctic and back each year, covering 70,000 km, experiencing two summers and perpetual light.',
     'harpy-eagle':'The harpy eagle has the largest talons of any living eagle — 13 cm long, the size of grizzly bear claws — and enough grip strength (530 PSI) to crush the bones of a howler monkey in flight.',
     'shoebill':'The shoebill can stand motionless for hours before striking with a bill powerful enough to decapitate a lungfish. Its bill-clattering display sounds like machine-gun fire and can be heard 100 meters away.',
-    'superb-fairywren':'Male superb fairywrens pluck yellow petals and present them to females as courtship gifts — one of the only known examples of non-food gift-giving in birds.'
+    'superb-fairywren':'Male superb fairywrens pluck yellow petals and present them to females as courtship gifts — one of the only known examples of non-food gift-giving in birds.',
+    'komodo-dragon':'Komodo dragons kill with a venomous bite — glands in their lower jaw deliver toxins that prevent blood clotting and drop blood pressure, causing prey to go into shock within minutes.',
+    'tuatara':'The tuatara is the sole surviving member of an order that thrived 200 million years ago alongside the dinosaurs. It has a vestigial "third eye" on top of its head with a lens and retina — functional only in juveniles.',
+    'green-sea-turtle':'Green sea turtles navigate thousands of kilometers across open ocean to return to the exact beach where they hatched — using Earth\'s magnetic field as an internal GPS that they imprint at birth.',
+    'king-cobra':'The king cobra is the longest venomous snake on Earth at up to 5.5 meters — and it\'s the only snake that builds a nest for its eggs, guarding them fiercely for 60-90 days.',
+    'saltwater-crocodile':'The saltwater crocodile has the strongest bite force ever measured in any living animal — 3,700 PSI, enough to crush a turtle shell or a boat hull. Yet it cannot chew; it must tear and swallow.',
+    'anaconda':'The green anaconda is the heaviest snake on Earth — up to 250 kg and 9 meters — it kills by constriction, squeezing with enough force to stop a prey animal\'s heart between beats.',
+    'gecko':'Geckos walk on ceilings using millions of microscopic hair-like structures (setae) on their toe pads that exploit van der Waals forces — each foot generates enough adhesion to support 130 kg.',
+    'python':'Burmese pythons can swallow prey five times wider than their head — their jaw bones are connected by elastic ligaments, not fused, allowing the mouth to stretch to extraordinary proportions.',
+    'iguana':'Marine iguanas in the Galápagos are the only lizards that forage in the sea — they dive up to 12 meters to graze on algae, then bask on rocks to rewarm, sneezing crystallized salt from nasal glands.',
+    'leatherback-turtle':'The leatherback is the largest living turtle — up to 900 kg and 2 meters — and dives deeper than 1,200 meters, nearly as deep as a sperm whale. It has survived virtually unchanged for 100 million years.',
+    'golden-poison-frog':'One golden poison frog carries enough batrachotoxin to kill 10 adult humans — yet it is harmless in captivity, because its toxin is derived entirely from the ants and beetles it eats in the wild.',
+    'axolotl':'The axolotl can regenerate entire limbs, spinal cord, heart tissue, and parts of its brain — making it the most regenerative vertebrate known to science. It never metamorphoses, remaining aquatic and gilled for life.',
+    'chinese-giant-salamander':'The Chinese giant salamander can reach 1.8 meters — the largest living amphibian — and has remained essentially unchanged for 170 million years. It detects prey through vibrations in the water.',
+    'giant-salamander':'Japanese giant salamanders can live over 80 years and remain virtually unchanged from 30-million-year-old fossils. Called "living fossils," they breathe almost entirely through their wrinkled skin.',
+    'red-eyed-tree-frog':'Red-eyed tree frog embryos can detect vibrations from approaching snakes and hatch prematurely — escaping the egg days early and dropping into water below to survive.'
   };
   Object.entries(ff).forEach(([id,fact])=>{
     const n=nodeMap[id];

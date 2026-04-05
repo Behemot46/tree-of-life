@@ -156,6 +156,19 @@ export const GEO_DATA = {
   'harpy-eagle':      { regions: ['central-america', 'south-america'], label: 'Lowland tropical rainforests from Mexico to Argentina', type: 'habitat' },
   'shoebill':         { regions: ['africa'], label: 'Freshwater swamps of central tropical Africa — Uganda, Zambia, South Sudan', type: 'habitat' },
   'superb-fairywren': { regions: ['oceania'], label: 'Woodlands and gardens across southeastern Australia', type: 'habitat' },
+  'green-sea-turtle': { regions: ['marine-global'], label: 'Tropical and subtropical oceans worldwide; nests on sandy beaches', type: 'habitat' },
+  'king-cobra':       { regions: ['south-asia', 'southeast-asia'], label: 'Rainforests and mangrove swamps of India and Southeast Asia', type: 'habitat' },
+  'saltwater-crocodile': { regions: ['southeast-asia', 'oceania', 'south-asia'], label: 'Coastal and brackish waters from India to northern Australia', type: 'habitat' },
+  'anaconda':         { regions: ['south-america'], label: 'Swamps, marshes, and rivers of the Amazon and Orinoco basins', type: 'habitat' },
+  'gecko':            { regions: ['worldwide'], label: 'Tropical and subtropical habitats worldwide; also warm temperate regions', type: 'habitat' },
+  'python':           { regions: ['africa', 'south-asia', 'southeast-asia', 'oceania'], label: 'Tropical and subtropical forests of Africa, Asia, and Australia', type: 'habitat' },
+  'iguana':           { regions: ['central-america', 'south-america'], label: 'Central and South America, Caribbean islands; marine iguana endemic to Galápagos', type: 'habitat' },
+  'leatherback-turtle': { regions: ['marine-global'], label: 'All tropical and temperate oceans; most wide-ranging reptile', type: 'habitat' },
+  'golden-poison-frog': { regions: ['south-america'], label: 'Pacific coast rainforests of Colombia — extremely restricted range', type: 'endemic' },
+  'axolotl':          { regions: ['central-america'], label: 'Lake Xochimilco, Mexico City — critically restricted habitat', type: 'endemic' },
+  'chinese-giant-salamander': { regions: ['east-asia'], label: 'Mountain streams and lakes of central and southern China', type: 'endemic' },
+  'giant-salamander': { regions: ['east-asia'], label: 'Cool mountain streams of Japan', type: 'endemic' },
+  'red-eyed-tree-frog': { regions: ['central-america', 'south-america'], label: 'Lowland tropical rainforests from Mexico to Colombia', type: 'habitat' },
   'mammals':          { regions: ['worldwide'], label: 'Every terrestrial, marine, and aerial habitat', type: 'habitat' },
   'cetaceans':        { regions: ['marine-global'], label: 'All oceans; some river dolphins in freshwater', type: 'habitat' },
   'blue-whale':       { regions: ['marine-global'], label: 'All oceans; migrates pole-to-equator seasonally', type: 'habitat' },
@@ -1341,6 +1354,112 @@ export const BRANCH_DATA = {
     conservation: 'Endangered; ~6,600 remaining in fragmented populations',
     size: '18-36 kg; 75-110 cm body length',
     ability: 'Highest hunt success rate of any large predator (80%); "sneeze voting" to decide group hunts; regurgitates food for pups, sick, and elderly pack members'
+  },
+
+  // ── REPTILES & AMPHIBIANS ──
+  'reptiles': {
+    ability: 'First amniotes — evolved the shelled egg 312 Mya, freeing vertebrates from water for reproduction; scales, ectothermy, and efficient kidneys enabled colonization of arid habitats'
+  },
+  'amphibians': {
+    ability: 'First vertebrates on land (~370 Mya); dual life — aquatic larvae and terrestrial adults; permeable skin doubles as a respiratory organ; most sensitive vertebrate bioindicators of environmental health'
+  },
+  'green-sea-turtle': {
+    diet: 'Herbivore (adults) — seagrass and algae; juveniles eat jellyfish and invertebrates',
+    lifespan: '60-80 years; possibly over 100',
+    conservation: 'Endangered; nesting beach loss, fishing bycatch, plastic ingestion',
+    size: 'Up to 1.5 m carapace, 315 kg',
+    ability: 'Navigates thousands of km using Earth\'s magnetic field; returns to natal beach to nest; grazes seagrass meadows that store 2× more carbon than forests'
+  },
+  'king-cobra': {
+    diet: 'Carnivore — almost exclusively other snakes (ophiophagous)',
+    lifespan: '~20 years in the wild',
+    conservation: 'Vulnerable; habitat loss and persecution',
+    size: 'Up to 5.5 m — longest venomous snake on Earth',
+    ability: 'Only snake that builds a nest; can deliver enough neurotoxin in one bite to kill an elephant; raises 1/3 of body off ground when threatened'
+  },
+  'saltwater-crocodile': {
+    diet: 'Carnivore — fish, birds, mammals, other reptiles; apex predator',
+    lifespan: '~70 years; possibly over 100',
+    conservation: 'Least Concern; recovered well from near-extinction',
+    size: 'Up to 6-7 m, 1,000+ kg — largest living reptile',
+    ability: 'Strongest bite ever measured (3,700 PSI); death roll tears prey apart; saltwater tolerance allows open-ocean crossings of 500+ km'
+  },
+  'anaconda': {
+    diet: 'Carnivore — capybara, deer, caimans, large fish',
+    lifespan: '~10 years in the wild; 30+ in captivity',
+    conservation: 'Not evaluated; locally common but declining',
+    size: 'Up to 250 kg, 9 m — heaviest snake on Earth',
+    ability: 'Constriction stops prey\'s heart between beats; semi-aquatic ambush predator; can swallow prey 25% of its body weight whole'
+  },
+  'gecko': {
+    diet: 'Insectivore — insects, spiders; some species eat nectar and fruit',
+    lifespan: '5-20 years depending on species',
+    conservation: 'Variable; many species Least Concern; some island endemics threatened',
+    size: '1.6 cm (nano-chameleon size) to 60 cm (tokay gecko); most 10-15 cm',
+    ability: 'Van der Waals adhesion via millions of setae — walks on ceilings; each foot can support 130 kg; tail autotomy and regrowth for predator escape'
+  },
+  'python': {
+    diet: 'Carnivore — mammals, birds, reptiles; ambush constrictor',
+    lifespan: '20-30 years',
+    conservation: 'Variable; Burmese python invasive in Florida; others declining from trade',
+    size: 'Reticulated python up to 7.5 m — longest snake on Earth; Burmese up to 90 kg',
+    ability: 'Infrared pit organs detect prey body heat at 1 m; can swallow prey 5× head width; jaw bones connected by elastic ligaments, not fused'
+  },
+  'iguana': {
+    diet: 'Herbivore (green iguana) — leaves, flowers, fruit; marine iguana grazes underwater algae',
+    lifespan: '12-15 years (wild), 20+ (captivity)',
+    conservation: 'Variable; marine iguana Vulnerable; several Caribbean species Critically Endangered',
+    size: 'Green iguana up to 2 m total length, 9 kg',
+    ability: 'Marine iguanas dive 12 m to graze algae, sneeze crystallized salt; green iguanas survive falls from 15 m into water unharmed'
+  },
+  'leatherback-turtle': {
+    diet: 'Carnivore — jellyfish (can eat 200 kg/day), salps, squid',
+    lifespan: '~45 years; possibly over 100',
+    conservation: 'Vulnerable; declining 40% in 20 years; plastic bags mistaken for jellyfish',
+    size: 'Up to 2 m, 900 kg — largest living turtle',
+    ability: 'Dives to 1,280 m (deepest of any reptile); unique leathery shell; countercurrent heat exchangers maintain body temp 18°C above water; unchanged for 100 million years'
+  },
+  'golden-poison-frog': {
+    diet: 'Insectivore — ants, mites, termites, beetles (toxins derived from diet)',
+    lifespan: '~10 years',
+    conservation: 'Endangered; restricted to a few km² of Colombian rainforest',
+    size: '~5 cm, 1 g — tiny but most toxic animal on Earth',
+    ability: 'Carries enough batrachotoxin to kill 10 humans; 1 mg is lethal; indigenous Emberá people tip blowdarts with its skin secretions'
+  },
+  'axolotl': {
+    diet: 'Carnivore — worms, insects, small fish, larvae',
+    lifespan: '10-15 years in captivity',
+    conservation: 'Critically Endangered; wild population may be under 1,000; restricted to Lake Xochimilco canals in Mexico City',
+    size: '15-45 cm; 60-225 g',
+    ability: 'Regenerates entire limbs, spinal cord, heart tissue, and brain parts; retains larval gills for life (neoteny); 10× more DNA than humans'
+  },
+  'chinese-giant-salamander': {
+    diet: 'Carnivore — fish, crayfish, crabs, frogs, insects',
+    lifespan: '~60 years in the wild; potentially much longer',
+    conservation: 'Critically Endangered; 80% decline from overharvesting and habitat destruction',
+    size: 'Up to 1.8 m — largest living amphibian on Earth',
+    ability: 'Detects prey through lateral line vibrations; essentially unchanged for 170 million years; breathes primarily through wrinkled skin'
+  },
+  'caecilian': {
+    diet: 'Carnivore — earthworms, termites, beetle larvae',
+    lifespan: '~13 years',
+    conservation: 'Variable; many species Data Deficient due to secretive lifestyle',
+    size: '10-150 cm; limbless, worm-like amphibians',
+    ability: 'Limbless, nearly blind, burrowing amphibians with tentacle-like sensory organs; some species have skin-feeding young that scrape mother\'s nutritious outer skin layer'
+  },
+  'giant-salamander': {
+    diet: 'Carnivore — fish, crabs, insects, smaller salamanders',
+    lifespan: 'Over 80 years documented',
+    conservation: 'Vulnerable; protected in Japan as "special natural monument"',
+    size: 'Up to 1.5 m — second-largest living amphibian',
+    ability: 'Called "living fossil" — virtually unchanged from 30 Mya fossils; nocturnal ambush predator; absorbs oxygen primarily through wrinkled skin'
+  },
+  'red-eyed-tree-frog': {
+    diet: 'Insectivore — moths, flies, crickets, grasshoppers',
+    lifespan: '~5 years',
+    conservation: 'Least Concern; common in intact habitat',
+    size: '4-7 cm, 6-15 g',
+    ability: 'Flash-coloration defense: opening red eyes startles predators, buying escape time; embryos detect snake vibrations and hatch early to drop into water below'
   },
 
   // ── NEW BIRDS ──

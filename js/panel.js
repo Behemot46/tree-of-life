@@ -9,6 +9,7 @@ import { PHOTO_MAP, WIKI_TITLES, NODE_ICONS, getIconGroup, FACTS, ImageLoader } 
 import { MAP_PATHS } from './mapPaths.js';
 import { PRIMATE_DATA } from './primateData.js';
 import { GEO_DATA, BRANCH_DATA } from './geoData.js';
+import { countDescendants } from './layout.js';
 
 // ── Late-binding deps (set via initPanelDeps) ──
 let _pushNav, _updateNavButtons, _updateBreadcrumb, _scheduleRender;
@@ -520,6 +521,25 @@ export function renderPanelContent(node) {
     </div>
     <div class="panel-body">
       ${node.desc ? `<div class="panel-section"><p class="p-desc" style="margin:0">${node.desc}</p></div>` : ''}
+      ${(()=>{
+        if(!node.children||!node.children.length) return '';
+        const direct=node.children.length;
+        const total=countDescendants(node);
+        const leafCount=total-node.children.reduce((s,c)=>s+(c.children&&c.children.length?1:0),0);
+        return `<div class="panel-section panel-taxonomy-summary">
+          <div class="p-section">🌳 TAXONOMY</div>
+          <div class="p-facts">
+            <div class="fact-card" style="border-left:3px solid ${node.color}">
+              <div class="fact-l">Direct groups</div>
+              <div class="fact-v">${direct}</div>
+            </div>
+            <div class="fact-card" style="border-left:3px solid ${node.color}">
+              <div class="fact-l">Total descendants</div>
+              <div class="fact-v">${total}</div>
+            </div>
+          </div>
+        </div>`;
+      })()}
       ${node.funFact ? `
         <div class="panel-section">
           <div class="panel-funfact">

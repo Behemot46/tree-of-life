@@ -576,6 +576,36 @@ export function render(){
     if(n.extinct){border.setAttribute('stroke-dasharray','4 2');border.setAttribute('opacity','0.6');}
     g.appendChild(border);
 
+    // ── INFO BUTTON for internal nodes (has children) ──
+    if(n.children&&n.children.length&&!state.playbackMode){
+      const ibR=9;
+      const ibX=n._x+nodeR*0.65;
+      const ibY=n._y+nodeR*0.65;
+      const ibG=document.createElementNS('http://www.w3.org/2000/svg','g');
+      ibG.setAttribute('class','node-info-btn');
+      ibG.style.cursor='pointer';
+      // Background circle
+      const ibBg=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      ibBg.setAttribute('cx',ibX);ibBg.setAttribute('cy',ibY);ibBg.setAttribute('r',ibR);
+      ibBg.setAttribute('class','node-info-bg');
+      ibG.appendChild(ibBg);
+      // "i" letter
+      const ibTxt=document.createElementNS('http://www.w3.org/2000/svg','text');
+      ibTxt.setAttribute('x',ibX);ibTxt.setAttribute('y',ibY);
+      ibTxt.setAttribute('text-anchor','middle');ibTxt.setAttribute('dominant-baseline','central');
+      ibTxt.setAttribute('class','node-info-icon');
+      ibTxt.textContent='i';
+      ibG.appendChild(ibTxt);
+      // Click toggles panel
+      ibG.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();
+        if(state.currentPanelNode&&state.currentPanelNode.id===n.id){window.closePanel();}
+        else{_showMainPanel(n);}
+      });
+      ibG.addEventListener('mouseenter',()=>{ibBg.classList.add('hover');});
+      ibG.addEventListener('mouseleave',()=>{ibBg.classList.remove('hover');});
+      g.appendChild(ibG);
+    }
+
     // Golden arrow indicator for collapsed human-path nodes
     if(isOnHumanPathCollapsed){
       const arrowX=n._x+nodeR+10;

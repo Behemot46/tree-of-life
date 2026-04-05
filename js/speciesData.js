@@ -1446,6 +1446,356 @@ export const ENRICHMENT = {
       {label:'National Geographic', url:'https://www.nationalgeographic.com/animals/mammals/facts/wolverine'},
     ]
   },
+  'birds': {
+    altFacts:[
+      'Birds are the only surviving dinosaurs — every living bird is a theropod dinosaur, more closely related to Velociraptor than Velociraptor was to Triceratops.',
+      'Bird lungs are the most efficient of any vertebrate — air flows in one direction through rigid tubes, extracting oxygen on both inhale and exhale.',
+      'The oldest known bird-line dinosaur is Archaeopteryx, found in this tree — a 150-million-year-old fossil with feathered wings, reptilian teeth, and a bony dinosaur tail.',
+      'The class Aves contains over 10,000 species — the most diverse group of land vertebrates, found on every continent including Antarctica.',
+      'Feathers evolved before flight — early theropod dinosaurs used them for insulation and display. Flight came later, repurposing an existing structure.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Bird'},
+      {label:'Cornell Lab of Ornithology', url:'https://www.birds.cornell.edu/home/'},
+      {label:'BirdLife International', url:'https://www.birdlife.org/'},
+    ]
+  },
+  'emperor-penguin': {
+    altFacts:[
+      'Male emperor penguins incubate eggs on their feet for 65 days in -60°C winter darkness, losing 45% of body weight — the most extreme parental sacrifice in the bird world.',
+      'Emperor penguins can dive to 565 meters and hold their breath for 22 minutes — deeper and longer than any other bird.',
+      'Penguins are flightless birds that evolved from flying ancestors — their wings became flippers about 60 million years ago as they adapted to an aquatic lifestyle.',
+      'The genus name Aptenodytes means "wingless diver" in Greek, though of course penguins do have wings — just not for flying.',
+      'Emperor penguin chicks huddle in crèches of up to 5,000 — yet parents can locate their own chick by voice alone in the cacophony.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Emperor_penguin'},
+      {label:'Australian Antarctic Program', url:'https://www.antarctica.gov.au/about-antarctica/animals/penguins/emperor-penguin/'},
+      {label:'WWF', url:'https://www.worldwildlife.org/species/emperor-penguin'},
+    ]
+  },
+  'hummingbird': {
+    altFacts:[
+      'Hummingbirds are the only birds that can fly backwards, upside down, and hover in place — their figure-eight wing stroke generates lift on both the up and down beat.',
+      'A hummingbird\'s heart beats up to 1,260 times per minute — yet to survive the night, it enters torpor, dropping its heart rate to 50 bpm and its body temperature by 30°C.',
+      'Hummingbirds are exclusively American — found only in the New World from Alaska to Tierra del Fuego, with greatest diversity in the Andes.',
+      'The family name Trochilidae comes from Greek trochilos (a small bird mentioned by Aristotle). Aztecs believed dead warriors were reincarnated as hummingbirds.',
+      'Hummingbirds see in ultraviolet and perceive "non-spectral" colors invisible to humans — their world is richer in color than ours.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Hummingbird'},
+      {label:'Audubon Society', url:'https://www.audubon.org/birds/hummingbirds'},
+      {label:'Cornell Lab', url:'https://www.allaboutbirds.org/guide/Ruby-throated_Hummingbird'},
+    ]
+  },
+  'african-grey-parrot': {
+    altFacts:[
+      'Alex, the most famous African grey, could identify 50 objects, 7 colors, 5 shapes, and understood concepts like "same," "different," "bigger," and "zero" — a concept most children don\'t grasp until age 3.',
+      'African greys don\'t just mimic — they understand context. They\'ve been documented using words appropriately in novel situations, asking questions, and expressing preferences.',
+      'Parrots and songbirds are more closely related to each other than to most other birds — both belong to a lineage that evolved vocal learning independently from humans.',
+      'The species name erithacus comes from a Greek word for a solitary bird. In West Africa, the Yoruba consider the parrot a sacred messenger.',
+      'African grey populations have declined by up to 99% in some regions due to the pet trade — Ghana lost virtually its entire wild population between 1992 and 2014.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Grey_parrot'},
+      {label:'World Parrot Trust', url:'https://www.parrots.org/'},
+      {label:'IUCN Red List', url:'https://www.iucnredlist.org/species/22724813/154428817'},
+    ]
+  },
+  'wandering-albatross': {
+    altFacts:[
+      'Wandering albatrosses can fly 120,000 km per year without flapping — they harvest wind energy via dynamic soaring, rising and dipping between wind layers above the waves.',
+      'Their wingspan of 3.5 meters is the longest of any living bird — they can lock their wings in an extended position and glide for hours using zero muscular effort.',
+      'Albatrosses are tubenoses (order Procellariiformes) — an ancient seabird lineage that diverged from other birds about 70 million years ago.',
+      'The word "albatross" likely derives from the Arabic al-qadus (water carrier) via Portuguese alcatraz. Coleridge\'s Rime of the Ancient Mariner made it a symbol of burden.',
+      'Albatross pairs mate for life with elaborate dances. But they only breed every two years — raising a single chick takes a full year of tag-team parenting.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Wandering_albatross'},
+      {label:'BirdLife International', url:'https://www.birdlife.org/species/wandering-albatross/'},
+      {label:'IUCN Red List', url:'https://www.iucnredlist.org/species/22698305/132640680'},
+    ]
+  },
+  'bee-hummingbird': {
+    altFacts:[
+      'The bee hummingbird weighs 1.8 grams — less than a US penny — and its eggs are the size of coffee beans, yet it is warm-blooded and must eat half its body weight daily.',
+      'Its wings beat 80 times per second in normal flight and up to 200 times during courtship displays — the fastest wing movement of any bird.',
+      'As the smallest bird, it occupies the extreme lower end of the warm-blooded size spectrum — below this, an animal cannot eat fast enough to maintain body temperature.',
+      'Found only in Cuba, the bee hummingbird was named zunzuncito by locals — an onomatopoeia for the humming sound of its wings.',
+      'Male bee hummingbirds have iridescent pink-red throat feathers that flash like jewels in sunlight — yet the entire bird fits comfortably on a human thumb.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Bee_hummingbird'},
+      {label:'Cornell Lab', url:'https://www.allaboutbirds.org/guide/Bee_Hummingbird'},
+      {label:'Audubon', url:'https://www.audubon.org/news/the-bee-hummingbird-worlds-smallest-bird'},
+    ]
+  },
+  'barn-owl': {
+    altFacts:[
+      'Barn owls can locate prey in total darkness by sound alone — their heart-shaped facial disc funnels sound to asymmetrically placed ears that triangulate location in 3D.',
+      'Serrated leading edges on their flight feathers break up air turbulence, making barn owls virtually silent in flight — prey never hears them coming.',
+      'Owls are raptors but not closely related to hawks or eagles — they belong to order Strigiformes, a lineage that evolved nocturnal hunting independently.',
+      'The barn owl\'s genus name Tyto comes from Greek tyto (night owl). They are the most widespread land bird species on Earth, found on every continent except Antarctica.',
+      'A single barn owl family consumes about 3,000 rodents per year, making them among the most effective natural pest controllers in agriculture.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Barn_owl'},
+      {label:'The Barn Owl Trust', url:'https://www.barnowltrust.org.uk/'},
+      {label:'Cornell Lab', url:'https://www.allaboutbirds.org/guide/Barn_Owl'},
+    ]
+  },
+  'new-caledonian-crow': {
+    altFacts:[
+      'New Caledonian crows manufacture tools from raw materials — carving hooks from twigs and cutting barbed probes from pandanus leaves with a standardized sequence of cuts.',
+      'They can solve 8-step sequential puzzles and use tools to obtain other tools — a meta-tool-use behavior previously thought unique to great apes.',
+      'Crows are corvids — a family that includes ravens, magpies, and jays — all notable for intelligence that rivals great apes despite brains the size of walnuts.',
+      'Found only on the islands of New Caledonia in the South Pacific, these crows have local "tool cultures" — different populations make differently shaped tools.',
+      'In laboratory tests, New Caledonian crows spontaneously bent wire into hooks to retrieve food — innovating a tool design they had never seen before.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/New_Caledonian_crow'},
+      {label:'Nature Research', url:'https://www.nature.com/articles/nature01468'},
+      {label:'BBC Wildlife', url:'https://www.discoverwildlife.com/animal-facts/birds/facts-about-new-caledonian-crows/'},
+    ]
+  },
+  'bald-eagle': {
+    altFacts:[
+      'Bald eagles recovered from fewer than 500 nesting pairs in 1963 to over 300,000 today — one of conservation\'s greatest success stories, driven by the DDT ban and legal protection.',
+      'Bald eagle nests are the largest of any bird in North America — some weigh over 2 tonnes and measure 4 meters deep, added to year after year.',
+      'Despite the name, bald eagles are not bald — "bald" comes from the old English "balde" meaning white, referring to the distinctive white head feathers that develop at age 4-5.',
+      'Benjamin Franklin famously objected to the bald eagle as America\'s symbol, calling it "a bird of bad moral character" because it steals fish from ospreys.',
+      'Bald eagles can see fish underwater from 300 meters in the air — their vision is roughly 8 times sharper than a human\'s.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Bald_eagle'},
+      {label:'National Eagle Center', url:'https://www.nationaleaglecenter.org/'},
+      {label:'Audubon', url:'https://www.audubon.org/field-guide/bird/bald-eagle'},
+    ]
+  },
+  'ostrich': {
+    altFacts:[
+      'An ostrich can run at 70 km/h — the fastest of any bird and faster than most horses — using powerful legs that can also kill a lion with a single kick.',
+      'Ostrich eyes are 5 cm across, the largest of any land animal — larger than their own brain — giving them extraordinary visual range across open savanna.',
+      'Ostriches are ratites, a group of flightless birds that includes emus, kiwis, and cassowaries — they all descended from a common flying ancestor and lost flight independently.',
+      'The name "ostrich" comes from the Greek strouthion (sparrow) + Latin avis (bird), combined into a word meaning "sparrow-camel" — a nod to their long necks.',
+      'Ostriches don\'t bury their heads in sand — that myth may come from their habit of pressing their pale heads flat against the ground to hide, which from a distance looks like disappearing into the earth.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Common_ostrich'},
+      {label:'San Diego Zoo Wildlife', url:'https://animals.sandiegozoo.org/animals/ostrich'},
+      {label:'African Wildlife Foundation', url:'https://www.awf.org/wildlife-conservation/ostrich'},
+    ]
+  },
+  'flamingo': {
+    altFacts:[
+      'Flamingos are not born pink — chicks are grey-white. The pink color comes entirely from carotenoid pigments in their diet of brine shrimp and algae.',
+      'A flamingo can stand on one leg for hours — this isn\'t muscular effort but a passive locking mechanism in the joints that requires zero energy to maintain.',
+      'Flamingos are filter-feeders, like baleen whales — they hold their bill upside down in the water and pump it to strain tiny organisms through comb-like lamellae.',
+      'The name "flamingo" comes from Spanish/Portuguese flamengo (flame-colored). Ancient Egyptians considered them a living representation of the sun god Ra.',
+      'Flamingo parents produce "crop milk" — a bright red protein-and-fat-rich liquid secreted from the lining of the digestive tract to feed chicks. Only pigeons and penguins also do this.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Flamingo'},
+      {label:'Smithsonian National Zoo', url:'https://nationalzoo.si.edu/animals/flamingo'},
+      {label:'Audubon', url:'https://www.audubon.org/field-guide/bird/american-flamingo'},
+    ]
+  },
+  'kiwi': {
+    altFacts:[
+      'Kiwis are the only birds with nostrils at the tip of their beak — they find food by smell, snuffling through leaf litter like a mammal rather than hunting by sight like other birds.',
+      'A kiwi egg is 25% of the mother\'s body weight — proportionally the largest egg of any bird. It\'s so big that the female must stop eating days before laying because the egg compresses her stomach.',
+      'Kiwis are ratites — distantly related to ostriches, emus, and cassowaries — but their closest relative is the elephant bird of Madagascar, which stood 3 meters tall.',
+      'The kiwi was named by the Māori people of New Zealand for its shrill kee-wee call. New Zealanders adopted it as their national symbol and nickname.',
+      'Kiwis have cat-like whiskers (vibrissae), heavy bones (unlike most birds), body temperature 2°C lower than other birds, and fur-like feathers — they are essentially nocturnal ground mammals that happen to be birds.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Kiwi_(bird)'},
+      {label:'Kiwis for kiwi', url:'https://www.kiwisforkiwi.org/'},
+      {label:'NZ Department of Conservation', url:'https://www.doc.govt.nz/nature/native-animals/birds/birds-a-z/kiwi/'},
+    ]
+  },
+  'secretary-bird': {
+    altFacts:[
+      'Secretary birds kill venomous snakes by stomping them with 195 newtons of force in just 15 milliseconds — five times their body weight applied faster than an eye blink.',
+      'Despite being a raptor, the secretary bird hunts almost exclusively on foot, walking up to 30 km per day across the African savanna on crane-like legs.',
+      'Secretary birds are the only raptor in their own family (Sagittariidae) — they diverged from other birds of prey about 50 million years ago.',
+      'The name may come from the quill-like crest feathers resembling 19th-century secretaries who tucked quill pens behind their ears — or from the Arabic saqr-et-tair (hunter bird).',
+      'Secretary birds are declining so rapidly they were uplisted to Endangered in 2020 — grassland conversion and human disturbance are shrinking their habitat across Africa.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Secretary_bird'},
+      {label:'IUCN Red List', url:'https://www.iucnredlist.org/species/22696221/181281809'},
+      {label:'African Raptor Databank', url:'https://www.habitatinfo.com/ardb/'},
+    ]
+  },
+  'toucan': {
+    altFacts:[
+      'A toucan\'s bill can be one-third of its body length yet weighs almost nothing — a honeycomb matrix of keratin and bone filled with air pockets.',
+      'The bill acts as a thermoregulator — blood vessels near the surface dilate to dump excess heat or constrict to conserve warmth, functioning like an elephant\'s ears.',
+      'Toucans belong to the order Piciformes — they\'re actually relatives of woodpeckers, not parrots, despite their colorful appearance.',
+      'The name "toucan" comes from the Tupí language tucana, imitating the bird\'s call. In Amazonian mythology, toucans are mediators between the worlds of the living and spirits.',
+      'Toucans sleep by tucking their bill over their back and folding their tail over the bill — they become a compact feathered ball, conserving heat in the canopy.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Toucan'},
+      {label:'San Diego Zoo Wildlife', url:'https://animals.sandiegozoo.org/animals/toucan'},
+      {label:'Cornell Lab', url:'https://www.allaboutbirds.org/guide/Keel-billed_Toucan/'},
+    ]
+  },
+  'cassowary': {
+    altFacts:[
+      'The cassowary\'s dagger-like inner claw is up to 12 cm long and can disembowel a human or dog with a single kick — making it the most dangerous bird on Earth.',
+      'Cassowaries can run 50 km/h through dense forest and swim across rivers. Their bony casque may amplify low-frequency calls or serve as a head shield in dense undergrowth.',
+      'Cassowaries are ratites — flightless birds related to ostriches and emus — but their closest living relative is actually the tiny kiwi of New Zealand.',
+      'The name "cassowary" comes from Papuan kasu (horn) + weri (head). In Papua New Guinea, cassowary feathers are used as currency and ceremonial headdresses.',
+      'Cassowaries are essential seed dispersers for over 238 rainforest plant species — some seeds will not germinate unless they pass through a cassowary\'s digestive tract.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Cassowary'},
+      {label:'Australian Museum', url:'https://australian.museum/learn/animals/birds/southern-cassowary/'},
+      {label:'Rainforest Trust', url:'https://www.rainforesttrust.org/species/southern-cassowary/'},
+    ]
+  },
+  'pelican': {
+    altFacts:[
+      'A pelican\'s throat pouch can hold 11 liters of water — three times more than its stomach — and functions as a dip net for scooping fish.',
+      'Brown pelicans plunge-dive from 20 meters, hitting the water at 100 km/h. Air sacs under their skin cushion the impact and help them float back up.',
+      'Pelicans are among the oldest bird lineages — fossils date back 30 million years, and they\'re related to cormorants and frigatebirds in the order Suliformes.',
+      'In medieval European heraldry, the pelican symbolized self-sacrifice — a legend claimed it fed its young with blood from its own breast (actually, the red-tipped bill pressed against white chest feathers).',
+      'Pelicans fish cooperatively — groups form a crescent line and drive fish into shallows with synchronized wing-beating, then scoop simultaneously.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Pelican'},
+      {label:'Audubon', url:'https://www.audubon.org/field-guide/bird/brown-pelican'},
+      {label:'IUCN Red List', url:'https://www.iucnredlist.org/species/22697599/131932990'},
+    ]
+  },
+  'woodpecker': {
+    altFacts:[
+      'Woodpeckers hammer at 20 strikes per second with 1,200 g of deceleration — a spongy hyoid bone that wraps around the skull and a shock-absorbing gap between brain and skull prevent concussions.',
+      'A woodpecker\'s tongue can extend up to 1/3 its body length, is barbed at the tip, and coated in sticky saliva to extract insect larvae from deep wood tunnels.',
+      'Woodpeckers and toucans are close relatives — both belong to the order Piciformes, despite their radically different lifestyles.',
+      'The family Picidae gets its name from Picus, a figure in Roman mythology who was turned into a woodpecker by the sorceress Circe.',
+      'Acorn woodpeckers create "granary trees" with thousands of individually drilled holes, each storing a single acorn — some trees contain over 50,000 acorns.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Woodpecker'},
+      {label:'Cornell Lab', url:'https://www.allaboutbirds.org/guide/browse/shape/Woodpeckers'},
+      {label:'Audubon', url:'https://www.audubon.org/birds/woodpeckers'},
+    ]
+  },
+  'swift': {
+    altFacts:[
+      'Common swifts can stay airborne for 10 consecutive months — the longest continuous flight of any bird. They eat, sleep, and even mate on the wing.',
+      'Swifts sleep in flight by ascending to 2,000+ meters at dusk and entering microsleep — brief unconscious periods while gliding in slow descending spirals.',
+      'Swifts are not related to swallows despite looking similar — they\'re more closely related to hummingbirds, sharing the order Apodiformes.',
+      'The order name Apodiformes means "footless" — early naturalists who only saw them in flight believed swifts had no feet. Their feet are tiny but functional.',
+      'Swift populations are declining across Europe as modern buildings eliminate the gaps and crevices under roof tiles where they traditionally nest.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Common_swift'},
+      {label:'Swift Conservation', url:'https://swift-conservation.org/'},
+      {label:'RSPB', url:'https://www.rspb.org.uk/birds-and-wildlife/swift'},
+    ]
+  },
+  'lyrebird': {
+    altFacts:[
+      'Superb lyrebirds can mimic virtually any sound — chainsaws, camera shutters, car alarms, crying babies, and at least 20 other bird species — with such accuracy that targeted species respond.',
+      'Male lyrebirds perform an elaborate courtship display, fanning their spectacular tail feathers into a shimmering silver canopy while singing a medley of mimicked sounds.',
+      'Lyrebirds are ancient passerines endemic to Australia — they diverged from other songbirds about 60 million years ago.',
+      'The lyrebird gets its name from its tail feathers, which resemble a lyre (ancient Greek harp) when fanned during display. It appears on the Australian 10-cent coin.',
+      'Lyrebirds are ecosystem engineers — their constant scratching through leaf litter turns over more soil per hectare than any other Australian animal, accelerating decomposition and nutrient cycling.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Superb_lyrebird'},
+      {label:'Australian Museum', url:'https://australian.museum/learn/animals/birds/superb-lyrebird/'},
+      {label:'ABC Science', url:'https://www.abc.net.au/news/science/lyrebird'},
+    ]
+  },
+  'hoatzin': {
+    altFacts:[
+      'The hoatzin is the only bird that digests food by fermentation in an enlarged crop — like a cow\'s rumen — giving it a permanent smell of manure.',
+      'Hoatzin chicks are born with functional claws on their wings — used to climb back to the nest after escaping predators by diving into water. The claws disappear as adults.',
+      'The hoatzin is so genetically unique that it was placed in its own order (Opisthocomiformes) — its closest relatives remain controversial, with no clear link to any other living bird.',
+      'Called "stinkbird" in many languages, the hoatzin\'s fermentation-based digestion was likely an independent evolution of the same strategy used by cows and other ruminants.',
+      'Hoatzins are poor fliers because their enormous crop compresses the flight muscles — they rely more on climbing and gliding than sustained flight.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Hoatzin'},
+      {label:'Cornell Lab', url:'https://www.allaboutbirds.org/guide/Hoatzin/'},
+      {label:'National Geographic', url:'https://www.nationalgeographic.com/animals/birds/facts/hoatzin'},
+    ]
+  },
+  'arctic-tern': {
+    altFacts:[
+      'Arctic terns migrate 70,000 km annually — from Arctic to Antarctic and back — seeing more daylight than any other animal on Earth.',
+      'Over its ~30-year lifespan, an Arctic tern travels roughly 2.4 million km — equivalent to three round trips to the Moon.',
+      'Despite weighing only 100 grams, Arctic terns aggressively defend their nests — they dive-bomb humans, foxes, and even polar bears.',
+      'The species name paradisaea means "of paradise" — the tern experiences endless summer, breeding in the Arctic and wintering in the Antarctic.',
+      'Arctic terns are closely related to other terns and skimmers — all belong to the family Laridae, which also includes gulls.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Arctic_tern'},
+      {label:'Audubon', url:'https://www.audubon.org/field-guide/bird/arctic-tern'},
+      {label:'RSPB', url:'https://www.rspb.org.uk/birds-and-wildlife/arctic-tern'},
+    ]
+  },
+  'harpy-eagle': {
+    altFacts:[
+      'Harpy eagle talons are 13 cm long — the size of grizzly bear claws — with a grip strength of 530 PSI, enough to crush the bones of a howler monkey.',
+      'Harpies snatch sloths and monkeys from the canopy at speeds up to 80 km/h, maneuvering through dense forest with a 2-meter wingspan.',
+      'Harpy eagles are among the largest and most powerful raptors alive — rivaled only by the Philippine eagle and Steller\'s sea eagle.',
+      'Named after the harpies of Greek mythology — winged creatures that snatched food and people — the genus name Harpia was given by Linnaeus in 1758.',
+      'Harpy eagles need vast tracts of unbroken forest — a single pair requires 5,000 hectares of territory, making deforestation an existential threat.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Harpy_eagle'},
+      {label:'Peregrine Fund', url:'https://www.peregrinefund.org/explore-raptors-species/eagles/harpy-eagle'},
+      {label:'IUCN Red List', url:'https://www.iucnredlist.org/species/22695998/93534473'},
+    ]
+  },
+  'shoebill': {
+    altFacts:[
+      'The shoebill can stand motionless for hours before launching a decapitation strike — its massive shoe-shaped bill slams down to sever the heads of lungfish and baby crocodiles.',
+      'Shoebill bill-clattering sounds like machine-gun fire and can be heard from 100 meters away — used in courtship and territorial displays.',
+      'The shoebill is so taxonomically unusual that its classification has been debated for 170 years — currently placed in its own family, most closely related to pelicans.',
+      'Known as abu markub in Arabic ("father of a shoe"), the shoebill has been revered in African cultures — South Sudanese tribes consider seeing one a sign of good fortune.',
+      'Only 5,000-8,000 shoebills remain in the wild, restricted to papyrus swamps in central-east Africa — they are one of the most sought-after species by birdwatchers.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Shoebill'},
+      {label:'BirdLife International', url:'https://www.birdlife.org/species/shoebill/'},
+      {label:'IUCN Red List', url:'https://www.iucnredlist.org/species/22697583/93622396'},
+    ]
+  },
+  'superb-fairywren': {
+    altFacts:[
+      'Male superb fairywrens pluck yellow flower petals and present them to females as courtship gifts — one of the only known examples of non-food gift-giving in birds.',
+      'Females teach a unique "password" song to their unhatched embryos through the egg shell — after hatching, chicks must sing this call to be fed, preventing brood parasitism by cuckoos.',
+      'Fairywrens are Australian endemics in the family Maluridae — despite their wren-like appearance, they\'re not related to true wrens at all.',
+      'The vivid blue breeding plumage of males is among the brightest in the bird world — produced by structural coloration (light scattering) rather than pigments.',
+      'Superb fairywrens are socially monogamous but sexually promiscuous — over 75% of chicks are fathered by males outside the pair bond, one of the highest rates of extra-pair mating in any bird.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Superb_fairywren'},
+      {label:'Australian Museum', url:'https://australian.museum/learn/animals/birds/superb-fairy-wren/'},
+      {label:'BirdLife Australia', url:'https://birdlife.org.au/bird-profiles/superb-fairywren'},
+    ]
+  },
+  'condor': {
+    altFacts:[
+      'California condors were extinct in the wild by 1987 — all 27 surviving birds were captured. Through captive breeding, there are now 500+ birds including 300+ flying free.',
+      'Condors soar on thermals to 4,600 meters without a single wingbeat, covering vast distances while expending almost no energy — their 3-meter wingspan is the largest of any North American bird.',
+      'Condors are New World vultures — not closely related to Old World vultures like the griffon, but convergently evolved the same bald head and scavenging lifestyle.',
+      'The Andean condor was sacred to the Inca as a messenger to the gods. The California condor holds similar significance for many Native American peoples, including the Wiyot and Yurok.',
+      'Condors can go two weeks without eating, then consume up to 1.5 kg of carrion in a single meal. Their powerful stomach acid destroys anthrax, botulism, and cholera bacteria.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/California_condor'},
+      {label:'Ventana Wildlife Society', url:'https://www.ventanaws.org/california-condor'},
+      {label:'U.S. Fish & Wildlife', url:'https://www.fws.gov/species/california-condor-gymnogyps-californianus'},
+    ]
+  },
 };
 
 // Wikipedia article titles for each node

@@ -174,7 +174,29 @@ patchEnrichment();
     'walrus':'A walrus\'s tusks never stop growing and can reach 1 meter long. They use them as ice picks to haul their 1,400 kg body onto ice floes — the genus name Odobenus literally means "one who walks with teeth."',
     'white-rhinoceros':'The white rhino\'s name has nothing to do with color — it comes from the Dutch "wijd" meaning "wide," describing its flat, wide mouth adapted for grazing. Its horn is not bone but compressed keratin, the same protein as human hair.',
     'wolf':'Wolves can detect scent from nearly 3 km away and distinguish between 200 million different odors. A pack\'s howl contains individual voice signatures — researchers can identify specific wolves from recordings alone.',
-    'wombat':'Wombats produce cube-shaped droppings — the only animal known to do so. The cubes are formed by varying elasticity in the intestinal wall and don\'t roll off the rocks and logs where wombats stack them as territorial markers.'
+    'wombat':'Wombats produce cube-shaped droppings — the only animal known to do so. The cubes are formed by varying elasticity in the intestinal wall and don\'t roll off the rocks and logs where wombats stack them as territorial markers.',
+    'birds':'Birds are living dinosaurs — every sparrow, eagle, and penguin is a direct descendant of theropod dinosaurs that survived the K-Pg extinction 66 million years ago.',
+    'archaeopteryx':'Archaeopteryx is the most famous transitional fossil in history — a 150-million-year-old creature with the feathered wings of a bird, the teeth and bony tail of a dinosaur, and claws on its wings.',
+    'peregrine-falcon':'The peregrine falcon is the fastest animal on Earth — reaching 389 km/h in a hunting dive (stoop), faster than a Formula 1 car at top speed. Special baffles in its nostrils prevent its lungs from bursting at speed.',
+    'emperor-penguin':'Emperor penguins endure the harshest breeding conditions of any bird — males incubate eggs for 65 days in -60°C Antarctic winters without eating, huddling in groups and rotating to share warmth.',
+    'hummingbird':'Hummingbirds are the only birds that can fly backwards. Their hearts beat up to 1,260 times per minute and they visit 1,000-2,000 flowers daily, yet they enter torpor each night to survive — dropping their heart rate to 50 bpm.',
+    'african-grey-parrot':'African grey parrots have the cognitive ability of a 4-6 year old human child. Alex, the most famous, learned over 100 English words and could identify colors, shapes, and quantities — and his last words were "You be good. I love you."',
+    'wandering-albatross':'The wandering albatross has the longest wingspan of any living bird — 3.5 meters — and can fly 120,000 km per year without flapping, using a technique called dynamic soaring to harvest wind energy.',
+    'bee-hummingbird':'The bee hummingbird is the smallest bird and smallest warm-blooded animal on Earth — at 5.5 cm and 1.8 grams, it weighs less than a US penny and lays eggs the size of coffee beans.',
+    'new-caledonian-crow':'New Caledonian crows are the only non-primate species that manufactures tools from raw materials — they carve hooks from twigs and fashion barbed probes from pandanus leaves, with designs passed between generations.',
+    'ostrich':'The ostrich is the largest living bird — up to 2.7 m tall and 156 kg — with the largest eyes of any land animal (5 cm across, larger than its brain). A single kick can kill a lion.',
+    'kiwi':'Kiwis are the only birds with nostrils at the tip of their beak, giving them the best sense of smell of any bird. They are essentially nocturnal, flightless, whisker-bearing mammals that happen to be birds.',
+    'secretary-bird':'The secretary bird kills venomous snakes by stamping on them with a force five times its body weight — delivering kicks with 195 newtons in just 15 milliseconds, faster than the blink of an eye.',
+    'toucan':'A toucan\'s bill can be one-third of its body length yet weighs almost nothing — it\'s a honeycomb of keratin and bone filled with air. The bill acts as a thermoregulator, flushing with blood to dump excess body heat.',
+    'pelican':'A pelican\'s throat pouch can hold up to 11 liters of water — three times more than its stomach. They fish cooperatively, herding fish into shallows in a synchronized crescent formation.',
+    'woodpecker':'Woodpeckers hammer at 20 strikes per second with a deceleration force of 1,200 g — yet never get concussions. A spongy bone behind the bill and a tongue that wraps around the skull absorb the impact.',
+    'swift':'Common swifts can stay airborne for 10 months straight without landing — they eat, sleep, and mate on the wing. They are among the fastest birds in level flight, reaching 110 km/h.',
+    'lyrebird':'The superb lyrebird can mimic virtually any sound it hears — chainsaws, camera shutters, car alarms, other bird species, and even human speech — with such accuracy that other species are fooled.',
+    'hoatzin':'The hoatzin is the only bird that digests food by fermentation, like a cow. Its crop is so large it compresses the flight muscles, making it one of the poorest fliers of any bird. Chicks have clawed wings for climbing.',
+    'arctic-tern':'The Arctic tern sees more daylight than any other animal — it migrates from Arctic to Antarctic and back each year, covering 70,000 km, experiencing two summers and perpetual light.',
+    'harpy-eagle':'The harpy eagle has the largest talons of any living eagle — 13 cm long, the size of grizzly bear claws — and enough grip strength (530 PSI) to crush the bones of a howler monkey in flight.',
+    'shoebill':'The shoebill can stand motionless for hours before striking with a bill powerful enough to decapitate a lungfish. Its bill-clattering display sounds like machine-gun fire and can be heard 100 meters away.',
+    'superb-fairywren':'Male superb fairywrens pluck yellow petals and present them to females as courtship gifts — one of the only known examples of non-food gift-giving in birds.'
   };
   Object.entries(ff).forEach(([id,fact])=>{
     const n=nodeMap[id];

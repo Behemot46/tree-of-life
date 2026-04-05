@@ -137,6 +137,25 @@ export const GEO_DATA = {
   'flamingo':         { regions: ['africa', 'south-america', 'europe', 'south-asia', 'central-america'], label: 'Alkaline and saline lakes in Africa, the Americas, and southern Eurasia', type: 'habitat' },
   'barn-owl':         { regions: ['worldwide'], label: 'Every continent except Antarctica; the most widespread owl', type: 'habitat' },
   'cassowary':        { regions: ['oceania', 'southeast-asia'], label: 'Tropical rainforests of New Guinea and northeastern Australia', type: 'habitat' },
+  'emperor-penguin':  { regions: ['marine-global'], label: 'Antarctic coasts and surrounding Southern Ocean', type: 'habitat' },
+  'hummingbird':      { regions: ['north-america', 'central-america', 'south-america'], label: 'The Americas — from Alaska to Tierra del Fuego', type: 'habitat' },
+  'african-grey-parrot': { regions: ['africa'], label: 'Dense lowland rainforests of West and Central Africa', type: 'habitat' },
+  'wandering-albatross': { regions: ['marine-global'], label: 'Southern Ocean; breeds on sub-Antarctic islands', type: 'habitat' },
+  'bee-hummingbird':  { regions: ['central-america'], label: 'Cuba and Isla de la Juventud — endemic', type: 'endemic' },
+  'new-caledonian-crow': { regions: ['oceania'], label: 'New Caledonia archipelago, South Pacific', type: 'endemic' },
+  'ostrich':          { regions: ['africa'], label: 'Savannas, grasslands, and semi-arid regions of sub-Saharan Africa', type: 'habitat' },
+  'kiwi':             { regions: ['oceania'], label: 'Forests and shrublands across New Zealand', type: 'endemic' },
+  'secretary-bird':   { regions: ['africa'], label: 'Open grasslands and savannas of sub-Saharan Africa', type: 'habitat' },
+  'toucan':           { regions: ['central-america', 'south-america'], label: 'Tropical and subtropical forests from Mexico to Argentina', type: 'habitat' },
+  'pelican':          { regions: ['worldwide'], label: 'Coasts, lakes, and rivers on every continent except Antarctica', type: 'habitat' },
+  'woodpecker':       { regions: ['worldwide'], label: 'Forests worldwide except Australia, Madagascar, and Antarctica', type: 'habitat' },
+  'swift':            { regions: ['worldwide'], label: 'Breeds across Europe and Asia; winters in sub-Saharan Africa', type: 'habitat' },
+  'lyrebird':         { regions: ['oceania'], label: 'Temperate rainforests of southeastern Australia', type: 'endemic' },
+  'hoatzin':          { regions: ['south-america'], label: 'Swamps and riverine forests of the Amazon and Orinoco basins', type: 'habitat' },
+  'arctic-tern':      { regions: ['worldwide', 'marine-global'], label: 'Breeds in Arctic; migrates to Antarctic — every ocean', type: 'habitat' },
+  'harpy-eagle':      { regions: ['central-america', 'south-america'], label: 'Lowland tropical rainforests from Mexico to Argentina', type: 'habitat' },
+  'shoebill':         { regions: ['africa'], label: 'Freshwater swamps of central tropical Africa — Uganda, Zambia, South Sudan', type: 'habitat' },
+  'superb-fairywren': { regions: ['oceania'], label: 'Woodlands and gardens across southeastern Australia', type: 'habitat' },
   'mammals':          { regions: ['worldwide'], label: 'Every terrestrial, marine, and aerial habitat', type: 'habitat' },
   'cetaceans':        { regions: ['marine-global'], label: 'All oceans; some river dolphins in freshwater', type: 'habitat' },
   'blue-whale':       { regions: ['marine-global'], label: 'All oceans; migrates pole-to-equator seasonally', type: 'habitat' },
@@ -806,6 +825,144 @@ export const BRANCH_DATA = {
     lifespan: 'Unknown',
     conservation: 'Extinct (~1.9 Mya)',
     ability: 'Larger brain than H. habilis; debated whether separate species or variant'
+  },
+
+  // ── NEW BIRDS ──
+  'birds': {
+    ability: 'Living dinosaurs — the only surviving theropods; evolved flight, hollow bones, feathers, endothermy, and the most efficient respiratory system of any vertebrate'
+  },
+  'emperor-penguin': {
+    diet: 'Carnivore — fish, squid, krill',
+    lifespan: '15-20 years in the wild',
+    conservation: 'Near Threatened; declining due to sea ice loss',
+    size: 'Up to 1.2 m tall, 45 kg; tallest and heaviest living penguin',
+    ability: 'Dives to 565 m and holds breath 22 minutes; breeds in -60°C; males incubate eggs 65 days without food'
+  },
+  'hummingbird': {
+    diet: 'Nectarivore — flower nectar, tiny insects, spiders',
+    lifespan: '3-5 years (wild), up to 12 years',
+    conservation: 'Least Concern (most species); some critically endangered',
+    size: '5.5-21.5 cm; 1.8-20 g; smallest: bee hummingbird at 1.8 g',
+    ability: 'Only birds that fly backwards; wings beat 12-80 times/sec; heart rate up to 1,260 bpm; enter torpor nightly'
+  },
+  'african-grey-parrot': {
+    diet: 'Herbivore — seeds, nuts, fruits, berries, bark',
+    lifespan: '40-60 years in captivity, 23 years in wild',
+    conservation: 'Endangered; severe decline from wild trapping for pet trade',
+    size: '300-500 g; 33 cm body length',
+    ability: 'Cognitive ability of a 4-6 year old child; Alex learned 100+ English words, could count, identify colors and shapes'
+  },
+  'wandering-albatross': {
+    diet: 'Carnivore — squid, fish, crustaceans, carrion',
+    lifespan: '~50 years; some recorded over 70',
+    conservation: 'Vulnerable; longline fishing bycatch is primary threat',
+    size: 'Wingspan 3.1-3.5 m — longest of any living bird; 6-12 kg',
+    ability: 'Flies 120,000 km/year without flapping via dynamic soaring; can sleep while gliding; travels entire Southern Ocean'
+  },
+  'bee-hummingbird': {
+    diet: 'Nectarivore — nectar from 1,500+ flowers per day, tiny insects',
+    lifespan: '~7 years',
+    conservation: 'Near Threatened; habitat loss in Cuba',
+    size: '5.5 cm, 1.8 g — smallest bird and smallest warm-blooded animal on Earth',
+    ability: 'Wings beat 80 times/sec; heart rate 1,260 bpm; eggs the size of coffee beans; weighs less than a US penny'
+  },
+  'new-caledonian-crow': {
+    diet: 'Omnivore — insects, larvae, nuts, seeds, fruit',
+    lifespan: '~15 years in the wild',
+    conservation: 'Least Concern',
+    size: '~350 g; 40 cm',
+    ability: 'Manufactures multi-step tools from raw materials; passes tool designs between generations; solves 8-step puzzle boxes'
+  },
+  'ostrich': {
+    diet: 'Omnivore — seeds, shrubs, grasses, insects, lizards',
+    lifespan: '40-45 years in the wild',
+    conservation: 'Least Concern',
+    size: 'Up to 2.7 m, 156 kg — largest living bird; eyes 5 cm across (largest of any land animal)',
+    ability: 'Runs 70 km/h sustained — fastest two-legged animal; kick can kill a lion; lays the largest eggs (1.4 kg each)'
+  },
+  'kiwi': {
+    diet: 'Omnivore — earthworms, insects, berries, seeds',
+    lifespan: '25-50 years',
+    conservation: 'Vulnerable (most species); intensive conservation in NZ',
+    size: '1.3-3.3 kg; 25-45 cm — similar size to a chicken',
+    ability: 'Only bird with nostrils at beak tip; best sense of smell of any bird; lays eggs 25% of body weight; whiskers like a cat'
+  },
+  'secretary-bird': {
+    diet: 'Carnivore — snakes, lizards, insects, rodents, bird eggs',
+    lifespan: '10-15 years in the wild',
+    conservation: 'Endangered; rapid decline across African range',
+    size: '1.2-1.5 m tall, 3.5-4.5 kg; legs can be 1 m long',
+    ability: 'Kills venomous snakes by stomping — delivers 195 N of force in 15 ms; only raptor that hunts primarily on foot'
+  },
+  'toucan': {
+    diet: 'Omnivore — fruit, insects, small lizards, eggs, nestlings',
+    lifespan: '~20 years',
+    conservation: 'Variable; toco toucan Least Concern; some species Vulnerable',
+    size: '130-680 g; bill up to 1/3 of body length',
+    ability: 'Bill is a thermoregulator — flushes with blood to dump body heat; lightweight honeycomb keratin structure; key seed disperser'
+  },
+  'pelican': {
+    diet: 'Carnivore — fish, occasionally crustaceans and amphibians',
+    lifespan: '15-25 years in the wild, up to 54 in captivity',
+    conservation: 'Variable; Dalmatian pelican Vulnerable, others Least Concern',
+    size: '4-15 kg; wingspan up to 3.6 m; throat pouch holds 11 liters',
+    ability: 'Cooperative fishing — herds fish in synchronized crescent; throat pouch holds 3× more than stomach; plunge-dives from 20 m'
+  },
+  'woodpecker': {
+    diet: 'Insectivore — wood-boring larvae, ants, sap, nuts, seeds',
+    lifespan: '4-12 years depending on species',
+    conservation: 'Variable; ivory-billed woodpecker likely extinct; most species Least Concern',
+    size: '7 cm (piculet) to 58 cm (imperial); most 15-35 cm',
+    ability: 'Strikes at 20 hits/sec, 1,200 g deceleration; spongy skull bone + tongue wrapping skull absorbs impact; barbed tongue extracts larvae'
+  },
+  'swift': {
+    diet: 'Insectivore — aerial insects caught on the wing',
+    lifespan: '~5 years; record 21 years',
+    conservation: 'Least Concern (common swift); declining in Europe',
+    size: '30-55 g; 16-17 cm; scimitar-shaped wings span 40-44 cm',
+    ability: 'Stays airborne 10 months nonstop — eats, sleeps, and mates in flight; among fastest in level flight at 110 km/h'
+  },
+  'lyrebird': {
+    diet: 'Insectivore — invertebrates from leaf litter, worms, spiders',
+    lifespan: '~30 years',
+    conservation: 'Albert\'s lyrebird Near Threatened; superb lyrebird Least Concern',
+    size: '0.8-1.0 kg; male tail feathers reach 60 cm',
+    ability: 'Most accomplished vocal mimic in the animal kingdom — chainsaws, camera shutters, other bird species, human speech; accuracy fools target species'
+  },
+  'hoatzin': {
+    diet: 'Herbivore — leaves, flowers, fruit (fermented in crop)',
+    lifespan: '~15 years',
+    conservation: 'Least Concern; common in Amazon basin',
+    size: '700-900 g; 65 cm; stocky with tiny head crest',
+    ability: 'Only bird that ferment-digests like a cow; chicks have functional wing claws for climbing (lost as adults); smells like manure from fermentation'
+  },
+  'arctic-tern': {
+    diet: 'Carnivore — small fish, crustaceans, insects',
+    lifespan: '~30 years; record 34 years',
+    conservation: 'Least Concern',
+    size: '86-127 g; 33-36 cm; wingspan 76-85 cm',
+    ability: 'Longest migration of any animal — 70,000 km Arctic to Antarctic annually; sees more daylight than any other creature'
+  },
+  'harpy-eagle': {
+    diet: 'Carnivore — monkeys, sloths, macaws, iguanas',
+    lifespan: '25-35 years',
+    conservation: 'Vulnerable; deforestation is primary threat',
+    size: 'Up to 9 kg; talons 13 cm (grizzly bear–sized); wingspan 2 m',
+    ability: 'Strongest grip of any eagle — 530 PSI; snatches monkeys and sloths from canopy at 80 km/h; rear talon matches bear claw'
+  },
+  'shoebill': {
+    diet: 'Carnivore — lungfish, catfish, frogs, baby crocodiles, water snakes',
+    lifespan: '~35 years; up to 50 in captivity',
+    conservation: 'Vulnerable; ~5,000-8,000 remaining; swamp drainage main threat',
+    size: '4-7 kg; 1.1-1.4 m tall; bill 12 cm wide, 23 cm long',
+    ability: 'Stands motionless for hours; decapitation strike on fish; bill-clattering sounds like machine-gun fire audible 100 m away'
+  },
+  'superb-fairywren': {
+    diet: 'Insectivore — insects, spiders, small seeds',
+    lifespan: '5-6 years',
+    conservation: 'Least Concern; common across Australia',
+    size: '8-13 g; 14 cm; one of the smallest passerines',
+    ability: 'Males pluck yellow petals as courtship gifts; females teach embryos a "password" song through the egg shell — chicks must sing it to be fed'
   },
 
   // ── NEW MAMMALS ──

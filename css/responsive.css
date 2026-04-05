@@ -68,12 +68,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   [dir="rtl"] #nav-ctrl{left:50%;right:auto;transform:translateX(50%);}
   [dir="rtl"] #nav-ctrl.visible{transform:translateX(50%) translateY(0);}
 
-  /* ── SEARCH BAR: full-width, below header ── */
+  /* ── SEARCH BAR: full-width on mobile ── */
   #search-wrap {
     top: 0.55rem !important;
     left: 12px !important;
     right: 12px !important;
-    transform: none !important;
     width: auto !important;
     flex-wrap: wrap;
     gap: 6px;
@@ -96,15 +95,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     left: 0; right: 0;
   }
 
-  /* ── LANG SWITCHER + THEME: move to top-right row ── */
-  #lang-switcher {
-    top: 0.55rem;
-    right: auto;
-    left: auto;
-    position: fixed;
-    right: 50px;
-    z-index: 400;
-  }
+  /* ── LANG SWITCHER + THEME: touch-friendly sizing ── */
   .lang-btn {
     min-width: 44px;
     min-height: 44px;
@@ -115,14 +106,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     justify-content: center;
   }
   #theme-btn {
-    top: 0.55rem;
-    right: 6px;
     width: 44px !important;
     height: 44px !important;
     font-size: 0.8rem;
   }
-  [dir="rtl"] #lang-switcher { right: auto; left: 50px; }
-  [dir="rtl"] #theme-btn { right: auto; left: 6px; }
+  [dir="rtl"] #top-right-controls { right: auto; left: 0.5rem; }
 
   /* ── DETAIL PANEL: bottom-sheet on mobile ── */
   #panel {
@@ -265,7 +253,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     font-size: 0.7rem;
   }
   #lang-switcher { display: none; }
-  #theme-btn { top: 0.4rem; right: 4px; }
+  #theme-btn { width: 30px !important; height: 30px !important; }
   #legend { display: none; }
   #panel { max-height: 80vh; }
   .p-facts { grid-template-columns: 1fr !important; }
@@ -293,7 +281,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ══ MOBILE FOR NEW ELEMENTS ══ */
 /* ── MOBILE FOR NEW ELEMENTS ── */
 @media (max-width: 768px) {
-  #view-toggle{top:auto;bottom:20rem;right:0.6rem;flex-direction:column;}
+  #view-toggle{position:fixed;top:auto;bottom:20rem;right:0.6rem;flex-direction:column;}
   .view-btn+.view-btn{border-left:none;border-top:1px solid var(--border);}
   #timeline{padding:0.3rem 0.6rem 0.5rem;}
   #era-label{font-size:0.6rem;}

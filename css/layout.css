@@ -19,8 +19,8 @@
 [data-theme="light"] .title-main{color:var(--text-primary) !important;}
 [data-theme="light"] .title-sub{color:var(--text-secondary) !important;}
 /* ── SEARCH BAR ── */
-#search-wrap{position:fixed;top:1rem;left:50%;transform:translateX(-50%);z-index:var(--z-search);
-  display:flex;align-items:center;gap:8px;pointer-events:all;max-width:calc(100% - 10rem);}
+#search-wrap{position:fixed;top:6rem;left:1.5rem;z-index:var(--z-search);
+  display:flex;flex-direction:column;align-items:flex-start;gap:0.7rem;pointer-events:all;}
 #search-input{background:var(--glass-bg);border:1px solid var(--glass-border);
   border-radius:var(--radius-full);padding:0.5rem 1rem 0.5rem 2.2rem;color:var(--text-primary);
   font-family:var(--font-sans);font-size:0.813rem;width:240px;outline:none;
@@ -28,7 +28,7 @@
 #search-input::placeholder{color:var(--text-secondary);opacity:0.5;}
 #search-input:focus{border-color:var(--accent);width:300px;box-shadow:0 0 0 3px var(--accent-dim),var(--shadow-2);}
 #search-icon{position:absolute;left:1.35rem;color:var(--text-secondary);font-size:0.75rem;pointer-events:none;}
-#search-results{position:absolute;top:calc(100% + 8px);left:0;right:0;
+#search-results{position:absolute;top:2.5rem;left:0;width:240px;
   background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);
   overflow:hidden;display:none;max-height:220px;overflow-y:auto;
   box-shadow:var(--shadow-2);}
@@ -50,9 +50,10 @@
 .search-pill:active{transform:scale(0.97);}
 [data-theme="light"] .search-pill{background:var(--surface);border-color:var(--border);color:var(--text-secondary);}
 [data-theme="light"] .search-pill:hover{border-color:var(--accent-primary);color:var(--accent-primary);}
+#hominins-tab{margin-top:3.3rem;}
 
 /* ── BREADCRUMB ── */
-#breadcrumb{position:fixed;top:4.2rem;left:50%;transform:translateX(-50%);z-index:var(--z-nav);
+#breadcrumb{position:fixed;top:13rem;left:1.5rem;z-index:var(--z-nav);
   display:flex;align-items:center;gap:0;pointer-events:all;
   background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-full);
   padding:0.3rem 0.8rem;

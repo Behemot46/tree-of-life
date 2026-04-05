@@ -30,6 +30,24 @@ export const EXTINCTION_DETAILS=[
 
 const EXTINCTION_ICONS={445:'\uD83D\uDC80',370:'\uD83D\uDC80',252:'\u2620\uFE0F',200:'\uD83D\uDC80',66:'\u2604\uFE0F'};
 
+// ── Non-linear timeline scale ──
+// Piecewise-linear: compresses pre-Phanerozoic, expands recent history.
+// Returns 0..1 where 0 = oldest (3800 Ma, left edge) and 1 = present (0 Ma, right edge).
+function timeScale(mya) {
+  mya = Math.max(0, Math.min(3800, mya));
+  if (mya >= 540) return (3800 - mya) / 3260 * 0.20;           // 3800–540 Ma → 0.00–0.20
+  if (mya >= 66)  return 0.20 + (540 - mya) / 474 * 0.45;      // 540–66 Ma  → 0.20–0.65
+  return 0.65 + (66 - mya) / 66 * 0.35;                         // 66–0 Ma    → 0.65–1.00
+}
+
+// Inverse: 0..1 → mya
+function timeScaleInverse(t) {
+  t = Math.max(0, Math.min(1, t));
+  if (t <= 0.20) return 3800 - (t / 0.20) * 3260;              // 0.00–0.20 → 3800–540 Ma
+  if (t <= 0.65) return 540 - ((t - 0.20) / 0.45) * 474;       // 0.20–0.65 → 540–66 Ma
+  return 66 - ((t - 0.65) / 0.35) * 66;                         // 0.65–1.00 → 66–0 Ma
+}
+
 const ERA_COLORS={
   hadean:{dark:'rgba(120,50,30,0.12)',light:'rgba(120,50,30,0.08)'},
   archean:{dark:'rgba(100,60,40,0.10)',light:'rgba(100,60,40,0.07)'},
@@ -119,10 +137,10 @@ export function buildExtinctionMarkers(){
   if(!container)return;
   container.innerHTML='';
   EXTINCTION_DETAILS.forEach(ext=>{
-    const pct=(ext.mya/3800)*100;
+    const leftPct=timeScale(ext.mya)*100;
     const marker=document.createElement('div');
     marker.className='ext-marker';
-    marker.style.left=`${100-pct}%`;
+    marker.style.left=`${leftPct}%`;
     marker.dataset.severity=ext.pct>90?'extreme':ext.pct>80?'high':'normal';
     marker.dataset.mya=ext.mya;
     const icon=document.createElement('span');
@@ -183,8 +201,7 @@ export function updateSpeciesCount(){
 export function updateThumbPosition(mya){
   const thumb=document.getElementById('tl-thumb');
   if(thumb){
-    // Left=3800 Ma (0%), Right=0 Ma (100%)
-    thumb.style.left=((3800-mya)/3800*100)+'%';
+    thumb.style.left=(timeScale(mya)*100)+'%';
     thumb.setAttribute('aria-valuenow',mya);
   }
 }
@@ -285,7 +302,6 @@ export function buildEraSegments(){
   const container=document.getElementById('era-segments');
   if(!container)return;
   container.innerHTML='';
-  const totalRange=3800;
   // Sort oldest first (leftmost = oldest in this timeline)
   const sorted=[...TIMELINE_SEGMENTS].sort((a,b)=>b.max-a.max);
   const isLight=document.documentElement.getAttribute('data-theme')==='light';
@@ -293,7 +309,9 @@ export function buildEraSegments(){
     const clampedMin=Math.max(0,seg.min);
     const clampedMax=Math.min(3800,seg.max);
     if(clampedMax<=clampedMin)return;
-    const widthPct=((clampedMax-clampedMin)/totalRange)*100;
+    const leftPct=timeScale(clampedMax)*100;
+    const rightPct=timeScale(clampedMin)*100;
+    const widthPct=rightPct-leftPct;
     const div=document.createElement('div');
     div.className='era-seg';
     div.style.width=widthPct+'%';
@@ -301,7 +319,7 @@ export function buildEraSegments(){
     div.dataset.segId=seg.id;
     div.dataset.min=clampedMin;
     div.dataset.max=clampedMax;
-    if(widthPct>5){
+    if(widthPct>3){
       const label=document.createElement('span');
       label.className='era-seg-label';
       label.textContent=_t(seg.nameKey);
@@ -336,14 +354,17 @@ export function buildDensitySparkline(){
     buckets[idx]++;
   });
   const maxCount=Math.max(1,...buckets);
-  const barW=w/numBuckets;
   const isLight=document.documentElement.getAttribute('data-theme')==='light';
   ctx.fillStyle=isLight?'rgba(2,132,199,0.35)':'rgba(14,165,233,0.35)';
-  // Render right-to-left: bucket 0 (0-50 Ma) is on the right, bucket N (oldest) is on the left
+  // Render using non-linear scale: each bucket maps to its scaled screen position
   buckets.forEach((count,i)=>{
     const barH=(count/maxCount)*h*0.9;
-    const x=w-((i+1)*barW);
-    ctx.fillRect(x,h-barH,barW-1,barH);
+    const myaHigh=(i+1)*bucketSize;  // older edge of bucket
+    const myaLow=i*bucketSize;       // younger edge of bucket
+    const xLeft=timeScale(myaHigh)*w;
+    const xRight=timeScale(myaLow)*w;
+    const barW=Math.max(1,xRight-xLeft-1);
+    ctx.fillRect(xLeft,h-barH,barW,barH);
   });
 }
 
@@ -358,9 +379,8 @@ export function initThumbDrag(){
 
   function myaFromPointer(clientX){
     const rect=track.getBoundingClientRect();
-    const pct=Math.max(0,Math.min(1,(clientX-rect.left)/rect.width));
-    // Left=3800 Ma (oldest), right=0 Ma (present)
-    return Math.round((1-pct)*3800);
+    const t=Math.max(0,Math.min(1,(clientX-rect.left)/rect.width));
+    return Math.round(timeScaleInverse(t));
   }
 
   function updateFromMya(mya){

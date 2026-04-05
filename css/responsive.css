@@ -281,8 +281,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ══ MOBILE FOR NEW ELEMENTS ══ */
 /* ── MOBILE FOR NEW ELEMENTS ── */
 @media (max-width: 768px) {
-  #view-toggle{position:fixed;top:auto;bottom:20rem;right:0.6rem;flex-direction:column;}
-  .view-btn+.view-btn{border-left:none;border-top:1px solid var(--border);}
+  #view-toggle{top:auto;bottom:10rem;left:50%;right:auto;transform:translateX(-50%);flex-direction:row;}
+  .view-btn+.view-btn{border-top:none;border-left:1px solid var(--border);}
   #timeline{padding:0.3rem 0.6rem 0.5rem;}
   #era-label{font-size:0.6rem;}
   #era-time-range{display:none;}
@@ -295,7 +295,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .era-preset-icon{display:none;}
   #tl-speed-group{display:none;}
   #era-play{width:26px;height:26px;font-size:0.65rem;}
-  [dir="rtl"] #view-toggle{left:0.6rem;right:auto;}
+  [dir="rtl"] #view-toggle{left:50%;right:auto;transform:translateX(50%);}
 }
 
 /* ══ DNA CALC MOBILE ══ */

@@ -2,7 +2,7 @@
 [dir="rtl"] #header{flex-direction:row-reverse;}
 [dir="rtl"] #top-right-controls{right:auto;left:0.5rem;}
 [dir="rtl"] #search-wrap{left:auto;right:1.5rem;}
-[dir="rtl"] #breadcrumb{left:auto;right:1.5rem;}
+/* breadcrumb is centered with left:50%+translateX(-50%), works in both LTR and RTL — no positional override needed */
 [dir="rtl"] #progress-badge{left:auto;right:1.5rem;}
 [dir="rtl"] #search-input{text-align:right;direction:rtl;}
 [dir="rtl"] #panel{right:auto;left:-500px;border-left:none;border-right:1px solid var(--border);transition:left 0.3s cubic-bezier(0.16,1,0.3,1);}

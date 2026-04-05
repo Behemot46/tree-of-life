@@ -94,7 +94,7 @@ export function showTriviaQuestion(){
   container.innerHTML=`
     <div class="trivia-header">
       <button class="btn-back" onclick="closeTrivia()" aria-label="Close">\u2715</button>
-      <div style="font-size:0.75rem;color:var(--text-secondary);">Q ${s.currentIndex+1}/${s.questions.length}</div>
+      <div style="font-size:var(--text-sm);color:var(--text-secondary);">Q ${s.currentIndex+1}/${s.questions.length}</div>
       <div style="display:flex;align-items:center;gap:0.6rem;">
         <div class="trivia-lives" id="trivia-lives">${renderTriviaLives(s.lives)}</div>
         <div class="trivia-score-display" id="trivia-score">${s.score} pts</div>
@@ -103,8 +103,8 @@ export function showTriviaQuestion(){
     <div class="trivia-progress"><div class="trivia-progress-fill" style="width:${((s.currentIndex)/s.questions.length)*100}%"></div></div>
     <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
       <span class="trivia-diff-badge ${tier.cls}">${tier.label}</span>
-      <span style="font-size:0.65rem;color:var(--text-secondary);">${pts} pts</span>
-      <span style="font-size:0.65rem;color:var(--text-secondary);margin-left:auto;">${q.category}</span>
+      <span style="font-size:var(--text-2xs);color:var(--text-secondary);">${pts} pts</span>
+      <span style="font-size:var(--text-2xs);color:var(--text-secondary);margin-left:auto;">${q.category}</span>
       ${s.streak>=3?`<span class="trivia-streak-badge">${s.streak>=5?'\ud83d\udd25 Unstoppable!':'\ud83d\udd25 '+s.streak+' streak!'}</span>`:''}
     </div>
     <div class="trivia-question-text trivia-fadein">${q.question}</div>
@@ -236,7 +236,7 @@ export function showTriviaResults(){
   TRIVIA_TIERS.forEach(tier=>{
     const ts=s.tierScores[tier.cls];
     if(ts.total>0){
-      breakdownHTML+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:0.3rem 0;font-size:0.75rem;">
+      breakdownHTML+=`<div style="display:flex;justify-content:space-between;align-items:center;padding:0.3rem 0;font-size:var(--text-sm);">
         <span class="trivia-diff-badge ${tier.cls}">${tier.label}</span>
         <span style="color:var(--text-secondary);font-family:var(--font-mono);">${ts.correct}/${ts.total}</span>
       </div>`;

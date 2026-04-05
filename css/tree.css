@@ -48,7 +48,7 @@ svg{width:100%;height:100%;}
   font-style:italic;
   font-weight:400;
   font-size:var(--tree-label-latin-size);
-  fill:rgba(255,255,255,0.35);
+  fill:rgba(237,232,223,0.45);
 }
 [data-theme="light"] .node-label-latin{fill:rgba(0,0,0,0.45);}
 
@@ -131,7 +131,7 @@ svg{width:100%;height:100%;}
 .chip-badge{
   display:inline-flex;align-items:center;gap:4px;
   padding:0 12px;border-radius:14px;
-  font-family:var(--font-sans);font-size:12px;font-weight:500;
+  font-family:var(--font-sans);font-size:var(--text-xs);font-weight:500;
   white-space:nowrap;cursor:pointer;
   transition:background var(--transition-fast),border-color var(--transition-fast);
 }

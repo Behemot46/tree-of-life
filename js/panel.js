@@ -252,9 +252,9 @@ export function renderPrimateCard(node) {
           <div class="pri-bar-track">
             <div class="pri-bar-fill" style="width:${pct}%;background:${nodeColor};"></div>
           </div>
-          <span style="font-size:12px;color:var(--text-secondary);font-family:var(--font-mono);min-width:70px;">${brainArr[0] !== brainArr[1] && brainArr[0] ? brainArr[0]+'–'+brainMax : brainMax} cc</span>
+          <span style="font-size:var(--text-xs);color:var(--text-secondary);font-family:var(--font-mono);min-width:70px;">${brainArr[0] !== brainArr[1] && brainArr[0] ? brainArr[0]+'–'+brainMax : brainMax} cc</span>
         </div>
-        ${(pd && pd.brain && pd.brain.eq) ? `<div style="font-size:11px;color:var(--text-secondary);">Encephalization Quotient: <strong style="color:var(--text-primary);">${pd.brain.eq}</strong></div>` : ''}
+        ${(pd && pd.brain && pd.brain.eq) ? `<div style="font-size:var(--text-xs);color:var(--text-secondary);">Encephalization Quotient: <strong style="color:var(--text-primary);">${pd.brain.eq}</strong></div>` : ''}
       </div>`;
     }
   }
@@ -304,7 +304,7 @@ export function renderPrimateCard(node) {
     } else if (gen.dnaSimHuman === 100) {
       html += `<div class="pri-genome-row"><span class="pri-genome-label">DNA sim. to human</span><span class="pri-genome-value">100% (reference)</span></div>`;
     }
-    if (gen.note) html += `<div style="font-size:11px;color:var(--text-secondary);font-style:italic;line-height:1.4;">${gen.note}</div>`;
+    if (gen.note) html += `<div style="font-size:var(--text-xs);color:var(--text-secondary);font-style:italic;line-height:1.4;">${gen.note}</div>`;
     html += `</div></div>`;
   }
 
@@ -317,12 +317,12 @@ export function renderPrimateCard(node) {
       html += `<div style="display:flex;flex-direction:column;gap:4px;">
         <div class="pri-section-hdr" style="color:${nodeColor};">🧬 DNA LEGACY</div>`;
       if (nPct != null && nPct > 0 && nPct < 100) {
-        html += `<div class="pri-dna-bar"><span style="min-width:80px;">Neanderthal</span><div class="pri-dna-bar-track"><div class="pri-dna-bar-fill" style="width:${Math.min(100,nPct*25)}%;background:#7A9BAA;"></div></div><span>${nPct}%</span></div>`;
+        html += `<div class="pri-dna-bar"><span style="min-width:80px;">Neanderthal</span><div class="pri-dna-bar-track"><div class="pri-dna-bar-fill" style="width:${Math.min(100,nPct*25)}%;background:var(--info);"></div></div><span>${nPct}%</span></div>`;
       }
       if (dPct != null && dPct > 0 && dPct < 100) {
-        html += `<div class="pri-dna-bar"><span style="min-width:80px;">Denisovan</span><div class="pri-dna-bar-track"><div class="pri-dna-bar-fill" style="width:${Math.min(100,dPct*20)}%;background:#7A8BAA;"></div></div><span>${dPct}%</span></div>`;
+        html += `<div class="pri-dna-bar"><span style="min-width:80px;">Denisovan</span><div class="pri-dna-bar-track"><div class="pri-dna-bar-fill" style="width:${Math.min(100,dPct*20)}%;background:var(--info);"></div></div><span>${dPct}%</span></div>`;
       }
-      if (dna.note) html += `<div style="font-size:11px;color:var(--text-secondary);font-style:italic;">${dna.note}</div>`;
+      if (dna.note) html += `<div style="font-size:var(--text-xs);color:var(--text-secondary);font-style:italic;">${dna.note}</div>`;
       html += `</div>`;
     }
   }
@@ -365,7 +365,7 @@ export function renderPrimateCard(node) {
   if (h && h.sites && h.sites.length) {
     html += `<div style="display:flex;flex-direction:column;gap:4px;">
       <div class="pri-section-hdr" style="color:${nodeColor};">📍 FOSSIL SITES</div>
-      <div style="font-size:12px;color:var(--text-secondary);font-family:var(--font-sans);line-height:1.6;">${h.sites.join(' · ')}</div>
+      <div style="font-size:var(--text-xs);color:var(--text-secondary);font-family:var(--font-sans);line-height:1.6;">${h.sites.join(' · ')}</div>
     </div>`;
   }
 
@@ -398,7 +398,7 @@ export function buildHeroFallback(node) {
 export function _buildTimelineBar(node) {
   if (node.appeared == null) return '';
   const pct = Math.max(2, Math.min(98, (1 - node.appeared / 3800) * 100));
-  const col = node.color || 'var(--color-accent)';
+  const col = node.color || 'var(--accent)';
   return `
     <div class="panel-timeline">
       <div class="panel-timeline-track">
@@ -407,7 +407,7 @@ export function _buildTimelineBar(node) {
       </div>
       <div class="panel-timeline-labels" style="margin-top:18px;">
         <span>3.8 Bya</span>
-        <span style="color:var(--color-text-secondary);font-weight:600;">~${node.appeared >= 1000 ? (node.appeared/1000).toFixed(1)+' Bya' : node.appeared+' Mya'}</span>
+        <span style="color:var(--text-secondary);font-weight:600;">~${node.appeared >= 1000 ? (node.appeared/1000).toFixed(1)+' Bya' : node.appeared+' Mya'}</span>
         <span>Now</span>
       </div>
     </div>`;
@@ -430,7 +430,7 @@ export function _buildRadarChart(node) {
   const n = numFacts.length;
   const cx = 60, cy = 60, R = 48;
   const maxVal = Math.max(...numFacts.map(f => f.value));
-  const col = node.color || 'var(--color-accent)';
+  const col = node.color || 'var(--accent)';
   // Build polygon points
   const pts = numFacts.map((f, i) => {
     const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
@@ -443,12 +443,12 @@ export function _buildRadarChart(node) {
     const angle = (Math.PI * 2 * i / n) - Math.PI / 2;
     const x2 = cx + R * Math.cos(angle);
     const y2 = cy + R * Math.sin(angle);
-    axes += `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="var(--color-divider)" stroke-width="1"/>`;
+    axes += `<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="var(--divider)" stroke-width="1"/>`;
     // Label position slightly beyond axis end
     const lx = cx + (R + 14) * Math.cos(angle);
     const ly = cy + (R + 14) * Math.sin(angle);
     const anchor = Math.abs(Math.cos(angle)) < 0.1 ? 'middle' : Math.cos(angle) > 0 ? 'start' : 'end';
-    axes += `<text x="${lx}" y="${ly}" text-anchor="${anchor}" dominant-baseline="central" fill="var(--color-text-muted)" font-size="7" font-family="Inter,sans-serif">${f.label.length > 12 ? f.label.slice(0,11)+'…' : f.label}</text>`;
+    axes += `<text x="${lx}" y="${ly}" text-anchor="${anchor}" dominant-baseline="central" fill="var(--text-muted)" font-size="7" font-family="Inter,sans-serif">${f.label.length > 12 ? f.label.slice(0,11)+'…' : f.label}</text>`;
   });
   return `
     <div class="panel-radar">
@@ -596,14 +596,14 @@ export function renderPanelContent(node) {
         const denPct  = h.dna && h.dna.denisovan != null ? h.dna.denisovan : null;
         if (neanPct != null || denPct != null) {
           html += `<div class="panel-section"><div class="p-section">🧬 DNA LEGACY</div>`;
-          if (neanPct != null) html += `<div class="panel-bar-wrap" style="margin-bottom:4px"><span style="min-width:75px;font-size:0.72rem;color:var(--text-secondary)">Neanderthal</span><div class="panel-bar" style="height:6px"><div class="panel-bar-fill" style="width:${Math.min(100,neanPct*25)}%;background:#7A9BAA"></div></div><span class="panel-bar-label">${neanPct}%</span></div>`;
-          if (denPct != null) html += `<div class="panel-bar-wrap"><span style="min-width:75px;font-size:0.72rem;color:var(--text-secondary)">Denisovan</span><div class="panel-bar" style="height:6px"><div class="panel-bar-fill" style="width:${Math.min(100,denPct*20)}%;background:#7A8BAA"></div></div><span class="panel-bar-label">${denPct}%</span></div>`;
-          if (h.dna && h.dna.note) html += `<div style="font-size:0.65rem;color:var(--text-secondary);font-style:italic;margin-top:4px">${h.dna.note}</div>`;
+          if (neanPct != null) html += `<div class="panel-bar-wrap" style="margin-bottom:4px"><span style="min-width:75px;font-size:var(--text-xs);color:var(--text-secondary)">Neanderthal</span><div class="panel-bar" style="height:6px"><div class="panel-bar-fill" style="width:${Math.min(100,neanPct*25)}%;background:var(--info)"></div></div><span class="panel-bar-label">${neanPct}%</span></div>`;
+          if (denPct != null) html += `<div class="panel-bar-wrap"><span style="min-width:75px;font-size:var(--text-xs);color:var(--text-secondary)">Denisovan</span><div class="panel-bar" style="height:6px"><div class="panel-bar-fill" style="width:${Math.min(100,denPct*20)}%;background:var(--info)"></div></div><span class="panel-bar-label">${denPct}%</span></div>`;
+          if (h.dna && h.dna.note) html += `<div style="font-size:var(--text-2xs);color:var(--text-secondary);font-style:italic;margin-top:4px">${h.dna.note}</div>`;
           html += `</div>`;
         }
         if (h.sites && h.sites.length) {
           html += `<div class="panel-section"><div class="p-section">📍 FOSSIL SITES</div>
-            <div style="font-size:0.72rem;color:var(--text-secondary);line-height:1.6">${h.sites.join(' · ')}</div></div>`;
+            <div style="font-size:var(--text-xs);color:var(--text-secondary);line-height:1.6">${h.sites.join(' · ')}</div></div>`;
         }
         return html;
       })()}

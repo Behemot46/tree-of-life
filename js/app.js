@@ -372,7 +372,7 @@ searchInput.addEventListener('input',()=>{
     searchResults.innerHTML=`
       <div style="padding:16px;text-align:center;font-family:'Inter',sans-serif;">
         <div style="font-size:24px;margin-bottom:8px;">🔍</div>
-        <div style="font-size:13px;color:var(--color-text-muted);">${t('search_hint')}</div>
+        <div style="font-size:var(--text-sm);color:var(--text-muted);">${t('search_hint')}</div>
       </div>
     `;
     searchResults.style.display='block';
@@ -392,7 +392,7 @@ searchInput.addEventListener('input',()=>{
     return `<div class="sr-item" role="option" tabindex="-1" onclick="navigateTo('${m.id}')"><span class="sri-icon" aria-hidden="true">${m.icon}</span><span class="sri-name">${displayName}${subName?' <span style="font-size:0.8em;opacity:0.55;font-style:italic">'+subName+'</span>':''}</span><span class="sri-sub">${eraText}</span></div>`;
   }).join('');
   if(!matches.length){
-    searchResults.innerHTML=`<div style="padding:16px;text-align:center;font-size:13px;color:var(--color-text-muted);font-family:'Heebo',sans-serif;">${t('search_no_results')}</div>`;
+    searchResults.innerHTML=`<div style="padding:16px;text-align:center;font-size:var(--text-sm);color:var(--text-muted);font-family:'Heebo',sans-serif;">${t('search_no_results')}</div>`;
     searchResults.classList.add('show');
     a11yAnnounce('No results found');
   } else {

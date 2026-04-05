@@ -109,7 +109,7 @@ export function showIntro(){
   overlay.innerHTML=`
     <div style="font-family:'Inter',sans-serif;font-size:clamp(1.8rem,4vw,3rem);color:var(--parchment);text-align:center;letter-spacing:0.05em;opacity:0;transition:opacity 1.5s" id="intro-text1">${_t('title')}</div>
     <div style="font-size:clamp(0.75rem,1.5vw,0.9rem);color:var(--accent-text);text-align:center;letter-spacing:0.25em;text-transform:uppercase;margin-top:0.8rem;opacity:0;transition:opacity 1.5s 0.5s" id="intro-text2">${_t('subtitle')}</div>
-    <div style="font-size:0.7rem;color:var(--sage);text-align:center;margin-top:1.5rem;opacity:0;transition:opacity 1.5s 1.2s;font-style:italic" id="intro-text3">${_t('intro_quote')}</div>`;
+    <div style="font-size:var(--text-xs);color:var(--sage);text-align:center;margin-top:1.5rem;opacity:0;transition:opacity 1.5s 1.2s;font-style:italic" id="intro-text3">${_t('intro_quote')}</div>`;
   document.body.appendChild(overlay);
   if(reducedMotion()){
     overlay.remove();

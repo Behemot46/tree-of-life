@@ -102,7 +102,7 @@ export function startCompareFromPanel(nodeId){
     document.body.appendChild(banner);
   }
   banner.classList.add('visible');
-  banner.innerHTML=`<span>⚖ Compare: click 1–3 more hominin species</span><button onclick="finishCompare()" style="padding:4px 12px;border-radius:8px;border:1px solid var(--accent-primary);background:var(--accent-primary-dim);color:var(--accent-primary);cursor:pointer;font-size:12px;font-family:Inter,sans-serif;">Done</button><button onclick="cancelCompare()" style="padding:4px 8px;border:none;background:transparent;color:var(--text-secondary);cursor:pointer;font-size:14px;">✕</button>`;
+  banner.innerHTML=`<span>⚖ Compare: click 1–3 more hominin species</span><button onclick="finishCompare()" style="padding:4px 12px;border-radius:8px;border:1px solid var(--accent-primary);background:var(--accent-primary-dim);color:var(--accent-primary);cursor:pointer;font-size:var(--text-xs);font-family:Inter,sans-serif;">Done</button><button onclick="cancelCompare()" style="padding:4px 8px;border:none;background:transparent;color:var(--text-secondary);cursor:pointer;font-size:var(--text-base);">✕</button>`;
 }
 
 // Hook into showMainPanel to intercept clicks during compare mode + a11y
@@ -166,7 +166,7 @@ export function showComparePanel(){
     const dP=h.dna&&h.dna.denisovan!=null?h.dna.denisovan:null;
     return `<div class="compare-card" style="border-color:${h.color}44;">
       <div style="font-size:2rem;margin-bottom:0.5rem" aria-hidden="true">${h.icon}</div>
-      <div style="font-family:var(--font-head);font-size:0.95rem;color:${h.color};margin-bottom:0.15rem">${h.short}</div>
+      <div style="font-family:var(--font-head);font-size:var(--text-base);color:${h.color};margin-bottom:0.15rem">${h.short}</div>
       <div class="cc-sub">${h.name}</div>
       <div class="cc-lbl">${t('lbl_timeline')}</div>
       <div class="cc-val">${h.mya[0]}–${h.mya[1]} Ma</div>
@@ -181,12 +181,12 @@ export function showComparePanel(){
       <div class="cc-val">${h.language}</div>
       ${nP!=null?`
       <div class="cc-lbl">${t('lbl_nean')}</div>
-      <div class="cc-dna-bg"><div style="height:100%;width:${Math.min(100,nP*25)}%;background:#7A9BAA"></div></div>
-      <div class="cc-dna-label" style="color:#7A9BAA">${nP}%</div>`:''}
+      <div class="cc-dna-bg"><div style="height:100%;width:${Math.min(100,nP*25)}%;background:var(--info)"></div></div>
+      <div class="cc-dna-label" style="color:var(--info)">${nP}%</div>`:''}
       ${dP!=null?`
       <div class="cc-lbl">${t('lbl_den')}</div>
-      <div class="cc-dna-bg"><div style="height:100%;width:${Math.min(100,dP*20)}%;background:#7A8BAA"></div></div>
-      <div class="cc-dna-label" style="color:#7A8BAA">${dP}%</div>`:''}
+      <div class="cc-dna-bg"><div style="height:100%;width:${Math.min(100,dP*20)}%;background:var(--info)"></div></div>
+      <div class="cc-dna-label" style="color:var(--info)">${dP}%</div>`:''}
       <div class="cc-desc">${h.desc.slice(0,200)}${h.desc.length>200?'…':''}</div>
     </div>`;
   }).join('');
@@ -312,8 +312,8 @@ export function showHominDetail(h){
     ${h.sites?`<div class="hp-section">FOSSIL SITES</div><div class="hp-detail">${h.sites}</div>`:''}
     ${neanPct!=null||denPct!=null?`
     <div class="hp-section">DNA INTROGRESSION</div>
-    ${neanPct!=null?`<div class="hp-dna"><span style="font-size:0.7rem;color:var(--text-secondary);width:80px">Neanderthal</span><div class="dna-fill"><div class="dna-fill-inner" style="width:${Math.min(100,neanPct*25)}%;background:#7A9BAA"></div></div><span style="font-size:0.7rem;color:#7A9BAA;font-family:var(--font-mono)">${neanPct}%</span></div>`:''}
-    ${denPct!=null?`<div class="hp-dna"><span style="font-size:0.7rem;color:var(--text-secondary);width:80px">Denisovan</span><div class="dna-fill"><div class="dna-fill-inner" style="width:${Math.min(100,denPct*20)}%;background:#7A8BAA"></div></div><span style="font-size:0.7rem;color:#7A8BAA;font-family:var(--font-mono)">${denPct}%</span></div>`:''}
+    ${neanPct!=null?`<div class="hp-dna"><span style="font-size:var(--text-xs);color:var(--text-secondary);width:80px">Neanderthal</span><div class="dna-fill"><div class="dna-fill-inner" style="width:${Math.min(100,neanPct*25)}%;background:var(--info)"></div></div><span style="font-size:var(--text-xs);color:var(--info);font-family:var(--font-mono)">${neanPct}%</span></div>`:''}
+    ${denPct!=null?`<div class="hp-dna"><span style="font-size:var(--text-xs);color:var(--text-secondary);width:80px">Denisovan</span><div class="dna-fill"><div class="dna-fill-inner" style="width:${Math.min(100,denPct*20)}%;background:var(--info)"></div></div><span style="font-size:var(--text-xs);color:var(--info);font-family:var(--font-mono)">${denPct}%</span></div>`:''}
     `:''}
     <div class="hp-detail" style="margin-top:0.8rem">${h.detail||''}</div>
     <div class="hp-tags">${(h.tags||[]).map(tg=>`<span class="hp-tag">${tg}</span>`).join('')}</div>

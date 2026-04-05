@@ -3,7 +3,7 @@
 #splash {
   position: fixed;
   inset: 0;
-  background: #141618;
+  background: var(--bg);
   z-index: var(--z-splash, 9999);
   transition: opacity 0.5s ease;
 }
@@ -20,7 +20,7 @@
   bottom: 24px;
   right: 24px;
   font-family: var(--font-sans, 'Inter', sans-serif);
-  font-size: 13px;
+  font-size: var(--text-sm);
   letter-spacing: 1px;
   color: rgba(230, 225, 216, 0.4);
   cursor: pointer;
@@ -42,7 +42,7 @@
   align-items: center;
   justify-content: center;
   gap: 12px;
-  color: #e6e1d8;
+  color: var(--text-primary);
   text-align: center;
   cursor: pointer;
   font-family: var(--font-sans, 'Inter', sans-serif);
@@ -56,7 +56,7 @@
 
 #splash-fallback p {
   color: rgba(154, 148, 136, 0.6);
-  font-size: 16px;
+  font-size: var(--text-md);
   max-width: 480px;
   line-height: 1.6;
 }

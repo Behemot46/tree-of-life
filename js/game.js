@@ -252,7 +252,7 @@ function showQuestion() {
   container.innerHTML = `
     <div class="trivia-header">
       <button class="btn-back" data-action="close-game" aria-label="Close">✕</button>
-      <div style="font-size:0.75rem;color:var(--text-secondary);">${progressText}</div>
+      <div style="font-size:var(--text-sm);color:var(--text-secondary);">${progressText}</div>
       <div style="display:flex;align-items:center;gap:0.6rem;">
         ${livesHtml}
         <div class="trivia-score-display" id="game-score">${scoreText}</div>
@@ -261,8 +261,8 @@ function showQuestion() {
     <div class="trivia-progress"><div class="trivia-progress-fill" style="width:${((s.currentIndex) / total) * 100}%"></div></div>
     <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
       <span class="trivia-diff-badge ${tier.cls}">${tier.label}</span>
-      <span style="font-size:0.65rem;color:var(--text-secondary);">${pts} ${s.mode === 'quick' ? 'pt' : 'pts'}</span>
-      <span style="font-size:0.65rem;color:var(--text-secondary);margin-left:auto;">${q.category}</span>
+      <span style="font-size:var(--text-2xs);color:var(--text-secondary);">${pts} ${s.mode === 'quick' ? 'pt' : 'pts'}</span>
+      <span style="font-size:var(--text-2xs);color:var(--text-secondary);margin-left:auto;">${q.category}</span>
       ${streakHtml}
     </div>
     <div class="trivia-question-text trivia-fadein">${q.question}</div>
@@ -437,7 +437,7 @@ function showQuickResults(container) {
     <div class="trivia-result-emoji">${emoji}</div>
     <div class="trivia-result-score">${s.score}/5</div>
     <div class="trivia-result-label">${perfect ? 'Perfect score!' : s.score >= 3 ? 'Great job!' : 'Keep learning!'}</div>
-    ${isNewHigh ? '<div style="text-align:center;color:var(--accent-primary);font-weight:600;font-size:0.85rem;margin-bottom:1rem;">🏆 New high score!</div>' : `<div style="text-align:center;color:var(--text-muted);font-size:0.75rem;margin-bottom:1rem;">Best: ${Math.max(highScore, s.score)}/5</div>`}
+    ${isNewHigh ? '<div style="text-align:center;color:var(--accent-primary);font-weight:600;font-size:var(--text-base);margin-bottom:1rem;">🏆 New high score!</div>' : `<div style="text-align:center;color:var(--text-muted);font-size:var(--text-sm);margin-bottom:1rem;">Best: ${Math.max(highScore, s.score)}/5</div>`}
     <div class="trivia-result-actions">
       <button class="trivia-start-btn" data-action="play-again">Play Again</button>
       <button class="trivia-next-btn" data-action="close-game">Close</button>
@@ -463,7 +463,7 @@ function showClassicResults(container) {
   TIERS.forEach(tier => {
     const ts = s.tierScores[tier.cls];
     if (ts.total > 0) {
-      breakdownHTML += `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.3rem 0;font-size:0.75rem;">
+      breakdownHTML += `<div style="display:flex;justify-content:space-between;align-items:center;padding:0.3rem 0;font-size:var(--text-sm);">
         <span class="trivia-diff-badge ${tier.cls}">${tier.label}</span>
         <span style="color:var(--text-secondary);font-family:var(--font-mono);">${ts.correct}/${ts.total}</span>
       </div>`;
@@ -527,7 +527,7 @@ function showSurvivalResults(container) {
         <div class="trivia-stat-label">Best Streak</div>
       </div>
     </div>
-    ${isNewHigh || isNewStreak ? '<div style="text-align:center;color:var(--accent-primary);font-weight:600;font-size:0.85rem;margin-bottom:1rem;">🏆 New record!</div>' : `<div style="text-align:center;color:var(--text-muted);font-size:0.75rem;margin-bottom:1rem;">Record: ${Math.max(prevHigh, s.score)} pts · ${Math.max(prevStreak, s.correctCount)} streak</div>`}
+    ${isNewHigh || isNewStreak ? '<div style="text-align:center;color:var(--accent-primary);font-weight:600;font-size:var(--text-base);margin-bottom:1rem;">🏆 New record!</div>' : `<div style="text-align:center;color:var(--text-muted);font-size:var(--text-sm);margin-bottom:1rem;">Record: ${Math.max(prevHigh, s.score)} pts · ${Math.max(prevStreak, s.correctCount)} streak</div>`}
     <div class="trivia-result-actions">
       <button class="trivia-start-btn" data-action="play-again">Play Again</button>
       <button class="trivia-next-btn" data-action="close-game">Close</button>

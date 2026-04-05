@@ -732,6 +732,720 @@ export const ENRICHMENT = {
       {label:'WHO TB facts', url:'https://www.who.int/news-room/fact-sheets/detail/tuberculosis'},
     ]
   },
+  'dolphin': {
+    altFacts:[
+      'Dolphins sleep with one eye open — literally. One brain hemisphere stays awake while the other rests, a trick called unihemispheric sleep.',
+      'A bottlenose dolphin\'s echolocation is so precise it can detect a ping-pong ball from 100 meters away and distinguish between objects differing by less than a millimeter in size.',
+      'Dolphins and whales share a common ancestor with hippos — a wolf-sized land mammal called Pakicetus that returned to the sea roughly 50 million years ago.',
+      'The word "dolphin" comes from the Greek delphis, meaning "womb," because the Greeks recognized them as mammals that bear live young.',
+      'Dolphins have been observed using sea sponges as nose guards while foraging on the seafloor — one of the few examples of tool use in marine mammals.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Bottlenose_dolphin'},
+      {label:'NOAA Fisheries', url:'https://www.fisheries.noaa.gov/species/common-bottlenose-dolphin'},
+      {label:'National Geographic', url:'https://www.nationalgeographic.com/animals/mammals/facts/bottlenose-dolphin'},
+    ]
+  },
+  'echidna': {
+    altFacts:[
+      'Echidnas are one of only five surviving species of monotremes — egg-laying mammals that have persisted for over 200 million years, predating the dinosaur extinction.',
+      'An echidna\'s snout contains electroreceptors that detect the faint electrical signals of insect muscles, making it the only land mammal with this sixth sense.',
+      'Despite looking like hedgehogs, echidnas are more closely related to platypuses — both lineages split from other mammals before the marsupial–placental divide.',
+      'Echidnas were named after a half-woman, half-serpent creature from Greek mythology, reflecting early European puzzlement at an animal that seemed half-mammal, half-reptile.',
+      'Baby echidnas are called puggles. They hatch from leathery eggs after about 10 days, then spend months in their mother\'s pouch lapping up milk that oozes from patches of skin — echidnas have no nipples.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Echidna'},
+      {label:'Australian Museum', url:'https://australian.museum/learn/animals/mammals/short-beaked-echidna/'},
+      {label:'San Diego Zoo Wildlife', url:'https://animals.sandiegozoo.org/animals/echidna'},
+    ]
+  },
+  'white-rhinoceros': {
+    altFacts:[
+      'The "white" in white rhinoceros is a mistranslation of the Afrikaans word wijd (wide), describing its broad, square lip — it has nothing to do with color.',
+      'A white rhino can weigh over 2,300 kg, making it the second-largest land animal after the elephant and capable of reaching 50 km/h in short bursts despite its bulk.',
+      'Rhinos are odd-toed ungulates, placing them in the same order as horses and tapirs — a surprising family reunion considering their vastly different appearances.',
+      'The northern white rhinoceros is functionally extinct with only two females surviving, but scientists are attempting to revive the subspecies using IVF with stored sperm and stem cell technology.',
+      'Rhino horn is made entirely of keratin — the same protein in human fingernails — yet it has driven poaching that killed over 1,000 rhinos per year in the 2010s.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/White_rhinoceros'},
+      {label:'WWF', url:'https://www.worldwildlife.org/species/white-rhino'},
+      {label:'IUCN Red List', url:'https://www.iucnredlist.org/species/4185/16980466'},
+    ]
+  },
+  'cheetah': {
+    altFacts:[
+      'Cheetahs can accelerate from 0 to 100 km/h in just three seconds — faster than most sports cars — making them the fastest land animal on Earth.',
+      'A cheetah\'s semi-retractable claws and hard foot pads work like cleats, and its oversized nasal passages allow massive oxygen intake during high-speed chases.',
+      'Cheetahs are more closely related to house cats than to leopards or jaguars — they split from the Felis lineage about 6.7 million years ago.',
+      'All living cheetahs are so genetically similar they can accept skin grafts from any other cheetah without rejection — the result of a population bottleneck roughly 10,000 years ago.',
+      'Unlike other big cats, cheetahs cannot roar. Instead, they chirp like birds and purr like domestic cats.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Cheetah'},
+      {label:'Cheetah Conservation Fund', url:'https://cheetah.org/'},
+      {label:'Smithsonian National Zoo', url:'https://nationalzoo.si.edu/animals/cheetah'},
+    ]
+  },
+  'manatee': {
+    altFacts:[
+      'Manatees are the likely inspiration for mermaid legends — Christopher Columbus reported seeing "mermaids" off Haiti in 1493, almost certainly manatees.',
+      'A manatee replaces its teeth continuously from back to front throughout its life, a conveyor-belt system shared only with kangaroos among mammals.',
+      'Despite being fully aquatic, manatees\' closest living relative is the elephant — they share a common ancestor from about 60 million years ago.',
+      'The name "manatee" derives from the Carib word manati, meaning "breast," referring to the way mothers nurse calves at chest-level flippers.',
+      'Manatees have no natural predators and can live over 60 years, yet they face serious threats from boat strikes — propeller scars mark the majority of Florida\'s manatee population.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Manatee'},
+      {label:'U.S. Fish & Wildlife', url:'https://www.fws.gov/species/west-indian-manatee-trichechus-manatus'},
+      {label:'Save the Manatee Club', url:'https://www.savethemanatee.org/'},
+    ]
+  },
+  'beaver': {
+    altFacts:[
+      'Beavers are the only animals besides humans that deliberately reshape entire landscapes — a single beaver family can create a wetland ecosystem that supports hundreds of species.',
+      'Beaver teeth never stop growing and are self-sharpening: the front enamel is harder than the back, so chewing wears a permanent chisel edge.',
+      'Beavers are rodents, placing them in the same order as mice and capybaras — the second-largest rodent alive, after the capybara.',
+      'The beaver appears on the Canadian nickel and was once so valuable for its fur that it served as currency in colonial North America — the Hudson\'s Bay Company literally priced goods in beaver pelts.',
+      'Beaver dams can be enormous: the longest known dam, in Alberta, Canada, stretches 850 meters and is visible from space.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Beaver'},
+      {label:'National Geographic', url:'https://www.nationalgeographic.com/animals/mammals/facts/beavers'},
+      {label:'Beaver Institute', url:'https://www.beaverinstitute.org/'},
+    ]
+  },
+  'capybara': {
+    altFacts:[
+      'The capybara is the world\'s largest living rodent, weighing up to 65 kg — essentially a guinea pig scaled up to the size of a large dog.',
+      'Capybaras are semi-aquatic and can hold their breath for up to five minutes, with eyes, ears, and nostrils positioned on top of the head like a hippo.',
+      'As rodents, capybaras share a surprisingly recent common ancestor with mice, rats, and beavers — they\'re basically giant, social, swimming guinea pigs.',
+      'In 16th-century South America, the Catholic Church classified capybaras as fish for Lenten dietary purposes because they live in water — a ruling that technically still stands.',
+      'Capybaras are famously tolerant, and dozens of other species — birds, monkeys, even crocodilians — have been photographed sitting on or beside them without conflict.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Capybara'},
+      {label:'San Diego Zoo Wildlife', url:'https://animals.sandiegozoo.org/animals/capybara'},
+      {label:'Smithsonian Magazine', url:'https://www.smithsonianmag.com/science-nature/why-capybaras-are-so-chill-180977440/'},
+    ]
+  },
+  'armadillo': {
+    altFacts:[
+      'The nine-banded armadillo almost always gives birth to genetically identical quadruplets — the only mammal that routinely produces natural clones.',
+      'An armadillo\'s bony shell is strong enough to deflect a low-caliber bullet, and the three-banded armadillo can roll into a perfectly sealed ball like a medieval knight.',
+      'Armadillos are xenarthrans, an ancient South American lineage they share with sloths and anteaters — they crossed into North America only about 3 million years ago when the Isthmus of Panama formed.',
+      'The word "armadillo" is Spanish for "little armored one," given by conquistadors who had never seen anything like these walking tanks.',
+      'Armadillos are one of the few animals besides humans that can contract leprosy, making them invaluable to medical research on the disease.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Armadillo'},
+      {label:'National Geographic', url:'https://www.nationalgeographic.com/animals/mammals/facts/nine-banded-armadillo'},
+      {label:'Smithsonian National Zoo', url:'https://nationalzoo.si.edu/animals/nine-banded-armadillo'},
+    ]
+  },
+  'gibbon': {
+    altFacts:[
+      'Gibbons are the fastest and most acrobatic of all primates, brachiating through trees at up to 55 km/h and covering 15-meter gaps in a single swing.',
+      'A gibbon\'s arms are so long relative to its body that if a human had the same proportions, our fingertips would touch the ground while standing.',
+      'Gibbons are apes, not monkeys — they\'re our closest relatives after the great apes, sharing about 96% of their DNA with humans.',
+      'Mated gibbon pairs sing elaborate duets at dawn that can carry over two kilometers through the forest — each species has a unique song that helps prevent hybridization.',
+      'Unlike great apes, gibbons are strictly monogamous and form lifelong pair bonds, with both parents sharing in the care of offspring.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Gibbon'},
+      {label:'IUCN SSC Primate Specialist Group', url:'https://www.primate-sg.org/gibbons'},
+      {label:'Gibbon Conservation Center', url:'https://www.gibboncenter.org/'},
+    ]
+  },
+  'spotted-hyena': {
+    altFacts:[
+      'Spotted hyenas have the strongest bite force relative to body size of any mammal, capable of crushing giraffe bones to access the marrow inside.',
+      'A spotted hyena\'s digestive system is so powerful it can dissolve bone, horns, and hooves — their droppings are chalky white from all the calcium.',
+      'Despite looking dog-like, hyenas are more closely related to cats — they belong to the suborder Feliformia and split from the mongoose lineage about 29 million years ago.',
+      'Female spotted hyenas outrank all males in the clan hierarchy and have masculinized genitalia so similar to males that even experienced researchers struggle to tell them apart.',
+      'Spotted hyenas live in complex societies of up to 80 individuals with intricate social alliances, and research shows they can outperform chimpanzees in cooperative problem-solving tests.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Spotted_hyena'},
+      {label:'IUCN Hyaena Specialist Group', url:'https://hyaenidae.org/'},
+      {label:'National Geographic', url:'https://www.nationalgeographic.com/animals/mammals/facts/spotted-hyena'},
+    ]
+  },
+  'meerkat': {
+    altFacts:[
+      'Meerkats post sentinels that stand upright scanning for predators and give different alarm calls for aerial vs. ground threats — each call triggers a specific escape behavior.',
+      'Meerkat adults deliberately teach pups to handle scorpions by first bringing dead ones, then disabled ones, and finally live ones — one of the clearest examples of teaching in non-human animals.',
+      'Meerkats are mongooses (family Herpestidae) and are more closely related to hyenas and cats than to any rodent they might resemble.',
+      'The word "meerkat" comes from the Afrikaans for "lake cat," despite the fact that they live in arid deserts and have no particular affinity for water.',
+      'Meerkats are immune to many venoms that would kill a similarly sized mammal, including the stings of scorpions and the bites of some snakes.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Meerkat'},
+      {label:'San Diego Zoo Wildlife', url:'https://animals.sandiegozoo.org/animals/meerkat'},
+      {label:'BBC Earth', url:'https://www.bbcearth.com/meerkats'},
+    ]
+  },
+  'walrus': {
+    altFacts:[
+      'A walrus can eat 3,000 to 6,000 clams in a single feeding session, using sensitive whiskers — not its tusks — to detect them in murky Arctic sediment.',
+      'Walrus tusks are actually elongated canine teeth that can grow up to a meter long and are used for hauling out onto ice, dominance displays, and defense against polar bears.',
+      'Walruses are pinnipeds, closely related to seals and sea lions — all descended from a bear-like ancestor that took to the sea about 23 million years ago.',
+      'The word "walrus" likely derives from Old Norse hrosshvalr, meaning "horse-whale," a fitting name for an animal that can weigh 1,800 kg.',
+      'Walruses can slow their heart rate to conserve oxygen during dives and have special blood vessel networks that let them withstand icy water without losing core body heat.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Walrus'},
+      {label:'WWF', url:'https://www.worldwildlife.org/species/walrus'},
+      {label:'NOAA Fisheries', url:'https://www.fisheries.noaa.gov/species/pacific-walrus'},
+    ]
+  },
+  'dugong': {
+    altFacts:[
+      'Dugongs are the only strictly marine herbivorous mammal, spending their entire lives grazing on seagrass meadows — earning them the nickname "sea cow."',
+      'A dugong can hold its breath for up to six minutes and uses its horseshoe-shaped snout as a vacuum cleaner to uproot entire seagrass plants from the seafloor.',
+      'Dugongs are sirenians, sharing their order with manatees — and their closest land relative is the elephant, not the whale.',
+      'Ancient sailors\' accounts of dugongs nursing their calves at the surface likely contributed to the mermaid and siren myths across the Indian and Pacific Oceans.',
+      'Dugongs can live over 70 years, but they reproduce extremely slowly — a female may produce only five or six calves in her lifetime, making populations vulnerable to even modest threats.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Dugong'},
+      {label:'IUCN Red List', url:'https://www.iucnredlist.org/species/6909/160756767'},
+      {label:'WWF', url:'https://www.worldwildlife.org/species/dugong'},
+    ]
+  },
+  'wombat': {
+    altFacts:[
+      'Wombats produce cube-shaped droppings — the only animal known to do so — likely an adaptation to stack scent markers on logs and rocks without them rolling away.',
+      'A wombat\'s rear end is mostly cartilage and acts as a fortified shield: when threatened in its burrow, it blocks the entrance with its rump and can crush a predator\'s skull against the ceiling.',
+      'Wombats are marsupials whose pouches open backward (toward the tail) so dirt doesn\'t fly in while they dig — they share this feature with koalas, their closest living relatives.',
+      'The word "wombat" comes from the Dharug Aboriginal language of the Sydney region, making it one of the earliest Australian Indigenous words adopted into English (1798).',
+      'Despite their stocky build, wombats can sprint at 40 km/h over short distances and maintain underground burrow systems stretching up to 200 meters.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Wombat'},
+      {label:'Australian Museum', url:'https://australian.museum/learn/animals/mammals/common-wombat/'},
+      {label:'Wombat Foundation', url:'https://www.wombatfoundation.com.au/'},
+    ]
+  },
+  'hedgehog': {
+    altFacts:[
+      'A hedgehog has about 5,000 to 7,000 spines on its back, each lasting about a year before being replaced — and it can roll into a tight ball protected on all sides in under a second.',
+      'Hedgehogs practice "self-anointing": when they encounter a new smell, they lick the source, whip up a frothy saliva, and spread it over their spines — the purpose is still debated by scientists.',
+      'Despite their spiny appearance, hedgehogs are insectivores more closely related to shrews and moles than to porcupines, which are rodents on a completely different branch of the mammal tree.',
+      'The word "hedgehog" dates to 1450s Middle English — "hedge" for their preferred habitat and "hog" for the pig-like snuffling sounds they make while foraging.',
+      'Hedgehogs are naturally resistant to adder venom, though not fully immune, and will actively attack and eat snakes when given the opportunity.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Hedgehog'},
+      {label:'Wildlife Trusts (UK)', url:'https://www.wildlifetrusts.org/wildlife-explorer/mammals/hedgehog'},
+      {label:'San Diego Zoo Wildlife', url:'https://animals.sandiegozoo.org/animals/hedgehog'},
+    ]
+  },
+  'jaguar': {
+    altFacts:[
+      'Jaguars have the strongest bite of any big cat relative to size — powerful enough to pierce a turtle shell or crush a caiman skull, and they\'re the only big cat that routinely kills by biting through the skull.',
+      'Unlike most cats, jaguars love water and are excellent swimmers, regularly hunting caimans, fish, and capybaras in rivers and swamps.',
+      'Jaguars and leopards look similar but diverged about 3 million years ago; jaguars have stockier builds, larger rosettes with central spots, and are native to the Americas while leopards are Old World cats.',
+      'The name "jaguar" comes from the Tupi-Guarani word yaguara, meaning "beast that kills its prey in a single bound."',
+      'Black jaguars (melanistic individuals) still have rosette patterns — they\'re visible under certain light as darker spots on the dark fur, a condition called "ghost rosettes."',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Jaguar'},
+      {label:'Panthera', url:'https://www.panthera.org/cat/jaguar'},
+      {label:'WWF', url:'https://www.worldwildlife.org/species/jaguar'},
+    ]
+  },
+  'vampire-bat': {
+    altFacts:[
+      'Vampire bats are the only mammals that feed exclusively on blood — they can consume up to half their body weight in a single 20-minute meal.',
+      'A vampire bat\'s saliva contains draculin, a powerful anticoagulant now being studied as a treatment for human stroke patients because it dissolves blood clots more safely than existing drugs.',
+      'Vampire bats share food with hungry roost-mates by regurgitating blood, and they keep track of who helped them — one of the best-documented examples of reciprocal altruism outside primates.',
+      'There are only three vampire bat species, all in the Americas, and they\'re named after the folklore vampire — not the other way around. Bram Stoker\'s Dracula came after the bats were already known to Europeans.',
+      'Vampire bats locate blood vessels using infrared-sensing pit organs on their noses — a heat-vision ability shared with only a few snake species.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Vampire_bat'},
+      {label:'Smithsonian National Zoo', url:'https://nationalzoo.si.edu/animals/common-vampire-bat'},
+      {label:'Bat Conservation International', url:'https://www.batcon.org/'},
+    ]
+  },
+  'elephant-seal': {
+    altFacts:[
+      'Southern elephant seals are the largest carnivores on Earth — males can weigh over 3,600 kg, roughly the weight of a pickup truck, and grow to 6 meters long.',
+      'Elephant seals can dive to depths of 1,750 meters and hold their breath for over two hours, collapsing their lungs to avoid nitrogen narcosis during descent.',
+      'As pinnipeds, elephant seals share an ancestor with bears and dogs — they\'re essentially marine carnivores that returned to the sea about 23 million years ago.',
+      'The "elephant" in their name refers to the male\'s inflatable proboscis, used as a resonating chamber to produce thunderous roars during territorial battles.',
+      'Elephant seals spend up to 10 months per year at sea and sleep during deep dives, spiraling slowly downward while napping — they average only two minutes of surface breathing per hour.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Elephant_seal'},
+      {label:'NOAA Fisheries', url:'https://www.fisheries.noaa.gov/species/northern-elephant-seal'},
+      {label:'National Geographic', url:'https://www.nationalgeographic.com/animals/mammals/facts/elephant-seals'},
+    ]
+  },
+  'okapi': {
+    altFacts:[
+      'The okapi was the last large mammal species discovered by Western science, not described until 1901 — the Indigenous Mbuti people of the Congo had known it for centuries.',
+      'An okapi\'s tongue is 35–45 cm long, prehensile, and dark blue-purple; it can lick its own eyelids and clean its own ears.',
+      'Despite the zebra-like stripes on its legs, the okapi\'s only living relative is the giraffe — they shared a common ancestor about 11.5 million years ago.',
+      'The okapi\'s genus name Okapia derives from the Lese Karo language of the Ituri Forest, where it is called o\'api.',
+      'Okapis are so elusive that they were not photographed in the wild until 2008, more than a century after their scientific description.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Okapi'},
+      {label:'Okapi Conservation Project', url:'https://www.okapiconservation.org/'},
+      {label:'IUCN Red List', url:'https://www.iucnredlist.org/species/15188/51140517'},
+    ]
+  },
+  'aye-aye': {
+    altFacts:[
+      'The aye-aye\'s skeletally thin middle finger can tap branches up to eight times per second and detect hollow chambers inside wood by echolocation — it is the only primate that finds food this way.',
+      'An aye-aye\'s continuously growing incisors are so rodent-like that it was originally classified as a rodent; its teeth grow back if broken, a trait unique among primates.',
+      'Aye-ayes are lemurs and thus primates — they\'re more closely related to us than to the rodents or bats they superficially resemble.',
+      'In Malagasy folklore, the aye-aye is considered an omen of death — villagers sometimes kill them on sight, a superstition that tragically compounds the threat from habitat loss.',
+      'The aye-aye is the world\'s largest nocturnal primate, with enormous ears, reflective eyes, and bat-like membranous fingers adapted for life in total darkness.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Aye-aye'},
+      {label:'Duke Lemur Center', url:'https://lemur.duke.edu/discover/meet-the-lemurs/aye-aye/'},
+      {label:'IUCN Red List', url:'https://www.iucnredlist.org/species/6302/115560793'},
+    ]
+  },
+  'african-wild-dog': {
+    altFacts:[
+      'African wild dogs have the highest hunting success rate of any large predator — roughly 80%, compared to about 25% for lions and 30% for wolves.',
+      'Their enormous rounded ears serve as radiators for heat dissipation and can independently rotate like satellite dishes to pinpoint the sounds of prey or pack-mates across kilometers of savanna.',
+      'African wild dogs are canids but split from wolves and domestic dogs about 6 million years ago — they cannot interbreed with any other canine species.',
+      'Also called painted wolves, each individual has a unique coat pattern of black, white, and tan — no two wild dogs look alike, and researchers use these patterns for identification.',
+      'Before each hunt, the pack holds a "rally" ceremony with excited greeting, sneezing, and social bonding — and research shows that more sneezes during rallies increase the probability the hunt will proceed.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/African_wild_dog'},
+      {label:'WWF', url:'https://www.worldwildlife.org/species/african-wild-dog'},
+      {label:'Painted Dog Conservation', url:'https://www.painteddog.org/'},
+    ]
+  },
+  'gray-wolf': {
+    altFacts:[
+      'Every domestic dog on Earth — from Chihuahuas to Great Danes — is descended from gray wolves, domesticated somewhere between 15,000 and 40,000 years ago.',
+      'A wolf pack can travel 70 km in a single day without rest, running at a steady 8 km/h trot that outlasts nearly every prey animal on the continent.',
+      'Wolves are the ancestor of the domestic dog, which makes them a close relative of every pet in the Canidae family tree — yet they diverged from coyotes only about 1 million years ago.',
+      'The word "lupus" (wolf in Latin) gives us "lupine" for wolf-like traits. In Norse mythology, the great wolf Fenrir swallows the sun at Ragnarök.',
+      'When wolves were reintroduced to Yellowstone in 1995, they triggered a trophic cascade that changed the course of rivers — elk stopped overgrazing riverbanks, allowing willows to regrow and stabilize the soil.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Wolf'},
+      {label:'International Wolf Center', url:'https://wolf.org/'},
+      {label:'Yellowstone Wolf Project', url:'https://www.nps.gov/yell/learn/nature/wolves.htm'},
+    ]
+  },
+  'bottlenose-dolphin': {
+    altFacts:[
+      'Bottlenose dolphins call each other by unique signature whistles — essentially names. They remember the whistles of companions they haven\'t seen for over 20 years.',
+      'A dolphin\'s echolocation can detect a ping-pong ball from 100 meters away and even sense the difference between a hollow and solid metal sphere.',
+      'Dolphins share a common ancestor with hippos — Pakicetus, a wolf-sized land mammal that returned to the sea roughly 50 million years ago.',
+      'The genus name Tursiops comes from Latin tursio (dolphin-like fish). Ancient Greeks considered killing a dolphin as grave as killing a person.',
+      'Dolphins use sea sponges as nose guards while foraging on the seafloor — a culturally transmitted tool use passed from mother to daughter in Shark Bay, Australia.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Common_bottlenose_dolphin'},
+      {label:'NOAA Fisheries', url:'https://www.fisheries.noaa.gov/species/common-bottlenose-dolphin'},
+      {label:'Dolphin Research Center', url:'https://dolphins.org/'},
+    ]
+  },
+  'humpback-whale': {
+    altFacts:[
+      'Humpback whale songs evolve like cultural fads — a new melody that appears in one population spreads across entire ocean basins within two years, adopted group by group.',
+      'A humpback can launch its 36-tonne body completely out of the water in a breach, generating enough force on reentry to be heard underwater 3 km away.',
+      'Humpbacks share the cetacean lineage with dolphins and porpoises — all descended from a land-dwelling ancestor that returned to the sea about 50 million years ago.',
+      'The genus name Megaptera means "giant wing," referring to their enormous pectoral fins — the longest limbs of any animal, reaching 5 meters each.',
+      'Humpbacks have been observed protecting other species from orca attacks — shielding seals, sea lions, and even sunfish — a behavior scientists call interspecific altruism.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Humpback_whale'},
+      {label:'NOAA Fisheries', url:'https://www.fisheries.noaa.gov/species/humpback-whale'},
+      {label:'Whale Trust', url:'https://whaletrust.org/'},
+    ]
+  },
+  'sperm-whale': {
+    altFacts:[
+      'The sperm whale has the largest brain of any animal ever — 7.8 kg, six times heavier than a human\'s — yet we still don\'t know what it does with all that neural tissue.',
+      'Sperm whales dive to 2,250 meters and hold their breath for over 2 hours, hunting giant squid in total darkness using the loudest clicks of any animal: 236 dB.',
+      'Sperm whales belong to the toothed whale lineage that diverged from baleen whales about 34 million years ago — despite their enormous size, they\'re technically oversized dolphins.',
+      'The name "sperm whale" comes from spermaceti, the waxy oil filling their massive heads. It was once prized for candles and lubricants, driving 19th-century whaling.',
+      'Sperm whale clans have distinct click dialects that function as cultural identities — calves learn their clan\'s pattern, and different clans avoid each other.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Sperm_whale'},
+      {label:'IUCN Red List', url:'https://www.iucnredlist.org/species/41755/160983555'},
+      {label:'Ocean Alliance', url:'https://whale.org/'},
+    ]
+  },
+  'orca': {
+    altFacts:[
+      'Orca ecotypes are so genetically distinct — some haven\'t interbred for 700,000 years — that scientists believe they may actually be several separate species.',
+      'Orcas are the only known non-human animal to have culturally driven dietary specializations: some pods eat only salmon, others only seals, others only sharks.',
+      'Despite their common name "killer whale," orcas are actually the largest member of the dolphin family — Delphinidae — not whales at all.',
+      'The name "orca" comes from Orcus, the Roman god of the underworld. Ancient Romans called them "demons of the sea."',
+      'Orca grandmothers are among the few non-human animals to experience menopause — post-reproductive females lead their pods and share knowledge of food sources during lean years.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Orca'},
+      {label:'NOAA Fisheries', url:'https://www.fisheries.noaa.gov/species/killer-whale'},
+      {label:'Orca Conservancy', url:'https://www.orcaconservancy.org/'},
+    ]
+  },
+  'flying-fox': {
+    altFacts:[
+      'Flying foxes are the largest bats on Earth — with wingspans reaching 1.7 meters — yet they eat nothing but fruit, nectar, and pollen.',
+      'Unlike insectivorous bats, flying foxes navigate by sight and smell rather than echolocation — they have large eyes and excellent night vision.',
+      'Bats are the only mammals capable of true powered flight. Flying foxes are megabats, a lineage that diverged from microbats roughly 50 million years ago.',
+      'In many Pacific Island cultures, flying foxes hold spiritual significance — in Samoa, they are messengers of the war goddess Nafanua.',
+      'A single flying fox can disperse seeds across 60 km in one night, making them keystone pollinators and seed dispersers for over 300 tropical plant species.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Large_flying_fox'},
+      {label:'Bat Conservation International', url:'https://www.batcon.org/'},
+      {label:'IUCN Bat Specialist Group', url:'https://www.iucnbsg.org/'},
+    ]
+  },
+  'three-toed-sloth': {
+    altFacts:[
+      'Three-toed sloths move so slowly — 2.4 meters per minute — that algae grows in grooves on their fur, giving them a green tint that serves as camouflage.',
+      'A sloth\'s metabolism is 40-45% slower than expected for its body size. It can take 30 days to fully digest a single meal.',
+      'Sloths are related to anteaters and armadillos — all three belong to the superorder Xenarthra, an ancient mammalian lineage unique to the Americas.',
+      'The word "sloth" has meant "laziness" in English since the 12th century, but the animal\'s slowness is an adaptation, not laziness — it conserves energy on a low-calorie leaf diet.',
+      'Three-toed sloths can rotate their heads 270 degrees thanks to extra cervical vertebrae — they have 9, while almost all other mammals (including giraffes) have exactly 7.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Three-toed_sloth'},
+      {label:'Sloth Conservation Foundation', url:'https://slothconservation.org/'},
+      {label:'Smithsonian', url:'https://nationalzoo.si.edu/animals/two-toed-sloth'},
+    ]
+  },
+  'moose': {
+    altFacts:[
+      'Moose antlers can grow 2.5 cm per day — the fastest-growing tissue of any animal — and are shed and completely regrown every year, requiring more calcium than the animal\'s entire skeleton.',
+      'Despite weighing up to 700 kg, a moose can run 56 km/h and swim at 10 km/h. They are strong enough swimmers to dive 6 meters underwater to eat aquatic plants.',
+      'Moose are the largest living deer species. Their closest relative in this tree is the elk — both belong to the family Cervidae.',
+      'The word "moose" comes from the Algonquian mos or moz, meaning "twig-eater." In Europe, the same species is called "elk."',
+      'Moose are one of the few animals that can kick in all four directions. A single kick can kill a wolf or crush a car hood.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Moose'},
+      {label:'National Geographic', url:'https://www.nationalgeographic.com/animals/mammals/facts/moose'},
+      {label:'Alaska Dept. Fish & Game', url:'https://www.adfg.alaska.gov/index.cfm?adfg=moose.main'},
+    ]
+  },
+  'bonobo': {
+    altFacts:[
+      'Bonobos resolve nearly all social conflicts through physical affection rather than aggression — the only great ape to consistently choose this strategy.',
+      'Bonobos walk bipedally more often than any other non-human ape, spending up to 25% of their locomotion time upright, offering clues about how our ancestors first stood.',
+      'Bonobos share 98.7% of their DNA with humans — the same percentage as chimpanzees. The three species last shared a common ancestor about 6 million years ago.',
+      'The bonobo was the last great ape to be formally described by science, not recognized as a distinct species until 1929.',
+      'Female bonobos form strong alliances that outrank all males in the group — one of the few primate societies with true female social dominance.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Bonobo'},
+      {label:'Bonobo Conservation Initiative', url:'https://www.bonobo.org/'},
+      {label:'Max Planck Institute', url:'https://www.eva.mpg.de/primat/research-groups/bonobos/'},
+    ]
+  },
+  'tarsier': {
+    altFacts:[
+      'Each of a tarsier\'s eyeballs is 16 mm in diameter — larger than its brain — and cannot move in their sockets. It compensates by rotating its head 180° like an owl.',
+      'Tarsiers can leap 40 times their own body length in a single bound, snatching insects out of the air in total darkness.',
+      'Tarsiers are one of the most ancient primate lineages, splitting from other primates about 58 million years ago — closer to us than to lemurs, despite appearances.',
+      'The name "tarsier" comes from the elongated tarsal (ankle) bones that give these primates their extraordinary leaping ability.',
+      'Philippine tarsiers communicate in ultrasound — their calls reach 91 kHz, far beyond the 20 kHz upper limit of human hearing.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Tarsier'},
+      {label:'Philippine Tarsier Foundation', url:'https://www.tarsierfoundation.org/'},
+      {label:'IUCN Red List', url:'https://www.iucnredlist.org/species/21492/9289252'},
+    ]
+  },
+  'ring-tailed-lemur': {
+    altFacts:[
+      'Male ring-tailed lemurs settle disputes with "stink fights" — they smear scent from wrist glands onto their tails and waft them at rivals.',
+      'Ring-tailed lemurs spend more time on the ground than any other lemur species and sunbathe in a seated lotus position with arms outstretched each morning.',
+      'As primates, lemurs are our distant relatives — the lemur lineage split from the line leading to monkeys, apes, and humans about 60 million years ago.',
+      'The name "lemur" comes from Latin lemures, meaning "ghosts" or "spirits" — early naturalists were struck by their haunting reflective eyes and nocturnal calls.',
+      '98% of all lemur species face extinction — they are the most endangered mammal group on Earth, found only in Madagascar.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Ring-tailed_lemur'},
+      {label:'Duke Lemur Center', url:'https://lemur.duke.edu/'},
+      {label:'WWF', url:'https://www.worldwildlife.org/species/lemur'},
+    ]
+  },
+  'japanese-macaque': {
+    altFacts:[
+      'Japanese macaques in Nagano learned to bathe in hot springs during winter — a cultural behavior that started with one troop and has been transmitted for over 60 years.',
+      'They are the northernmost non-human primate, surviving winter temperatures as low as -15°C with thick fur and social huddling.',
+      'As Old World monkeys, Japanese macaques belong to the same superfamily as baboons and humans — Cercopithecoidea split from the ape lineage about 25 million years ago.',
+      'In Japanese, they are called nihonzaru (日本猿). The "three wise monkeys" — see no evil, hear no evil, speak no evil — are Japanese macaques.',
+      'A female macaque named Imo invented food-washing behavior in the 1950s — separating wheat from sand by dropping both in water. The innovation spread through her troop within a generation.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Japanese_macaque'},
+      {label:'Japan Monkey Centre', url:'https://www.j-monkey.jp/english/'},
+      {label:'Primate Info Net', url:'https://pin.primate.wisc.edu/factsheets/entry/japanese_macaque'},
+    ]
+  },
+  'mandrill': {
+    altFacts:[
+      'The mandrill is the most colorful mammal on Earth — males sport vivid blue and red facial skin, with blue-purple buttocks. The colors intensify with social rank.',
+      'Mandrills are the largest monkey species, with dominant males reaching 35 kg — three times the weight of females.',
+      'As Old World monkeys, mandrills are more closely related to humans than to any New World monkey like capuchins or howlers.',
+      'The mandrill\'s facial color comes from structural coloration — nanoscale collagen fibers in the skin scatter light like a prism, similar to how a butterfly wing creates color without pigment.',
+      'Mandrill troops can number over 600 individuals, making them the largest primate groups outside of humans.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Mandrill'},
+      {label:'San Diego Zoo Wildlife', url:'https://animals.sandiegozoo.org/animals/mandrill'},
+      {label:'IUCN Red List', url:'https://www.iucnredlist.org/species/12754/17952325'},
+    ]
+  },
+  'pangolin': {
+    altFacts:[
+      'Pangolins are the most trafficked mammal on Earth — over one million were poached in the last decade, driven by demand for their scales in traditional medicine.',
+      'A pangolin\'s tongue can extend 40 cm — longer than its body — and is anchored to the pelvis rather than the jaw. It has no teeth and swallows gravel to grind food in its stomach.',
+      'Pangolins are more closely related to cats, dogs, and bears (order Carnivora) than to armadillos, which they superficially resemble — a striking case of convergent evolution.',
+      'The name "pangolin" comes from the Malay pengguling, meaning "one who rolls up." When threatened, it curls into a ball that even lions cannot pry open.',
+      'Pangolin scales are made of keratin — the exact same protein as human fingernails — yet this has driven a billion-dollar illegal trade.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Pangolin'},
+      {label:'Save Pangolins', url:'https://savepangolins.org/'},
+      {label:'WWF', url:'https://www.worldwildlife.org/species/pangolin'},
+    ]
+  },
+  'star-nosed-mole': {
+    altFacts:[
+      'The star-nosed mole identifies and eats food in 120 milliseconds — the fastest eating of any mammal — using 22 fleshy tentacles containing 100,000 nerve fibers.',
+      'It can smell underwater by blowing air bubbles onto objects and re-inhaling them — the only mammal known to smell while submerged.',
+      'Moles belong to the order Eulipotyphla, along with shrews and hedgehogs — a lineage that diverged from the common ancestor of primates and rodents about 85 million years ago.',
+      'The star organ on its nose is the most sensitive touch organ of any mammal — it has five times more nerve fibers than a human hand packed into an area 1 cm across.',
+      'Star-nosed moles are excellent swimmers and can even forage under ice in winter, detecting the faint electrical fields of aquatic invertebrates.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Star-nosed_mole'},
+      {label:'Smithsonian', url:'https://nationalzoo.si.edu/animals/star-nosed-mole'},
+      {label:'Nature — K. Catania research', url:'https://www.nature.com/articles/nature04403'},
+    ]
+  },
+  'honey-badger': {
+    altFacts:[
+      'Honey badgers have been documented attacking lions, buffalo, and cobras. Their thick, loose skin lets them twist around inside it and bite an attacker that has grabbed them.',
+      'Their skin is nearly impervious to porcupine quills, bee stings, and most snake venom — they are immune to the venom of cobras, puff adders, and scorpions.',
+      'Honey badgers belong to the weasel family (Mustelidae), making wolverines and otters their closest relatives in this tree.',
+      'The honey badger\'s Afrikaans name is ratel, from the Dutch for "rattle," referring to the sound it makes when agitated. Its Latin name Mellivora capensis means "honey-eater of the Cape."',
+      'Honey badgers use tools in captivity — they\'ve been observed stacking objects to climb out of enclosures, making them one of very few non-primate tool-users.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Honey_badger'},
+      {label:'National Geographic', url:'https://www.nationalgeographic.com/animals/mammals/facts/honey-badger'},
+      {label:'African Wildlife Foundation', url:'https://www.awf.org/wildlife-conservation/honey-badger'},
+    ]
+  },
+  'lion': {
+    altFacts:[
+      'Lions are the only truly social cat — prides can include up to 30 individuals, with females doing 90% of the hunting through coordinated group tactics.',
+      'A lion\'s roar reaches 114 decibels and can be heard 8 km away. The sound contains individual voice signatures that allow pride members to identify each other in darkness.',
+      'Lions and tigers diverged from a common ancestor about 3.5 million years ago. Despite their differences, they can hybridize — ligers and tigons exist in captivity.',
+      'The genus name Panthera may derive from the Sanskrit pundarika or the Greek pan (all) + ther (beast). Lions have been symbols of royal power in virtually every culture they\'ve touched.',
+      'Ten thousand years ago, lions were the most widespread large land mammal after humans — ranging from Africa through Europe to India and the Americas. Today they occupy just 8% of that historic range.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Lion'},
+      {label:'Panthera', url:'https://www.panthera.org/cat/lion'},
+      {label:'IUCN Red List', url:'https://www.iucnredlist.org/species/15951/115130419'},
+    ]
+  },
+  'wolf': {
+    altFacts:[
+      'Wolves howl in different pitches deliberately — a pack of 3 can sound like 20 by staggering their harmonics, a deception that deters rival packs.',
+      'A wolf pack can bring down prey 10 times its individual members\' weight through coordinated relay chases that may cover 20 km before the prey tires.',
+      'The wolf (Canis lupus) is the ancestor of all 400+ domestic dog breeds — from toy poodles to mastiffs, every pet dog carries wolf DNA.',
+      'In many Indigenous North American cultures, the wolf is a teacher figure. The Pawnee word for wolf, skiri, was also their word for the stars — they believed wolves taught humans to hunt.',
+      'Wolves mate for life. When a mate dies, the surviving wolf often howls mournfully — a behavior researchers believe indicates genuine grief.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Wolf'},
+      {label:'International Wolf Center', url:'https://wolf.org/'},
+      {label:'Defenders of Wildlife', url:'https://defenders.org/wildlife/gray-wolf'},
+    ]
+  },
+  'polar-bear': {
+    altFacts:[
+      'Polar bear fur is not white — each hair is a transparent, hollow tube. The fur appears white because it scatters visible light, much like snow.',
+      'Polar bears can swim continuously for over 100 hours, covering 680 km of open ocean. Their massive paws — up to 30 cm across — work as paddles.',
+      'Polar bears are classified as marine mammals (like whales and seals) because they depend on the ocean for food. They diverged from brown bears only about 500,000 years ago.',
+      'The Inuit name nanuq means "the ever-wandering one." In Norse mythology, polar bears were considered the spirit of the Arctic.',
+      'A polar bear\'s black skin absorbs heat beneath its insulating fur. Their body temperature rarely fluctuates even at -40°C.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Polar_bear'},
+      {label:'Polar Bears International', url:'https://polarbearsinternational.org/'},
+      {label:'WWF', url:'https://www.worldwildlife.org/species/polar-bear'},
+    ]
+  },
+  'red-kangaroo': {
+    altFacts:[
+      'Female kangaroos can freeze embryo development — a fertilized egg enters dormancy while the pouch is occupied, resuming growth only when the first joey departs.',
+      'A red kangaroo can leap 9 meters in a single bound and reach 56 km/h. At high speeds, hopping is more energy-efficient than running on four legs.',
+      'Kangaroos are marsupials, a lineage that split from placental mammals about 190 million years ago. Their closest relative in this tree is the wombat and koala.',
+      'The word "kangaroo" likely comes from the Guugu Yimithirr word gangurru, referring specifically to the gray kangaroo. Captain Cook recorded it in 1770.',
+      'Red kangaroos are the largest living marsupials — males can stand 1.8 m tall and weigh 90 kg, with a tail so muscular it can support their entire body weight.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Red_kangaroo'},
+      {label:'Australian Museum', url:'https://australian.museum/learn/animals/mammals/red-kangaroo/'},
+      {label:'National Geographic', url:'https://www.nationalgeographic.com/animals/mammals/facts/red-kangaroo'},
+    ]
+  },
+  'giraffe': {
+    altFacts:[
+      'A giraffe\'s heart weighs 11 kg and generates blood pressure twice that of humans — without it, blood could never reach the brain 2 meters above. Special jugular valves prevent blackouts when it bends to drink.',
+      'Giraffes sleep only 30 minutes per day in brief 5-minute naps — the least sleep of any mammal — and give birth standing up, the calf falling 1.5 meters to the ground.',
+      'Recent genetic analysis revealed there are four distinct giraffe species, not one — Masai, reticulated, northern, and southern — more genetically different from each other than brown bears are from polar bears.',
+      'The genus name Giraffa derives from the Arabic zarafa, meaning "fast-walker." Medieval Europeans called it the cameleopard, believing it was a camel-leopard hybrid.',
+      'No two giraffes have the same spot pattern — like human fingerprints, each is unique. Researchers use photo-recognition software to identify individuals from their markings.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Giraffe'},
+      {label:'Giraffe Conservation Foundation', url:'https://giraffeconservation.org/'},
+      {label:'San Diego Zoo Wildlife', url:'https://animals.sandiegozoo.org/animals/giraffe'},
+    ]
+  },
+  'hippopotamus': {
+    altFacts:[
+      'Hippos secrete a red, oily substance from their skin that acts as a natural sunscreen, antiseptic, and moisturizer — sometimes called "blood sweat," though it contains neither.',
+      'Despite weighing up to 2,000 kg, hippos can run 30 km/h on land and are surprisingly agile underwater, galloping along the bottom rather than swimming.',
+      'Hippos are the closest living relatives of whales — they shared a common ancestor roughly 55 million years ago, before the cetacean lineage returned to the sea.',
+      'The name hippopotamus comes from the Greek hippos (horse) + potamos (river) = "river horse." Ancient Egyptians revered and feared them in equal measure.',
+      'Hippos kill more humans in Africa than any other large animal — estimated at 500 per year — far more than lions, elephants, or crocodiles.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Hippopotamus'},
+      {label:'San Diego Zoo Wildlife', url:'https://animals.sandiegozoo.org/animals/hippo'},
+      {label:'IUCN Red List', url:'https://www.iucnredlist.org/species/10103/18567364'},
+    ]
+  },
+  'tiger': {
+    altFacts:[
+      'Tigers are one of the few big cats that genuinely enjoy water — they swim for pleasure, not just necessity, and have been recorded crossing rivers up to 29 km wide.',
+      'A tiger can leap forward 10 meters in a single bound and deliver a bite force of 1,050 PSI — strong enough to crush a buffalo skull.',
+      'Despite looking nothing alike, tigers share a common ancestor with your house cat from about 10.8 million years ago. Their closest wild relative is the snow leopard.',
+      'The name Panthera tigris combines Greek panthera (hunting animal) with tigris (arrow, for speed). In Sanskrit, vyaghra (tiger) is the root of the word "vigor."',
+      'India\'s Project Tiger has been a conservation triumph — the population doubled from 1,400 in 2006 to over 3,600 today, making it one of the largest species recovery programs in history.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Tiger'},
+      {label:'WWF', url:'https://www.worldwildlife.org/species/tiger'},
+      {label:'Panthera', url:'https://www.panthera.org/cat/tiger'},
+    ]
+  },
+  'koala': {
+    altFacts:[
+      'Koalas have fingerprints nearly indistinguishable from human fingerprints — independently evolved, they have actually confused crime scene investigators.',
+      'Koalas sleep 20-22 hours per day because eucalyptus leaves are so low in nutrition and so full of toxins that digestion requires enormous energy.',
+      'Despite being called "koala bears," koalas are marsupials — more closely related to wombats and kangaroos than to any bear.',
+      'The word "koala" comes from the Dharug language gula, meaning "no water" — koalas get almost all their moisture from eucalyptus leaves and rarely drink.',
+      'Koala joeys eat a special form of their mother\'s feces called pap to inoculate their gut with the bacteria needed to digest toxic eucalyptus — without it, they cannot survive.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Koala'},
+      {label:'Australian Koala Foundation', url:'https://www.savethekoala.com/'},
+      {label:'San Diego Zoo Wildlife', url:'https://animals.sandiegozoo.org/animals/koala'},
+    ]
+  },
+  'red-panda': {
+    altFacts:[
+      'The red panda was discovered by Western science 48 years before the giant panda — it was the original "panda," and the giant panda was named after it.',
+      'Red pandas have a "false thumb" — an extended wrist bone that works as a sixth digit for gripping bamboo, convergently evolved with the giant panda\'s identical adaptation.',
+      'Despite its name and bamboo diet, the red panda is not related to the giant panda. It is the sole living member of its own family, Ailuridae, more closely related to weasels and raccoons.',
+      'The name "panda" may derive from the Nepali ponya, meaning "bamboo eater." Red pandas are called firefox in Chinese — Mozilla\'s logo is a red panda, not a fox.',
+      'Red pandas have extraordinarily dense fur on the soles of their feet, insulating them from ice and snow in their high-altitude Himalayan habitat.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Red_panda'},
+      {label:'Red Panda Network', url:'https://www.redpandanetwork.org/'},
+      {label:'WWF', url:'https://www.worldwildlife.org/species/red-panda'},
+    ]
+  },
+  'snow-leopard': {
+    altFacts:[
+      'Snow leopards cannot roar — the hyoid bone in their throat is not fully ossified. They communicate with chuffs, wails, and a puffing sound called "prusten."',
+      'Their tails are nearly as long as their bodies — up to 1 meter — and serve as a counterbalance on cliff faces and as a cozy nose-warmer wrapped around the face during sleep.',
+      'Snow leopards are the closest living relative of the tiger, despite their very different appearance and habitat — the two lineages diverged about 3.9 million years ago.',
+      'Called "Ghost of the Mountains" in Central Asia, snow leopards are so elusive that the first photograph of one in the wild was not taken until 1971.',
+      'Snow leopards can leap 15 meters horizontally and 6 meters vertically in a single bound — the equivalent of jumping onto a two-story roof.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Snow_leopard'},
+      {label:'Snow Leopard Trust', url:'https://www.snowleopard.org/'},
+      {label:'Panthera', url:'https://www.panthera.org/cat/snow-leopard'},
+    ]
+  },
+  'narwhal': {
+    altFacts:[
+      'The narwhal\'s tusk is actually the left upper canine tooth, grown through the lip in a counter-clockwise spiral. It contains 10 million nerve endings and may sense salinity and temperature.',
+      'Male narwhals occasionally cross tusks in a behavior called "tusking" — likely a sensory exchange rather than combat, as the tusks are too fragile for fighting.',
+      'Narwhals are Arctic whales closely related to belugas — the two species diverged only about 5 million years ago and can even hybridize.',
+      'Medieval Europeans believed narwhal tusks were unicorn horns — they were worth ten times their weight in gold. Queen Elizabeth I kept one as a prized treasure.',
+      'Narwhals can dive to 1,500 meters and spend up to 25 minutes at depth, making them among the deepest-diving marine mammals.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Narwhal'},
+      {label:'WWF', url:'https://www.worldwildlife.org/species/narwhal'},
+      {label:'National Geographic', url:'https://www.nationalgeographic.com/animals/mammals/facts/narwhal'},
+    ]
+  },
+  'sea-otter': {
+    altFacts:[
+      'Sea otters have up to 1 million hairs per square inch — the densest fur of any mammal — because they have no blubber and rely entirely on fur for insulation.',
+      'Each sea otter has a favorite rock, kept in a skin pouch under the arm, used as an anvil to crack open shellfish — one of the few tool-using marine mammals.',
+      'Sea otters are a keystone species: by eating sea urchins, they prevent urchin "barrens" and protect the kelp forests that shelter hundreds of other species.',
+      'The genus name Enhydra means "in water" in Greek. Sea otters were hunted nearly to extinction during the fur trade — from 300,000 to just 2,000 by 1911.',
+      'Sea otters hold hands while sleeping to avoid drifting apart — groups of rafting otters can number over 100, bobbing together on the ocean surface.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Sea_otter'},
+      {label:'Monterey Bay Aquarium', url:'https://www.montereybayaquarium.org/animals/animals-a-to-z/sea-otter'},
+      {label:'Defenders of Wildlife', url:'https://defenders.org/wildlife/sea-otter'},
+    ]
+  },
+  'giant-panda': {
+    altFacts:[
+      'Giant pandas have a "false thumb" — an enlarged radial sesamoid bone that acts as a sixth digit — evolved specifically for gripping bamboo stalks.',
+      'Despite being classified as carnivores, giant pandas eat almost nothing but bamboo — 12-38 kg per day — because their digestive system still lacks the gut bacteria to efficiently extract nutrients from it.',
+      'Pandas belong to the bear family (Ursidae) and are more closely related to spectacled bears and sun bears than to the red panda, which is in its own family entirely.',
+      'The giant panda is known as dà xióng māo (大熊猫) in Chinese, meaning "big bear cat" — a name that reflects centuries of debate about whether it was a bear, raccoon, or something entirely new.',
+      'The panda\'s black-and-white coloring may serve dual purposes: white fur provides camouflage in snow, while black patches help pandas recognize each other and may intimidate rivals.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Giant_panda'},
+      {label:'WWF', url:'https://www.worldwildlife.org/species/giant-panda'},
+      {label:'Smithsonian National Zoo', url:'https://nationalzoo.si.edu/animals/giant-panda'},
+    ]
+  },
+  'wolverine': {
+    altFacts:[
+      'Wolverines have been documented driving grizzly bears and wolf packs from kills three times their size through sheer aggression and a unique mucous membrane that lets them eat frozen carrion.',
+      'Wolverines can travel 24 km in a single day across deep snow using snowshoe-like paws, covering territories of up to 920 km² — larger than some small countries.',
+      'Wolverines are the largest terrestrial members of the weasel family (Mustelidae), making them relatives of otters, badgers, and ferrets.',
+      'The scientific name Gulo gulo is Latin for "glutton glutton" — a double emphasis on their legendary appetite. Scandinavians called them fjällfräs, "mountain cat."',
+      'Wolverines are so tough that their fur is frost-resistant — it sheds ice more readily than any other fur, which is why it was traditionally used to line Arctic parkas.',
+    ],
+    links:[
+      {label:'Wikipedia', url:'https://en.wikipedia.org/wiki/Wolverine'},
+      {label:'Wolverine Foundation', url:'https://www.wolverinefoundation.org/'},
+      {label:'National Geographic', url:'https://www.nationalgeographic.com/animals/mammals/facts/wolverine'},
+    ]
+  },
 };
 
 // Wikipedia article titles for each node

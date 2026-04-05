@@ -158,6 +158,34 @@ export const GEO_DATA = {
   'humpback-whale':   { regions: ['marine-global'], label: 'All oceans; migrates from polar feeding grounds to tropical breeding waters', type: 'habitat' },
   'narwhal':          { regions: ['north-america', 'europe'], label: 'Arctic waters — Canadian Archipelago, Greenland, Svalbard', type: 'habitat' },
   'sea-otter':        { regions: ['north-america', 'east-asia'], label: 'North Pacific coast — Alaska, California, Russia, Japan (historically)', type: 'habitat' },
+  'bottlenose-dolphin': { regions: ['marine-global'], label: 'Temperate and tropical oceans worldwide; coastal and offshore', type: 'habitat' },
+  'flying-fox':       { regions: ['south-asia', 'southeast-asia', 'oceania', 'east-africa'], label: 'Tropical and subtropical forests of South Asia, Southeast Asia, and Australia', type: 'habitat' },
+  'african-elephant': { regions: ['africa'], label: 'Sub-Saharan Africa — savannas, forests, deserts, and marshes', type: 'habitat' },
+  'gray-wolf':        { regions: ['north-america', 'europe', 'east-asia', 'central-asia'], label: 'Northern Hemisphere — forests, tundra, grasslands, and mountains', type: 'habitat' },
+  'three-toed-sloth': { regions: ['central-america', 'south-america'], label: 'Tropical rainforests of Central and South America', type: 'habitat' },
+  'wolf':             { regions: ['north-america', 'europe', 'east-asia', 'central-asia'], label: 'Northern Hemisphere — boreal forests, tundra, and mountains', type: 'habitat' },
+  'dolphin':          { regions: ['marine-global'], label: 'All oceans; temperate and tropical coastal waters', type: 'habitat' },
+  'echidna':          { regions: ['oceania'], label: 'Australia, Tasmania, and New Guinea — forests, grasslands, and arid scrub', type: 'habitat' },
+  'giraffe':          { regions: ['africa'], label: 'Savannas and woodlands of sub-Saharan Africa', type: 'habitat' },
+  'white-rhinoceros': { regions: ['africa'], label: 'Grasslands and savannas of eastern and southern Africa', type: 'habitat' },
+  'cheetah':          { regions: ['africa', 'west-asia'], label: 'Sub-Saharan Africa; tiny population in Iran', type: 'habitat' },
+  'manatee':          { regions: ['north-america', 'central-america', 'south-america', 'africa'], label: 'Warm coastal waters, rivers, and estuaries of the Americas and West Africa', type: 'habitat' },
+  'beaver':           { regions: ['north-america', 'europe', 'east-asia'], label: 'Freshwater rivers, streams, and wetlands of North America and Eurasia', type: 'habitat' },
+  'capybara':         { regions: ['south-america'], label: 'Wetlands, rivers, and lakes of South America east of the Andes', type: 'habitat' },
+  'armadillo':        { regions: ['north-america', 'central-america', 'south-america'], label: 'Grasslands and forests from southern USA to Argentina', type: 'habitat' },
+  'gibbon':           { regions: ['south-asia', 'southeast-asia', 'east-asia'], label: 'Tropical and subtropical forests of Southeast Asia, India, and southern China', type: 'habitat' },
+  'spotted-hyena':    { regions: ['africa'], label: 'Sub-Saharan Africa — savannas, woodlands, forest edges, and even mountains', type: 'habitat' },
+  'meerkat':          { regions: ['southern-africa'], label: 'Kalahari Desert and arid regions of southern Africa', type: 'habitat' },
+  'walrus':           { regions: ['north-america', 'europe', 'east-asia'], label: 'Arctic and subarctic seas — Pacific and Atlantic populations', type: 'habitat' },
+  'dugong':           { regions: ['east-africa', 'south-asia', 'southeast-asia', 'oceania'], label: 'Warm coastal waters of the Indian and western Pacific oceans', type: 'habitat' },
+  'wombat':           { regions: ['oceania'], label: 'Forests, mountains, and grasslands of southeastern Australia and Tasmania', type: 'endemic' },
+  'hedgehog':         { regions: ['europe', 'africa', 'west-asia', 'south-asia'], label: 'Woodlands, hedgerows, and gardens of Europe, Africa, and Asia', type: 'habitat' },
+  'jaguar':           { regions: ['central-america', 'south-america'], label: 'Tropical rainforests, wetlands, and grasslands from Mexico to Argentina', type: 'habitat' },
+  'vampire-bat':      { regions: ['central-america', 'south-america'], label: 'Tropical and subtropical forests from Mexico to Brazil, Argentina, and Chile', type: 'habitat' },
+  'elephant-seal':    { regions: ['north-america', 'south-america'], label: 'North Pacific coast and sub-Antarctic islands; breeds on beaches', type: 'habitat' },
+  'okapi':            { regions: ['africa'], label: 'Dense tropical rainforests of the northeastern Democratic Republic of Congo', type: 'endemic' },
+  'aye-aye':          { regions: ['africa'], label: 'Eastern rainforests and dry deciduous forests of Madagascar', type: 'endemic' },
+  'african-wild-dog': { regions: ['africa'], label: 'Sub-Saharan Africa — savannas, grasslands, and sparse woodlands', type: 'habitat' },
 
   // ── GREAT APES ──
   'great-apes': { regions: ['africa', 'southeast-asia'], label: 'Tropical forests of Africa and Southeast Asia', type: 'habitat' },
@@ -885,6 +913,277 @@ export const BRANCH_DATA = {
     conservation: 'Endangered; ~106,000 remaining; keystone species for kelp forests',
     size: '14-45 kg; 1-1.5 m length',
     ability: 'Densest fur of any mammal (1 million hairs/cm2); uses rocks as tools to crack shellfish'
+  },
+
+  // ── MAMMAL GROUP NODES ──
+  'mammals': {
+    ability: 'Defining traits: hair/fur, mammary glands, three middle ear bones, neocortex; endothermy enables colonization of every habitat from deep ocean to high altitude'
+  },
+  'cetaceans': {
+    ability: 'Most dramatic mammalian transition: land-dwelling ancestors returned to the sea ~50 Mya; evolved echolocation, largest brains, and deepest dives of any mammal'
+  },
+  'primates': {
+    ability: 'Forward-facing eyes for stereoscopic vision, grasping hands with opposable thumbs, enlarged brains relative to body size; the order that produced language, tools, and culture'
+  },
+  'great-apes': {
+    ability: 'No tail, largest primate brains, prolonged childhood learning, tool use across all species; closest living relatives share 95-99% DNA with humans'
+  },
+  'hominini': {
+    ability: 'The human-chimp clade; evolved bipedalism, dramatically expanded brains (400→1400 cm³), controlled fire, symbolic language, and cumulative culture'
+  },
+
+  // ── MORE MAMMALS ──
+  'bottlenose-dolphin': {
+    diet: 'Carnivore — fish, squid, shrimp',
+    lifespan: '40-50 years (wild)',
+    conservation: 'Least Concern; population stable worldwide',
+    size: '150-650 kg; 2-4 m length',
+    ability: 'Echolocation resolves objects millimeters apart; sleeps with one brain hemisphere at a time; recognizes itself in mirrors'
+  },
+  'sperm-whale': {
+    diet: 'Carnivore — giant squid, colossal squid, deep-sea fish',
+    lifespan: '~70 years',
+    conservation: 'Vulnerable; ~300,000 estimated worldwide',
+    size: 'Up to 57 tonnes; 18 m length; largest toothed animal ever',
+    ability: 'Dives to 2,250 m for over 2 hours; largest brain of any animal (7.8 kg); clicks reach 236 dB'
+  },
+  'orca': {
+    diet: 'Carnivore — fish, seals, sharks, whales (varies by ecotype)',
+    lifespan: '50-80 years (females up to 90)',
+    conservation: 'Data Deficient (species-wide); some populations Critically Endangered',
+    size: 'Males up to 9 tonnes, 9.8 m; largest member of the dolphin family',
+    ability: 'Apex predator of every ocean; culture-specific hunting dialects; teaches cooperative hunting techniques across generations'
+  },
+  'flying-fox': {
+    diet: 'Frugivore — fruit, nectar, pollen',
+    lifespan: '15-20 years (wild), 25+ years (captivity)',
+    conservation: 'Variable; several species Endangered or Critically Endangered',
+    size: 'Up to 1.6 kg; wingspan up to 1.7 m; largest bat',
+    ability: 'Keystone pollinator and seed disperser for tropical forests; navigates by sight, not echolocation'
+  },
+  'african-elephant': {
+    diet: 'Herbivore — grasses, bark, roots, fruit (up to 150 kg/day)',
+    lifespan: '60-70 years in the wild',
+    conservation: 'Endangered; ~415,000 remaining; poaching and habitat loss',
+    size: 'Up to 6,000 kg, 3.3 m at shoulder; largest living land animal',
+    ability: 'Infrasonic communication travels 10 km; mourns dead; 40,000 muscles in trunk'
+  },
+  'gray-wolf': {
+    diet: 'Carnivore — elk, deer, moose, bison',
+    lifespan: '6-8 years (wild), 15 years (captivity)',
+    conservation: 'Least Concern globally; extirpated from much of historic range',
+    size: '25-80 kg; 1.0-1.6 m body length',
+    ability: 'Pack coordination rivals primate social intelligence; stamina running (can travel 70 km/day); howl audible 16 km away'
+  },
+  'three-toed-sloth': {
+    diet: 'Herbivore — leaves, buds, and tender shoots from tropical trees',
+    lifespan: '25-30 years in the wild',
+    conservation: 'Least Concern (most species); Pygmy three-toed sloth Critically Endangered',
+    size: '2.3-5.5 kg; 45-60 cm body length',
+    ability: 'Moves so slowly algae grows on fur providing camouflage; metabolic rate 40-45% of expected; can rotate head 270°'
+  },
+  'tarsier': {
+    diet: 'Carnivore — insects, small vertebrates, birds',
+    lifespan: '12-20 years',
+    conservation: 'Variable by species; Philippine tarsier Near Threatened',
+    size: '80-150 g; 10-15 cm body; each eye larger than its brain',
+    ability: 'Enormous eyes (16 mm diameter) for nocturnal hunting; can rotate head 180° like an owl; leaps 40× its body length'
+  },
+  'ring-tailed-lemur': {
+    diet: 'Omnivore — fruit, leaves, flowers, bark, sap, insects',
+    lifespan: '16-19 years (wild), 27+ years (captivity)',
+    conservation: 'Endangered; ~2,000-2,500 remaining in the wild',
+    size: '2.2 kg; tail up to 63 cm, longer than body',
+    ability: 'Females dominate males (rare in primates); "stink fights" using scent-glands on wrists; sunbathes in lotus position'
+  },
+  'japanese-macaque': {
+    diet: 'Omnivore — fruit, seeds, leaves, insects, fungi, bark',
+    lifespan: '27 years (wild), 30+ years (captivity)',
+    conservation: 'Least Concern; ~100,000 in Japan',
+    size: '8-14 kg; 47-60 cm body length',
+    ability: 'Northernmost non-human primate; bathes in hot springs at -15°C; culturally transmits food-washing behavior'
+  },
+  'mandrill': {
+    diet: 'Omnivore — fruits, seeds, insects, small vertebrates',
+    lifespan: '20 years (wild), 40+ years (captivity)',
+    conservation: 'Vulnerable; declining due to bushmeat hunting and deforestation',
+    size: 'Males up to 37 kg; 55-95 cm body length; largest Old World monkey',
+    ability: 'Most colorful mammal face: blue and red skin intensifies with rank; forms supergroups of 800+ individuals'
+  },
+  'star-nosed-mole': {
+    diet: 'Insectivore — earthworms, aquatic insects, mollusks',
+    lifespan: '3-4 years',
+    conservation: 'Least Concern; stable populations in eastern North America',
+    size: '35-75 g; 15-20 cm total length',
+    ability: 'Fastest-eating mammal: identifies and consumes prey in 120 milliseconds; nose has 25,000 sensory receptors (Eimer\'s organs)'
+  },
+  'honey-badger': {
+    diet: 'Omnivore — honey, insects, snakes, small mammals, fruit',
+    lifespan: '~7 years (wild), 24 years (captivity)',
+    conservation: 'Least Concern; widespread across Africa and Asia',
+    size: '6-16 kg; 55-77 cm body length',
+    ability: 'Immune to cobra and scorpion venom; loose thick skin allows twisting to bite attacker when grabbed; fearlessly attacks much larger animals'
+  },
+  'wolf': {
+    diet: 'Carnivore — ungulates, hares, rodents, carrion',
+    lifespan: '6-8 years (wild), 15 years (captivity)',
+    conservation: 'Least Concern globally; recovering in parts of Europe and North America',
+    size: '25-80 kg; 1.0-1.6 m body length',
+    ability: 'Ancestor of all domestic dogs; complex social hierarchies; cooperative pack hunting of prey 10× their weight'
+  },
+  'dolphin': {
+    diet: 'Carnivore — fish, squid, crustaceans',
+    lifespan: '20-50 years depending on species',
+    conservation: 'Variable; most Least Concern, some river dolphins Critically Endangered',
+    size: '1.5-4 m length; 40-650 kg depending on species',
+    ability: 'Unihemispheric sleep allows constant vigilance; echolocation creates 3D mental images; exhibits culture and cooperative behavior'
+  },
+  'echidna': {
+    diet: 'Insectivore — ants, termites, worms (using electroreceptors in bill)',
+    lifespan: '15-20 years (wild), up to 50 years (captivity)',
+    conservation: 'Least Concern (short-beaked); Critically Endangered (all long-beaked species)',
+    size: '2-7 kg; 30-45 cm body length',
+    ability: 'One of only five egg-laying mammals (monotremes); electroreception detects prey; body temperature lowest of any mammal (30-32°C)'
+  },
+  'giraffe': {
+    diet: 'Herbivore — acacia and mimosa leaves, up to 34 kg/day',
+    lifespan: '25 years (wild), 28 years (captivity)',
+    conservation: 'Vulnerable; ~117,000 remaining; 40% decline in 30 years',
+    size: 'Up to 1,900 kg; 5.7 m tall; tallest living animal',
+    ability: 'Heart weighs 11 kg and pumps at twice human blood pressure to reach the brain; 45 cm prehensile tongue; each individual has unique spot pattern'
+  },
+  'white-rhinoceros': {
+    diet: 'Herbivore — grasses; grazer with wide flat mouth',
+    lifespan: '40-50 years in the wild',
+    conservation: 'Near Threatened (Southern, ~18,000); Northern subspecies functionally extinct (2 females remain)',
+    size: 'Up to 2,300 kg; 3.7-4 m length; second-largest land animal',
+    ability: 'Horn grows up to 1.5 m; charges at 50 km/h despite bulk; creates "middens" (dung piles) as chemical communication boards'
+  },
+  'cheetah': {
+    diet: 'Carnivore — gazelles, impalas, hares, small antelope',
+    lifespan: '10-12 years (wild), 15 years (captivity)',
+    conservation: 'Vulnerable; ~6,500-7,100 remaining; very low genetic diversity',
+    size: '21-72 kg; 1.1-1.5 m body length',
+    ability: 'Fastest land animal: 112 km/h in 3 seconds; semi-retractable claws grip like cleats; tail acts as rudder for 90° turns at speed'
+  },
+  'manatee': {
+    diet: 'Herbivore — sea grasses, freshwater vegetation (up to 50 kg/day)',
+    lifespan: '40-60 years',
+    conservation: 'Vulnerable; West Indian manatee ~13,000; threatened by boat strikes and habitat loss',
+    size: '400-590 kg; 2.8-3.6 m length',
+    ability: 'Continuously replaces worn teeth from the back of the jaw (marching molars); closest living relative of elephants alongside hyraxes'
+  },
+  'beaver': {
+    diet: 'Herbivore — bark, cambium, aquatic plants, roots',
+    lifespan: '10-15 years (wild), 24 years (captivity)',
+    conservation: 'Least Concern; recovered from near-extinction after fur trade',
+    size: '11-32 kg; 80-120 cm including tail; largest North American rodent',
+    ability: 'Supreme ecosystem engineer: builds dams up to 850 m long; creates wetland habitats that increase local biodiversity by 33%'
+  },
+  'capybara': {
+    diet: 'Herbivore — grasses, aquatic plants, bark, fruit',
+    lifespan: '8-10 years (wild), 12 years (captivity)',
+    conservation: 'Least Concern; stable populations throughout South America',
+    size: '35-66 kg; up to 134 cm length; largest living rodent',
+    ability: 'Semi-aquatic: swims with eyes, ears, and nostrils above water like a hippo; practices coprophagy to digest cellulose; highly social herds of 10-20'
+  },
+  'armadillo': {
+    diet: 'Insectivore — ants, termites, beetles, grubs',
+    lifespan: '12-15 years (wild), 20+ years (captivity)',
+    conservation: 'Variable; nine-banded Least Concern; giant armadillo Vulnerable',
+    size: '1-54 kg depending on species; nine-banded ~4 kg, 40 cm body',
+    ability: 'Bony armor plates (osteoderms) for defense; nine-banded always gives birth to identical quadruplets; can hold breath 6 minutes'
+  },
+  'gibbon': {
+    diet: 'Omnivore — ripe fruit (60%), leaves, flowers, insects',
+    lifespan: '25 years (wild), 35-40 years (captivity)',
+    conservation: 'Most species Endangered or Critically Endangered; rapid deforestation',
+    size: '5-13 kg; 45-90 cm body length; arms longer than legs',
+    ability: 'Fastest arboreal mammal: brachiates at 55 km/h swinging 15 m per leap; monogamous pair-bonds; territorial duet songs audible 1 km away'
+  },
+  'spotted-hyena': {
+    diet: 'Carnivore — wildebeest, zebra, antelope; also scavenges',
+    lifespan: '12-25 years (wild)',
+    conservation: 'Least Concern; ~27,000-47,000 remaining',
+    size: '40-86 kg; 95-166 cm body length',
+    ability: 'Bite force of 1,100 PSI crushes bone; digests everything including hooves and horns; matriarchal clans with complex social hierarchies rivaling primates'
+  },
+  'meerkat': {
+    diet: 'Omnivore — insects, scorpions, spiders, small vertebrates, tubers',
+    lifespan: '12-14 years (captivity), 6-7 years (wild)',
+    conservation: 'Least Concern; stable populations in southern Africa',
+    size: '620-970 g; 25-35 cm body length',
+    ability: 'Sentinel system: designated lookouts scan for predators while group forages; teaches pups to handle scorpions by progressively removing stingers; immune to some venoms'
+  },
+  'walrus': {
+    diet: 'Carnivore — benthic bivalves, clams, snails, sea cucumbers',
+    lifespan: '~40 years',
+    conservation: 'Vulnerable; ~225,000 remaining; threatened by Arctic sea ice loss',
+    size: 'Males up to 1,800 kg; 3.6 m length; tusks up to 1 m',
+    ability: 'Uses tusks as ice picks and social rank signals; vibrissae (whiskers) detect shellfish on dark ocean floor; can slow heart rate for 10-minute dives'
+  },
+  'dugong': {
+    diet: 'Herbivore — seagrass exclusively; "sea cow"',
+    lifespan: '~70 years',
+    conservation: 'Vulnerable; declining due to habitat loss and boat strikes',
+    size: '230-500 kg; 2.4-3 m length',
+    ability: 'Only strictly marine herbivorous mammal; "cultivates" seagrass by grazing patterns that promote regrowth; inspired mermaid legends'
+  },
+  'wombat': {
+    diet: 'Herbivore — grasses, sedges, roots, bark',
+    lifespan: '15 years (wild), 20-30 years (captivity)',
+    conservation: 'Least Concern (common); Northern hairy-nosed wombat Critically Endangered (~300)',
+    size: '20-35 kg; 84-115 cm length',
+    ability: 'Produces cube-shaped feces (unique in nature) for territorial marking; backward-facing pouch protects joey while digging; reinforced cartilage rump plate deters predators'
+  },
+  'hedgehog': {
+    diet: 'Omnivore — insects, snails, frogs, small snakes, berries, mushrooms',
+    lifespan: '3-5 years (wild), 8-10 years (captivity)',
+    conservation: 'Least Concern (most species); declining in Western Europe from habitat loss',
+    size: '0.5-1.2 kg; 15-30 cm body length; ~5,000-7,000 spines',
+    ability: 'Rolls into a spiny ball with 5,000+ keratin spines; practices "self-anointing" — chews toxic substances and spreads frothy saliva on spines'
+  },
+  'jaguar': {
+    diet: 'Carnivore — peccaries, capybara, caimans, deer, fish, turtles',
+    lifespan: '12-15 years (wild), 20+ years (captivity)',
+    conservation: 'Near Threatened; ~64,000 remaining; habitat fragmentation',
+    size: '56-96 kg; 1.1-1.9 m body length',
+    ability: 'Strongest bite of any big cat (1,500 PSI); pierces turtle shells and caiman skulls; strong swimmer that hunts in water'
+  },
+  'vampire-bat': {
+    diet: 'Sanguivore — blood of livestock and wild mammals',
+    lifespan: '9 years (wild), 20 years (captivity)',
+    conservation: 'Least Concern; expanding range as livestock spreads',
+    size: '25-40 g; 7-9 cm body length; 18 cm wingspan',
+    ability: 'Only mammal that feeds entirely on blood; infrared nose pits detect veins; anticoagulant saliva (draculin); shares blood meals with hungry roostmates via reciprocal altruism'
+  },
+  'elephant-seal': {
+    diet: 'Carnivore — deep-sea fish, squid, rays, small sharks',
+    lifespan: '20-22 years (females), 14 years (males)',
+    conservation: 'Least Concern; recovered from near-extinction in 1890s (~20-100 individuals)',
+    size: 'Males up to 3,700 kg, 6 m length; largest pinniped',
+    ability: 'Dives to 1,750 m for up to 2 hours; spends 80% of life underwater; males inflate proboscis to produce thundering roars in mating battles'
+  },
+  'okapi': {
+    diet: 'Herbivore — leaves, buds, ferns, fruit, fungi',
+    lifespan: '20-30 years',
+    conservation: 'Endangered; ~35,000 remaining in Congo; first discovered by Western science in 1901',
+    size: '200-350 kg; 1.5 m at shoulder',
+    ability: 'Closest living relative of the giraffe; 35 cm prehensile tongue cleans its own ears; zebra-striped legs serve as camouflage and calf-following pattern in dense forest'
+  },
+  'aye-aye': {
+    diet: 'Omnivore — insect larvae (extracted from wood), seeds, nectar, fungi',
+    lifespan: '20-23 years (captivity)',
+    conservation: 'Endangered; declining due to habitat loss and superstition-based killing',
+    size: '2-2.7 kg; 36-44 cm body length; 44-53 cm tail',
+    ability: 'Elongated skeletal middle finger taps on wood and listens for grubs (percussive foraging); only primate to use echolocation-like technique; continuously growing rodent-like incisors'
+  },
+  'african-wild-dog': {
+    diet: 'Carnivore — medium antelope, impala, kudu, wildebeest calves',
+    lifespan: '10-12 years in the wild',
+    conservation: 'Endangered; ~6,600 remaining in fragmented populations',
+    size: '18-36 kg; 75-110 cm body length',
+    ability: 'Highest hunt success rate of any large predator (80%); "sneeze voting" to decide group hunts; regurgitates food for pups, sick, and elderly pack members'
   },
 
   // ── NEW BIRDS ──

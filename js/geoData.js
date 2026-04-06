@@ -384,7 +384,8 @@ export const GEO_DATA = {
   'cuttlefish':          { regions: ['europe', 'africa'], label: 'Mediterranean and Eastern Atlantic', type: 'habitat' },
   'atlas-moth':          { regions: ['southeast-asia', 'south-asia'], label: 'South and Southeast Asian forests', type: 'habitat' },
   'bombardier-beetle':   { regions: ['europe', 'north-america', 'africa'], label: 'Temperate woodland worldwide', type: 'habitat' },
-  'lungfish':            { regions: ['oceania'], label: 'Freshwater rivers of Queensland, Australia', type: 'endemic' },
+  'blue-ringed-octopus': { regions: ['oceania', 'southeast-asia'], label: 'Tide pools and coral reefs of the Indo-Pacific — Australia, Philippines, Indonesia, Japan', type: 'habitat' },
+  'lungfish':            { regions: ['africa', 'south-america', 'oceania'], label: 'Freshwater rivers across Africa (Protopterus), South America (Lepidosiren), and Australia (Neoceratodus)', type: 'habitat' },
   'ginkgo':              { regions: ['east-asia'], label: 'Native to China; cultivated worldwide', type: 'habitat' },
   'dragon-blood-tree':   { regions: ['west-asia'], label: 'Socotra Island, Yemen', type: 'endemic' },
 };

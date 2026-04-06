@@ -2433,7 +2433,7 @@ export const PHOTO_MAP = {
   // Hominin fossils
   'homo-naledi':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Homo_naledi_skeletal_specimens.jpg/960px-Homo_naledi_skeletal_specimens.jpg', credit:'Lee Roger Berger, CC BY 4.0'},
   'h_naledi':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Homo_naledi_skeletal_specimens.jpg/960px-Homo_naledi_skeletal_specimens.jpg', credit:'Lee Roger Berger, CC BY 4.0'},
-  'homo-floresiensis':     {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/H-floresiensis-Cretan-microcephalic.jpg/960px-H-floresiensis-Cretan-microcephalic.jpg', credit:'Rosino, CC BY-SA 2.0'},
+  'homo-floresiensis':     {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Homo_floresiensis_cave.jpg/960px-Homo_floresiensis_cave.jpg', credit:'Rosino, CC BY-SA 2.0'},
   'h_floresiensis':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/H-floresiensis-Cretan-microcephalic.jpg/960px-H-floresiensis-Cretan-microcephalic.jpg', credit:'Rosino, CC BY-SA 2.0'},
   'h_luzonensis':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/da/HomoLuzonensisRestoration.jpg/960px-HomoLuzonensisRestoration.jpg', credit:'Judgefloro, CC0'},
   'denisovan':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Denisova_Molar.jpg/960px-Denisova_Molar.jpg', credit:'Демин Алексей Барнаул, CC BY-SA 3.0'},
@@ -2449,7 +2449,7 @@ export const PHOTO_MAP = {
   'plantae':               {url:'https://upload.wikimedia.org/wikipedia/commons/3/31/Diversity_of_plants_%28Streptophyta%29_version_2.png', credit:'Malcom Manners, CC BY 2.0'},
   'mimosa-pudica':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/Mimosa_pudica_MHNT.BOT.2004.0.0.495.jpg/960px-Mimosa_pudica_MHNT.BOT.2004.0.0.495.jpg', credit:'Hrushikesh, CC BY-SA 3.0'},
   'wollemia':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Wollemia_nobilis_sapling.jpg/960px-Wollemia_nobilis_sapling.jpg', credit:'Brent Miller, CC BY 2.0'},
-  'animalia':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Rana_temporaria.jpg/960px-Rana_temporaria.jpg', credit:'Wikipedia, CC BY-SA 4.0'},
+  'animalia':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/2010-kodiak-bear-1.jpg/960px-2010-kodiak-bear-1.jpg', credit:'Wikipedia, CC BY-SA 4.0'},
   'insects':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Syrphus_torvus_macro_01.jpg/960px-Syrphus_torvus_macro_01.jpg', credit:'Charles J. Sharp, CC BY-SA 4.0'},
   'shark':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/Male_whale_shark_at_Georgia_Aquarium.jpg/960px-Male_whale_shark_at_Georgia_Aquarium.jpg', credit:'Pterantula, CC BY-SA 3.0'},
   'reptiles':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/AgamaSinaita01_ST_10.jpg/960px-AgamaSinaita01_ST_10.jpg', credit:'Adhi Rachdian, CC BY 2.0'},
@@ -2663,7 +2663,7 @@ export const PHOTO_MAP = {
   'mollusks':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Epitonium_scalare_shell.jpg/960px-Epitonium_scalare_shell.jpg', credit:'Albert Kok, CC BY-SA 3.0'},
   // ── Invertebrates — Annelids ──
   'earthworm':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Earthworm_head.svg/960px-Earthworm_head.svg.png', credit:'Michael Linnenbach, CC BY-SA 3.0'},
-  'giant-tube-worm':      {url:'https://upload.wikimedia.org/wikipedia/commons/e/e9/The_Giant_Tube_Worm%2C_Riftia_pachyptila_and_its_Trophosome.png', credit:'NOAA, Public Domain'},
+  'giant-tube-worm':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Riftia_pachyptila_icon.svg/960px-Riftia_pachyptila_icon.svg.png', credit:'NOAA, Public Domain'},
   'leech':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/22/Hirudo_medicinalis_02.jpg/960px-Hirudo_medicinalis_02.jpg', credit:'GlebK, CC BY-SA 3.0'},
   // ── Invertebrates — Echinoderms ──
   'feather-star':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Davidaster_rubiginosa_%28Golden_Crinoid_Feather_Star%29.jpg/960px-Davidaster_rubiginosa_%28Golden_Crinoid_Feather_Star%29.jpg', credit:'Nick Hobgood, CC BY-SA 3.0'},
@@ -2730,10 +2730,10 @@ export const PHOTO_MAP = {
   'nematodes':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Varbuss.jpg/960px-Varbuss.jpg', credit:'Zeynep F. Altun, CC BY-SA 2.5'},
   // Birds
   'bee-hummingbird':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Bee_hummingbird_%28Mellisuga_helenae%29_adult_male_non-breeding.jpg/960px-Bee_hummingbird_%28Mellisuga_helenae%29_adult_male_non-breeding.jpg', credit:'Ekaterina Chernetsova, CC BY 2.0'},
-  'new-caledonian-crow':    {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Corvus_moneduloides_212163787.jpg/960px-Corvus_moneduloides_212163787.jpg', credit:'Neitram, CC BY-SA 3.0'},
+  'new-caledonian-crow':    {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/68/CorvusMoneduloidesKeulemans.jpg/960px-CorvusMoneduloidesKeulemans.jpg', credit:'Neitram, CC BY-SA 3.0'},
   'ostrich':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/bd/Struthio_camelus_portrait_Whipsnade_Zoo.jpg/960px-Struthio_camelus_portrait_Whipsnade_Zoo.jpg', credit:'fir0002, GFDL 1.2'},
   'kiwi':                   {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Kiwi_aka.jpg/960px-Kiwi_aka.jpg', credit:'Glen Fergus, CC BY-SA 2.5'},
-  'secretary-bird':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Secretario_%28Sagittarius_serpentarius%29%2C_parque_nacional_de_Amboseli%2C_Kenia%2C_2024-05-23%2C_DD_13.jpg/960px-Secretario_%28Sagittarius_serpentarius%29%2C_parque_nacional_de_Amboseli%2C_Kenia%2C_2024-05-23%2C_DD_13.jpg', credit:'Alastair Rae, CC BY-SA 2.0'},
+  'secretary-bird':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Secretario_%28Sagittarius_serpentarius%29%2C_parque_nacional_de_Amboseli%2C_Kenia%2C_2024-05-23%2C_DD_12.jpg/960px-Secretario_%28Sagittarius_serpentarius%29%2C_parque_nacional_de_Amboseli%2C_Kenia%2C_2024-05-23%2C_DD_12.jpg', credit:'Alastair Rae, CC BY-SA 2.0'},
   'toucan':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/Toco_Toucan_%28Ramphastos_toco%29_-_48153967707.jpg/960px-Toco_Toucan_%28Ramphastos_toco%29_-_48153967707.jpg', credit:'Carlos Delgado, CC BY-SA 3.0'},
   'pelican':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/db/Brown_Pelican%2C_Pelagic_Boat_Trip.jpg/960px-Brown_Pelican%2C_Pelagic_Boat_Trip.jpg', credit:'Ómar Runólfsson, CC BY 2.0'},
   'woodpecker':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/Acorn_woodpecker_holding_a_nut_in_its_beak-0225.jpg/960px-Acorn_woodpecker_holding_a_nut_in_its_beak-0225.jpg', credit:'Ken Thomas, Public Domain'},

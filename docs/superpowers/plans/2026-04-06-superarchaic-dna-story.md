@@ -334,8 +334,12 @@ Create `stories/story-base.css`:
 
 /* ── Responsive ── */
 @media (max-width: 480px) {
+  .story-page {
+    scroll-snap-type: none;
+  }
   .story-section {
     padding: 72px 16px 48px;
+    scroll-snap-align: none;
   }
   .story-text {
     font-size: 14px;
@@ -1100,8 +1104,16 @@ Append before the `/* ══ REDUCED MOTION ══ */` section:
   100% { opacity: 0.15; }
 }
 
+/* Longer vanish beat — layered on top of ghostFlicker */
+@keyframes ghostVanish {
+  0%, 90%, 100% { opacity: 1; }
+  95% { opacity: 0.05; }
+}
+
 .sa-ghost-figure {
-  animation: ghostFlicker 3s steps(12) infinite;
+  animation:
+    ghostFlicker 3s steps(12) infinite,
+    ghostVanish 9s ease-in-out infinite;
 }
 ```
 

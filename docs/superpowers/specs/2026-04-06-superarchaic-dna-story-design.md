@@ -175,6 +175,7 @@ export function revealOnScroll(container)
 
 **Animation:**
 - Ghost flickers: `@keyframes ghostFlicker` alternating opacity 0.15–0.55, irregular timing (not sinusoidal — use `steps()` or multi-stop keyframes for organic feel)
+- Layer a second, longer-period keyframe (~8-10s cycle) that includes a brief "vanish" (opacity drops to 0.05 for ~400ms). Creates a rhythm of "there... there... GONE... there" that feels unsettling and alive.
 - Known figures fade in on scroll, ghost flickers continuously
 
 **Reduced motion:** Ghost at static 0.4 opacity, no flicker. All figures visible.
@@ -303,6 +304,7 @@ export function revealOnScroll(container)
 - Each section roughly one screenful (100vh min-height)
 - Touch-scroll friendly — no horizontal scroll, no hover-dependent interactions
 - `scroll-snap-type: y proximity` (not mandatory — prevents getting stuck)
+- On mobile (≤480px), verify scroll-snap doesn't cause janky snapping when sections exceed 100vh. If it does, disable snap on mobile and keep it desktop-only.
 
 ---
 

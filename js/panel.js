@@ -159,39 +159,49 @@ export function renderBranchSection(node, branchType) {
 }
 
 // ── Panel helper: render mini world map ──
-export function renderMiniMap(nodeId, nodeColor) {
+export function renderMiniMap(nodeId, nodeColor, hasChildren) {
   const geo = GEO_DATA ? GEO_DATA[nodeId] : null;
   if (!geo || !geo.regions || !geo.regions.length) return '';
   if (!MAP_PATHS) return '';
+  // Hide map for broad taxonomic groups with only 'worldwide'
+  if (hasChildren && geo.regions.length === 1 && geo.regions[0] === 'worldwide') return '';
+
   const active = new Set(geo.regions);
   const isWorldwide = active.has('worldwide');
   const isMarine = active.has('marine-global') || active.has('marine-deep') || active.has('freshwater');
-  const color = nodeColor || 'var(--accent-primary)';
-  // Build SVG paths from MAP_PATHS (realistic continent outlines)
-  let paths = '';
+
+  // Grid lines (3 horizontal + 3 vertical)
+  let svg = '';
+  svg += '<line class="grid-line" x1="0" y1="100" x2="800" y2="100"/>';
+  svg += '<line class="grid-line" x1="0" y1="200" x2="800" y2="200"/>';
+  svg += '<line class="grid-line" x1="0" y1="300" x2="800" y2="300"/>';
+  svg += '<line class="grid-line" x1="200" y1="0" x2="200" y2="400"/>';
+  svg += '<line class="grid-line" x1="400" y1="0" x2="400" y2="400"/>';
+  svg += '<line class="grid-line" x1="600" y1="0" x2="600" y2="400"/>';
+
+  // Ocean wash for marine species
   if (isMarine) {
-    paths += `<rect x="0" y="0" width="800" height="400" rx="8" style="fill:${color};opacity:0.2"/>`;
+    svg += '<rect class="ocean-wash" x="0" y="0" width="800" height="400"/>';
   }
+
+  // Continent paths
   for (const [rid, dArr] of Object.entries(MAP_PATHS)) {
     const isActive = isWorldwide || active.has(rid) ||
       (active.has('africa') && (rid === 'north-africa' || rid === 'west-africa' || rid === 'east-africa' || rid === 'southern-africa'));
     for (const d of dArr) {
-      if (isMarine && !isActive) {
-        paths += `<path class="region" d="${d}"/>`;
-      } else {
-        paths += `<path class="region${isActive ? ' active' : ''}" d="${d}" ${isActive ? `style="fill:${color}"` : ''}/>`;
-      }
+      svg += `<path class="region${isActive ? ' active' : ''}" d="${d}"/>`;
     }
   }
+
   const typeIcon = geo.type === 'fossil' ? '🦴' : geo.type === 'endemic' ? '📌' : '🌍';
   const typeLabel = geo.type === 'fossil' ? 'Fossil sites' : geo.type === 'endemic' ? 'Endemic range' : 'Distribution';
   return `<div class="panel-section">
     <div class="p-section">📍 ${typeLabel.toUpperCase()}</div>
     <div class="mini-map">
-      <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">${paths}</svg>
+      <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">${svg}</svg>
     </div>
     <div class="mini-map-caption">
-      <span class="mini-map-dot" style="background:${color}"></span>
+      <span class="mini-map-dot"></span>
       ${typeIcon} ${geo.label}
     </div>
   </div>`;
@@ -549,7 +559,7 @@ export function renderPanelContent(node) {
         </div>
       ` : ''}
       ${node.detail ? `<div class="panel-section"><p class="p-detail" style="margin:0">${node.detail}</p></div>` : ''}
-      ${renderMiniMap(node.id, node.color)}
+      ${renderMiniMap(node.id, node.color, !!node.children)}
       ${node.facts && node.facts.length ? `
         <div class="panel-section">
           <div class="p-facts">

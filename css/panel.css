@@ -246,15 +246,18 @@
   border-radius:var(--radius-full);border:1px solid var(--border);}
 
 /* ── MINI WORLD MAP ── */
-.mini-map{width:100%;border-radius:var(--radius-md);overflow:hidden;background:var(--surface-raised);
-  border:1px solid var(--border);}
-.mini-map svg{width:100%;height:auto;display:block;}
-.mini-map .region{fill:var(--surface);stroke:var(--border);stroke-width:0.8;transition:fill 0.3s,opacity 0.3s;}
-.mini-map .region.active{opacity:0.85;}
+.mini-map{width:100%;border-radius:var(--radius-md);overflow:hidden;
+  border:1px solid var(--map-land-border);}
+.mini-map svg{width:100%;height:auto;display:block;background:var(--map-ocean);border-radius:var(--radius-md);}
+.mini-map .grid-line{stroke:var(--map-grid);stroke-width:0.5;stroke-dasharray:4,4;}
+.mini-map .region{fill:var(--map-land);stroke:var(--map-land-border);stroke-width:0.5;
+  transition:fill 0.3s,opacity 0.3s;}
+.mini-map .region.active{fill:var(--map-highlight);opacity:0.6;stroke:var(--map-highlight-border);stroke-width:1.5;}
+.mini-map .ocean-wash{fill:var(--map-highlight);opacity:0.2;}
 .mini-map .map-label{font-size:7px;fill:var(--text-secondary);font-family:var(--font-sans);pointer-events:none;}
 .mini-map-caption{font-size:var(--text-2xs);color:var(--text-secondary);margin-top:6px;font-family:var(--font-sans);
   display:flex;align-items:center;gap:6px;}
-.mini-map-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.mini-map-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;background:var(--map-highlight-border);}
 
 /* ── BRANCH-SPECIFIC BADGES ── */
 .branch-badge{display:inline-flex;align-items:center;gap:4px;font-size:var(--text-2xs);font-weight:600;

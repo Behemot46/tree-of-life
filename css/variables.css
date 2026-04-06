@@ -131,6 +131,13 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,.lang-btn:focus-
   --tree-label-latin-size-mobile:0.5rem;
   --tree-minimap-w:120px;
   --tree-minimap-h:80px;
+  /* ── World map (Scientific Atlas) ── */
+  --map-ocean:#0f1923;
+  --map-land:#152030;
+  --map-land-border:#2a4060;
+  --map-grid:#1a2a3a;
+  --map-highlight:#0d7377;
+  --map-highlight-border:#15b3b8;
 }
 html,body{width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--parchment);}
 body{font-family:var(--font-body);user-select:none;cursor:grab;}

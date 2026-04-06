@@ -59,6 +59,13 @@
   --tree-branch-brown:#c4a882;
   --tree-human-path:#a06a28;
   --tree-photo-opacity:0.95;
+  /* ── World map (light) ── */
+  --map-ocean:#e8f0f8;
+  --map-land:#d0d8e0;
+  --map-land-border:#b8c4d0;
+  --map-grid:#c0d0e0;
+  --map-highlight:#0d7377;
+  --map-highlight-border:#15b3b8;
 }
 [data-theme="light"] body{background:var(--bg);color:var(--parchment);}
 [data-theme="light"] #bg{background:var(--bg);}
@@ -114,7 +121,7 @@
 [data-theme="light"] .panel-link{background:var(--surface-raised);border-color:var(--border);}
 [data-theme="light"] .panel-link:hover{background:var(--accent-primary);color:white;}
 [data-theme="light"] .panel-cap{background:var(--surface-raised);border-color:var(--border);color:var(--text-secondary);}
-[data-theme="light"] .mini-map .region{fill:var(--surface-raised);stroke:var(--border);}
+[data-theme="light"] .mini-map .region{fill:var(--map-land);stroke:var(--map-land-border);}
 [data-theme="light"] .panel-cta{background:var(--accent-primary);}
 [data-theme="light"] .p-tag:hover{background:var(--accent-primary);color:white;}
 

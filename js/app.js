@@ -211,7 +211,25 @@ patchEnrichment();
     'axolotl':'The axolotl can regenerate entire limbs, spinal cord, heart tissue, and parts of its brain — making it the most regenerative vertebrate known to science. It never metamorphoses, remaining aquatic and gilled for life.',
     'chinese-giant-salamander':'The Chinese giant salamander can reach 1.8 meters — the largest living amphibian — and has remained essentially unchanged for 170 million years. It detects prey through vibrations in the water.',
     'giant-salamander':'Japanese giant salamanders can live over 80 years and remain virtually unchanged from 30-million-year-old fossils. Called "living fossils," they breathe almost entirely through their wrinkled skin.',
-    'red-eyed-tree-frog':'Red-eyed tree frog embryos can detect vibrations from approaching snakes and hatch prematurely — escaping the egg days early and dropping into water below to survive.'
+    'red-eyed-tree-frog':'Red-eyed tree frog embryos can detect vibrations from approaching snakes and hatch prematurely — escaping the egg days early and dropping into water below to survive.',
+    'coelacanth':'The coelacanth was thought extinct for 66 million years until a living specimen was caught off South Africa in 1938 — the most famous "living fossil" in biology. Its lobe fins move in an alternating pattern eerily similar to four-legged walking.',
+    'shark':'Sharks predate trees. Their lineage has persisted for 450 million years — surviving all five mass extinctions — yet humans kill roughly 100 million sharks per year, pushing many species toward extinction.',
+    'clownfish':'All clownfish are born male. The dominant individual in a group becomes female; if she dies, the next-ranking male changes sex to replace her — a sequential hermaphroditism governed by social hierarchy.',
+    'anglerfish':'In deep-sea anglerfish, the tiny male fuses permanently to the female — his body dissolves until he is nothing but a pair of gonads supplying sperm on demand. Up to 8 males can merge with one female.',
+    'seahorse':'Seahorse males get pregnant — the female deposits eggs into the male\'s brood pouch, where he fertilizes and incubates them for 2-4 weeks before giving birth to up to 2,000 tiny seahorses in a single labor.',
+    'manta-ray':'Manta rays have the largest brain-to-body ratio of any cold-blooded fish and are one of the few fish species that can recognize themselves in mirrors — passing the "mirror test" that most mammals fail.',
+    'pufferfish':'Pufferfish contain tetrodotoxin — 1,200 times more poisonous than cyanide — yet in Japan, specially licensed chefs prepare fugu as a delicacy. The toxin paralyzes muscles while the victim remains fully conscious.',
+    'whale-shark':'The whale shark is the largest fish on Earth — up to 18 meters and 20 tonnes — yet feeds exclusively on plankton, filtering 6,000 liters of water per hour through its 1.5-meter-wide mouth.',
+    'electric-eel':'Electric eels are not actually eels — they\'re knifefish related to catfish. They generate 860-volt shocks using three specialized electric organs that make up 80% of their body.',
+    'piranha':'Piranhas are more often prey than predator — they are a key food source for caimans, river dolphins, and herons. Their fearsome reputation was largely invented by Theodore Roosevelt after a staged demonstration in 1913.',
+    'mola-mola':'The ocean sunfish (mola mola) is the heaviest bony fish on Earth — up to 2,300 kg — yet it starts life as a tiny 2.5 mm larva, growing 60 million times its birth size.',
+    'salmon':'Pacific salmon undergo one of the most dramatic transformations in nature — their bodies literally disintegrate as they swim upstream to spawn, their flesh turning from silver to red as they redirect all energy to reproduction, then die.',
+    'flying-fish':'Flying fish don\'t actually fly — they launch themselves at 60 km/h and glide on enlarged pectoral fins for distances up to 200 meters, staying airborne for 45 seconds. Their tail beats 70 times per second during takeoff.',
+    'tuna':'Bluefin tuna are warm-blooded fish — they maintain body temperature 10-20°C above surrounding water using countercurrent heat exchangers, enabling bursts up to 75 km/h, among the fastest in the ocean.',
+    'swordfish':'The swordfish\'s bill is not used for spearing — it slashes through schools of fish at speeds up to 100 km/h, stunning or killing multiple prey. A special organ behind the eyes heats the brain and eyes by up to 15°C for sharper vision in cold deep water.',
+    'mudskipper':'Mudskippers are fish that spend up to 90% of their time on land — they breathe through their skin and the lining of their mouth, walk on modified pectoral fins, and can even climb trees.',
+    'blobfish':'The blobfish looks perfectly normal in its deep-sea habitat at 600-1,200 m — the famous droopy face is caused by decompression damage when hauled to the surface, where the lack of pressure causes its gelatinous body to collapse.',
+    'arapaima':'The arapaima is one of the largest freshwater fish on Earth — up to 3 meters and 200 kg — and it breathes air, surfacing every 10-20 minutes with a distinctive gulp. Its tongue is bony and covered in teeth.'
   };
   Object.entries(ff).forEach(([id,fact])=>{
     const n=nodeMap[id];

@@ -169,6 +169,21 @@ export const GEO_DATA = {
   'chinese-giant-salamander': { regions: ['east-asia'], label: 'Mountain streams and lakes of central and southern China', type: 'endemic' },
   'giant-salamander': { regions: ['east-asia'], label: 'Cool mountain streams of Japan', type: 'endemic' },
   'red-eyed-tree-frog': { regions: ['central-america', 'south-america'], label: 'Lowland tropical rainforests from Mexico to Colombia', type: 'habitat' },
+  'clownfish':          { regions: ['south-asia', 'southeast-asia', 'oceania'], label: 'Coral reefs of the Indian and western Pacific oceans', type: 'habitat' },
+  'anglerfish':         { regions: ['marine-deep', 'marine-global'], label: 'Deep ocean worldwide, 200-2,000+ m depth', type: 'habitat' },
+  'seahorse':           { regions: ['marine-global'], label: 'Shallow tropical and temperate coastal waters worldwide', type: 'habitat' },
+  'manta-ray':          { regions: ['marine-global'], label: 'Tropical and subtropical oceans worldwide; coastal and pelagic', type: 'habitat' },
+  'pufferfish':         { regions: ['marine-global', 'freshwater'], label: 'Tropical and subtropical oceans; some freshwater species', type: 'habitat' },
+  'whale-shark':        { regions: ['marine-global'], label: 'Tropical and warm temperate oceans worldwide; pelagic', type: 'habitat' },
+  'piranha':            { regions: ['south-america', 'freshwater'], label: 'Rivers and lakes of the Amazon, Orinoco, and other South American basins', type: 'habitat' },
+  'mola-mola':          { regions: ['marine-global'], label: 'Tropical and temperate oceans worldwide; surface to 600 m', type: 'habitat' },
+  'salmon':             { regions: ['north-america', 'europe', 'east-asia', 'marine-global'], label: 'North Pacific and North Atlantic; anadromous — ocean to freshwater rivers', type: 'habitat' },
+  'flying-fish':        { regions: ['marine-global'], label: 'Tropical and subtropical open ocean worldwide', type: 'habitat' },
+  'tuna':               { regions: ['marine-global'], label: 'All oceans; temperate and tropical pelagic waters', type: 'habitat' },
+  'swordfish':          { regions: ['marine-global'], label: 'Tropical and temperate oceans worldwide; surface to 550 m', type: 'habitat' },
+  'mudskipper':         { regions: ['africa', 'south-asia', 'southeast-asia', 'oceania'], label: 'Mangrove swamps and tidal mudflats of Indo-Pacific coasts', type: 'habitat' },
+  'blobfish':           { regions: ['oceania', 'marine-deep'], label: 'Deep waters (600-1,200 m) off southeastern Australia and New Zealand', type: 'habitat' },
+  'arapaima':           { regions: ['south-america', 'freshwater'], label: 'Amazon and Essequibo river basins; floodplain lakes', type: 'habitat' },
   'mammals':          { regions: ['worldwide'], label: 'Every terrestrial, marine, and aerial habitat', type: 'habitat' },
   'cetaceans':        { regions: ['marine-global'], label: 'All oceans; some river dolphins in freshwater', type: 'habitat' },
   'blue-whale':       { regions: ['marine-global'], label: 'All oceans; migrates pole-to-equator seasonally', type: 'habitat' },
@@ -1354,6 +1369,123 @@ export const BRANCH_DATA = {
     conservation: 'Endangered; ~6,600 remaining in fragmented populations',
     size: '18-36 kg; 75-110 cm body length',
     ability: 'Highest hunt success rate of any large predator (80%); "sneeze voting" to decide group hunts; regurgitates food for pups, sick, and elderly pack members'
+  },
+
+  // ── FISH ──
+  'vertebrates': {
+    ability: 'Evolved the internal skeleton, jaws, and paired limbs that enabled vertebrates to become the dominant large animals on land, sea, and air'
+  },
+  'lungfish': {
+    diet: 'Omnivore — insects, crustaceans, mollusks, plant matter',
+    lifespan: '~25 years; possibly much longer',
+    conservation: 'Vulnerable (Australian); other species less threatened',
+    size: 'Up to 1.5 m (Australian lungfish)',
+    ability: 'Can breathe air using a primitive lung; estivates in mud cocoons for months during drought; closest living fish relative of all land vertebrates'
+  },
+  'clownfish': {
+    diet: 'Omnivore — algae, zooplankton, worms, small crustaceans',
+    lifespan: '6-10 years',
+    conservation: 'Least Concern (most species); reef habitat declining',
+    size: '6-11 cm; 10-50 g',
+    ability: 'Immune to anemone stings via mucus coating; all born male with sex change to female; symbiotic relationship benefits both fish and anemone'
+  },
+  'anglerfish': {
+    diet: 'Carnivore — fish, crustaceans, anything attracted to bioluminescent lure',
+    lifespan: '~25 years (females); males live only months after fusion',
+    conservation: 'Not evaluated; deep-sea, rarely encountered',
+    size: 'Female 20-100 cm; parasitic male 1-3 cm',
+    ability: 'Bioluminescent lure attracts prey in total darkness; males permanently fuse to females, dissolving into gonads; survives crushing pressures at 2,000+ m'
+  },
+  'seahorse': {
+    diet: 'Carnivore — tiny crustaceans, plankton, larval fish (suction feeding)',
+    lifespan: '1-5 years depending on species',
+    conservation: 'Variable; many species Vulnerable; 37 million traded annually for traditional medicine',
+    size: '1.5-35 cm depending on species',
+    ability: 'Males get pregnant and give birth to up to 2,000 young; prehensile tail grips coral; eyes move independently; no stomach — must eat constantly'
+  },
+  'manta-ray': {
+    diet: 'Filter-feeder — zooplankton, fish larvae, small fish',
+    lifespan: '40-50 years',
+    conservation: 'Vulnerable (giant manta); declining from fishing bycatch and gill plate trade',
+    size: 'Wingspan up to 7 m, 2,000 kg (giant manta) — largest ray',
+    ability: 'Largest brain-to-body ratio of any cold-blooded fish; passes mirror self-recognition test; barrel-rolls to concentrate plankton while feeding'
+  },
+  'pufferfish': {
+    diet: 'Omnivore — algae, invertebrates, shellfish (crushed with beak-like teeth)',
+    lifespan: '~10 years',
+    conservation: 'Variable; some species Least Concern, others Near Threatened',
+    size: '2.5-60 cm depending on species',
+    ability: 'Inflates to 2-3× normal size; tetrodotoxin 1,200× more poisonous than cyanide; males create elaborate sand circles on the ocean floor to attract mates'
+  },
+  'whale-shark': {
+    diet: 'Filter-feeder — plankton, fish eggs, small fish, squid',
+    lifespan: '~70-100 years',
+    conservation: 'Endangered; declining from fishing, boat strikes, and bycatch',
+    size: 'Up to 18.8 m, 20+ tonnes — largest living fish',
+    ability: 'Filters 6,000 liters/hour through 1.5 m–wide mouth; unique spot pattern (like fingerprints); migrates 12,000+ km following plankton blooms'
+  },
+  'piranha': {
+    diet: 'Omnivore — fish, insects, crustaceans, seeds, fruit; occasionally scavenge larger prey',
+    lifespan: '~10 years',
+    conservation: 'Least Concern (most species)',
+    size: '15-25 cm (most); up to 50 cm (black piranha)',
+    ability: 'Interlocking razor teeth replaced continuously; bite force of 320 N (3× body weight) — strongest of any bony fish; more prey than predator in practice'
+  },
+  'mola-mola': {
+    diet: 'Carnivore — jellyfish, salps, small fish, squid, crustaceans',
+    lifespan: '~20-25 years',
+    conservation: 'Vulnerable; bycatch in drift gillnets',
+    size: 'Up to 3.3 m, 2,300 kg — heaviest bony fish on Earth',
+    ability: 'Grows 60 million times its birth size; basks at surface to thermoregulate after deep dives; produces 300 million eggs at once — most of any vertebrate'
+  },
+  'salmon': {
+    diet: 'Carnivore — insects (freshwater), fish, squid, crustaceans (ocean)',
+    lifespan: '2-8 years depending on species',
+    conservation: 'Variable; many Pacific runs threatened or endangered; Atlantic salmon Least Concern globally',
+    size: '50-150 cm; 2-35 kg depending on species',
+    ability: 'Navigates thousands of km using magnetic fields and olfactory memory to return to natal stream; body transforms dramatically — silver to red, hooked jaw — then dies after spawning'
+  },
+  'flying-fish': {
+    diet: 'Omnivore — plankton, small crustaceans, algae',
+    lifespan: '~5 years',
+    conservation: 'Least Concern',
+    size: '15-30 cm; enlarged pectoral fins span up to 45 cm',
+    ability: 'Launches at 60 km/h, glides up to 200 m for 45 seconds on enlarged pectoral fins; tail beats 70×/sec during takeoff; evades predators by leaving the water entirely'
+  },
+  'tuna': {
+    diet: 'Carnivore — fish, squid, crustaceans',
+    lifespan: '15-40 years (bluefin)',
+    conservation: 'Variable; Pacific bluefin Vulnerable, Atlantic bluefin recovering; skipjack Least Concern',
+    size: 'Bluefin up to 3 m, 680 kg; one of the largest bony fish',
+    ability: 'Warm-blooded fish — maintains body temp 10-20°C above water; bursts to 75 km/h; retractable fins reduce drag; a single bluefin sold for $3.1 million in 2019'
+  },
+  'swordfish': {
+    diet: 'Carnivore — fish, squid',
+    lifespan: '~9 years',
+    conservation: 'Least Concern; managed fisheries',
+    size: 'Up to 4.5 m, 650 kg (including bill)',
+    ability: 'Bill slashes through fish schools at 100 km/h; special organ heats brain and eyes 15°C above water for sharper vision during deep dives to 800 m'
+  },
+  'mudskipper': {
+    diet: 'Omnivore — insects, worms, small crabs, algae',
+    lifespan: '~5 years',
+    conservation: 'Least Concern',
+    size: '5-25 cm',
+    ability: 'Spends 90% of time on land; breathes through skin and mouth lining; walks on modified pectoral fins; can climb trees and leap 60 cm; rolls eyes to moisten them'
+  },
+  'blobfish': {
+    diet: 'Carnivore — crabs, sea urchins, shellfish, whatever drifts past',
+    lifespan: '~100+ years (estimated)',
+    conservation: 'Not evaluated; deep-sea bycatch threat',
+    size: '~30 cm, ~2 kg',
+    ability: 'Gelatinous body slightly less dense than water — hovers just above the seafloor with zero energy expenditure; famous "melted face" is decompression damage, not natural appearance'
+  },
+  'arapaima': {
+    diet: 'Carnivore — fish, crustaceans, birds, small mammals near surface',
+    lifespan: '15-20 years',
+    conservation: 'Data Deficient; overfished but recovering with community management',
+    size: 'Up to 3 m, 200 kg — one of the largest freshwater fish',
+    ability: 'Obligate air-breather — surfaces every 10-20 min; bony tongue used to crush prey against palate; scales are so tough they resist piranha bites'
   },
 
   // ── REPTILES & AMPHIBIANS ──

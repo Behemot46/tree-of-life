@@ -2432,7 +2432,50 @@ export const PHOTO_MAP = {
   'fly-agaric':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Amanita_muscaria_3_vliegenzwammen_op_rij.jpg/800px-Amanita_muscaria_3_vliegenzwammen_op_rij.jpg', credit:'Onderwijsgek, CC BY-SA 2.5 NL'},
   'lions-mane':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Igelstachelbart_Nov_06.jpg/800px-Igelstachelbart_Nov_06.jpg', credit:'Lebrac, CC BY-SA 3.0'},
   'morel':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Morchella_esculenta_-_Spitzmorchel.jpg/800px-Morchella_esculenta_-_Spitzmorchel.jpg', credit:'Peter Preusse, CC BY-SA 3.0'},
-  'shiitake':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Shiitakegrowing.jpg/800px-Shiitakegrowing.jpg', credit:'Frankenstoen, CC BY 2.0'},};
+  'shiitake':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Shiitakegrowing.jpg/800px-Shiitakegrowing.jpg', credit:'Frankenstoen, CC BY 2.0'},
+  // ── Plants ──
+  'acacia':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Acacia_tortilis.jpg/800px-Acacia_tortilis.jpg', credit:'Nevit Dilmen, CC BY-SA 3.0'},
+  'coffee':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Ripe_coffee_fruits.jpg/800px-Ripe_coffee_fruits.jpg', credit:'Leonora Enking, CC BY-SA 2.0'},
+  'cycad':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Cycas_revoluta_kz1.jpg/800px-Cycas_revoluta_kz1.jpg', credit:'Krzysztof Ziarnek, CC BY-SA 4.0'},
+  'eucalyptus':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Eucalyptus_regnans.jpg/800px-Eucalyptus_regnans.jpg', credit:'Fir0002, GFDL 1.2'},
+  'lotus':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Nelumbo_nucifera1.jpg/800px-Nelumbo_nucifera1.jpg', credit:'Amada44, CC BY 3.0'},
+  'magnolia':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8f/Magnolia_x_soulangeana_flowers.jpg/800px-Magnolia_x_soulangeana_flowers.jpg', credit:'Peter Coxhead, CC BY-SA 3.0'},
+  'mangrove':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/B%C3%B3ia_de_sinalizac%C3%A3o_entre_os_mangueiros.jpg/800px-B%C3%B3ia_de_sinalizac%C3%A3o_entre_os_mangueiros.jpg', credit:'Rufino Uribe, CC BY-SA 2.0'},
+  'oak':                  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e6/Quercus_robur_in_morning_light.jpg/800px-Quercus_robur_in_morning_light.jpg', credit:'Andreas Trepte, CC BY-SA 2.5'},
+  'pitcher-plant':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Nepenthes_lowii1.jpg/800px-Nepenthes_lowii1.jpg', credit:'Ch\'ien C. Lee, CC BY-SA 3.0'},
+  'resurrection-fern':    {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Selaginella_lepidophylla.jpg/800px-Selaginella_lepidophylla.jpg', credit:'Stan Shebs, CC BY-SA 3.0'},
+  'rice':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Rice_fields_of_Phu_Yen_province.jpg/800px-Rice_fields_of_Phu_Yen_province.jpg', credit:'Duong Thanh Son, CC BY-SA 3.0'},
+  'sensitive-fern':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Mimosa_pudica_p1160890.jpg/800px-Mimosa_pudica_p1160890.jpg', credit:'H. Zell, CC BY-SA 3.0'},
+  'strangler-fig':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Strangler_fig_Queensland.jpg/800px-Strangler_fig_Queensland.jpg', credit:'Cgoodwin, CC BY-SA 3.0'},
+  'titan-sequoia':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/be/General_Sherman_tree_looking_up.jpg/800px-General_Sherman_tree_looking_up.jpg', credit:'Msanderhoff, CC BY-SA 4.0'},
+  'welwitschia-2':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Welwitschia_mirabilis_Angola.jpg/800px-Welwitschia_mirabilis_Angola.jpg', credit:'Thomas Schoch, CC BY-SA 2.5'},
+  // ── Invertebrates — Cnidarians ──
+  'blue-ringed-octopus':  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Blue_ringed_octopus_2_%28paulshaffner%29.jpg/800px-Blue_ringed_octopus_2_%28paulshaffner%29.jpg', credit:'paulshaffner, CC BY 2.0'},
+  'crown-of-thorns':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/Acanthaster_planci_%28Diadema%29.jpg/800px-Acanthaster_planci_%28Diadema%29.jpg', credit:'Jon Hanson, CC BY-SA 2.0'},
+  // ── Invertebrates — Mollusks ──
+  'cone-snail':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Conus_textile.jpg/800px-Conus_textile.jpg', credit:'Richard Ling, CC BY-SA 2.0'},
+  'giant-clam':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Tridacna_gigas.jpg/800px-Tridacna_gigas.jpg', credit:'Janderk, CC BY-SA 3.0'},
+  'mollusks':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a7/Octopus_vulgaris2.jpg/800px-Octopus_vulgaris2.jpg', credit:'Albert Kok, CC BY-SA 3.0'},
+  // ── Invertebrates — Annelids ──
+  'earthworm':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/Regenwurm1.jpg/800px-Regenwurm1.jpg', credit:'Michael Linnenbach, CC BY-SA 3.0'},
+  'giant-tube-worm':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Ridgeia_piscesae.jpg/800px-Ridgeia_piscesae.jpg', credit:'NOAA, Public Domain'},
+  'leech':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/Hirudo_medicinalis.jpg/800px-Hirudo_medicinalis.jpg', credit:'GlebK, CC BY-SA 3.0'},
+  // ── Invertebrates — Echinoderms ──
+  'feather-star':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/11/Feather_star_%28Comanthina_schlegeli%29.jpg/800px-Feather_star_%28Comanthina_schlegeli%29.jpg', credit:'Nick Hobgood, CC BY-SA 3.0'},
+  // ── Invertebrates — Insects ──
+  'bumblebee':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Bumblebee_October_2007-2.jpg/800px-Bumblebee_October_2007-2.jpg', credit:'Alvesgaspar, CC BY-SA 3.0'},
+  'cicada':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Tibicen_linnei.jpg/800px-Tibicen_linnei.jpg', credit:'Bruce Marlin, CC BY-SA 3.0'},
+  'cockroach':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Periplaneta_americana.jpg/800px-Periplaneta_americana.jpg', credit:'Gary Alpert, CC BY-SA 2.5'},
+  'dung-beetle':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4f/Scarabaeus_sacer.jpg/800px-Scarabaeus_sacer.jpg', credit:'Dawson, CC BY-SA 2.5'},
+  'hercules-beetle':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Dynastes_hercules_male.jpg/800px-Dynastes_hercules_male.jpg', credit:'Fritz Geller-Grimm, CC BY-SA 2.5'},
+  'leaf-insect':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Phyllium_bioculatum.jpg/800px-Phyllium_bioculatum.jpg', credit:'Drägüs, CC BY-SA 3.0'},
+  'mosquito':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Aedes_aegypti.jpg/800px-Aedes_aegypti.jpg', credit:'James Gathany/CDC, Public Domain'},
+  'praying-mantis':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Mantis_religiosa_2.jpg/800px-Mantis_religiosa_2.jpg', credit:'Luc Viatour, CC BY-SA 3.0'},
+  'stick-insect':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Phasmatodea_stick_insect.jpg/800px-Phasmatodea_stick_insect.jpg', credit:'Luc Viatour, CC BY-SA 3.0'},
+  // ── Invertebrates — Other arthropods ──
+  'emperor-scorpion':     {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Pandinus_imperator.jpg/800px-Pandinus_imperator.jpg', credit:'Dezidor, CC BY 3.0'},
+  'lobster':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Homarus_americanus_1.jpg/800px-Homarus_americanus_1.jpg', credit:'Steven G. Johnson, CC BY-SA 3.0'},
+};
 
 export const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','bonobo','hominini'];
 export const HOMININ_IDS   = ['homo-sapiens','h_erectus','h_habilis','h_neanderthalensis','h_heidelbergensis','h_floresiensis','h_naledi','h_luzonensis','denisovan','au_afarensis','au_africanus','sahelanthropus','ardipithecus_r'];

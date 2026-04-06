@@ -368,26 +368,41 @@ export const GEO_DATA = {
   'sea-lily':            { regions: ['marine-global'], label: 'Deep ocean, tropical reefs', type: 'habitat' },
   'medicinal-leech':     { regions: ['europe'], label: 'European freshwater marshes and ponds', type: 'habitat' },
   'pompeii-worm':        { regions: ['marine-deep'], label: 'Hydrothermal vents, East Pacific Rise', type: 'habitat' },
-  'humpback-whale':      { regions: ['marine-global'], label: 'All oceans, seasonal migration', type: 'habitat' },
   'sperm-whale':         { regions: ['marine-global'], label: 'Deep waters of all oceans', type: 'habitat' },
   'orca':                { regions: ['marine-global'], label: 'All oceans, poles to tropics', type: 'habitat' },
   'tarsier':             { regions: ['southeast-asia'], label: 'Philippines', type: 'endemic' },
   'ring-tailed-lemur':   { regions: ['africa'], label: 'Madagascar (southwest)', type: 'endemic' },
   'japanese-macaque':    { regions: ['east-asia'], label: 'Japanese archipelago', type: 'endemic' },
   'mandrill':            { regions: ['africa'], label: 'Central African rainforests', type: 'habitat' },
-  'pangolin':            { regions: ['southeast-asia'], label: 'Southeast Asian tropical forests', type: 'habitat' },
   'star-nosed-mole':     { regions: ['north-america'], label: 'Eastern North America wetlands', type: 'habitat' },
   'honey-badger':        { regions: ['africa', 'south-asia', 'west-asia'], label: 'Africa, Middle East, India', type: 'habitat' },
   'caecilian':           { regions: ['south-america', 'africa', 'southeast-asia'], label: 'Tropical regions worldwide', type: 'habitat' },
-  'chameleon':           { regions: ['africa'], label: 'Madagascar and East Africa', type: 'habitat' },
   'box-jellyfish':       { regions: ['southeast-asia', 'oceania'], label: 'Indo-Pacific tropical waters', type: 'habitat' },
   'cuttlefish':          { regions: ['europe', 'africa'], label: 'Mediterranean and Eastern Atlantic', type: 'habitat' },
-  'atlas-moth':          { regions: ['southeast-asia', 'south-asia'], label: 'South and Southeast Asian forests', type: 'habitat' },
   'bombardier-beetle':   { regions: ['europe', 'north-america', 'africa'], label: 'Temperate woodland worldwide', type: 'habitat' },
   'blue-ringed-octopus': { regions: ['oceania', 'southeast-asia'], label: 'Tide pools and coral reefs of the Indo-Pacific — Australia, Philippines, Indonesia, Japan', type: 'habitat' },
   'lungfish':            { regions: ['africa', 'south-america', 'oceania'], label: 'Freshwater rivers across Africa (Protopterus), South America (Lepidosiren), and Australia (Neoceratodus)', type: 'habitat' },
   'ginkgo':              { regions: ['east-asia'], label: 'Native to China; cultivated worldwide', type: 'habitat' },
   'dragon-blood-tree':   { regions: ['west-asia'], label: 'Socotra Island, Yemen', type: 'endemic' },
+
+  // ── MISSING — VERTEBRATE GROUPS ──
+  'sarcopterygii':       { regions: ['worldwide', 'marine-global', 'freshwater'], label: 'All continents and oceans; includes lungfish and all tetrapods', type: 'habitat' },
+  'chondrichthyes':      { regions: ['marine-global', 'freshwater'], label: 'All oceans and some freshwater rivers worldwide', type: 'habitat' },
+  'actinopterygii':      { regions: ['marine-global', 'freshwater'], label: 'All oceans and freshwater habitats worldwide; 99% of living fish species', type: 'habitat' },
+
+  // ── MISSING — PLANTS ──
+  'mangrove':            { regions: ['south-asia', 'southeast-asia', 'africa', 'central-america', 'south-america', 'oceania'], label: 'Tropical and subtropical coastlines worldwide; intertidal zones', type: 'habitat' },
+
+  // ── MISSING — BIRDS ──
+  'kakapo':              { regions: ['oceania'], label: 'Predator-free offshore islands of New Zealand — Whenua Hou and Anchor Island', type: 'endemic' },
+  'resplendent-quetzal': { regions: ['central-america'], label: 'Cloud forests from southern Mexico to western Panama; 1,200-3,000 m elevation', type: 'habitat' },
+  'greater-bird-of-paradise': { regions: ['southeast-asia', 'oceania'], label: 'Lowland rainforests of New Guinea and Aru Islands, Indonesia', type: 'habitat' },
+
+  // ── MISSING — AMPHIBIANS ──
+  'platypus-frog':       { regions: ['oceania'], label: 'Formerly southeast Queensland, Australia — declared extinct in 2002', type: 'fossil' },
+
+  // ── MISSING — INVERTEBRATES ──
+  'bdelloid-rotifer':    { regions: ['worldwide', 'freshwater'], label: 'Freshwater, moss, lichen, and soil worldwide; survives desiccation', type: 'habitat' },
 };
 
 
@@ -2197,5 +2212,493 @@ export const BRANCH_DATA = {
     metabolism: 'Heterotroph — filter-feeds on bacteria and algae',
     habitat: 'Freshwater ponds, lakes, and quiet streams',
     relevance: 'Largest single-celled organism visible to naked eye (up to 2 mm); remarkable regeneration ability'
+  },
+
+  // ── TOP-LEVEL NODES ──
+  'luca': {
+    ability: 'Last Universal Common Ancestor — the single-celled organism from which all life on Earth descends; lived ~3.8 billion years ago near hydrothermal vents'
+  },
+  'eukaryota': {
+    ability: 'Evolved the nucleus, mitochondria via endosymbiosis, and the endomembrane system — enabling complex multicellular life, sexual reproduction, and organisms spanning 8 orders of magnitude in size'
+  },
+  'animalia': {
+    ability: 'Evolved multicellular heterotrophy, nervous systems, and muscle — the only kingdom with true tissues organized into organs; ~1.5 million described species across every habitat on Earth'
+  },
+  'fish': {
+    ability: 'First vertebrates with jaws and paired fins; dominate aquatic ecosystems with ~35,000 species — more than all other vertebrate groups combined'
+  },
+  'sarcopterygii': {
+    ability: 'Lobe-finned fish whose muscular, bony fins gave rise to the limbs of all land vertebrates; includes the coelacanth and lungfish — living links to the colonization of land'
+  },
+  'chondrichthyes': {
+    ability: 'Cartilaginous fish that predate the dinosaurs by 200 million years; evolved electroreception, replaceable tooth rows, and the lateral line — apex predators of the ocean for 450 million years'
+  },
+  'actinopterygii': {
+    ability: 'Ray-finned fish comprising 99% of all living fish species (~30,000); evolved swim bladder for buoyancy control and the most diverse jaw mechanisms of any vertebrate group'
+  },
+
+  // ── BACTERIA (expanded) ──
+  'bacteria': {
+    ability: 'First life on Earth (~3.5 Bya); dominate global biomass and biogeochemistry — fix nitrogen, recycle carbon, produce oxygen, and contain more genetic diversity than all eukaryotes combined'
+  },
+  'cyanobacteria': {
+    cellType: 'Gram-negative photosynthetic bacterium',
+    metabolism: 'Oxygenic photoautotroph',
+    habitat: 'Freshwater, marine, and terrestrial worldwide',
+    relevance: 'Created Earth\'s oxygen atmosphere 2.4 Bya (Great Oxidation Event); ancestor of all plant chloroplasts via endosymbiosis'
+  },
+  'proteobacteria': {
+    cellType: 'Gram-negative bacteria (diverse phylum)',
+    metabolism: 'Extremely diverse — phototrophs, chemolithotrophs, heterotrophs',
+    habitat: 'Every known habitat on Earth',
+    relevance: 'Largest and most metabolically diverse bacterial phylum; includes E. coli, nitrogen fixers, and the ancestor of mitochondria'
+  },
+  'firmicutes': {
+    cellType: 'Gram-positive bacteria',
+    metabolism: 'Diverse — aerobic, anaerobic, fermentative',
+    habitat: 'Soil, gut, fermented foods worldwide',
+    relevance: 'Major component of human gut microbiome; includes Lactobacillus (probiotics), Clostridium (toxins), and Bacillus (soil cycling)'
+  },
+  'actinobacteria': {
+    cellType: 'Gram-positive bacteria (high G+C content)',
+    metabolism: 'Mostly aerobic heterotrophs',
+    habitat: 'Soil, freshwater, marine environments',
+    relevance: 'Source of ~70% of naturally derived antibiotics; Streptomyces alone produces streptomycin, tetracycline, and erythromycin'
+  },
+  'spirochetes': {
+    cellType: 'Gram-negative spirally coiled bacterium',
+    metabolism: 'Diverse — aerobic to obligate anaerobe',
+    habitat: 'Aquatic environments, animal hosts, soil',
+    relevance: 'Distinctive corkscrew motility via endoflagella; includes agents of syphilis (Treponema) and Lyme disease (Borrelia)'
+  },
+  'thermus-aquaticus': {
+    cellType: 'Gram-negative thermophilic bacterium',
+    metabolism: 'Obligate aerobe',
+    habitat: 'Hot springs, 50-80°C',
+    relevance: 'Source of Taq polymerase — the heat-stable enzyme that makes PCR possible; revolutionized molecular biology and forensics'
+  },
+  'borrelia': {
+    cellType: 'Gram-negative spirochete',
+    metabolism: 'Microaerophilic; relies on host for nutrients',
+    habitat: 'Tick vectors (Ixodes); vertebrate blood',
+    relevance: 'Causes Lyme disease — most common tick-borne illness in Northern Hemisphere; ~500,000 cases/year in USA and Europe'
+  },
+  'treponema': {
+    cellType: 'Gram-negative spirochete',
+    metabolism: 'Obligate anaerobe / microaerophilic',
+    habitat: 'Human mucous membranes',
+    relevance: 'T. pallidum causes syphilis — one of the oldest known human diseases; cannot be cultured in vitro due to extreme host dependence'
+  },
+  'rhizobium': {
+    cellType: 'Gram-negative bacterium',
+    metabolism: 'Aerobic heterotroph; nitrogen fixer in symbiosis',
+    habitat: 'Soil; root nodules of leguminous plants',
+    relevance: 'Fixes atmospheric N2 into ammonia — supplies ~65% of biosphere\'s reactive nitrogen; vital for agriculture without synthetic fertilizers'
+  },
+  'wolbachia': {
+    cellType: 'Gram-negative obligate intracellular bacterium',
+    metabolism: 'Obligate intracellular parasite',
+    habitat: 'Cytoplasm of arthropods and nematodes',
+    relevance: 'Infects ~60% of all insect species; manipulates host reproduction (cytoplasmic incompatibility); used to control dengue-carrying mosquitoes'
+  },
+  'staphylococcus': {
+    cellType: 'Gram-positive coccus (grape-like clusters)',
+    metabolism: 'Facultative anaerobe',
+    habitat: 'Human skin and nasal passages',
+    relevance: 'S. aureus is a leading cause of hospital infections; MRSA strains resist most antibiotics; normal skin flora in 30% of humans'
+  },
+  'spirulina': {
+    cellType: 'Filamentous cyanobacterium',
+    metabolism: 'Obligate photoautotroph',
+    habitat: 'Alkaline lakes, cultivated ponds',
+    relevance: 'Superfood — 60-70% complete protein by weight; cultivated as dietary supplement; NASA studied it for space missions'
+  },
+  'campylobacter': {
+    cellType: 'Gram-negative spiral bacterium',
+    metabolism: 'Microaerophilic',
+    habitat: 'Intestines of poultry and other warm-blooded animals',
+    relevance: 'Leading bacterial cause of food-borne gastroenteritis worldwide; ~1 million cases/year in the USA alone'
+  },
+  'aliivibrio': {
+    cellType: 'Gram-negative bacterium',
+    metabolism: 'Facultative anaerobe; bioluminescent',
+    habitat: 'Shallow coastal waters; light organ of bobtail squids',
+    relevance: 'Model organism for quorum sensing and symbiosis; produces light via luciferase enzyme — the squid uses it as counter-illumination camouflage'
+  },
+
+  // ── ARCHAEA (expanded) ──
+  'archaea': {
+    ability: 'Third domain of life; thrive in Earth\'s most extreme environments — boiling vents, acid mines, saturated salt; possess unique membrane lipids and include the closest relatives of eukaryotes'
+  },
+  'euryarchaeota': {
+    cellType: 'Archaeon (diverse phylum)',
+    metabolism: 'Extremely diverse — methanogens, halophiles, thermophiles',
+    habitat: 'Salt lakes, wetlands, animal guts, deep sea',
+    relevance: 'Includes all known methanogens — responsible for ~1 billion tonnes of methane/year; key players in the global carbon cycle'
+  },
+  'asgard': {
+    cellType: 'Archaeon (Asgard superphylum)',
+    metabolism: 'Mostly anaerobic; hydrogen-dependent',
+    habitat: 'Deep-sea sediments, hydrothermal vents',
+    relevance: 'Most closely related prokaryotes to eukaryotes; revolutionized understanding of eukaryogenesis — suggest archaea engulfed a bacterium to form the first eukaryotic cell'
+  },
+  'thermococcus': {
+    cellType: 'Archaeon (coccoid)',
+    metabolism: 'Anaerobic heterotroph; sulfur reducer',
+    habitat: 'Hydrothermal vents and hot marine sediments, 60-100°C',
+    relevance: 'Source of thermostable DNA polymerases used in high-fidelity PCR; model for hyperthermophilic metabolism'
+  },
+  'haloquadratum': {
+    cellType: 'Archaeon (square-shaped)',
+    metabolism: 'Aerobic heterotroph with bacteriorhodopsin',
+    habitat: 'Hypersaline lakes and salt ponds',
+    relevance: 'Only known organism with perfectly square, flat cells — a geometric puzzle of cell biology; dominates some salt lakes at >10^7 cells/mL'
+  },
+  'nanoarchaeum': {
+    cellType: 'Archaeon (ultra-small, ~400 nm)',
+    metabolism: 'Obligate symbiont/parasite of Ignicoccus',
+    habitat: 'Hydrothermal vents',
+    relevance: 'One of the smallest known organisms with one of the smallest genomes (490 kb); cannot grow independently — must attach to host archaeon'
+  },
+  'thaumarchaeota': {
+    cellType: 'Archaeon',
+    metabolism: 'Ammonia-oxidizing chemolithoautotroph',
+    habitat: 'Oceans, soils, and freshwater worldwide',
+    relevance: 'Among the most abundant organisms in the ocean; drive the first step of nitrification — critical for the global nitrogen cycle'
+  },
+  'methanopyrus': {
+    cellType: 'Archaeon (rod-shaped)',
+    metabolism: 'Methanogen — CO2 + H2 → CH4',
+    habitat: 'Hydrothermal vents, 80-122°C',
+    relevance: 'Holds the record for highest growth temperature of any known organism (122°C); represents the upper thermal limit of life'
+  },
+  'ferroplasma': {
+    cellType: 'Archaeon (cell-wall-less)',
+    metabolism: 'Aerobic chemolithotroph (iron oxidation)',
+    habitat: 'Acidic mine drainage, pH 0-1',
+    relevance: 'Thrives in sulfuric acid at pH 0 — among the most acid-tolerant organisms known; important in biomining and acid mine drainage ecology'
+  },
+  'halococcus': {
+    cellType: 'Archaeon (coccoid)',
+    metabolism: 'Aerobic heterotroph',
+    habitat: 'Ancient salt deposits and salt mines',
+    relevance: 'Viable cells recovered from 250-million-year-old salt crystals — possibly the oldest living organisms ever isolated'
+  },
+  'methanosarcina': {
+    cellType: 'Archaeon (irregular coccoid)',
+    metabolism: 'Methanogen — acetoclastic, methylotrophic, and hydrogenotrophic',
+    habitat: 'Wetlands, sediments, ruminant guts, landfills',
+    relevance: 'Most metabolically versatile methanogen; proposed to have contributed to the Permian mass extinction by dramatically increasing atmospheric methane'
+  },
+
+  // ── PROTISTS (expanded) ──
+  'protists': {
+    ability: 'Paraphyletic supergroup encompassing all eukaryotes that are not animals, plants, or fungi; invented photosynthesis transfer to eukaryotes, multicellularity (multiple times), and the most diverse cell architectures known'
+  },
+  'alveolates': {
+    cellType: 'Diverse protist supergroup',
+    metabolism: 'Varied — photosynthetic, parasitic, predatory',
+    habitat: 'Marine, freshwater, and parasitic worldwide',
+    relevance: 'Includes three major lineages: dinoflagellates (bioluminescence, coral symbionts), apicomplexans (malaria), and ciliates (complex single cells)'
+  },
+  'stramenopiles': {
+    cellType: 'Diverse protist supergroup',
+    metabolism: 'Photosynthetic, heterotrophic, or parasitic',
+    habitat: 'Marine, freshwater, and terrestrial worldwide',
+    relevance: 'Includes diatoms (20% of global oxygen), kelp forests (largest protist structures), and devastating plant pathogens (Phytophthora)'
+  },
+  'amoebozoa': {
+    cellType: 'Amoeboid protist supergroup',
+    metabolism: 'Heterotroph (phagocytosis)',
+    habitat: 'Soil, freshwater, and marine worldwide',
+    relevance: 'Closest protist relatives of animals and fungi; includes social amoebae (Dictyostelium) that demonstrate cooperation and multicellularity'
+  },
+  'foraminifera': {
+    cellType: 'Amoeboid protist with calcium carbonate shell',
+    metabolism: 'Heterotroph; some host photosynthetic algal symbionts',
+    habitat: 'All oceans from surface to deep seafloor',
+    relevance: 'Shells accumulate as limestone and chalk (White Cliffs of Dover); key index fossils for dating sedimentary rocks and reconstructing past climates'
+  },
+  'trypanosoma': {
+    cellType: 'Flagellate protist (kinetoplastid)',
+    metabolism: 'Heterotroph — obligate parasite',
+    habitat: 'Blood and tissues of vertebrate hosts; insect vectors',
+    relevance: 'T. brucei causes African sleeping sickness (~10,000 cases/year); T. cruzi causes Chagas disease (6-7 million infected) — evades immunity by antigenic variation'
+  },
+  'toxoplasma': {
+    cellType: 'Apicomplexan protist',
+    metabolism: 'Obligate intracellular parasite',
+    habitat: 'Virtually all warm-blooded vertebrates; cat definitive host',
+    relevance: 'Infects ~30% of humans globally; manipulates rodent behavior to reduce fear of cats; linked to personality changes and schizophrenia risk in humans'
+  },
+  'radiolaria': {
+    cellType: 'Amoeboid protist with intricate silica skeleton',
+    metabolism: 'Heterotroph with photosynthetic algal symbionts',
+    habitat: 'Open ocean plankton worldwide',
+    relevance: 'Haeckel\'s stunning illustrations popularized biology; skeletons form radiolarian ooze covering vast areas of deep ocean floor — key for geological dating'
+  },
+  'kelp': {
+    cellType: 'Multicellular brown alga (stramenopile)',
+    metabolism: 'Photoautotroph',
+    habitat: 'Cold temperate coastal seas worldwide',
+    relevance: 'Creates kelp forests — among the most productive ecosystems on Earth; grows up to 60 cm/day; supports 800+ species per forest; major carbon sink'
+  },
+  'bioluminescent-dino': {
+    cellType: 'Dinoflagellate protist',
+    metabolism: 'Mixotrophic — photosynthetic and heterotrophic',
+    habitat: 'Coastal and open oceans worldwide',
+    relevance: 'Produces blue bioluminescence via luciferin-luciferase reaction when disturbed; creates glowing waves and "milky seas" visible from space'
+  },
+  'bdelloid-rotifer': {
+    cellType: 'Microscopic multicellular invertebrate',
+    metabolism: 'Heterotroph — filter-feeds on bacteria, algae, detritus',
+    habitat: 'Freshwater, moss, lichen, and soil worldwide',
+    relevance: 'No males for 80+ million years — reproduces entirely by parthenogenesis; survives desiccation, radiation, and vacuum; steals genes from bacteria and fungi (horizontal gene transfer)'
+  },
+
+  // ── FUNGI (expanded) ──
+  'fungi': {
+    ability: 'Neither plant nor animal — evolved external digestion, chitin cell walls, and the largest underground networks on Earth (mycorrhizae connect 90% of plant species); decompose 90% of dead plant matter'
+  },
+  'ascomycetes': {
+    ability: 'Largest fungal phylum (~64,000 species); produce spores in sac-like asci; includes yeasts (bread, beer, wine), Penicillium (antibiotics), truffles, and morels — most medically and economically important fungi'
+  },
+  'basidiomycetes': {
+    ability: 'The "mushroom-forming" fungi; produce spores on club-shaped basidia; includes edible mushrooms, deadly poisonous species, wood-decaying fungi, and the largest organism on Earth (Armillaria, 2,385 acres)'
+  },
+  'chytrids': {
+    ability: 'Only fungi with motile zoospores (flagellated); ancient lineage dating to 800 Mya; includes Batrachochytrium — the amphibian chytrid fungus causing the worst disease-driven biodiversity loss in recorded history'
+  },
+  'morel': {
+    substrate: 'Saprophytic on soil near dead or dying trees (ash, elm, apple)',
+    symbiosis: 'Facultative mycorrhizal; also saprophytic after fire',
+    edibility: 'Choice edible — highly prized; must be cooked (raw morels are toxic)',
+    dispersal: 'Wind-dispersed ascospores from honeycomb-pitted cap; fruits prolifically after forest fires'
+  },
+  'ergot': {
+    substrate: 'Parasitic on cereal grains, especially rye',
+    symbiosis: 'Parasitic — replaces grain kernels with sclerotia (ergots)',
+    edibility: 'Highly toxic — ergot alkaloids cause ergotism (convulsions, gangrene, hallucinations)',
+    dispersal: 'Wind and insect dispersal of conidia; sclerotia overwinter in soil; source of LSD precursor (lysergic acid)'
+  },
+  'death-cap': {
+    substrate: 'Ectomycorrhizal with oak, beech, and chestnut',
+    symbiosis: 'Mutualistic — nutrient exchange with tree roots',
+    edibility: 'Deadly — amatoxins cause liver and kidney failure; responsible for 90% of fatal mushroom poisonings worldwide',
+    dispersal: 'Wind-dispersed basidiospores; introduced to new continents via imported tree seedlings'
+  },
+  'shiitake': {
+    substrate: 'Saprophytic on dead hardwood (oak, chestnut, beech)',
+    symbiosis: 'Saprophyte — wood decomposer',
+    edibility: 'Choice edible — second most cultivated mushroom globally; contains lentinan (immune-boosting compound)',
+    dispersal: 'Basidiospores; commercially cultivated on sawdust logs and blocks worldwide'
+  },
+  'lions-mane': {
+    substrate: 'Saprophytic/parasitic on hardwood trees (oak, beech, maple)',
+    symbiosis: 'Saprophyte and weak parasite of wounded trees',
+    edibility: 'Choice edible — tastes like lobster; contains hericenones and erinacines that stimulate nerve growth factor (NGF)',
+    dispersal: 'Wind-dispersed basidiospores from cascading white spines; increasingly cultivated for food and medicine'
+  },
+  'fly-agaric': {
+    substrate: 'Ectomycorrhizal with birch, pine, and spruce',
+    symbiosis: 'Mutualistic — exchanges soil nutrients for plant sugars',
+    edibility: 'Toxic and psychoactive — contains ibotenic acid and muscimol; historically used as entheogen in Siberian shamanism',
+    dispersal: 'Wind-dispersed basidiospores; iconic red-and-white cap is the archetypal "toadstool" of fairy tales'
+  },
+  'synchytrium': {
+    substrate: 'Obligate plant pathogen — potato tubers and roots',
+    symbiosis: 'Parasitic — causes potato wart disease',
+    edibility: 'N/A — not a food species',
+    dispersal: 'Zoospores in soil water; resting sporangia survive 40+ years in soil; quarantine pest in many countries'
+  },
+  'allomyces': {
+    substrate: 'Saprophytic on organic debris in freshwater and soil',
+    symbiosis: 'Saprophyte — decomposes chitin and keratin',
+    edibility: 'N/A — microscopic aquatic fungus',
+    dispersal: 'Motile zoospores in water; model organism for fungal genetics and alternation of generations'
+  },
+
+  // ── PLANTS (expanded) ──
+  'plantae': {
+    ability: 'Colonized land ~470 Mya and transformed Earth — created soil, stabilized continents, and built the atmospheric oxygen level to 21%; produce virtually all food and oxygen for terrestrial life'
+  },
+  'bryophytes': {
+    ability: 'First land plants — colonized bare rock without roots or vascular tissue; still require water for reproduction; peatlands (Sphagnum) store 30% of global soil carbon despite covering only 3% of land'
+  },
+  'angiosperms': {
+    ability: 'Flowering plants — evolved flowers, fruit, and double fertilization to dominate 90% of plant species; co-evolved with pollinators to produce the most explosive adaptive radiation in plant history'
+  },
+  'gymnosperms': {
+    ability: 'First seed plants — freed plant reproduction from water with pollen and seeds; dominated Earth\'s forests for 200 million years; includes the tallest (redwood), largest (sequoia), and oldest (bristlecone pine, 4,850 yr) living organisms'
+  },
+  'ferns': {
+    ability: 'First vascular plants with true leaves (megaphylls); dominated Earth\'s forests during the Carboniferous (forming today\'s coal deposits); 10,500 species still thrive in tropical understories worldwide'
+  },
+  'venus-flytrap': {
+    pollination: 'Bees and beetles (pollinators differ from prey)',
+    conservation: 'Vulnerable; poaching and habitat loss in the Carolinas',
+    record: 'Snaps shut in 100 milliseconds — one of the fastest movements in the plant kingdom; counts to 5 (requires 2 trigger-hair touches to close, 5 to begin digestion)',
+    ecoRole: 'Carnivorous adaptation to nutrient-poor soils; only species in genus Dionaea'
+  },
+  'baobab': {
+    pollination: 'Fruit bats and hawk moths (flowers open at night)',
+    conservation: 'Endangered; ancient specimens dying from climate change',
+    record: 'Lives up to 2,500 years; trunk stores up to 120,000 liters of water; some trunks hollow enough to shelter 40 people',
+    ecoRole: 'Keystone species of African savanna; fruit (superfood), bark (rope/cloth), leaves (medicine); provides critical water source in dry seasons'
+  },
+  'sunflower': {
+    pollination: 'Bees, butterflies, and other insects',
+    conservation: 'Least Concern; widely cultivated',
+    record: 'Head contains up to 2,000 individual florets in Fibonacci spirals; tallest recorded: 9.17 m (2014)',
+    ecoRole: 'Major oil crop; phytoremediation — used to absorb radioactive cesium and strontium at Chernobyl and Fukushima'
+  },
+  'rice': {
+    pollination: 'Self-pollinating (wind-assisted)',
+    conservation: 'Least Concern; most cultivated crop by area',
+    record: 'Feeds over 3.5 billion people daily — staple food for half the world; ~40,000 cultivated varieties',
+    ecoRole: 'Foundation of Asian civilizations; paddy fields are major methane source but also support aquatic biodiversity'
+  },
+  'oak': {
+    pollination: 'Wind-pollinated; produces acorns',
+    conservation: 'Least Concern (most species); some Mediterranean oaks threatened',
+    record: '~500 species; some live 1,000+ years; Pechanga Great Oak ~2,000 years old; largest English oak canopy spans 28 m',
+    ecoRole: 'Keystone forest tree — supports 2,300+ species of insects, fungi, and lichens; acorns feed hundreds of vertebrate species'
+  },
+  'pitcher-plant': {
+    pollination: 'Insects attracted to nectar (pollinators differ from prey)',
+    conservation: 'Vulnerable (many species); Attenborough\'s pitcher plant Critically Endangered',
+    record: 'Nepenthes rajah holds up to 3.5 liters of digestive fluid; occasionally traps rats and small birds',
+    ecoRole: 'Carnivorous adaptation to nutrient-poor soils; pitfall trap with slippery peristome and digestive enzymes'
+  },
+  'lotus': {
+    pollination: 'Beetles (thermogenic flower warms to attract pollinators)',
+    conservation: 'Least Concern; culturally protected across Asia',
+    record: 'Seeds viable after 1,300 years (oldest germinated seed); leaves exhibit the "lotus effect" — superhydrophobic self-cleaning surface',
+    ecoRole: 'Sacred plant in Buddhism and Hinduism; roots, seeds, and leaves all edible; inspires biomimetic materials science'
+  },
+  'eucalyptus': {
+    pollination: 'Bees, birds (honeyeaters), and marsupials',
+    conservation: 'Least Concern (most species); some rare species Critically Endangered',
+    record: '~700 species; tallest flowering plant — Centurion (Eucalyptus regnans) at 100.5 m; oil is extremely flammable',
+    ecoRole: 'Dominant Australian tree; adapted to fire (epicormic buds resprout after bushfire); sole food of koalas; allelopathic chemicals suppress competitors'
+  },
+  'coffee': {
+    pollination: 'Self-pollinating with insect enhancement (bees increase yield 20-25%)',
+    conservation: 'Endangered (Coffea arabica); 60% of wild species at risk of extinction',
+    record: 'Second most traded commodity after petroleum; 2.25 billion cups consumed daily worldwide',
+    ecoRole: 'Shade-grown coffee supports high biodiversity; native Ethiopian cloud forest habitat disappearing rapidly from climate change'
+  },
+  'magnolia': {
+    pollination: 'Beetles (one of the oldest pollination relationships; predates bees)',
+    conservation: 'Least Concern (most); some species Critically Endangered',
+    record: 'Among the oldest flowering plants — fossils date to 95 Mya; evolved before bees existed; flowers have tepals instead of differentiated petals and sepals',
+    ecoRole: 'Living fossil lineage; thick tepals withstand beetle damage; provides early spring nectar for pollinators'
+  },
+  'acacia': {
+    pollination: 'Bees, butterflies, and wind',
+    conservation: 'Least Concern (most species); some rare species threatened',
+    record: '~1,350 species; some African acacias produce hydrogen cyanide when browsed and warn neighboring trees via ethylene gas',
+    ecoRole: 'Iconic African savanna tree; nitrogen fixer; ant-acacia mutualism (ants defend tree in exchange for food/shelter); gum arabic source'
+  },
+  'cycad': {
+    pollination: 'Beetles and wind (thermogenic cones heat up to attract pollinators)',
+    conservation: 'Endangered; 63% of species threatened — most endangered plant group on Earth',
+    record: 'Living fossils — virtually unchanged for 280 million years; predate the dinosaurs; toxic seeds contain neurotoxin BMAA',
+    ecoRole: 'Relict from the Mesozoic when they were dominant understory plants; nitrogen fixers via cyanobacterial root symbionts'
+  },
+  'corpse-flower': {
+    pollination: 'Carrion beetles and flesh flies attracted by cadaverine and dimethyl trisulfide',
+    conservation: 'Endangered; endemic to Sumatran rainforests',
+    record: 'Identical to titan-arum (Amorphophallus titanum) — tallest unbranched inflorescence up to 3.1 m; blooms every 7-10 years',
+    ecoRole: 'Thermogenic pollination strategy — heats to 36°C to volatilize stench chemicals across the forest'
+  },
+  'strangler-fig': {
+    pollination: 'Fig wasps (obligate mutualism — each fig species has its own wasp species)',
+    conservation: 'Least Concern; common in tropical forests',
+    record: 'Starts as an epiphyte seed in canopy, sends aerial roots down to soil, eventually engulfs and kills host tree',
+    ecoRole: 'Keystone species — fruits year-round feeding 1,200+ species of birds and mammals; provides structure after host tree dies'
+  },
+  'dragon-blood-tree': {
+    pollination: 'Insects',
+    conservation: 'Vulnerable; declining on Socotra due to climate change and grazing',
+    record: 'Distinctive umbrella-shaped crown; crimson sap ("dragon\'s blood") used since ancient times as dye, medicine, and varnish',
+    ecoRole: 'Iconic Socotra Island endemic; fog-drip canopy channels moisture to roots in arid climate; relict of a once-widespread genus'
+  },
+  'welwitschia-2': {
+    pollination: 'Insects (bugs of order Hemiptera)',
+    conservation: 'Near Threatened; restricted to Namib Desert',
+    record: 'Produces only two continuously growing leaves in its entire 1,000-2,000-year lifespan; largest known specimen has leaves 2 m wide',
+    ecoRole: 'Fog harvester — captures coastal fog on leaf surfaces for water in the hyper-arid Namib; living fossil gymnosperm'
+  },
+  'titan-sequoia': {
+    pollination: 'Wind-pollinated (conifer)',
+    conservation: 'Endangered; limited to ~75 groves in Sierra Nevada',
+    record: 'Largest tree by volume — General Sherman: 1,487 m3, ~2,200 years old; bark up to 90 cm thick, nearly fireproof',
+    ecoRole: 'Fire-dependent ecology (cones open in heat); massive carbon storage; watershed protection; among the most voluminous organisms ever'
+  },
+  'sensitive-fern': {
+    pollination: 'Spores (non-flowering)',
+    conservation: 'Least Concern; common in wetlands',
+    record: 'Fronds wither at the first frost (hence "sensitive"); fertile fronds persist through winter as dark bead-like structures',
+    ecoRole: 'Wetland indicator species; forms dense colonies in moist forests and stream margins of eastern North America and East Asia'
+  },
+  'resurrection-fern': {
+    pollination: 'Spores (non-flowering)',
+    conservation: 'Least Concern; common epiphyte',
+    record: 'Survives losing up to 97% of its water content (most plants die at 10%); curls brown and "dead" then fully revives within hours of rain',
+    ecoRole: 'Epiphyte on tree branches (especially live oak); flew on Space Shuttle Discovery (1997) to study desiccation tolerance in space'
+  },
+  'ginkgo': {
+    pollination: 'Wind-pollinated; dioecious (separate male and female trees)',
+    conservation: 'Endangered in the wild; widely cultivated',
+    record: 'Living fossil — leaf fossils identical to modern ginkgo date to 200 Mya; survived the asteroid that killed the dinosaurs; some trees survived Hiroshima atomic bomb',
+    ecoRole: 'Last surviving member of an entire division (Ginkgophyta); tolerant of pollution, planted as urban street tree worldwide; leaf extract used in herbal medicine'
+  },
+  'mangrove': {
+    pollination: 'Wind and insects (varies by species)',
+    conservation: 'Vulnerable; mangrove forests declining 1-2% per year globally',
+    record: 'Only trees that thrive in saltwater; filter salt through roots or excrete it through leaves; prop roots create nursery habitat',
+    ecoRole: 'Critical coastal ecosystem — protects shorelines from storms, sequesters 3-5× more carbon per hectare than terrestrial forests, nursery for 75% of tropical commercial fish species'
+  },
+
+  // ── BIRDS (expanded) ──
+  'kakapo': {
+    diet: 'Herbivore — fruit, seeds, pollen, sapwood, rimu berries',
+    lifespan: '60-100 years; one of the longest-lived birds',
+    conservation: 'Critically Endangered; ~250 individuals (all named and tracked); intensive conservation since 1995',
+    size: 'Up to 4 kg; 64 cm — heaviest parrot on Earth',
+    ability: 'Only flightless and nocturnal parrot; booming mating call audible 5 km away; lek breeding system; strong musty-sweet body odor aids predator detection but originally had no mammalian predators'
+  },
+  'resplendent-quetzal': {
+    diet: 'Omnivore — wild avocados (Lauraceae fruits), insects, frogs, lizards',
+    lifespan: '20-25 years',
+    conservation: 'Near Threatened; cloud forest habitat declining from deforestation and climate change',
+    size: '180-210 g; 36 cm body; male tail streamers up to 65 cm',
+    ability: 'Sacred bird of Maya and Aztec civilizations — Quetzalcoatl deity; iridescent green plumage from nanostructures in feathers; swallows wild avocados whole and is the primary seed disperser'
+  },
+  'greater-bird-of-paradise': {
+    diet: 'Omnivore — fruit, seeds, insects, spiders',
+    lifespan: '~15-20 years',
+    conservation: 'Least Concern; still common in New Guinea lowland forests',
+    size: '~300 g; 33 cm body; male display plumes up to 50 cm',
+    ability: 'Males perform elaborate courtship displays — hanging upside down from branches with cascading golden flank plumes; Alfred Russel Wallace\'s encounter with these birds helped inspire his theory of evolution'
+  },
+
+  // ── AMPHIBIANS (expanded) ──
+  'platypus-frog': {
+    diet: 'Insectivore — aquatic invertebrates and insects',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (declared 2002); last specimen died 1983; gastric brooding lost forever',
+    size: '~5 cm body length',
+    ability: 'Females swallowed fertilized eggs, brooded tadpoles in the stomach for 6 weeks (suppressing gastric acid), then gave birth through the mouth — unique in the animal kingdom; extinction a major loss for biomedical research'
+  },
+
+  // ── INVERTEBRATES (expanded) ──
+  'blue-ringed-octopus': {
+    diet: 'Carnivore — small crabs, shrimp, fish',
+    lifespan: '~2 years',
+    conservation: 'Least Concern; common in Indo-Pacific tide pools',
+    size: '12-20 cm (including arms); 10-100 g',
+    ability: 'Carries enough tetrodotoxin to kill 26 adult humans within minutes; no known antivenom; iridescent blue rings flash as a warning signal; venom paralyzes prey and is produced by symbiotic bacteria'
   },
 };

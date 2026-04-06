@@ -26,6 +26,15 @@ export const GEO_DATA = {
   'spirochetes':          { regions: ['worldwide'], label: 'Aquatic environments, animal hosts, soil', type: 'habitat' },
   'deinococcus':          { regions: ['worldwide'], label: 'Soil, dried foods, irradiated environments', type: 'habitat' },
   'bacteroides':          { regions: ['worldwide'], label: 'Mammalian gut; dominant anaerobe in human colon', type: 'habitat' },
+  'thermus-aquaticus':    { regions: ['north-america', 'east-asia', 'worldwide'], label: 'Hot springs worldwide; Yellowstone, New Zealand, Japan — source of Taq polymerase (PCR)', type: 'habitat' },
+  'borrelia':             { regions: ['north-america', 'europe', 'east-asia'], label: 'Temperate forests of North America, Europe, and East Asia — Lyme disease agent', type: 'habitat' },
+  'treponema':            { regions: ['worldwide'], label: 'Human mucous membranes worldwide — syphilis agent (Treponema pallidum)', type: 'habitat' },
+  'rhizobium':            { regions: ['worldwide'], label: 'Soil worldwide; root nodules of legumes, fixing atmospheric nitrogen', type: 'habitat' },
+  'wolbachia':            { regions: ['worldwide'], label: 'Intracellular parasite of insects and nematodes on every continent except Antarctica', type: 'habitat' },
+  'staphylococcus':       { regions: ['worldwide'], label: 'Human skin and nasal passages worldwide; soil and surfaces', type: 'habitat' },
+  'spirulina':            { regions: ['africa', 'central-america', 'east-asia', 'worldwide'], label: 'Alkaline lakes — Lake Chad, Lake Texcoco, East African rift lakes; cultivated globally', type: 'habitat' },
+  'campylobacter':        { regions: ['worldwide'], label: 'Intestines of warm-blooded animals worldwide; leading bacterial cause of food-borne illness', type: 'habitat' },
+  'aliivibrio':           { regions: ['north-america', 'southeast-asia', 'marine-global'], label: 'Shallow tropical and temperate coastal waters worldwide; symbiont of bobtail squids', type: 'habitat' },
 
   // ── ARCHAEA ──
   'euryarchaeota':    { regions: ['worldwide'], label: 'Salt lakes, deep sea, wetlands, animal guts', type: 'habitat' },
@@ -35,6 +44,12 @@ export const GEO_DATA = {
   'sulfolobus':       { regions: ['worldwide'], label: 'Hot acidic springs, volcanic areas worldwide', type: 'habitat' },
   'pyrolobus':        { regions: ['marine-deep'], label: 'Deep-sea hydrothermal vents, Mid-Atlantic Ridge', type: 'habitat' },
   'lokiarchaeota':    { regions: ['marine-deep'], label: 'Loki\'s Castle hydrothermal vent, Arctic Mid-Ocean Ridge', type: 'habitat' },
+  'thermococcus':     { regions: ['marine-deep'], label: 'Hydrothermal vents and hot marine sediments worldwide; Pacific, Atlantic, and Mediterranean', type: 'habitat' },
+  'haloquadratum':    { regions: ['west-asia', 'north-africa', 'central-asia'], label: 'Hypersaline lakes and salt evaporation ponds — Dead Sea, Lake Assal, salterns', type: 'habitat' },
+  'nanoarchaeum':     { regions: ['marine-deep'], label: 'Hydrothermal vent at Kolbeinsey Ridge, Iceland; also deep sea globally', type: 'endemic' },
+  'thaumarchaeota':   { regions: ['worldwide', 'marine-global'], label: 'Oceans, soils, and freshwater worldwide; one of the most abundant archaea in the ocean', type: 'habitat' },
+  'methanopyrus':     { regions: ['marine-deep'], label: 'Hydrothermal vents — Gulf of California, Mid-Atlantic Ridge; grows at 122°C', type: 'habitat' },
+  'ferroplasma':      { regions: ['worldwide'], label: 'Acidic mine drainage worldwide; Rio Tinto (Spain), Iron Mountain (USA), and similar sites', type: 'habitat' },
 
   // ── PROTISTS ──
   'protists':         { regions: ['worldwide', 'freshwater', 'marine-global'], label: 'Aquatic and moist environments worldwide', type: 'habitat' },
@@ -52,6 +67,12 @@ export const GEO_DATA = {
   'radiolarian':      { regions: ['marine-global'], label: 'Open ocean worldwide; surface to deep water', type: 'habitat' },
   'slime-mold':       { regions: ['worldwide'], label: 'Forest floors, decaying wood, leaf litter worldwide', type: 'habitat' },
   'stentor':          { regions: ['worldwide', 'freshwater'], label: 'Freshwater ponds, lakes, and quiet streams worldwide', type: 'habitat' },
+  'foraminifera':     { regions: ['marine-global'], label: 'All oceans from surface to deep seafloor; shells form limestone chalk deposits', type: 'habitat' },
+  'trypanosoma':      { regions: ['africa', 'central-america', 'south-america'], label: 'Sub-Saharan Africa (sleeping sickness); Central and South America (Chagas disease)', type: 'habitat' },
+  'toxoplasma':       { regions: ['worldwide'], label: 'Worldwide in warm-blooded vertebrates; carried by ~30% of humans globally', type: 'habitat' },
+  'radiolaria':       { regions: ['marine-global'], label: 'Open ocean worldwide from surface to deep water; skeletons form radiolarian ooze on seafloor', type: 'habitat' },
+  'kelp':             { regions: ['north-america', 'south-america', 'europe', 'oceania', 'marine-global'], label: 'Cold temperate coastal seas worldwide; kelp forests along Pacific and Atlantic coasts', type: 'habitat' },
+  'bioluminescent-dino': { regions: ['marine-global'], label: 'Coastal and open oceans worldwide; blooms visible as glowing blue waves at night', type: 'habitat' },
 
   // ── FUNGI ──
   'fungi':            { regions: ['worldwide'], label: 'Terrestrial, freshwater, and marine worldwide', type: 'habitat' },
@@ -68,6 +89,12 @@ export const GEO_DATA = {
   'cordyceps':        { regions: ['worldwide'], label: 'Tropical and temperate forests worldwide; on insect hosts', type: 'habitat' },
   'chanterelle':      { regions: ['europe', 'north-america', 'east-asia', 'africa'], label: 'Temperate and tropical forests worldwide', type: 'habitat' },
   'lichen':           { regions: ['worldwide'], label: 'Every terrestrial habitat from tropics to polar regions; rocks, bark, soil', type: 'habitat' },
+  'morel':            { regions: ['north-america', 'europe', 'east-asia'], label: 'Temperate forests of the Northern Hemisphere; often near ash, elm, and apple trees', type: 'habitat' },
+  'ergot':            { regions: ['europe', 'north-america', 'worldwide'], label: 'Temperate grain-growing regions worldwide; infects rye and other cereals', type: 'habitat' },
+  'death-cap':        { regions: ['europe', 'north-america', 'east-asia', 'oceania'], label: 'Temperate deciduous forests worldwide; responsible for 90% of fatal mushroom poisonings', type: 'habitat' },
+  'shiitake':         { regions: ['east-asia', 'worldwide'], label: 'Native to East Asian deciduous forests; now cultivated worldwide', type: 'habitat' },
+  'lions-mane':       { regions: ['north-america', 'europe', 'east-asia'], label: 'Temperate hardwood forests of North America, Europe, and East Asia', type: 'habitat' },
+  'fly-agaric':       { regions: ['europe', 'north-america', 'east-asia', 'oceania'], label: 'Temperate and boreal forests of the Northern Hemisphere; introduced to Southern Hemisphere', type: 'habitat' },
 
   // ── PLANTS ──
   'plantae':          { regions: ['worldwide'], label: 'Terrestrial and freshwater habitats worldwide', type: 'habitat' },
@@ -91,6 +118,24 @@ export const GEO_DATA = {
   'bamboo':           { regions: ['south-asia', 'southeast-asia', 'east-asia', 'south-america', 'africa'], label: 'Tropical and subtropical regions of Asia, Africa, and the Americas', type: 'habitat' },
   'cactus':           { regions: ['north-america', 'central-america', 'south-america'], label: 'Deserts and arid regions of the Americas; one species native to Africa', type: 'habitat' },
   'sundew':           { regions: ['worldwide'], label: 'Bogs and wetlands on every continent except Antarctica', type: 'habitat' },
+  'venus-flytrap':    { regions: ['north-america'], label: 'Coastal plains of North and South Carolina, USA — extremely restricted endemic range', type: 'endemic' },
+  'baobab':           { regions: ['africa', 'south-asia', 'oceania'], label: 'Savannas of sub-Saharan Africa, Madagascar; also northwestern India and Australia', type: 'habitat' },
+  'sunflower':        { regions: ['north-america', 'worldwide'], label: 'Native to North America; cultivated on every continent for oil and seeds', type: 'habitat' },
+  'rice':             { regions: ['worldwide'], label: 'Cultivated worldwide; native to Asia — feeds over half the world population', type: 'habitat' },
+  'oak':              { regions: ['north-america', 'europe', 'east-asia'], label: 'Temperate and subtropical forests of the Northern Hemisphere', type: 'habitat' },
+  'pitcher-plant':    { regions: ['north-america', 'southeast-asia', 'oceania'], label: 'Bogs of eastern North America; tropical forests of Southeast Asia and Australia', type: 'habitat' },
+  'lotus':            { regions: ['south-asia', 'southeast-asia', 'east-asia', 'freshwater'], label: 'Shallow freshwater ponds and lakes of South and East Asia; sacred plant', type: 'habitat' },
+  'eucalyptus':       { regions: ['oceania'], label: 'Native to Australia and nearby islands; introduced to temperate and tropical regions worldwide', type: 'habitat' },
+  'coffee':           { regions: ['east-africa', 'worldwide'], label: 'Native to Ethiopian highlands; cultivated in tropical belt worldwide (Coffee Belt)', type: 'habitat' },
+  'magnolia':         { regions: ['north-america', 'east-asia', 'central-america', 'south-asia'], label: 'Temperate and subtropical forests of the Americas and Asia', type: 'habitat' },
+  'acacia':           { regions: ['africa', 'oceania', 'south-asia', 'central-america', 'south-america'], label: 'Tropical and subtropical savannas worldwide; greatest diversity in Africa and Australia', type: 'habitat' },
+  'cycad':            { regions: ['central-america', 'south-america', 'africa', 'south-asia', 'southeast-asia', 'oceania'], label: 'Tropical and subtropical regions worldwide; relict group from dinosaur era', type: 'habitat' },
+  'corpse-flower':    { regions: ['southeast-asia'], label: 'Rainforests of Sumatra, Indonesia — among the rarest plants in the world', type: 'endemic' },
+  'strangler-fig':    { regions: ['south-asia', 'southeast-asia', 'central-america', 'south-america', 'africa', 'oceania'], label: 'Tropical rainforests worldwide; keystone species in many tropical ecosystems', type: 'habitat' },
+  'welwitschia-2':    { regions: ['southern-africa'], label: 'Namib Desert, Namibia and Angola — lives 1,000-2,000 years', type: 'endemic' },
+  'titan-sequoia':    { regions: ['north-america'], label: 'Sierra Nevada foothills, California, USA — largest trees by volume on Earth', type: 'endemic' },
+  'sensitive-fern':   { regions: ['north-america', 'east-asia'], label: 'Wetlands and moist forests of eastern North America and East Asia', type: 'habitat' },
+  'resurrection-fern': { regions: ['north-america', 'africa'], label: 'Eastern North America and southern Africa; epiphyte on tree branches', type: 'habitat' },
 
   // ── ANIMALS — INVERTEBRATES ──
   'animalia':       { regions: ['worldwide'], label: 'Every habitat on Earth', type: 'habitat' },
@@ -115,6 +160,44 @@ export const GEO_DATA = {
   'garden-spider':      { regions: ['europe', 'north-america', 'east-asia'], label: 'Gardens, meadows, and woodlands of the Northern Hemisphere', type: 'habitat' },
   'hermit-crab':        { regions: ['marine-global'], label: 'Tropical and temperate coastal waters and shorelines worldwide', type: 'habitat' },
   'portuguese-man-o-war': { regions: ['marine-global'], label: 'Tropical and subtropical Atlantic, Pacific, and Indian oceans', type: 'habitat' },
+  'arthropoda':         { regions: ['worldwide'], label: 'Every terrestrial, freshwater, and marine habitat', type: 'habitat' },
+  'monarch-butterfly':  { regions: ['north-america', 'central-america'], label: 'North America; overwinters in central Mexico and coastal California', type: 'habitat' },
+  'leafcutter-ant':     { regions: ['central-america', 'south-america'], label: 'Tropical and subtropical forests from Texas to Argentina', type: 'habitat' },
+  'dragonfly':          { regions: ['worldwide', 'freshwater'], label: 'Near freshwater on every continent except Antarctica', type: 'habitat' },
+  'mollusca':           { regions: ['worldwide', 'marine-global', 'freshwater'], label: 'Marine, freshwater, and terrestrial worldwide', type: 'habitat' },
+  'giant-squid':        { regions: ['marine-deep', 'marine-global'], label: 'Deep ocean worldwide, 300-1,000 m depth; all temperate and tropical oceans', type: 'habitat' },
+  'common-starfish':    { regions: ['europe', 'marine-global'], label: 'Northeastern Atlantic coasts from Norway to Senegal', type: 'habitat' },
+  'common-earthworm':   { regions: ['worldwide'], label: 'Temperate soils worldwide; native to Europe, introduced globally', type: 'habitat' },
+  'platyhelminthes':    { regions: ['worldwide', 'marine-global', 'freshwater'], label: 'Marine, freshwater, and terrestrial worldwide; many parasitic', type: 'habitat' },
+  'planarian':          { regions: ['worldwide', 'freshwater'], label: 'Freshwater streams, ponds, and springs worldwide', type: 'habitat' },
+  'tardigrada':         { regions: ['worldwide'], label: 'Every habitat on Earth — moss, deep sea, mountaintops, Antarctic ice', type: 'habitat' },
+  'chordata':           { regions: ['worldwide', 'marine-global'], label: 'Every terrestrial, freshwater, and marine habitat on Earth', type: 'habitat' },
+  'sponges':            { regions: ['marine-global', 'freshwater'], label: 'All oceans from intertidal to abyssal; some freshwater species', type: 'habitat' },
+  'glass-sponge':       { regions: ['marine-deep'], label: 'Deep ocean worldwide, 200-6,000 m; glass sponge reefs in British Columbia', type: 'habitat' },
+  'barrel-sponge':      { regions: ['marine-global'], label: 'Tropical coral reefs of the Caribbean, Indo-Pacific, and Red Sea', type: 'habitat' },
+  'mollusks':           { regions: ['worldwide', 'marine-global', 'freshwater'], label: 'Marine, freshwater, and terrestrial worldwide', type: 'habitat' },
+  'giant-clam':         { regions: ['southeast-asia', 'oceania'], label: 'Shallow coral reefs of the Indo-Pacific, from East Africa to Micronesia', type: 'habitat' },
+  'cone-snail':         { regions: ['marine-global'], label: 'Tropical and subtropical coral reefs and sandy shallows worldwide', type: 'habitat' },
+  'hercules-beetle':    { regions: ['central-america', 'south-america'], label: 'Tropical rainforests from Mexico to Bolivia and the Caribbean', type: 'habitat' },
+  'mosquito':           { regions: ['worldwide'], label: 'Every continent except Antarctica; tropics to Arctic tundra', type: 'habitat' },
+  'praying-mantis':     { regions: ['worldwide'], label: 'Tropical and temperate regions worldwide; greatest diversity in tropics', type: 'habitat' },
+  'cockroach':          { regions: ['worldwide'], label: 'Every continent except Antarctica; tropical to temperate habitats', type: 'habitat' },
+  'golden-orb-spider':  { regions: ['africa', 'south-asia', 'southeast-asia', 'oceania', 'south-america'], label: 'Tropical and subtropical forests worldwide', type: 'habitat' },
+  'emperor-scorpion':   { regions: ['west-africa'], label: 'Tropical rainforests and savannas of West Africa — Nigeria to Senegal', type: 'habitat' },
+  'lobster':            { regions: ['north-america', 'europe', 'marine-global'], label: 'Cold-water Atlantic coasts; also tropical seas worldwide', type: 'habitat' },
+  'stick-insect':       { regions: ['worldwide'], label: 'Tropical and temperate forests worldwide; greatest diversity in Southeast Asia', type: 'habitat' },
+  'bumblebee':          { regions: ['north-america', 'europe', 'east-asia', 'south-america'], label: 'Temperate regions of the Northern Hemisphere; some South American species', type: 'habitat' },
+  'termite':            { regions: ['worldwide'], label: 'Tropical and subtropical regions worldwide; some temperate species', type: 'habitat' },
+  'cicada':             { regions: ['worldwide'], label: 'Temperate and tropical regions on every continent except Antarctica', type: 'habitat' },
+  'dung-beetle':        { regions: ['worldwide'], label: 'Every continent except Antarctica; grasslands, forests, and deserts', type: 'habitat' },
+  'crown-of-thorns':    { regions: ['marine-global', 'southeast-asia', 'oceania'], label: 'Coral reefs of the Indo-Pacific from Red Sea to Central America', type: 'habitat' },
+  'earthworm':          { regions: ['worldwide'], label: 'Temperate and tropical soils worldwide', type: 'habitat' },
+  'giant-tube-worm':    { regions: ['marine-deep'], label: 'Hydrothermal vents in the eastern Pacific, 2,000+ m depth', type: 'habitat' },
+  'leaf-insect':        { regions: ['south-asia', 'southeast-asia', 'oceania'], label: 'Tropical forests of South Asia, Southeast Asia, and Australia', type: 'habitat' },
+  'leech':              { regions: ['worldwide', 'freshwater'], label: 'Freshwater, terrestrial, and marine habitats worldwide', type: 'habitat' },
+  'feather-star':       { regions: ['marine-global'], label: 'Tropical and temperate oceans worldwide; shallow reefs to deep sea', type: 'habitat' },
+  'nematodes':          { regions: ['worldwide'], label: 'Every habitat on Earth — soil, marine, freshwater, parasitic in plants and animals', type: 'habitat' },
+  'c-elegans':          { regions: ['worldwide'], label: 'Temperate soils worldwide; rotting vegetation and compost', type: 'habitat' },
 
   // ── ANIMALS — VERTEBRATES ──
   'vertebrates':      { regions: ['worldwide'], label: 'Every habitat on Earth', type: 'habitat' },
@@ -1369,6 +1452,316 @@ export const BRANCH_DATA = {
     conservation: 'Endangered; ~6,600 remaining in fragmented populations',
     size: '18-36 kg; 75-110 cm body length',
     ability: 'Highest hunt success rate of any large predator (80%); "sneeze voting" to decide group hunts; regurgitates food for pups, sick, and elderly pack members'
+  },
+
+  // ── INVERTEBRATES ──
+  'invertebrates': {
+    ability: 'Comprise 97% of all animal species; pioneered every major body plan innovation from bilateral symmetry to compound eyes'
+  },
+  'arthropoda': {
+    ability: 'Most species-rich phylum on Earth with over 1.2 million described species; evolved the exoskeleton, jointed limbs, and compound eyes that enabled dominance of land, sea, and air'
+  },
+  'insects': {
+    ability: 'Most diverse class of organisms with ~1 million described species; evolved flight 100 million years before any vertebrate; underpin most terrestrial food webs as pollinators, decomposers, and prey'
+  },
+  'monarch-butterfly': {
+    diet: 'Herbivore — milkweed (Asclepias) as larva; flower nectar as adult',
+    lifespan: '2-6 weeks (summer); 8-9 months (migratory generation)',
+    conservation: 'Endangered (IUCN); western population declined 99% since 1980s',
+    size: '0.5 g; 8.9-10.2 cm wingspan',
+    ability: 'Multi-generational 4,800 km migration from Canada to Mexico using a time-compensated sun compass and magnetic sensing; sequesters cardiac glycosides from milkweed making them toxic to predators'
+  },
+  'leafcutter-ant': {
+    diet: 'Fungivore — cultivates Leucoagaricus fungus gardens using fresh leaf fragments',
+    lifespan: '1-3 years (workers); 10-20 years (queen)',
+    conservation: 'Least Concern; abundant in Neotropical forests',
+    size: '1-14 mm depending on caste',
+    ability: 'Agriculture — farms fungus in underground gardens 50 million years before humans; colonies of 5-8 million ants with complex caste system; can carry 50× own body weight'
+  },
+  'dragonfly': {
+    diet: 'Carnivore — mosquitoes, midges, flies, and other small insects caught in flight',
+    lifespan: '6 months-6 years (mostly as aquatic nymph); 1-6 months as adult',
+    conservation: 'Variable; many species Least Concern; some tropical species threatened',
+    size: '2-15 cm wingspan depending on species',
+    ability: 'Intercept prey with 95% success rate — highest of any predator; each eye has 30,000 facets; can fly backward, hover, and reach 56 km/h; oldest flying insects (325 Mya)'
+  },
+  'bombardier-beetle': {
+    diet: 'Carnivore — small insects, larvae',
+    lifespan: '~2-3 years',
+    conservation: 'Least Concern; common in temperate woodlands',
+    size: '1-2 cm',
+    ability: 'Chemical warfare — ejects boiling (100 °C) benzoquinone spray from twin abdominal glands at 500 pulses per second; the reaction is explosive, producing an audible pop'
+  },
+  'mollusca': {
+    ability: 'Second-largest animal phylum with ~85,000 species; evolved the radula, mantle, and shell that enabled radiation into marine, freshwater, and terrestrial niches'
+  },
+  'cephalopods': {
+    ability: 'Most intelligent invertebrates; evolved camera-type eyes independently from vertebrates, jet propulsion, and the most complex nervous system of any invertebrate'
+  },
+  'giant-squid': {
+    diet: 'Carnivore — deep-sea fish, other squid',
+    lifespan: '~5 years',
+    conservation: 'Least Concern; deep-sea population likely large but poorly known',
+    size: 'Up to 13 m total length; 275 kg; largest invertebrate eyes (27 cm diameter)',
+    ability: 'Largest eyes in the animal kingdom — the size of dinner plates — optimized to detect bioluminescent flashes from sperm whale approach in pitch-dark deep ocean'
+  },
+  'cuttlefish': {
+    diet: 'Carnivore — crabs, shrimp, fish, mollusks',
+    lifespan: '1-2 years',
+    conservation: 'Least Concern (most species)',
+    size: '15-50 cm mantle length depending on species',
+    ability: 'Hypnotic camouflage — millions of chromatophores change color and texture in milliseconds; can display two different patterns simultaneously; W-shaped pupils see polarized light'
+  },
+  'cnidarians': {
+    ability: 'Pioneered the first true tissues and the cnidocyte — the fastest biological mechanism known (700 nanosecond discharge); includes corals that build the largest biological structures on Earth'
+  },
+  'box-jellyfish': {
+    diet: 'Carnivore — small fish, shrimp',
+    lifespan: '~1 year',
+    conservation: 'Not assessed; common in Indo-Pacific',
+    size: '16-24 tentacles up to 3 m long; bell 20-30 cm',
+    ability: 'Most venomous marine animal — can kill a human in minutes; possesses 24 eyes including 4 with true lenses; actively hunts prey rather than drifting like most jellyfish'
+  },
+  'echinoderms': {
+    ability: 'Unique water vascular system powers thousands of tube feet for locomotion and feeding; pentaradial symmetry evolved from bilateral ancestors; closest invertebrate relatives of vertebrates'
+  },
+  'common-starfish': {
+    diet: 'Carnivore — mussels, barnacles, snails; everts stomach to digest prey externally',
+    lifespan: '5-10 years',
+    conservation: 'Least Concern; common on rocky shores',
+    size: '10-30 cm diameter; 5 arms',
+    ability: 'Regeneration — can regrow an entire arm in months; everts its cardiac stomach through its mouth to envelop and externally digest prey larger than itself'
+  },
+  'sea-urchin': {
+    diet: 'Herbivore — algae, kelp, encrusting organisms',
+    lifespan: '30-200+ years (red sea urchin may reach 200)',
+    conservation: 'Variable by species; some overabundant due to predator loss',
+    size: '3-10 cm diameter',
+    ability: 'Aristotle\'s lantern — 5-toothed jaw apparatus that can bore into solid rock; some species among the longest-lived animals on Earth; spines regenerate continuously'
+  },
+  'sea-cucumber': {
+    diet: 'Detritivore — sediment, decomposing matter, plankton',
+    lifespan: '5-10 years (most species)',
+    conservation: 'Many species Vulnerable or Endangered due to overharvesting',
+    size: '10-180 cm depending on species',
+    ability: 'Evisceration defense — expels internal organs to entangle or distract predators, then fully regenerates them in weeks; can liquefy and re-solidify body wall at will'
+  },
+  'sea-lily': {
+    diet: 'Filter feeder — plankton and detritus from water column',
+    lifespan: '10-20+ years',
+    conservation: 'Not assessed; deep-sea species poorly known',
+    size: '30-60 cm stalk; arms span 10-30 cm',
+    ability: 'Living fossil — crinoids dominated Paleozoic seas 480 Mya; feathery arms create a fan to filter microscopic food; can detach from stalk and swim using rhythmic arm undulations'
+  },
+  'annelids': {
+    ability: 'Pioneered segmentation — the repeating body plan that allows specialization of body regions; ecosystem engineers that aerate soil and process 50% of leaf litter in temperate forests'
+  },
+  'common-earthworm': {
+    diet: 'Detritivore — decaying plant matter, soil microorganisms',
+    lifespan: '4-8 years',
+    conservation: 'Least Concern; extremely abundant in temperate soils',
+    size: '9-30 cm long; 6-10 g',
+    ability: 'Ecosystem engineer — Charles Darwin called them "the most important animal in the history of the world"; processes 36 tons of soil per hectare per year; 5 pairs of aortic arches (hearts)'
+  },
+  'medicinal-leech': {
+    diet: 'Hematophagous — blood of vertebrates; single meal lasts months',
+    lifespan: '20-25 years',
+    conservation: 'Near Threatened; declining due to wetland loss',
+    size: '10-15 cm extended',
+    ability: 'Pharmaceutical factory — saliva contains 100+ bioactive compounds including hirudin (anticoagulant), hyaluronidase, and anesthetic; still used in modern microsurgery to relieve venous congestion'
+  },
+  'pompeii-worm': {
+    diet: 'Chemosynthetic bacteria — farms bacteria on its back; detritus',
+    lifespan: 'Unknown; likely short-lived',
+    conservation: 'Not assessed; deep-sea specialist',
+    size: '10-13 cm',
+    ability: 'Most heat-tolerant complex animal — survives 80°C near hydrothermal vents while keeping its head at 22°C; symbiotic bacteria on its back may provide thermal insulation'
+  },
+  'platyhelminthes': {
+    ability: 'Simplest animals with bilateral symmetry and cephalization (head); pioneered the centralized nervous system and organ-level organization without a body cavity'
+  },
+  'planarian': {
+    diet: 'Carnivore/scavenger — small invertebrates, detritus; pharynx everts to feed',
+    lifespan: 'Potentially immortal through continuous regeneration',
+    conservation: 'Least Concern; common in freshwater habitats',
+    size: '3-15 mm',
+    ability: 'Champion regenerator — a fragment 1/279th of the body can regrow a complete organism; retains memories after head regeneration; model organism for stem cell and regeneration research'
+  },
+  'tardigrada': {
+    ability: 'Most resilient animals on Earth — survive vacuum of space, 6,000 atm pressure, −272°C to 150°C, and decades without water via cryptobiosis; found in every habitat from deep ocean to Himalayan peaks'
+  },
+  'chordata': {
+    ability: 'Evolved the notochord, dorsal nerve cord, and pharyngeal slits that gave rise to all vertebrates — the dominant large animals on Earth for 500 million years'
+  },
+  'sponges': {
+    ability: 'Oldest surviving animal phylum (~600 Mya); filter up to 20,000 liters of water per day; lack true tissues but produce over 5,300 bioactive compounds used in pharmaceutical research'
+  },
+  'glass-sponge': {
+    diet: 'Filter feeder — bacteria, plankton, dissolved organic matter',
+    lifespan: '100-15,000+ years (some deep-sea specimens)',
+    conservation: 'Vulnerable; glass sponge reefs are protected in British Columbia',
+    size: '10-100 cm; reef structures span kilometers',
+    ability: 'Builds skeleton of pure silica (glass) spicules that transmit light like fiber optic cables; glass sponge reefs in British Columbia are 9,000 years old — once thought extinct since the Cretaceous'
+  },
+  'barrel-sponge': {
+    diet: 'Filter feeder — bacteria, phytoplankton, dissolved nutrients',
+    lifespan: '100-2,300+ years; among the longest-lived animals',
+    conservation: 'Not formally assessed; threatened by warming and ocean acidification',
+    size: 'Up to 1.8 m diameter and 1.8 m tall',
+    ability: 'Nicknamed "redwood of the reef" — pumps thousands of liters of water daily; hosts hundreds of symbiotic species inside its cavity; individual specimens may be over 2,000 years old'
+  },
+  'mollusks': {
+    ability: 'Second-largest animal phylum; evolved the radula, mantle, and shell; includes the most intelligent invertebrates (cephalopods) and the longest-lived non-colonial animals (ocean quahog, 507 years)'
+  },
+  'giant-clam': {
+    diet: 'Filter feeder + photosymbiont — zooxanthellae algae provide 70% of nutrition',
+    lifespan: '100+ years',
+    conservation: 'Vulnerable (IUCN); overharvested for food and aquarium trade',
+    size: 'Up to 137 cm shell length; 200+ kg; largest living bivalve',
+    ability: 'Solar-powered — mantle tissue is a biological greenhouse for symbiotic algae; can produce over 500 million eggs per spawning; shell grows throughout life and never stops'
+  },
+  'cone-snail': {
+    diet: 'Carnivore — fish, worms, or other mollusks (varies by species)',
+    lifespan: '5-15 years',
+    conservation: 'Variable; several species Vulnerable due to collection',
+    size: '1-23 cm shell length',
+    ability: 'Fastest-acting venom delivery — fires a harpoon-like radula tooth with venom containing 100-200 unique conotoxins; one compound (ziconotide) is 1,000× more potent than morphine and is an approved painkiller'
+  },
+  'hercules-beetle': {
+    diet: 'Herbivore — decaying fruit, tree sap as adult; rotting wood as larva',
+    lifespan: '3-6 months as adult; 1-2 years as larva',
+    conservation: 'Not formally assessed; locally common in rainforests',
+    size: 'Up to 17.5 cm including horn; largest beetle by length',
+    ability: 'Proportionally strongest animal on Earth — can carry 850× its own body weight; horn used in male combat can grow longer than the body; elytra change color from green to black with humidity'
+  },
+  'mosquito': {
+    diet: 'Nectarivore (both sexes); females also hematophagous — blood needed for egg production',
+    lifespan: '2-4 weeks (males); 1-5 months (females)',
+    conservation: 'Least Concern; ~3,500 species worldwide',
+    size: '3-6 mm; 2-2.5 mg',
+    ability: 'Deadliest animal on Earth — responsible for ~700,000 human deaths annually via malaria, dengue, Zika, and yellow fever; detects CO₂ plumes from 50 m and body heat from 1 m'
+  },
+  'praying-mantis': {
+    diet: 'Carnivore — insects, spiders; large species take frogs, lizards, hummingbirds',
+    lifespan: '6-12 months',
+    conservation: 'Least Concern (most species)',
+    size: '1-16 cm depending on species',
+    ability: 'Only insect that can rotate its head 180° to scan for prey with stereoscopic vision; raptorial forelegs strike in 50-70 milliseconds — faster than a fly can react; sway mimics leaves in wind'
+  },
+  'cockroach': {
+    diet: 'Omnivore/scavenger — virtually anything organic',
+    lifespan: '1-2 years',
+    conservation: 'Least Concern; among the most abundant insects',
+    size: '1-8 cm depending on species',
+    ability: 'Ultimate survivor — withstands 10× the radiation dose lethal to humans; can live weeks without a head; fastest land insect (5.4 km/h, 50 body lengths/sec); 300+ million years virtually unchanged'
+  },
+  'golden-orb-spider': {
+    diet: 'Carnivore — flying insects, sometimes small birds and bats',
+    lifespan: '1-2 years',
+    conservation: 'Least Concern; common in tropical forests',
+    size: 'Female body 3-5 cm; web up to 1.5 m diameter',
+    ability: 'Spins the strongest biological fiber known — golden silk 6× tougher than Kevlar per weight; web strands visible to the naked eye; extreme sexual dimorphism (females 10× larger than males)'
+  },
+  'emperor-scorpion': {
+    diet: 'Carnivore — insects, spiders, small vertebrates',
+    lifespan: '6-8 years',
+    conservation: 'Not formally assessed; CITES Appendix II (trade regulated)',
+    size: '20 cm; up to 30 g; one of the largest scorpions',
+    ability: 'Fluoresces brilliant blue-green under UV light due to beta-carboline in cuticle; despite fearsome size, venom is relatively mild; sensory hairs detect air vibrations from prey'
+  },
+  'lobster': {
+    diet: 'Omnivore — fish, mollusks, other crustaceans, algae, sea plants',
+    lifespan: '50-100+ years; negligible senescence',
+    conservation: 'Vulnerable (European lobster); American lobster Least Concern',
+    size: 'Up to 64 cm body length; record 20.1 kg',
+    ability: 'Biologically "immortal" — telomerase expression prevents cellular aging; continues growing throughout life, molting shell annually; crushes shells with 100+ lbs of claw force'
+  },
+  'stick-insect': {
+    diet: 'Herbivore — leaves of bramble, oak, eucalyptus, and other trees',
+    lifespan: '1-3 years',
+    conservation: 'Variable; Lord Howe Island stick insect Critically Endangered',
+    size: '1.5-60 cm; Phryganistria chinensis is the longest insect at 64 cm',
+    ability: 'Master of camouflage — mimics twigs, leaves, and bark down to simulating wind-sway; can reproduce via parthenogenesis (no males needed); eggs mimic plant seeds for ant dispersal'
+  },
+  'bumblebee': {
+    diet: 'Nectarivore/pollinivore — flower nectar and pollen',
+    lifespan: '2-6 weeks (workers); 1 year (queen)',
+    conservation: 'Several species Endangered or Vulnerable; rusty patched bumblebee Critically Endangered',
+    size: '1-2.5 cm; queens up to 2.8 cm',
+    ability: 'Buzz pollination — vibrates flight muscles at 130-400 Hz to shake pollen from flowers that honey bees cannot access; can fly in rain and near-freezing temperatures by shivering to warm up'
+  },
+  'termite': {
+    diet: 'Detritivore — dead wood, leaf litter, soil, dung; symbiotic gut microbes digest cellulose',
+    lifespan: '1-2 years (workers); 25-50 years (queen)',
+    conservation: 'Least Concern (most species); ecologically essential',
+    size: '4-15 mm; queen can reach 10 cm',
+    ability: 'Master architects — build mounds up to 9 m tall with passive ventilation, temperature regulation to ±1°C, and fungus farms; queens are the longest-lived insects, producing 30,000 eggs/day'
+  },
+  'cicada': {
+    diet: 'Herbivore — xylem sap from tree roots (nymph) and twigs (adult)',
+    lifespan: '2-17 years underground as nymph; 2-6 weeks as adult',
+    conservation: 'Least Concern (most species); some island species endangered',
+    size: '2-7 cm body length',
+    ability: 'Loudest insect — males produce calls up to 120 dB (louder than a chainsaw); periodical cicadas emerge in synchronized broods of billions after 13 or 17 years underground (prime number strategy)'
+  },
+  'dung-beetle': {
+    diet: 'Coprophage — animal dung; some species also eat fungi and decaying fruit',
+    lifespan: '3-5 years',
+    conservation: 'Least Concern (most species); threatened by livestock deworming chemicals',
+    size: '1-6 cm',
+    ability: 'Strongest animal relative to body weight — pulls 1,141× own mass; only known non-human animal that navigates by the Milky Way; buries 250× its weight in dung nightly, recycling nutrients into soil'
+  },
+  'crown-of-thorns': {
+    diet: 'Corallivore — digests coral polyps by everting stomach over reef',
+    lifespan: '15-17 years',
+    conservation: 'Not assessed; population outbreaks cause massive reef damage',
+    size: '25-60 cm diameter; up to 21 arms',
+    ability: 'Coral reef\'s most destructive predator — a single individual eats 5-13 m² of coral per year; covered in venomous spines; can regenerate from a single arm; outbreaks driven by nutrient runoff'
+  },
+  'earthworm': {
+    diet: 'Detritivore — decaying plant matter, soil microorganisms',
+    lifespan: '4-8 years',
+    conservation: 'Least Concern; among the most abundant soil animals',
+    size: '5-30 cm (most species); giant Australian earthworm reaches 3 m',
+    ability: 'Ecosystem engineer — aerates soil, improves drainage, and recycles nutrients; processes its own weight in soil daily; 5 pairs of aortic arches act as hearts'
+  },
+  'giant-tube-worm': {
+    diet: 'Chemosymbiotic — no gut; relies entirely on internal sulfide-oxidizing bacteria',
+    lifespan: '170-250+ years; one of the longest-lived invertebrates',
+    conservation: 'Not assessed; dependent on active hydrothermal vents',
+    size: 'Up to 2.4 m long; tube diameter 4 cm',
+    ability: 'Fastest-growing marine invertebrate — up to 85 cm/year; survives without mouth, gut, or anus; symbiotic bacteria convert H₂S into organic compounds; blood contains special sulfide-binding hemoglobin'
+  },
+  'leaf-insect': {
+    diet: 'Herbivore — leaves; preferring guava, mango, and rambutan',
+    lifespan: '6-12 months',
+    conservation: 'Not formally assessed; some species rare due to deforestation',
+    size: '5-10 cm',
+    ability: 'Pinnacle of leaf mimicry — body, legs, and wing venation perfectly replicate a living leaf including "bite marks" and brown spots; sways in breeze; eggs mimic plant seeds'
+  },
+  'leech': {
+    diet: 'Hematophagous (most species) — blood of vertebrates; some species predatory on invertebrates',
+    lifespan: '2-20 years depending on species',
+    conservation: 'Variable; medicinal leech Near Threatened; most species Least Concern',
+    size: '1-30 cm depending on species',
+    ability: 'Painless bite — saliva contains anesthetic, vasodilator, and hirudin anticoagulant; a single blood meal can sustain them for months; 3 jaws with ~100 teeth each'
+  },
+  'feather-star': {
+    diet: 'Filter feeder — plankton and suspended organic particles',
+    lifespan: '10-20+ years',
+    conservation: 'Not formally assessed; diverse on tropical reefs',
+    size: '10-30 cm arm span; up to 200 arms in some species',
+    ability: 'Unstalked crinoid that swims by undulating its feathery arms in mesmerizing waves; can crawl, walk, and swim; earliest crinoids date to 480 Mya; regenerates lost arms readily'
+  },
+  'nematodes': {
+    ability: 'Most abundant multicellular animals on Earth — 4 of every 5 animals is a nematode; found in every habitat from deep mines to mountain peaks; total biomass rivals that of all other animals combined'
+  },
+  'c-elegans': {
+    diet: 'Bacterivore — soil bacteria, primarily E. coli in lab culture',
+    lifespan: '2-3 weeks',
+    conservation: 'Least Concern; ubiquitous in temperate soils',
+    size: '1 mm long; ~1,000 cells',
+    ability: 'First multicellular organism to have its complete connectome mapped (302 neurons, 7,000 synapses) and entire genome sequenced; every cell division from egg to adult is known — the most understood animal in biology'
   },
 
   // ── FISH ──

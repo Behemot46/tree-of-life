@@ -2405,7 +2405,34 @@ export const PHOTO_MAP = {
   'lichen':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Lichen_on_a_rock.jpg/800px-Lichen_on_a_rock.jpg', credit:'Jason Hollinger, CC BY 2.0'},
   'euglena':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Photosynthetic_euglenid.jpg/800px-Photosynthetic_euglenid.jpg', credit:'Claudio Miklos, CC BY 2.5'},
   'radiolarian':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Acantharia.jpg/800px-Acantharia.jpg', credit:'Ernst Haeckel, Public Domain'},
-  'stentor':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Stentor_coeruleus.jpg/800px-Stentor_coeruleus.jpg', credit:'Picturepest, CC BY 2.0'},};
+  'stentor':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Stentor_coeruleus.jpg/800px-Stentor_coeruleus.jpg', credit:'Picturepest, CC BY 2.0'},
+  // ── Additional bacteria ──
+  'aliivibrio':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Aliivibrio_fischeri.jpg/800px-Aliivibrio_fischeri.jpg', credit:'Courtesy of American Society for Microbiology, CC BY 3.0'},
+  'borrelia':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Borrelia_burgdorferi_%28CDC-PHIL_-6631%29_lores.jpg/800px-Borrelia_burgdorferi_%28CDC-PHIL_-6631%29_lores.jpg', credit:'CDC, Public Domain'},
+  'campylobacter':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/ARS_Campylobacter_jejuni.jpg/800px-ARS_Campylobacter_jejuni.jpg', credit:'USDA ARS, Public Domain'},
+  'ferroplasma':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Inactive_hydrothermal_vents%2C_Galapagos_Rift_%28Expl6488_9667229132%29.jpg/800px-Inactive_hydrothermal_vents%2C_Galapagos_Rift_%28Expl6488_9667229132%29.jpg', credit:'Representative acidic hot spring habitat — NOAA, CC BY 2.0'},
+  'rhizobium':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Rhizobium_tropici_strain_BR816_on_TY_agar.jpg/800px-Rhizobium_tropici_strain_BR816_on_TY_agar.jpg', credit:'Tracing Nitrogen, CC BY-SA 4.0'},
+  'spirulina':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Spirulina_tablets.jpg/800px-Spirulina_tablets.jpg', credit:'Perdita, CC BY-SA 3.0'},
+  'staphylococcus':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d3/Staphylococcus_aureus_VISA_2.jpg/800px-Staphylococcus_aureus_VISA_2.jpg', credit:'CDC/Matthew J. Arduino, Public Domain'},
+  'thermus-aquaticus':     {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Thermus_aquaticus.jpg/800px-Thermus_aquaticus.jpg', credit:'Diane Montpetit, CC BY-SA 4.0'},
+  'treponema':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/Treponema_pallidum.jpg/800px-Treponema_pallidum.jpg', credit:'CDC, Public Domain'},
+  'wolbachia':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Wolbachia.png/800px-Wolbachia.png', credit:'Scott O\'Neill, CC BY 2.5'},
+  // ── Additional archaea ──
+  'methanopyrus':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Blacksmoker_in_Atlantic_Ocean.jpg/800px-Blacksmoker_in_Atlantic_Ocean.jpg', credit:'Representative black smoker hydrothermal vent — NOAA/P. Rona, Public Domain'},
+  'nanoarchaeum':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/dc/Nanoarchaeum_equitans.jpg/800px-Nanoarchaeum_equitans.jpg', credit:'Karl O. Stetter, Public Domain'},
+  'thaumarchaeota':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/ac/Inactive_hydrothermal_vents%2C_Galapagos_Rift_%28Expl6488_9667229132%29.jpg/800px-Inactive_hydrothermal_vents%2C_Galapagos_Rift_%28Expl6488_9667229132%29.jpg', credit:'Representative ocean/soil archaea habitat — NOAA, CC BY 2.0'},
+  'thermococcus':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Thermococcus_gammatolerans.jpg/800px-Thermococcus_gammatolerans.jpg', credit:'Xaviermartin, CC BY-SA 3.0'},
+  // ── Additional protists ──
+  'bdelloid-rotifer':      {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Bdelloid_Rotifer.jpg/800px-Bdelloid_Rotifer.jpg', credit:'Bob Blaylock, CC BY-SA 4.0'},
+  'bioluminescent-dino':   {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Bioluminescent_dinoflagellates.jpg/800px-Bioluminescent_dinoflagellates.jpg', credit:'Catalina Island Marine Institute, CC BY-SA 4.0'},
+  'foraminifera':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/07/Benthic_foraminifera.jpg/800px-Benthic_foraminifera.jpg', credit:'Hannes Grobe, CC BY 3.0'},
+  'trypanosoma':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4b/Trypanosoma_cruzi_crithidia.jpg/800px-Trypanosoma_cruzi_crithidia.jpg', credit:'CDC, Public Domain'},
+  // ── Additional fungi ──
+  'ergot':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Ergot_sclerotia_in_rye.jpg/800px-Ergot_sclerotia_in_rye.jpg', credit:'Accipiter, CC BY-SA 3.0'},
+  'fly-agaric':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Amanita_muscaria_3_vliegenzwammen_op_rij.jpg/800px-Amanita_muscaria_3_vliegenzwammen_op_rij.jpg', credit:'Onderwijsgek, CC BY-SA 2.5 NL'},
+  'lions-mane':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Igelstachelbart_Nov_06.jpg/800px-Igelstachelbart_Nov_06.jpg', credit:'Lebrac, CC BY-SA 3.0'},
+  'morel':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Morchella_esculenta_-_Spitzmorchel.jpg/800px-Morchella_esculenta_-_Spitzmorchel.jpg', credit:'Peter Preusse, CC BY-SA 3.0'},
+  'shiitake':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/64/Shiitakegrowing.jpg/800px-Shiitakegrowing.jpg', credit:'Frankenstoen, CC BY 2.0'},};
 
 export const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','bonobo','hominini'];
 export const HOMININ_IDS   = ['homo-sapiens','h_erectus','h_habilis','h_neanderthalensis','h_heidelbergensis','h_floresiensis','h_naledi','h_luzonensis','denisovan','au_afarensis','au_africanus','sahelanthropus','ardipithecus_r'];

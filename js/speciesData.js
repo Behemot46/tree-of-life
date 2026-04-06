@@ -2715,6 +2715,51 @@ export const PHOTO_MAP = {
   'vampire-bat':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Desmodus_rotundus_-_Vampire_bat.jpg/800px-Desmodus_rotundus_-_Vampire_bat.jpg', credit:'Acatenazzi, CC BY-SA 3.0'},
   'walrus':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Walrus_%28Odobenus_rosmarus%29%2C_Svalbard%2C_2011.jpg/800px-Walrus_%28Odobenus_rosmarus%29%2C_Svalbard%2C_2011.jpg', credit:'Arturo de Frias Marques, CC BY-SA 3.0'},
   'wombat':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Vombatus_ursinus_-Maria_Island_National_Park.jpg/800px-Vombatus_ursinus_-Maria_Island_National_Park.jpg', credit:'JJ Harrison, CC BY-SA 3.0'},
+  // ── 34 remaining coverage gaps ──
+  // Archaea
+  'haloquadratum':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/79/Haloquadratum_walsbyi.jpg/800px-Haloquadratum_walsbyi.jpg', credit:'Mike Dyall-Smith, CC BY-SA 3.0'},
+  // Plants
+  'corpse-flower':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Amorphophallus_titanum_-_Corpse_Flower_-_Blooming_%282012-07-23%29.jpg/800px-Amorphophallus_titanum_-_Corpse_Flower_-_Blooming_%282012-07-23%29.jpg', credit:'Michael Shafto, CC BY 2.0'},
+  // Invertebrates — Insects
+  'termite':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Termite_soldiers_and_workers.jpg/800px-Termite_soldiers_and_workers.jpg', credit:'Scott Bauer/USDA, Public Domain'},
+  // Invertebrates — Sponges
+  'sponges':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e9/Aplysina_archeri_%28Stove-pipe_Sponge-Pink_variation%29.jpg/800px-Aplysina_archeri_%28Stove-pipe_Sponge-Pink_variation%29.jpg', credit:'Nick Hobgood, CC BY-SA 3.0'},
+  'glass-sponge':           {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Euplectella_aspergillum_Okeanos.jpg/800px-Euplectella_aspergillum_Okeanos.jpg', credit:'NOAA, Public Domain'},
+  'barrel-sponge':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/19/Xestospongia_testudinaria.jpg/800px-Xestospongia_testudinaria.jpg', credit:'Nick Hobgood, CC BY-SA 3.0'},
+  // Invertebrates — Nematodes
+  'nematodes':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/ce/Adult_Caenorhabditis_elegans.jpg/800px-Adult_Caenorhabditis_elegans.jpg', credit:'Zeynep F. Altun, CC BY-SA 2.5'},
+  // Birds
+  'bee-hummingbird':        {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/27/Mellisuga_helenae_-_Bee_Hummingbird%2C_adult_male.jpg/800px-Mellisuga_helenae_-_Bee_Hummingbird%2C_adult_male.jpg', credit:'Ekaterina Chernetsova, CC BY 2.0'},
+  'new-caledonian-crow':    {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/c6/NewCaledoniaCrow_at_Zoologischer_Garten_Berlin.jpg/800px-NewCaledoniaCrow_at_Zoologischer_Garten_Berlin.jpg', credit:'Neitram, CC BY-SA 3.0'},
+  'ostrich':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/Ostrich_-_melbourne_zoo.jpg/800px-Ostrich_-_melbourne_zoo.jpg', credit:'fir0002, GFDL 1.2'},
+  'kiwi':                   {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Kiwi_kiwi.jpg/800px-Kiwi_kiwi.jpg', credit:'Glen Fergus, CC BY-SA 2.5'},
+  'secretary-bird':         {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Secretarybird_Kruger.jpg/800px-Secretarybird_Kruger.jpg', credit:'Alastair Rae, CC BY-SA 2.0'},
+  'toucan':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Ramphastos_toco_-Belo_Horizonte_Zoo%2C_Brazil-8a.jpg/800px-Ramphastos_toco_-Belo_Horizonte_Zoo%2C_Brazil-8a.jpg', credit:'Carlos Delgado, CC BY-SA 3.0'},
+  'pelican':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Brown_pelican_plunging.jpg/800px-Brown_pelican_plunging.jpg', credit:'Ómar Runólfsson, CC BY 2.0'},
+  'woodpecker':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8b/Pileated_woodpecker_male_4_edit.jpg/800px-Pileated_woodpecker_male_4_edit.jpg', credit:'Ken Thomas, Public Domain'},
+  'swift':                  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Apus_apus_01.jpg/800px-Apus_apus_01.jpg', credit:'Andreas Trepte, CC BY-SA 2.5'},
+  'lyrebird':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Lyrebird_Superb_edit.jpg/800px-Lyrebird_Superb_edit.jpg', credit:'fir0002, GFDL 1.2'},
+  'hoatzin':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Hoatzin_%28Opisthocomus_hoazin%29.jpg/800px-Hoatzin_%28Opisthocomus_hoazin%29.jpg', credit:'Joseph Smit, Public Domain'},
+  'arctic-tern':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/Arctic_tern_-_natures_pics.jpg/800px-Arctic_tern_-_natures_pics.jpg', credit:'OldakQuill, CC BY-SA 3.0'},
+  'harpy-eagle':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/97/Harpia_harpyja_2_%28Piotr_Trela%29.jpg/800px-Harpia_harpyja_2_%28Piotr_Trela%29.jpg', credit:'Piotr Trela, CC BY-SA 3.0'},
+  'shoebill':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/48/Balaeniceps_rex_%28Shoebill%29.jpg/800px-Balaeniceps_rex_%28Shoebill%29.jpg', credit:'Ltshears, CC BY-SA 3.0'},
+  'superb-fairywren':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Malurus_cyaneus_2_-_Mogo_Campground.jpg/800px-Malurus_cyaneus_2_-_Mogo_Campground.jpg', credit:'JJ Harrison, CC BY-SA 3.0'},
+  // Reptiles
+  'anaconda':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f7/Eunectes_murinus_2.jpg/800px-Eunectes_murinus_2.jpg', credit:'Ltshears, CC BY-SA 3.0'},
+  'gecko':                  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Tokay_Gecko_Khao_Yai.jpg/800px-Tokay_Gecko_Khao_Yai.jpg', credit:'Rushenb, CC BY-SA 3.0'},
+  'python':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Ball_python_lucy.JPG/800px-Ball_python_lucy.JPG', credit:'Mokele, CC BY-SA 3.0'},
+  'iguana':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/Iguana_iguana_in_Roatan.jpg/800px-Iguana_iguana_in_Roatan.jpg', credit:'Charlesjsharp, CC BY-SA 4.0'},
+  'leatherback-turtle':     {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0e/Leatherback_sea_turtle_Tinglar%2C_USVI_%285839996547%29.jpg/800px-Leatherback_sea_turtle_Tinglar%2C_USVI_%285839996547%29.jpg', credit:'USFWS, Public Domain'},
+  // Amphibians
+  'giant-salamander':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Velemlok_%C4%8D%C3%ADnsk%C3%BD_zoo_praha_1.jpg/800px-Velemlok_%C4%8D%C3%ADnsk%C3%BD_zoo_praha_1.jpg', credit:'Petr Hamernik, CC BY-SA 4.0'},
+  'red-eyed-tree-frog':     {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/45/RedEyedTreeFrog_greencanvas.jpg/800px-RedEyedTreeFrog_greencanvas.jpg', credit:'Carey James Balboa, Public Domain'},
+  // Mammals
+  'dolphin':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Tursiops_truncatus_01.jpg/800px-Tursiops_truncatus_01.jpg', credit:'NASA, Public Domain'},
+  'white-rhinoceros':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/White_Rhino.jpg/800px-White_Rhino.jpg', credit:'Ikiwaner, GFDL 1.2'},
+  'manatee':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Manatee_with_calf.jpg/800px-Manatee_with_calf.jpg', credit:'USFWS, Public Domain'},
+  'african-wild-dog':       {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/d/df/African_wild_dog_%28Lycaon_pictus%29_male.jpg/800px-African_wild_dog_%28Lycaon_pictus%29_male.jpg', credit:'Lip Kee Yap, CC BY-SA 2.0'},
+  // Protists
+  'radiolaria':             {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Acantharia.jpg/800px-Acantharia.jpg', credit:'Ernst Haeckel, Public Domain'},
 };
 
 export const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','bonobo','hominini'];

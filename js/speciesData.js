@@ -2512,6 +2512,24 @@ export const PHOTO_MAP = {
   // ── Birds (missing entries) ──
   'resplendent-quetzal':  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Quetzal_-_Monteverde.jpg/800px-Quetzal_-_Monteverde.jpg', credit:'Francesco Veronesi, CC BY-SA 2.0'},
   'greater-bird-of-paradise': {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b9/Paradisaea_apoda_1758.jpg/800px-Paradisaea_apoda_1758.jpg', credit:'John Gould, Public Domain'},
+  // ── Mammals (previously missing) ──
+  'armadillo':              {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b4/Nine-banded_Armadillo.jpg/800px-Nine-banded_Armadillo.jpg', credit:'Wildfeuer, CC BY 3.0'},
+  'aye-aye':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Aye-aye_%28Daubentonia_madagascariensis%29_portrait.jpg/800px-Aye-aye_%28Daubentonia_madagascariensis%29_portrait.jpg', credit:'Frank Vassen, CC BY 2.0'},
+  'beaver':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/American_Beaver.jpg/800px-American_Beaver.jpg', credit:'Steve, CC BY-SA 2.0'},
+  'capybara':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Capybara_%28Hydrochoerus_hydrochaeris%29.JPG/800px-Capybara_%28Hydrochoerus_hydrochaeris%29.JPG', credit:'Charles J. Sharp, CC BY-SA 4.0'},
+  'cheetah':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Cheetah_%28Acinonyx_jubatus%29_male_-_head.jpg/800px-Cheetah_%28Acinonyx_jubatus%29_male_-_head.jpg', credit:'Charles J. Sharp, CC BY-SA 4.0'},
+  'dugong':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Dugong_at_Marsa_Alam.JPG/800px-Dugong_at_Marsa_Alam.JPG', credit:'Julien Willem, CC BY-SA 3.0'},
+  'echidna':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/16/Short_beaked_echidna_hobartsketch.jpg/800px-Short_beaked_echidna_hobartsketch.jpg', credit:'JJ Harrison, CC BY-SA 3.0'},
+  'elephant-seal':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Mirounga_leonina_-_South_Georgia.jpg/800px-Mirounga_leonina_-_South_Georgia.jpg', credit:'Liam Quinn, CC BY-SA 2.0'},
+  'gibbon':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/32/Nomascus_leucogenys.jpg/800px-Nomascus_leucogenys.jpg', credit:'Thomas Schoch, CC BY-SA 2.5'},
+  'hedgehog':               {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/3/33/Erinaceus_europaeus_-_Eurasian_hedgehog.jpg/800px-Erinaceus_europaeus_-_Eurasian_hedgehog.jpg', credit:'GerardM, CC BY-SA 3.0'},
+  'jaguar':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Standing_jaguar.jpg/800px-Standing_jaguar.jpg', credit:'Cburnett, CC BY-SA 3.0'},
+  'meerkat':                {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b1/Meerkat_%28Suricata_suricatta%29_Tswalu.jpg/800px-Meerkat_%28Suricata_suricatta%29_Tswalu.jpg', credit:'Charles J. Sharp, CC BY-SA 4.0'},
+  'okapi':                  {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Okapi2.jpg/800px-Okapi2.jpg', credit:'Raul654, CC BY-SA 3.0'},
+  'spotted-hyena':          {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Crocuta_crocuta.jpg/800px-Crocuta_crocuta.jpg', credit:'Muhammad Mahdi Karim, GFDL 1.2'},
+  'vampire-bat':            {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/Desmodus_rotundus_-_Vampire_bat.jpg/800px-Desmodus_rotundus_-_Vampire_bat.jpg', credit:'Acatenazzi, CC BY-SA 3.0'},
+  'walrus':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Walrus_%28Odobenus_rosmarus%29%2C_Svalbard%2C_2011.jpg/800px-Walrus_%28Odobenus_rosmarus%29%2C_Svalbard%2C_2011.jpg', credit:'Arturo de Frias Marques, CC BY-SA 3.0'},
+  'wombat':                 {url:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/18/Vombatus_ursinus_-Maria_Island_National_Park.jpg/800px-Vombatus_ursinus_-Maria_Island_National_Park.jpg', credit:'JJ Harrison, CC BY-SA 3.0'},
 };
 
 export const GREAT_APE_IDS = ['great-apes','gorilla','orangutan','chimpanzee','bonobo','hominini'];

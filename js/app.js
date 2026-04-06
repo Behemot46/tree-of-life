@@ -329,7 +329,7 @@ patchEnrichment();
     'kakapo':'The kakapo is the world\'s heaviest parrot and the only flightless one — with fewer than 250 individuals remaining, every single bird has a name, a tracking transmitter, and a dedicated conservation team.',
     'resplendent-quetzal':'The resplendent quetzal was sacred to the Maya and Aztec, who considered killing one a capital crime — its iridescent tail feathers, up to 65 cm long, were used as currency and worn only by royalty.',
     'greater-bird-of-paradise':'Male greater birds-of-paradise perform one of the most elaborate courtship displays in nature — hanging upside down from branches and transforming their plumage into a cascading golden fountain to attract females.',
-    'radiolaria':'Radiolarian skeletons are geometric perfection on a microscopic scale — intricate silica lattices so beautiful they inspired Buckminster Fuller\'s geodesic dome. They have been building these structures for 540 million years.',
+    'radiolaria':'Radiolaria have been building the same intricate geometric silica skeletons for 540 million years — their fossilized shells form deep-sea ooze layers kilometers thick, used to date rocks and reconstruct ancient climates.',
     'fly-agaric':'The iconic red-and-white fly agaric is the most recognizable mushroom on Earth — and possibly the inspiration for Santa\'s red suit. Siberian shamans consumed it for visionary rituals, and reindeer eat it deliberately.'
   };
   Object.entries(ff).forEach(([id,fact])=>{

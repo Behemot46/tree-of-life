@@ -1,0 +1,292 @@
+/* ══════════════════════════════════════════════════════
+   SUPERARCHAIC DNA — story-specific styles
+   ══════════════════════════════════════════════════════ */
+
+/* ── Color tokens for this story ── */
+:root {
+  --sa-ghost: #7b4fbf;
+  --sa-ghost-dim: rgba(123, 79, 191, 0.15);
+  --sa-ghost-glow: rgba(123, 79, 191, 0.5);
+  --sa-ghost-gradient: linear-gradient(135deg, #5b3d8f, #7b4fbf, #9b6abf);
+}
+
+/* ══ SECTION 1: DNA RING ══ */
+
+.sa-ring-wrap {
+  width: 200px;
+  height: 200px;
+  margin: 24px auto 0;
+}
+
+.sa-ring-svg {
+  width: 100%;
+  height: 100%;
+}
+
+.sa-ring-track {
+  fill: none;
+  stroke: var(--surface-raised);
+  stroke-width: 14;
+}
+
+.sa-ring-sapiens {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 14;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  transition: stroke-dasharray 1.5s ease-out;
+}
+
+.sa-ring-ghost {
+  fill: none;
+  stroke: var(--sa-ghost);
+  stroke-width: 14;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  filter: drop-shadow(0 0 12px var(--sa-ghost-glow));
+  transition: stroke-dasharray 1.5s ease-out;
+}
+
+.sa-ring-pct {
+  font-family: var(--font-mono);
+  font-size: 36px;
+  font-weight: 400;
+  fill: var(--text-primary);
+  text-anchor: middle;
+  dominant-baseline: auto;
+}
+
+.sa-ring-label {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 3px;
+  fill: var(--text-dim);
+  text-anchor: middle;
+}
+
+/* ══ SECTION 2–3: GENOME BARS ══ */
+
+.sa-genome-bar {
+  display: flex;
+  width: min(80vw, 600px);
+  height: 40px;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 24px auto 0;
+}
+
+.sa-bar-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.sa-bar-label-sm {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.sa-bar-label-ghost {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  color: #fff;
+}
+
+/* ── Genome v1 (Section 2) ── */
+.sa-bar-sapiens {
+  flex: 98;
+  background: linear-gradient(90deg, var(--surface), var(--surface-raised));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sa-bar-neanderthal {
+  flex: 2;
+  background: linear-gradient(135deg, var(--terra), #d47030);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+}
+
+@keyframes barPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+.sa-pulse {
+  animation: barPulse 2s ease-in-out infinite;
+}
+
+/* ── Genome v2 (Section 3) ── */
+.sa-bar-sapiens-v2 {
+  flex: 78;
+  background: linear-gradient(90deg, var(--surface), var(--surface-raised));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sa-bar-ghost-segment {
+  flex: 20;
+  background: var(--sa-ghost-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  position: relative;
+  filter: drop-shadow(0 0 8px var(--sa-ghost-glow));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.sa-bar-ghost-segment.expanded {
+  transform: scaleX(1);
+}
+
+.sa-bar-question {
+  font-size: 16px;
+  color: rgba(255, 255, 255, 0.6);
+  opacity: 0;
+  transition: opacity 0.5s ease 0.8s;
+}
+.sa-bar-ghost-segment.expanded .sa-bar-question {
+  opacity: 1;
+}
+
+.sa-bar-neanderthal-v2 {
+  flex: 2;
+  background: linear-gradient(135deg, var(--terra), #d47030);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+}
+
+/* Section 3 screen shake (optional, nice-to-have) */
+@keyframes sectionShake {
+  0%, 100% { transform: translate(0, 0); }
+  20% { transform: translate(-2px, 1px); }
+  40% { transform: translate(2px, -1px); }
+  60% { transform: translate(-1px, 2px); }
+  80% { transform: translate(1px, -2px); }
+}
+.sa-bombshell.shake {
+  animation: sectionShake 0.2s ease;
+}
+
+/* ── Genome v3 (Section 7) ── */
+.sa-genome-v3 {
+  height: 36px;
+}
+
+.sa-bar-unknown-edge {
+  flex: 2;
+  background: rgba(90, 138, 154, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+}
+
+.sa-bar-sapiens-v3 {
+  flex: 74;
+  background: linear-gradient(90deg, var(--surface), var(--surface-raised));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sa-bar-ghost-v3 {
+  flex: 20;
+  background: var(--sa-ghost-gradient);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 6px var(--sa-ghost-glow));
+}
+
+.sa-bar-neanderthal-v3 {
+  flex: 2;
+  background: linear-gradient(135deg, var(--terra), #d47030);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+}
+
+@keyframes barWavePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.85; }
+}
+.sa-genome-v3 {
+  animation: barWavePulse 3s ease-in-out infinite;
+}
+
+/* ── CTA group ── */
+.sa-cta-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ══ REDUCED MOTION ══ */
+@media (prefers-reduced-motion: reduce) {
+  .sa-ring-sapiens,
+  .sa-ring-ghost {
+    transition: none;
+  }
+  .sa-pulse {
+    animation: none;
+  }
+  .sa-bar-ghost-segment {
+    transform: scaleX(1);
+    transition: none;
+  }
+  .sa-bar-ghost-segment .sa-bar-question {
+    opacity: 1;
+    transition: none;
+  }
+  .sa-bombshell.shake {
+    animation: none;
+  }
+  .sa-genome-v3 {
+    animation: none;
+  }
+}
+
+/* ══ RESPONSIVE ══ */
+@media (max-width: 768px) {
+  .sa-ring-wrap {
+    width: 160px;
+    height: 160px;
+  }
+  .sa-ring-pct {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sa-ring-wrap {
+    width: 140px;
+    height: 140px;
+  }
+  .sa-ring-pct {
+    font-size: 26px;
+  }
+  .sa-genome-bar {
+    height: 32px;
+  }
+  .sa-bar-label {
+    font-size: 10px;
+  }
+}

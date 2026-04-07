@@ -33,11 +33,8 @@ import { renderPanelContent, showMainPanel, closePanel, openHominins, openHomini
 // ── Hominin / Compare ──
 import { buildHomininTree, showComparePanel, closeCompare, finishCompare, cancelCompare, startCompareFromPanel, interceptShowMainPanel, initHomininDeps, openHomininOverlay, closeHomininOverlay, renderHominins, showHominDetail, toggleCompareMode, viewHomininOnTree, initHomininOverlay } from './hominin.js';
 
-// ── DNA Calculator ──
-import { openDnaCalc, closeDnaCalc, resetDnaUI, openDnaSearch, selectDnaSpecies, dnaPreset, showDnaResults, animateCounter, initDnaCalcDeps, initDnaCalcEvents } from './dnaCalc.js';
-
-// ── Evolutionary Path ──
-import { openEvoPath, closeEvoPath, openEvoSearch, fillEvoSlot, selectEvoSpecies, evoPreset, computeEvoPath, showEvoOnTree, clearEvoPath, clearEvoHighlight, getEvoFunFact, initEvoPathDeps, initEvoPathEvents } from './evoPath.js';
+// ── Species Compare (unified DNA + Evo Path) ──
+import { openCompare, closeCompare as closeSpeciesCompare, openCompareSearch, selectCompareSpecies, comparePreset, compareDice, computeCompare, showCompareOnTree, clearCompareHighlight, initCompareDeps, initCompareEvents } from './speciesCompare.js';
 
 // ── Unified Game ──
 import { openGame, closeGame, initGameEvents, initGameDeps } from './game.js';
@@ -70,14 +67,13 @@ import { openSapiens, closeSapiens, initSapiensDeps } from './sapiens.js';
 
 initRendererDeps({ showMainPanel, showTip, hideTip, smoothPanTo, smoothZoomTo, layout, updateBreadcrumb });
 initZoomDeps({ scheduleRender, layout, getVisible });
-initNavDeps({ showMainPanel, closePanel, smoothPanTo, smoothZoomTo, scheduleRender, layout, centerOnRoot, applyT, renderPanelContent, closeDnaCalc, closeEvoPath, closeGame });
+initNavDeps({ showMainPanel, closePanel, smoothPanTo, smoothZoomTo, scheduleRender, layout, centerOnRoot, applyT, renderPanelContent, closeSpeciesCompare, closeGame });
 initTimelineDeps({ scheduleRender, t, togglePlayback, pausePlayback });
 initPanelDeps({ pushNav, updateNavButtons, updateBreadcrumb, scheduleRender, smoothPanTo, focusNode, t, generateSpeciesIllustration, navBack, layout, applyT, centerOnRoot, openSapiens });
 initSapiensDeps({ pushNav, navBack, showMainPanel, t, scheduleRender, smoothPanTo });
 initHomininDeps({ scheduleRender, showMainPanel, renderPanelContent, t });
 setHomininOverlayOpener(openHomininOverlay);
-initDnaCalcDeps({ searchEntities, t, showMainPanel });
-initEvoPathDeps({ searchEntities, t, scheduleRender, smoothPanTo, layout, applyT });
+initCompareDeps({ searchEntities, t, showMainPanel, scheduleRender, smoothPanTo, layout, applyT });
 initGameDeps({ t, navigateTo: (...args) => navigateTo(...args) });
 initPlaybackDeps({ layout, centerOnTree, scheduleRender, applyT, buildEraPresets, getEraName, updateEraTint, updateSpeciesCount, t });
 initThemeDeps({ buildEraPresets, buildExtinctionMarkers, buildEraSegments, updateSpeciesCount, buildDensitySparkline, scheduleRender });
@@ -614,11 +610,8 @@ initPanelListeners();
 // ── Hominin overlay listeners (close, filters, escape) ──
 initHomininOverlay();
 
-// ── DNA Calculator events ──
-initDnaCalcEvents();
-
-// ── Evo Path events ──
-initEvoPathEvents();
+// ── Species Compare events ──
+initCompareEvents();
 
 // ── Keyboard handlers ──
 document.addEventListener('keydown',e=>{
@@ -629,7 +622,7 @@ document.addEventListener('keydown',e=>{
     if(state.playbackMode){exitPlaybackMode();return;}
     const _toastEl = document.getElementById('fact-toast');
     if(_toastEl && _toastEl.classList.contains('visible')){dismissToast();return;}
-    if(document.getElementById('evo-path-panel').classList.contains('open')){closeEvoPath();return;}
+    if(document.getElementById('species-compare-panel').classList.contains('open')){closeSpeciesCompare();return;}
     if(document.getElementById('game-panel').classList.contains('open')){closeGame();return;}
     // Close search dropdown first if open (not a nav action)
     if(searchResults.classList.contains('show')){
@@ -638,8 +631,6 @@ document.addEventListener('keydown',e=>{
       searchInput.blur();
       return;
     }
-    // Close DNA calculator if open (not a nav action)
-    if(document.getElementById('dna-panel').classList.contains('open')){closeDnaCalc();return;}
     // Shift+Escape = Home (reset everything)
     if(e.shiftKey){navHome();return;}
     // Escape = Back (step back one level)
@@ -781,30 +772,14 @@ document.getElementById('svg').addEventListener('keydown',function(e){
   });
 })();
 
-// ── DNA panel focus trap (a11y) ──
-(function setupDnaFocusTrap(){
-  const dnaEl=document.getElementById('dna-panel');
-  dnaEl.addEventListener('keydown',function(e){
-    if(e.key==='Escape'){closeDnaCalc();return;}
+// ── Compare panel focus trap (a11y) ──
+(function setupCompareFocusTrap(){
+  const compareEl=document.getElementById('species-compare-panel');
+  if(!compareEl) return;
+  compareEl.addEventListener('keydown',function(e){
+    if(e.key==='Escape'){closeSpeciesCompare();return;}
     if(e.key!=='Tab') return;
-    const focusable=dnaEl.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
-    if(!focusable.length) return;
-    const first=focusable[0],last=focusable[focusable.length-1];
-    if(e.shiftKey){
-      if(document.activeElement===first){e.preventDefault();last.focus();}
-    } else {
-      if(document.activeElement===last){e.preventDefault();first.focus();}
-    }
-  });
-})();
-
-// ── Evo-path panel focus trap (a11y) ──
-(function setupEvoFocusTrap(){
-  const evoEl=document.getElementById('evo-path-panel');
-  evoEl.addEventListener('keydown',function(e){
-    if(e.key==='Escape'){closeEvoPath();return;}
-    if(e.key!=='Tab') return;
-    const focusable=evoEl.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    const focusable=compareEl.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
     if(!focusable.length) return;
     const first=focusable[0],last=focusable[focusable.length-1];
     if(e.shiftKey){
@@ -940,27 +915,20 @@ window.closePanel = closePanel;
 window.openHomininView = openHomininView;
 window.toggleCompareMode = toggleCompareMode;
 window.viewHomininOnTree = viewHomininOnTree;
-window.closeCompare = closeCompare;
 window.finishCompare = finishCompare;
 window.cancelCompare = cancelCompare;
 window.startCompareFromPanel = startCompareFromPanel;
 
-// DNA calculator
-window.openDnaCalc = openDnaCalc;
-window.closeDnaCalc = closeDnaCalc;
-window.dnaPreset = dnaPreset;
-window.openDnaSearch = openDnaSearch;
-window.selectDnaSpecies = selectDnaSpecies;
-
-// Evolutionary path
-window.openEvoPath = openEvoPath;
-window.closeEvoPath = closeEvoPath;
-window.evoPreset = evoPreset;
-window.openEvoSearch = openEvoSearch;
-window.selectEvoSpecies = selectEvoSpecies;
-window.showEvoOnTree = showEvoOnTree;
-window.clearEvoPath = clearEvoPath;
-window.clearEvoHighlight = clearEvoHighlight;
+// Species Compare (unified DNA + Evo Path)
+window.openCompare = openCompare;
+window.closeCompare = closeSpeciesCompare;
+window.comparePreset = comparePreset;
+window.openCompareSearch = openCompareSearch;
+window.selectCompareSpecies = selectCompareSpecies;
+window.compareDice = compareDice;
+window.computeCompare = computeCompare;
+window.showCompareOnTree = showCompareOnTree;
+window.clearCompareHighlight = clearCompareHighlight;
 
 // Trivia
 window.openGame = openGame;

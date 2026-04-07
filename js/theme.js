@@ -51,30 +51,12 @@ export function applyI18n(){
   set('i-trivia-subtitle',t('trivia_subtitle'));
   const triviaRulesEl=el('i-trivia-rules');if(triviaRulesEl)triviaRulesEl.innerHTML=t('trivia_rules').replace(/\n/g,'<br>');
   set('i-trivia-start-btn',t('trivia_start'));
-  // DNA Calculator i18n
-  set('i-dna-title',t('dna_calc_title'));
-  set('i-btn-dna-calc',t('dna_calc_btn'));
-  set('i-dna-similarity-label',t('dna_similarity'));
-  set('i-dna-preset-chimp',t('dna_preset_chimp'));
-  set('i-dna-preset-banana',t('dna_preset_banana'));
-  set('i-dna-preset-mushroom',t('dna_preset_mushroom'));
-  set('i-dna-preset-bacterium',t('dna_preset_bacterium'));
-  const dnaLabelA=el('dna-label-a');if(dnaLabelA&&!document.getElementById('dna-slot-a').classList.contains('filled'))dnaLabelA.textContent=t('dna_select_species');
-  const dnaLabelB=el('dna-label-b');if(dnaLabelB&&!document.getElementById('dna-slot-b').classList.contains('filled'))dnaLabelB.textContent=t('dna_select_species');
-  // Evo Path i18n
-  set('i-evo-title',t('evo_title'));
-  set('i-btn-evo-path',t('evo_btn'));
-  set('i-evo-diverged',t('evo_diverged'));
-  set('i-evo-show-tree',t('evo_show_tree'));
-  set('i-evo-clear',t('evo_clear'));
-  set('i-evo-clear-overlay',t('evo_clear_overlay'));
-  set('i-evo-p1',t('evo_p1'));set('i-evo-p2',t('evo_p2'));set('i-evo-p3',t('evo_p3'));
-  set('i-evo-p4',t('evo_p4'));set('i-evo-p5',t('evo_p5'));set('i-evo-p6',t('evo_p6'));
-  const evoLabelA=el('evo-label-a');if(evoLabelA&&!document.getElementById('evo-slot-a').classList.contains('filled'))evoLabelA.textContent=t('evo_select');
-  const evoLabelB=el('evo-label-b');if(evoLabelB&&!document.getElementById('evo-slot-b').classList.contains('filled'))evoLabelB.textContent=t('evo_select');
-  const evoSearchInput=el('evo-search-input');if(evoSearchInput)evoSearchInput.placeholder=t('evo_search');
-  set('i-compare-title',t('compare_title'));
+  // Species Compare i18n
+  set('i-btn-compare',t('compare_btn')||'Compare');
+  set('i-compare-title',t('compare_title')||'Species Compare');
   set('i-compare-back',t('compare_back'));
+  set('i-dna-similarity-label',t('dna_similarity'));
+  const compareSearchInput=el('compare-search-input');if(compareSearchInput)compareSearchInput.placeholder=t('dna_search_placeholder')||'Search species...';
   // Nav buttons
   set('nav-back-label',t('nav_back'));
   set('nav-home-label',t('nav_home'));

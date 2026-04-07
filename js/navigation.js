@@ -8,7 +8,7 @@ import { TREE } from './data.js';
 // ── Late-binding deps (set via initNavDeps) ──
 let _showMainPanel, _closePanel, _smoothPanTo, _smoothZoomTo, _scheduleRender;
 let _layout, _centerOnRoot, _applyT, _renderPanelContent;
-let _closeDnaCalc, _closeEvoPath, _closeGame;
+let _closeSpeciesCompare, _closeGame;
 export function initNavDeps(deps) {
   _showMainPanel = deps.showMainPanel;
   _closePanel = deps.closePanel;
@@ -19,8 +19,7 @@ export function initNavDeps(deps) {
   _centerOnRoot = deps.centerOnRoot;
   _applyT = deps.applyT;
   _renderPanelContent = deps.renderPanelContent;
-  _closeDnaCalc = deps.closeDnaCalc;
-  _closeEvoPath = deps.closeEvoPath;
+  _closeSpeciesCompare = deps.closeSpeciesCompare || deps.closeDnaCalc;
   _closeGame = deps.closeGame;
 }
 
@@ -91,8 +90,8 @@ export function navBack(){
 export function navHome(){
   navStack.length=0;
   // Close all overlays
-  if(document.getElementById('dna-panel').classList.contains('open')&&typeof _closeDnaCalc==='function') _closeDnaCalc();
-  if(document.getElementById('evo-path-panel').classList.contains('open')&&typeof _closeEvoPath==='function') _closeEvoPath();
+  const comparePanel=document.getElementById('species-compare-panel');
+  if(comparePanel&&comparePanel.classList.contains('open')&&typeof _closeSpeciesCompare==='function') _closeSpeciesCompare();
   if(document.getElementById('game-panel').classList.contains('open')&&typeof _closeGame==='function') _closeGame();
   const kbdHelp=document.getElementById('kbd-help');
   if(kbdHelp) kbdHelp.classList.remove('visible');

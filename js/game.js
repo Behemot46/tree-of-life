@@ -4,7 +4,7 @@
 // ══════════════════════════════════════════════════════
 
 import { TRIVIA_QUESTIONS } from './triviaData.js';
-import { checkAchievement } from './engagement.js';
+import { checkAchievement, trackQuizComplete } from './engagement.js';
 import { startWhoFirst, answerWhoFirst, nextWhoFirst, diceWhoFirst } from './whoFirst.js';
 import { startFamilyFoe, answerFamilyFoe, nextFamilyFoe, diceFamilyFoe } from './familyFoe.js';
 
@@ -493,6 +493,7 @@ function showQuickResults(container) {
   if (isNewHigh) setHigh(LS_QUICK_HIGH, s.score);
   const perfect = s.score === 5;
   if (perfect) checkAchievement('quiz_champion');
+  trackQuizComplete('quick', s.score, s.score, s.bestStreak);
 
   const emoji = perfect ? '🌟' : s.score >= 4 ? '🎉' : s.score >= 3 ? '👍' : '📚';
 
@@ -517,6 +518,7 @@ function showClassicResults(container) {
   const answered = Math.min(s.currentIndex + 1, s.questions.length);
   let correctCount = 0;
   TIERS.forEach(t => { correctCount += s.tierScores[t.cls].correct; });
+  trackQuizComplete('classic', s.score, correctCount, s.bestStreak);
 
   const maxPossible = s.questions.reduce((sum, q) => sum + POINTS[q.difficulty], 0);
   const pct = maxPossible > 0 ? s.score / maxPossible : 0;
@@ -573,6 +575,7 @@ function showSurvivalResults(container) {
   const isNewStreak = s.correctCount > prevStreak;
   if (isNewHigh) setHigh(LS_SURVIVAL_HIGH, s.score);
   if (isNewStreak) setHigh(LS_SURVIVAL_STREAK, s.correctCount);
+  trackQuizComplete('survival', s.score, s.correctCount, s.bestStreak);
 
   const emoji = s.correctCount >= 20 ? '🏆' : s.correctCount >= 10 ? '🔥' : s.correctCount >= 5 ? '💪' : '📚';
 

@@ -3,6 +3,7 @@
 // ══════════════════════════════════════════════════════
 import { state } from './state.js';
 import { TREE } from './data.js';
+import { trackDiceUse } from './engagement.js';
 
 // Late-bound deps (set by app.js to avoid circular imports)
 let _scheduleRender, _layout, _getVisible;
@@ -117,6 +118,7 @@ export function initRandomButton(deps) {
   btn.addEventListener('click', () => {
     const species = deps.getRandomSpecies();
     if (!species) return;
+    trackDiceUse();
     // Spin animation
     btn.style.transition = 'transform 0.4s ease';
     btn.style.transform = 'rotate(720deg)';

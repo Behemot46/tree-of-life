@@ -6,6 +6,7 @@
 import { state, animDone, nodeMap } from './state.js';
 import { reducedMotion } from './utils.js';
 import { FACTS, HOMININS } from './data.js';
+import { ACHIEVEMENTS, getAchievement } from './achievements.js';
 
 // ── Late-binding deps (set via initEngagementDeps) ──
 let _deps = {};
@@ -434,20 +435,7 @@ if (!_tracking.dnaCompares) _tracking.dnaCompares = 0;
 if (!_tracking.domainsToggled) _tracking.domainsToggled = [];
 if (!_tracking.viewModes) _tracking.viewModes = [];
 
-const ACHIEVEMENTS = [
-  { id:'first_steps',        name:'First Steps',         icon:'\uD83D\uDC63', desc:'Explore your first species' },
-  { id:'curious_mind',       name:'Curious Mind',        icon:'\uD83D\uDD0D', desc:'Explore 10 species' },
-  { id:'explorer',           name:'Explorer',            icon:'\uD83E\uDDED', desc:'Explore 50 species' },
-  { id:'completionist',      name:'Completionist',       icon:'\uD83C\uDFC6', desc:'Explore every species in the tree' },
-  { id:'primatologist',      name:'Primatologist',       icon:'\uD83D\uDC12', desc:'Explore all primate species' },
-  { id:'deep_time',          name:'Deep Time Traveler',  icon:'\u231B',       desc:'Travel back to the origin of life' },
-  { id:'extinction_witness', name:'Extinction Witness',  icon:'\uD83D\uDC80', desc:'Visit all 5 mass extinction events' },
-  { id:'dna_wizard',         name:'DNA Wizard',          icon:'\uD83E\uDDEC', desc:'Compare 5 DNA pairs' },
-  { id:'quiz_champion',      name:'Quiz Champion',       icon:'\uD83C\uDF93', desc:'Score 100% on a quiz' },
-  { id:'night_owl',          name:'Night Owl',           icon:'\uD83C\uDF19', desc:'Toggle dark mode' },
-  { id:'domain_master',      name:'Domain Master',       icon:'\uD83D\uDD2C', desc:'Filter each domain individually' },
-  { id:'view_master',        name:'View Master',         icon:'\uD83D\uDC41\uFE0F', desc:'Use all 3 view modes' },
-];
+// ACHIEVEMENTS now imported from ./achievements.js
 
 function _saveExplored() { localStorage.setItem(EXPLORED_KEY, JSON.stringify([..._explored])); }
 function _saveAchievements() { localStorage.setItem(ACHIEVE_KEY, JSON.stringify([..._achievements])); }
@@ -478,18 +466,65 @@ export function isExplored(id) { return _explored.has(id); }
 function _checkExplorationAchievements() {
   const count = _explored.size;
   const total = Object.keys(nodeMap).length;
-  if (count >= 1)  _unlock('first_steps');
-  if (count >= 10) _unlock('curious_mind');
-  if (count >= 50) _unlock('explorer');
-  if (count >= total && total > 0) _unlock('completionist');
-  // Primatologist: check all primate subtree nodes
-  const primatesNode = nodeMap['primates'];
-  if (primatesNode) {
+  if (count >= 1)   _unlock('first_contact');
+  if (count >= 10)  _unlock('budding_biologist');
+  if (count >= 50)  _unlock('seasoned_explorer');
+  if (count >= 100) _unlock('world_traveler');
+  if (count >= total && total > 0) _unlock('master_naturalist');
+
+  // Night owl: 20 species explored after midnight
+  const hour = new Date().getHours();
+  if (hour >= 0 && hour < 5 && count >= 20) _unlock('night_owl');
+
+  // Kingdom collector
+  const domains = ['bacteria','archaea','protists','fungi','plantae','animalia'];
+  for (const domainId of domains) {
+    const domainNode = nodeMap[domainId];
+    if (!domainNode) continue;
     const ids = [];
-    (function collect(n) { ids.push(n.id); if (n.children) n.children.forEach(collect); })(primatesNode);
-    if (ids.length > 0 && ids.every(id => _explored.has(id))) _unlock('primatologist');
+    (function collect(n) { if (!n.children || n.children.length === 0) ids.push(n.id); if (n.children) n.children.forEach(collect); })(domainNode);
+    if (ids.length > 0 && ids.every(id => _explored.has(id))) { _unlock('kingdom_collector'); break; }
   }
+
+  // Extinction witness: all extinct species
+  const extinctIds = Object.values(nodeMap).filter(n => n.extinct).map(n => n.id);
+  if (extinctIds.length > 0 && extinctIds.every(id => _explored.has(id))) _unlock('extinction_witness');
 }
+
+// New tracking functions for expanded achievement system
+export function trackQuizComplete(mode, score, correctCount, bestStreak) {
+  _unlock('quiz_taker');
+  if (mode === 'quick' && correctCount === 5) _unlock('quiz_champion');
+  if (mode === 'classic' && score >= 100) _unlock('trivia_master');
+  if (mode === 'survival' && bestStreak >= 15) _unlock('survival_expert');
+  _tracking.totalCorrect = (_tracking.totalCorrect || 0) + (correctCount || 0);
+  _saveTracking();
+  if (_tracking.totalCorrect >= 100) _unlock('know_it_all');
+}
+
+export function trackTourComplete(tourId) {
+  if (!_tracking.toursCompleted) _tracking.toursCompleted = [];
+  if (!_tracking.toursCompleted.includes(tourId)) {
+    _tracking.toursCompleted.push(tourId);
+    _saveTracking();
+  }
+  if (_tracking.toursCompleted.length >= 3) _unlock('tour_graduate');
+}
+
+export function trackDiceUse() {
+  _tracking.diceUses = (_tracking.diceUses || 0) + 1;
+  _saveTracking();
+  if (_tracking.diceUses >= 20) _unlock('lucky_roller');
+}
+
+export function trackCompareUse(pathLength, crossKingdom) {
+  _unlock('dna_detective');
+  if (pathLength >= 8) _unlock('chain_finder');
+  if (crossKingdom) _unlock('unlikely_cousins');
+}
+
+export function getUnlockedAchievements() { return _achievements; }
+export function getExploredSpecies() { return _explored; }
 
 export function checkAchievement(id) { _unlock(id); }
 
@@ -497,7 +532,7 @@ function _unlock(id) {
   if (_achievements.has(id)) return;
   _achievements.add(id);
   _saveAchievements();
-  const def = ACHIEVEMENTS.find(a => a.id === id);
+  const def = getAchievement(id);
   if (def) _showAchievementToast(def);
 }
 
@@ -531,4 +566,17 @@ export function trackDnaCompare() {
   _tracking.dnaCompares = (_tracking.dnaCompares || 0) + 1;
   _saveTracking();
   if (_tracking.dnaCompares >= 5) _unlock('dna_wizard');
+}
+
+// ── Species of the Day (deterministic from date) ──
+export function getSpeciesOfTheDay() {
+  const leaves = Object.values(nodeMap).filter(n => !n.children || n.children.length === 0);
+  if (!leaves.length) return null;
+  const dateStr = new Date().toISOString().slice(0, 10);
+  let hash = 0;
+  for (let i = 0; i < dateStr.length; i++) {
+    hash = ((hash << 5) - hash + dateStr.charCodeAt(i)) | 0;
+  }
+  const idx = ((hash % leaves.length) + leaves.length) % leaves.length;
+  return leaves[idx];
 }

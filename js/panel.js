@@ -3,9 +3,9 @@
 // ══════════════════════════════════════════════════════
 
 import { state, nodeMap, navStack, HUMAN_PATH, confirmedPhotoUrls } from './state.js';
-import { reducedMotion, canonicalHomininId } from './utils.js';
+import { reducedMotion, canonicalHomininId, getTimeContext } from './utils.js';
 import { a11yAnnounce, markExplored } from './engagement.js';
-import { PHOTO_MAP, WIKI_TITLES, NODE_ICONS, getIconGroup, FACTS, ImageLoader } from './data.js';
+import { PHOTO_MAP, NODE_ICONS, getIconGroup, FACTS, ImageLoader } from './data.js';
 import { MAP_PATHS } from './mapPaths.js';
 import { PRIMATE_DATA } from './primateData.js';
 import { GEO_DATA, BRANCH_DATA } from './geoData.js';
@@ -36,63 +36,8 @@ export function initPanelDeps(deps) {
 const panel = document.getElementById('panel');
 const panelAccent = document.getElementById('panel-accent');
 
-// ── Photo cache + Wikipedia photo fetcher (module scope) ──
-const _PHOTO_LS_KEY = 'tol-photo-cache';
-const _PHOTO_TTL_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
-(function restorePhotoCache() {
-  try {
-    const stored = JSON.parse(localStorage.getItem(_PHOTO_LS_KEY) || '{}');
-    const now = Date.now();
-    const valid = {};
-    for (const [k, v] of Object.entries(stored)) {
-      if (v && v.ts && (now - v.ts) < _PHOTO_TTL_MS) valid[k] = v;
-    }
-    window._photoCache = valid;
-  } catch(e) { window._photoCache = {}; }
-})();
-window._failedPhotos = window._failedPhotos || new Set();
-
-export function _savePhotoCache() {
-  try { localStorage.setItem(_PHOTO_LS_KEY, JSON.stringify(window._photoCache)); } catch(e) {}
-}
-
-export async function fetchWikiPhoto(nodeId, wikiTitle, imgEl, fallbackEl, creditEl) {
-  const cacheKey = nodeId;
-  if (window._failedPhotos.has(cacheKey)) return;
-  if (window._photoCache[cacheKey]) {
-    const cached = window._photoCache[cacheKey];
-    imgEl.src = cached.url;
-    imgEl.classList.add('loaded');
-    const hero = imgEl.closest('.panel-hero');
-    if (hero) hero.classList.add('has-image');
-    if (fallbackEl) fallbackEl.classList.add('hidden');
-    if (creditEl && cached.credit) creditEl.textContent = cached.credit;
-    return;
-  }
-  try {
-    const res = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(wikiTitle)}`, {
-      headers: { 'Accept': 'application/json' }
-    });
-    if (!res.ok) throw new Error('API error');
-    const data = await res.json();
-    const thumb = data.thumbnail;
-    if (thumb && thumb.source) {
-      const url = thumb.source.replace(/\/\d+px-/, '/640px-');
-      window._photoCache[cacheKey] = { url, credit: 'Wikipedia / Wikimedia Commons', ts: Date.now() };
-      _savePhotoCache();
-      imgEl.src = url;
-      imgEl.classList.add('loaded');
-      const hero = imgEl.closest('.panel-hero');
-      if (hero) hero.classList.add('has-image');
-      if (fallbackEl) fallbackEl.classList.add('hidden');
-      if (creditEl) creditEl.textContent = 'Wikipedia / Wikimedia Commons';
-    } else {
-      throw new Error('No thumbnail');
-    }
-  } catch(e) {
-    window._failedPhotos.add(cacheKey);
-  }
-}
+// One-shot cleanup of legacy localStorage cache from removed fetchWikiPhoto path
+try { localStorage.removeItem('tol-photo-cache'); } catch(e) {}
 
 // ── Panel helper: determine branch type ──
 export function getBranchType(node) {
@@ -495,8 +440,6 @@ export function renderPanelContent(node) {
   const generatedUrl = (typeof ImageLoader !== 'undefined') ? ImageLoader.getGeneratedUrl(node.id) : null;
   let staticUrl = (photoEntry && photoEntry.url) || generatedUrl || node.img || null;
   const staticCredit = (photoEntry && photoEntry.url) ? (photoEntry.credit || '') : generatedUrl ? 'AI-generated illustration' : (node.imgCredit || '');
-  const wikiTitle = WIKI_TITLES[node.id] || null;
-  if (staticUrl && window._failedPhotos && window._failedPhotos.has('static:' + node.id)) staticUrl = null;
 
   const panelImgId = 'pi-' + node.id.replace(/[^a-z0-9]/g, '_');
   const panelFbId  = 'pf-' + node.id.replace(/[^a-z0-9]/g, '_');
@@ -525,6 +468,7 @@ export function renderPanelContent(node) {
         <div class="p-name">${node.name}</div>
         ${node.latin ? `<div class="p-latin">${node.latin}</div>` : ''}
         ${node.era ? `<div class="p-era">📅 ${node.era}${node.appeared ? ' · ' + node.appeared + ' Mya' : ''}</div>` : ''}
+        ${node.appeared ? (() => { const tc = getTimeContext(node.appeared, node.id); return tc ? `<div class="p-time-context">${tc.text}</div>` : ''; })() : ''}
       </div>
       <div id="${panelCrId}" class="panel-hero-credit">${staticCredit}</div>
       <button class="p-close" onclick="closePanel()">✕</button>
@@ -654,32 +598,28 @@ export function renderPanelContent(node) {
     }
   }
 
-  // Load image via ImageLoader (proper fallback chain)
+  // Load hero image from static URL (PHOTO_MAP → generated → node.img)
   const imgEl = document.getElementById(panelImgId);
   const fbEl  = document.getElementById(panelFbId);
-  const crEl  = document.getElementById(panelCrId);
-  if (imgEl && fbEl) {
-    if (staticUrl) {
-      imgEl.src = staticUrl;
+  if (imgEl && fbEl && staticUrl) {
+    let loadedOnce = false;
+    imgEl.onload = function() {
+      loadedOnce = true;
       imgEl.style.display = 'block';
       fbEl.style.display = 'none';
-      imgEl.onerror = function() {
-        (window._failedPhotos || (window._failedPhotos = new Set())).add('static:' + node.id);
+    };
+    imgEl.onerror = function() {
+      imgEl.style.display = 'none';
+      fbEl.style.display = 'flex';
+    };
+    // Safety timeout: only hide if no successful load ever happened
+    setTimeout(() => {
+      if (!loadedOnce) {
         imgEl.style.display = 'none';
         fbEl.style.display = 'flex';
-      };
-      // Timeout: if image hasn't loaded after 6s, show fallback
-      setTimeout(() => {
-        if (!imgEl.complete || imgEl.naturalWidth === 0) {
-          imgEl.style.display = 'none';
-          fbEl.style.display = 'flex';
-        }
-      }, 6000);
-    }
-    // Also try Wikipedia API for a potentially better photo
-    if (wikiTitle) {
-      fetchWikiPhoto(node.id, wikiTitle, imgEl, fbEl, crEl);
-    }
+      }
+    }, 6000);
+    imgEl.src = staticUrl;
   }
 }
 

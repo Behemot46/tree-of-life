@@ -97,9 +97,7 @@
 .game-mode-desc{font-size:var(--text-xs);color:var(--text-secondary);margin-top:0.15rem;}
 .game-mode-meta{font-size:var(--text-2xs);color:var(--accent-primary);font-family:var(--font-mono);margin-top:0.2rem;}
 
-/* ── QUIZ BUTTON ── */
-/* Quiz button hidden — use Trivia FAB instead */
-#btn-quiz{display:none;}
+/* ── GAMES BUTTON (formerly hidden Quiz pill, now main Games entry point) ── */
 #btn-quiz:hover{border-color:var(--accent-primary,var(--accent));color:var(--text-primary);}
 
 /* ── ANIMATIONS ── */
@@ -759,4 +757,121 @@ kbd{
 /* Dice button spin animation */
 #btn-random {
   transition: transform 0.4s ease;
+}
+
+.p-time-context {
+  font-size: var(--text-xs);
+  font-style: italic;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+  opacity: 0.85;
+}
+
+/* Scale of Time context line */
+.p-time-context {
+  font-size: var(--text-xs);
+  font-style: italic;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+  opacity: 0.85;
+}
+
+/* Who Appeared First? cards */
+.wf-cards {
+  display: flex;
+  gap: 0.8rem;
+  align-items: stretch;
+  margin: 0.5rem 0;
+}
+.wf-card {
+  flex: 1;
+  background: var(--surface-raised);
+  border: 2px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 1rem 0.6rem;
+  cursor: pointer;
+  text-align: center;
+  transition: border-color 0.2s, transform 0.15s;
+  font-family: inherit;
+  color: var(--text-primary);
+}
+.wf-card:hover:not(:disabled) { border-color: var(--accent-primary); transform: translateY(-2px); }
+.wf-card.correct { border-color: #27ae60; background: rgba(39,174,96,0.1); }
+.wf-card.wrong { border-color: #e74c3c; background: rgba(231,76,60,0.1); }
+.wf-card-img {
+  width: 80px; height: 80px;
+  object-fit: cover;
+  border-radius: 50%;
+  margin: 0 auto 0.5rem;
+  display: block;
+}
+.wf-card-icon { font-size: 1.8rem; margin-bottom: 0.3rem; }
+.wf-card-name { font-weight: 600; font-size: var(--text-sm); }
+.wf-card-latin { font-size: var(--text-xs); color: var(--text-muted); font-style: italic; }
+.wf-vs {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; font-weight: 700; color: var(--accent-primary);
+  min-width: 2rem;
+}
+.wf-reveal {
+  background: var(--surface-raised);
+  border-radius: var(--radius-md);
+  padding: 0.8rem;
+  margin: 0.5rem 0;
+}
+.wf-reveal-header { font-weight: 600; font-size: var(--text-base); margin-bottom: 0.4rem; }
+.wf-reveal-dates { display: flex; justify-content: space-between; font-size: var(--text-sm); color: var(--text-secondary); margin-bottom: 0.4rem; }
+.wf-bridge-fact { font-size: var(--text-sm); color: var(--text-muted); font-style: italic; }
+
+/* Family or Foe? target card */
+.ff-target {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  background: var(--surface-raised);
+  border: 2px solid var(--accent-primary);
+  border-radius: var(--radius-lg);
+  padding: 0.8rem 1rem;
+  margin: 0.5rem 0;
+}
+.ff-target-img {
+  width: 56px; height: 56px;
+  object-fit: cover;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.ff-target-name {
+  font-weight: 700;
+  font-size: var(--text-base);
+}
+
+/* Species of the Day badge */
+#sotd-badge {
+  position: fixed;
+  top: 4.4rem;
+  left: 1rem;
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--surface-raised, var(--surface));
+  border: 1px solid var(--border, rgba(255,255,255,0.1));
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  font-size: var(--text-xs);
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s;
+  color: var(--text);
+}
+#sotd-badge:hover { border-color: var(--gold, var(--accent-primary)); transform: translateY(-1px); }
+
+/* Daily Challenge mode card */
+.game-mode-card.daily-active {
+  border: 2px solid var(--gold, var(--accent-primary));
+  animation: dailyPulse 2s ease-in-out infinite;
+}
+.game-mode-card.daily-done { opacity: 0.6; }
+@keyframes dailyPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(200,136,58,0.3); }
+  50% { box-shadow: 0 0 0 6px rgba(200,136,58,0); }
 }

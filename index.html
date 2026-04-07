@@ -76,6 +76,10 @@
 
 <!-- PROGRESS BADGE -->
 <div id="progress-badge" aria-label="Species explored">🔬 <span id="progress-count">0</span>/<span id="progress-total">0</span></div>
+<div id="sotd-badge" style="display:none" role="button" tabindex="0" aria-label="Species of the Day">
+  <span id="sotd-icon"></span> <span id="sotd-name"></span>
+  <span style="font-size:var(--text-2xs);color:var(--text-muted);margin-left:0.3rem;">today</span>
+</div>
 
 <!-- HEADER -->
 <div id="header">
@@ -97,7 +101,7 @@
     <button id="hominins-tab" class="search-pill" onclick="navigateTo('hominini')" aria-label="Navigate to Hominin family tree">
       🧬 <span id="i-btn-hominins">Hominins</span>
     </button>
-    <button id="btn-quiz" class="search-pill" onclick="openGame()" aria-label="Open quiz">🧪 <span id="quiz-label">Quiz</span></button>
+    <button id="btn-quiz" class="search-pill" onclick="openGame()" aria-label="Open games">🎮 <span id="quiz-label">Games</span></button>
     <a href="stories/superarchaic-dna.html" class="search-pill" id="btn-stories" style="text-decoration:none;" aria-label="Read interactive stories">📖 <span id="stories-label">Stories</span></a>
   </div>
 </div>

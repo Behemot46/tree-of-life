@@ -4,7 +4,9 @@
 // ══════════════════════════════════════════════════════
 
 import { TRIVIA_QUESTIONS } from './triviaData.js';
-import { checkAchievement } from './engagement.js';
+import { checkAchievement, trackQuizComplete } from './engagement.js';
+import { startWhoFirst, answerWhoFirst, nextWhoFirst, diceWhoFirst } from './whoFirst.js';
+import { startFamilyFoe, answerFamilyFoe, nextFamilyFoe, diceFamilyFoe } from './familyFoe.js';
 
 // ── Late-binding deps ──
 let _t, _navigateTo;
@@ -139,6 +141,9 @@ function showModeSelector() {
   const quickHigh = getHigh(LS_QUICK_HIGH);
   const survHigh = getHigh(LS_SURVIVAL_HIGH);
   const survStreak = getHigh(LS_SURVIVAL_STREAK);
+  const today = new Date().toISOString().slice(0, 10);
+  const dailyDone = localStorage.getItem('tol-daily-' + today);
+  const dailyStreak = parseInt(localStorage.getItem('tol-daily-streak') || '0', 10);
 
   sel.innerHTML = `
     <div class="trivia-header">
@@ -147,6 +152,13 @@ function showModeSelector() {
     </div>
     <div class="trivia-subtitle">Choose your game mode</div>
     <div class="game-modes">
+      <button class="game-mode-card ${dailyDone ? 'daily-done' : 'daily-active'}" data-mode="daily" data-action="select-mode">
+        <div class="game-mode-icon">${dailyDone ? '✅' : '📅'}</div>
+        <div class="game-mode-info">
+          <div class="game-mode-name">Daily Challenge</div>
+          <div class="game-mode-desc">${dailyDone ? 'Completed today!' : 'One question · Streak: ' + dailyStreak + ' days'}</div>
+        </div>
+      </button>
       <button class="game-mode-card" data-mode="quick" data-action="select-mode">
         <div class="game-mode-icon">⚡</div>
         <div class="game-mode-info">
@@ -171,6 +183,22 @@ function showModeSelector() {
           ${survHigh > 0 ? `<div class="game-mode-meta">Record: ${survHigh} pts · ${survStreak} streak</div>` : ''}
         </div>
       </button>
+      <button class="game-mode-card" data-mode="who-first" data-action="select-mode">
+        <div class="game-mode-icon">⏳</div>
+        <div class="game-mode-info">
+          <div class="game-mode-name">Who Appeared First?</div>
+          <div class="game-mode-desc">10 rounds · Pick the older species</div>
+          ${getHigh('tol-game-whofirst-high') > 0 ? `<div class="game-mode-meta">Best: ${getHigh('tol-game-whofirst-high')} pts</div>` : ''}
+        </div>
+      </button>
+      <button class="game-mode-card" data-mode="family-foe" data-action="select-mode">
+        <div class="game-mode-icon">🤝</div>
+        <div class="game-mode-info">
+          <div class="game-mode-name">Family or Foe?</div>
+          <div class="game-mode-desc">8 rounds · Guess the closer relative</div>
+          ${getHigh('tol-game-familyfoe-high') > 0 ? `<div class="game-mode-meta">Best: ${getHigh('tol-game-familyfoe-high')} pts</div>` : ''}
+        </div>
+      </button>
     </div>
     <div class="trivia-difficulty-preview">
       <span class="trivia-diff-badge easy">Easy 10pts</span>
@@ -188,6 +216,39 @@ function showModeSelector() {
 
 function startGame(mode) {
   if (!mode) return;
+  if (mode === 'daily') {
+    const today = new Date().toISOString().slice(0, 10);
+    if (localStorage.getItem('tol-daily-' + today)) return;
+    let hash = 0;
+    for (let i = 0; i < today.length; i++) hash = ((hash << 5) - hash + today.charCodeAt(i)) | 0;
+    const qIdx = ((hash % TRIVIA_QUESTIONS.length) + TRIVIA_QUESTIONS.length) % TRIVIA_QUESTIONS.length;
+    const q = TRIVIA_QUESTIONS[qIdx];
+    gameState = {
+      mode: 'daily', questions: [q], currentIndex: 0,
+      score: 0, lives: 0, streak: 0, bestStreak: 0,
+      answered: false, tierScores: {}, difficultyLevel: 1, correctCount: 0
+    };
+    TIERS.forEach(t => { gameState.tierScores[t.cls] = {correct:0, total:0}; });
+    document.getElementById('game-mode-select').style.display = 'none';
+    document.getElementById('game-question').style.display = '';
+    document.getElementById('game-result').style.display = 'none';
+    showQuestion();
+    return;
+  }
+  if (mode === 'who-first') {
+    document.getElementById('game-mode-select').style.display = 'none';
+    document.getElementById('game-question').style.display = '';
+    document.getElementById('game-result').style.display = 'none';
+    startWhoFirst();
+    return;
+  }
+  if (mode === 'family-foe') {
+    document.getElementById('game-mode-select').style.display = 'none';
+    document.getElementById('game-question').style.display = '';
+    document.getElementById('game-result').style.display = 'none';
+    startFamilyFoe();
+    return;
+  }
   const questions = pickQuestions(mode);
   if (!questions.length) return;
 
@@ -452,6 +513,34 @@ function showResults() {
   if (s.mode === 'quick') return showQuickResults(result);
   if (s.mode === 'classic') return showClassicResults(result);
   if (s.mode === 'survival') return showSurvivalResults(result);
+  if (s.mode === 'daily') return showDailyResults(result);
+}
+
+function showDailyResults(container) {
+  const s = gameState;
+  const today = new Date().toISOString().slice(0, 10);
+  localStorage.setItem('tol-daily-' + today, s.correctCount > 0 ? 'correct' : 'wrong');
+  let streak = parseInt(localStorage.getItem('tol-daily-streak') || '0', 10);
+  if (s.correctCount > 0) {
+    streak++;
+    localStorage.setItem('tol-daily-streak', String(streak));
+  } else {
+    localStorage.setItem('tol-daily-streak', '0');
+    streak = 0;
+  }
+  const emoji = s.correctCount > 0 ? '🌟' : '📚';
+  container.innerHTML = `
+    <div class="trivia-header">
+      <div class="trivia-title">Daily Challenge</div>
+      <button class="btn-back" data-action="close-game" aria-label="Close">✕</button>
+    </div>
+    <div class="trivia-result-emoji">${emoji}</div>
+    <div class="trivia-result-score">${s.correctCount > 0 ? 'Correct!' : 'Not today...'}</div>
+    <div class="trivia-result-label">${streak > 0 ? `🔥 ${streak} day streak!` : 'Try again tomorrow!'}</div>
+    <div class="trivia-result-actions">
+      <button class="trivia-next-btn" data-action="close-game">Close</button>
+    </div>
+  `;
 }
 
 function showQuickResults(container) {
@@ -461,6 +550,7 @@ function showQuickResults(container) {
   if (isNewHigh) setHigh(LS_QUICK_HIGH, s.score);
   const perfect = s.score === 5;
   if (perfect) checkAchievement('quiz_champion');
+  trackQuizComplete('quick', s.score, s.score, s.bestStreak);
 
   const emoji = perfect ? '🌟' : s.score >= 4 ? '🎉' : s.score >= 3 ? '👍' : '📚';
 
@@ -485,6 +575,7 @@ function showClassicResults(container) {
   const answered = Math.min(s.currentIndex + 1, s.questions.length);
   let correctCount = 0;
   TIERS.forEach(t => { correctCount += s.tierScores[t.cls].correct; });
+  trackQuizComplete('classic', s.score, correctCount, s.bestStreak);
 
   const maxPossible = s.questions.reduce((sum, q) => sum + POINTS[q.difficulty], 0);
   const pct = maxPossible > 0 ? s.score / maxPossible : 0;
@@ -541,6 +632,7 @@ function showSurvivalResults(container) {
   const isNewStreak = s.correctCount > prevStreak;
   if (isNewHigh) setHigh(LS_SURVIVAL_HIGH, s.score);
   if (isNewStreak) setHigh(LS_SURVIVAL_STREAK, s.correctCount);
+  trackQuizComplete('survival', s.score, s.correctCount, s.bestStreak);
 
   const emoji = s.correctCount >= 20 ? '🏆' : s.correctCount >= 10 ? '🔥' : s.correctCount >= 5 ? '💪' : '📚';
 
@@ -593,6 +685,12 @@ export function initGameEvents() {
       }
       else if (action === 'play-again') showModeSelector();
       else if (action === 'next-question') nextQuestion();
+      else if (action === 'wf-pick') answerWhoFirst(actionEl.dataset.pick);
+      else if (action === 'wf-next') nextWhoFirst();
+      else if (action === 'wf-dice') diceWhoFirst();
+      else if (action === 'ff-pick') answerFamilyFoe(actionEl.dataset.pick);
+      else if (action === 'ff-next') nextFamilyFoe();
+      else if (action === 'ff-dice') diceFamilyFoe();
       return;
     }
 

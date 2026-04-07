@@ -41,6 +41,8 @@ import { openEvoPath, closeEvoPath, openEvoSearch, fillEvoSlot, selectEvoSpecies
 
 // ── Unified Game ──
 import { openGame, closeGame, initGameEvents, initGameDeps } from './game.js';
+import { initWhoFirstDeps } from './whoFirst.js';
+import { initFamilyFoeDeps } from './familyFoe.js';
 
 // ── Playback ──
 import { inferAppeared, enterPlaybackMode, exitPlaybackMode, startPlayback, pausePlayback, togglePlayback, setPlaybackSpeed, resetPlayback, skipToNextEvent, buildPlaybackControls, updatePlaybackControlState, updatePlaybackStates, initPlaybackDeps } from './playback.js';
@@ -49,7 +51,7 @@ import { inferAppeared, enterPlaybackMode, exitPlaybackMode, startPlayback, paus
 import { t, setLang, applyI18n, applyTheme, toggleTheme, initThemeDeps } from './theme.js';
 
 // ── Engagement / UI effects ──
-import { showToast, dismissToast, showSpeciesToast, showIdleToast, resetIdleTimer, onUserActivity, a11yAnnounce, spawnParticles, showIntro, animateTreeEntrance, generateSpeciesIllustration, initEngagementDeps, markExplored, isExplored, updateProgressBadge, checkAchievement, trackDomainToggle, trackViewMode, trackExtinctionClick, trackDnaCompare } from './engagement.js';
+import { showToast, dismissToast, showSpeciesToast, a11yAnnounce, spawnParticles, showIntro, animateTreeEntrance, generateSpeciesIllustration, initEngagementDeps, markExplored, isExplored, updateProgressBadge, checkAchievement, trackDomainToggle, trackViewMode, trackExtinctionClick, trackDnaCompare, getSpeciesOfTheDay } from './engagement.js';
 
 
 // ── Data (barrel + direct for niche modules) ──
@@ -81,6 +83,8 @@ initPlaybackDeps({ layout, centerOnTree, scheduleRender, applyT, buildEraPresets
 initThemeDeps({ buildEraPresets, buildExtinctionMarkers, buildEraSegments, updateSpeciesCount, buildDensitySparkline, scheduleRender });
 initEngagementDeps({ t, navigateTo: (...args) => navigateTo(...args), showMainPanel });
 initRandomButton({ getRandomSpecies: () => getRandomSpecies(nodeMap), showMainPanel });
+initWhoFirstDeps({ t, checkAchievement });
+initFamilyFoeDeps({ t, checkAchievement });
 
 
 // ══════════════════════════════════════════════════════
@@ -469,6 +473,22 @@ function init(){
   }
   assignDomains(TREE, 'luca');
   layout();centerOnRoot(0.18);scheduleRender(true);applyT();
+  // Species of the Day badge
+  try {
+    const sotd = getSpeciesOfTheDay();
+    if (sotd) {
+      const badge = document.getElementById('sotd-badge');
+      const ic = document.getElementById('sotd-icon');
+      const nm = document.getElementById('sotd-name');
+      if (badge && ic && nm) {
+        ic.textContent = sotd.icon || '🧬';
+        nm.textContent = sotd.name;
+        badge.style.display = '';
+        badge.addEventListener('click', () => showMainPanel(sotd));
+        badge.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') showMainPanel(sotd); });
+      }
+    }
+  } catch(e) { console.warn('SOTD failed', e); }
   spawnParticles();
   buildExtinctionMarkers();
   buildEraPresets();

@@ -64,6 +64,16 @@ export function sortChildrenByAge(n){
 
 // ── PHOTO RELIABILITY LAYER ──
 
+/**
+ * Pick a random leaf node (species) from the tree.
+ * Returns the node object, or null if nodeMap is empty.
+ */
+export function getRandomSpecies(nodeMapRef) {
+  const leaves = Object.values(nodeMapRef).filter(n => !n.children || n.children.length === 0);
+  if (!leaves.length) return null;
+  return leaves[Math.floor(Math.random() * leaves.length)];
+}
+
 export function verifyPhotoUrl(url){
   if(!url) return Promise.resolve(false);
   const cached=PHOTO_STATUS_CACHE.get(url);

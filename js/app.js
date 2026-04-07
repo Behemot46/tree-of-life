@@ -7,13 +7,13 @@
 import { state, nodeMap, navStack, animDone, confirmedPhotoUrls, HUMAN_PATH, TAXON_I18N, HOMININ_SKIP_IDS } from './state.js';
 
 // ── Utilities ──
-import { reducedMotion, canonicalHomininId, preprocess, sortChildrenByAge, homininToTreeNode } from './utils.js';
+import { reducedMotion, canonicalHomininId, preprocess, sortChildrenByAge, homininToTreeNode, getRandomSpecies } from './utils.js';
 
 // ── Layout ──
 import { layout, getVisible } from './layout.js';
 
 // ── Zoom / Pan ──
-import { applyT, smoothPanTo, smoothZoomTo, centerOnTree, centerOnRoot, initZoomDeps, initPointerEvents } from './zoom.js';
+import { applyT, smoothPanTo, smoothZoomTo, centerOnTree, centerOnRoot, initZoomDeps, initPointerEvents, initRandomButton } from './zoom.js';
 
 // ── Renderer ──
 import { render, scheduleRender, branchPath, initRendererDeps } from './renderer.js';
@@ -80,6 +80,7 @@ initGameDeps({ t, navigateTo: (...args) => navigateTo(...args) });
 initPlaybackDeps({ layout, centerOnTree, scheduleRender, applyT, buildEraPresets, getEraName, updateEraTint, updateSpeciesCount, t });
 initThemeDeps({ buildEraPresets, buildExtinctionMarkers, buildEraSegments, updateSpeciesCount, buildDensitySparkline, scheduleRender });
 initEngagementDeps({ t, navigateTo: (...args) => navigateTo(...args), showMainPanel });
+initRandomButton({ getRandomSpecies: () => getRandomSpecies(nodeMap), showMainPanel });
 
 
 // ══════════════════════════════════════════════════════

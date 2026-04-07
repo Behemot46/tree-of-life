@@ -755,3 +755,8 @@ kbd{
   width:100%;justify-content:center;box-sizing:border-box;
 }
 .compare-panel-open{display:flex;flex-direction:column;}
+
+/* Dice button spin animation */
+#btn-random {
+  transition: transform 0.4s ease;
+}

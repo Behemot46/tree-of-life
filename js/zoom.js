@@ -110,3 +110,18 @@ export function initPointerEvents(){
   document.getElementById('btn-out').addEventListener('click',()=>{state.transform.s=Math.max(0.05,state.transform.s*0.83);applyT();});
   document.getElementById('btn-reset').addEventListener('click',()=>{_layout();centerOnRoot(0.18);_scheduleRender(true);applyT();});
 }
+
+export function initRandomButton(deps) {
+  const btn = document.getElementById('btn-random');
+  if (!btn) return;
+  btn.addEventListener('click', () => {
+    const species = deps.getRandomSpecies();
+    if (!species) return;
+    // Spin animation
+    btn.style.transition = 'transform 0.4s ease';
+    btn.style.transform = 'rotate(720deg)';
+    setTimeout(() => { btn.style.transform = ''; }, 400);
+    // Navigate to species
+    deps.showMainPanel(species);
+  });
+}

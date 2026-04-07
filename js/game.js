@@ -141,6 +141,9 @@ function showModeSelector() {
   const quickHigh = getHigh(LS_QUICK_HIGH);
   const survHigh = getHigh(LS_SURVIVAL_HIGH);
   const survStreak = getHigh(LS_SURVIVAL_STREAK);
+  const today = new Date().toISOString().slice(0, 10);
+  const dailyDone = localStorage.getItem('tol-daily-' + today);
+  const dailyStreak = parseInt(localStorage.getItem('tol-daily-streak') || '0', 10);
 
   sel.innerHTML = `
     <div class="trivia-header">
@@ -149,6 +152,13 @@ function showModeSelector() {
     </div>
     <div class="trivia-subtitle">Choose your game mode</div>
     <div class="game-modes">
+      <button class="game-mode-card ${dailyDone ? 'daily-done' : 'daily-active'}" data-mode="daily" data-action="select-mode">
+        <div class="game-mode-icon">${dailyDone ? '✅' : '📅'}</div>
+        <div class="game-mode-info">
+          <div class="game-mode-name">Daily Challenge</div>
+          <div class="game-mode-desc">${dailyDone ? 'Completed today!' : 'One question · Streak: ' + dailyStreak + ' days'}</div>
+        </div>
+      </button>
       <button class="game-mode-card" data-mode="quick" data-action="select-mode">
         <div class="game-mode-icon">⚡</div>
         <div class="game-mode-info">
@@ -206,6 +216,25 @@ function showModeSelector() {
 
 function startGame(mode) {
   if (!mode) return;
+  if (mode === 'daily') {
+    const today = new Date().toISOString().slice(0, 10);
+    if (localStorage.getItem('tol-daily-' + today)) return;
+    let hash = 0;
+    for (let i = 0; i < today.length; i++) hash = ((hash << 5) - hash + today.charCodeAt(i)) | 0;
+    const qIdx = ((hash % TRIVIA_QUESTIONS.length) + TRIVIA_QUESTIONS.length) % TRIVIA_QUESTIONS.length;
+    const q = TRIVIA_QUESTIONS[qIdx];
+    gameState = {
+      mode: 'daily', questions: [q], currentIndex: 0,
+      score: 0, lives: 0, streak: 0, bestStreak: 0,
+      answered: false, tierScores: {}, difficultyLevel: 1, correctCount: 0
+    };
+    TIERS.forEach(t => { gameState.tierScores[t.cls] = {correct:0, total:0}; });
+    document.getElementById('game-mode-select').style.display = 'none';
+    document.getElementById('game-question').style.display = '';
+    document.getElementById('game-result').style.display = 'none';
+    showQuestion();
+    return;
+  }
   if (mode === 'who-first') {
     document.getElementById('game-mode-select').style.display = 'none';
     document.getElementById('game-question').style.display = '';
@@ -484,6 +513,34 @@ function showResults() {
   if (s.mode === 'quick') return showQuickResults(result);
   if (s.mode === 'classic') return showClassicResults(result);
   if (s.mode === 'survival') return showSurvivalResults(result);
+  if (s.mode === 'daily') return showDailyResults(result);
+}
+
+function showDailyResults(container) {
+  const s = gameState;
+  const today = new Date().toISOString().slice(0, 10);
+  localStorage.setItem('tol-daily-' + today, s.correctCount > 0 ? 'correct' : 'wrong');
+  let streak = parseInt(localStorage.getItem('tol-daily-streak') || '0', 10);
+  if (s.correctCount > 0) {
+    streak++;
+    localStorage.setItem('tol-daily-streak', String(streak));
+  } else {
+    localStorage.setItem('tol-daily-streak', '0');
+    streak = 0;
+  }
+  const emoji = s.correctCount > 0 ? '🌟' : '📚';
+  container.innerHTML = `
+    <div class="trivia-header">
+      <div class="trivia-title">Daily Challenge</div>
+      <button class="btn-back" data-action="close-game" aria-label="Close">✕</button>
+    </div>
+    <div class="trivia-result-emoji">${emoji}</div>
+    <div class="trivia-result-score">${s.correctCount > 0 ? 'Correct!' : 'Not today...'}</div>
+    <div class="trivia-result-label">${streak > 0 ? `🔥 ${streak} day streak!` : 'Try again tomorrow!'}</div>
+    <div class="trivia-result-actions">
+      <button class="trivia-next-btn" data-action="close-game">Close</button>
+    </div>
+  `;
 }
 
 function showQuickResults(container) {

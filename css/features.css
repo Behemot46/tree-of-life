@@ -866,3 +866,14 @@ kbd{
   color: var(--text);
 }
 #sotd-badge:hover { border-color: var(--gold, var(--accent-primary)); transform: translateY(-1px); }
+
+/* Daily Challenge mode card */
+.game-mode-card.daily-active {
+  border: 2px solid var(--gold, var(--accent-primary));
+  animation: dailyPulse 2s ease-in-out infinite;
+}
+.game-mode-card.daily-done { opacity: 0.6; }
+@keyframes dailyPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(200,136,58,0.3); }
+  50% { box-shadow: 0 0 0 6px rgba(200,136,58,0); }
+}

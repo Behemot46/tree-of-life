@@ -2,15 +2,22 @@
    STORY-BASE — shared styles for story exhibits
    ══════════════════════════════════════════════════════ */
 
+/* ── Override main-app lockdown from variables.css (html,body{overflow:hidden;height:100%}) ── */
+html:has(.story-page),
+html:has(.story-page) body {
+  height: auto;
+  overflow: visible;
+  overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
 /* ── Page container ── */
 .story-page {
   background: var(--bg);
   color: var(--text-primary);
   font-family: var(--font-body);
   min-height: 100vh;
-  overflow-y: auto;
   scroll-snap-type: y proximity;
-  scroll-behavior: smooth;
 }
 
 /* ── Section ── */

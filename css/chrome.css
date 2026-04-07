@@ -11,6 +11,17 @@
   --rail-w:196px;
   --rail-gap:6px;
   --chrome-pad:12px;
+  /* selection palette: teal-green, distinct from the gold domain accent */
+  --sel:#3ea98f;
+  --sel-bg:rgba(62,169,143,0.18);
+  --sel-border:rgba(62,169,143,0.65);
+  --sel-text:#b8f0de;
+}
+[data-theme="light"]{
+  --sel:#148f6a;
+  --sel-bg:rgba(20,143,106,0.12);
+  --sel-border:rgba(20,143,106,0.55);
+  --sel-text:#0b5a43;
 }
 
 /* ── Hide legacy / removed elements ────────────────────────── */
@@ -56,17 +67,30 @@
 #theme-btn:hover,
 #profile-btn:hover,
 .nav-btn:hover{
-  border-color:var(--accent);
-  color:var(--accent);
-  background:var(--accent-dim,var(--accent-primary-dim));
+  border-color:var(--sel-border);
+  color:var(--sel-text);
+  background:var(--sel-bg);
   transform:none;
 }
 .ctrl-btn.active,
 #view-toggle .view-btn.active,
-#lang-switcher .lang-btn.active{
-  background:var(--accent-primary-dim);
-  border-color:var(--accent);
-  color:var(--accent);
+#lang-switcher .lang-btn.active,
+.search-pill.active,
+#left-rail .view-btn.active,
+#left-rail .search-pill.active,
+#left-rail .ctrl-btn.active{
+  background:var(--sel-bg) !important;
+  border-color:var(--sel-border) !important;
+  color:var(--sel-text) !important;
+}
+/* momentary press feedback on any pill */
+.ctrl-btn:active,
+.search-pill:active,
+#view-toggle .view-btn:active,
+#left-rail .search-pill:active{
+  background:var(--sel-bg);
+  border-color:var(--sel);
+  color:var(--sel-text);
 }
 .ctrl-btn--icon,
 #zoom-ctrl .zbtn,

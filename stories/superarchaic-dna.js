@@ -19,6 +19,7 @@ function init() {
   // Section-specific animations
   initRing();
   initBombshell();
+  initSilhouettes();
 
   // Fade scroll hint on first scroll
   page.addEventListener('scroll', function onFirst() {
@@ -116,6 +117,89 @@ function initBombshell() {
     }, 800);
   }, { threshold: 0.3, essential: true });
   if (obs) observers.push(obs);
+}
+
+// ══ SECTION 4: GHOST SILHOUETTES ══
+
+const SILHOUETTE_DATA = [
+  {
+    id: 'ghost',
+    label: 'Superarchaic',
+    color: 'var(--sa-ghost)',
+    fillOpacity: 0,
+    strokeDash: '4,3',
+    // Tall, same height as sapiens — unknown proportions
+    path: 'M22,8 C22,4 26,0 30,0 C34,0 38,4 38,8 L38,12 C38,15 36,17 34,18 L36,20 L40,22 L44,24 L44,48 L42,50 L42,70 L44,72 L44,90 L38,90 L36,72 L34,70 L26,70 L24,72 L22,90 L16,90 L16,72 L18,70 L18,50 L16,48 L16,24 L20,22 L24,20 L26,18 C24,17 22,15 22,12 Z',
+    width: 60, height: 90,
+  },
+  {
+    id: 'neanderthal',
+    label: 'Neanderthal',
+    color: 'var(--terra)',
+    fillOpacity: 0.2,
+    // Stockier, shorter, broader shoulders
+    path: 'M23,9 C23,5 26,2 30,2 C34,2 37,5 37,9 L37,13 C37,15 36,17 34,18 L37,20 L44,23 L46,26 L46,50 L44,52 L43,70 L45,72 L45,90 L39,90 L37,72 L35,70 L25,70 L23,72 L21,90 L15,90 L15,72 L17,70 L16,52 L14,50 L14,26 L16,23 L23,20 L26,18 C24,17 23,15 23,13 Z',
+    width: 60, height: 92,
+  },
+  {
+    id: 'denisovan',
+    label: 'Denisovan',
+    color: 'var(--accent-secondary)',
+    fillOpacity: 0.2,
+    // Broader build, medium height
+    path: 'M22,9 C22,5 25,2 29,2 C33,2 36,5 36,9 L36,13 C36,15 35,17 33,18 L36,20 L43,23 L46,26 L46,50 L44,52 L43,70 L45,73 L45,92 L39,92 L37,73 L35,70 L23,70 L21,73 L19,92 L13,92 L13,73 L15,70 L14,52 L12,50 L12,26 L15,23 L22,20 L25,18 C23,17 22,15 22,13 Z',
+    width: 58, height: 94,
+  },
+  {
+    id: 'sapiens',
+    label: 'Homo sapiens',
+    color: 'var(--accent)',
+    fillOpacity: 0.2,
+    // Taller, slimmer
+    path: 'M24,7 C24,3 27,0 30,0 C33,0 36,3 36,7 L36,11 C36,14 34,16 32,17 L34,19 L38,21 L42,24 L42,50 L40,52 L40,72 L42,74 L42,94 L37,94 L35,74 L33,72 L27,72 L25,74 L23,94 L18,94 L18,74 L20,72 L20,52 L18,50 L18,24 L22,21 L26,19 L28,17 C26,16 24,14 24,11 Z',
+    width: 60, height: 94,
+  },
+];
+
+function initSilhouettes() {
+  const container = document.getElementById('silhouettes');
+  if (!container) return;
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('viewBox', '0 0 280 120');
+  svg.setAttribute('class', 'sa-silhouettes-svg');
+  svg.setAttribute('aria-hidden', 'true');
+
+  SILHOUETTE_DATA.forEach((s, i) => {
+    const g = document.createElementNS(svgNS, 'g');
+    const xOffset = i * 68 + 10;
+    const yOffset = 120 - s.height;
+    g.setAttribute('transform', `translate(${xOffset}, ${yOffset})`);
+
+    const path = document.createElementNS(svgNS, 'path');
+    path.setAttribute('d', s.path);
+    path.setAttribute('fill', s.id === 'ghost' ? 'none' : s.color);
+    path.setAttribute('fill-opacity', String(s.fillOpacity));
+    path.setAttribute('stroke', s.color);
+    path.setAttribute('stroke-width', s.id === 'ghost' ? '1.5' : '0');
+    if (s.strokeDash) path.setAttribute('stroke-dasharray', s.strokeDash);
+    if (s.id === 'ghost') path.setAttribute('class', 'sa-ghost-figure');
+    g.appendChild(path);
+
+    // Label
+    const text = document.createElementNS(svgNS, 'text');
+    text.setAttribute('x', String(s.width / 2));
+    text.setAttribute('y', String(s.height + 14));
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('class', s.id === 'ghost' ? 'sa-sil-label sa-sil-label-ghost' : 'sa-sil-label');
+    text.textContent = s.label;
+    g.appendChild(text);
+
+    svg.appendChild(g);
+  });
+
+  container.appendChild(svg);
 }
 
 // ── Start ──

@@ -41,6 +41,8 @@
 <link rel="stylesheet" href="css/responsive.css">
 <link rel="stylesheet" href="css/splash.css">
 <link rel="stylesheet" href="css/sapiens.css">
+<link rel="stylesheet" href="css/profile.css">
+<link rel="stylesheet" href="css/chrome.css">
 </head>
 <body>
 <a href="#canvas-wrap" class="skip-link" id="skip-link">Skip to Tree of Life</a>
@@ -58,30 +60,18 @@
 <div id="era-tint-overlay"></div>
 <div id="particles"></div>
 
-<!-- TOP-RIGHT CONTROLS (view toggle + lang + theme in one flex row) -->
+<!-- TOP-RIGHT CONTROLS (lang + theme + profile) -->
 <div id="top-right-controls">
-  <div id="view-toggle" role="toolbar" aria-label="View mode selector">
-    <button class="view-btn active" data-mode="radial" onclick="setViewMode('radial')">&#9673; Radial</button>
-    <button class="view-btn" data-mode="chronological" onclick="setViewMode('chronological')" style="display:none">&#8594; Timeline</button>
-    <button class="view-btn" data-mode="cladogram" onclick="setViewMode('cladogram')">&#9500; Cladogram</button>
-    <button class="view-btn" data-mode="playback" onclick="enterPlaybackMode()" id="i-view-playback">&#9654; Playback</button>
-  </div>
   <div id="lang-switcher" role="toolbar" aria-label="Language selector">
     <button class="lang-btn active" data-lang="en" onclick="setLang('en')" aria-label="Switch to English" aria-pressed="true">EN</button>
     <button class="lang-btn" data-lang="he" onclick="setLang('he')" aria-label="Switch to Hebrew" aria-pressed="false">עב</button>
     <button class="lang-btn" data-lang="ru" onclick="setLang('ru')" aria-label="Switch to Russian" aria-pressed="false">РУ</button>
   </div>
   <button id="theme-btn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle dark mode">☀</button>
+  <button id="profile-btn" onclick="openProfile()" title="Profile" aria-label="Player profile">👤</button>
 </div>
 
-<!-- PROGRESS BADGE -->
-<div id="progress-badge" aria-label="Species explored">🔬 <span id="progress-count">0</span>/<span id="progress-total">0</span></div>
-<div id="sotd-badge" style="display:none" role="button" tabindex="0" aria-label="Species of the Day">
-  <span id="sotd-icon"></span> <span id="sotd-name"></span>
-  <span style="font-size:var(--text-2xs);color:var(--text-muted);margin-left:0.3rem;">today</span>
-</div>
-
-<!-- HEADER -->
+<!-- HEADER (title only, subtitle dropped) -->
 <div id="header">
   <div class="title-wrap">
     <div class="title-main" id="i-title">Tree of Life</div>
@@ -89,24 +79,53 @@
   </div>
 </div>
 
-<!-- SEARCH -->
-<div id="search-wrap">
-  <span id="search-icon" style="position:absolute;left:0.75rem;top:50%;transform:translateY(-50%);color:var(--text-secondary);opacity:0.6;font-size:0.8rem;pointer-events:none;" aria-hidden="true">🔍</span>
-  <input id="search-input" type="text" placeholder="Search species…" autocomplete="off" aria-label="Search species by name, latin name, or description" role="combobox" aria-expanded="false" aria-controls="search-results">
-  <div id="search-results" role="listbox"></div>
-  <div id="search-pill-row" style="display:flex;flex-wrap:wrap;gap:0.5rem;align-items:center;">
-    <button id="extinct-toggle" class="search-pill" onclick="toggleExtinct()" aria-label="Toggle visibility of extinct species">
-      <span>†</span><span id="extinct-label"></span>
-    </button>
-    <button id="hominins-tab" class="search-pill" onclick="navigateTo('hominini')" aria-label="Navigate to Hominin family tree">
-      🧬 <span id="i-btn-hominins">Hominins</span>
-    </button>
+<!-- LEFT RAIL (unified glass panel: view modes + tools + status) -->
+<button id="left-rail-toggle" aria-label="Toggle menu">☰</button>
+<aside id="left-rail" aria-label="Main controls">
+  <div class="rail-caption" data-i18n="rail.view">View</div>
+  <div id="view-toggle" class="rail-group" role="toolbar" aria-label="View mode selector">
+    <button class="view-btn active" data-mode="radial" onclick="setViewMode('radial')">&#9673; Radial</button>
+    <button class="view-btn" data-mode="chronological" onclick="setViewMode('chronological')" style="display:none">&#8594; Timeline</button>
+    <button class="view-btn" data-mode="cladogram" onclick="setViewMode('cladogram')">&#9500; Cladogram</button>
+    <button class="view-btn" data-mode="playback" onclick="enterPlaybackMode()" id="i-view-playback">&#9654; Playback</button>
+  </div>
+
+  <div class="rail-divider"></div>
+  <div class="rail-caption" data-i18n="rail.tools">Tools</div>
+  <div class="rail-group">
+    <button id="btn-compare" class="search-pill" onclick="openCompare()" aria-label="Species Compare">🔬 <span id="i-btn-compare">Compare</span></button>
     <button id="btn-quiz" class="search-pill" onclick="openGame()" aria-label="Open games">🎮 <span id="quiz-label">Games</span></button>
     <a href="stories/superarchaic-dna.html" class="search-pill" id="btn-stories" style="text-decoration:none;" aria-label="Read interactive stories">📖 <span id="stories-label">Stories</span></a>
+    <button id="hominins-tab" class="search-pill" onclick="navigateTo('hominini')" aria-label="Navigate to Hominin family tree">🧬 <span id="i-btn-hominins">Hominins</span></button>
   </div>
+
+  <div class="rail-divider"></div>
+  <div class="rail-group">
+    <button id="extinct-toggle" class="search-pill" onclick="toggleExtinct()" aria-label="Toggle visibility of extinct species">
+      <span>†</span> <span id="extinct-label">Show extinct</span>
+    </button>
+    <button id="btn-tour-help" class="search-pill" onclick="showTourSelector()" aria-label="Guided tour" title="Guided Tour">? <span>Guided tour</span></button>
+  </div>
+
+  <div class="rail-foot">
+    <div class="rail-status" aria-label="Species explored">🔬 <b><span id="progress-count">0</span></b> / <b><span id="progress-total">0</span></b> seen</div>
+    <div id="sotd-badge" style="display:none" role="button" tabindex="0" aria-label="Species of the Day">
+      <span id="sotd-icon"></span> <span id="sotd-name"></span>
+    </div>
+  </div>
+</aside>
+
+<!-- HIDDEN: progress badge stub kept for legacy JS that toggles its class -->
+<div id="progress-badge" aria-hidden="true" style="display:none"></div>
+
+<!-- SEARCH (collapsed icon, expands on focus) -->
+<div id="search-wrap">
+  <input id="search-input" type="text" placeholder="Search species…" autocomplete="off" aria-label="Search species by name, latin name, or description" role="combobox" aria-expanded="false" aria-controls="search-results">
+  <div id="search-results" role="listbox"></div>
+  <div id="search-pill-row" style="display:none"></div>
 </div>
 
-<!-- NAV CONTROLS -->
+<!-- NAV CONTROLS (back/home — positioned next to breadcrumb via chrome.css) -->
 <div id="nav-ctrl">
   <button class="nav-btn" id="nav-back" aria-label="Go back"><span class="nav-arrow">←</span> <span id="nav-back-label">Back</span></button>
   <button class="nav-btn" id="nav-home" aria-label="Go to root"><span class="nav-arrow">⌂</span> <span id="nav-home-label">Home</span></button>
@@ -271,19 +290,7 @@
   <button class="zbtn" id="btn-random" title="Random species" aria-label="Jump to random species" style="font-size:0.9rem;">🎲</button>
 </div>
 
-<!-- FLOATING ACTION BUTTONS -->
-<div class="fab-group" role="toolbar" aria-label="Quick actions">
-  <button id="btn-tour-help" class="fab fab--tour" onclick="showTourSelector()" aria-label="Guided tour" title="Guided Tour">?</button>
-  <button id="btn-trivia" class="fab" onclick="openGame()" aria-label="Play Evolution Challenge" title="Evolution Challenge">
-    <span class="fab-icon">🧠</span> <span id="i-btn-trivia">Trivia</span>
-  </button>
-  <button id="btn-dna-calc" class="fab" onclick="openDnaCalc()" aria-label="Open DNA Similarity Calculator" title="DNA Compare">
-    <span class="fab-icon">🧬</span> <span id="i-btn-dna-calc">DNA Compare</span>
-  </button>
-  <button id="btn-evo-path" class="fab" onclick="openEvoPath()" aria-label="Evolutionary Path finder" title="Evo Path">
-    <span class="fab-icon">🌿</span> <span id="i-btn-evo-path">Evo Path</span>
-  </button>
-</div>
+<!-- FAB group removed: Tour/Compare moved into #left-rail; Trivia/DNA Compare/Evo Path superseded by unified Species Compare -->
 
 <!-- EVOLUTIONARY PATH FINDER PANEL -->
 <div id="evo-path-panel" class="evo-panel" aria-hidden="true">

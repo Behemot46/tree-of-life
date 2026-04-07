@@ -605,6 +605,19 @@ searchInput.addEventListener('blur',()=>setTimeout(()=>{searchResults.classList.
 document.getElementById('nav-back').addEventListener('click',navBack);
 document.getElementById('nav-home').addEventListener('click',navHome);
 
+// ── Mobile left-rail toggle ──
+const railToggle=document.getElementById('left-rail-toggle');
+const leftRail=document.getElementById('left-rail');
+if(railToggle&&leftRail){
+  railToggle.addEventListener('click',()=>leftRail.classList.toggle('open'));
+  // close rail on outside tap when open (mobile)
+  document.addEventListener('click',(e)=>{
+    if(!leftRail.classList.contains('open'))return;
+    if(leftRail.contains(e.target)||railToggle.contains(e.target))return;
+    leftRail.classList.remove('open');
+  });
+}
+
 // ── Pointer / Zoom events (from zoom.js) ──
 initPointerEvents();
 

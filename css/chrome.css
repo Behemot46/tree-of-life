@@ -1,0 +1,326 @@
+/* ═══════════════════════════════════════════════════════════════
+   chrome.css — unified UI chrome (loaded LAST, overrides legacy)
+   Implements the menu-layout-v1 wireframe:
+   four zone containers, one .ctrl-btn vocabulary,
+   left rail / right rail / top bar / bottom timeline.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root{
+  --ctrl-h:34px;
+  --ctrl-h-sm:28px;
+  --rail-w:196px;
+  --rail-gap:6px;
+  --chrome-pad:12px;
+}
+
+/* ── Hide legacy / removed elements ────────────────────────── */
+#legend{display:none !important;}
+.fab-group{display:none !important;}
+#i-footer{display:none !important;}
+#shortcuts-hint{display:none !important;}
+.title-sub{display:none !important;}
+#progress-badge{display:none !important;} /* merged into rail status */
+
+/* ── Header: title only, smaller, doesn't block clicks ─────── */
+#header{padding:0.55rem 0.9rem !important;background:none !important;}
+.title-main{font-size:1rem !important;letter-spacing:0.01em !important;}
+
+/* ── Unified .ctrl-btn vocabulary ──────────────────────────── */
+.ctrl-btn,
+#view-toggle .view-btn,
+.search-pill,
+#zoom-ctrl .zbtn,
+#lang-switcher .lang-btn,
+#theme-btn,
+#profile-btn,
+.nav-btn{
+  height:var(--ctrl-h);
+  min-width:var(--ctrl-h);
+  display:inline-flex;align-items:center;justify-content:center;
+  gap:8px;padding:0 12px;margin:0;
+  background:rgba(255,255,255,0.03);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius-md);
+  color:var(--text-primary);
+  font-family:var(--font-sans);font-size:12px;font-weight:500;
+  letter-spacing:0;text-transform:none;
+  cursor:pointer;white-space:nowrap;
+  transition:all 0.18s ease;
+  box-shadow:none;
+}
+.ctrl-btn:hover,
+#view-toggle .view-btn:hover,
+.search-pill:hover,
+#zoom-ctrl .zbtn:hover,
+#lang-switcher .lang-btn:hover,
+#theme-btn:hover,
+#profile-btn:hover,
+.nav-btn:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+  background:var(--accent-dim,var(--accent-primary-dim));
+  transform:none;
+}
+.ctrl-btn.active,
+#view-toggle .view-btn.active,
+#lang-switcher .lang-btn.active{
+  background:var(--accent-primary-dim);
+  border-color:var(--accent);
+  color:var(--accent);
+}
+.ctrl-btn--icon,
+#zoom-ctrl .zbtn,
+#theme-btn,
+#profile-btn{
+  width:var(--ctrl-h);padding:0;
+}
+
+/* ── TOP-RIGHT cluster (lang + theme + profile) ────────────── */
+#top-right-controls{
+  position:fixed !important;
+  top:10px !important;right:24px !important;
+  z-index:var(--z-panel);
+  display:flex;align-items:center;gap:4px;
+  padding:3px;
+  background:var(--glass-bg);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius-md);
+  backdrop-filter:var(--glass-blur);
+  box-shadow:var(--shadow-1);
+}
+#top-right-controls #view-toggle{display:none !important;} /* moved to left rail */
+#lang-switcher{display:flex;gap:2px;}
+#lang-switcher .lang-btn,
+#theme-btn,
+#profile-btn{
+  height:var(--ctrl-h-sm);
+  min-width:var(--ctrl-h-sm);
+  width:auto;
+  padding:0 6px;
+  font-size:11px;
+  background:transparent;
+  border-color:transparent;
+}
+#theme-btn,#profile-btn{width:var(--ctrl-h-sm);padding:0;font-size:13px;}
+
+/* ── LEFT RAIL container ───────────────────────────────────── */
+#left-rail{
+  position:fixed;
+  top:64px;bottom:120px;left:var(--chrome-pad);
+  width:var(--rail-w);
+  z-index:var(--z-nav);
+  display:flex;flex-direction:column;gap:var(--rail-gap);
+  padding:10px;
+  background:var(--glass-bg);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius-md);
+  backdrop-filter:var(--glass-blur);
+  -webkit-backdrop-filter:var(--glass-blur);
+  box-shadow:var(--shadow-1);
+  pointer-events:all;
+  overflow-y:auto;
+  scrollbar-width:thin;
+}
+#left-rail::-webkit-scrollbar{width:4px;}
+#left-rail::-webkit-scrollbar-thumb{background:var(--glass-border);border-radius:2px;}
+[dir="rtl"] #left-rail{left:auto;right:var(--chrome-pad);}
+
+.rail-caption{
+  font-size:9px;text-transform:uppercase;letter-spacing:0.1em;
+  color:var(--text-secondary);opacity:0.7;
+  padding:0 4px;margin-top:4px;
+}
+.rail-divider{height:1px;background:var(--glass-border);margin:4px 2px;flex-shrink:0;}
+.rail-group{display:flex;flex-direction:column;gap:4px;}
+.rail-foot{margin-top:auto;display:flex;flex-direction:column;gap:6px;padding-top:6px;}
+
+/* Buttons inside left rail are full-width and left-aligned */
+#left-rail .ctrl-btn,
+#left-rail .view-btn,
+#left-rail .search-pill{
+  width:100%;
+  justify-content:flex-start;
+  padding:0 10px;
+  font-size:12px;
+}
+
+/* View-toggle inside the rail: drop fixed positioning */
+#view-toggle{
+  position:static !important;
+  top:auto !important;left:auto !important;
+  display:flex !important;flex-direction:column;gap:4px;
+  background:transparent !important;border:none !important;
+  padding:0 !important;box-shadow:none !important;
+  backdrop-filter:none !important;
+}
+#view-toggle .view-btn{
+  width:100%;justify-content:flex-start;
+  border-top:1px solid var(--glass-border) !important;
+  border-left:1px solid var(--glass-border) !important;
+}
+#view-toggle .view-btn:first-child{border-top:1px solid var(--glass-border) !important;}
+
+/* Pills inside rail: drop the row wrapping hack */
+#hominins-tab{margin-top:0 !important;}
+#left-rail .search-pill{border-radius:var(--radius-md);}
+
+/* Status badge (replaces #progress-badge) */
+.rail-status{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 10px;font-size:10px;
+  color:var(--text-secondary);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius-sm);
+  background:rgba(255,255,255,0.02);
+}
+.rail-status b{color:var(--text-primary);font-weight:600;font-family:var(--font-mono,ui-monospace,monospace);}
+
+/* SotD inside rail */
+#sotd-badge{
+  position:static !important;
+  display:flex !important;align-items:center;gap:8px;
+  padding:8px 10px;font-size:10px;
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius-sm);
+  background:linear-gradient(135deg,rgba(200,136,58,0.12),rgba(200,136,58,0.02));
+  width:100%;
+}
+
+/* ── BREADCRUMB with embedded back/home arrows ─────────────── */
+#breadcrumb{
+  top:14px !important;
+  padding:0 0.6rem !important;
+  height:var(--ctrl-h);
+  background:var(--glass-bg) !important;
+  border:1px solid var(--glass-border) !important;
+  border-radius:var(--radius-md) !important;
+  backdrop-filter:var(--glass-blur);
+  display:flex;align-items:center;
+}
+
+/* Back/Home buttons: drop fixed positioning, become inline pills near breadcrumb */
+#nav-ctrl{
+  position:fixed !important;
+  top:14px !important;left:50% !important;
+  transform:translateX(calc(-50% - 240px)) !important;
+  z-index:calc(var(--z-nav) + 50);
+  padding:3px;
+  background:var(--glass-bg);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius-md);
+  backdrop-filter:var(--glass-blur);
+  display:flex !important;gap:2px;
+  opacity:1 !important;visibility:visible !important;
+}
+#nav-ctrl .nav-btn{
+  height:var(--ctrl-h-sm);min-width:var(--ctrl-h-sm);
+  width:var(--ctrl-h-sm);padding:0;
+  background:transparent;border:none;color:var(--text-secondary);
+}
+#nav-ctrl .nav-btn span:not(.nav-arrow){display:none;}
+
+/* ── SEARCH: collapsed icon, expands on focus/hover ────────── */
+#search-wrap{
+  position:fixed !important;
+  top:14px !important;
+  left:calc(var(--chrome-pad) + var(--rail-w) + 12px) !important;
+  z-index:var(--z-search);
+  display:flex !important;flex-direction:row !important;
+  align-items:center;gap:0;
+}
+#search-wrap #search-icon{display:none !important;}
+#search-input{
+  width:36px !important;height:var(--ctrl-h) !important;
+  padding:0 0 0 36px !important;
+  background:var(--glass-bg) !important;
+  border:1px solid var(--glass-border) !important;
+  border-radius:var(--radius-md) !important;
+  font-size:12px !important;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.5' stroke-linecap='round'><circle cx='11' cy='11' r='7'/><line x1='21' y1='21' x2='16.5' y2='16.5'/></svg>") !important;
+  background-repeat:no-repeat !important;
+  background-position:11px center !important;
+  cursor:pointer;
+  transition:width 0.22s ease,box-shadow 0.22s ease !important;
+}
+#search-input:focus,
+#search-input:not(:placeholder-shown){
+  width:280px !important;
+  cursor:text;
+}
+#search-input::placeholder{color:transparent;}
+#search-input:focus::placeholder{color:var(--text-secondary);}
+#search-results{top:calc(var(--ctrl-h) + 4px) !important;width:280px !important;}
+#search-pill-row{display:none !important;} /* pills moved to left rail */
+
+/* ── ZOOM RAIL (right) ─────────────────────────────────────── */
+#zoom-ctrl{
+  position:fixed !important;
+  top:50% !important;right:var(--chrome-pad) !important;
+  bottom:auto !important;
+  transform:translateY(-50%);
+  display:flex !important;flex-direction:column;gap:4px;
+  padding:5px;
+  background:var(--glass-bg);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius-md);
+  backdrop-filter:var(--glass-blur);
+  box-shadow:var(--shadow-1);
+}
+[dir="rtl"] #zoom-ctrl{right:auto;left:var(--chrome-pad);}
+#zoom-ctrl .zbtn{
+  width:var(--ctrl-h-sm);height:var(--ctrl-h-sm);
+  background:transparent;border-color:transparent;
+  font-size:14px;
+}
+#zoom-ctrl .zbtn:hover{background:var(--accent-primary-dim);}
+
+/* ── COMPACT TIMELINE ──────────────────────────────────────── */
+#timeline{padding:0.4rem 0.9rem 0.55rem !important;}
+#tl-controls{display:flex !important;align-items:center;gap:10px;margin-top:0.3rem;}
+#era-presets{display:none !important;} /* presets row removed */
+#tl-playback{display:flex;gap:4px;align-items:center;margin-left:auto;}
+#tl-playback button,
+#tl-playback .tl-speed-btn{
+  height:24px !important;min-width:24px;padding:0 8px !important;
+  font-size:10px !important;border-radius:var(--radius-sm) !important;
+  background:rgba(255,255,255,0.04);border:1px solid var(--glass-border);
+  color:var(--text-secondary);
+}
+#tl-playback button:hover,
+#tl-playback .tl-speed-btn:hover{border-color:var(--accent);color:var(--accent);}
+#tl-playback .tl-speed-btn.active{background:var(--accent-primary-dim);border-color:var(--accent);color:var(--accent);}
+
+/* ── MOBILE (≤768px) ───────────────────────────────────────── */
+@media (max-width:768px){
+  :root{--ctrl-h:40px;--ctrl-h-sm:32px;}
+  #left-rail{
+    top:auto;bottom:auto;
+    left:8px;right:8px;width:auto;
+    max-height:60vh;
+    transform:translateY(calc(100% - 0px));
+    transition:transform 0.25s ease;
+    bottom:96px;
+  }
+  #left-rail.open{transform:translateY(0);}
+  #left-rail:not(.open){
+    /* collapsed: only show as a small floating button */
+    display:none;
+  }
+  #left-rail-toggle{
+    position:fixed;top:60px;left:8px;z-index:calc(var(--z-nav) + 10);
+    width:42px;height:42px;padding:0;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--glass-bg);border:1px solid var(--glass-border);
+    border-radius:var(--radius-md);backdrop-filter:var(--glass-blur);
+    color:var(--text-primary);font-size:18px;cursor:pointer;
+  }
+  #search-wrap{left:60px !important;top:60px !important;}
+  #search-input:focus,#search-input:not(:placeholder-shown){width:calc(100vw - 80px) !important;}
+  #zoom-ctrl{top:auto !important;bottom:120px !important;transform:none;}
+  #breadcrumb{display:none !important;}
+  #nav-ctrl{display:none !important;}
+  #top-right-controls{right:8px !important;top:8px !important;}
+}
+@media (min-width:769px){
+  #left-rail-toggle{display:none;}
+}

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<meta name="description" content="How Human Are You? Discover that 20% of your DNA comes from a mysterious ghost species — an interactive story from the Tree of Life project.">
+<title>How Human Are You? — Tree of Life</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Heebo:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/variables.css">
+<link rel="stylesheet" href="story-base.css">
+<link rel="stylesheet" href="superarchaic-dna.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧬</text></svg>">
+</head>
+<body>
+
+<article class="story-page" id="story">
+
+  <!-- Header -->
+  <header class="story-header">
+    <a href="../index.html" class="story-back" aria-label="Back to Tree of Life">&larr;</a>
+    <span class="story-header-title">Tree of Life — Stories</span>
+  </header>
+
+  <!-- Section 1: The Hook -->
+  <section class="story-section sa-hook" id="sec-hook">
+    <div class="story-overline reveal">The Question</div>
+    <h1 class="story-title reveal">How Human Are You?</h1>
+    <div class="sa-ring-wrap reveal" id="dna-ring">
+      <svg viewBox="0 0 200 200" class="sa-ring-svg" role="img" aria-label="DNA percentage ring showing 80% Homo sapiens, 20% unknown">
+        <circle cx="100" cy="100" r="80" class="sa-ring-track"/>
+        <circle cx="100" cy="100" r="80" class="sa-ring-sapiens" id="ring-sapiens"
+          stroke-dasharray="502.65 502.65" stroke-dashoffset="0"/>
+        <circle cx="100" cy="100" r="80" class="sa-ring-ghost" id="ring-ghost"
+          stroke-dasharray="0 502.65" stroke-dashoffset="0"/>
+        <text x="100" y="92" class="sa-ring-pct" id="ring-pct">100%</text>
+        <text x="100" y="116" class="sa-ring-label">HOMO SAPIENS</text>
+      </svg>
+    </div>
+    <p class="story-text reveal" style="margin-top:24px;">You probably think you're 100% <em>Homo sapiens</em>. You're not. Recent genetic research reveals that a full 20% of your DNA was inherited from a species we haven't even identified yet — a ghost lineage that vanished from the fossil record but lives on inside you.</p>
+    <div class="story-scroll-hint" id="scroll-hint">
+      <span>Scroll to discover</span>
+      <div class="story-scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- Section 2: What We Knew -->
+  <section class="story-section sa-known" id="sec-known">
+    <div class="story-overline reveal">What We Knew</div>
+    <h2 class="story-title reveal">The 2% We Already Knew About</h2>
+    <div class="sa-genome-bar sa-genome-v1 reveal" id="genome-v1" role="img" aria-label="Genome bar showing 98% Homo sapiens and 2% Neanderthal DNA">
+      <div class="sa-bar-sapiens">
+        <span class="sa-bar-label">Homo sapiens — 98%</span>
+      </div>
+      <div class="sa-bar-neanderthal sa-pulse">
+        <span class="sa-bar-label-sm">2%</span>
+      </div>
+    </div>
+    <p class="story-text reveal" style="margin-top:32px;">For years, the big headline was that modern humans carry about 2% Neanderthal DNA — evidence of interbreeding ~60,000 years ago in Eurasia. It felt like a footnote. A minor subplot in our origin story. But that was before we looked deeper.</p>
+  </section>
+
+  <!-- Section 3: The Bombshell -->
+  <section class="story-section sa-bombshell" id="sec-bombshell">
+    <div class="story-overline reveal">The Discovery</div>
+    <h2 class="story-title reveal">Then We Found the Other 20%</h2>
+    <div class="sa-genome-bar sa-genome-v2 reveal" id="genome-v2" role="img" aria-label="Genome bar redrawn: 78% Homo sapiens, 20% unknown superarchaic, 2% Neanderthal">
+      <div class="sa-bar-sapiens-v2">
+        <span class="sa-bar-label">Sapiens — 78%</span>
+      </div>
+      <div class="sa-bar-ghost-segment" id="ghost-segment">
+        <span class="sa-bar-label-ghost">20%</span>
+        <span class="sa-bar-question">?</span>
+      </div>
+      <div class="sa-bar-neanderthal-v2">
+        <span class="sa-bar-label-sm">2%</span>
+      </div>
+    </div>
+    <p class="story-text reveal" style="margin-top:32px;">A 2020 study by Professor Alan Rogers and colleagues revealed something staggering: roughly 20% of the human genome comes from a completely unknown hominin species. Not Neanderthal. Not Denisovan. Something older. Something we've never found a fossil for. Rogers called it not a simple exchange of genes, but "a merger of two populations" — fundamentally rewriting our origin story.</p>
+  </section>
+
+  <!-- Section 4: Ghost Species -->
+  <section class="story-section sa-ghost" id="sec-ghost">
+    <div class="story-overline reveal">The Mystery</div>
+    <h2 class="story-title reveal">A Ghost Species</h2>
+    <div class="sa-silhouettes reveal" id="silhouettes" role="img" aria-label="Four hominin silhouettes: a flickering ghost species alongside Neanderthal, Denisovan, and Homo sapiens">
+      <!-- SVG silhouettes injected by JS -->
+    </div>
+    <p class="story-text reveal" style="margin-top:32px;">This "superarchaic" lineage diverged from our branch over 1 million years ago. They lived in Africa, evolved in parallel with our ancestors for hundreds of thousands of years, and then — at some point deep in prehistory — merged with the population that would become us. We carry their genes, but we have no skulls, no tools, no cave paintings. Only their DNA signature, hiding in our genome like a message from a species that left no other trace.</p>
+  </section>
+
+  <!-- Section 5: It Happened Twice -->
+  <section class="story-section sa-map" id="sec-map">
+    <div class="story-overline reveal">The Evidence</div>
+    <h2 class="story-title reveal">It Happened Twice</h2>
+    <div class="sa-map-wrap reveal" id="merge-map" role="img" aria-label="World map showing two ancient interbreeding events: one in Africa, one in Eurasia">
+      <!-- SVG map injected by JS -->
+    </div>
+    <p class="story-text reveal" style="margin-top:32px;">The study identified two distinct superarchaic populations involved in these ancient encounters. One group likely interbred with the ancestors of Neanderthals and Denisovans in Eurasia — potentially descendants of <em>Homo erectus</em>. But the African population that contributed 20% of OUR genome? No current suspects. No fossils. No name. Just the ghost in our DNA.</p>
+  </section>
+
+  <!-- Section 6: Mosaic -->
+  <section class="story-section sa-mosaic-section" id="sec-mosaic">
+    <div class="story-overline reveal">The Meaning</div>
+    <h2 class="story-title reveal">You Are a Mosaic</h2>
+    <div class="sa-mosaic-wrap reveal" id="mosaic" role="img" aria-label="Human silhouette composed of colored mosaic tiles representing different ancestral lineages">
+      <!-- Tiles injected by JS -->
+    </div>
+    <p class="story-text reveal" style="margin-top:32px;">The old story was simple: <em>Homo sapiens</em> evolved in Africa, migrated out, and conquered the world. The new story is richer and stranger. We are not a single, isolated branch on the tree of life — we are a braided river of multiple ancient lineages that flowed together over hundreds of thousands of years. Neanderthal. Denisovan. At least two unknown superarchaic species. And possibly more, still hidden in the unexplored regions of our genome. You are not one species' legacy. You are a mosaic.</p>
+  </section>
+
+  <!-- Section 7: The Question -->
+  <section class="story-section sa-closing" id="sec-closing">
+    <div class="story-overline reveal">The Future</div>
+    <h2 class="story-title reveal">Who Else Is Inside You?</h2>
+    <div class="sa-genome-bar sa-genome-v3 reveal" id="genome-v3" role="img" aria-label="Genome bar with additional unknown segments at the edges, suggesting more discoveries to come">
+      <div class="sa-bar-unknown-edge"><span class="sa-bar-label-sm">?</span></div>
+      <div class="sa-bar-sapiens-v3">
+        <span class="sa-bar-label">Sapiens</span>
+      </div>
+      <div class="sa-bar-ghost-v3">
+        <span class="sa-bar-label-ghost">20%</span>
+      </div>
+      <div class="sa-bar-neanderthal-v3">
+        <span class="sa-bar-label-sm">2%</span>
+      </div>
+      <div class="sa-bar-unknown-edge"><span class="sa-bar-label-sm">?</span></div>
+    </div>
+    <p class="story-text reveal" style="margin-top:32px;">As genetic analysis techniques improve, researchers expect to find even more ghost lineages woven into our DNA. Each discovery rewrites not just human history, but the very definition of what it means to be human. The tree of life isn't a tree — it's a web. And you are one of its most tangled, beautiful knots.</p>
+    <div class="sa-cta-group reveal" style="margin-top:40px;">
+      <a href="../index.html?node=hominini" class="story-cta">Explore the Hominin Family &rarr;</a>
+      <a href="https://doi.org/10.1126/sciadv.aay5483" target="_blank" rel="noopener" class="story-cta story-cta-secondary">Read the original research &rarr;</a>
+    </div>
+    <div class="story-citation reveal" style="margin-top:48px;">
+      Source: Rogers, A.R. et al. (2020). Neanderthal-Denisovan ancestors interbred with a distantly related hominin. <em>Science Advances.</em> Reported by Taub, B. in IFLScience.
+    </div>
+  </section>
+
+</article>
+
+<script type="module" src="superarchaic-dna.js"></script>
+</body>
+</html>

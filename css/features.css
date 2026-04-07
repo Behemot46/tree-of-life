@@ -119,7 +119,7 @@
   display:flex;align-items:center;gap:0.5rem;pointer-events:all;}
 
 /* ── VIEW TOGGLE ── */
-#view-toggle{position:fixed;top:11rem;left:1rem;z-index:var(--z-nav);
+#view-toggle{position:fixed;top:17rem;left:1rem;z-index:var(--z-nav);
   display:flex;flex-direction:column;gap:0;
   background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:8px;
   overflow:hidden;backdrop-filter:var(--glass-blur);box-shadow:var(--shadow-1);pointer-events:all;}

@@ -60,9 +60,6 @@ import { initSplash } from './splash.js';
 import { ERA_NAMES } from './uiData.js';
 import { openSapiens, closeSapiens, initSapiensDeps } from './sapiens.js';
 
-// ── Minimap ──
-import { renderMinimap } from './minimap.js';
-window._onRenderComplete=renderMinimap;
 
 
 // ══════════════════════════════════════════════════════

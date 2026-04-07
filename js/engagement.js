@@ -16,9 +16,6 @@ export function initEngagementDeps(deps) { Object.assign(_deps, deps); }
 const _toastEl = document.getElementById('fact-toast');
 const _toastText = document.getElementById('ft-text');
 let _toastDismissTimer = null;
-let _toastIdleTimer = null;
-let _lastUserActivity = Date.now();
-const TOAST_IDLE_INTERVAL = 45000;
 const TOAST_DISMISS_DELAY = 7000;
 
 export function showToast(factResult) {
@@ -46,35 +43,10 @@ export function showSpeciesToast(nodeId) {
   if (fact) showToast(fact);
 }
 
-export function showIdleToast() {
-  const panel = document.getElementById('panel');
-  if (panel.classList.contains('open')) return;
-  if (document.getElementById('dna-panel')?.classList.contains('open')) return;
-  if (document.getElementById('evo-path-panel')?.classList.contains('open')) return;
-  if (document.getElementById('game-panel')?.classList.contains('open')) return;
-  const splash = document.getElementById('splash');
-  if (splash && splash.style.display !== 'none') return;
-  if (_toastEl.classList.contains('visible')) return;
-  const fact = FACTS.getDiscoveryFact(state.currentLang);
-  if (fact) showToast(fact);
-}
-
-export function resetIdleTimer() {
-  _lastUserActivity = Date.now();
-  clearTimeout(_toastIdleTimer);
-  _toastIdleTimer = setTimeout(function idleTick() {
-    if (Date.now() - _lastUserActivity >= TOAST_IDLE_INTERVAL) showIdleToast();
-    _toastIdleTimer = setTimeout(idleTick, TOAST_IDLE_INTERVAL);
-  }, TOAST_IDLE_INTERVAL);
-}
-
-let _activityThrottle = 0;
-export function onUserActivity() {
-  const now = Date.now();
-  if (now - _activityThrottle < 2000) return;
-  _activityThrottle = now;
-  resetIdleTimer();
-}
+// Idle toast system removed — toast infra kept for achievements
+export function showIdleToast() { /* disabled */ }
+export function resetIdleTimer() { /* disabled */ }
+export function onUserActivity() { /* disabled */ }
 
 // ── Accessibility Announce ──
 

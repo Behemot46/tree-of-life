@@ -804,6 +804,6 @@ export function render(){
     if(fg) fg.focus({preventScroll:true});
   }
 
-  // Post-render callback (minimap etc.)
+  // Post-render callback hook
   if(typeof window._onRenderComplete==='function') window._onRenderComplete();
 }

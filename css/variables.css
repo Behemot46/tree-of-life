@@ -129,8 +129,6 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,.lang-btn:focus-
   --tree-label-latin-size:0.5625rem;
   --tree-label-name-size-mobile:var(--text-2xs);
   --tree-label-latin-size-mobile:0.5rem;
-  --tree-minimap-w:120px;
-  --tree-minimap-h:80px;
   /* ── World map (Scientific Atlas) ── */
   --map-ocean:#0f1923;
   --map-land:#152030;

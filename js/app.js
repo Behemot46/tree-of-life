@@ -58,6 +58,7 @@ import { initTourDeps, showTourSelector, startTour, endTour } from './tours.js';
 import { initSplash } from './splash.js';
 import { ERA_NAMES } from './uiData.js';
 import { openSapiens, closeSapiens, initSapiensDeps } from './sapiens.js';
+import { openProfile, closeProfile, initProfileDeps, initProfileListeners, initProfile } from './profile.js';
 
 
 
@@ -81,6 +82,7 @@ initEngagementDeps({ t, navigateTo: (...args) => navigateTo(...args), showMainPa
 initRandomButton({ getRandomSpecies: () => getRandomSpecies(nodeMap), showMainPanel });
 initWhoFirstDeps({ t, checkAchievement });
 initFamilyFoeDeps({ t, checkAchievement });
+initProfileDeps({ t, nodeMap });
 
 
 // ══════════════════════════════════════════════════════
@@ -528,6 +530,8 @@ function init(){
   // Initialize engagement progress badge and quiz events
   updateProgressBadge();
   initGameEvents();
+  // Initialize profile system
+  initProfile();
 }
 
 
@@ -613,6 +617,9 @@ initHomininOverlay();
 // ── Species Compare events ──
 initCompareEvents();
 
+// ── Profile panel listeners ──
+initProfileListeners();
+
 // ── Keyboard handlers ──
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
@@ -624,6 +631,7 @@ document.addEventListener('keydown',e=>{
     if(_toastEl && _toastEl.classList.contains('visible')){dismissToast();return;}
     if(document.getElementById('species-compare-panel').classList.contains('open')){closeSpeciesCompare();return;}
     if(document.getElementById('game-panel').classList.contains('open')){closeGame();return;}
+    if(document.getElementById('profile-panel').classList.contains('open')){closeProfile();return;}
     // Close search dropdown first if open (not a nav action)
     if(searchResults.classList.contains('show')){
       searchResults.classList.remove('show');
@@ -952,6 +960,10 @@ window.exitPlaybackMode = exitPlaybackMode;
 window.skipToNextEvent = skipToNextEvent;
 window.setPlaybackSpeed = setPlaybackSpeed;
 window.resetPlayback = resetPlayback;
+
+// Profile
+window.openProfile = openProfile;
+window.closeProfile = closeProfile;
 
 // Toast
 window.dismissToast = dismissToast;

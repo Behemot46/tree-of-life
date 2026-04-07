@@ -41,6 +41,7 @@
 <link rel="stylesheet" href="css/responsive.css">
 <link rel="stylesheet" href="css/splash.css">
 <link rel="stylesheet" href="css/sapiens.css">
+<link rel="stylesheet" href="css/profile.css">
 </head>
 <body>
 <a href="#canvas-wrap" class="skip-link" id="skip-link">Skip to Tree of Life</a>
@@ -72,6 +73,7 @@
     <button class="lang-btn" data-lang="ru" onclick="setLang('ru')" aria-label="Switch to Russian" aria-pressed="false">РУ</button>
   </div>
   <button id="theme-btn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle dark mode">☀</button>
+  <button id="profile-btn" onclick="openProfile()" title="Profile" aria-label="Player profile">👤</button>
 </div>
 
 <!-- PROGRESS BADGE -->
@@ -371,5 +373,25 @@
 </div>
 <!-- ACHIEVEMENT TOAST CONTAINER -->
 <div id="achievement-container" aria-live="polite"></div>
+
+<!-- PROFILE BACKDROP -->
+<div id="profile-backdrop" class="profile-backdrop"></div>
+
+<!-- PROFILE PANEL -->
+<div id="profile-panel" class="profile-panel" aria-hidden="true" role="dialog" aria-label="Player profile">
+  <div class="profile-header">
+    <div>
+      <div class="profile-header-name">👤 <span id="profile-player-name">Guest</span></div>
+      <div class="profile-header-points" id="profile-player-points">0 pts</div>
+    </div>
+    <button class="btn-back" onclick="closeProfile()" aria-label="Close profile panel">✕</button>
+  </div>
+  <div class="profile-tabs" role="tablist">
+    <button class="profile-tab active" data-tab="leaderboard" role="tab" aria-selected="true">🏆 Leaderboard</button>
+    <button class="profile-tab" data-tab="achievements" role="tab" aria-selected="false">🎖 Achievements</button>
+    <button class="profile-tab" data-tab="progress" role="tab" aria-selected="false">📊 Progress</button>
+  </div>
+  <div class="profile-content" id="profile-content"></div>
+</div>
 </body>
 </html>

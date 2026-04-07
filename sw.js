@@ -1,7 +1,7 @@
 // Tree of Life — Service Worker
 // Cache-first for app shell, network-first for API/images
 
-const CACHE_VERSION = 'tol-v8';
+const CACHE_VERSION = 'tol-v9';
 const APP_SHELL = [
   '/',
   '/index.html',

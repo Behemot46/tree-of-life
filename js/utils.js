@@ -74,6 +74,58 @@ export function getRandomSpecies(nodeMapRef) {
   return leaves[Math.floor(Math.random() * leaves.length)];
 }
 
+/**
+ * Generate a human-scale time comparison for a species' appearance date.
+ * Returns { metaphor, text } or null. Deterministic per speciesId.
+ */
+export function getTimeContext(appearedMya, speciesId) {
+  if (!appearedMya || appearedMya <= 0) return null;
+  const EARTH_AGE = 3800;
+  const fraction = 1 - appearedMya / EARTH_AGE;
+  let hash = 0;
+  for (let i = 0; i < speciesId.length; i++) {
+    hash = ((hash << 5) - hash + speciesId.charCodeAt(i)) | 0;
+  }
+  const metaphors = ['clock', 'calendar', 'marathon'];
+  const idx = ((hash % metaphors.length) + metaphors.length) % metaphors.length;
+  const metaphor = metaphors[idx];
+  let text;
+  if (metaphor === 'clock') {
+    const totalMinutes = Math.round(fraction * 24 * 60);
+    const hours = Math.floor(totalMinutes / 60);
+    const minutes = totalMinutes % 60;
+    const timeStr = `${hours}:${String(minutes).padStart(2, '0')}`;
+    if (appearedMya >= EARTH_AGE - 10) {
+      text = `If Earth\u2019s history were 24 hours, this is midnight \u2014 the very beginning`;
+    } else {
+      text = `If Earth\u2019s history were 24 hours, this species appeared at ${timeStr}`;
+    }
+  } else if (metaphor === 'calendar') {
+    const dayOfYear = Math.round(fraction * 365);
+    const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const daysInMonth = [31,28,31,30,31,30,31,31,30,31,30,31];
+    let d = Math.max(1, dayOfYear);
+    let m = 0;
+    while (m < 11 && d > daysInMonth[m]) { d -= daysInMonth[m]; m++; }
+    if (appearedMya >= EARTH_AGE - 10) {
+      text = `If Earth\u2019s history were a calendar year, this is January 1st`;
+    } else {
+      text = `If Earth\u2019s history were a calendar year, this species appeared on ${months[m]} ${d}`;
+    }
+  } else {
+    const km = fraction * 42.195;
+    if (appearedMya >= EARTH_AGE - 10) {
+      text = `If Earth\u2019s history were a marathon, this is the starting line`;
+    } else if (km > 42.1) {
+      const cm = Math.round((42.195 - km + 0.001) * 100);
+      text = `If Earth\u2019s history were a marathon, this species appeared in the last ${Math.max(1, cm)} cm`;
+    } else {
+      text = `If Earth\u2019s history were a marathon, this species appeared at the ${km.toFixed(1)} km mark`;
+    }
+  }
+  return { metaphor, text };
+}
+
 export function verifyPhotoUrl(url){
   if(!url) return Promise.resolve(false);
   const cached=PHOTO_STATUS_CACHE.get(url);

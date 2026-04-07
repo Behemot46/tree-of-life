@@ -760,3 +760,20 @@ kbd{
 #btn-random {
   transition: transform 0.4s ease;
 }
+
+.p-time-context {
+  font-size: var(--text-xs);
+  font-style: italic;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+  opacity: 0.85;
+}
+
+/* Scale of Time context line */
+.p-time-context {
+  font-size: var(--text-xs);
+  font-style: italic;
+  color: var(--text-muted);
+  margin-top: 0.2rem;
+  opacity: 0.85;
+}

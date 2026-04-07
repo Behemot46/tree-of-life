@@ -3,7 +3,7 @@
 // ══════════════════════════════════════════════════════
 
 import { state, nodeMap, navStack, HUMAN_PATH, confirmedPhotoUrls } from './state.js';
-import { reducedMotion, canonicalHomininId } from './utils.js';
+import { reducedMotion, canonicalHomininId, getTimeContext } from './utils.js';
 import { a11yAnnounce, markExplored } from './engagement.js';
 import { PHOTO_MAP, WIKI_TITLES, NODE_ICONS, getIconGroup, FACTS, ImageLoader } from './data.js';
 import { MAP_PATHS } from './mapPaths.js';
@@ -525,6 +525,7 @@ export function renderPanelContent(node) {
         <div class="p-name">${node.name}</div>
         ${node.latin ? `<div class="p-latin">${node.latin}</div>` : ''}
         ${node.era ? `<div class="p-era">📅 ${node.era}${node.appeared ? ' · ' + node.appeared + ' Mya' : ''}</div>` : ''}
+        ${node.appeared ? (() => { const tc = getTimeContext(node.appeared, node.id); return tc ? `<div class="p-time-context">${tc.text}</div>` : ''; })() : ''}
       </div>
       <div id="${panelCrId}" class="panel-hero-credit">${staticCredit}</div>
       <button class="p-close" onclick="closePanel()">✕</button>

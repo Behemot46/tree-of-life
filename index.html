@@ -258,7 +258,7 @@
 <div id="compare-panel" style="display:none;position:fixed;inset:0;z-index:150;background:var(--surface-overlay);overflow-y:auto;padding:1.5rem 2rem;">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
     <div id="i-compare-title" style="font-family:var(--font-head);font-size:1.2rem;color:var(--accent);">Species Comparison</div>
-    <button id="i-compare-back" onclick="closeCompare()" class="btn-back">← Back</button>
+    <button id="i-compare-back" onclick="cancelCompare()" class="btn-back">← Back</button>
   </div>
   <div id="compare-grid" style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));"></div>
 </div>
@@ -290,123 +290,39 @@
   <button class="zbtn" id="btn-random" title="Random species" aria-label="Jump to random species" style="font-size:0.9rem;">🎲</button>
 </div>
 
-<!-- FAB group removed: Tour/Compare moved into #left-rail; Trivia/DNA Compare/Evo Path superseded by unified Species Compare -->
+<!-- FAB group removed: Tour/Compare moved into #left-rail; Trivia superseded by unified Species Compare -->
 
-<!-- EVOLUTIONARY PATH FINDER PANEL -->
-<div id="evo-path-panel" class="evo-panel" aria-hidden="true">
-  <div class="evo-panel-inner">
-    <div class="evo-panel-header">
-      <div id="i-evo-title" class="evo-panel-title">Evolutionary Path</div>
-      <button class="btn-back" onclick="closeEvoPath()" aria-label="Close">&#10005;</button>
+<!-- SPECIES COMPARE PANEL (unified DNA + Evo Path) -->
+<div id="species-compare-panel" class="compare-panel" role="dialog" aria-label="Species Compare" aria-modal="true" aria-hidden="true">
+  <div class="compare-panel-inner">
+    <div class="compare-panel-header">
+      <div class="compare-panel-title" id="i-compare-title">Species Compare</div>
+      <button class="btn-back" onclick="closeCompare()">&#10005;</button>
     </div>
-
-    <!-- Quick Presets -->
-    <div class="evo-presets">
-      <button class="evo-preset" onclick="evoPreset('h_sapiens','fungi')"><span id="i-evo-p1">You &amp; a Mushroom</span></button>
-      <button class="evo-preset" onclick="evoPreset('shark','angiosperms')"><span id="i-evo-p2">Shark &amp; a Tree</span></button>
-      <button class="evo-preset" onclick="evoPreset('h_sapiens','bacteria')"><span id="i-evo-p3">You &amp; Bacteria</span></button>
-      <button class="evo-preset" onclick="evoPreset('octopus','insects')"><span id="i-evo-p4">Octopus &amp; Ant</span></button>
-      <button class="evo-preset" onclick="evoPreset('h_sapiens','cnidarians')"><span id="i-evo-p5">You &amp; a Jellyfish</span></button>
-      <button class="evo-preset" onclick="evoPreset('h_sapiens','chimpanzee')"><span id="i-evo-p6">Humans &amp; Chimps</span></button>
+    <div class="compare-presets" id="compare-presets"></div>
+    <div class="compare-slots">
+      <button class="compare-slot" id="compare-slot-a" onclick="openCompareSearch('a')">
+        <span class="compare-slot-icon" id="compare-icon-a">?</span>
+        <span class="compare-slot-label" id="compare-label-a">Select a species</span>
+      </button>
+      <div class="compare-vs">vs</div>
+      <button class="compare-slot" id="compare-slot-b" onclick="openCompareSearch('b')">
+        <span class="compare-slot-icon" id="compare-icon-b">?</span>
+        <span class="compare-slot-label" id="compare-label-b">Select a species</span>
+      </button>
+      <button class="zbtn compare-dice" onclick="compareDice()" title="Random pair">&#127922;</button>
     </div>
-
-    <!-- Species Selectors -->
-    <div class="evo-selectors">
-      <div class="evo-slot" id="evo-slot-a" onclick="openEvoSearch('a')">
-        <div class="evo-slot-icon" id="evo-icon-a">?</div>
-        <div class="evo-slot-label" id="evo-label-a">Select a species</div>
-      </div>
-      <div class="evo-vs">&#8596;</div>
-      <div class="evo-slot" id="evo-slot-b" onclick="openEvoSearch('b')">
-        <div class="evo-slot-icon" id="evo-icon-b">?</div>
-        <div class="evo-slot-label" id="evo-label-b">Select a species</div>
-      </div>
+    <div class="compare-search-overlay" id="compare-search-overlay" style="display:none">
+      <input type="text" id="compare-search-input" placeholder="Search species..." autocomplete="off">
+      <div id="compare-search-results"></div>
     </div>
-
-    <!-- Search overlay -->
-    <div class="evo-search-overlay" id="evo-search-overlay" style="display:none;">
-      <input type="text" id="evo-search-input" placeholder="Search species..." autocomplete="off" aria-label="Search species for path finder">
-      <div id="evo-search-results" class="evo-search-results"></div>
-    </div>
-
-    <!-- Results -->
-    <div id="evo-results" style="display:none;">
-      <div class="evo-narrative" id="evo-narrative"></div>
-      <div class="evo-chain" id="evo-chain"></div>
-      <div class="evo-timeline" id="evo-timeline"></div>
-      <div class="evo-divergence">
-        <div class="evo-divergence-value" id="evo-div-value">—</div>
-        <div class="evo-divergence-label" id="i-evo-diverged">Diverged</div>
-      </div>
-      <div class="evo-ancestor-card" id="evo-ancestor-card"></div>
-      <div class="evo-fun-fact" id="evo-fun-fact"></div>
-      <div class="evo-actions">
-        <button class="evo-btn evo-btn-primary" onclick="showEvoOnTree()">&#127795; <span id="i-evo-show-tree">Show on Tree</span></button>
-        <button class="evo-btn evo-btn-secondary" onclick="clearEvoPath()"><span id="i-evo-clear">Clear</span></button>
-      </div>
-    </div>
+    <div class="compare-results" id="compare-results" style="display:none"></div>
+    <button id="compare-show-tree" class="trivia-start-btn" style="display:none" onclick="showCompareOnTree()">&#127795; Show on Tree</button>
   </div>
 </div>
 
 <!-- Floating clear-path overlay -->
-<button id="evo-clear-overlay" onclick="clearEvoHighlight()">&#10005; <span id="i-evo-clear-overlay">Clear Path</span></button>
-
-<!-- DNA SIMILARITY CALCULATOR PANEL -->
-<div id="dna-panel" class="dna-panel" role="dialog" aria-label="DNA Similarity Calculator" aria-modal="true" aria-hidden="true">
-  <div class="dna-panel-inner">
-    <div class="dna-panel-header">
-      <div id="i-dna-title" class="dna-panel-title">DNA Similarity Calculator</div>
-      <button class="btn-back" onclick="closeDnaCalc()" aria-label="Close">✕</button>
-    </div>
-
-    <!-- Quick Presets -->
-    <div class="dna-presets">
-      <button class="dna-preset" onclick="dnaPreset('h_sapiens','chimpanzee')"><span id="i-dna-preset-chimp">You &amp; a Chimp</span></button>
-      <button class="dna-preset" onclick="dnaPreset('h_sapiens','angiosperms')"><span id="i-dna-preset-banana">You &amp; a Banana</span></button>
-      <button class="dna-preset" onclick="dnaPreset('h_sapiens','fungi')"><span id="i-dna-preset-mushroom">You &amp; a Mushroom</span></button>
-      <button class="dna-preset" onclick="dnaPreset('h_sapiens','ecoli')"><span id="i-dna-preset-bacterium">You &amp; a Bacterium</span></button>
-    </div>
-
-    <!-- Species Selectors -->
-    <div class="dna-selectors">
-      <div class="dna-slot" id="dna-slot-a" onclick="openDnaSearch('a')">
-        <div class="dna-slot-icon" id="dna-icon-a">?</div>
-        <div class="dna-slot-label" id="dna-label-a">Select a species</div>
-      </div>
-      <div class="dna-vs" id="i-dna-vs">vs</div>
-      <div class="dna-slot" id="dna-slot-b" onclick="openDnaSearch('b')">
-        <div class="dna-slot-icon" id="dna-icon-b">?</div>
-        <div class="dna-slot-label" id="dna-label-b">Select a species</div>
-      </div>
-    </div>
-
-    <!-- Search overlay (shown when picking a species) -->
-    <div class="dna-search-overlay" id="dna-search-overlay" style="display:none;">
-      <input type="text" id="dna-search-input" placeholder="Search species..." autocomplete="off" aria-label="Search species for DNA comparison">
-      <div id="dna-search-results" class="dna-search-results"></div>
-    </div>
-
-    <!-- Results (shown after both selected) -->
-    <div id="dna-results" class="dna-results" style="display:none;">
-      <div class="dna-percent-display">
-        <span class="dna-percent-num" id="dna-percent">0</span><span class="dna-percent-sign">%</span>
-      </div>
-      <div id="i-dna-similarity-label" class="dna-similarity-label">DNA Similarity</div>
-      <div class="dna-bar-wrapper">
-        <div class="dna-bar-track">
-          <div class="dna-bar-fill" id="dna-bar-fill" style="width:0%"></div>
-        </div>
-      </div>
-      <div class="dna-meta">
-        <div class="dna-divergence" id="dna-divergence"></div>
-        <div class="dna-method-badge" id="dna-method-badge"></div>
-      </div>
-      <div class="dna-source" id="dna-source"></div>
-      <div class="dna-ancestor" id="dna-ancestor"></div>
-      <div class="dna-fun-fact" id="dna-fun-fact"></div>
-    </div>
-  </div>
-</div>
+<button id="compare-clear-overlay" onclick="clearCompareHighlight()" style="display:none">&#10005; Clear Path</button>
 
 <!-- UNIFIED GAME PANEL -->
 <div id="game-panel" class="trivia-panel" aria-hidden="true">
@@ -465,5 +381,25 @@
 </div>
 <!-- ACHIEVEMENT TOAST CONTAINER -->
 <div id="achievement-container" aria-live="polite"></div>
+
+<!-- PROFILE BACKDROP -->
+<div id="profile-backdrop" class="profile-backdrop"></div>
+
+<!-- PROFILE PANEL -->
+<div id="profile-panel" class="profile-panel" aria-hidden="true" role="dialog" aria-label="Player profile">
+  <div class="profile-header">
+    <div>
+      <div class="profile-header-name">👤 <span id="profile-player-name">Guest</span></div>
+      <div class="profile-header-points" id="profile-player-points">0 pts</div>
+    </div>
+    <button class="btn-back" onclick="closeProfile()" aria-label="Close profile panel">✕</button>
+  </div>
+  <div class="profile-tabs" role="tablist">
+    <button class="profile-tab active" data-tab="leaderboard" role="tab" aria-selected="true">🏆 Leaderboard</button>
+    <button class="profile-tab" data-tab="achievements" role="tab" aria-selected="false">🎖 Achievements</button>
+    <button class="profile-tab" data-tab="progress" role="tab" aria-selected="false">📊 Progress</button>
+  </div>
+  <div class="profile-content" id="profile-content"></div>
+</div>
 </body>
 </html>

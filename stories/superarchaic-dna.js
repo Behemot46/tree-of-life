@@ -21,6 +21,7 @@ function init() {
   initBombshell();
   initSilhouettes();
   initMergeMap();
+  initMosaic();
 
   // Fade scroll hint on first scroll
   page.addEventListener('scroll', function onFirst() {
@@ -346,6 +347,75 @@ function initMergeMap() {
   const obs = onVisible(section, () => {
     event1Group.classList.add('visible');
     setTimeout(() => event2Group.classList.add('visible'), 500);
+  }, { threshold: 0.3, essential: true });
+  if (obs) observers.push(obs);
+}
+
+// ══ SECTION 6: MOSAIC FIGURE ══
+
+// Tile colors matching genome proportions (96 tiles total):
+// ~75 amber (sapiens), ~19 purple (superarchaic), ~2 terra (neanderthal), 1 teal (denisovan), 1 sage (other)
+const TILE_COLORS = [
+  ...Array(73).fill('var(--accent)'),
+  ...Array(19).fill('var(--sa-ghost)'),
+  ...Array(2).fill('var(--terra)'),
+  'var(--accent-secondary)',
+  'var(--sage)',
+];
+
+function shuffleArray(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function initMosaic() {
+  const container = document.getElementById('mosaic');
+  if (!container) return;
+
+  const cols = 8;
+  const rows = 12;
+  const total = cols * rows;
+  const colors = shuffleArray(TILE_COLORS);
+
+  const grid = document.createElement('div');
+  grid.className = 'sa-mosaic-grid';
+
+  for (let i = 0; i < total; i++) {
+    const tile = document.createElement('div');
+    tile.className = 'sa-mosaic-tile';
+    tile.style.setProperty('--tile-color', colors[i % colors.length]);
+
+    if (!reducedMotion()) {
+      // Random scatter offset per page load
+      const dx = (Math.random() - 0.5) * 300;
+      const dy = (Math.random() - 0.5) * 300;
+      const rot = (Math.random() - 0.5) * 60;
+      tile.style.setProperty('--scatter-x', `${dx}px`);
+      tile.style.setProperty('--scatter-y', `${dy}px`);
+      tile.style.setProperty('--scatter-r', `${rot}deg`);
+
+      // Stagger delay based on position
+      const row = Math.floor(i / cols);
+      const col = i % cols;
+      const delay = (row * 0.03 + col * 0.02).toFixed(3);
+      tile.style.setProperty('--tile-delay', `${delay}s`);
+    }
+
+    grid.appendChild(tile);
+  }
+
+  container.appendChild(grid);
+
+  if (reducedMotion()) return;
+
+  // Trigger assembly on scroll
+  const section = document.getElementById('sec-mosaic');
+  const obs = onVisible(section, () => {
+    grid.classList.add('assembled');
   }, { threshold: 0.3, essential: true });
   if (obs) observers.push(obs);
 }

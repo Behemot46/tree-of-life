@@ -358,6 +358,56 @@
   animation-delay: 1.5s;
 }
 
+/* ══ SECTION 6: MOSAIC FIGURE ══ */
+
+.sa-mosaic-wrap {
+  width: 180px;
+  height: 280px;
+  margin: 24px auto 0;
+}
+
+.sa-mosaic-grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 2px;
+  width: 100%;
+  height: 100%;
+  clip-path: polygon(
+    35% 0%, 65% 0%,
+    72% 5%, 76% 12%,
+    74% 18%, 70% 20%,
+    78% 24%, 82% 30%,
+    80% 45%, 76% 50%,
+    72% 52%, 68% 56%,
+    72% 62%, 74% 70%,
+    70% 80%, 66% 85%,
+    62% 92%, 58% 100%,
+    42% 100%, 38% 92%,
+    34% 85%, 30% 80%,
+    26% 70%, 28% 62%,
+    32% 56%, 28% 52%,
+    24% 50%, 20% 45%,
+    18% 30%, 22% 24%,
+    30% 20%, 26% 18%,
+    24% 12%, 28% 5%
+  );
+}
+
+.sa-mosaic-tile {
+  background: var(--tile-color);
+  border-radius: 1px;
+  transform: translate(var(--scatter-x, 0), var(--scatter-y, 0)) rotate(var(--scatter-r, 0deg));
+  opacity: 0;
+  transition:
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) var(--tile-delay, 0s),
+    opacity 0.5s ease var(--tile-delay, 0s);
+}
+
+.sa-mosaic-grid.assembled .sa-mosaic-tile {
+  transform: translate(0, 0) rotate(0deg);
+  opacity: 1;
+}
+
 /* ══ REDUCED MOTION ══ */
 @media (prefers-reduced-motion: reduce) {
   .sa-ring-sapiens,
@@ -396,6 +446,11 @@
   .sa-merge-event .sa-ripple {
     animation: none;
   }
+  .sa-mosaic-tile {
+    transform: none;
+    opacity: 1;
+    transition: none;
+  }
 }
 
 /* ══ RESPONSIVE ══ */
@@ -422,5 +477,19 @@
   }
   .sa-bar-label {
     font-size: 10px;
+  }
+}
+
+@media (max-width: 768px) {
+  .sa-mosaic-wrap {
+    width: 140px;
+    height: 220px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sa-mosaic-wrap {
+    width: 120px;
+    height: 190px;
   }
 }

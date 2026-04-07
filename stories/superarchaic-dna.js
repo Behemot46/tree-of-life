@@ -20,6 +20,7 @@ function init() {
   initRing();
   initBombshell();
   initSilhouettes();
+  initMergeMap();
 
   // Fade scroll hint on first scroll
   page.addEventListener('scroll', function onFirst() {
@@ -200,6 +201,153 @@ function initSilhouettes() {
   });
 
   container.appendChild(svg);
+}
+
+// ══ SECTION 5: MERGE EVENT MAP ══
+
+function initMergeMap() {
+  const container = document.getElementById('merge-map');
+  if (!container) return;
+
+  const svgNS = 'http://www.w3.org/2000/svg';
+  const svg = document.createElementNS(svgNS, 'svg');
+  svg.setAttribute('viewBox', '0 0 600 300');
+  svg.setAttribute('class', 'sa-map-svg');
+  svg.setAttribute('aria-hidden', 'true');
+
+  // Simplified continent outlines (placeholder — will be replaced by improved mini-map)
+  const continents = [
+    // Africa
+    { d: 'M250,120 L270,110 L290,115 L305,130 L310,160 L305,190 L295,210 L280,225 L265,230 L250,225 L240,210 L235,190 L232,170 L235,150 L240,135 Z', fill: 'rgba(91,154,107,0.12)', stroke: 'rgba(91,154,107,0.25)' },
+    // Europe
+    { d: 'M260,60 L280,55 L300,50 L320,55 L335,60 L340,75 L330,85 L315,90 L300,88 L285,90 L270,85 L260,75 Z', fill: 'rgba(90,138,154,0.12)', stroke: 'rgba(90,138,154,0.25)' },
+    // Asia
+    { d: 'M340,55 L370,45 L410,40 L450,45 L480,55 L490,75 L485,95 L470,110 L450,120 L420,125 L390,120 L360,110 L345,95 L340,75 Z', fill: 'rgba(90,138,154,0.12)', stroke: 'rgba(90,138,154,0.25)' },
+  ];
+
+  continents.forEach(c => {
+    const path = document.createElementNS(svgNS, 'path');
+    path.setAttribute('d', c.d);
+    path.setAttribute('fill', c.fill);
+    path.setAttribute('stroke', c.stroke);
+    path.setAttribute('stroke-width', '1');
+    svg.appendChild(path);
+  });
+
+  // Continent labels
+  const labels = [
+    { x: 270, y: 175, text: 'Africa' },
+    { x: 300, y: 72, text: 'Europe' },
+    { x: 415, y: 85, text: 'Asia' },
+  ];
+  labels.forEach(l => {
+    const text = document.createElementNS(svgNS, 'text');
+    text.setAttribute('x', String(l.x));
+    text.setAttribute('y', String(l.y));
+    text.setAttribute('text-anchor', 'middle');
+    text.setAttribute('class', 'sa-map-label');
+    text.textContent = l.text;
+    svg.appendChild(text);
+  });
+
+  // Event 1: Africa (purple) — superarchaic → proto-sapiens
+  const event1Group = document.createElementNS(svgNS, 'g');
+  event1Group.setAttribute('class', 'sa-merge-event sa-event-1');
+
+  const dot1Start = document.createElementNS(svgNS, 'circle');
+  dot1Start.setAttribute('cx', '255');
+  dot1Start.setAttribute('cy', '155');
+  dot1Start.setAttribute('r', '5');
+  dot1Start.setAttribute('fill', 'var(--sa-ghost)');
+  dot1Start.setAttribute('opacity', '0.6');
+  event1Group.appendChild(dot1Start);
+
+  const arrow1 = document.createElementNS(svgNS, 'path');
+  arrow1.setAttribute('d', 'M255,155 Q270,130 280,145');
+  arrow1.setAttribute('class', 'sa-merge-arrow sa-arrow-purple');
+  event1Group.appendChild(arrow1);
+
+  const dot1End = document.createElementNS(svgNS, 'circle');
+  dot1End.setAttribute('cx', '280');
+  dot1End.setAttribute('cy', '145');
+  dot1End.setAttribute('r', '5');
+  dot1End.setAttribute('fill', 'var(--sa-ghost)');
+  dot1End.setAttribute('class', 'sa-merge-dest');
+  event1Group.appendChild(dot1End);
+
+  // Ripple ring for event 1
+  const ripple1 = document.createElementNS(svgNS, 'circle');
+  ripple1.setAttribute('cx', '280');
+  ripple1.setAttribute('cy', '145');
+  ripple1.setAttribute('r', '5');
+  ripple1.setAttribute('class', 'sa-ripple sa-ripple-purple');
+  event1Group.appendChild(ripple1);
+
+  const label1 = document.createElementNS(svgNS, 'text');
+  label1.setAttribute('x', '240');
+  label1.setAttribute('y', '148');
+  label1.setAttribute('class', 'sa-event-label sa-event-label-purple');
+  label1.textContent = '~500+ Kya';
+  event1Group.appendChild(label1);
+
+  svg.appendChild(event1Group);
+
+  // Event 2: Eurasia (terra) — superarchaic → proto-Neanderthal/Denisovan
+  const event2Group = document.createElementNS(svgNS, 'g');
+  event2Group.setAttribute('class', 'sa-merge-event sa-event-2');
+
+  const dot2Start = document.createElementNS(svgNS, 'circle');
+  dot2Start.setAttribute('cx', '360');
+  dot2Start.setAttribute('cy', '90');
+  dot2Start.setAttribute('r', '5');
+  dot2Start.setAttribute('fill', 'var(--terra)');
+  dot2Start.setAttribute('opacity', '0.6');
+  event2Group.appendChild(dot2Start);
+
+  const arrow2 = document.createElementNS(svgNS, 'path');
+  arrow2.setAttribute('d', 'M360,90 Q390,65 410,80');
+  arrow2.setAttribute('class', 'sa-merge-arrow sa-arrow-terra');
+  event2Group.appendChild(arrow2);
+
+  const dot2End = document.createElementNS(svgNS, 'circle');
+  dot2End.setAttribute('cx', '410');
+  dot2End.setAttribute('cy', '80');
+  dot2End.setAttribute('r', '5');
+  dot2End.setAttribute('fill', 'var(--terra)');
+  dot2End.setAttribute('class', 'sa-merge-dest');
+  event2Group.appendChild(dot2End);
+
+  // Ripple ring for event 2
+  const ripple2 = document.createElementNS(svgNS, 'circle');
+  ripple2.setAttribute('cx', '410');
+  ripple2.setAttribute('cy', '80');
+  ripple2.setAttribute('r', '5');
+  ripple2.setAttribute('class', 'sa-ripple sa-ripple-terra');
+  event2Group.appendChild(ripple2);
+
+  const label2 = document.createElementNS(svgNS, 'text');
+  label2.setAttribute('x', '425');
+  label2.setAttribute('y', '73');
+  label2.setAttribute('class', 'sa-event-label sa-event-label-terra');
+  label2.textContent = '~700+ Kya';
+  event2Group.appendChild(label2);
+
+  svg.appendChild(event2Group);
+  container.appendChild(svg);
+
+  // Animate events on scroll
+  if (reducedMotion()) {
+    event1Group.classList.add('visible');
+    event2Group.classList.add('visible');
+    return;
+  }
+
+  const section = document.getElementById('sec-map');
+  const obs = onVisible(section, () => {
+    event1Group.classList.add('visible');
+    setTimeout(() => event2Group.classList.add('visible'), 500);
+  }, { threshold: 0.3, essential: true });
+  if (obs) observers.push(obs);
 }
 
 // ── Start ──

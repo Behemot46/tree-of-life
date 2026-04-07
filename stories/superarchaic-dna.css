@@ -284,6 +284,80 @@
     ghostVanish 9s ease-in-out infinite;
 }
 
+/* ══ SECTION 5: MERGE EVENT MAP ══ */
+
+.sa-map-wrap {
+  width: min(90vw, 600px);
+  margin: 24px auto 0;
+  background: rgba(10, 12, 14, 0.5);
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid rgba(200, 136, 58, 0.08);
+}
+
+.sa-map-svg {
+  width: 100%;
+  height: auto;
+}
+
+.sa-map-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  fill: rgba(237, 232, 223, 0.25);
+  letter-spacing: 1px;
+}
+
+.sa-merge-event {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.sa-merge-event.visible {
+  opacity: 1;
+}
+
+.sa-merge-arrow {
+  fill: none;
+  stroke-width: 2;
+  stroke-dasharray: 6, 4;
+  stroke-dashoffset: 40;
+  transition: stroke-dashoffset 1s ease;
+}
+.sa-arrow-purple { stroke: var(--sa-ghost); }
+.sa-arrow-terra { stroke: var(--terra); }
+
+.sa-merge-event.visible .sa-merge-arrow {
+  stroke-dashoffset: 0;
+}
+
+.sa-event-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.5px;
+}
+.sa-event-label-purple { fill: var(--sa-ghost); }
+.sa-event-label-terra { fill: var(--terra); }
+
+/* Destination dot ripple */
+.sa-ripple {
+  fill: none;
+  stroke-width: 1.5;
+  opacity: 0;
+}
+.sa-ripple-purple { stroke: var(--sa-ghost); }
+.sa-ripple-terra { stroke: var(--terra); }
+
+@keyframes dotRipple {
+  0% { r: 5; opacity: 0.6; }
+  100% { r: 18; opacity: 0; }
+}
+
+.sa-merge-event.visible .sa-ripple {
+  animation: dotRipple 0.8s ease-out 1s forwards;
+}
+.sa-event-2.visible .sa-ripple {
+  animation-delay: 1.5s;
+}
+
 /* ══ REDUCED MOTION ══ */
 @media (prefers-reduced-motion: reduce) {
   .sa-ring-sapiens,
@@ -310,6 +384,17 @@
   .sa-ghost-figure {
     animation: none;
     opacity: 0.4;
+  }
+  .sa-merge-event {
+    opacity: 1;
+    transition: none;
+  }
+  .sa-merge-arrow {
+    stroke-dashoffset: 0;
+    transition: none;
+  }
+  .sa-merge-event .sa-ripple {
+    animation: none;
   }
 }
 

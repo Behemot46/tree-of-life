@@ -146,24 +146,10 @@ svg{width:100%;height:100%;}
 /* ── PLAYBACK LOCKED NODE ── */
 .node-locked{fill:none;stroke:var(--text-muted);stroke-width:1.5;stroke-dasharray:4 3;opacity:0.35;}
 
-/* ── MINI-MAP ── */
-#minimap{
-  position:fixed;bottom:16px;right:16px;
-  width:var(--tree-minimap-w);height:var(--tree-minimap-h);
-  background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);
-  border-radius:8px;border:1px solid rgba(255,255,255,0.08);
-  z-index:var(--z-controls);opacity:1;transition:opacity 0.3s ease;
-  pointer-events:all;overflow:hidden;
-}
-#minimap.faded{opacity:0.15;}
-#minimap svg{width:100%;height:100%;}
-.minimap-viewport{fill:rgba(255,255,255,0.08);stroke:rgba(255,255,255,0.4);stroke-width:1;cursor:grab;}
-
 /* ── RESPONSIVE ── */
 @media(max-width:768px){
   .node-label-name{font-size:var(--tree-label-name-size-mobile);}
   .node-label-latin{font-size:var(--tree-label-latin-size-mobile);}
-  #minimap{display:none;}
 }
 
 /* ── REDUCED MOTION ── */

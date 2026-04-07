@@ -5,6 +5,23 @@
 import { state, nodeMap, navStack } from './state.js';
 import { TREE } from './data.js';
 
+// Redirects for species ids removed during manual duplicate cleanup (PR 0).
+// Preserves bookmarked ?node=<old-id> deep links.
+const ID_REDIRECTS = {
+  'corpse-flower': 'titan-arum',
+  'giant-salamander': 'chinese-giant-salamander',
+  'wolf': 'gray-wolf',
+  'leech': 'medicinal-leech',
+  'earthworm': 'common-earthworm',
+  'mollusks': 'mollusca',
+  'titan-sequoia': 'sequoia',
+  'dolphin': 'bottlenose-dolphin',
+};
+
+export function resolveNodeId(id) {
+  return ID_REDIRECTS[id] || id;
+}
+
 // ── Late-binding deps (set via initNavDeps) ──
 let _showMainPanel, _closePanel, _smoothPanTo, _smoothZoomTo, _scheduleRender;
 let _layout, _centerOnRoot, _applyT, _renderPanelContent;

@@ -20,7 +20,20 @@
       "Bash(sed -i 's/| p19 |/| p23 |/g' docs/PROMPTS/PROMPT_P19_DNA_CALCULATOR.md)",
       "Bash(mv docs/PROMPTS/PROMPT_P19_DNA_CALCULATOR.md docs/PROMPTS/PROMPT_P23_DNA_CALCULATOR.md)",
       "Bash(wc -l index.html js/*.js)",
-      "mcp__Claude_Preview__preview_start"
+      "mcp__Claude_Preview__preview_start",
+      "Bash(git cherry-pick:*)",
+      "Bash(git add:*)",
+      "Bash(node -c js/app.js)",
+      "Bash(node -c js/profile.js)",
+      "Bash(git stash:*)",
+      "Bash(git checkout:*)",
+      "Bash(node:*)",
+      "Bash(git rm:*)",
+      "Bash(git commit -m 'fix: manually resolve duplicate species nodes:*)",
+      "Bash(git reset:*)",
+      "Bash(git restore:*)",
+      "Bash(git commit -m 'chore: remove dedupe scratch file after merges applied:*)",
+      "Bash(git commit:*)"
     ]
   }
 }

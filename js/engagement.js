@@ -548,13 +548,11 @@ function _showAchievementToast(def) {
 
 export function trackDomainToggle(domain) {
   if (!_tracking.domainsToggled.includes(domain)) { _tracking.domainsToggled.push(domain); _saveTracking(); }
-  if (_tracking.domainsToggled.length >= 6) _unlock('domain_master');
 }
 
 export function trackViewMode(mode) {
   if (mode === 'playback') return;
   if (!_tracking.viewModes.includes(mode)) { _tracking.viewModes.push(mode); _saveTracking(); }
-  if (_tracking.viewModes.length >= 3) _unlock('view_master');
 }
 
 export function trackExtinctionClick(mya) {
@@ -565,7 +563,6 @@ export function trackExtinctionClick(mya) {
 export function trackDnaCompare() {
   _tracking.dnaCompares = (_tracking.dnaCompares || 0) + 1;
   _saveTracking();
-  if (_tracking.dnaCompares >= 5) _unlock('dna_wizard');
 }
 
 // ── Species of the Day (deterministic from date) ──

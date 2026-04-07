@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Tree of Life — Menu Layout v1 (Wireframe)</title>
+<style>
+  :root{
+    --bg:#0b0e13;
+    --ink:#e8eaef;
+    --muted:#8a93a3;
+    --accent:#c8883a;
+    --accent-dim:rgba(200,136,58,.18);
+    --glass-bg:rgba(20,24,32,.62);
+    --glass-border:rgba(255,255,255,.09);
+    --glass-blur:blur(14px) saturate(140%);
+    --radius-md:10px;
+    --radius-sm:6px;
+    --radius-full:999px;
+    --shadow-1:0 4px 14px rgba(0,0,0,.35),0 1px 2px rgba(0,0,0,.4);
+    --ctrl-h:36px;
+    --ctrl-h-mobile:44px;
+    --rail-w:74px;
+    --rail-w-expanded:188px;
+    --font:ui-sans-serif,system-ui,'Inter',sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#05070a;color:var(--ink);font-family:var(--font);font-size:14px}
+  body{padding:32px;display:flex;flex-direction:column;gap:28px;min-height:100vh}
+  h1{font-size:20px;font-weight:600;margin:0 0 4px}
+  .sub{color:var(--muted);font-size:13px;margin-bottom:8px}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:12px}
+  .legend b{color:var(--accent)}
+
+  .stage{display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap}
+
+  /* ── Frame shells ────────────────────────────────────── */
+  .frame{background:#000;border:1px solid #222;border-radius:6px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.6);overflow:hidden}
+  .frame-label{position:absolute;top:-26px;left:0;color:var(--muted);font-size:12px;letter-spacing:.04em}
+
+  /* Desktop frame: 1920x1080 scaled to 50% = 960x540 */
+  .desktop{width:960px;height:540px;transform-origin:top left}
+  .desktop .viewport{width:1920px;height:1080px;transform:scale(.5);transform-origin:top left;position:relative;background:
+    radial-gradient(ellipse at 50% 55%, #1a2332 0%, #0b0e13 70%);
+  }
+  /* Mobile frame: 375x667 shown 1:1 */
+  .mobile{width:375px;height:667px}
+  .mobile .viewport{width:375px;height:667px;position:relative;background:
+    radial-gradient(ellipse at 50% 55%, #1a2332 0%, #0b0e13 70%);
+  }
+
+  /* ── Fake tree canvas decoration ─────────────────────── */
+  .tree-hint{position:absolute;inset:0;pointer-events:none;opacity:.22}
+  .tree-hint svg{width:100%;height:100%;display:block}
+
+  /* ── Shared glass surface ────────────────────────────── */
+  .glass{
+    background:var(--glass-bg);
+    backdrop-filter:var(--glass-blur);
+    -webkit-backdrop-filter:var(--glass-blur);
+    border:1px solid var(--glass-border);
+    border-radius:var(--radius-md);
+    box-shadow:var(--shadow-1);
+  }
+
+  /* ── Unified control button .ctrl-btn ────────────────── */
+  .ctrl-btn{
+    height:var(--ctrl-h);
+    min-width:var(--ctrl-h);
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:0 12px;
+    background:rgba(255,255,255,.03);
+    border:1px solid var(--glass-border);
+    border-radius:var(--radius-md);
+    color:var(--ink);font-family:var(--font);font-size:13px;font-weight:500;
+    cursor:pointer;white-space:nowrap;
+    transition:all .18s ease;
+  }
+  .ctrl-btn .ico{font-size:15px;line-height:1;width:18px;text-align:center}
+  .ctrl-btn .lbl{font-size:12px}
+  .ctrl-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+  .ctrl-btn.active{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+  .ctrl-btn--icon{padding:0;width:var(--ctrl-h)}
+  .ctrl-btn--rail{width:100%;justify-content:flex-start;padding:0 10px}
+
+  /* ── TOP BAR ─────────────────────────────────────────── */
+  .topbar{
+    position:absolute;top:12px;left:12px;right:12px;
+    display:flex;align-items:center;gap:12px;height:44px;
+  }
+  .topbar .title{
+    font-family:var(--font);font-weight:600;font-size:16px;letter-spacing:.02em;
+    padding:0 14px;height:100%;display:flex;align-items:center;
+  }
+  .topbar .breadcrumb{
+    flex:1;display:flex;justify-content:center;
+  }
+  .topbar .crumb-inner{
+    display:inline-flex;align-items:center;gap:6px;padding:0 14px;height:var(--ctrl-h);
+    color:var(--muted);font-size:12px;
+  }
+  .topbar .crumb-inner .sep{opacity:.4}
+  .topbar .crumb-inner .here{color:var(--accent)}
+  .crumb-nav{display:inline-flex;gap:4px;margin-right:8px}
+  .topbar .settings{display:flex;gap:4px;padding:3px;height:34px;align-items:center;margin-right:24px}
+  .topbar .settings .ctrl-btn{height:28px;min-width:28px;padding:0 6px;font-size:11px}
+  .topbar .settings .ctrl-btn--icon{width:28px}
+  .topbar .settings .lang-flag{font-size:14px;line-height:1}
+
+  /* ── LEFT RAIL ───────────────────────────────────────── */
+  .leftrail{
+    position:absolute;top:72px;bottom:120px;left:12px;
+    width:var(--rail-w-expanded);
+    padding:10px;
+    display:flex;flex-direction:column;gap:8px;
+  }
+  .rail-group{display:flex;flex-direction:column;gap:4px}
+  .rail-divider{height:1px;background:var(--glass-border);margin:4px 2px}
+  .rail-caption{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);padding:0 4px;margin-top:2px}
+  .rail-foot{margin-top:auto;display:flex;flex-direction:column;gap:6px}
+  .status-badge{
+    display:flex;align-items:center;gap:6px;padding:6px 10px;
+    font-size:11px;color:var(--muted);
+    border:1px solid var(--glass-border);border-radius:var(--radius-sm);
+    background:rgba(255,255,255,.02);
+  }
+  .status-badge b{color:var(--ink);font-weight:600;font-family:ui-monospace,monospace}
+  .sotd{
+    display:flex;align-items:center;gap:8px;padding:8px 10px;
+    font-size:11px;
+    border:1px solid var(--glass-border);border-radius:var(--radius-sm);
+    background:linear-gradient(135deg,rgba(200,136,58,.12),rgba(200,136,58,.02));
+  }
+  .sotd .dot{width:26px;height:26px;border-radius:50%;background:#2d4b3a;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+  .sotd .meta{display:flex;flex-direction:column;line-height:1.2;min-width:0}
+  .sotd .meta small{color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:.08em}
+  .sotd .meta span{color:var(--ink);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  /* ── RIGHT RAIL (zoom) ───────────────────────────────── */
+  .rightrail{
+    position:absolute;top:50%;right:16px;transform:translateY(-50%);
+    display:flex;flex-direction:column;gap:6px;padding:6px;
+  }
+  .rightrail .ctrl-btn{width:36px;padding:0}
+
+  /* ── SEARCH (collapsed default) ──────────────────────── */
+  .search{position:absolute;top:72px;left:calc(12px + var(--rail-w-expanded) + 12px);display:flex;align-items:center;gap:6px}
+  .search .ctrl-btn{height:var(--ctrl-h)}
+  .search.expanded .search-input{width:280px;opacity:1;padding:0 12px 0 34px}
+  .search-input{
+    position:relative;height:var(--ctrl-h);width:0;opacity:0;overflow:hidden;
+    background:var(--glass-bg);backdrop-filter:var(--glass-blur);
+    border:1px solid var(--glass-border);border-radius:var(--radius-md);
+    color:var(--ink);font-size:13px;
+    transition:all .22s ease;
+  }
+  .search-input::before{content:"🔍";position:absolute;left:10px;top:50%;transform:translateY(-50%);opacity:.6;font-size:12px}
+  .search-input::after{content:"Search species…";position:absolute;left:34px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:12px}
+
+  /* ── TIMELINE (compact single row) ───────────────────── */
+  .timeline{
+    position:absolute;left:12px;right:12px;bottom:12px;
+    height:88px;padding:10px 14px;display:flex;flex-direction:column;gap:6px;
+  }
+  .tl-row1{display:flex;align-items:center;gap:14px;font-size:11px;color:var(--muted)}
+  .tl-row1 .era{color:var(--accent);font-weight:600;letter-spacing:.04em}
+  .tl-row1 .spacer{flex:1}
+  .tl-row1 .playback{display:flex;gap:4px}
+  .tl-row1 .playback .ctrl-btn{height:24px;padding:0 8px;font-size:10px;min-width:auto}
+  .tl-row1 .playback .ctrl-btn.play{width:26px;padding:0}
+  .tl-track{
+    position:relative;height:24px;border-radius:var(--radius-sm);
+    background:linear-gradient(to right,
+      #8b5cf6 0% 18%,  /* Hadean */
+      #3b82f6 18% 40%, /* Archean */
+      #22c55e 40% 62%, /* Proterozoic */
+      #f59e0b 62% 88%, /* Paleozoic+Mesozoic */
+      #ef4444 88% 100%  /* Cenozoic */
+    );
+    opacity:.85;overflow:hidden;
+  }
+  .tl-thumb{position:absolute;top:-2px;bottom:-2px;right:-2px;width:4px;background:var(--accent);border-radius:2px;box-shadow:0 0 10px var(--accent)}
+  .tl-ext{position:absolute;top:0;bottom:0;width:2px;background:rgba(255,255,255,.6)}
+  .tl-ext.e1{left:66%}.tl-ext.e2{left:74%}.tl-ext.e3{left:82%}.tl-ext.e4{left:88%}.tl-ext.e5{left:95%}
+  .tl-row3{display:flex;justify-content:space-between;font-size:9px;color:var(--muted);font-family:ui-monospace,monospace;margin-top:-2px}
+
+  /* ── Corner footer ───────────────────────────────────── */
+  .corner-credit{position:absolute;bottom:14px;right:22px;font-size:10px;color:var(--muted);opacity:.55}
+  .desktop .corner-credit{right:calc(24px + 60px)}
+
+  /* ── Callouts (wireframe annotations) ────────────────── */
+  .callout{position:absolute;font-size:11px;color:#ffdf8c;background:rgba(80,60,10,.8);border:1px dashed #ffdf8c;padding:2px 6px;border-radius:4px;pointer-events:none;z-index:50}
+
+  /* ── MOBILE LAYOUT overrides ─────────────────────────── */
+  .mobile .topbar{top:8px;left:8px;right:8px;height:40px}
+  .mobile .topbar .title{font-size:14px;padding:0 8px}
+  .mobile .topbar .breadcrumb{display:none}
+  .mobile .topbar .settings{padding:2px;margin-right:8px}
+  .mobile .topbar .settings .ctrl-btn{height:26px;min-width:26px;padding:0 4px;font-size:10px}
+  .mobile .topbar .settings .ctrl-btn--icon{width:26px}
+
+  .mobile .leftrail{display:none} /* collapsed to hamburger on mobile */
+  .mobile .hamburger{
+    position:absolute;top:56px;left:8px;z-index:5;
+  }
+  .mobile .hamburger .ctrl-btn{height:40px;width:40px;padding:0}
+
+  .mobile .search{top:56px;left:56px;right:8px}
+  .mobile .search .ctrl-btn{height:40px;width:40px;padding:0}
+
+  .mobile .rightrail{top:auto;bottom:148px;right:8px;transform:none;padding:4px}
+  .mobile .rightrail .ctrl-btn{width:40px;height:40px}
+
+  .mobile .timeline{left:8px;right:8px;bottom:8px;height:72px;padding:8px 10px}
+  .mobile .timeline .tl-row1{font-size:10px;gap:8px}
+  .mobile .timeline .tl-row1 .playback .ctrl-btn{height:22px}
+
+  /* Bottom-sheet preview for mobile drawer */
+  .mobile .sheet{
+    position:absolute;left:8px;right:8px;bottom:88px;
+    padding:10px;display:flex;flex-direction:column;gap:6px;
+    transform:translateY(calc(100% + 20px));opacity:0;
+    pointer-events:none;
+  }
+  .mobile .sheet .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .mobile .sheet .ctrl-btn{height:var(--ctrl-h-mobile);flex-direction:column;gap:2px;padding:4px;font-size:10px}
+  .mobile .sheet .ctrl-btn .ico{font-size:16px}
+
+  /* "second frame" variant showing the drawer open */
+  .mobile.drawer-open .sheet{transform:none;opacity:1;pointer-events:auto}
+  .mobile.drawer-open .hamburger .ctrl-btn{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+
+  .notes{max-width:1000px;color:var(--muted);font-size:13px;line-height:1.55}
+  .notes h2{color:var(--ink);font-size:15px;margin:18px 0 6px}
+  .notes code{background:#10151c;padding:1px 6px;border-radius:4px;color:#cfd4dd;font-size:12px}
+  .notes ul{padding-left:20px;margin:4px 0}
+  .notes li{margin:3px 0}
+</style>
+</head>
+<body>
+
+<div>
+  <h1>Tree of Life — Menu Layout v1 (Wireframe)</h1>
+  <div class="sub">Proposed unified layout. All controls use a single <code>.ctrl-btn</code> class. Glass surfaces share one token set. No hard-coded magic offsets — rails are flex containers.</div>
+  <div class="legend">
+    <span><b>Desktop</b> 1920×1080 (shown at 50%)</span>
+    <span><b>Mobile</b> 375×667 (shown 1:1, two states: collapsed + drawer open)</span>
+  </div>
+</div>
+
+<div class="stage">
+
+  <!-- ─────────────── DESKTOP 1920×1080 ─────────────── -->
+  <div class="frame desktop">
+    <div class="frame-label">Desktop · 1920 × 1080 (½)</div>
+    <div class="viewport">
+      <div class="tree-hint"><svg viewBox="-200 -200 400 400" preserveAspectRatio="xMidYMid meet"><defs><radialGradient id="tg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#c8883a" stop-opacity=".55"/><stop offset="60%" stop-color="#3b82f6" stop-opacity=".18"/><stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/></radialGradient></defs><circle cx="0" cy="0" r="180" fill="url(#tg)"/><g stroke="#9fb4cf" stroke-width=".8" fill="none" opacity=".55"><g id="b"><line x1="0" y1="0" x2="0" y2="-80"/><line x1="0" y1="-80" x2="-22" y2="-150"/><line x1="0" y1="-80" x2="22" y2="-150"/><line x1="-22" y1="-150" x2="-40" y2="-185"/><line x1="-22" y1="-150" x2="-8" y2="-185"/><line x1="22" y1="-150" x2="8" y2="-185"/><line x1="22" y1="-150" x2="40" y2="-185"/></g><use href="#b" transform="rotate(30)"/><use href="#b" transform="rotate(60)"/><use href="#b" transform="rotate(90)"/><use href="#b" transform="rotate(120)"/><use href="#b" transform="rotate(150)"/><use href="#b" transform="rotate(180)"/><use href="#b" transform="rotate(210)"/><use href="#b" transform="rotate(240)"/><use href="#b" transform="rotate(270)"/><use href="#b" transform="rotate(300)"/><use href="#b" transform="rotate(330)"/></g><g fill="#c8883a"><circle cx="0" cy="0" r="4"/></g><g fill="#9fb4cf" opacity=".7"><circle cx="0" cy="-80" r="1.6"/><circle cx="0" cy="80" r="1.6"/><circle cx="80" cy="0" r="1.6"/><circle cx="-80" cy="0" r="1.6"/></g></svg></div>
+
+      <!-- TOP BAR -->
+      <div class="topbar">
+        <div class="glass title">🌿 Tree of Life</div>
+        <div class="breadcrumb">
+          <div class="glass crumb-inner">
+            <span class="crumb-nav">
+              <button class="ctrl-btn ctrl-btn--icon" title="Back">←</button>
+              <button class="ctrl-btn ctrl-btn--icon" title="Home">⌂</button>
+            </span>
+            LUCA <span class="sep">›</span> Eukaryota <span class="sep">›</span> Animalia <span class="sep">›</span> Chordata <span class="sep">›</span> <span class="here">Mammalia</span>
+          </div>
+        </div>
+        <div class="glass settings">
+          <button class="ctrl-btn ctrl-btn--icon active" title="English"><span class="lang-flag">🇬🇧</span></button>
+          <button class="ctrl-btn ctrl-btn--icon" title="Hebrew"><span class="lang-flag">🇮🇱</span></button>
+          <button class="ctrl-btn ctrl-btn--icon" title="Russian"><span class="lang-flag">🇷🇺</span></button>
+          <button class="ctrl-btn ctrl-btn--icon" title="Theme">☀</button>
+          <button class="ctrl-btn ctrl-btn--icon" title="Profile">👤</button>
+        </div>
+      </div>
+
+      <!-- SEARCH (collapsed; click to expand) -->
+      <div class="search">
+        <button class="ctrl-btn ctrl-btn--icon glass" title="Search species">🔍</button>
+        <!-- Expanded state preview below:
+        <div class="search-input"></div>
+        -->
+      </div>
+
+      <!-- LEFT RAIL -->
+      <div class="leftrail glass">
+        <div class="rail-caption">View</div>
+        <div class="rail-group">
+          <button class="ctrl-btn ctrl-btn--rail active"><span class="ico">◉</span><span class="lbl">Radial</span></button>
+          <button class="ctrl-btn ctrl-btn--rail"><span class="ico">├</span><span class="lbl">Cladogram</span></button>
+          <button class="ctrl-btn ctrl-btn--rail"><span class="ico">▶</span><span class="lbl">Playback</span></button>
+        </div>
+
+        <div class="rail-divider"></div>
+
+        <div class="rail-caption">Tools</div>
+        <div class="rail-group">
+          <button class="ctrl-btn ctrl-btn--rail"><span class="ico">🔬</span><span class="lbl">Compare</span></button>
+          <button class="ctrl-btn ctrl-btn--rail"><span class="ico">🎮</span><span class="lbl">Games</span></button>
+          <button class="ctrl-btn ctrl-btn--rail"><span class="ico">📖</span><span class="lbl">Stories</span></button>
+          <button class="ctrl-btn ctrl-btn--rail"><span class="ico">🧬</span><span class="lbl">Hominins</span></button>
+        </div>
+
+        <div class="rail-divider"></div>
+
+        <div class="rail-group">
+          <button class="ctrl-btn ctrl-btn--rail"><span class="ico">†</span><span class="lbl">Show extinct</span></button>
+          <button class="ctrl-btn ctrl-btn--rail"><span class="ico">?</span><span class="lbl">Guided tour</span></button>
+        </div>
+
+        <div class="rail-foot">
+          <div class="status-badge">🔬 Seen <b>48</b> / <b>336</b> species</div>
+          <div class="sotd">
+            <div class="dot">🦎</div>
+            <div class="meta"><small>Species of the day</small><span>Komodo dragon</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT RAIL -->
+      <div class="rightrail glass">
+        <button class="ctrl-btn" title="Zoom in">＋</button>
+        <button class="ctrl-btn" title="Reset view">⌂</button>
+        <button class="ctrl-btn" title="Zoom out">−</button>
+        <button class="ctrl-btn" title="Random species">🎲</button>
+      </div>
+
+      <!-- TIMELINE -->
+      <div class="timeline glass">
+        <div class="tl-row1">
+          <span class="era">PRESENT · 0 Ma</span>
+          <span>Cenozoic · Mammalian radiation</span>
+          <span class="spacer"></span>
+          <span>336 visible</span>
+          <div class="playback">
+            <button class="ctrl-btn play">▶</button>
+            <button class="ctrl-btn">0.5×</button>
+            <button class="ctrl-btn active">1×</button>
+            <button class="ctrl-btn">2×</button>
+          </div>
+        </div>
+        <div class="tl-track">
+          <div class="tl-ext e1" title="Ordovician"></div>
+          <div class="tl-ext e2" title="Devonian"></div>
+          <div class="tl-ext e3" title="Permian"></div>
+          <div class="tl-ext e4" title="Triassic"></div>
+          <div class="tl-ext e5" title="K-Pg"></div>
+          <div class="tl-thumb"></div>
+        </div>
+        <div class="tl-row3"><span>3800 Ma</span><span>Hadean</span><span>Archean</span><span>Proterozoic</span><span>Phanerozoic</span><span>0 Ma</span></div>
+      </div>
+
+      <div class="corner-credit">Tree of Life · Wikimedia · Built with Claude</div>
+    </div>
+  </div>
+
+  <!-- ─────────────── MOBILE 375×667 (collapsed) ─────────────── -->
+  <div class="frame mobile">
+    <div class="frame-label">Mobile · 375 × 667 · collapsed</div>
+    <div class="viewport">
+      <div class="tree-hint"><svg viewBox="-200 -200 400 400" preserveAspectRatio="xMidYMid meet"><defs><radialGradient id="tg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#c8883a" stop-opacity=".55"/><stop offset="60%" stop-color="#3b82f6" stop-opacity=".18"/><stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/></radialGradient></defs><circle cx="0" cy="0" r="180" fill="url(#tg)"/><g stroke="#9fb4cf" stroke-width=".8" fill="none" opacity=".55"><g id="b"><line x1="0" y1="0" x2="0" y2="-80"/><line x1="0" y1="-80" x2="-22" y2="-150"/><line x1="0" y1="-80" x2="22" y2="-150"/><line x1="-22" y1="-150" x2="-40" y2="-185"/><line x1="-22" y1="-150" x2="-8" y2="-185"/><line x1="22" y1="-150" x2="8" y2="-185"/><line x1="22" y1="-150" x2="40" y2="-185"/></g><use href="#b" transform="rotate(30)"/><use href="#b" transform="rotate(60)"/><use href="#b" transform="rotate(90)"/><use href="#b" transform="rotate(120)"/><use href="#b" transform="rotate(150)"/><use href="#b" transform="rotate(180)"/><use href="#b" transform="rotate(210)"/><use href="#b" transform="rotate(240)"/><use href="#b" transform="rotate(270)"/><use href="#b" transform="rotate(300)"/><use href="#b" transform="rotate(330)"/></g><g fill="#c8883a"><circle cx="0" cy="0" r="4"/></g><g fill="#9fb4cf" opacity=".7"><circle cx="0" cy="-80" r="1.6"/><circle cx="0" cy="80" r="1.6"/><circle cx="80" cy="0" r="1.6"/><circle cx="-80" cy="0" r="1.6"/></g></svg></div>
+
+      <div class="topbar">
+        <div class="glass title">🌿 Tree of Life</div>
+        <div class="breadcrumb"></div>
+        <div class="glass settings">
+          <button class="ctrl-btn active">EN</button>
+          <button class="ctrl-btn ctrl-btn--icon">☀</button>
+          <button class="ctrl-btn ctrl-btn--icon">👤</button>
+        </div>
+      </div>
+
+      <div class="hamburger">
+        <button class="ctrl-btn ctrl-btn--icon glass" title="Open menu">☰</button>
+      </div>
+
+      <div class="search">
+        <button class="ctrl-btn ctrl-btn--icon glass" title="Search">🔍</button>
+      </div>
+
+      <div class="rightrail glass">
+        <button class="ctrl-btn">＋</button>
+        <button class="ctrl-btn">⌂</button>
+        <button class="ctrl-btn">−</button>
+      </div>
+
+      <div class="timeline glass">
+        <div class="tl-row1">
+          <span class="era">PRESENT · 0 Ma</span>
+          <span class="spacer"></span>
+          <div class="playback">
+            <button class="ctrl-btn play">▶</button>
+            <button class="ctrl-btn active">1×</button>
+          </div>
+        </div>
+        <div class="tl-track">
+          <div class="tl-ext e3"></div><div class="tl-ext e5"></div>
+          <div class="tl-thumb"></div>
+        </div>
+        <div class="tl-row3"><span>3800 Ma</span><span>0 Ma</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────── MOBILE 375×667 (drawer open) ─────────────── -->
+  <div class="frame mobile drawer-open">
+    <div class="frame-label">Mobile · 375 × 667 · bottom-sheet open</div>
+    <div class="viewport">
+      <div class="tree-hint"><svg viewBox="-200 -200 400 400" preserveAspectRatio="xMidYMid meet"><defs><radialGradient id="tg" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#c8883a" stop-opacity=".55"/><stop offset="60%" stop-color="#3b82f6" stop-opacity=".18"/><stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/></radialGradient></defs><circle cx="0" cy="0" r="180" fill="url(#tg)"/><g stroke="#9fb4cf" stroke-width=".8" fill="none" opacity=".55"><g id="b"><line x1="0" y1="0" x2="0" y2="-80"/><line x1="0" y1="-80" x2="-22" y2="-150"/><line x1="0" y1="-80" x2="22" y2="-150"/><line x1="-22" y1="-150" x2="-40" y2="-185"/><line x1="-22" y1="-150" x2="-8" y2="-185"/><line x1="22" y1="-150" x2="8" y2="-185"/><line x1="22" y1="-150" x2="40" y2="-185"/></g><use href="#b" transform="rotate(30)"/><use href="#b" transform="rotate(60)"/><use href="#b" transform="rotate(90)"/><use href="#b" transform="rotate(120)"/><use href="#b" transform="rotate(150)"/><use href="#b" transform="rotate(180)"/><use href="#b" transform="rotate(210)"/><use href="#b" transform="rotate(240)"/><use href="#b" transform="rotate(270)"/><use href="#b" transform="rotate(300)"/><use href="#b" transform="rotate(330)"/></g><g fill="#c8883a"><circle cx="0" cy="0" r="4"/></g><g fill="#9fb4cf" opacity=".7"><circle cx="0" cy="-80" r="1.6"/><circle cx="0" cy="80" r="1.6"/><circle cx="80" cy="0" r="1.6"/><circle cx="-80" cy="0" r="1.6"/></g></svg></div>
+
+      <div class="topbar">
+        <div class="glass title">🌿 Tree of Life</div>
+        <div class="breadcrumb"></div>
+        <div class="glass settings">
+          <button class="ctrl-btn active">EN</button>
+          <button class="ctrl-btn ctrl-btn--icon">☀</button>
+          <button class="ctrl-btn ctrl-btn--icon">👤</button>
+        </div>
+      </div>
+
+      <div class="hamburger">
+        <button class="ctrl-btn ctrl-btn--icon glass">☰</button>
+      </div>
+
+      <div class="search">
+        <button class="ctrl-btn ctrl-btn--icon glass">🔍</button>
+      </div>
+
+      <div class="rightrail glass">
+        <button class="ctrl-btn">＋</button>
+        <button class="ctrl-btn">⌂</button>
+        <button class="ctrl-btn">−</button>
+      </div>
+
+      <div class="sheet glass">
+        <div class="rail-caption">View</div>
+        <div class="grid">
+          <button class="ctrl-btn active"><span class="ico">◉</span>Radial</button>
+          <button class="ctrl-btn"><span class="ico">├</span>Clado</button>
+          <button class="ctrl-btn"><span class="ico">▶</span>Playbck</button>
+        </div>
+        <div class="rail-caption">Tools</div>
+        <div class="grid">
+          <button class="ctrl-btn"><span class="ico">🔬</span>Compare</button>
+          <button class="ctrl-btn"><span class="ico">🎮</span>Games</button>
+          <button class="ctrl-btn"><span class="ico">📖</span>Stories</button>
+          <button class="ctrl-btn"><span class="ico">🧬</span>Hominins</button>
+          <button class="ctrl-btn"><span class="ico">†</span>Extinct</button>
+          <button class="ctrl-btn"><span class="ico">?</span>Tour</button>
+        </div>
+        <div class="status-badge">🔬 Seen <b>48</b> / <b>336</b></div>
+      </div>
+
+      <div class="timeline glass">
+        <div class="tl-row1">
+          <span class="era">PRESENT · 0 Ma</span>
+          <span class="spacer"></span>
+          <div class="playback">
+            <button class="ctrl-btn play">▶</button>
+            <button class="ctrl-btn active">1×</button>
+          </div>
+        </div>
+        <div class="tl-track">
+          <div class="tl-ext e3"></div><div class="tl-ext e5"></div>
+          <div class="tl-thumb"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="notes">
+  <h2>Layout rules this wireframe encodes</h2>
+  <ul>
+    <li><b>Four zones, four containers.</b> <code>.topbar</code>, <code>.leftrail</code>, <code>.rightrail</code>, <code>.timeline</code>. Every floating control is a <i>child</i> of one of these — no more loose <code>position:fixed</code> islands with magic rem offsets.</li>
+    <li><b>One button vocabulary.</b> <code>.ctrl-btn</code> replaces <code>.view-btn</code>, <code>.search-pill</code>, and <code>.fab</code>. Variants: <code>.ctrl-btn--icon</code> (square, icon only) and <code>.ctrl-btn--rail</code> (full-width inside the left rail). Same height (36px desktop / 44px mobile), same radius, same glass hover, same accent active state.</li>
+    <li><b>Top bar.</b> Small wordmark left · breadcrumb center (with folded Back/Home arrows as prefix) · lang/theme/profile right. Subtitle dropped — splash only.</li>
+    <li><b>Left rail.</b> Flex-column glass panel, bounded by <code>top:72px</code>/<code>bottom:120px</code> so it can never collide with top bar or timeline. Order: View modes → divider → Tools (Compare, Games, Stories, Hominins) → divider → Extinct + Tour → foot: merged status badge + Species of the Day.</li>
+    <li><b>Right rail.</b> Zoom only. Vertically centered. Narrow (36px column + padding).</li>
+    <li><b>Search.</b> Icon-only by default, sits just to the right of the left rail on desktop. Click expands a 280px input inline. On mobile the icon lives top-left next to the hamburger and expands into a full-width overlay.</li>
+    <li><b>Timeline.</b> Single 88px band at the bottom: one info row (era label · visible count · play/speed buttons) + the color-coded track with extinction ticks + tiny era axis labels. The old "era presets" row and separate extinction shortcut row are gone — extinctions collapse into tick marks on the track itself.</li>
+    <li><b>Status.</b> One merged badge ("🔬 Seen N / M species") in the left rail foot. Old <code>#progress-badge</code> + species-count strings deduped.</li>
+    <li><b>Legend</b> removed entirely. Footer + shortcuts hint collapsed into one 10px corner credit.</li>
+    <li><b>Mobile.</b> Left rail collapses behind a <code>☰</code> button top-left; tapping it slides a bottom-sheet up containing the same View / Tools / Extinct / Tour groups in a 3-column grid (44px touch targets). Right rail shrinks to 3 zoom buttons and sits just above the timeline. Breadcrumb hidden (already navigable via panel).</li>
+  </ul>
+  <h2>Duplicates removed</h2>
+  <ul>
+    <li><code>#btn-trivia</code> FAB — killed. Games lives only in left-rail Tools.</li>
+    <li><code>#btn-compare</code> FAB — killed. Compare lives only in left-rail Tools.</li>
+    <li><code>#btn-quiz</code> pill — killed. Same Games entry point.</li>
+    <li><code>#legend</code> — deleted.</li>
+    <li><code>#progress-badge</code> + "N species visible" caption — merged into one status badge.</li>
+    <li><code>#footer</code> + <code>#shortcuts-hint</code> — collapsed into the single corner credit.</li>
+  </ul>
+  <h2>New CSS tokens</h2>
+  <ul>
+    <li><code>--ctrl-h: 36px</code> / <code>--ctrl-h-mobile: 44px</code></li>
+    <li><code>--rail-w-expanded: 188px</code> (left rail content width)</li>
+    <li><code>--glass-bg</code>, <code>--glass-border</code>, <code>--glass-blur</code> — single source for every frosted surface</li>
+  </ul>
+  <h2>What breaks vs. current code</h2>
+  <ul>
+    <li>HTML structure moves: <code>#view-toggle</code> leaves <code>#top-right-controls</code> and becomes a child of the new <code>#left-rail</code>. IDs on individual buttons stay stable so JS onclick handlers keep working.</li>
+    <li><code>#search-wrap</code>'s <code>#search-pill-row</code> is dismantled — each pill relocates: Extinct → left rail, Hominins/Games/Stories → left rail Tools.</li>
+    <li><code>#nav-ctrl</code> Back/Home move inside <code>#breadcrumb</code> as prefix buttons.</li>
+    <li><code>.fab-group</code> (whole block) deleted.</li>
+    <li><code>#legend</code> deleted.</li>
+    <li><code>#timeline</code>'s <code>#era-presets</code> row removed (presets → optional dropdown later if needed). Extinction markers remain as on-track ticks.</li>
+  </ul>
+</div>
+
+</body>
+</html>

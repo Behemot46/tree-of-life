@@ -1,7 +1,7 @@
 // Tree of Life — Service Worker
 // Cache-first for app shell, network-first for API/images
 
-const CACHE_VERSION = 'tol-v7';
+const CACHE_VERSION = 'tol-v8';
 const APP_SHELL = [
   '/',
   '/index.html',
@@ -52,6 +52,9 @@ const APP_SHELL = [
   '/js/theme.js',
   '/js/engagement.js',
   '/js/quiz.js',
+  '/js/achievements.js',
+  '/js/whoFirst.js',
+  '/js/familyFoe.js',
   // Assets
   '/assets/placeholder.svg'
 ];

@@ -550,7 +550,7 @@ eraSlider.addEventListener('input',()=>{
   eraLabel.textContent=getEraName(state.currentEra);
   updateEraTint(state.currentEra);
   updateSpeciesCount();
-  if(state.currentEra>=3800) checkAchievement('deep_time');
+  // deep_time achievement removed — not defined in plan
   if(state.playbackMode){
     pausePlayback();
     state.playbackCursor=state.currentEra;

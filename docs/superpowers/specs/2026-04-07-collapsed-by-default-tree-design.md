@@ -38,7 +38,7 @@ New per-node runtime flag:
 ### Click-handler split (`js/zoom.js` / `js/app.js`)
 
 - **Click on collapsed parent** → expand one level, set `_manualExpand = true`, re-layout, `frameSubtree(node)` to auto-pan/zoom.
-- **Click on expanded parent** → collapse subtree, clear `_manualExpand`, re-layout, frame parent.
+- **Click on expanded parent** → collapse subtree, clear `_manualExpand`, re-layout, frame parent. (Note: clearing on collapse means if the user later raises the slider past that depth, the branch auto-expands again — natural behavior, intentional.)
 - **Click on leaf** → open species panel (unchanged).
 - **Click on ⓘ button** (parents only) → open info panel for the parent. Does not expand/collapse.
 
@@ -108,6 +108,8 @@ New helper `frameSubtree(node)` in `zoom.js`:
 
 Called after every manual expand/collapse and after the depth slider settles.
 
+**Max zoom-out clamp:** `frameSubtree()` must never zoom out further than the zoom level that frames the full base tree. If a subtree's bounding box is larger than that (e.g., expanding a node with many grandchildren), clamp to the base-tree zoom and let the user pan manually. Prevents newly-revealed children from looking tiny.
+
 ### Collision safety net
 
 After layout, the existing label-collision detector runs. If any node-circle bounding boxes still overlap (rare wide-expansion edge case), the layout function nudges the smaller subtree outward by one spacing increment and re-checks (max 3 passes).
@@ -122,7 +124,7 @@ Measure `layout()` cost during slider drag early in development. **If it exceeds
 
 ## 5. Global Controls — "Reveal" Panel
 
-A new compact UI cluster in the top control bar (or floating bottom-left on mobile), labeled **"Reveal"**:
+A new compact UI cluster labeled **"Reveal"**. Exact placement is decided during PR 2 implementation by looking at where other controls currently sit (breadcrumb, view mode, timeline). Default candidate: a small floating cluster at **bottom-left on all screen sizes**. Show placement options to the user before committing.
 
 ### A) Depth slider
 
@@ -241,7 +243,7 @@ No automated tests in this repo. After each PR, verify in browser:
 ### PR 2 (slider + species toggle + Reveal panel)
 
 10. Drag depth slider 0 → max → tree fans out level by level, no overlap at any stop.
-11. Manually expand a deep branch via click, then drag slider down to depth 1 → manually-expanded branch **stays open**, all other branches collapse.
+11. **(Critical test)** Manually expand a deep branch via click, then drag slider down to depth 1 → manually-expanded branch **stays open**, all other branches collapse. This is the test that validates the entire `_manualExpand` design — if it fails, slider UX is broken.
 12. Click "Collapse All" → manually-expanded branch also collapses, slider snaps to 0.
 13. Toggle "Show all species" on → ~300 species merge in, layout still readable, perf acceptable.
 14. Toggle off → species hidden, slider unchanged.

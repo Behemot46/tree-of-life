@@ -130,10 +130,8 @@ export const GEO_DATA = {
   'magnolia':         { regions: ['north-america', 'east-asia', 'central-america', 'south-asia'], label: 'Temperate and subtropical forests of the Americas and Asia', type: 'habitat' },
   'acacia':           { regions: ['africa', 'oceania', 'south-asia', 'central-america', 'south-america'], label: 'Tropical and subtropical savannas worldwide; greatest diversity in Africa and Australia', type: 'habitat' },
   'cycad':            { regions: ['central-america', 'south-america', 'africa', 'south-asia', 'southeast-asia', 'oceania'], label: 'Tropical and subtropical regions worldwide; relict group from dinosaur era', type: 'habitat' },
-  'corpse-flower':    { regions: ['southeast-asia'], label: 'Rainforests of Sumatra, Indonesia — among the rarest plants in the world', type: 'endemic' },
   'strangler-fig':    { regions: ['south-asia', 'southeast-asia', 'central-america', 'south-america', 'africa', 'oceania'], label: 'Tropical rainforests worldwide; keystone species in many tropical ecosystems', type: 'habitat' },
   'welwitschia-2':    { regions: ['southern-africa'], label: 'Namib Desert, Namibia and Angola — lives 1,000-2,000 years', type: 'endemic' },
-  'titan-sequoia':    { regions: ['north-america'], label: 'Sierra Nevada foothills, California, USA — largest trees by volume on Earth', type: 'endemic' },
   'sensitive-fern':   { regions: ['north-america', 'east-asia'], label: 'Wetlands and moist forests of eastern North America and East Asia', type: 'habitat' },
   'resurrection-fern': { regions: ['north-america', 'africa'], label: 'Eastern North America and southern Africa; epiphyte on tree branches', type: 'habitat' },
 
@@ -175,7 +173,6 @@ export const GEO_DATA = {
   'sponges':            { regions: ['marine-global', 'freshwater'], label: 'All oceans from intertidal to abyssal; some freshwater species', type: 'habitat' },
   'glass-sponge':       { regions: ['marine-deep'], label: 'Deep ocean worldwide, 200-6,000 m; glass sponge reefs in British Columbia', type: 'habitat' },
   'barrel-sponge':      { regions: ['marine-global'], label: 'Tropical coral reefs of the Caribbean, Indo-Pacific, and Red Sea', type: 'habitat' },
-  'mollusks':           { regions: ['worldwide', 'marine-global', 'freshwater'], label: 'Marine, freshwater, and terrestrial worldwide', type: 'habitat' },
   'giant-clam':         { regions: ['southeast-asia', 'oceania'], label: 'Shallow coral reefs of the Indo-Pacific, from East Africa to Micronesia', type: 'habitat' },
   'cone-snail':         { regions: ['marine-global'], label: 'Tropical and subtropical coral reefs and sandy shallows worldwide', type: 'habitat' },
   'hercules-beetle':    { regions: ['central-america', 'south-america'], label: 'Tropical rainforests from Mexico to Bolivia and the Caribbean', type: 'habitat' },
@@ -191,10 +188,8 @@ export const GEO_DATA = {
   'cicada':             { regions: ['worldwide'], label: 'Temperate and tropical regions on every continent except Antarctica', type: 'habitat' },
   'dung-beetle':        { regions: ['worldwide'], label: 'Every continent except Antarctica; grasslands, forests, and deserts', type: 'habitat' },
   'crown-of-thorns':    { regions: ['marine-global', 'southeast-asia', 'oceania'], label: 'Coral reefs of the Indo-Pacific from Red Sea to Central America', type: 'habitat' },
-  'earthworm':          { regions: ['worldwide'], label: 'Temperate and tropical soils worldwide', type: 'habitat' },
   'giant-tube-worm':    { regions: ['marine-deep'], label: 'Hydrothermal vents in the eastern Pacific, 2,000+ m depth', type: 'habitat' },
   'leaf-insect':        { regions: ['south-asia', 'southeast-asia', 'oceania'], label: 'Tropical forests of South Asia, Southeast Asia, and Australia', type: 'habitat' },
-  'leech':              { regions: ['worldwide', 'freshwater'], label: 'Freshwater, terrestrial, and marine habitats worldwide', type: 'habitat' },
   'feather-star':       { regions: ['marine-global'], label: 'Tropical and temperate oceans worldwide; shallow reefs to deep sea', type: 'habitat' },
   'nematodes':          { regions: ['worldwide'], label: 'Every habitat on Earth — soil, marine, freshwater, parasitic in plants and animals', type: 'habitat' },
   'c-elegans':          { regions: ['worldwide'], label: 'Temperate soils worldwide; rotting vegetation and compost', type: 'habitat' },
@@ -250,7 +245,6 @@ export const GEO_DATA = {
   'golden-poison-frog': { regions: ['south-america'], label: 'Pacific coast rainforests of Colombia — extremely restricted range', type: 'endemic' },
   'axolotl':          { regions: ['central-america'], label: 'Lake Xochimilco, Mexico City — critically restricted habitat', type: 'endemic' },
   'chinese-giant-salamander': { regions: ['east-asia'], label: 'Mountain streams and lakes of central and southern China', type: 'endemic' },
-  'giant-salamander': { regions: ['east-asia'], label: 'Cool mountain streams of Japan', type: 'endemic' },
   'red-eyed-tree-frog': { regions: ['central-america', 'south-america'], label: 'Lowland tropical rainforests from Mexico to Colombia', type: 'habitat' },
   'clownfish':          { regions: ['south-asia', 'southeast-asia', 'oceania'], label: 'Coral reefs of the Indian and western Pacific oceans', type: 'habitat' },
   'anglerfish':         { regions: ['marine-deep', 'marine-global'], label: 'Deep ocean worldwide, 200-2,000+ m depth', type: 'habitat' },
@@ -293,8 +287,6 @@ export const GEO_DATA = {
   'african-elephant': { regions: ['africa'], label: 'Sub-Saharan Africa — savannas, forests, deserts, and marshes', type: 'habitat' },
   'gray-wolf':        { regions: ['north-america', 'europe', 'east-asia', 'central-asia'], label: 'Northern Hemisphere — forests, tundra, grasslands, and mountains', type: 'habitat' },
   'three-toed-sloth': { regions: ['central-america', 'south-america'], label: 'Tropical rainforests of Central and South America', type: 'habitat' },
-  'wolf':             { regions: ['north-america', 'europe', 'east-asia', 'central-asia'], label: 'Northern Hemisphere — boreal forests, tundra, and mountains', type: 'habitat' },
-  'dolphin':          { regions: ['marine-global'], label: 'All oceans; temperate and tropical coastal waters', type: 'habitat' },
   'echidna':          { regions: ['oceania'], label: 'Australia, Tasmania, and New Guinea — forests, grasslands, and arid scrub', type: 'habitat' },
   'giraffe':          { regions: ['africa'], label: 'Savannas and woodlands of sub-Saharan Africa', type: 'habitat' },
   'white-rhinoceros': { regions: ['africa'], label: 'Grasslands and savannas of eastern and southern Africa', type: 'habitat' },
@@ -1308,20 +1300,6 @@ export const BRANCH_DATA = {
     size: '6-16 kg; 55-77 cm body length',
     ability: 'Immune to cobra and scorpion venom; loose thick skin allows twisting to bite attacker when grabbed; fearlessly attacks much larger animals'
   },
-  'wolf': {
-    diet: 'Carnivore — ungulates, hares, rodents, carrion',
-    lifespan: '6-8 years (wild), 15 years (captivity)',
-    conservation: 'Least Concern globally; recovering in parts of Europe and North America',
-    size: '25-80 kg; 1.0-1.6 m body length',
-    ability: 'Ancestor of all domestic dogs; complex social hierarchies; cooperative pack hunting of prey 10× their weight'
-  },
-  'dolphin': {
-    diet: 'Carnivore — fish, squid, crustaceans',
-    lifespan: '20-50 years depending on species',
-    conservation: 'Variable; most Least Concern, some river dolphins Critically Endangered',
-    size: '1.5-4 m length; 40-650 kg depending on species',
-    ability: 'Unihemispheric sleep allows constant vigilance; echolocation creates 3D mental images; exhibits culture and cooperative behavior'
-  },
   'echidna': {
     diet: 'Insectivore — ants, termites, worms (using electroreceptors in bill)',
     lifespan: '15-20 years (wild), up to 50 years (captivity)',
@@ -1626,9 +1604,6 @@ export const BRANCH_DATA = {
     size: 'Up to 1.8 m diameter and 1.8 m tall',
     ability: 'Nicknamed "redwood of the reef" — pumps thousands of liters of water daily; hosts hundreds of symbiotic species inside its cavity; individual specimens may be over 2,000 years old'
   },
-  'mollusks': {
-    ability: 'Second-largest animal phylum; evolved the radula, mantle, and shell; includes the most intelligent invertebrates (cephalopods) and the longest-lived non-colonial animals (ocean quahog, 507 years)'
-  },
   'giant-clam': {
     diet: 'Filter feeder + photosymbiont — zooxanthellae algae provide 70% of nutrition',
     lifespan: '100+ years',
@@ -1734,13 +1709,6 @@ export const BRANCH_DATA = {
     size: '25-60 cm diameter; up to 21 arms',
     ability: 'Coral reef\'s most destructive predator — a single individual eats 5-13 m² of coral per year; covered in venomous spines; can regenerate from a single arm; outbreaks driven by nutrient runoff'
   },
-  'earthworm': {
-    diet: 'Detritivore — decaying plant matter, soil microorganisms',
-    lifespan: '4-8 years',
-    conservation: 'Least Concern; among the most abundant soil animals',
-    size: '5-30 cm (most species); giant Australian earthworm reaches 3 m',
-    ability: 'Ecosystem engineer — aerates soil, improves drainage, and recycles nutrients; processes its own weight in soil daily; 5 pairs of aortic arches act as hearts'
-  },
   'giant-tube-worm': {
     diet: 'Chemosymbiotic — no gut; relies entirely on internal sulfide-oxidizing bacteria',
     lifespan: '170-250+ years; one of the longest-lived invertebrates',
@@ -1754,13 +1722,6 @@ export const BRANCH_DATA = {
     conservation: 'Not formally assessed; some species rare due to deforestation',
     size: '5-10 cm',
     ability: 'Pinnacle of leaf mimicry — body, legs, and wing venation perfectly replicate a living leaf including "bite marks" and brown spots; sways in breeze; eggs mimic plant seeds'
-  },
-  'leech': {
-    diet: 'Hematophagous (most species) — blood of vertebrates; some species predatory on invertebrates',
-    lifespan: '2-20 years depending on species',
-    conservation: 'Variable; medicinal leech Near Threatened; most species Least Concern',
-    size: '1-30 cm depending on species',
-    ability: 'Painless bite — saliva contains anesthetic, vasodilator, and hirudin anticoagulant; a single blood meal can sustain them for months; 3 jaws with ~100 teeth each'
   },
   'feather-star': {
     diet: 'Filter feeder — plankton and suspended organic particles',
@@ -1987,13 +1948,6 @@ export const BRANCH_DATA = {
     conservation: 'Variable; many species Data Deficient due to secretive lifestyle',
     size: '10-150 cm; limbless, worm-like amphibians',
     ability: 'Limbless, nearly blind, burrowing amphibians with tentacle-like sensory organs; some species have skin-feeding young that scrape mother\'s nutritious outer skin layer'
-  },
-  'giant-salamander': {
-    diet: 'Carnivore — fish, crabs, insects, smaller salamanders',
-    lifespan: 'Over 80 years documented',
-    conservation: 'Vulnerable; protected in Japan as "special natural monument"',
-    size: 'Up to 1.5 m — second-largest living amphibian',
-    ability: 'Called "living fossil" — virtually unchanged from 30 Mya fossils; nocturnal ambush predator; absorbs oxygen primarily through wrinkled skin'
   },
   'red-eyed-tree-frog': {
     diet: 'Insectivore — moths, flies, crickets, grasshoppers',
@@ -2606,12 +2560,6 @@ export const BRANCH_DATA = {
     record: 'Living fossils — virtually unchanged for 280 million years; predate the dinosaurs; toxic seeds contain neurotoxin BMAA',
     ecoRole: 'Relict from the Mesozoic when they were dominant understory plants; nitrogen fixers via cyanobacterial root symbionts'
   },
-  'corpse-flower': {
-    pollination: 'Carrion beetles and flesh flies attracted by cadaverine and dimethyl trisulfide',
-    conservation: 'Endangered; endemic to Sumatran rainforests',
-    record: 'Identical to titan-arum (Amorphophallus titanum) — tallest unbranched inflorescence up to 3.1 m; blooms every 7-10 years',
-    ecoRole: 'Thermogenic pollination strategy — heats to 36°C to volatilize stench chemicals across the forest'
-  },
   'strangler-fig': {
     pollination: 'Fig wasps (obligate mutualism — each fig species has its own wasp species)',
     conservation: 'Least Concern; common in tropical forests',
@@ -2629,12 +2577,6 @@ export const BRANCH_DATA = {
     conservation: 'Near Threatened; restricted to Namib Desert',
     record: 'Produces only two continuously growing leaves in its entire 1,000-2,000-year lifespan; largest known specimen has leaves 2 m wide',
     ecoRole: 'Fog harvester — captures coastal fog on leaf surfaces for water in the hyper-arid Namib; living fossil gymnosperm'
-  },
-  'titan-sequoia': {
-    pollination: 'Wind-pollinated (conifer)',
-    conservation: 'Endangered; limited to ~75 groves in Sierra Nevada',
-    record: 'Largest tree by volume — General Sherman: 1,487 m3, ~2,200 years old; bark up to 90 cm thick, nearly fireproof',
-    ecoRole: 'Fire-dependent ecology (cones open in heat); massive carbon storage; watershed protection; among the most voluminous organisms ever'
   },
   'sensitive-fern': {
     pollination: 'Spores (non-flowering)',

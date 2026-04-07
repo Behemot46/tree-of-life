@@ -41,6 +41,8 @@ import { openEvoPath, closeEvoPath, openEvoSearch, fillEvoSlot, selectEvoSpecies
 
 // ── Unified Game ──
 import { openGame, closeGame, initGameEvents, initGameDeps } from './game.js';
+import { initWhoFirstDeps } from './whoFirst.js';
+import { initFamilyFoeDeps } from './familyFoe.js';
 
 // ── Playback ──
 import { inferAppeared, enterPlaybackMode, exitPlaybackMode, startPlayback, pausePlayback, togglePlayback, setPlaybackSpeed, resetPlayback, skipToNextEvent, buildPlaybackControls, updatePlaybackControlState, updatePlaybackStates, initPlaybackDeps } from './playback.js';
@@ -81,6 +83,8 @@ initPlaybackDeps({ layout, centerOnTree, scheduleRender, applyT, buildEraPresets
 initThemeDeps({ buildEraPresets, buildExtinctionMarkers, buildEraSegments, updateSpeciesCount, buildDensitySparkline, scheduleRender });
 initEngagementDeps({ t, navigateTo: (...args) => navigateTo(...args), showMainPanel });
 initRandomButton({ getRandomSpecies: () => getRandomSpecies(nodeMap), showMainPanel });
+initWhoFirstDeps({ t, checkAchievement });
+initFamilyFoeDeps({ t, checkAchievement });
 
 
 // ══════════════════════════════════════════════════════

@@ -5,6 +5,8 @@
 
 import { TRIVIA_QUESTIONS } from './triviaData.js';
 import { checkAchievement } from './engagement.js';
+import { startWhoFirst, answerWhoFirst, nextWhoFirst, diceWhoFirst } from './whoFirst.js';
+import { startFamilyFoe, answerFamilyFoe, nextFamilyFoe, diceFamilyFoe } from './familyFoe.js';
 
 // ── Late-binding deps ──
 let _t, _navigateTo;
@@ -171,6 +173,22 @@ function showModeSelector() {
           ${survHigh > 0 ? `<div class="game-mode-meta">Record: ${survHigh} pts · ${survStreak} streak</div>` : ''}
         </div>
       </button>
+      <button class="game-mode-card" data-mode="who-first" data-action="select-mode">
+        <div class="game-mode-icon">⏳</div>
+        <div class="game-mode-info">
+          <div class="game-mode-name">Who Appeared First?</div>
+          <div class="game-mode-desc">10 rounds · Pick the older species</div>
+          ${getHigh('tol-game-whofirst-high') > 0 ? `<div class="game-mode-meta">Best: ${getHigh('tol-game-whofirst-high')} pts</div>` : ''}
+        </div>
+      </button>
+      <button class="game-mode-card" data-mode="family-foe" data-action="select-mode">
+        <div class="game-mode-icon">🤝</div>
+        <div class="game-mode-info">
+          <div class="game-mode-name">Family or Foe?</div>
+          <div class="game-mode-desc">8 rounds · Guess the closer relative</div>
+          ${getHigh('tol-game-familyfoe-high') > 0 ? `<div class="game-mode-meta">Best: ${getHigh('tol-game-familyfoe-high')} pts</div>` : ''}
+        </div>
+      </button>
     </div>
     <div class="trivia-difficulty-preview">
       <span class="trivia-diff-badge easy">Easy 10pts</span>
@@ -188,6 +206,20 @@ function showModeSelector() {
 
 function startGame(mode) {
   if (!mode) return;
+  if (mode === 'who-first') {
+    document.getElementById('game-mode-select').style.display = 'none';
+    document.getElementById('game-question').style.display = '';
+    document.getElementById('game-result').style.display = 'none';
+    startWhoFirst();
+    return;
+  }
+  if (mode === 'family-foe') {
+    document.getElementById('game-mode-select').style.display = 'none';
+    document.getElementById('game-question').style.display = '';
+    document.getElementById('game-result').style.display = 'none';
+    startFamilyFoe();
+    return;
+  }
   const questions = pickQuestions(mode);
   if (!questions.length) return;
 
@@ -593,6 +625,12 @@ export function initGameEvents() {
       }
       else if (action === 'play-again') showModeSelector();
       else if (action === 'next-question') nextQuestion();
+      else if (action === 'wf-pick') answerWhoFirst(actionEl.dataset.pick);
+      else if (action === 'wf-next') nextWhoFirst();
+      else if (action === 'wf-dice') diceWhoFirst();
+      else if (action === 'ff-pick') answerFamilyFoe(actionEl.dataset.pick);
+      else if (action === 'ff-next') nextFamilyFoe();
+      else if (action === 'ff-dice') diceFamilyFoe();
       return;
     }
 

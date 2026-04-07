@@ -19,7 +19,7 @@ import { applyT, smoothPanTo, smoothZoomTo, centerOnTree, centerOnRoot, initZoom
 import { render, scheduleRender, branchPath, initRendererDeps } from './renderer.js';
 
 // ── Navigation ──
-import { currentNavState, pushNav, restoreNavState, navBack, navHome, updateNavButtons, traceLineage, getAncestors, focusNode, updateBreadcrumb, showTip, hideTip, initNavDeps } from './navigation.js';
+import { currentNavState, pushNav, restoreNavState, navBack, navHome, updateNavButtons, traceLineage, getAncestors, focusNode, updateBreadcrumb, showTip, hideTip, initNavDeps, resolveNodeId } from './navigation.js';
 
 // ── Search ──
 import { buildSearchIndex, searchEntities, normalizeSearchText, patchEnrichment } from './search.js';
@@ -242,7 +242,6 @@ patchEnrichment();
     'horseshoe-crab':'Horseshoe crabs predate the dinosaurs by 200 million years and have remained virtually unchanged for 450 million years. Their blue copper-based blood is used to test every injectable drug and vaccine for bacterial contamination.',
     'mantis-shrimp':'The mantis shrimp strikes with the fastest punch in the animal kingdom — accelerating its club at 23 m/s, generating a force of 1,500 newtons. The impact creates cavitation bubbles that produce a second shockwave of light and heat.',
     'mollusca':'Mollusks are the second-largest animal phylum, with over 85,000 living species ranging from 1 mm snails to 13-meter giant squid. They invented the camera eye independently from vertebrates at least twice.',
-    'mollusks':'The mollusk body plan is one of nature\'s most versatile — from sessile clams to jet-propelled squid, from microscopic sea slugs to the 250 kg giant clam, all built on the same basic mantle-foot-visceral mass blueprint.',
     'octopus':'Octopuses have three hearts, blue blood, and 500 million neurons — two-thirds of which are in their arms, meaning each arm can "think" independently. They also edit their own RNA at rates unseen in any other animal.',
     'nautilus':'The nautilus has survived five mass extinctions over 500 million years with virtually no change to its shell design. It controls buoyancy by pumping gas and fluid through its chambered shell — the same principle used in submarines.',
     'giant-squid':'The giant squid has the largest eyes in the animal kingdom — up to 27 cm across, the size of a dinner plate. These enormous eyes evolved specifically to detect the bioluminescent disturbance of approaching sperm whales in the deep.',
@@ -385,6 +384,7 @@ const searchResults=document.getElementById('search-results');
 
 function navigateTo(id){
   searchInput.value='';searchResults.classList.remove('show');searchInput.setAttribute('aria-expanded','false');
+  id=resolveNodeId(id);
   // Handle legacy hom: prefixed IDs from old search entries
   if(id.startsWith('hom:')){
     const homId=id.slice(4);
@@ -514,7 +514,7 @@ function init(){
   });
   applyI18n();
   // Restore URL state (?node=id)
-  const urlNode=new URLSearchParams(location.search).get('node');
+  const urlNode=resolveNodeId(new URLSearchParams(location.search).get('node'));
   if(urlNode){
     setTimeout(()=>navigateTo(urlNode),120);
   } else {

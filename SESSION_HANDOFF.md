@@ -1,3 +1,70 @@
+# Session Handoff — 2026-04-07 (Superarchaic DNA Story + Fun/Educational Upgrade)
+
+**Status: done**
+**Branches:** `feat/fun-educational-upgrade` (PR #151), `feat/fun-educational-games` (PR #152) — both merged to main
+
+## 1. Session Goal
+Resume and execute two pre-planned design specs that were on `feat/fun-educational-upgrade`:
+1. Superarchaic DNA story exhibit (standalone scroll-driven story page)
+2. Fun & educational upgrade (new game modes, achievements, daily challenge, SOTD, emoji refresh)
+
+## 2. PR #151 — Superarchaic DNA Story (`feat/fun-educational-upgrade`)
+Executed plan `docs/superpowers/plans/2026-04-06-superarchaic-dna-story.md` end-to-end via subagent.
+
+### New files
+- `stories/superarchaic-dna.html` — 7-section scroll-driven exhibit "How Human Are You?"
+- `stories/superarchaic-dna.css` (~495 lines) — DNA ring, genome bars, ghost silhouettes, mosaic, map
+- `stories/superarchaic-dna.js` (~424 lines) — IntersectionObserver scroll triggers, animations
+- `stories/story-base.css` (~216 lines) — shared story-page layout, typography, reveal animations
+- `stories/story-utils.js` (~74 lines) — `onVisible()`, `scrollProgress()`, `revealOnScroll()`, `reducedMotion()`
+
+### Modified
+- `index.html` — added `📖 Stories` pill in `#search-pill-row`
+
+### Bugs fixed during session
+- **Story page wouldn't scroll**: `css/variables.css:140` sets `html,body{overflow:hidden;height:100%}` for the main app — story pages inherited it. Fix: `story-base.css` overrides via `html:has(.story-page), html:has(.story-page) body { height:auto; overflow-y:auto }`.
+- **Stories pill overlapped view-toggle**: `#search-wrap` uses `flex-direction:column`, so adding pills grew the column past `top:17rem` where `#view-toggle` sits. Fix: wrapped pills in `<div id="search-pill-row" style="display:flex;flex-wrap:wrap;gap:0.5rem">` so they sit on a single horizontal row.
+- **Stale SW cache hid the new pill**: bumped `sw.js` `CACHE_VERSION` `tol-v5 → tol-v6 → tol-v7`.
+
+## 3. PR #152 — Fun & Educational Upgrade (`feat/fun-educational-games`)
+Executed plan `docs/superpowers/plans/2026-04-06-fun-educational-upgrade.md` via subagent with **scope reduction**: Tasks 7 (Species Compare) and 9 (Profile panel) skipped — both critically under-specified in the plan. The subagent reported plan drift (stale line numbers, already-completed sub-steps from prior sessions); resolved by content matching.
+
+### New files
+- `js/achievements.js` — 25 badges across 5 categories (Explorer, Scholar, Gamer, Tinkerer, Time Traveler)
+- `js/whoFirst.js` — "Who Appeared First?" game mode (10 rounds, age comparison)
+- `js/familyFoe.js` — "Family or Foe?" game mode (8 rounds, 30 curated trios, picks closer relative via `findLCA()`)
+
+### Modified
+- `js/game.js` — added 2 new game-mode cards in menu, action handlers (`wf-pick/next/dice`, `ff-pick/next/dice`)
+- `js/app.js` — wired `initWhoFirstDeps`/`initFamilyFoeDeps`, removed dead `showIdleToast/resetIdleTimer/onUserActivity` import, SOTD badge wiring
+- `js/engagement.js` — `getSpeciesOfTheDay()`, `trackTourComplete()` exported, expanded achievement integration via `getAchievement()` from achievements.js
+- `js/utils.js` — `getTimeContext()` Scale of Time helper
+- `js/panel.js` — Scale of Time contextualizer in species panels
+- `js/zoom.js` — `trackDiceUse()` on dice button
+- `index.html` — added Daily Challenge UI, SOTD badge, **renamed hidden Quiz pill → 🎮 Games entry point**
+- `css/features.css` — removed `#btn-quiz{display:none}`
+- `js/treeData.js` + `js/treeExpansion.js` — diversified ~120 species emoji icons (max frequency dropped from 20 → 10)
+- `sw.js` — added new modules to APP_SHELL, bumped to `tol-v9`
+
+### Skipped (deferred)
+- **Task 7 — Species Compare** (merge of dnaCalc + evoPath into one panel) — plan said "~350 lines combining the two existing files... follow exact patterns" without concrete code. Needs re-plan.
+- **Task 9 — Profile panel** — plan stubbed `renderLeaderboard`, `renderAchievements`, `renderKingdomProgress` as `{ ... }` placeholders. Needs re-plan with concrete UI/data model.
+- **`tours.js` doesn't yet call `trackTourComplete`** — function exists, just unused.
+- **Legacy achievement IDs** referenced from existing engagement.js call sites (`first_steps`, `night_owl`, `view_master`, etc.) aren't in the new `achievements.js`, so those `_unlock()` calls are silent no-ops. Worth a follow-up to migrate or restore them.
+
+## 4. Verification
+- Static: all modified JS files pass `node --check`; all module URLs return 200 from `node serve.js`
+- Manual: user confirmed Stories page works, Games menu works, both new game modes playable
+- No browser smoke test on full feature matrix — relied on user spot-checks
+
+## 5. Key Learnings (added to memory)
+- Story pages need to override `html,body{overflow:hidden}` from variables.css using `:has(.story-page)`
+- `#search-wrap` is `flex-direction:column` — adding pills there grows the column and overlaps `#view-toggle` at `top:17rem`. Use the new `#search-pill-row` horizontal sub-container instead.
+- `#btn-quiz` is now visible and labeled "Games" — it's the entry point for **all** game modes, not just trivia. Don't re-hide it.
+- When subagents execute large plans, scope reduction is often correct: ship the well-specified tasks, defer the under-specified ones to a re-plan rather than guessing the missing design.
+
+---
+
 # Session Handoff — 2026-04-01 (Sprint J17 — Hominin Lineage Explorer)
 
 **Status: done**

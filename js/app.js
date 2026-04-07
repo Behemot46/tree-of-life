@@ -49,7 +49,7 @@ import { inferAppeared, enterPlaybackMode, exitPlaybackMode, startPlayback, paus
 import { t, setLang, applyI18n, applyTheme, toggleTheme, initThemeDeps } from './theme.js';
 
 // ── Engagement / UI effects ──
-import { showToast, dismissToast, showSpeciesToast, showIdleToast, resetIdleTimer, onUserActivity, a11yAnnounce, spawnParticles, showIntro, animateTreeEntrance, generateSpeciesIllustration, initEngagementDeps, markExplored, isExplored, updateProgressBadge, checkAchievement, trackDomainToggle, trackViewMode, trackExtinctionClick, trackDnaCompare } from './engagement.js';
+import { showToast, dismissToast, showSpeciesToast, a11yAnnounce, spawnParticles, showIntro, animateTreeEntrance, generateSpeciesIllustration, initEngagementDeps, markExplored, isExplored, updateProgressBadge, checkAchievement, trackDomainToggle, trackViewMode, trackExtinctionClick, trackDnaCompare } from './engagement.js';
 
 
 // ── Data (barrel + direct for niche modules) ──

@@ -846,3 +846,23 @@ kbd{
   font-weight: 700;
   font-size: var(--text-base);
 }
+
+/* Species of the Day badge */
+#sotd-badge {
+  position: fixed;
+  top: 4.4rem;
+  left: 1rem;
+  z-index: 100;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--surface-raised, var(--surface));
+  border: 1px solid var(--border, rgba(255,255,255,0.1));
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  font-size: var(--text-xs);
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s;
+  color: var(--text);
+}
+#sotd-badge:hover { border-color: var(--gold, var(--accent-primary)); transform: translateY(-1px); }

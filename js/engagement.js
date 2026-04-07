@@ -567,3 +567,16 @@ export function trackDnaCompare() {
   _saveTracking();
   if (_tracking.dnaCompares >= 5) _unlock('dna_wizard');
 }
+
+// ── Species of the Day (deterministic from date) ──
+export function getSpeciesOfTheDay() {
+  const leaves = Object.values(nodeMap).filter(n => !n.children || n.children.length === 0);
+  if (!leaves.length) return null;
+  const dateStr = new Date().toISOString().slice(0, 10);
+  let hash = 0;
+  for (let i = 0; i < dateStr.length; i++) {
+    hash = ((hash << 5) - hash + dateStr.charCodeAt(i)) | 0;
+  }
+  const idx = ((hash % leaves.length) + leaves.length) % leaves.length;
+  return leaves[idx];
+}

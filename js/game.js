@@ -32,27 +32,57 @@ const LS_SURVIVAL_STREAK = 'tol-game-survival-streak';
 
 // ── State ──
 let gameState = null;
+let _sessionCorrect = new Set(); // question IDs answered correctly this session
+let _lastCorrectSlots = [];      // track last 2 correct-answer positions
 
 function getHigh(key) { return parseInt(localStorage.getItem(key) || '0', 10); }
 function setHigh(key, val) { localStorage.setItem(key, String(val)); }
+
+function shuffleAnswers(question) {
+  // Clone to avoid mutating original
+  const q = { ...question, answers: [...question.answers] };
+  // Fisher-Yates shuffle of answers, tracking where correct moved
+  const correctText = q.answers[q.correct];
+  for (let i = q.answers.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [q.answers[i], q.answers[j]] = [q.answers[j], q.answers[i]];
+  }
+  q.correct = q.answers.indexOf(correctText);
+
+  // Prevent same correct slot 3 times in a row
+  if (_lastCorrectSlots.length >= 2 &&
+      _lastCorrectSlots[0] === q.correct &&
+      _lastCorrectSlots[1] === q.correct) {
+    // Swap correct answer with a different slot
+    const alt = (q.correct + 1 + Math.floor(Math.random() * 3)) % 4;
+    [q.answers[q.correct], q.answers[alt]] = [q.answers[alt], q.answers[q.correct]];
+    q.correct = alt;
+  }
+  _lastCorrectSlots = [q.correct, ..._lastCorrectSlots].slice(0, 2);
+  return q;
+}
 
 // ── Question selection ──
 function pickQuestions(mode) {
   const qs = TRIVIA_QUESTIONS;
   if (!qs || !qs.length) return [];
+  // Filter out questions already answered correctly this session
+  const available = qs.filter(q => !_sessionCorrect.has(q.id));
+  const pool = available.length >= 5 ? available : qs; // fallback if pool too small
+
   if (mode === 'quick') {
-    return [...qs].sort(() => Math.random() - 0.5).slice(0, 5);
+    return [...pool].sort(() => Math.random() - 0.5).slice(0, 5);
   }
   if (mode === 'classic') {
     const selected = [];
     for (const tier of TIERS) {
-      const pool = qs.filter(q => q.difficulty >= tier.min && q.difficulty <= tier.max);
-      selected.push(...[...pool].sort(() => Math.random() - 0.5).slice(0, 3));
+      const tierPool = pool.filter(q => q.difficulty >= tier.min && q.difficulty <= tier.max);
+      selected.push(...[...tierPool].sort(() => Math.random() - 0.5).slice(0, 3));
     }
     return selected;
   }
   if (mode === 'survival') {
-    return [...qs].sort(() => Math.random() - 0.5);
+    return [...pool].sort(() => Math.random() - 0.5);
   }
   return [];
 }
@@ -76,6 +106,8 @@ function getSurvivalMinDifficulty(correctCount) {
 
 export function openGame() {
   gameState = null;
+  _sessionCorrect = new Set();
+  _lastCorrectSlots = [];
   const panel = document.getElementById('game-panel');
   if (!panel) return;
   panel.classList.add('open');
@@ -210,12 +242,14 @@ function showQuestion() {
   if (s.mode === 'survival') {
     q = getCurrentQuestion();
     if (!q) { showResults(); return; }
-    s._currentQuestion = q;
+    s._currentQuestion = shuffleAnswers(q);
   } else {
     q = s.questions[s.currentIndex];
     if (!q) { showResults(); return; }
-    s._currentQuestion = q;
+    s._currentQuestion = shuffleAnswers(q);
   }
+  // Use the shuffled question for rendering so answers and correct index are consistent
+  q = s._currentQuestion;
 
   const tier = getTierLabel(q.difficulty);
   const pts = s.mode === 'quick' ? 1 : POINTS[q.difficulty];
@@ -312,6 +346,7 @@ function answerQuestion(idx) {
     s.correctCount++;
     if (s.streak > s.bestStreak) s.bestStreak = s.streak;
     s.tierScores[tier.cls].correct++;
+    if (q.id) _sessionCorrect.add(q.id);
 
     if (s.mode === 'quick') {
       s.score++;

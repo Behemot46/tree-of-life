@@ -116,6 +116,7 @@
   box-shadow:var(--shadow-1);
 }
 #top-right-controls #view-toggle{display:none !important;} /* moved to left rail */
+#lang-switcher{display:none !important;} /* language switcher hidden */
 #lang-switcher{display:flex;gap:2px;}
 #lang-switcher .lang-btn,
 #theme-btn,

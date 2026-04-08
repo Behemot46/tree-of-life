@@ -11,6 +11,9 @@ export function expandTree(TREE, lightenColor) {
     const p = N(parentId);
     if (!p) return;
     if (!p.children) p.children = [];
+    // Tag every expansion node so preprocess() can compute maxBaseDepth
+    // from base TREE only, and so the species toggle (PR 2) can hide them.
+    children.forEach(c => { c._fromExpansion = true; });
     p.children.push(...children);
   }
   function iucn(id, status) { const n = N(id); if (n) n.iucn = status; }

@@ -581,6 +581,14 @@ function initRevealPanel(){
   slider.max = String(state.maxBaseDepth);
   slider.value = String(state.depthLimit);
   valueEl.textContent = String(state.depthLimit);
+  const updateSliderFill = () => {
+    const min = parseFloat(slider.min || '0');
+    const max = parseFloat(slider.max || '1');
+    const v = parseFloat(slider.value);
+    const pct = ((v - min) / (max - min)) * 100;
+    slider.style.setProperty('--reveal-pct', pct + '%');
+  };
+  updateSliderFill();
 
   // Build ticks: 0 1 2 ... max-1 All
   ticksEl.innerHTML = '';
@@ -597,6 +605,7 @@ function initRevealPanel(){
   let sliderDebounce = null;
   slider.addEventListener('input', () => {
     valueEl.textContent = slider.value;
+    updateSliderFill();
     state._draggingSlider = true;
     clearTimeout(sliderDebounce);
     sliderDebounce = setTimeout(() => applyDepthLimit(parseInt(slider.value, 10)), 60);
@@ -621,11 +630,16 @@ function initRevealPanel(){
     state.depthLimit = 0;
     slider.value = '0';
     valueEl.textContent = '0';
+    updateSliderFill();
     preprocess(TREE);
     layout();
     scheduleRender();
     localStorage.setItem('tol-depth', '0');
-    requestAnimationFrame(() => frameSubtree(TREE));
+    // Zoom further out than the base-fit so the collapsed root has breathing room.
+    requestAnimationFrame(() => {
+      const s = (state.baseTreeZoom || 0.18) * 0.55;
+      smoothZoomTo(TREE._x, TREE._y, s);
+    });
   });
 
   // ── Expand All ──
@@ -633,11 +647,25 @@ function initRevealPanel(){
     state.depthLimit = state.maxBaseDepth;
     slider.value = String(state.maxBaseDepth);
     valueEl.textContent = String(state.maxBaseDepth);
+    updateSliderFill();
     preprocess(TREE);
     layout();
     scheduleRender();
     localStorage.setItem('tol-depth', String(state.maxBaseDepth));
-    requestAnimationFrame(() => frameSubtree(TREE));
+    // Center on the bbox center of all visible nodes (not just on LUCA).
+    requestAnimationFrame(() => {
+      const pts = [];
+      (function walk(n){
+        if (n._x == null || n._y == null) return;
+        pts.push(n);
+        if (n.children && !n._collapsed) n.children.forEach(walk);
+      })(TREE);
+      if (!pts.length) return;
+      const xs = pts.map(p => p._x), ys = pts.map(p => p._y);
+      const cx = (Math.min(...xs) + Math.max(...xs)) / 2;
+      const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+      smoothZoomTo(cx, cy, state.baseTreeZoom || 0.18);
+    });
   });
 
   // ── Show all species toggle ──

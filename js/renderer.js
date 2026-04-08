@@ -9,16 +9,37 @@ import { reducedMotion } from './utils.js';
 import { getPlaybackNodeState, discoverNode, showDiscoveryCard } from './playback.js';
 import { isExplored } from './engagement.js';
 import { nodeInEra } from './timeline.js';
-import { a11yAnnounce } from './engagement.js';
+import { a11yAnnounce, showToast } from './engagement.js';
+import { t } from './theme.js';
 import { TREE, NODE_ICONS, getIconGroup, ImageLoader } from './data.js';
 
 // ── Late-bound deps (avoid circular imports) ──
-let _showMainPanel, _showTip, _hideTip, _smoothPanTo, _smoothZoomTo, _layout, _updateBreadcrumb;
+let _showMainPanel, _showTip, _hideTip, _smoothPanTo, _smoothZoomTo, _layout, _updateBreadcrumb, _frameSubtree;
 export function initRendererDeps(deps) {
   _showMainPanel = deps.showMainPanel; _showTip = deps.showTip;
   _hideTip = deps.hideTip; _smoothPanTo = deps.smoothPanTo;
   _smoothZoomTo = deps.smoothZoomTo; _layout = deps.layout;
   _updateBreadcrumb = deps.updateBreadcrumb;
+  _frameSubtree = deps.frameSubtree;
+}
+
+// True if node is a leaf, or all descendants are expanded (not collapsed).
+function isFullyExpanded(node) {
+  if (!node.children || !node.children.length) return true;
+  if (node._collapsed) return false;
+  for (const c of node.children) {
+    if (c._hiddenByToggle) continue;
+    if (!isFullyExpanded(c)) return false;
+  }
+  return true;
+}
+
+// Recursively collapse a node and all its descendants. Clears
+// _manualExpand on descendants so the depth slider can re-expand naturally.
+function collapseSubtree(node) {
+  node._collapsed = true;
+  node._manualExpand = false;
+  if (node.children) node.children.forEach(c => collapseSubtree(c));
 }
 
 // ── DOM refs ──
@@ -510,7 +531,14 @@ export function render(){
     bg.setAttribute('cx',n._x);bg.setAttribute('cy',n._y);bg.setAttribute('r',nodeR);
     bg.setAttribute('fill',n.depth===0?'url(#rootGrad)':'var(--tree-node-fill)');
     if(!inEra) bg.setAttribute('opacity','0.3');
+    // Cursor class hooks (parent vs leaf; expanded vs collapsed)
+    const _hasKids=!!(n.children&&n.children.length);
+    let _bgCls=_hasKids?'node-circle-parent':'node-circle-leaf';
+    if(_hasKids&&!n._collapsed) _bgCls+=' expanded';
+    bg.setAttribute('class',_bgCls);
     g.appendChild(bg);
+    // Fully-expanded hook on the node group
+    if(_hasKids&&isFullyExpanded(n)) g.classList.add('node-fully-expanded');
 
     // Domain color tint behind photo
     if(n.depth>0){
@@ -575,6 +603,34 @@ export function render(){
     border.style.setProperty('--nc',n.color);
     if(n.extinct){border.setAttribute('stroke-dasharray','4 2');border.setAttribute('opacity','0.6');}
     g.appendChild(border);
+
+    // ── COLLAPSED-BY-DEFAULT AFFORDANCES: glowing ring + toggle badge ──
+    if(n.children&&n.children.length){
+      // 1) Glowing ring — only on collapsed parents
+      if(n._collapsed){
+        const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
+        ring.setAttribute('cx',n._x);ring.setAttribute('cy',n._y);
+        ring.setAttribute('r',nodeR+4);
+        ring.setAttribute('class','node-ring-expandable');
+        ring.setAttribute('pointer-events','none');
+        g.appendChild(ring);
+      }
+      // 2) +/- toggle badge (bottom-right)
+      const tb=document.createElementNS('http://www.w3.org/2000/svg','g');
+      tb.setAttribute('class','node-toggle-badge');
+      tb.setAttribute('pointer-events','none');
+      tb.setAttribute('transform',`translate(${n._x+nodeR*0.72},${n._y+nodeR*0.72})`);
+      const tbBg=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      tbBg.setAttribute('r','7');
+      tbBg.setAttribute('class','node-toggle-badge-bg');
+      const tbTxt=document.createElementNS('http://www.w3.org/2000/svg','text');
+      tbTxt.setAttribute('text-anchor','middle');
+      tbTxt.setAttribute('dominant-baseline','central');
+      tbTxt.setAttribute('class','node-toggle-badge-text');
+      tbTxt.textContent=n._collapsed?'+':'\u2212';
+      tb.appendChild(tbBg);tb.appendChild(tbTxt);
+      g.appendChild(tb);
+    }
 
     // ── INFO BUTTON for internal nodes (has children) ──
     if(n.children&&n.children.length&&!state.playbackMode){
@@ -681,55 +737,61 @@ export function render(){
       }
     }
 
+    // Long-press on parent node: open info panel (mobile discovery shortcut)
+    if(n.children&&n.children.length){
+      let _lpTimer=null;
+      g.addEventListener('touchstart',()=>{
+        g._lpFired=false;
+        _lpTimer=setTimeout(()=>{g._lpFired=true;_showMainPanel(n);},550);
+      },{passive:true});
+      g.addEventListener('touchend',ev=>{
+        clearTimeout(_lpTimer);
+        if(g._lpFired){ev.preventDefault();g._lpSuppressClick=Date.now();}
+      });
+      g.addEventListener('touchmove',()=>{clearTimeout(_lpTimer);},{passive:true});
+      g.addEventListener('touchcancel',()=>{clearTimeout(_lpTimer);g._lpFired=false;},{passive:true});
+    }
+
     // Click events — branch=expand/collapse, leaf=panel
     g.addEventListener('click',e=>{
       e.stopPropagation();
+      // Suppress click that follows a long-press touchend
+      if(g._lpSuppressClick&&Date.now()-g._lpSuppressClick<400){g._lpSuppressClick=0;return;}
       if(state.playbackMode){showDiscoveryCard(n);return;}
-      if(n.children&&n.children.length){
-        const wasCollapsed=n._collapsed;
-        // Auto-collapse siblings when expanding (keep tree focused)
-        if(wasCollapsed&&n._parent&&n._parent.children){
-          n._parent.children.forEach(sib=>{
-            if(sib!==n&&sib.children&&!sib._collapsed) sib._collapsed=true;
-          });
-        }
-        n._collapsed=!n._collapsed;
-        _layout();scheduleRender(true);
-        a11yAnnounce(n.name+(n._collapsed?' collapsed':' expanded'));
-
-        // Zoom-to-fit after expand/collapse
-        setTimeout(()=>{
-          let allPts;
-          if(!n._collapsed){
-            // Expanded: fit node + direct children
-            const kids=getVisible(n).filter(k=>k._parent===n);
-            if(!kids.length) return;
-            allPts=[n,...kids];
-          } else if(n._parent){
-            // Collapsed with parent: fit parent + siblings
-            allPts=[n._parent,...(n._parent.children||[])];
-          } else {
-            // Root collapsed: just center on it
-            _smoothPanTo(n._x,n._y);
-            if(_updateBreadcrumb) _updateBreadcrumb(n);
-            return;
-          }
-          const xs=allPts.map(k=>k._x),ys=allPts.map(k=>k._y);
-          const bw=(Math.max(...xs)-Math.min(...xs))||200;
-          const bh=(Math.max(...ys)-Math.min(...ys))||200;
-          const svgR=(document.getElementById('canvas-wrap')||document.getElementById('svg')).getBoundingClientRect();
-          const fitScale=Math.min(svgR.width*0.8/bw,svgR.height*0.8/bh);
-          const clampedScale=Math.min(2.0,Math.max(0.05,fitScale));
-          // On expand: don't zoom in past current level; on collapse: don't zoom out past current
-          const targetScale=n._collapsed?Math.min(state.transform.s,clampedScale):Math.max(0.05,Math.min(clampedScale,Math.max(state.transform.s,clampedScale)));
-          _smoothZoomTo((Math.min(...xs)+Math.max(...xs))/2,(Math.min(...ys)+Math.max(...ys))/2,targetScale);
-          if(_updateBreadcrumb) _updateBreadcrumb(n._collapsed&&n._parent?n._parent:n);
-        },100);
-      } else {
+      const isParent=!!(n.children&&n.children.length);
+      if(!isParent){
+        // Leaf: open species panel
         _showMainPanel(n);
+        return;
       }
+      // Parent: expand or collapse — never open panel directly
+      const _wasCollapsed=n._collapsed;
+      if(n._collapsed){
+        n._collapsed=false;
+        n._manualExpand=true;
+      } else {
+        collapseSubtree(n);
+      }
+      _layout();scheduleRender(true);
+      // First-time expand hint — one-shot, localStorage-gated
+      if(_wasCollapsed&&!localStorage.getItem('tol-expand-hint-seen')){
+        localStorage.setItem('tol-expand-hint-seen','1');
+        setTimeout(()=>{
+          try{showToast({text:t('expand_hint_first_time')});}catch(_){}
+        },600);
+      }
+      a11yAnnounce(n.name+(n._collapsed?' collapsed':' expanded'));
+      requestAnimationFrame(()=>{
+        if(_frameSubtree) _frameSubtree(n);
+        if(_updateBreadcrumb) _updateBreadcrumb(n._collapsed&&n._parent?n._parent:n);
+      });
     });
-    g.addEventListener('dblclick',e=>{e.stopPropagation();e.preventDefault();if(!state.playbackMode)_showMainPanel(n);});
+    g.addEventListener('dblclick',e=>{
+      e.stopPropagation();e.preventDefault();
+      if(state.playbackMode) return;
+      // Only leaves open panel on dblclick; parents are toggle-only
+      if(!(n.children&&n.children.length)) _showMainPanel(n);
+    });
     nodesFrag.appendChild(g);
   });
 

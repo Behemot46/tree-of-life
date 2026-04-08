@@ -2,7 +2,7 @@
 // UTILS — shared utility functions
 // ══════════════════════════════════════════════════════
 
-import { nodeMap, PHOTO_STATUS_CACHE, PHOTO_VERIFY_PROMISES } from './state.js';
+import { nodeMap, state, PHOTO_STATUS_CACHE, PHOTO_VERIFY_PROMISES } from './state.js';
 import { HOMININS, MAX_BRAIN, HOMININ_ID_ALIASES } from './data.js';
 
 // ── REDUCED MOTION HELPER ──
@@ -49,9 +49,25 @@ export function homininToTreeNode(h){
 
 export function preprocess(n,parent=null,depth=0){
   n._parent=parent; n.depth=depth;
-  if(n._collapsed === undefined) n._collapsed=false;
+  // Collapsed-by-default: nodes past depthLimit start collapsed unless the
+  // user manually expanded them. _hiddenByToggle is used by the species toggle
+  // (PR 2). Root (depth 0) is never collapsed.
+  if(state.collapsedByDefault && depth>0){
+    n._collapsed = (depth > state.depthLimit && !n._manualExpand) || !!n._hiddenByToggle;
+  } else if(n._collapsed === undefined){
+    n._collapsed=false;
+  }
   nodeMap[n.id]=n;
   if(n.children) n.children.forEach(c=>preprocess(c,n,depth+1));
+  // Compute maxBaseDepth on the root call (depth 0).
+  if(depth===0){
+    let max=0;
+    for(const id in nodeMap){
+      const node=nodeMap[id];
+      if(!node._fromExpansion && node.depth>max) max=node.depth;
+    }
+    state.maxBaseDepth=max;
+  }
 }
 
 // Sort all children by appeared (oldest first) for consistent ordering

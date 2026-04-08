@@ -16,6 +16,23 @@ export function leafCount(n){
   n.children.forEach(c=>{ sum+=leafCount(c); });
   return Math.max(1,sum);
 }
+
+// Count of currently-visible descendants + 1. Collapsed subtrees weigh 1
+// so they reclaim space when closed. Called once per layout() pass before
+// computing positions.
+function computeWeight(node){
+  if(!node.children||!node.children.length||node._collapsed){
+    node._weight=1;
+    return 1;
+  }
+  let sum=0;
+  for(const c of node.children){
+    if(c._hiddenByToggle) continue; // species toggle (PR 2)
+    sum+=computeWeight(c);
+  }
+  node._weight=Math.max(1,sum);
+  return node._weight;
+}
 /* Count all descendants (not just visible) for collapse badge */
 export function countDescendants(n){
   if(!n.children||!n.children.length) return 0;
@@ -28,7 +45,8 @@ export function countDescendants(n){
 export function assignAngles(n,a0,a1){
   n._a0=a0; n._a1=a1; n._angle=(a0+a1)/2;
   if(!n.children||!n.children.length||n._collapsed) return;
-  const visible=n.children;
+  const visible=n.children.filter(c=>!c._hiddenByToggle);
+  if(!visible.length) return;
   const range=a1-a0;
 
   /* Child depth radius — used for arc-based spacing */
@@ -36,7 +54,7 @@ export function assignAngles(n,a0,a1){
   const r=DEPTH_R[childDepth]||(DEPTH_R[DEPTH_R.length-1]+(childDepth-DEPTH_R.length+1)*120);
 
   const weights=visible.map(c=>{
-    const lc=leafCount(c);
+    const lc=c._weight||1;
     return Math.max(1.0, Math.sqrt(lc)); /* sqrt dampens extreme ratios */
   });
 
@@ -57,7 +75,7 @@ export function assignAngles(n,a0,a1){
 
   /* Arc-length clamping: keep siblings tight at large radii */
   if(r>0){
-    const totalLeaves=visible.reduce((s,c)=>s+leafCount(c),0);
+    const totalLeaves=visible.reduce((s,c)=>s+(c._weight||1),0);
     const maxAngle=(totalLeaves*MAX_ARC_PER_LEAF)/r;
     if(effectiveRange>maxAngle&&maxAngle>=minTotal) effectiveRange=maxAngle;
   }
@@ -93,9 +111,10 @@ export function assignPositions(n,cx,cy){
   if(n.children&&!n._collapsed) n.children.forEach(c=>assignPositions(c,cx,cy));
 }
 
-export function layoutRadial(){const cx=window.innerWidth/2,cy=window.innerHeight/2+35;assignAngles(TREE,0,Math.PI*2);assignPositions(TREE,cx,cy);}
+export function layoutRadial(){computeWeight(TREE);const cx=window.innerWidth/2,cy=window.innerHeight/2+35;assignAngles(TREE,0,Math.PI*2);assignPositions(TREE,cx,cy);}
 
 export function layoutCladogram(){
+  computeWeight(TREE);
   const isRtl=document.documentElement.dir==='rtl';
   const W=window.innerWidth,H=window.innerHeight;
   const marginL=60,marginR=40,marginV=40;
@@ -113,10 +132,12 @@ export function layoutCladogram(){
 
   function countLeaves(n){
     if(!n.children||!n.children.length||n._collapsed) return 1;
+    const visible=n.children.filter(ch=>!ch._hiddenByToggle);
+    if(!visible.length) return 1;
     let c=0;
-    n.children.forEach(ch=>c+=countLeaves(ch));
+    visible.forEach(ch=>c+=countLeaves(ch));
     if(n.id==='hominini'){
-      const groups=n.children.filter(ch=>ch._isHomininGroup);
+      const groups=visible.filter(ch=>ch._isHomininGroup);
       c+=Math.max(0,(groups.length-1))*GROUP_GAP_FACTOR;
     }
     return c;
@@ -127,7 +148,7 @@ export function layoutCladogram(){
   // Total width  = mxd * depthSpacing
   // Total height = totalLeaves * leafSpacing
   // We want width/height ≈ viewport W/H (landscape)
-  const minLeafGap=isMobile?56:72;  // minimum vertical gap per leaf
+  const minLeafGap=isMobile?73:94;  // minimum vertical gap per leaf
   const maxLeafGap=nodeSize+40;     // maximum vertical gap per leaf (92px)
   const minDepthGap=isMobile?120:180; // minimum horizontal gap per depth
   const maxDepthGap=600;
@@ -140,7 +161,7 @@ export function layoutCladogram(){
 
   // If tree is very bushy (many leaves), ensure it's still readable
   if(totalLeaves>30){
-    leafSpacing=Math.max(minLeafGap,Math.min(72,(H*0.8)/totalLeaves));
+    leafSpacing=Math.max(minLeafGap,Math.min(94,(H*0.8)/totalLeaves));
     depthSpacing=Math.max(minDepthGap,Math.min(maxDepthGap,(W/Math.max(H,1))*(totalLeaves*leafSpacing)/Math.max(mxd,1)));
   }
 
@@ -148,7 +169,8 @@ export function layoutCladogram(){
   let lastHomininGroup=null;
 
   function assign(n,depth){
-    if(!n.children||!n.children.length||n._collapsed){
+    const visibleKids=n.children?n.children.filter(c=>!c._hiddenByToggle):null;
+    if(!visibleKids||!visibleKids.length||n._collapsed){
       if(n._parent&&n._parent._isHomininGroup){
         const gid=n._parent.id;
         if(lastHomininGroup&&lastHomininGroup!==gid) leafIdx+=GROUP_GAP_FACTOR;
@@ -160,8 +182,8 @@ export function layoutCladogram(){
       n._angle=0;
       leafIdx++;
     } else {
-      n.children.forEach(c=>assign(c,depth+1));
-      const ys=n.children.map(c=>c._y);
+      visibleKids.forEach(c=>assign(c,depth+1));
+      const ys=visibleKids.map(c=>c._y);
       const x=marginL+depth*depthSpacing;
       n._x=isRtl?W-x:x;
       n._y=(Math.min(...ys)+Math.max(...ys))/2;
@@ -180,6 +202,7 @@ export function layoutCladogram(){
 }
 
 export function layoutChronological(){
+  computeWeight(TREE);
   // TODO: timeline view deferred — fall back to cladogram
   layoutCladogram();
 }
@@ -192,6 +215,7 @@ function inferAppeared(n){
 }
 
 export function layoutPlayback(){
+  computeWeight(TREE);
   const W=window.innerWidth,H=window.innerHeight;
   const margin=120;const maxTime=3800;
   // Logarithmic x: recent eras get more space
@@ -211,7 +235,7 @@ export function layoutPlayback(){
     const laneCenter=laneTop+laneH/2;
     const jitter=((hashCode(n.id||'x')%100)-50)/50*laneH*0.35;
     n._y=laneCenter+jitter;n._angle=0;
-    if(n.children&&!n._collapsed)n.children.forEach(c=>assign(c));
+    if(n.children&&!n._collapsed)n.children.forEach(c=>{if(!c._hiddenByToggle)assign(c);});
   }
   assign(TREE);
 }

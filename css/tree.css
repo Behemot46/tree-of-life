@@ -152,6 +152,50 @@ svg{width:100%;height:100%;}
   .node-label-latin{font-size:var(--tree-label-latin-size-mobile);}
 }
 
+/* ── Collapsed-by-default parent affordances ── */
+
+/* Glowing ring on collapsed parents */
+.node-ring-expandable{
+  fill:none;
+  stroke:var(--gold);
+  stroke-width:2;
+  opacity:0.55;
+  filter:drop-shadow(0 0 6px var(--gold));
+  animation:nodeRingPulse 2.4s ease-in-out infinite;
+  pointer-events:none;
+}
+@keyframes nodeRingPulse{
+  0%,100%{opacity:0.35;}
+  50%    {opacity:0.75;}
+}
+
+/* +/- toggle badge (bottom-right of parent nodes) */
+.node-toggle-badge-bg{
+  fill:rgba(10,8,6,0.85);
+  stroke:var(--gold);
+  stroke-width:1;
+}
+.node-toggle-badge-text{
+  fill:var(--gold);
+  font:700 10px/1 'Inter',sans-serif;
+  pointer-events:none;
+  user-select:none;
+}
+
+/* Fully-expanded parents: force info button visible */
+.node-fully-expanded .node-info-btn{opacity:1;}
+
+/* Cursor states for node circles */
+.node-circle-parent{cursor:zoom-in;}
+.node-circle-parent.expanded{cursor:zoom-out;}
+.node-circle-leaf{cursor:help;}
+
+/* Mobile: info button slightly dimmer at rest */
+@media (hover:none),(max-width:768px){
+  .node-info-btn{opacity:0.6;}
+  .node-info-btn:active{opacity:1;}
+}
+
 /* ── REDUCED MOTION ── */
 @media(prefers-reduced-motion:reduce){
   .branch-entered{transition:none;}

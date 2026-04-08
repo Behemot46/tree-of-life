@@ -54,6 +54,13 @@ export const state = {
   evoPathActive: false,
   evoPathSet: new Set(),
   evoPathEdgeSet: new Set(),
+
+  // ── Collapsed-by-default tree feature ──
+  collapsedByDefault: true,
+  depthLimit: 1,            // 0 = LUCA only; 1 = LUCA + domains; max = full base tree
+  maxBaseDepth: 1,          // computed once at startup in app.js
+  baseTreeZoom: 0,          // floor zoom for frameSubtree(); computed at startup
+  speciesLoaded: false,     // whether expandTree() has been merged into the live tree
 };
 
 // ── Immutable shared structures ──
@@ -70,8 +77,8 @@ export const HUMAN_PATH = new Set([
   'primates','great-apes','hominini','group-homo','h_sapiens'
 ]);
 export const HOMININ_SKIP_IDS = new Set(['homo-naledi','homo-floresiensis','denisovan']);
-export const MIN_ARC_PX = 65;
-export const MAX_ARC_PER_LEAF = 80;
+export const MIN_ARC_PX = 75;
+export const MAX_ARC_PER_LEAF = 110;
 export const PLAYBACK_LOCK_PREVIEW = 200;
 export const PLAYBACK_DURATION = 90000; // 90 seconds at 1x
 

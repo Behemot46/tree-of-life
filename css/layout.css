@@ -86,15 +86,15 @@
 .reveal-panel {
   position: fixed;
   left: auto;
-  right: 16px;
-  bottom: 132px; /* clear the fixed #timeline bar (~120px) */
+  right: 70px; /* clear the right-side zoom rail (dice button) */
+  bottom: 124px; /* sit just above timeline */
   z-index: 40;
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 12px 14px;
   background: rgba(12, 8, 6, 0.82);
-  border: 1px solid rgba(200, 136, 58, 0.35);
+  border: 1px solid rgba(62, 169, 143, 0.4);
   border-radius: 12px;
   backdrop-filter: blur(8px);
   color: var(--parchment);
@@ -107,7 +107,7 @@
   align-items: center;
   justify-content: space-between;
   font-weight: 600;
-  color: var(--gold);
+  color: #3ea98f;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-size: 11px;
@@ -116,19 +116,19 @@
   width: 20px; height: 20px;
   border-radius: 50%;
   background: transparent;
-  border: 1px solid var(--gold);
-  color: var(--gold);
+  border: 1px solid #3ea98f;
+  color: #3ea98f;
   cursor: help;
   font-weight: 700;
   line-height: 1;
 }
 .reveal-slider-row { display: flex; align-items: center; gap: 10px; }
-#reveal-depth-slider { flex: 1; accent-color: var(--gold); cursor: pointer; }
+#reveal-depth-slider { flex: 1; accent-color: #3ea98f; cursor: pointer; }
 .reveal-depth-value {
   min-width: 20px;
   text-align: right;
   font-family: var(--font-mono, 'JetBrains Mono', monospace);
-  color: var(--gold);
+  color: #3ea98f;
 }
 .reveal-ticks {
   display: flex;
@@ -140,21 +140,21 @@
 .reveal-btn {
   flex: 1;
   padding: 6px 8px;
-  background: rgba(200, 136, 58, 0.12);
-  border: 1px solid rgba(200, 136, 58, 0.4);
+  background: rgba(62, 169, 143, 0.12);
+  border: 1px solid rgba(62, 169, 143, 0.4);
   border-radius: 6px;
   color: var(--parchment);
   cursor: pointer;
   font: 500 11px var(--font-sans, 'Inter', sans-serif);
 }
-.reveal-btn:hover { background: rgba(200, 136, 58, 0.25); }
+.reveal-btn:hover { background: rgba(62, 169, 143, 0.25); }
 .reveal-species-toggle {
   display: flex;
   align-items: center;
   gap: 8px;
   padding-top: 6px;
-  border-top: 1px solid rgba(200, 136, 58, 0.2);
+  border-top: 1px solid rgba(62, 169, 143, 0.2);
   cursor: pointer;
 }
-.reveal-species-warn { color: #f4c16a; cursor: help; }
+.reveal-species-warn { color: #6fd3b3; cursor: help; }
 [dir="rtl"] .reveal-panel { right: auto; left: 16px; }

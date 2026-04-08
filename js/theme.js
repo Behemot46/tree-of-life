@@ -57,6 +57,15 @@ export function applyI18n(){
   set('i-compare-back',t('compare_back'));
   set('i-dna-similarity-label',t('dna_similarity'));
   const compareSearchInput=el('compare-search-input');if(compareSearchInput)compareSearchInput.placeholder=t('dna_search_placeholder')||'Search species...';
+  // Reveal panel (PR 2)
+  set('reveal-title',t('reveal'));
+  set('btn-collapse-all',t('collapse_all'));
+  set('btn-expand-all',t('expand_all'));
+  set('reveal-species-label',t('show_all_species'));
+  const revSlider=el('reveal-depth-slider');
+  if(revSlider){revSlider.setAttribute('title',t('slider_tooltip'));revSlider.setAttribute('aria-label',t('slider_tooltip'));}
+  const revWarn=document.querySelector('.reveal-species-warn');
+  if(revWarn) revWarn.setAttribute('title',t('species_warning_tooltip'));
   // Nav buttons
   set('nav-back-label',t('nav_back'));
   set('nav-home-label',t('nav_home'));

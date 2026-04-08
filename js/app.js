@@ -98,7 +98,24 @@ if(ImageLoader&&PHOTO_MAP&&ImageLoader.registerPhotoMap){
 buildHomininTree();
 
 // Expand tree (adds ~200 species with IUCN data)
+// Note: nodes are tagged _fromExpansion=true and may be hidden via the species toggle (PR 2).
 expandTree(TREE, lightenColor);
+state.speciesLoaded = true;
+
+// ── PR 2: restore persisted Reveal panel state BEFORE first preprocess ──
+{
+  const savedDepth = localStorage.getItem('tol-depth');
+  if (savedDepth !== null) {
+    const n = parseInt(savedDepth, 10);
+    if (!Number.isNaN(n)) state.depthLimit = n;
+  }
+  const savedSpecies = localStorage.getItem('tol-species') === '1';
+  // Default (no key, or '0'): hide expansion species. PR1 already loaded them eagerly,
+  // so we just flag them via _hiddenByToggle which preprocess()/layout()/renderer honor.
+  if (!savedSpecies) {
+    (function walk(n){ if (n._fromExpansion) n._hiddenByToggle = true; if (n.children) n.children.forEach(walk); })(TREE);
+  }
+}
 
 // Preprocess tree
 preprocess(TREE);
@@ -542,6 +559,100 @@ function init(){
   initGameEvents();
   // Initialize profile system
   initProfile();
+  // ── PR 2: Reveal panel ──
+  initRevealPanel();
+}
+
+// ══════════════════════════════════════════════════════
+// PR 2: REVEAL PANEL — depth slider, collapse/expand, species toggle
+// ══════════════════════════════════════════════════════
+function walkTree(n, fn){ fn(n); if (n.children) n.children.forEach(c => walkTree(c, fn)); }
+
+function initRevealPanel(){
+  const slider   = document.getElementById('reveal-depth-slider');
+  const valueEl  = document.getElementById('reveal-depth-value');
+  const ticksEl  = document.getElementById('reveal-ticks');
+  const btnColl  = document.getElementById('btn-collapse-all');
+  const btnExp   = document.getElementById('btn-expand-all');
+  const speciesT = document.getElementById('reveal-species-toggle');
+  if (!slider || !valueEl || !ticksEl) return;
+
+  // Sync slider UI to current state
+  slider.max = String(state.maxBaseDepth);
+  slider.value = String(state.depthLimit);
+  valueEl.textContent = String(state.depthLimit);
+
+  // Build ticks: 0 1 2 ... max-1 All
+  ticksEl.innerHTML = '';
+  for (let i = 0; i <= state.maxBaseDepth; i++) {
+    const span = document.createElement('span');
+    span.textContent = (i === state.maxBaseDepth) ? 'All' : String(i);
+    ticksEl.appendChild(span);
+  }
+
+  // Sync species toggle UI
+  if (speciesT) speciesT.checked = (localStorage.getItem('tol-species') === '1');
+
+  // ── Slider input (debounced) ──
+  let sliderDebounce = null;
+  slider.addEventListener('input', () => {
+    valueEl.textContent = slider.value;
+    state._draggingSlider = true;
+    clearTimeout(sliderDebounce);
+    sliderDebounce = setTimeout(() => applyDepthLimit(parseInt(slider.value, 10)), 60);
+  });
+  slider.addEventListener('change', () => {
+    state._draggingSlider = false;
+    applyDepthLimit(parseInt(slider.value, 10));
+  });
+
+  function applyDepthLimit(newLimit){
+    state.depthLimit = newLimit;
+    // preprocess() honors _manualExpand — manually-expanded branches stay open.
+    preprocess(TREE);
+    layout();
+    scheduleRender();
+    localStorage.setItem('tol-depth', String(newLimit));
+  }
+
+  // ── Collapse All ──
+  if (btnColl) btnColl.addEventListener('click', () => {
+    walkTree(TREE, n => { n._manualExpand = false; });
+    state.depthLimit = 0;
+    slider.value = '0';
+    valueEl.textContent = '0';
+    preprocess(TREE);
+    layout();
+    scheduleRender();
+    localStorage.setItem('tol-depth', '0');
+    requestAnimationFrame(() => frameSubtree(TREE));
+  });
+
+  // ── Expand All ──
+  if (btnExp) btnExp.addEventListener('click', () => {
+    state.depthLimit = state.maxBaseDepth;
+    slider.value = String(state.maxBaseDepth);
+    valueEl.textContent = String(state.maxBaseDepth);
+    preprocess(TREE);
+    layout();
+    scheduleRender();
+    localStorage.setItem('tol-depth', String(state.maxBaseDepth));
+    requestAnimationFrame(() => frameSubtree(TREE));
+  });
+
+  // ── Show all species toggle ──
+  if (speciesT) speciesT.addEventListener('change', async () => {
+    if (speciesT.checked && !state.speciesLoaded) {
+      const mod = await import('./treeExpansion.js');
+      mod.expandTree(TREE, lightenColor);
+      state.speciesLoaded = true;
+    }
+    walkTree(TREE, n => { if (n._fromExpansion) n._hiddenByToggle = !speciesT.checked; });
+    preprocess(TREE);
+    layout();
+    scheduleRender();
+    localStorage.setItem('tol-species', speciesT.checked ? '1' : '0');
+  });
 }
 
 

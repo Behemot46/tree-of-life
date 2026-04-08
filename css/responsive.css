@@ -362,3 +362,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   #panel { transition: none !important; }
   #panel.panel-enter { transform: none !important; opacity: 1 !important; }
 }
+
+@media (max-width: 768px) {
+  .reveal-panel {
+    left: 8px;
+    right: 8px;
+    bottom: 8px;
+    min-width: 0;
+    padding: 10px 12px;
+  }
+}

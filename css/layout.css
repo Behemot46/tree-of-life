@@ -86,7 +86,7 @@
 .reveal-panel {
   position: fixed;
   left: 16px;
-  bottom: 16px;
+  bottom: 132px; /* clear the fixed #timeline bar (~120px) */
   z-index: 40;
   display: flex;
   flex-direction: column;

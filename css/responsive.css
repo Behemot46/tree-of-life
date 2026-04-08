@@ -367,7 +367,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .reveal-panel {
     left: 8px;
     right: 8px;
-    bottom: 8px;
+    bottom: 124px; /* clear the fixed #timeline bar on mobile */
     min-width: 0;
     padding: 10px 12px;
   }

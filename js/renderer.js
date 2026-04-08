@@ -22,6 +22,17 @@ export function initRendererDeps(deps) {
   _frameSubtree = deps.frameSubtree;
 }
 
+// True if node is a leaf, or all descendants are expanded (not collapsed).
+function isFullyExpanded(node) {
+  if (!node.children || !node.children.length) return true;
+  if (node._collapsed) return false;
+  for (const c of node.children) {
+    if (c._hiddenByToggle) continue;
+    if (!isFullyExpanded(c)) return false;
+  }
+  return true;
+}
+
 // Recursively collapse a node and all its descendants. Clears
 // _manualExpand on descendants so the depth slider can re-expand naturally.
 function collapseSubtree(node) {
@@ -519,7 +530,14 @@ export function render(){
     bg.setAttribute('cx',n._x);bg.setAttribute('cy',n._y);bg.setAttribute('r',nodeR);
     bg.setAttribute('fill',n.depth===0?'url(#rootGrad)':'var(--tree-node-fill)');
     if(!inEra) bg.setAttribute('opacity','0.3');
+    // Cursor class hooks (parent vs leaf; expanded vs collapsed)
+    const _hasKids=!!(n.children&&n.children.length);
+    let _bgCls=_hasKids?'node-circle-parent':'node-circle-leaf';
+    if(_hasKids&&!n._collapsed) _bgCls+=' expanded';
+    bg.setAttribute('class',_bgCls);
     g.appendChild(bg);
+    // Fully-expanded hook on the node group
+    if(_hasKids&&isFullyExpanded(n)) g.classList.add('node-fully-expanded');
 
     // Domain color tint behind photo
     if(n.depth>0){
@@ -584,6 +602,34 @@ export function render(){
     border.style.setProperty('--nc',n.color);
     if(n.extinct){border.setAttribute('stroke-dasharray','4 2');border.setAttribute('opacity','0.6');}
     g.appendChild(border);
+
+    // ── COLLAPSED-BY-DEFAULT AFFORDANCES: glowing ring + toggle badge ──
+    if(n.children&&n.children.length){
+      // 1) Glowing ring — only on collapsed parents
+      if(n._collapsed){
+        const ring=document.createElementNS('http://www.w3.org/2000/svg','circle');
+        ring.setAttribute('cx',n._x);ring.setAttribute('cy',n._y);
+        ring.setAttribute('r',nodeR+4);
+        ring.setAttribute('class','node-ring-expandable');
+        ring.setAttribute('pointer-events','none');
+        g.appendChild(ring);
+      }
+      // 2) +/- toggle badge (bottom-right)
+      const tb=document.createElementNS('http://www.w3.org/2000/svg','g');
+      tb.setAttribute('class','node-toggle-badge');
+      tb.setAttribute('pointer-events','none');
+      tb.setAttribute('transform',`translate(${n._x+nodeR*0.72},${n._y+nodeR*0.72})`);
+      const tbBg=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      tbBg.setAttribute('r','7');
+      tbBg.setAttribute('class','node-toggle-badge-bg');
+      const tbTxt=document.createElementNS('http://www.w3.org/2000/svg','text');
+      tbTxt.setAttribute('text-anchor','middle');
+      tbTxt.setAttribute('dominant-baseline','central');
+      tbTxt.setAttribute('class','node-toggle-badge-text');
+      tbTxt.textContent=n._collapsed?'+':'\u2212';
+      tb.appendChild(tbBg);tb.appendChild(tbTxt);
+      g.appendChild(tb);
+    }
 
     // ── INFO BUTTON for internal nodes (has children) ──
     if(n.children&&n.children.length&&!state.playbackMode){

@@ -54,6 +54,12 @@ export const state = {
   evoPathActive: false,
   evoPathSet: new Set(),
   evoPathEdgeSet: new Set(),
+
+  // ── Collapsed-by-default tree feature ──
+  collapsedByDefault: true,
+  depthLimit: 1,            // 0 = LUCA only; 1 = LUCA + domains; max = full base tree
+  maxBaseDepth: 1,          // computed once at startup in app.js
+  speciesLoaded: false,     // whether expandTree() has been merged into the live tree
 };
 
 // ── Immutable shared structures ──

@@ -37,6 +37,7 @@
 /* ── Header: title only, smaller, doesn't block clicks ─────── */
 #header{padding:0.55rem 0.9rem !important;background:none !important;}
 .title-main{font-size:1rem !important;letter-spacing:0.01em !important;}
+.title-credit{font-size:10px;color:var(--text-secondary);opacity:0.75;letter-spacing:0.04em;margin-top:1px;font-family:var(--font-sans);}
 
 /* ── Unified .ctrl-btn vocabulary ──────────────────────────── */
 .ctrl-btn,

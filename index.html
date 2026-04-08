@@ -187,6 +187,29 @@
   </svg>
 </div>
 
+<!-- REVEAL PANEL -->
+<div id="reveal-panel" class="reveal-panel" role="group" aria-labelledby="reveal-title">
+  <div class="reveal-header">
+    <span id="reveal-title">Reveal</span>
+    <button id="reveal-help" class="reveal-help" aria-label="Help">?</button>
+  </div>
+  <div class="reveal-slider-row">
+    <input type="range" id="reveal-depth-slider" min="0" max="6" value="1" step="1"
+           aria-label="Tree depth" title="Controls how many levels of the tree are visible." />
+    <span id="reveal-depth-value" class="reveal-depth-value">1</span>
+  </div>
+  <div class="reveal-ticks" id="reveal-ticks"></div>
+  <div class="reveal-buttons">
+    <button id="btn-collapse-all" class="reveal-btn">Collapse All</button>
+    <button id="btn-expand-all" class="reveal-btn">Expand All</button>
+  </div>
+  <label class="reveal-species-toggle">
+    <input type="checkbox" id="reveal-species-toggle" />
+    <span id="reveal-species-label">Show all species</span>
+    <span class="reveal-species-warn" title="Adds ~300 species. Tree gets dense.">⚠</span>
+  </label>
+</div>
+
 <!-- TOOLTIP -->
 <div id="tooltip"></div>
 

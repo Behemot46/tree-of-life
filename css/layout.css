@@ -85,7 +85,8 @@
 /* ── Reveal Panel ── */
 .reveal-panel {
   position: fixed;
-  left: 16px;
+  left: auto;
+  right: 16px;
   bottom: 132px; /* clear the fixed #timeline bar (~120px) */
   z-index: 40;
   display: flex;
@@ -156,4 +157,4 @@
   cursor: pointer;
 }
 .reveal-species-warn { color: #f4c16a; cursor: help; }
-[dir="rtl"] .reveal-panel { left: auto; right: 16px; }
+[dir="rtl"] .reveal-panel { right: auto; left: 16px; }

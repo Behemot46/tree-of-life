@@ -31,6 +31,8 @@
 #shortcuts-hint{display:none !important;}
 .title-sub{display:none !important;}
 #progress-badge{display:none !important;} /* merged into rail status */
+#i-view-playback{display:none !important;} /* playback view mode hidden */
+#tl-playback{display:none !important;} /* playback controls hidden from timeline */
 
 /* ── Header: title only, smaller, doesn't block clicks ─────── */
 #header{padding:0.55rem 0.9rem !important;background:none !important;}

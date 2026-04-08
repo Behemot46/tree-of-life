@@ -14,7 +14,7 @@ jobs:
 
       - name: Check for required files
         run: |
-          required=("index.html" "README.md" "CHANGELOG.md" "sw.js" "manifest.json" "js/treeData.js" "js/treeExpansion.js" "js/speciesData.js" "js/uiData.js" "js/factLibrary.js" "js/imagePrompts.js" "js/imageLoader.js" "js/dnaSimilarity.js" "js/nodeIcons.js" "js/triviaData.js" "js/primateData.js" "js/geoData.js" "js/tours.js" "js/app.js" "js/state.js" "js/renderer.js" "js/layout.js" "js/panel.js" "js/navigation.js" "js/search.js" "js/timeline.js" "js/zoom.js" "js/theme.js" "js/engagement.js" "js/playback.js" "js/hominin.js" "js/dnaCalc.js" "js/evoPath.js" "js/trivia.js" "js/utils.js" "js/quiz.js")
+          required=("index.html" "README.md" "CHANGELOG.md" "sw.js" "manifest.json" "js/treeData.js" "js/treeExpansion.js" "js/speciesData.js" "js/uiData.js" "js/factLibrary.js" "js/imagePrompts.js" "js/imageLoader.js" "js/dnaSimilarity.js" "js/nodeIcons.js" "js/triviaData.js" "js/primateData.js" "js/geoData.js" "js/tours.js" "js/app.js" "js/state.js" "js/renderer.js" "js/layout.js" "js/panel.js" "js/navigation.js" "js/search.js" "js/timeline.js" "js/zoom.js" "js/theme.js" "js/engagement.js" "js/playback.js" "js/hominin.js" "js/speciesCompare.js" "js/trivia.js" "js/utils.js" "js/quiz.js")
           all_ok=true
           for file in "${required[@]}"; do
             if [ -f "$file" ]; then

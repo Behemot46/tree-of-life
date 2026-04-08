@@ -13,7 +13,7 @@ import { reducedMotion, canonicalHomininId, preprocess, sortChildrenByAge, homin
 import { layout, getVisible } from './layout.js';
 
 // ── Zoom / Pan ──
-import { applyT, smoothPanTo, smoothZoomTo, centerOnTree, centerOnRoot, initZoomDeps, initPointerEvents, initRandomButton } from './zoom.js';
+import { applyT, smoothPanTo, smoothZoomTo, centerOnTree, centerOnRoot, initZoomDeps, initPointerEvents, initRandomButton, computeBaseFitZoom, frameSubtree } from './zoom.js';
 
 // ── Renderer ──
 import { render, scheduleRender, branchPath, initRendererDeps } from './renderer.js';
@@ -469,6 +469,18 @@ function init(){
   }
   assignDomains(TREE, 'luca');
   layout();centerOnRoot(0.18);scheduleRender(true);applyT();
+  // Snapshot the zoom level that frames the full base tree. Used as the floor
+  // for frameSubtree() so expanding a huge subtree never zooms out past this.
+  {
+    const savedDepthLimit = state.depthLimit;
+    state.depthLimit = state.maxBaseDepth;
+    preprocess(TREE);
+    layout();
+    state.baseTreeZoom = computeBaseFitZoom(TREE);
+    state.depthLimit = savedDepthLimit;
+    preprocess(TREE);
+    layout();
+  }
   // Species of the Day badge
   try {
     const sotd = getSpeciesOfTheDay();

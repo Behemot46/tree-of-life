@@ -13,12 +13,21 @@ import { a11yAnnounce } from './engagement.js';
 import { TREE, NODE_ICONS, getIconGroup, ImageLoader } from './data.js';
 
 // ── Late-bound deps (avoid circular imports) ──
-let _showMainPanel, _showTip, _hideTip, _smoothPanTo, _smoothZoomTo, _layout, _updateBreadcrumb;
+let _showMainPanel, _showTip, _hideTip, _smoothPanTo, _smoothZoomTo, _layout, _updateBreadcrumb, _frameSubtree;
 export function initRendererDeps(deps) {
   _showMainPanel = deps.showMainPanel; _showTip = deps.showTip;
   _hideTip = deps.hideTip; _smoothPanTo = deps.smoothPanTo;
   _smoothZoomTo = deps.smoothZoomTo; _layout = deps.layout;
   _updateBreadcrumb = deps.updateBreadcrumb;
+  _frameSubtree = deps.frameSubtree;
+}
+
+// Recursively collapse a node and all its descendants. Clears
+// _manualExpand on descendants so the depth slider can re-expand naturally.
+function collapseSubtree(node) {
+  node._collapsed = true;
+  node._manualExpand = false;
+  if (node.children) node.children.forEach(c => collapseSubtree(c));
 }
 
 // ── DOM refs ──
@@ -685,51 +694,32 @@ export function render(){
     g.addEventListener('click',e=>{
       e.stopPropagation();
       if(state.playbackMode){showDiscoveryCard(n);return;}
-      if(n.children&&n.children.length){
-        const wasCollapsed=n._collapsed;
-        // Auto-collapse siblings when expanding (keep tree focused)
-        if(wasCollapsed&&n._parent&&n._parent.children){
-          n._parent.children.forEach(sib=>{
-            if(sib!==n&&sib.children&&!sib._collapsed) sib._collapsed=true;
-          });
-        }
-        n._collapsed=!n._collapsed;
-        _layout();scheduleRender(true);
-        a11yAnnounce(n.name+(n._collapsed?' collapsed':' expanded'));
-
-        // Zoom-to-fit after expand/collapse
-        setTimeout(()=>{
-          let allPts;
-          if(!n._collapsed){
-            // Expanded: fit node + direct children
-            const kids=getVisible(n).filter(k=>k._parent===n);
-            if(!kids.length) return;
-            allPts=[n,...kids];
-          } else if(n._parent){
-            // Collapsed with parent: fit parent + siblings
-            allPts=[n._parent,...(n._parent.children||[])];
-          } else {
-            // Root collapsed: just center on it
-            _smoothPanTo(n._x,n._y);
-            if(_updateBreadcrumb) _updateBreadcrumb(n);
-            return;
-          }
-          const xs=allPts.map(k=>k._x),ys=allPts.map(k=>k._y);
-          const bw=(Math.max(...xs)-Math.min(...xs))||200;
-          const bh=(Math.max(...ys)-Math.min(...ys))||200;
-          const svgR=(document.getElementById('canvas-wrap')||document.getElementById('svg')).getBoundingClientRect();
-          const fitScale=Math.min(svgR.width*0.8/bw,svgR.height*0.8/bh);
-          const clampedScale=Math.min(2.0,Math.max(0.05,fitScale));
-          // On expand: don't zoom in past current level; on collapse: don't zoom out past current
-          const targetScale=n._collapsed?Math.min(state.transform.s,clampedScale):Math.max(0.05,Math.min(clampedScale,Math.max(state.transform.s,clampedScale)));
-          _smoothZoomTo((Math.min(...xs)+Math.max(...xs))/2,(Math.min(...ys)+Math.max(...ys))/2,targetScale);
-          if(_updateBreadcrumb) _updateBreadcrumb(n._collapsed&&n._parent?n._parent:n);
-        },100);
-      } else {
+      const isParent=!!(n.children&&n.children.length);
+      if(!isParent){
+        // Leaf: open species panel
         _showMainPanel(n);
+        return;
       }
+      // Parent: expand or collapse — never open panel directly
+      if(n._collapsed){
+        n._collapsed=false;
+        n._manualExpand=true;
+      } else {
+        collapseSubtree(n);
+      }
+      _layout();scheduleRender(true);
+      a11yAnnounce(n.name+(n._collapsed?' collapsed':' expanded'));
+      requestAnimationFrame(()=>{
+        if(_frameSubtree) _frameSubtree(n);
+        if(_updateBreadcrumb) _updateBreadcrumb(n._collapsed&&n._parent?n._parent:n);
+      });
     });
-    g.addEventListener('dblclick',e=>{e.stopPropagation();e.preventDefault();if(!state.playbackMode)_showMainPanel(n);});
+    g.addEventListener('dblclick',e=>{
+      e.stopPropagation();e.preventDefault();
+      if(state.playbackMode) return;
+      // Only leaves open panel on dblclick; parents are toggle-only
+      if(!(n.children&&n.children.length)) _showMainPanel(n);
+    });
     nodesFrag.appendChild(g);
   });
 

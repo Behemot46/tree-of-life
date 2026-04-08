@@ -66,7 +66,7 @@ import { openProfile, closeProfile, initProfileDeps, initProfileListeners, initP
 // 1. WIRE LATE-BOUND DEPENDENCIES
 // ══════════════════════════════════════════════════════
 
-initRendererDeps({ showMainPanel, showTip, hideTip, smoothPanTo, smoothZoomTo, layout, updateBreadcrumb });
+initRendererDeps({ showMainPanel, showTip, hideTip, smoothPanTo, smoothZoomTo, layout, updateBreadcrumb, frameSubtree });
 initZoomDeps({ scheduleRender, layout, getVisible });
 initNavDeps({ showMainPanel, closePanel, smoothPanTo, smoothZoomTo, scheduleRender, layout, centerOnRoot, applyT, renderPanelContent, closeSpeciesCompare, closeGame });
 initTimelineDeps({ scheduleRender, t, togglePlayback, pausePlayback });

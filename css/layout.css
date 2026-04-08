@@ -81,3 +81,79 @@
 [data-theme="light"] .nav-btn:hover{background:var(--accent-primary-dim);border-color:var(--accent-primary);color:var(--accent-primary);}
 [dir="rtl"] #nav-ctrl{left:auto;right:1.2rem;flex-direction:row-reverse;}
 [dir="rtl"] .nav-arrow{transform:scaleX(-1);}
+
+/* ── Reveal Panel ── */
+.reveal-panel {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 14px;
+  background: rgba(12, 8, 6, 0.82);
+  border: 1px solid rgba(200, 136, 58, 0.35);
+  border-radius: 12px;
+  backdrop-filter: blur(8px);
+  color: var(--parchment);
+  font: 500 12px/1.3 var(--font-sans, 'Inter', sans-serif);
+  min-width: 220px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.4);
+}
+.reveal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-weight: 600;
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 11px;
+}
+.reveal-help {
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  background: transparent;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  cursor: help;
+  font-weight: 700;
+  line-height: 1;
+}
+.reveal-slider-row { display: flex; align-items: center; gap: 10px; }
+#reveal-depth-slider { flex: 1; accent-color: var(--gold); cursor: pointer; }
+.reveal-depth-value {
+  min-width: 20px;
+  text-align: right;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  color: var(--gold);
+}
+.reveal-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  opacity: 0.6;
+}
+.reveal-buttons { display: flex; gap: 6px; }
+.reveal-btn {
+  flex: 1;
+  padding: 6px 8px;
+  background: rgba(200, 136, 58, 0.12);
+  border: 1px solid rgba(200, 136, 58, 0.4);
+  border-radius: 6px;
+  color: var(--parchment);
+  cursor: pointer;
+  font: 500 11px var(--font-sans, 'Inter', sans-serif);
+}
+.reveal-btn:hover { background: rgba(200, 136, 58, 0.25); }
+.reveal-species-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 6px;
+  border-top: 1px solid rgba(200, 136, 58, 0.2);
+  cursor: pointer;
+}
+.reveal-species-warn { color: #f4c16a; cursor: help; }
+[dir="rtl"] .reveal-panel { left: auto; right: 16px; }

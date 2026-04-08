@@ -127,7 +127,7 @@ export function layoutCladogram(){
   // Total width  = mxd * depthSpacing
   // Total height = totalLeaves * leafSpacing
   // We want width/height ≈ viewport W/H (landscape)
-  const minLeafGap=isMobile?56:72;  // minimum vertical gap per leaf
+  const minLeafGap=isMobile?73:94;  // minimum vertical gap per leaf
   const maxLeafGap=nodeSize+40;     // maximum vertical gap per leaf (92px)
   const minDepthGap=isMobile?120:180; // minimum horizontal gap per depth
   const maxDepthGap=600;

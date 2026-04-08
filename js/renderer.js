@@ -9,7 +9,8 @@ import { reducedMotion } from './utils.js';
 import { getPlaybackNodeState, discoverNode, showDiscoveryCard } from './playback.js';
 import { isExplored } from './engagement.js';
 import { nodeInEra } from './timeline.js';
-import { a11yAnnounce } from './engagement.js';
+import { a11yAnnounce, showToast } from './engagement.js';
+import { t } from './theme.js';
 import { TREE, NODE_ICONS, getIconGroup, ImageLoader } from './data.js';
 
 // ── Late-bound deps (avoid circular imports) ──
@@ -736,9 +737,26 @@ export function render(){
       }
     }
 
+    // Long-press on parent node: open info panel (mobile discovery shortcut)
+    if(n.children&&n.children.length){
+      let _lpTimer=null;
+      g.addEventListener('touchstart',()=>{
+        g._lpFired=false;
+        _lpTimer=setTimeout(()=>{g._lpFired=true;_showMainPanel(n);},550);
+      },{passive:true});
+      g.addEventListener('touchend',ev=>{
+        clearTimeout(_lpTimer);
+        if(g._lpFired){ev.preventDefault();g._lpSuppressClick=Date.now();}
+      });
+      g.addEventListener('touchmove',()=>{clearTimeout(_lpTimer);},{passive:true});
+      g.addEventListener('touchcancel',()=>{clearTimeout(_lpTimer);g._lpFired=false;},{passive:true});
+    }
+
     // Click events — branch=expand/collapse, leaf=panel
     g.addEventListener('click',e=>{
       e.stopPropagation();
+      // Suppress click that follows a long-press touchend
+      if(g._lpSuppressClick&&Date.now()-g._lpSuppressClick<400){g._lpSuppressClick=0;return;}
       if(state.playbackMode){showDiscoveryCard(n);return;}
       const isParent=!!(n.children&&n.children.length);
       if(!isParent){
@@ -747,6 +765,7 @@ export function render(){
         return;
       }
       // Parent: expand or collapse — never open panel directly
+      const _wasCollapsed=n._collapsed;
       if(n._collapsed){
         n._collapsed=false;
         n._manualExpand=true;
@@ -754,6 +773,13 @@ export function render(){
         collapseSubtree(n);
       }
       _layout();scheduleRender(true);
+      // First-time expand hint — one-shot, localStorage-gated
+      if(_wasCollapsed&&!localStorage.getItem('tol-expand-hint-seen')){
+        localStorage.setItem('tol-expand-hint-seen','1');
+        setTimeout(()=>{
+          try{showToast({text:t('expand_hint_first_time')});}catch(_){}
+        },600);
+      }
       a11yAnnounce(n.name+(n._collapsed?' collapsed':' expanded'));
       requestAnimationFrame(()=>{
         if(_frameSubtree) _frameSubtree(n);

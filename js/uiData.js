@@ -273,6 +273,7 @@ export const TRANSLATIONS = {
     splash_skip:'Skip',
     splash_click:'Click to explore',
     splash_era_caption:'{mya} Mya — {name}',
+    expand_hint_first_time:'Tap any glowing circle to reveal what\'s inside.',
   },
   he:{
     title:'\u05e2\u05e5 \u05d4\u05d7\u05d9\u05d9\u05dd',
@@ -498,6 +499,7 @@ export const TRANSLATIONS = {
     splash_skip:'דלג',
     splash_click:'לחץ לחקור',
     splash_era_caption:'{mya} מל"ש — {name}',
+    expand_hint_first_time:'הקש על כל עיגול זוהר כדי לחשוף מה בפנים.',
   },
   ru:{
     title:'\u0414\u0435\u0440\u0435\u0432\u043e \u0436\u0438\u0437\u043d\u0438',
@@ -723,5 +725,6 @@ export const TRANSLATIONS = {
     splash_skip:'Пропустить',
     splash_click:'Нажмите для исследования',
     splash_era_caption:'{mya} млн лет — {name}',
+    expand_hint_first_time:'Нажмите на любой светящийся круг, чтобы раскрыть его содержимое.',
   }
 };

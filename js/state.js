@@ -61,6 +61,7 @@ export const state = {
   maxBaseDepth: 1,          // computed once at startup in app.js
   baseTreeZoom: 0,          // floor zoom for frameSubtree(); computed at startup
   speciesLoaded: false,     // whether expandTree() has been merged into the live tree
+  _draggingSlider: false,   // PR 2: true while user is dragging the depth slider
 };
 
 // ── Immutable shared structures ──

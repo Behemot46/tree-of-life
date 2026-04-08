@@ -140,7 +140,7 @@ export function layoutCladogram(){
 
   // If tree is very bushy (many leaves), ensure it's still readable
   if(totalLeaves>30){
-    leafSpacing=Math.max(minLeafGap,Math.min(72,(H*0.8)/totalLeaves));
+    leafSpacing=Math.max(minLeafGap,Math.min(94,(H*0.8)/totalLeaves));
     depthSpacing=Math.max(minDepthGap,Math.min(maxDepthGap,(W/Math.max(H,1))*(totalLeaves*leafSpacing)/Math.max(mxd,1)));
   }
 

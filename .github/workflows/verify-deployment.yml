@@ -5,6 +5,14 @@ name: Verify Deployment
 # status rather than on push, because only Vercel knows the deployed URL.
 on:
   deployment_status:
+  # Lets the live site be checked on demand — after a DNS change, or to prove
+  # the custom domain serves before GitHub Pages is retired.
+  workflow_dispatch:
+    inputs:
+      url:
+        description: 'Site to check (defaults to the production domain)'
+        required: false
+        default: 'https://www.treeoflife.wiki'
 
 jobs:
   smoke:
@@ -13,8 +21,9 @@ jobs:
     # would fail the run for an authentication reason rather than a real one.
     # Production is what stage 4 needs to prove anyway.
     if: >
-      github.event.deployment_status.state == 'success' &&
-      github.event.deployment_status.environment == 'Production'
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.deployment_status.state == 'success' &&
+       github.event.deployment_status.environment == 'Production')
     runs-on: ubuntu-latest
     timeout-minutes: 15
 
@@ -22,7 +31,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           # Check the site with the suite from the commit that produced it.
-          ref: ${{ github.event.deployment.sha }}
+          # On a manual run there is no deployment, so use the default branch.
+          ref: ${{ github.event.deployment.sha || github.ref }}
 
       - uses: actions/setup-node@v4
         with:
@@ -35,8 +45,20 @@ jobs:
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run smoke checks against ${{ github.event.deployment_status.target_url }}
-        run: npm run smoke -- --url "${{ github.event.deployment_status.target_url }}"
+      # Prefer the address visitors actually use. Vercel's target_url is the
+      # per-deployment hostname, which skips the custom domain, its redirect
+      # and its certificate — the parts most likely to be misconfigured.
+      - name: Choose the URL to check
+        id: target
+        run: |
+          if [ -n "${{ inputs.url }}" ]; then
+            echo "url=${{ inputs.url }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "url=https://www.treeoflife.wiki" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Run smoke checks against ${{ steps.target.outputs.url }}
+        run: npm run smoke -- --url "${{ steps.target.outputs.url }}"
 
       - name: Upload screenshots
         if: always()

@@ -2,7 +2,7 @@
 
 An interactive visualization of 3.8 billion years of evolution.
 
-Live at: **[treeoflife.wiki](https://treeoflife.wiki/)**
+Live at: **[treeoflife.wiki](https://www.treeoflife.wiki/)**
 
 ## Features
 

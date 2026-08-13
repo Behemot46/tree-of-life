@@ -58,6 +58,13 @@ const SCENARIOS = [
   { id: 'desktop-ru', viewport: DESKTOP, lang: 'ru' },
   { id: 'phone-en', viewport: PHONE, lang: 'en' },
   { id: 'phone-he', viewport: PHONE, lang: 'he' },
+  /* The light theme is a whole second palette, and a dark-first design fails
+     there quietly: the reveal panel painted itself near-black while its text
+     followed the theme, so "Collapse All" sat at a contrast ratio of 1.15 —
+     in the DOM, invisible on screen. Loaded rather than toggled at runtime,
+     because the theme switch also rebuilds the era strip and the density
+     curve in JS, and half-applying it measures a page nobody sees. */
+  { id: 'desktop-en-light', viewport: DESKTOP, lang: 'en', theme: 'light' },
 ];
 
 // Elements whose text must equal the translation for the active language.
@@ -193,6 +200,11 @@ check('tree:within-stage', 'Tree does not spill off the stage', (c) => {
   }
 });
 
+check('tree:labels-on-screen', 'No rendered label hangs off the stage', (c) => {
+  const off = c.probe.labelsOffStage || [];
+  if (off.length) fail(`${off.length} label(s) outside the stage: ${off.slice(0, 3).join('; ')}`);
+});
+
 check('tree:root-visible', 'Root node is on screen', (c) => {
   if (!c.probe.rootOnScreen) fail('root node is outside the viewport');
 });
@@ -240,8 +252,17 @@ check('chrome:panel-closed-offscreen', 'Detail panel is off-screen while closed'
   if (intruding > 0.02) fail(`#panel covers ${(intruding * 100) | 0}% of the screen while closed`);
 });
 
+check('chrome:no-stretched-overlay', 'No floating control stretches across the window', (c) => {
+  const s = c.probe.stretchedChrome || [];
+  if (s.length) fail(`${s.length} floating element(s) span the window: ${s.join(', ')}`);
+});
+
 check('chrome:tooltip-hidden-initially', 'Tooltip is hidden on load', (c) => {
   if (c.probe.boxes.tooltip) fail('#tooltip is visible before any hover');
+});
+
+check('chrome:tooltip-never-covers-its-node', 'Tooltip does not hide the node it describes', (c) => {
+  if (c.probe.tooltipCoversNode) fail('tooltip overlaps the hovered node near the trailing edge');
 });
 
 check('chrome:tooltip-clear-of-header', 'Tooltip never overlaps the header', (c) => {
@@ -353,6 +374,35 @@ check('interact:leaf-click-opens-panel', 'Clicking a leaf opens the detail panel
   if (!c.probe.panelOpened) fail('detail panel did not open after clicking a leaf node');
 });
 
+check('i18n:panel-prose-reads-as-english', 'English species prose is laid out left-to-right', (c) => {
+  const p = c.probe.panelProse;
+  if (!p || !p.checked) return;
+  if (p.wrong.length) fail(`${p.wrong.length} English block(s) laid out RTL: ${p.wrong.join(', ')}`);
+});
+
+check('a11y:text-contrast', 'Text meets AA contrast against its background', (c) => {
+  const { theme, hits } = c.probe.contrast || { theme: '?', hits: [] };
+  if (hits.length) fail(`${hits.length} element(s) below AA in the ${theme} theme: ${hits.slice(0, 4).join(', ')}`);
+});
+
+check('chrome:panel-hero-readable', 'Nothing is printed over the species name', (c) => {
+  const h = c.probe.heroOverlaps;
+  if (!h || !h.checked) return;
+  if (h.hits.length) fail(`hero artwork overlaps ${h.hits.length} caption line(s): ${h.hits.join(', ')}`);
+});
+
+check('search:finds-the-obvious-answer', 'Common searches return the thing meant', (c) => {
+  const s = c.probe.searchQuality;
+  if (!s) return;
+  if (s.wrong.length) fail(`${s.wrong.length} search(es) wrong: ${s.wrong.join('; ')}`);
+}, (sc) => sc.lang === 'en');
+
+check('search:aliases-resolve', 'Every common-name alias still matches something', (c) => {
+  const s = c.probe.searchQuality;
+  if (!s) return;
+  if (s.dead.length) fail(`${s.dead.length} alias(es) match nothing: ${s.dead.join(', ')}`);
+});
+
 check('interact:camera-settles', 'Camera animations come to rest', (c) => {
   if (!c.probe.cameraSettles) fail('#viewport transform was still changing after 3s');
 });
@@ -369,6 +419,8 @@ async function probePage(page, scenario) {
       .then((m) => m.TRANSLATIONS).catch(() => null);
     const DATA = await import(new URL('js/data.js', location.href).href);
     const LAYOUT = await import(new URL('js/layout.js', location.href).href);
+    const METRICS = await import(new URL('js/labelMetrics.js', location.href).href);
+    const ZOOM = await import(new URL('js/zoom.js', location.href).href);
 
     const visible = (el) => {
       if (!el) return false;
@@ -398,14 +450,17 @@ async function probePage(page, scenario) {
         vpg.getAttribute('transform') || '');
       if (!m) return null;
       const [, tx, ty, s] = m.map(Number);
+      // Through the app's own footprint module, so this measures the box the
+      // camera claims to have framed. Whether that box matches the pixels the
+      // renderer actually puts on screen is a separate question, and
+      // tree:labels-on-screen below is the one that asks it.
+      const nodeR = innerWidth < 768 ? 22 : 26;
       let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
       for (const n of LAYOUT.getVisible(DATA.TREE)) {
         if (!Number.isFinite(n._x) || !Number.isFinite(n._y)) continue;
-        const r = n.r || 12;
-        const fs = n.depth === 0 ? 14 : n.depth === 1 ? 12 : 10;
-        const half = Math.max(r, (n.name || '').length * fs * 0.55);
-        minX = Math.min(minX, n._x - half); maxX = Math.max(maxX, n._x + half);
-        minY = Math.min(minY, n._y - r);    maxY = Math.max(maxY, n._y + r + 26);
+        const e = METRICS.nodeFootprint(n, { nodeR });
+        minX = Math.min(minX, n._x - e.left); maxX = Math.max(maxX, n._x + e.right);
+        minY = Math.min(minY, n._y - e.up);   maxY = Math.max(maxY, n._y + e.down);
       }
       if (!Number.isFinite(minX)) return null;
       const svgR = byId('svg').getBoundingClientRect();
@@ -421,26 +476,30 @@ async function probePage(page, scenario) {
     const nanAttrEls = [...document.querySelectorAll('#viewport *')].filter((el) =>
       [...el.attributes].some((a) => /NaN/.test(a.value)));
 
-    // The stage is what the tree can actually use: the canvas minus the header,
-    // the timeline and the side rail floating over it. Measuring against the
-    // raw viewport would score a correctly-fitted tree as too small.
+    /* The stage is what the tree can actually use: the canvas minus the chrome
+       floating over it. Read from the app rather than re-derived here — a
+       second copy of this arithmetic would drift, and the chrome checks below
+       already police where those panels sit, each measured directly. */
     const sr = (() => {
-      const W = innerWidth, H = innerHeight;
-      let top = 0, bottom = 0, left = 0, right = 0;
-      const h = byId('header');
-      if (visible(h)) top = h.getBoundingClientRect().bottom;
-      const t = byId('timeline');
-      if (visible(t)) bottom = H - t.getBoundingClientRect().top;
-      const rail = byId('left-rail');
-      if (visible(rail)) {
-        const r = rail.getBoundingClientRect();
-        if (r.left + r.width / 2 < W / 2) left = r.right; else right = W - r.left;
-      }
+      const g = ZOOM.getStageRect();
       return {
-        left, top, right: W - right, bottom: H - bottom,
-        width: Math.max(120, W - left - right), height: Math.max(120, H - top - bottom),
+        left: g.x, top: g.y, right: g.x + g.w, bottom: g.y + g.h,
+        width: g.w, height: g.h,
       };
     })();
+
+    /* What the renderer actually put on screen, as opposed to what the camera
+       reserved room for. Labels are the part that escapes: a name is drawn a
+       fixed distance out along its branch and can be several times wider than
+       the disc it belongs to, so an under-estimate anywhere in the metrics
+       shows up here as text hanging off the edge of the stage. */
+    const labelsOffStage = [];
+    for (const el of document.querySelectorAll('#viewport text.node-label-name')) {
+      const r = el.getBoundingClientRect();
+      if (!r.width) continue;
+      const over = Math.max(sr.left - r.left, r.right - sr.right, sr.top - r.top, r.bottom - sr.bottom);
+      if (over > 4) labelsOffStage.push(`${(el.textContent || '').slice(0, 24)} by ${Math.round(over)}px`);
+    }
 
     const rootEl = document.querySelector('#viewport g[data-node-id="luca"]');
     const rr = rootEl ? rootEl.getBoundingClientRect() : null;
@@ -499,6 +558,26 @@ async function probePage(page, scenario) {
     const cspViolations = [...new Set(window.__cspViolations || [])];
 
     // Major taxonomic groups must render their localised name in the tree.
+    /* Floating chrome that has stretched across the window. A fixed element
+       with both physical edges pinned and no width fills the screen: an
+       invisible sheet over the map that dims what is under it and swallows
+       every click. It happens whenever an `!important` physical offset meets
+       an RTL override that cannot release it, which is why this is measured
+       rather than trusted — the elements still look fine in LTR. */
+    const stretchedChrome = [...document.querySelectorAll('body > *')]
+      .filter((el) => {
+        const s = getComputedStyle(el);
+        if (s.position !== 'fixed' && s.position !== 'absolute') return false;
+        if (s.display === 'none' || s.visibility === 'hidden' || parseFloat(s.opacity) < 0.02) return false;
+        // Both edges pinned and no width of its own: the box can only stretch.
+        if (s.left === 'auto' || s.right === 'auto' || s.width !== 'auto') return false;
+        const r = el.getBoundingClientRect();
+        // A control that happens to be as wide as its contents is fine; this is
+        // about boxes dragged open by the cascade.
+        return r.width > Math.min(360, innerWidth * 0.4);
+      })
+      .map((el) => `${el.id || el.tagName}:${Math.round(el.getBoundingClientRect().width)}px`);
+
     // Species deliberately stay English, so only ranked groups are checked.
     const TAXA = await import(new URL('js/taxonNames.js', location.href).href)
       .then((m) => m.TAXON_NAMES).catch(() => null);
@@ -563,7 +642,7 @@ async function probePage(page, scenario) {
       },
       eraClipped, eraOverlaps,
       i18nMismatches, i18nMissingKeys, latinLeaks, searchPlaceholder,
-      centerHit, cspViolations, taxonLabels,
+      centerHit, cspViolations, taxonLabels, stretchedChrome, labelsOffStage,
     };
   }, { bindings: I18N_BINDINGS, lang: scenario.lang });
 
@@ -591,6 +670,36 @@ async function probePage(page, scenario) {
       const r = el.getBoundingClientRect();
       return r.width > 0 && r.height > 0 ? r.toJSON() : null;
     });
+    await page.mouse.move(4, Math.round(page.viewportSize().height / 2));
+    await page.waitForTimeout(200);
+  }
+
+  /* And again on the node nearest the trailing edge, where there is no room to
+     the side the tooltip prefers. It used to slide back over the cursor rather
+     than flip, so hovering anything near that edge hid the very node being
+     described — worse once the fun fact arrived and the box grew. */
+  const edgePoint = await page.evaluate(() => {
+    let best = null;
+    for (const g of document.querySelectorAll('#viewport g.node-group')) {
+      const c = g.querySelector('circle');
+      if (!c) continue;
+      const r = c.getBoundingClientRect();
+      if (!r.width || r.top < 0 || r.bottom > innerHeight) continue;
+      if (!best || r.left > best.left) best = { left: r.left, x: r.x + r.width / 2, y: r.y + r.height / 2, r: r.width / 2 };
+    }
+    return best;
+  });
+  let tooltipCoversNode = false;
+  if (edgePoint) {
+    await page.mouse.move(edgePoint.x, edgePoint.y);
+    await page.waitForTimeout(900);
+    tooltipCoversNode = await page.evaluate((t) => {
+      const el = document.getElementById('tooltip');
+      if (!el || !el.classList.contains('visible')) return false;
+      const r = el.getBoundingClientRect();
+      if (!r.width) return false;
+      return r.left < t.x + t.r && r.right > t.x - t.r && r.top < t.y + t.r && r.bottom > t.y - t.r;
+    }, edgePoint);
     await page.mouse.move(4, Math.round(page.viewportSize().height / 2));
     await page.waitForTimeout(200);
   }
@@ -686,6 +795,115 @@ async function probePage(page, scenario) {
     const onScreen = r.right > 8 && r.left < innerWidth - 8 && r.top < innerHeight - 8 && r.bottom > 8;
     return onScreen && r.width > 0;
   });
+  /* Search relevance. This was ranking over one blended haystack of name,
+     Latin name, tags and id, so a hit anywhere scored the same: "human"
+     returned Koala, Hominini and Sea urchin and never Homo sapiens, and
+     "whale" put Hippopotamus first. These are the words a visitor actually
+     types; the expected answer is the one a person would call correct. */
+  const searchQuality = await page.evaluate(async () => {
+    const m = await import(new URL('js/search.js', location.href).href);
+    const st = await import(new URL('js/state.js', location.href).href);
+    const CASES = [
+      ['human', 'Homo sapiens'], ['whale', 'Blue whale'], ['tiger', 'Tiger'],
+      ['cat', 'Lion'], ['snake', 'King cobra'], ['bear', 'Polar bear'],
+      ['oak', 'Oak'], ['elephent', 'African elephant'],
+    ];
+    const wrong = [];
+    for (const [q, want] of CASES) {
+      const top = (m.searchEntities(q)[0] || {}).name || '(nothing)';
+      if (top !== want) wrong.push(`${q} → ${top}, wanted ${want}`);
+    }
+    // Every alias must still point at something that exists.
+    const names = st.state.searchIndex.map((x) => (x.name || '').toLowerCase());
+    const dead = (m.SEARCH_ALIASES || [])
+      .filter((a) => !names.some((n) => a.match.test(n)))
+      .map((a) => a.words[0]);
+    return { wrong, dead };
+  });
+
+  /* Contrast, in both themes. Colour is where a dark-first design quietly
+     fails: the reveal panel painted itself near-black while its text followed
+     the theme, so in light mode "Collapse All" sat at a ratio of 1.15 — present
+     in the DOM, invisible on screen. Measured against the effective background
+     (walking up through transparent ancestors), to the WCAG AA thresholds.
+     Text that is only emoji is skipped: it carries its own colours. */
+  const contrast = await page.evaluate(() => {
+    const parse = (c) => { const m = /rgba?\(([^)]+)\)/.exec(c); if (!m) return null;
+      const [r, g, b, a] = m[1].split(',').map(Number); return { r, g, b, a: a === undefined ? 1 : a }; };
+    const lum = (c) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+      return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b); };
+    const over = (fg, bg) => ({ r: fg.r * fg.a + bg.r * (1 - fg.a), g: fg.g * fg.a + bg.g * (1 - fg.a),
+      b: fg.b * fg.a + bg.b * (1 - fg.a), a: 1 });
+    const ratio = (a, b) => { const l1 = lum(a), l2 = lum(b); return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05); };
+    const effBg = (el) => {
+      let cur = el, acc = null;
+      while (cur) {
+        const c = parse(getComputedStyle(cur).backgroundColor);
+        if (c && c.a > 0.02) { acc = acc ? over(acc, c) : c; if (c.a >= 0.99) return over(acc, { r: 255, g: 255, b: 255, a: 1 }); }
+        cur = cur.parentElement;
+      }
+      return { r: 20, g: 20, b: 20, a: 1 };
+    };
+    const EMOJI_ONLY = /^[\p{Extended_Pictographic}\p{Emoji_Component}\s\u200d\ufe0f]+$/u;
+    const sweep = () => {
+      const out = [];
+      for (const el of document.querySelectorAll('body *')) {
+        const txt = [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent.trim()).join('').trim();
+        if (txt.length < 2 || EMOJI_ONLY.test(txt)) continue;
+        const st = getComputedStyle(el);
+        if (st.display === 'none' || st.visibility === 'hidden' || parseFloat(st.opacity) < 0.15) continue;
+        const r = el.getBoundingClientRect();
+        // Off-screen and clipped affordances — skip links park above the
+        // viewport until focused, and 1px boxes are for screen readers.
+        if (r.width < 10 || r.height < 8) continue;
+        if (r.bottom <= 0 || r.top >= innerHeight || r.right <= 0 || r.left >= innerWidth) continue;
+        const fg = parse(st.color); if (!fg) continue;
+        const bg = effBg(el);
+        const cr = ratio(over(fg, bg), bg);
+        const big = parseFloat(st.fontSize) >= 24 || (parseFloat(st.fontSize) >= 18.66 && parseInt(st.fontWeight, 10) >= 700);
+        if (cr < (big ? 3 : 4.5)) out.push(`${txt.slice(0, 18)} (${cr.toFixed(2)})`);
+      }
+      return out;
+    };
+    return { theme: document.documentElement.getAttribute('data-theme') || 'dark', hits: sweep() };
+  });
+
+  /* Species prose is English by policy, so it has to be laid out as English.
+     In an RTL paragraph the trailing punctuation of a Latin sentence is
+     reordered to the far end — "…that nourish colon .cells" — which is how
+     this was found. The panel body therefore carries its own dir. */
+  const panelProse = await page.evaluate(() => {
+    const body = document.querySelector('#panel .panel-body');
+    if (!body) return { checked: false, wrong: [] };
+    const wrong = [];
+    if (getComputedStyle(body).direction !== 'ltr') wrong.push('.panel-body');
+    for (const el of body.querySelectorAll('.p-desc, .p-detail, .panel-funfact-text')) {
+      if (getComputedStyle(el).direction !== 'ltr') wrong.push(el.className);
+    }
+    return { checked: true, wrong };
+  });
+
+  /* The hero caption used to be absolutely positioned inside a fixed-ratio box,
+     so a long binomial over a wrapped time-of-life line overran the artwork and
+     the species emoji printed straight through its own name. Measured rather
+     than trusted, because it only showed up at narrow widths. */
+  const heroOverlaps = await page.evaluate(() => {
+    const root = document.querySelector('#panel.open');
+    if (!root) return { checked: false, hits: [] };
+    const meta = root.querySelector('.panel-hero-meta');
+    if (!meta) return { checked: false, hits: [] };
+    const R = (e) => e && e.getBoundingClientRect();
+    const hit = (a, b) => a && b && a.width && b.width && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+    const art = [root.querySelector('.panel-hero-fb'), root.querySelector('.panel-hero-fallback'),
+                 root.querySelector('.panel-hero-credit')].filter(Boolean).map(R);
+    const hits = [];
+    for (const line of meta.children) {
+      const lr = R(line);
+      for (const a of art) if (hit(lr, a)) hits.push((line.className || line.tagName) + '');
+    }
+    return { checked: true, hits: [...new Set(hits)] };
+  });
+
   // Toast lane: force one open alongside the detail panel and compare boxes.
   const { toastBox, panelOpenBox } = await page.evaluate(() => {
     const c = document.getElementById('achievement-container');
@@ -794,7 +1012,7 @@ async function probePage(page, scenario) {
   // than on load. This supersedes the value collected in the first pass.
   const cspViolations = [...new Set(await page.evaluate(() => window.__cspViolations || []))];
 
-  return { ...base, ...forced, tooltipShown, zoomWorks, afterReset, parentExpands, panelOpened,
+  return { ...base, ...forced, tooltipShown, tooltipCoversNode, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps, contrast, searchQuality,
            searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations };
 }
 
@@ -855,8 +1073,9 @@ async function runScenario(browser, scenario, baseUrl) {
 
   // Seed preferences so the run is deterministic: chosen language, no guided
   // tour modal, no idle nudges.
-  await ctx.addInitScript((lang) => {
-    localStorage.setItem('tol-lang', lang);
+  await ctx.addInitScript((cfg) => {
+    localStorage.setItem('tol-lang', cfg.lang);
+    localStorage.setItem('theme', cfg.theme);
     localStorage.setItem('tol-tour-done', '1');
     localStorage.setItem('tol-splash-seen', '1');
     // A Content-Security-Policy that blocks something the page needs fails
@@ -866,7 +1085,7 @@ async function runScenario(browser, scenario, baseUrl) {
       window.__cspViolations.push(
         `${e.violatedDirective} blocked ${e.blockedURI || 'inline'}`);
     });
-  }, scenario.lang);
+  }, { lang: scenario.lang, theme: scenario.theme || 'dark' });
 
   const page = await ctx.newPage();
   const pageErrors = [], consoleErrors = [], failedRequests = [];

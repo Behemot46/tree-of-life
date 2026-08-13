@@ -70,7 +70,11 @@
 .bc-item{font-size:var(--text-2xs);color:var(--text-secondary);cursor:pointer;white-space:nowrap;
   padding:0 0.1rem;transition:color var(--transition-fast);letter-spacing:0.04em;}
 .bc-item:hover{color:var(--accent-primary);}
-.bc-item.active{color:var(--text-primary);cursor:default;}
+.bc-item.active{color:var(--text-primary);cursor:default;font-weight:600;}
+.bc-ellipsis{opacity:0.4;cursor:default;}
+/* The node's colour, small enough to be decoration rather than text. */
+.bc-dot{display:inline-block;width:6px;height:6px;border-radius:50%;
+  margin-inline-end:5px;vertical-align:middle;flex-shrink:0;}
 .bc-sep{font-size:var(--text-2xs);color:var(--text-secondary);opacity:0.4;padding:0 0.3rem;}
 #breadcrumb.hidden{display:none;}
 
@@ -88,7 +92,9 @@
 .nav-btn .nav-arrow{display:inline-block;font-size:var(--text-sm);line-height:1;}
 [data-theme="light"] .nav-btn{background:var(--glass-bg);border-color:var(--glass-border);color:var(--text-secondary);}
 [data-theme="light"] .nav-btn:hover{background:var(--accent-primary-dim);border-color:var(--accent-primary);color:var(--accent-primary);}
-[dir="rtl"] #nav-ctrl{left:auto;right:1.2rem;flex-direction:row-reverse;}
+/* Mirrored across the centre line, not pinned to the far edge: the cluster is
+   centre-offset, so RTL flips the offset rather than the anchor. */
+[dir="rtl"] #nav-ctrl{flex-direction:row-reverse;transform:translateX(calc(-50% + 240px)) !important;}
 [dir="rtl"] .nav-arrow{transform:scaleX(-1);}
 
 /* ── Reveal Panel ── */
@@ -102,11 +108,15 @@
   flex-direction: column;
   gap: 6px;
   padding: 10px 12px;
-  background: rgba(12, 8, 6, 0.82);
-  border: 1px solid rgba(62, 169, 143, 0.4);
+  /* Themed tokens, not a hard-coded dark. This panel painted itself near-black
+     while its text followed the theme, so in light mode it was dark ink on a
+     dark card: "Collapse All" and "Expand All" sat at a contrast ratio of 1.15
+     — present in the DOM, invisible on screen. */
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: 12px;
-  backdrop-filter: blur(8px);
-  color: var(--parchment);
+  backdrop-filter: var(--glass-blur);
+  color: var(--text-primary);
   font: 500 11px/1.3 var(--font-sans, 'Inter', sans-serif);
   min-width: 200px;
   box-shadow: 0 6px 24px rgba(0,0,0,0.4);
@@ -115,8 +125,10 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-weight: 600;
-  color: #3ea98f;
+  font-weight: 700;
+  /* Themed, not a fixed teal: #3ea98f is a mid green that reads at 2.7 against
+     the light card. */
+  color: var(--accent-secondary-text, var(--accent-secondary));
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-size: 10px;
@@ -181,10 +193,10 @@
   flex: 1;
   padding: 5px 8px;
   font-size: 10px;
-  background: rgba(62, 169, 143, 0.12);
-  border: 1px solid rgba(62, 169, 143, 0.4);
+  background: var(--accent-secondary-dim, rgba(62, 169, 143, 0.12));
+  border: 1px solid var(--glass-border);
   border-radius: 6px;
-  color: var(--parchment);
+  color: var(--text-primary);
   cursor: pointer;
   font: 500 11px var(--font-sans, 'Inter', sans-serif);
 }
@@ -197,5 +209,5 @@
   border-top: 1px solid rgba(62, 169, 143, 0.2);
   cursor: pointer;
 }
-.reveal-species-warn { color: #6fd3b3; cursor: help; }
+.reveal-species-warn { color: var(--accent-secondary-text, var(--accent-secondary)); cursor: help; }
 [dir="rtl"] .reveal-panel { right: auto; left: 16px; }

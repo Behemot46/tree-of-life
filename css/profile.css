@@ -122,13 +122,17 @@
 .lb-add-player input::placeholder { color: var(--text-muted); }
 .lb-add-btn {
   padding: 0.4rem 0.8rem;
-  background: var(--accent-primary); color: #fff;
+  /* Ink chosen against the amber rather than assumed. White on the dark
+     theme's light accent sat at 1.94; the light theme's accent is dark enough
+     that white is the right answer there. */
+  background: var(--accent-primary); color: #17120B;
   border: none; border-radius: var(--radius-sm);
   font-size: var(--text-sm); font-family: inherit;
   cursor: pointer; font-weight: 500;
   transition: background 0.15s;
 }
 .lb-add-btn:hover { background: var(--accent-light); }
+[data-theme="light"] .lb-add-btn { color: #fff; }
 .lb-section-title {
   font-size: var(--text-xs);
   color: var(--text-muted);

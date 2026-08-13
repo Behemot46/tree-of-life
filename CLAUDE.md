@@ -90,6 +90,7 @@ tree-of-life/
     ├── factLibrary.js   # FACTS — random facts for discovery feature
     ├── imagePrompts.js  # AI image prompt library (unused)
     ├── imageLoader.js   # ImageLoader — fallback chain: generated → PHOTO_MAP → emoji
+    ├── labelMetrics.js  # One source of truth for label size, placement, footprint
     ├── dnaSimilarity.js # DNA_KNOWN, estimateDnaSimilarity(), findLCA()
     ├── nodeIcons.js     # NODE_ICONS SVG paths + getIconGroup()
     ├── triviaData.js    # TRIVIA_QUESTIONS — 200+ quiz questions
@@ -284,13 +285,26 @@ on any PR touching `js/speciesData.js`, so dead links surface on their own.
 ## Known Constraints & Important Notes
 
 1. **Tests are browser smoke checks, not unit tests** — `node scripts/smoke.mjs`
-   opens the real page in Chromium and asserts ~30 things about layout, i18n
-   and rendering. See *Smoke tests* below.
+   opens the real page in Chromium and asserts ~45 things per scenario about
+   layout, i18n, contrast and rendering. See *Smoke tests* below.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
 3. **index.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
 4. **ES modules everywhere** — all data and application files use `export`/`import`. No global `<script>` tags.
-5. **D3.js** — loaded from CDN but not actively used by the current renderer.
+5. **No D3** — `index.html` has exactly one script tag (`js/app.js`); the
+   renderer is hand-written SVG.
 6. **CORS** — all APIs permit browser-side calls. Do not add a server proxy unless needed.
+7. **Label geometry lives in one place.** `js/labelMetrics.js` decides how big a
+   label is, where it sits and how much room a node needs. The renderer draws
+   from it and the camera frames from it; when those two estimated separately
+   they disagreed, and names were clipped against the edges of the screen.
+   Label *sizes* must be set as inline styles, not `font-size` attributes — a
+   stylesheet declaration outranks a presentation attribute, which is how every
+   label in the tree ended up rendering at the same 10px.
+8. **Physical offsets need logical properties.** A floating control that pins
+   `left` or `right` with `!important` cannot be released by an RTL override,
+   and an element pinned at both edges with no width stretches across the whole
+   window as an invisible sheet over the map. Use `inset-inline-start/end`.
+   `chrome:no-stretched-overlay` fails on the structural signature.
 
 ---
 
@@ -362,11 +376,15 @@ never mistaken for a working page.
 
 ## Smoke Tests
 
-`scripts/smoke.mjs` opens the real page in Chromium and asserts ~35 things per
-scenario across five scenarios — desktop and phone viewports, in English,
-Hebrew and Russian. It runs on every push and pull request via
-`.github/workflows/smoke.yml`, and replaces the old `deploy-check.yml`, which
-only checked that files existed.
+`scripts/smoke.mjs` opens the real page in Chromium and asserts ~45 things per
+scenario across six scenarios — desktop and phone viewports in English, Hebrew
+and Russian, plus a desktop pass in the light theme. It runs on every push and
+pull request via `.github/workflows/smoke.yml`, and replaces the old
+`deploy-check.yml`, which only checked that files existed.
+
+The light theme is loaded rather than toggled at runtime: switching themes also
+rebuilds the era strip and the density curve in JS, so a half-applied theme
+measures a page nobody ever sees.
 
 ```bash
 npm run smoke                                      # serve ./ and check it
@@ -384,10 +402,13 @@ as a CI artifact on every run).
 |---|---|
 | `load:` | uncaught errors, failed requests, SVG render errors, splash dismissal, nothing covering the stage |
 | `tree:` | node and branch counts, **NaN coordinates**, fit-to-stage, spill, root visibility, horizontal scroll |
-| `chrome:` | header/timeline visible, reveal panel vs. zoom controls and timeline, closed panel off-screen, tooltip and fact toast vs. header |
+| `chrome:` | header/timeline visible, reveal panel vs. zoom controls and timeline, closed panel off-screen, tooltip and fact toast vs. header, tooltip vs. the node it describes, nothing printed over the species name, **no floating control stretched across the window** |
 | `timeline:` | geological era labels clipped or colliding |
-| `i18n:` | document direction and lang, every bound control matches its translation, missing translation keys, Latin text leaking into Hebrew, search placeholder |
-| `interact:` | zoom buttons, reset re-fits, parent expands, leaf opens panel, search returns results |
+| `i18n:` | document direction and lang, every bound control matches its translation, missing translation keys, Latin text leaking into Hebrew, search placeholder, English species prose laid out left-to-right |
+| `a11y:` | every text node meets AA contrast against its effective background |
+| `search:` | eight canonical queries return the answer a person would call correct; every common-name alias still matches something |
+| `interact:` | zoom buttons, reset re-fits, parent expands, leaf opens panel, search returns results, camera settles |
+| `static/` | CSS custom properties used but never defined (runs before the browser starts) |
 
 ### The baseline
 

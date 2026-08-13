@@ -21,8 +21,12 @@
   --surface-overlay:rgba(250,247,242,0.98);
   --parchment:#2c2418;
   --text-primary:#2c2418;
-  --text-secondary:#5a5040;
-  --text-muted:#7a7060;
+  /* Darkened from #5a5040 / #7a7060. Against the light surfaces those sat at
+     4.1–4.3 against text's 4.5 requirement — legible enough to pass a glance
+     and not enough to pass a measurement, across most of the profile, the
+     leaderboard and the compare view. */
+  --text-secondary:#4C4335;
+  --text-muted:#645A4A;
   --text-dim:rgba(44,36,24,0.50);
   --text-faint:rgba(44,36,24,0.30);
   --accent:#9a6a2a;
@@ -31,10 +35,11 @@
   --accent-rgb:154,106,42;
   --terra:#a03020;
   --sage:#2a7a3a;
-  --accent-primary:#9a6a2a;
+  --accent-primary:#8A5D24;
   --accent-primary-dim:rgba(154,106,42,0.08);
   --accent-secondary:#3a7a6a;
   --accent-secondary-dim:rgba(58,122,106,0.08);
+  --accent-secondary-text:#1F6553;
   --accent-success:#2a7a3a;
   --accent-danger:#b83a3a;
   --panel-bg:rgba(244,240,234,0.98);
@@ -55,7 +60,7 @@
   --glass-bg:rgba(250,247,242,0.75);
   --glass-border:rgba(0,0,0,0.06);
   /* ── Functional colors (light) ── */
-  --error:#b83a3a;--error-bg:rgba(184,58,58,0.08);--error-border:rgba(184,58,58,0.20);
+  --error:#a63232;--error-bg:rgba(184,58,58,0.08);--error-border:rgba(184,58,58,0.20);
   --success:#2a7a3a;--success-bg:rgba(42,122,58,0.08);--success-border:rgba(42,122,58,0.20);
   --warning:#9a6a2a;--warning-bg:rgba(154,106,42,0.08);--warning-border:rgba(154,106,42,0.20);
   --info:#3a6a7a;--info-bg:rgba(58,106,122,0.08);--info-border:rgba(58,106,122,0.20);

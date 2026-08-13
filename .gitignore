@@ -10,3 +10,4 @@ node_modules/
 
 # smoke test output
 .smoke-out/
+.probe-out/

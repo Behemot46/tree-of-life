@@ -112,14 +112,24 @@ svg{width:100%;height:100%;}
 
 /* ── BRANCH ANIMATIONS ── */
 .branch-entering{stroke-dasharray:9999;stroke-dashoffset:9999;}
-.branch-entered{stroke-dashoffset:0;transition:stroke-dashoffset 0.4s cubic-bezier(.4,0,.2,1) calc(var(--stagger,0) * 80ms);}
+.branch-entered{stroke-dashoffset:0;transition:stroke-dashoffset 0.42s cubic-bezier(.4,0,.2,1) calc(var(--stagger,0) * 60ms);}
 
-/* ── NODE ANIMATIONS ��─ */
-.node-entering{opacity:0;transform:translateX(-8px);}
+/* ── NODE ANIMATIONS ──
+   A new node grows out of its parent: it starts small on the parent's disc and
+   travels out along its own branch while that branch draws. --from-x/--from-y
+   are set per node by the renderer, in world units, and the stagger is the
+   sibling index, so a clade unfurls rather than blinking into place. */
+.node-entering{
+  opacity:0;
+  transform:translate(var(--from-x,0),var(--from-y,0)) scale(0.35);
+}
 .node-entered{
-  opacity:1;transform:translateX(0);
-  transition:opacity 0.3s ease calc(var(--stagger,0) * 80ms),
-             transform 0.3s ease calc(var(--stagger,0) * 80ms);
+  opacity:1;transform:translate(0,0) scale(1);
+  /* A little overshoot on arrival — growth, not a slide. */
+  /* 90ms behind the branch on the same stagger, so the branch is already on
+     its way out before the node it carries arrives. */
+  transition:opacity 0.28s ease calc(90ms + var(--stagger,0) * 60ms),
+             transform 0.46s cubic-bezier(.22,1.2,.36,1) calc(90ms + var(--stagger,0) * 60ms);
 }
 
 /* Sibling dimming */

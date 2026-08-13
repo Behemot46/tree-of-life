@@ -6,6 +6,7 @@
 import { state, nodeMap, animDone, confirmedPhotoUrls, HUMAN_PATH } from './state.js';
 import { getVisible, getVisibleEdges, countDescendants } from './layout.js';
 import { reducedMotion, displayName } from './utils.js';
+import { labelBox, labelOffset } from './labelMetrics.js';
 import { getPlaybackNodeState, discoverNode, showDiscoveryCard } from './playback.js';
 import { isExplored } from './engagement.js';
 import { nodeInEra } from './timeline.js';
@@ -467,6 +468,14 @@ export function render(){
           const ghostR=9;
           const ghostOp=[0.3,0.2,0.1][i];
 
+          /* A ghost is a peek at what is inside — a thumbnail of one of the
+             children. Without the picture it is a 9px circle at 20% opacity
+             next to a much larger disc, which reads as a speck of dust rather
+             than an invitation, so it is only drawn when there is a photo to
+             put in it, and it leaves with the photo if that fails to load. */
+          const best=ImageLoader?ImageLoader.getBestUrl(child):null;
+          if(!best||!best.url) continue;
+
           const gc=document.createElementNS('http://www.w3.org/2000/svg','circle');
           gc.setAttribute('cx',gx);gc.setAttribute('cy',gy);gc.setAttribute('r',ghostR);
           gc.setAttribute('fill','var(--tree-node-fill)');
@@ -475,25 +484,19 @@ export function render(){
           gc.setAttribute('class','node-ghost');
           g.appendChild(gc);
 
-          // Ghost photo
-          if(ImageLoader){
-            const best=ImageLoader.getBestUrl(child);
-            if(best&&best.url){
-              const gfo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
-              gfo.setAttribute('x',gx-ghostR);gfo.setAttribute('y',gy-ghostR);
-              gfo.setAttribute('width',ghostR*2);gfo.setAttribute('height',ghostR*2);
-              gfo.style.pointerEvents='none';gfo.style.overflow='hidden';
-              gfo.setAttribute('opacity',String(ghostOp));
-              const gw=document.createElement('div');
-              gw.className='node-ghost-wrap';
-              gw.style.width=`${ghostR*2}px`;gw.style.height=`${ghostR*2}px`;
-              const gi=document.createElement('img');
-              gi.className='node-ghost-img';
-              gi.src=best.url;gi.alt='';
-              gi.addEventListener('error',()=>{if(gfo.parentNode)gfo.remove();});
-              gw.appendChild(gi);gfo.appendChild(gw);g.appendChild(gfo);
-            }
-          }
+          const gfo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+          gfo.setAttribute('x',gx-ghostR);gfo.setAttribute('y',gy-ghostR);
+          gfo.setAttribute('width',ghostR*2);gfo.setAttribute('height',ghostR*2);
+          gfo.style.pointerEvents='none';gfo.style.overflow='hidden';
+          gfo.setAttribute('opacity',String(ghostOp));
+          const gw=document.createElement('div');
+          gw.className='node-ghost-wrap';
+          gw.style.width=`${ghostR*2}px`;gw.style.height=`${ghostR*2}px`;
+          const gi=document.createElement('img');
+          gi.className='node-ghost-img';
+          gi.src=best.url;gi.alt='';
+          gi.addEventListener('error',()=>{gfo.remove();gc.remove();});
+          gw.appendChild(gi);gfo.appendChild(gw);g.appendChild(gfo);
         }
       }
 
@@ -753,47 +756,40 @@ export function render(){
 
     // ── LABELS ──
     if(inEra && labelEarnsSpace(n.depth,state.transform.s)){
-      const labelText=n._hominData?n._hominData.short:displayName(n);
-      const latinText=n.latin||'';
-      let lx,ly,anchor,fontSize;
-
-      if(isCladogram){
-        // Horizontal: label to the right of node
-        fontSize=n.depth===0?13:n.depth<=1?12:10;
-        lx=n._x+nodeR+8;
-        ly=n._y;
-        anchor='start';
-      } else {
-        // Radial: label positioned by angle from center
-        const sibCount=n._parent?.children?.length||1;
-        const angleRad=(n._angle||0)-Math.PI/2;
-        const lDist=nodeR+18+Math.max(0,(n.depth-3)*4);
-        lx=n._x+Math.cos(angleRad)*lDist;
-        ly=n._y+Math.sin(angleRad)*lDist;
-        const cos=Math.cos(angleRad);
-        fontSize=n.depth===0?14:n.depth===1?12:sibCount>12?8:sibCount>8?9:10;
-        anchor=cos<-0.15?'end':cos>0.15?'start':'middle';
-      }
-
-      const textW=labelText.length*fontSize*0.55;
-      const textH=fontSize+12;
-      const bx=anchor==='end'?lx-textW:anchor==='start'?lx:lx-textW/2;
-      pendingLabels.push({n,lx,ly,fontSize,textW,textH,bx,by:ly-textH/2,anchor:anchor||'middle',labelText,latinText,g,onHumanPath});
+      const box=labelBox(n,isCladogram);
+      const off=labelOffset(n,isCladogram,nodeR);
+      const lx=n._x+off.lx,ly=n._y+off.ly,anchor=off.anchor;
+      // Height covers both lines, so a name never sits on the caption above it.
+      const textH=box.h+4;
+      const bx=anchor==='end'?lx-box.w:anchor==='start'?lx:lx-box.w/2;
+      pendingLabels.push({n,lx,ly,fontSize:box.fs,latinSize:box.lfs,textW:box.w,textH,bx,by:ly-box.fs/2-2,anchor,labelText:box.name,latinText:box.latin,g,onHumanPath});
     }
 
     // Hover events (tooltip only, no movement)
     g.addEventListener('mouseenter',()=>{_showTip(displayName(n),n.icon,n.funFact);});
     g.addEventListener('mouseleave',()=>{_hideTip();});
 
-    // Animate in
+    /* Animate in. A new node grows out of its parent rather than sliding in
+       from the left: it starts small, sitting on the parent's disc, and travels
+       out along its own branch as that branch draws. Staggered by sibling
+       order, so a clade unfurls instead of appearing all at once.
+
+       Both offsets are in world units — the group is inside #viewport, which
+       carries the camera transform, so translating in screen pixels would
+       drift with the zoom. */
     if(!state.playbackMode&&!animDone.has(n.id)){
       if(reducedMotion()){
         animDone.add(n.id);
       } else {
+        const p=n._parent;
+        const dx=p&&Number.isFinite(p._x)?p._x-n._x:0;
+        const dy=p&&Number.isFinite(p._y)?p._y-n._y:0;
         g.style.setProperty('--stagger',n._sibIndex||0);
+        g.style.setProperty('--from-x',dx.toFixed(1)+'px');
+        g.style.setProperty('--from-y',dy.toFixed(1)+'px');
         g.classList.add('node-entering');
         animDeferred.push(g);
-        setTimeout(()=>animDone.add(n.id),600);
+        setTimeout(()=>animDone.add(n.id),700);
       }
     }
 
@@ -842,7 +838,10 @@ export function render(){
       }
       a11yAnnounce(n.name+(n._collapsed?' collapsed':' expanded'));
       requestAnimationFrame(()=>{
-        if(_frameSubtree) _frameSubtree(n);
+        /* Collapsing frames the parent, not the node. Framing a collapsed node
+           means framing a single disc, which asked for maximum zoom and left
+           the reader nose-to-nose with the one thing they had just closed. */
+        if(_frameSubtree) _frameSubtree(n._collapsed&&n._parent?n._parent:n);
         if(_updateBreadcrumb) _updateBreadcrumb(n._collapsed&&n._parent?n._parent:n);
       });
     });
@@ -867,6 +866,7 @@ export function render(){
     if(b.n.depth<=1&&a.n.depth>1) return 1;
     return a.n.depth-b.n.depth;
   });
+  const rtl=document.documentElement.dir==='rtl';
   const labelGrid=createSpatialHash(100);
   function boxesOverlap(a,b){
     return a.bx<b.bx+b.textW&&a.bx+a.textW>b.bx&&a.by<b.by+b.textH&&a.by+a.textH>b.by;
@@ -881,14 +881,25 @@ export function render(){
     }
     labelGrid.insert(lb);
 
+    /* `text-anchor` is resolved against the writing direction, not the screen:
+       under dir="rtl" `start` means the right-hand edge. Labels are placed
+       geometrically — outward from the node along its branch — so in Hebrew
+       every one of them was anchored on the wrong side and ran back across its
+       own node. Swap the two so the anchor keeps its geometric meaning. */
+    const anchorOf=a=>rtl?(a==='start'?'end':a==='end'?'start':a):a;
+
     // Species name
     const svgText=document.createElementNS('http://www.w3.org/2000/svg','text');
     svgText.setAttribute('x',lb.lx);svgText.setAttribute('y',lb.ly);
-    svgText.setAttribute('text-anchor',lb.anchor||'middle');
+    svgText.setAttribute('text-anchor',anchorOf(lb.anchor||'middle'));
     svgText.setAttribute('dominant-baseline','middle');
     svgText.setAttribute('fill',lb.onHumanPath?'var(--tree-human-path)':lb.n.color);
-    svgText.setAttribute('font-size',lb.fontSize);
-    svgText.setAttribute('font-weight',lb.onHumanPath||lb.n.depth<=1?'600':'400');
+    /* Inline style, not the font-size attribute: .node-label-name sets a size
+       in the stylesheet, and a CSS declaration beats a presentation attribute.
+       Every label was therefore drawn at the same 10px no matter what depth
+       asked for — the root read exactly like a bacterium. */
+    svgText.style.fontSize=lb.fontSize+'px';
+    svgText.style.fontWeight=lb.onHumanPath||lb.n.depth<=1?'700':lb.n.depth===2?'600':'500';
     svgText.setAttribute('class','node-label-name');
     svgText.textContent=lb.labelText;
     lb.g.appendChild(svgText);
@@ -896,8 +907,9 @@ export function render(){
     // Latin name
     if(lb.latinText){
       const latin=document.createElementNS('http://www.w3.org/2000/svg','text');
-      latin.setAttribute('x',lb.lx);latin.setAttribute('y',lb.ly+12);
-      latin.setAttribute('text-anchor',lb.anchor||'middle');
+      latin.setAttribute('x',lb.lx);latin.setAttribute('y',lb.ly+lb.fontSize/2+lb.latinSize*0.8);
+      latin.setAttribute('text-anchor',anchorOf(lb.anchor||'middle'));
+      latin.style.fontSize=lb.latinSize+'px';
       latin.setAttribute('class','node-label-latin');
       latin.textContent=lb.latinText;
       lb.g.appendChild(latin);

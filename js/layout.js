@@ -5,6 +5,7 @@
 import { state, MIN_ARC_PX, MAX_ARC_PER_LEAF } from './state.js';
 import { DEPTH_R } from './uiData.js';
 import { TREE } from './data.js';
+import { getStageRect } from './zoom.js';
 
 /* Both walks skip children hidden by the species toggle. assignAngles() skips
    them too, so they never receive _x/_y — including them here yielded branch
@@ -115,7 +116,77 @@ export function assignPositions(n,cx,cy){
   if(n.children&&!n._collapsed) n.children.forEach(c=>assignPositions(c,cx,cy));
 }
 
-export function layoutRadial(){computeWeight(TREE);const cx=window.innerWidth/2,cy=window.innerHeight/2+35;assignAngles(TREE,0,Math.PI*2);assignPositions(TREE,cx,cy);}
+/* ── Orienting the fan to the screen ──────────────────────────────────────
+   A radial tree has no natural "up", but it is rarely circular: whichever
+   branches carry the most weight stretch the fan into an oval. The tree of
+   life is a wide one — Bacteria to the right, Eukaryota to the left — which
+   fits a desktop window and wastes a phone, where it filled 80% of the width
+   and left two thirds of the height empty, shrinking every label to a speck.
+
+   So the whole fan is rotated to line its long axis up with the screen's.
+   Rotating `_angle` rather than the coordinates keeps labels radial, because
+   the renderer places them along that same angle.
+
+   Candidates are quantised to 15°, and the standing orientation is kept unless
+   a different one is clearly better. Otherwise expanding one node could swing
+   the tree by a few degrees on every click, which reads as the map lurching. */
+const ORIENT_STEP=Math.PI/12;
+const ORIENT_HYSTERESIS=1.08;
+let _orientation=0;
+
+function scoreOrientation(nodes,rot,stageW,stageH){
+  const c=Math.cos(rot),s=Math.sin(rot);
+  let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+  for(const n of nodes){
+    const x=n._rx,y=n._ry;
+    const rx=x*c-y*s,ry=x*s+y*c;
+    if(rx<minX)minX=rx; if(rx>maxX)maxX=rx;
+    if(ry<minY)minY=ry; if(ry>maxY)maxY=ry;
+  }
+  const w=Math.max(1,maxX-minX),h=Math.max(1,maxY-minY);
+  return Math.min(stageW/w,stageH/h);
+}
+
+function chooseOrientation(){
+  // Offsets from the root, before rotation. Labels are ignored here: they add
+  // a roughly uniform margin, and including them would cost a full metrics
+  // pass per candidate for a result that barely moves.
+  const nodes=[];
+  (function walk(n){
+    if(!Number.isFinite(n._angle)) return;
+    const r=n.depth<DEPTH_R.length?DEPTH_R[n.depth]:(DEPTH_R[DEPTH_R.length-1]+(n.depth-DEPTH_R.length+1)*1400);
+    const a=n._angle-Math.PI/2;
+    nodes.push({_rx:Math.cos(a)*r,_ry:Math.sin(a)*r});
+    if(n.children&&!n._collapsed) n.children.forEach(c=>{if(!c._hiddenByToggle)walk(c);});
+  })(TREE);
+  if(nodes.length<2) return _orientation;
+
+  const st=getStageRect();
+  const stageW=st.w,stageH=st.h;
+
+  let best=_orientation,bestScore=scoreOrientation(nodes,_orientation,stageW,stageH);
+  const incumbent=bestScore;
+  for(let i=0;i<12;i++){          // 0..165°; 180° is the same box
+    const rot=i*ORIENT_STEP;
+    const sc=scoreOrientation(nodes,rot,stageW,stageH);
+    if(sc>bestScore){bestScore=sc;best=rot;}
+  }
+  return bestScore>incumbent*ORIENT_HYSTERESIS?best:_orientation;
+}
+
+function applyOrientation(n,rot){
+  n._angle=(n._angle||0)+rot;
+  if(n.children) n.children.forEach(c=>applyOrientation(c,rot));
+}
+
+export function layoutRadial(){
+  computeWeight(TREE);
+  const cx=window.innerWidth/2,cy=window.innerHeight/2+35;
+  assignAngles(TREE,0,Math.PI*2);
+  _orientation=chooseOrientation();
+  if(_orientation) applyOrientation(TREE,_orientation);
+  assignPositions(TREE,cx,cy);
+}
 
 export function layoutCladogram(){
   computeWeight(TREE);

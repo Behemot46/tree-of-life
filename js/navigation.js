@@ -193,10 +193,14 @@ export function updateBreadcrumb(n){
 
   bc.innerHTML=displayPath.map((p,i)=>{
     const isLast=i===displayPath.length-1;
-    const color=p.color||'var(--parchment)';
-    const style=isLast?`color:${color};font-weight:600`:`color:${color};opacity:0.5`;
-    if(p.id==='_ellipsis') return `<span class="bc-item" style="opacity:0.3">…</span><span class="bc-sep">›</span>`;
-    return `<span class="bc-item ${isLast?'active':''}" style="${style}" onclick="${isLast?'':`collapseBelow('${p.id}')`}">${p.icon} ${p.name}</span>${isLast?'':'<span class="bc-sep">›</span>'}`;
+    /* The node's colour rides on a dot, not on the words. Node colours are
+       picked to read as discs against the canvas, and several of them — the
+       pale bacterial blues especially — fall below the contrast floor as small
+       text on the chrome. A crumb in every colour of the tree was noisy as
+       well as illegible. */
+    const dot=p.color?`<i class="bc-dot" style="background:${p.color}"></i>`:'';
+    if(p.id==='_ellipsis') return `<span class="bc-item bc-ellipsis">…</span><span class="bc-sep">›</span>`;
+    return `<span class="bc-item ${isLast?'active':''}" onclick="${isLast?'':`collapseBelow('${p.id}')`}">${dot}${p.icon} ${p.name}</span>${isLast?'':'<span class="bc-sep">›</span>'}`;
   }).join('');
 }
 /* Collapse everything below a given node and zoom to fit its children */
@@ -236,19 +240,34 @@ function positionTip(x, y) {
   const w = r.width, h = r.height;
   if (!w || !h) { tooltipEl.style.left = x + 'px'; tooltipEl.style.top = y + 'px'; return; }
 
-  const M = 8, OFFSET_X = 16;
+  /* 26px clears the largest node disc — a hovered node is up to 23px on screen
+     at full zoom — so the tooltip sits beside what it describes rather than on
+     its edge. Must match the translateX in #tooltip's CSS transform. */
+  const M = 8, OFFSET_X = 26;
   const header = document.getElementById('header');
   const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
 
-  let nx = Math.min(x, window.innerWidth - M - w - OFFSET_X);
-  nx = Math.max(nx, M - OFFSET_X);
+  /* Flip to the other side rather than sliding back over the cursor. Clamping
+     the right edge to the viewport is what put the tooltip on top of the very
+     node it was describing, every time that node was near the right of the
+     screen — and the fun-fact variant is tall enough to hide it completely.
+     The transform is translate(16px,-50%), so `side` cancels that offset and
+     mirrors the box when it goes left. */
+  /* Decided against the widest the box can get, not the width it happens to
+     have. A tooltip is placed as a single line and then grows into a paragraph
+     500ms later when its fun fact arrives; measuring the narrow version chose
+     a side that the tall one no longer fits on, and it ended up back over the
+     node. max-width is the honest bound and it does not depend on timing. */
+  const cap = parseFloat(getComputedStyle(tooltipEl).maxWidth);
+  const wMax = Number.isFinite(cap) ? Math.max(w, cap) : w;
+  const fitsRight = x + OFFSET_X + wMax + M <= window.innerWidth;
+  const nx = fitsRight ? x : x - OFFSET_X - wMax - OFFSET_X;
+  tooltipEl.style.left = Math.max(M - OFFSET_X, nx) + 'px';
 
   const minY = headerBottom + M + h / 2;
   const maxY = window.innerHeight - M - h / 2;
   // On a viewport too short for both constraints, staying on screen wins.
   const ny = minY > maxY ? maxY : Math.min(Math.max(y, minY), maxY);
-
-  tooltipEl.style.left = nx + 'px';
   tooltipEl.style.top = ny + 'px';
 }
 
@@ -270,8 +289,11 @@ export function showTip(text, icon, funFact) {
         '<div class="tip-dyk">Did you know?</div>' +
         '<div class="tip-funfact">' + funFact + '</div>';
       tooltipEl.classList.add('tip-enhanced');
-      // The box just grew — re-clamp so the taller version stays clear too.
-      positionTip(_tipCursor.x, _tipCursor.y);
+      /* The box just changed shape — one line became a paragraph — so it is
+         re-placed on the next frame, once the browser has laid the new content
+         out. Measuring in the same tick gave the old width and left the fun-fact
+         tooltip sitting on top of the node it belonged to. */
+      requestAnimationFrame(() => positionTip(_tipCursor.x, _tipCursor.y));
     }, 500);
   }
 }

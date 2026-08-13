@@ -466,14 +466,19 @@ export function renderPanelContent(node) {
       ${lineageBadge}
       <div class="panel-hero-meta">
         <div class="p-name">${displayName(node)}</div>
-        ${node.latin ? `<div class="p-latin">${node.latin}</div>` : ''}
-        ${node.era ? `<div class="p-era">📅 ${node.era}${node.appeared ? ' · ' + node.appeared + ' Mya' : ''}</div>` : ''}
-        ${node.appeared ? (() => { const tc = getTimeContext(node.appeared, node.id); return tc ? `<div class="p-time-context">${tc.text}</div>` : ''; })() : ''}
+        ${node.latin ? `<div class="p-latin" dir="ltr">${node.latin}</div>` : ''}
+        ${node.era ? `<div class="p-era" dir="ltr">📅 ${node.era}${node.appeared ? ' · ' + node.appeared + ' Mya' : ''}</div>` : ''}
+        ${node.appeared ? (() => { const tc = getTimeContext(node.appeared, node.id); return tc ? `<div class="p-time-context" dir="ltr">${tc.text}</div>` : ''; })() : ''}
       </div>
-      <div id="${panelCrId}" class="panel-hero-credit">${staticCredit}</div>
+      <div id="${panelCrId}" class="panel-hero-credit" dir="ltr">${staticCredit}</div>
       <button class="p-close" id="panel-close" aria-label="${t('panel_close')}" onclick="closePanel()">✕</button>
     </div>
-    <div class="panel-body">
+    <!-- dir="ltr" is deliberate and stays that way in Hebrew. Species prose,
+         Latin names, facts and tags are English by policy (see CLAUDE.md), and
+         an English sentence laid out in an RTL paragraph has its trailing
+         punctuation reordered to the far end — "…that nourish colon .cells".
+         The base direction has to match the text, not the interface. -->
+    <div class="panel-body" dir="ltr">
       ${node.desc ? `<div class="panel-section"><p class="p-desc" style="margin:0">${node.desc}</p></div>` : ''}
       ${(()=>{
         if(!node.children||!node.children.length) return '';
@@ -656,6 +661,7 @@ export function showMainPanel(n,url){
   renderPanelContent(n);
   panel.classList.add('panel-enter');
   panel.classList.add('open');
+  setDetailOpen(true);
   requestAnimationFrame(() => {
     panel.classList.remove('panel-enter');
     panel.style.opacity = '1';
@@ -670,8 +676,17 @@ export function showMainPanel(n,url){
   markExplored(n.id);
 }
 
+/* The open drawer covers a third of a desktop window, and the chrome that
+   shares that edge has to know. The class goes on <body> because the panel,
+   the zoom rail and the reveal card are not siblings — there is no combinator
+   that reaches between them. */
+function setDetailOpen(open){
+  document.body.classList.toggle('detail-open',open);
+}
+
 // ── Close panel ──
 export function closePanel(){
+  setDetailOpen(false);
   const p=document.getElementById('panel')||document.getElementById('info-panel');
   if(p){p.classList.remove('open');p.style.transform='';p.style.transition='';}
   state.currentPanelNode=null;
@@ -696,6 +711,7 @@ export function setHomininOverlayOpener(fn){ _openHomininOverlay=fn; }
 export function openHomininView(){
   // Close any open panel first
   panel.classList.remove('open');
+  setDetailOpen(false);
   state.currentPanelNode=null;
   // Open the hominin deep-dive overlay
   if(_openHomininOverlay) _openHomininOverlay();

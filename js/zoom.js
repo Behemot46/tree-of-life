@@ -4,6 +4,7 @@
 import { state } from './state.js';
 import { TREE } from './data.js';
 import { trackDiceUse } from './engagement.js';
+import { nodeFootprint } from './labelMetrics.js';
 
 // Late-bound deps (set by app.js to avoid circular imports)
 let _scheduleRender, _layout, _getVisible;
@@ -72,7 +73,7 @@ export function smoothZoomTo(wx,wy,targetScale){
 }
 
 export function centerOnTree(scale){
-  const b=treeBounds();
+  const b=fittedBounds();
   if(!b)return;
   const st=getStageRect();
   state.transform={x:st.cx-b.cx*scale,y:st.cy-b.cy*scale,s:scale};
@@ -118,13 +119,46 @@ export function getStageRect(){
   const timeline=document.getElementById('timeline');
   if(isVisible(timeline)) bottom=Math.max(bottom,H-timeline.getBoundingClientRect().top);
 
-  const rail=document.getElementById('left-rail');
-  if(isVisible(rail)){
-    const r=rail.getBoundingClientRect();
-    // The rail is a floating panel, so decide which edge it belongs to by
-    // which half of the screen it sits in rather than by reading `dir`.
+  /* Both vertical rails: the tool panel and the map controls. Each hugs one
+     edge for the full height of the stage, so a name that lands behind either
+     is unreadable — the zoom column used to swallow the outermost species
+     labels on the right. Which edge is which flips in RTL, so decide by the
+     half of the screen the panel sits in rather than by reading `dir`. */
+  for(const id of ['left-rail','zoom-ctrl']){
+    const el=document.getElementById(id);
+    if(!isVisible(el)) continue;
+    const r=el.getBoundingClientRect();
+    if(r.width>W*0.5) continue; // A full-width bar is not a side rail.
     if(r.left+r.width/2<W/2) left=Math.max(left,r.right);
     else right=Math.max(right,W-r.left);
+  }
+
+  /* The reveal panel is a corner card on a desktop — the tree passing behind
+     it is fine — but on a phone it becomes a bar across most of the width and
+     a third of the height. Anything drawn under that is simply gone, so once
+     it is wide enough to be a bar it counts against the stage. */
+  const reveal=document.getElementById('reveal-panel');
+  if(isVisible(reveal)){
+    const r=reveal.getBoundingClientRect();
+    if(r.width>W*0.55) bottom=Math.max(bottom,H-r.top);
+  }
+
+  /* The open detail panel takes a third of a desktop window and most of the
+     lower half of a phone. Measured from its class rather than its rect,
+     because it slides in over 300ms and callers want to know where the tree
+     will live once it has arrived, not where it is mid-transition. */
+  const detail=document.getElementById('panel');
+  if(detail&&detail.classList.contains('open')){
+    const r=detail.getBoundingClientRect();
+    if(r.width>W*0.6){
+      // Phone: a bottom sheet. Worth subtracting only while it leaves a usable
+      // strip — a near-full-height sheet would squeeze the stage to nothing,
+      // and the tree reads better centred behind it than crushed above it.
+      const strip=H-top-r.height;
+      if(strip>=220) bottom=Math.max(bottom,r.height);
+    }
+    else if(r.left+r.width/2<W/2) left=Math.max(left,r.width);   // RTL: leading edge
+    else right=Math.max(right,r.width);
   }
 
   const w=Math.max(120,W-left-right);
@@ -132,17 +166,13 @@ export function getStageRect(){
   return {x:left,y:top,w,h,cx:left+w/2,cy:top+h/2};
 }
 
-/* How much space a node occupies in world units, disc plus label. The label
-   metrics mirror the renderer: font size by depth, width estimated from the
-   name, and a caption line below for the Latin name. */
-function nodeExtent(node){
-  const r=node.r||12;
-  const fs=node.depth===0?14:node.depth===1?12:10;
-  // Full label width, not half: the renderer anchors labels to one side of the
-  // node depending on its angle, so a label runs entirely left or entirely
-  // right. Reserving half of it clips the outermost names against the stage.
-  const label=(node.name||'').length*fs*0.55;
-  return {hx:Math.max(r,label), hyUp:r, hyDown:r+fs+14};
+/* Which labels the renderer will draw at a given zoom. Kept in step with
+   labelEarnsSpace() in renderer.js — reserving room for three hundred captions
+   that are not on screen would shrink the tree to a smudge. */
+function labelShown(depth,scale){
+  if(depth<=1) return true;
+  const need=depth===2?0.10:depth===3?0.18:depth===4?0.28:0.40;
+  return scale>=need;
 }
 
 /* Bounding box of everything currently on screen, in world coordinates.
@@ -153,16 +183,19 @@ function nodeExtent(node){
    getBBox(): the renderer culls nodes outside the viewport, so the drawn
    bounding box describes only what is already visible. Fitting to that can
    never converge — each fit reveals more nodes, which enlarges the box. */
-function treeBounds(){
+function treeBounds(scaleHint){
   const nodes=_getVisible(TREE);
+  const isCladogram=state.viewMode==='cladogram'||state.viewMode==='chronological';
+  const nodeR=window.innerWidth<768?22:26;
   let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity,n=0;
   for(const node of nodes){
     if(!Number.isFinite(node._x)||!Number.isFinite(node._y)) continue;
-    const e=nodeExtent(node);
-    if(node._x-e.hx<minX)minX=node._x-e.hx;
-    if(node._x+e.hx>maxX)maxX=node._x+e.hx;
-    if(node._y-e.hyUp<minY)minY=node._y-e.hyUp;
-    if(node._y+e.hyDown>maxY)maxY=node._y+e.hyDown;
+    const withLabel=scaleHint==null||labelShown(node.depth||0,scaleHint);
+    const e=nodeFootprint(node,{isCladogram,nodeR,withLabel});
+    if(node._x-e.left<minX)minX=node._x-e.left;
+    if(node._x+e.right>maxX)maxX=node._x+e.right;
+    if(node._y-e.up<minY)minY=node._y-e.up;
+    if(node._y+e.down>maxY)maxY=node._y+e.down;
     n++;
   }
   if(!n) return null;
@@ -170,10 +203,25 @@ function treeBounds(){
   return {minX,maxX,minY,maxY,w,h,cx:(minX+maxX)/2,cy:(minY+maxY)/2};
 }
 
-function fitTransform(b){
+function scaleFor(b){
   const st=getStageRect();
   const s=Math.min(st.w/b.w,st.h/b.h)*(1-FIT_PADDING);
-  const scale=Math.min(FIT_MAX_SCALE,Math.max(FIT_MIN_SCALE,s));
+  return Math.min(FIT_MAX_SCALE,Math.max(FIT_MIN_SCALE,s));
+}
+
+/* Which labels are drawn depends on the zoom, and the zoom depends on how much
+   room the labels need — so measure twice. The first pass reserves every
+   label and gives a lower bound on the scale; the second reserves only the
+   labels that survive at that scale, which is never fewer, so it converges. */
+function fittedBounds(){
+  const rough=treeBounds(null);
+  if(!rough) return null;
+  return treeBounds(scaleFor(rough))||rough;
+}
+
+function fitTransform(b){
+  const st=getStageRect();
+  const scale=scaleFor(b);
   return {x:st.cx-b.cx*scale,y:st.cy-b.cy*scale,s:scale};
 }
 
@@ -187,7 +235,7 @@ export function smoothFitToStage(){
   // the rendered bbox still describes the previous tree until that has landed
   // — fitting to it would frame whatever was on screen before.
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    const b=treeBounds();
+    const b=fittedBounds();
     if(!b) return;
     const to=fitTransform(b);
     const from={...state.transform};
@@ -211,7 +259,7 @@ export function smoothFitToStage(){
    entry point for framing — start-up, reset, view switches and resize all use
    it, so the tree is always as large as it can be without spilling. */
 export function fitTreeToStage(){
-  const b=treeBounds();
+  const b=fittedBounds();
   if(b) applyFit(b);
 }
 
@@ -300,34 +348,49 @@ export function computeBaseFitZoom(rootNode) {
 // Smoothly pan + zoom the camera to frame `node` and all currently-visible
 // descendants with 15% padding. Clamped so we never zoom out further than
 // the full-base-tree zoom (state.baseTreeZoom), preventing tiny-children issue.
+/* Never closer than this. A subtree of one node has almost no extent, so
+   fitting it to the stage asked for maximum zoom and left the reader staring
+   at a single disc with nothing around it — which is exactly what collapsing a
+   branch used to do. */
+const FOCUS_MAX_SCALE = 0.9;
+
 export function frameSubtree(node, opts = {}) {
   if (!node || node._x == null || node._y == null) return;
   const padding = opts.padding ?? 0.15;
+  const isCladogram = state.viewMode === 'cladogram' || state.viewMode === 'chronological';
+  const nodeR = window.innerWidth < 768 ? 22 : 26;
 
-  const pts = [];
+  const boxes = [];
+  const add = (n) => {
+    if (!Number.isFinite(n._x) || !Number.isFinite(n._y)) return;
+    const e = nodeFootprint(n, { isCladogram, nodeR });
+    boxes.push({ x0: n._x - e.left, x1: n._x + e.right, y0: n._y - e.up, y1: n._y + e.down });
+  };
   (function walk(n){
-    if (n._x == null || n._y == null) return;
-    const r = n.r || 12;
-    pts.push({x:n._x, y:n._y, r});
+    add(n);
     if (n.children && !n._collapsed) {
       n.children.forEach(c => { if (!c._hiddenByToggle) walk(c); });
     }
   })(node);
 
-  if (!pts.length) return;
-  const minX = Math.min(...pts.map(p => p.x - p.r));
-  const maxX = Math.max(...pts.map(p => p.x + p.r));
-  const minY = Math.min(...pts.map(p => p.y - p.r));
-  const maxY = Math.max(...pts.map(p => p.y + p.r));
+  /* Keep the parent in shot. Moving in on a clade without showing what it hangs
+     off leaves the reader with no idea where they landed, and it is the whole
+     point of a tree that a group is somewhere in particular. */
+  if (opts.withParent !== false && node._parent) add(node._parent);
+
+  if (!boxes.length) return;
+  const minX = Math.min(...boxes.map(b => b.x0));
+  const maxX = Math.max(...boxes.map(b => b.x1));
+  const minY = Math.min(...boxes.map(b => b.y0));
+  const maxY = Math.max(...boxes.map(b => b.y1));
   const bw = (maxX - minX) || 1;
   const bh = (maxY - minY) || 1;
   // Frame into the usable stage, not the raw viewport — otherwise the chrome
   // eats the margin and the subtree lands partly behind the header or rail.
   const st = getStageRect();
-  const vw = st.w;
-  const vh = st.h;
 
-  let s = Math.min(vw / (bw * (1 + padding)), vh / (bh * (1 + padding)));
+  let s = Math.min(st.w / (bw * (1 + padding)), st.h / (bh * (1 + padding)));
+  s = Math.min(s, FOCUS_MAX_SCALE);
   // Clamp: never zoom out further than the full-base-tree zoom
   const floor = state.baseTreeZoom || 0;
   if (s < floor) s = floor;

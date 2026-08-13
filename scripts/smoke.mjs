@@ -353,6 +353,10 @@ check('interact:leaf-click-opens-panel', 'Clicking a leaf opens the detail panel
   if (!c.probe.panelOpened) fail('detail panel did not open after clicking a leaf node');
 });
 
+check('interact:camera-settles', 'Camera animations come to rest', (c) => {
+  if (!c.probe.cameraSettles) fail('#viewport transform was still changing after 3s');
+});
+
 check('interact:search-returns-results', 'Search returns results', (c) => {
   if (c.probe.searchResults < 1) fail('search for "human" returned no results');
 });
@@ -765,13 +769,33 @@ async function probePage(page, scenario) {
   await page.waitForTimeout(1800);
 
 
+  // Every camera animation must come to rest. An eased loop that never settles
+  // reads as jitter and quietly burns a frame budget forever, and stage 03
+  // adds enough motion that "it looked fine" is not evidence.
+  await page.click('#btn-reset').catch(() => {});
+  const cameraSettles = await page.evaluate(() => new Promise((resolve) => {
+    const vp = document.getElementById('viewport');
+    let last = vp.getAttribute('transform');
+    let stableFor = 0;
+    const started = Date.now();
+    const tick = () => {
+      const now = vp.getAttribute('transform');
+      stableFor = now === last ? stableFor + 1 : 0;
+      last = now;
+      if (stableFor >= 12) return resolve(true);          // ~200ms unchanged
+      if (Date.now() - started > 3000) return resolve(false);
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }));
+
   // Read CSP violations last: inline event handlers are only evaluated when
   // they fire, so blocking them shows up during the interactions above rather
   // than on load. This supersedes the value collected in the first pass.
   const cspViolations = [...new Set(await page.evaluate(() => window.__cspViolations || []))];
 
   return { ...base, ...forced, tooltipShown, zoomWorks, afterReset, parentExpands, panelOpened,
-           searchResults, afterExpandAll, toastBox, panelOpenBox, cspViolations };
+           searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations };
 }
 
 // ── Runner ────────────────────────────────────────────────────────────────────

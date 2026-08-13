@@ -143,6 +143,24 @@ export function getStageRect(){
     if(r.width>W*0.55) bottom=Math.max(bottom,H-r.top);
   }
 
+  /* The open detail panel takes a third of a desktop window and most of the
+     lower half of a phone. Measured from its class rather than its rect,
+     because it slides in over 300ms and callers want to know where the tree
+     will live once it has arrived, not where it is mid-transition. */
+  const detail=document.getElementById('panel');
+  if(detail&&detail.classList.contains('open')){
+    const r=detail.getBoundingClientRect();
+    if(r.width>W*0.6){
+      // Phone: a bottom sheet. Worth subtracting only while it leaves a usable
+      // strip — a near-full-height sheet would squeeze the stage to nothing,
+      // and the tree reads better centred behind it than crushed above it.
+      const strip=H-top-r.height;
+      if(strip>=220) bottom=Math.max(bottom,r.height);
+    }
+    else if(r.left+r.width/2<W/2) left=Math.max(left,r.width);   // RTL: leading edge
+    else right=Math.max(right,r.width);
+  }
+
   const w=Math.max(120,W-left-right);
   const h=Math.max(120,H-top-bottom);
   return {x:left,y:top,w,h,cx:left+w/2,cy:top+h/2};

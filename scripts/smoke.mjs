@@ -363,6 +363,12 @@ check('interact:leaf-click-opens-panel', 'Clicking a leaf opens the detail panel
   if (!c.probe.panelOpened) fail('detail panel did not open after clicking a leaf node');
 });
 
+check('i18n:panel-prose-reads-as-english', 'English species prose is laid out left-to-right', (c) => {
+  const p = c.probe.panelProse;
+  if (!p || !p.checked) return;
+  if (p.wrong.length) fail(`${p.wrong.length} English block(s) laid out RTL: ${p.wrong.join(', ')}`);
+});
+
 check('interact:camera-settles', 'Camera animations come to rest', (c) => {
   if (!c.probe.cameraSettles) fail('#viewport transform was still changing after 3s');
 });
@@ -725,6 +731,21 @@ async function probePage(page, scenario) {
     const onScreen = r.right > 8 && r.left < innerWidth - 8 && r.top < innerHeight - 8 && r.bottom > 8;
     return onScreen && r.width > 0;
   });
+  /* Species prose is English by policy, so it has to be laid out as English.
+     In an RTL paragraph the trailing punctuation of a Latin sentence is
+     reordered to the far end — "…that nourish colon .cells" — which is how
+     this was found. The panel body therefore carries its own dir. */
+  const panelProse = await page.evaluate(() => {
+    const body = document.querySelector('#panel .panel-body');
+    if (!body) return { checked: false, wrong: [] };
+    const wrong = [];
+    if (getComputedStyle(body).direction !== 'ltr') wrong.push('.panel-body');
+    for (const el of body.querySelectorAll('.p-desc, .p-detail, .panel-funfact-text')) {
+      if (getComputedStyle(el).direction !== 'ltr') wrong.push(el.className);
+    }
+    return { checked: true, wrong };
+  });
+
   // Toast lane: force one open alongside the detail panel and compare boxes.
   const { toastBox, panelOpenBox } = await page.evaluate(() => {
     const c = document.getElementById('achievement-container');
@@ -833,7 +854,7 @@ async function probePage(page, scenario) {
   // than on load. This supersedes the value collected in the first pass.
   const cspViolations = [...new Set(await page.evaluate(() => window.__cspViolations || []))];
 
-  return { ...base, ...forced, tooltipShown, zoomWorks, afterReset, parentExpands, panelOpened,
+  return { ...base, ...forced, tooltipShown, zoomWorks, afterReset, parentExpands, panelOpened, panelProse,
            searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations };
 }
 

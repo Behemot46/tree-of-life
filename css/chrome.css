@@ -305,6 +305,25 @@
   backdrop-filter:var(--glass-blur);
   box-shadow:var(--shadow-1);
 }
+/* The detail panel is a drawer over the same edge, so with a species open the
+   zoom rail sat behind it and could not be reached at all. It steps aside by
+   the panel's width — a transform rather than a new offset, so it slides with
+   the drawer instead of jumping when it opens. `body` carries the state
+   because the panel and the rail are not siblings, so no combinator reaches
+   from one to the other. */
+body.detail-open #zoom-ctrl{
+  transform:translateY(-50%) translateX(calc(-1 * var(--panel-w, 0px)));
+  transition:transform 0.3s cubic-bezier(0.16,1,0.3,1);
+}
+[dir="rtl"] body.detail-open #zoom-ctrl,
+body.detail-open[dir="rtl"] #zoom-ctrl{
+  transform:translateY(-50%) translateX(var(--panel-w, 0px));
+}
+@media (max-width:768px){
+  /* The panel is a bottom sheet on a phone, so the rail moves up, not across. */
+  body.detail-open #zoom-ctrl{transform:none;}
+}
+
 #zoom-ctrl .zbtn{
   width:var(--ctrl-h-sm);height:var(--ctrl-h-sm);
   background:transparent;border-color:transparent;

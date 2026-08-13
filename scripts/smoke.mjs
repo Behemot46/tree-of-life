@@ -261,6 +261,10 @@ check('chrome:tooltip-hidden-initially', 'Tooltip is hidden on load', (c) => {
   if (c.probe.boxes.tooltip) fail('#tooltip is visible before any hover');
 });
 
+check('chrome:tooltip-never-covers-its-node', 'Tooltip does not hide the node it describes', (c) => {
+  if (c.probe.tooltipCoversNode) fail('tooltip overlaps the hovered node near the trailing edge');
+});
+
 check('chrome:tooltip-clear-of-header', 'Tooltip never overlaps the header', (c) => {
   const { tooltipShown, header } = c.probe;
   if (overlap(tooltipShown, header)) {
@@ -670,6 +674,36 @@ async function probePage(page, scenario) {
     await page.waitForTimeout(200);
   }
 
+  /* And again on the node nearest the trailing edge, where there is no room to
+     the side the tooltip prefers. It used to slide back over the cursor rather
+     than flip, so hovering anything near that edge hid the very node being
+     described — worse once the fun fact arrived and the box grew. */
+  const edgePoint = await page.evaluate(() => {
+    let best = null;
+    for (const g of document.querySelectorAll('#viewport g.node-group')) {
+      const c = g.querySelector('circle');
+      if (!c) continue;
+      const r = c.getBoundingClientRect();
+      if (!r.width || r.top < 0 || r.bottom > innerHeight) continue;
+      if (!best || r.left > best.left) best = { left: r.left, x: r.x + r.width / 2, y: r.y + r.height / 2, r: r.width / 2 };
+    }
+    return best;
+  });
+  let tooltipCoversNode = false;
+  if (edgePoint) {
+    await page.mouse.move(edgePoint.x, edgePoint.y);
+    await page.waitForTimeout(900);
+    tooltipCoversNode = await page.evaluate((t) => {
+      const el = document.getElementById('tooltip');
+      if (!el || !el.classList.contains('visible')) return false;
+      const r = el.getBoundingClientRect();
+      if (!r.width) return false;
+      return r.left < t.x + t.r && r.right > t.x - t.r && r.top < t.y + t.r && r.bottom > t.y - t.r;
+    }, edgePoint);
+    await page.mouse.move(4, Math.round(page.viewportSize().height / 2));
+    await page.waitForTimeout(200);
+  }
+
   // The fact toast is positioned purely by CSS, so forcing it visible is a
   // faithful way to measure where it would land.
   const forced = await page.evaluate(() => {
@@ -978,7 +1012,7 @@ async function probePage(page, scenario) {
   // than on load. This supersedes the value collected in the first pass.
   const cspViolations = [...new Set(await page.evaluate(() => window.__cspViolations || []))];
 
-  return { ...base, ...forced, tooltipShown, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps, contrast, searchQuality,
+  return { ...base, ...forced, tooltipShown, tooltipCoversNode, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps, contrast, searchQuality,
            searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations };
 }
 

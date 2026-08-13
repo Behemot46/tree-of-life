@@ -294,7 +294,10 @@
   backdrop-filter:var(--glass-blur);
   box-shadow:var(--shadow-1);
 }
-[dir="rtl"] #zoom-ctrl{right:auto;left:var(--chrome-pad);}
+/* `right` is !important above, so releasing it here needs !important too —
+   without it both edges stay pinned and the control stretches the full width
+   of the screen, swallowing clicks across the tree. */
+[dir="rtl"] #zoom-ctrl{right:auto !important;left:var(--chrome-pad) !important;}
 #zoom-ctrl .zbtn{
   width:var(--ctrl-h-sm);height:var(--ctrl-h-sm);
   background:transparent;border-color:transparent;

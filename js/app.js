@@ -13,7 +13,7 @@ import { reducedMotion, canonicalHomininId, preprocess, sortChildrenByAge, homin
 import { layout, getVisible } from './layout.js';
 
 // ── Zoom / Pan ──
-import { applyT, smoothPanTo, smoothZoomTo, centerOnTree, centerOnRoot, initZoomDeps, initPointerEvents, initRandomButton, computeBaseFitZoom, frameSubtree } from './zoom.js';
+import { applyT, smoothPanTo, smoothZoomTo, centerOnTree, centerOnRoot, fitTreeToStage, initZoomDeps, initPointerEvents, initRandomButton, computeBaseFitZoom, frameSubtree } from './zoom.js';
 
 // ── Renderer ──
 import { render, scheduleRender, branchPath, initRendererDeps } from './renderer.js';
@@ -68,7 +68,7 @@ import { openProfile, closeProfile, initProfileDeps, initProfileListeners, initP
 
 initRendererDeps({ showMainPanel, showTip, hideTip, smoothPanTo, smoothZoomTo, layout, updateBreadcrumb, frameSubtree });
 initZoomDeps({ scheduleRender, layout, getVisible });
-initNavDeps({ showMainPanel, closePanel, smoothPanTo, smoothZoomTo, scheduleRender, layout, centerOnRoot, applyT, renderPanelContent, closeSpeciesCompare, closeGame });
+initNavDeps({ showMainPanel, closePanel, smoothPanTo, smoothZoomTo, scheduleRender, layout, centerOnRoot, fitTreeToStage, applyT, renderPanelContent, closeSpeciesCompare, closeGame });
 initTimelineDeps({ scheduleRender, t, togglePlayback, pausePlayback });
 initPanelDeps({ pushNav, updateNavButtons, updateBreadcrumb, scheduleRender, smoothPanTo, focusNode, t, generateSpeciesIllustration, navBack, layout, applyT, centerOnRoot, openSapiens });
 initSapiensDeps({ pushNav, navBack, showMainPanel, t, scheduleRender, smoothPanTo });
@@ -370,18 +370,7 @@ function setViewMode(mode){
   });
   animDone.clear();
   layout();
-  if(mode==='radial'){centerOnRoot(0.18);}
-  else if(mode==='cladogram'){
-    // Fit entire visible tree into viewport
-    const vis=getVisible(TREE);
-    if(vis.length){
-      const xs=vis.map(n=>n._x),ys=vis.map(n=>n._y);
-      const bw=(Math.max(...xs)-Math.min(...xs))||400;
-      const bh=(Math.max(...ys)-Math.min(...ys))||400;
-      const fitS=Math.min(window.innerWidth*0.85/bw,window.innerHeight*0.85/bh,1.0);
-      centerOnTree(Math.max(0.05,fitS));
-    }
-  }
+  fitTreeToStage();
   scheduleRender(true);applyT();
   a11yAnnounce('Switched to '+mode+' view');
   trackViewMode(mode);
@@ -485,7 +474,7 @@ function init(){
     }
   }
   assignDomains(TREE, 'luca');
-  layout();centerOnRoot(0.18);scheduleRender(true);applyT();
+  layout();fitTreeToStage();scheduleRender(true);applyT();
   // Snapshot the zoom level that frames the full base tree. Used as the floor
   // for frameSubtree() so expanding a huge subtree never zooms out past this.
   {
@@ -824,7 +813,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='f'||e.key==='F'){searchInput.focus();e.preventDefault();}
   if(e.key==='/'){e.preventDefault();const search=document.getElementById('search-input');if(search)search.focus();}
   if(e.key==='h'||e.key==='H'){navigateTo('hominini');}
-  if(e.key==='r'||e.key==='R'){layout();centerOnRoot(0.18);scheduleRender(true);applyT();}
+  if(e.key==='r'||e.key==='R'){layout();fitTreeToStage();scheduleRender(true);applyT();}
   if(e.key==='d'){const toggle=document.getElementById('theme-btn');if(toggle)toggle.click();}
 });
 
@@ -967,7 +956,7 @@ if(_kbdHelp) _kbdHelp.addEventListener('click',function(e){
 });
 
 // ── Resize handler ──
-window.addEventListener('resize',()=>{layout();if(state.viewMode==='radial')centerOnRoot(state.transform.s);scheduleRender();applyT();});
+window.addEventListener('resize',()=>{layout();fitTreeToStage();scheduleRender();applyT();});
 
 // ── Mobile enhancements ──
 (function mobilePatch(){

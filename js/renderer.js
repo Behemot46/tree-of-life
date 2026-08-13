@@ -150,6 +150,17 @@ function getBranchGradId(fromColor,toColor,dx,dy){
   return id;
 }
 
+/* Level of detail. A label is only worth drawing when it has enough screen
+   space to be read; below that it is texture, not information. Deeper nodes
+   need more zoom before their labels earn their place, which is what keeps a
+   fully-expanded tree from turning into static. Depth 0 and 1 always show —
+   they are the map's landmarks. */
+function labelEarnsSpace(depth,scale){
+  if(depth<=1) return true;
+  const need=depth===2?0.10:depth===3?0.18:depth===4?0.28:0.40;
+  return scale>=need;
+}
+
 function getBranchWidth(depth){
   if(depth<=0) return 6;
   if(depth===1) return 4.2;
@@ -741,7 +752,7 @@ export function render(){
     }
 
     // ── LABELS ──
-    if(inEra){
+    if(inEra && labelEarnsSpace(n.depth,state.transform.s)){
       const labelText=n._hominData?n._hominData.short:displayName(n);
       const latinText=n.latin||'';
       let lx,ly,anchor,fontSize;

@@ -133,6 +133,16 @@ export function getStageRect(){
     else right=Math.max(right,W-r.left);
   }
 
+  /* The reveal panel is a corner card on a desktop — the tree passing behind
+     it is fine — but on a phone it becomes a bar across most of the width and
+     a third of the height. Anything drawn under that is simply gone, so once
+     it is wide enough to be a bar it counts against the stage. */
+  const reveal=document.getElementById('reveal-panel');
+  if(isVisible(reveal)){
+    const r=reveal.getBoundingClientRect();
+    if(r.width>W*0.55) bottom=Math.max(bottom,H-r.top);
+  }
+
   const w=Math.max(120,W-left-right);
   const h=Math.max(120,H-top-bottom);
   return {x:left,y:top,w,h,cx:left+w/2,cy:top+h/2};

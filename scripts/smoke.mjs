@@ -193,6 +193,11 @@ check('tree:within-stage', 'Tree does not spill off the stage', (c) => {
   }
 });
 
+check('tree:labels-on-screen', 'No rendered label hangs off the stage', (c) => {
+  const off = c.probe.labelsOffStage || [];
+  if (off.length) fail(`${off.length} label(s) outside the stage: ${off.slice(0, 3).join('; ')}`);
+});
+
 check('tree:root-visible', 'Root node is on screen', (c) => {
   if (!c.probe.rootOnScreen) fail('root node is outside the viewport');
 });
@@ -374,6 +379,8 @@ async function probePage(page, scenario) {
       .then((m) => m.TRANSLATIONS).catch(() => null);
     const DATA = await import(new URL('js/data.js', location.href).href);
     const LAYOUT = await import(new URL('js/layout.js', location.href).href);
+    const METRICS = await import(new URL('js/labelMetrics.js', location.href).href);
+    const ZOOM = await import(new URL('js/zoom.js', location.href).href);
 
     const visible = (el) => {
       if (!el) return false;
@@ -403,14 +410,17 @@ async function probePage(page, scenario) {
         vpg.getAttribute('transform') || '');
       if (!m) return null;
       const [, tx, ty, s] = m.map(Number);
+      // Through the app's own footprint module, so this measures the box the
+      // camera claims to have framed. Whether that box matches the pixels the
+      // renderer actually puts on screen is a separate question, and
+      // tree:labels-on-screen below is the one that asks it.
+      const nodeR = innerWidth < 768 ? 22 : 26;
       let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
       for (const n of LAYOUT.getVisible(DATA.TREE)) {
         if (!Number.isFinite(n._x) || !Number.isFinite(n._y)) continue;
-        const r = n.r || 12;
-        const fs = n.depth === 0 ? 14 : n.depth === 1 ? 12 : 10;
-        const half = Math.max(r, (n.name || '').length * fs * 0.55);
-        minX = Math.min(minX, n._x - half); maxX = Math.max(maxX, n._x + half);
-        minY = Math.min(minY, n._y - r);    maxY = Math.max(maxY, n._y + r + 26);
+        const e = METRICS.nodeFootprint(n, { nodeR });
+        minX = Math.min(minX, n._x - e.left); maxX = Math.max(maxX, n._x + e.right);
+        minY = Math.min(minY, n._y - e.up);   maxY = Math.max(maxY, n._y + e.down);
       }
       if (!Number.isFinite(minX)) return null;
       const svgR = byId('svg').getBoundingClientRect();
@@ -426,26 +436,30 @@ async function probePage(page, scenario) {
     const nanAttrEls = [...document.querySelectorAll('#viewport *')].filter((el) =>
       [...el.attributes].some((a) => /NaN/.test(a.value)));
 
-    // The stage is what the tree can actually use: the canvas minus the header,
-    // the timeline and the side rail floating over it. Measuring against the
-    // raw viewport would score a correctly-fitted tree as too small.
+    /* The stage is what the tree can actually use: the canvas minus the chrome
+       floating over it. Read from the app rather than re-derived here — a
+       second copy of this arithmetic would drift, and the chrome checks below
+       already police where those panels sit, each measured directly. */
     const sr = (() => {
-      const W = innerWidth, H = innerHeight;
-      let top = 0, bottom = 0, left = 0, right = 0;
-      const h = byId('header');
-      if (visible(h)) top = h.getBoundingClientRect().bottom;
-      const t = byId('timeline');
-      if (visible(t)) bottom = H - t.getBoundingClientRect().top;
-      const rail = byId('left-rail');
-      if (visible(rail)) {
-        const r = rail.getBoundingClientRect();
-        if (r.left + r.width / 2 < W / 2) left = r.right; else right = W - r.left;
-      }
+      const g = ZOOM.getStageRect();
       return {
-        left, top, right: W - right, bottom: H - bottom,
-        width: Math.max(120, W - left - right), height: Math.max(120, H - top - bottom),
+        left: g.x, top: g.y, right: g.x + g.w, bottom: g.y + g.h,
+        width: g.w, height: g.h,
       };
     })();
+
+    /* What the renderer actually put on screen, as opposed to what the camera
+       reserved room for. Labels are the part that escapes: a name is drawn a
+       fixed distance out along its branch and can be several times wider than
+       the disc it belongs to, so an under-estimate anywhere in the metrics
+       shows up here as text hanging off the edge of the stage. */
+    const labelsOffStage = [];
+    for (const el of document.querySelectorAll('#viewport text.node-label-name')) {
+      const r = el.getBoundingClientRect();
+      if (!r.width) continue;
+      const over = Math.max(sr.left - r.left, r.right - sr.right, sr.top - r.top, r.bottom - sr.bottom);
+      if (over > 4) labelsOffStage.push(`${(el.textContent || '').slice(0, 24)} by ${Math.round(over)}px`);
+    }
 
     const rootEl = document.querySelector('#viewport g[data-node-id="luca"]');
     const rr = rootEl ? rootEl.getBoundingClientRect() : null;
@@ -588,7 +602,7 @@ async function probePage(page, scenario) {
       },
       eraClipped, eraOverlaps,
       i18nMismatches, i18nMissingKeys, latinLeaks, searchPlaceholder,
-      centerHit, cspViolations, taxonLabels, stretchedChrome,
+      centerHit, cspViolations, taxonLabels, stretchedChrome, labelsOffStage,
     };
   }, { bindings: I18N_BINDINGS, lang: scenario.lang });
 

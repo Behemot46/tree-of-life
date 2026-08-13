@@ -73,13 +73,39 @@ export function labelBox(node, isCladogram) {
    further out than the node itself. */
 export function labelOffset(node, isCladogram, nodeR) {
   if (isCladogram) return { lx: nodeR + 8, ly: 0, anchor: 'start' };
-  const angle = (node._angle || 0) - Math.PI / 2;
   const dist = nodeR + 18 + Math.max(0, ((node.depth || 0) - 3) * 4);
-  const cos = Math.cos(angle);
+
+  /* Radially outward is the empty side for a leaf, and exactly the wrong side
+     for anything with children — that is where its own subtree fans out. The
+     root, Bacteria, Archaea and Eukaryota all had their names stamped across
+     their own branches. So an expanded node throws its label the other way,
+     opposite the average bearing of its children, which is the widest gap
+     around it by construction. */
+  let ux = 0, uy = 0;
+  const kids = node._collapsed ? null : node.children;
+  if (kids && kids.length && Number.isFinite(node._x)) {
+    let sx = 0, sy = 0, n = 0;
+    for (const c of kids) {
+      if (c._hiddenByToggle || !Number.isFinite(c._x)) continue;
+      const dx = c._x - node._x, dy = c._y - node._y;
+      const m = Math.hypot(dx, dy);
+      if (m < 1e-6) continue;
+      sx += dx / m; sy += dy / m; n++;
+    }
+    if (n) {
+      const m = Math.hypot(sx, sy);
+      // Children spread evenly all around cancel out; fall back to radial.
+      if (m / n > 0.25) { ux = -sx / m; uy = -sy / m; }
+    }
+  }
+  if (!ux && !uy) {
+    const angle = (node._angle || 0) - Math.PI / 2;
+    ux = Math.cos(angle); uy = Math.sin(angle);
+  }
   return {
-    lx: Math.cos(angle) * dist,
-    ly: Math.sin(angle) * dist,
-    anchor: cos < -0.15 ? 'end' : cos > 0.15 ? 'start' : 'middle',
+    lx: ux * dist,
+    ly: uy * dist,
+    anchor: ux < -0.15 ? 'end' : ux > 0.15 ? 'start' : 'middle',
   };
 }
 

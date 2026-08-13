@@ -168,16 +168,16 @@ check('tree:fills-stage', 'Tree fills the stage it is given', (c) => {
 });
 
 check('tree:within-stage', 'Tree does not spill off the stage', (c) => {
-  const { treeExtent: t, win } = c.probe;
+  const { treeExtent: t, stage } = c.probe;
   if (!t) fail('could not measure the tree');
   const spill = {
-    left: Math.max(0, -t.left),
-    top: Math.max(0, -t.top),
-    right: Math.max(0, t.left + t.width - win.w),
-    bottom: Math.max(0, t.top + t.height - win.h),
+    left: Math.max(0, stage.left - t.left),
+    top: Math.max(0, stage.top - t.top),
+    right: Math.max(0, t.left + t.width - stage.right),
+    bottom: Math.max(0, t.top + t.height - stage.bottom),
   };
   const worst = Math.max(spill.left, spill.top, spill.right, spill.bottom);
-  const budget = Math.max(16, win.w * (SPILL_MAX - 1));
+  const budget = Math.max(16, stage.width * (SPILL_MAX - 1));
   if (worst > budget) {
     const sides = Object.entries(spill).filter(([, v]) => v > budget)
       .map(([k, v]) => `${k} ${Math.round(v)}px`).join(', ');
@@ -370,9 +370,26 @@ async function probePage(page, scenario) {
     const nanAttrEls = [...document.querySelectorAll('#viewport *')].filter((el) =>
       [...el.attributes].some((a) => /NaN/.test(a.value)));
 
-    // The stage is the full canvas area the tree is given.
-    const stage = byId('canvas-wrap');
-    const sr = stage ? stage.getBoundingClientRect() : { width: innerWidth, height: innerHeight };
+    // The stage is what the tree can actually use: the canvas minus the header,
+    // the timeline and the side rail floating over it. Measuring against the
+    // raw viewport would score a correctly-fitted tree as too small.
+    const sr = (() => {
+      const W = innerWidth, H = innerHeight;
+      let top = 0, bottom = 0, left = 0, right = 0;
+      const h = byId('header');
+      if (visible(h)) top = h.getBoundingClientRect().bottom;
+      const t = byId('timeline');
+      if (visible(t)) bottom = H - t.getBoundingClientRect().top;
+      const rail = byId('left-rail');
+      if (visible(rail)) {
+        const r = rail.getBoundingClientRect();
+        if (r.left + r.width / 2 < W / 2) left = r.right; else right = W - r.left;
+      }
+      return {
+        left, top, right: W - right, bottom: H - bottom,
+        width: Math.max(120, W - left - right), height: Math.max(120, H - top - bottom),
+      };
+    })();
 
     const rootEl = document.querySelector('#viewport g[data-node-id="luca"]');
     const rr = rootEl ? rootEl.getBoundingClientRect() : null;
@@ -458,6 +475,7 @@ async function probePage(page, scenario) {
       fillW: treeExtent && sr.width ? treeExtent.width / sr.width : 0,
       fillH: treeExtent && sr.height ? treeExtent.height / sr.height : 0,
       treeExtent,
+      stage: sr,
       rootOnScreen,
       scrollW: document.documentElement.scrollWidth,
       clientW: document.documentElement.clientWidth,
@@ -506,9 +524,23 @@ async function probePage(page, scenario) {
     const bb = vpg.getBBox();
     const m = /scale\(\s*(-?[\d.]+)/.exec(vpg.getAttribute('transform') || '');
     const s = m ? Number(m[1]) : 1;
-    const stage = document.getElementById('canvas-wrap');
-    const sr = stage ? stage.getBoundingClientRect() : { width: innerWidth, height: innerHeight };
-    return { fillW: (bb.width * s) / sr.width, fillH: (bb.height * s) / sr.height };
+    // Same usable-stage definition as the main probe.
+    const W = innerWidth, H = innerHeight;
+    const seen = (el) => el && el.getBoundingClientRect().height > 0 &&
+      getComputedStyle(el).display !== 'none';
+    const h = document.getElementById('header'), t = document.getElementById('timeline');
+    const rail = document.getElementById('left-rail');
+    let top = seen(h) ? h.getBoundingClientRect().bottom : 0;
+    let bottom = seen(t) ? H - t.getBoundingClientRect().top : 0;
+    let left = 0, right = 0;
+    if (seen(rail)) {
+      const r = rail.getBoundingClientRect();
+      if (r.left + r.width / 2 < W / 2) left = r.right; else right = W - r.left;
+    }
+    return {
+      fillW: (bb.width * s) / Math.max(120, W - left - right),
+      fillH: (bb.height * s) / Math.max(120, H - top - bottom),
+    };
   });
 
   // Parents expand on click, leaves open the detail panel — exercise both.

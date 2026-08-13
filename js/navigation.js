@@ -24,7 +24,7 @@ export function resolveNodeId(id) {
 
 // ── Late-binding deps (set via initNavDeps) ──
 let _showMainPanel, _closePanel, _smoothPanTo, _smoothZoomTo, _scheduleRender;
-let _layout, _centerOnRoot, _applyT, _renderPanelContent;
+let _layout, _centerOnRoot, _fitTreeToStage, _applyT, _renderPanelContent;
 let _closeSpeciesCompare, _closeGame;
 export function initNavDeps(deps) {
   _showMainPanel = deps.showMainPanel;
@@ -34,6 +34,7 @@ export function initNavDeps(deps) {
   _scheduleRender = deps.scheduleRender;
   _layout = deps.layout;
   _centerOnRoot = deps.centerOnRoot;
+  _fitTreeToStage = deps.fitTreeToStage;
   _applyT = deps.applyT;
   _renderPanelContent = deps.renderPanelContent;
   _closeSpeciesCompare = deps.closeSpeciesCompare || deps.closeDnaCalc;
@@ -117,7 +118,7 @@ export function navHome(){
   panel.classList.remove('open');
   updateBreadcrumb(null);
   // Reset zoom/pan
-  _layout();_centerOnRoot(0.18);_scheduleRender(true);_applyT();
+  _layout();_fitTreeToStage();_scheduleRender(true);_applyT();
   history.replaceState(null,'',location.pathname);
   updateNavButtons();
 }

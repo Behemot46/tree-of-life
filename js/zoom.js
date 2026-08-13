@@ -53,16 +53,123 @@ export function smoothZoomTo(wx,wy,targetScale){
 }
 
 export function centerOnTree(scale){
-  const nodes=_getVisible(TREE);
-  if(!nodes.length)return;
-  const xs=nodes.map(n=>n._x),ys=nodes.map(n=>n._y);
-  const cx=(Math.min(...xs)+Math.max(...xs))/2;
-  const cy=(Math.min(...ys)+Math.max(...ys))/2;
-  state.transform={x:window.innerWidth/2-cx*scale,y:window.innerHeight/2-cy*scale,s:scale};
+  const b=treeBounds();
+  if(!b)return;
+  const st=getStageRect();
+  state.transform={x:st.cx-b.cx*scale,y:st.cy-b.cy*scale,s:scale};
 }
 
 export function centerOnRoot(scale){
-  state.transform={x:window.innerWidth/2-TREE._x*scale,y:window.innerHeight/2-TREE._y*scale,s:scale};
+  const st=getStageRect();
+  state.transform={x:st.cx-TREE._x*scale,y:st.cy-TREE._y*scale,s:scale};
+}
+
+// ══════════════════════════════════════════════════════
+// FIT TO STAGE
+// ══════════════════════════════════════════════════════
+
+// Scale bounds for the automatic fit. The upper bound stops a nearly-collapsed
+// tree from being blown up to absurd size; the lower bound keeps a fully
+// expanded one from vanishing.
+const FIT_MIN_SCALE=0.04;
+const FIT_MAX_SCALE=1.6;
+// Breathing room around the tree, as a fraction of the usable stage.
+const FIT_PADDING=0.06;
+
+function isVisible(el){
+  if(!el) return false;
+  const s=getComputedStyle(el);
+  if(s.display==='none'||s.visibility==='hidden'||parseFloat(s.opacity)<0.02) return false;
+  const r=el.getBoundingClientRect();
+  return r.width>0&&r.height>0;
+}
+
+/* The usable stage: the canvas minus the chrome floating over it. The header
+   and timeline span the full width, and the left rail hugs the leading edge
+   (the right edge in RTL). Corner widgets — zoom buttons, reveal panel — are
+   deliberately not subtracted; reserving their full height would waste most of
+   the screen, and the tree passing behind their corner is fine. */
+export function getStageRect(){
+  const W=window.innerWidth,H=window.innerHeight;
+  let top=0,bottom=0,left=0,right=0;
+
+  const header=document.getElementById('header');
+  if(isVisible(header)) top=Math.max(top,header.getBoundingClientRect().bottom);
+
+  const timeline=document.getElementById('timeline');
+  if(isVisible(timeline)) bottom=Math.max(bottom,H-timeline.getBoundingClientRect().top);
+
+  const rail=document.getElementById('left-rail');
+  if(isVisible(rail)){
+    const r=rail.getBoundingClientRect();
+    // The rail is a floating panel, so decide which edge it belongs to by
+    // which half of the screen it sits in rather than by reading `dir`.
+    if(r.left+r.width/2<W/2) left=Math.max(left,r.right);
+    else right=Math.max(right,W-r.left);
+  }
+
+  const w=Math.max(120,W-left-right);
+  const h=Math.max(120,H-top-bottom);
+  return {x:left,y:top,w,h,cx:left+w/2,cy:top+h/2};
+}
+
+/* Bounding box of everything currently on screen, in world coordinates.
+   Nodes without a position are skipped — species hidden by the toggle never
+   get one, and letting NaN in here would poison the whole fit. */
+function treeBounds(){
+  const nodes=_getVisible(TREE);
+  let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity,n=0;
+  for(const node of nodes){
+    if(!Number.isFinite(node._x)||!Number.isFinite(node._y)) continue;
+    const r=node.r||12;
+    if(node._x-r<minX)minX=node._x-r;
+    if(node._x+r>maxX)maxX=node._x+r;
+    if(node._y-r<minY)minY=node._y-r;
+    if(node._y+r>maxY)maxY=node._y+r;
+    n++;
+  }
+  if(!n) return null;
+  const w=Math.max(1,maxX-minX),h=Math.max(1,maxY-minY);
+  return {minX,maxX,minY,maxY,w,h,cx:(minX+maxX)/2,cy:(minY+maxY)/2};
+}
+
+/* True extent of what is drawn, labels included, in world coordinates.
+   getBBox() ignores the transform on #viewport itself, and labels are sized in
+   world units, so this is independent of the current zoom — which is what lets
+   a single fit pass be exact rather than iterative. Returns null before the
+   first render. */
+function renderedBounds(){
+  const vp=document.getElementById('viewport');
+  if(!vp) return null;
+  let bb;
+  try{ bb=vp.getBBox(); }catch{ return null; }
+  if(!bb||!bb.width||!bb.height||!Number.isFinite(bb.width)) return null;
+  return {w:bb.width,h:bb.height,cx:bb.x+bb.width/2,cy:bb.y+bb.height/2};
+}
+
+function applyFit(b){
+  const st=getStageRect();
+  const s=Math.min(st.w/b.w,st.h/b.h)*(1-FIT_PADDING);
+  const scale=Math.min(FIT_MAX_SCALE,Math.max(FIT_MIN_SCALE,s));
+  state.transform={x:st.cx-b.cx*scale,y:st.cy-b.cy*scale,s:scale};
+}
+
+/* Scale and centre the tree so it fills the usable stage. This is the single
+   entry point for framing — start-up, reset, view switches and resize all use
+   it, so the tree is always as large as it can be without spilling. */
+export function fitTreeToStage(){
+  const rendered=renderedBounds();
+  const b=rendered||treeBounds();
+  if(!b) return;
+  applyFit(b);
+  if(!rendered){
+    // Nothing was drawn yet, so the fit came from node positions alone and did
+    // not account for labels. Correct once the first frame exists.
+    requestAnimationFrame(()=>{
+      const rb=renderedBounds();
+      if(rb){ applyFit(rb); applyT(); }
+    });
+  }
 }
 
 // ══════════════════════════════════════════════════════
@@ -109,7 +216,7 @@ export function initPointerEvents(){
 
   document.getElementById('btn-in').addEventListener('click',()=>{state.transform.s=Math.min(6,state.transform.s*1.2);applyT();});
   document.getElementById('btn-out').addEventListener('click',()=>{state.transform.s=Math.max(0.05,state.transform.s*0.83);applyT();});
-  document.getElementById('btn-reset').addEventListener('click',()=>{_layout();centerOnRoot(0.18);_scheduleRender(true);applyT();});
+  document.getElementById('btn-reset').addEventListener('click',()=>{_layout();fitTreeToStage();_scheduleRender(true);applyT();});
 }
 
 // ══════════════════════════════════════════════════════

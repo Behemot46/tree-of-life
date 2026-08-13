@@ -1,6 +1,15 @@
 
 /* ── BACKGROUND ── */
-#bg{position:fixed;inset:0;z-index:var(--z-base);pointer-events:none;background:var(--bg);}
+/* Atmosphere. A flat fill reads as "unstyled dark"; a faint lift behind the
+   tree with cool and warm pools at opposite corners gives the stage depth and
+   a centre of gravity before a single branch is drawn. Overridden wholesale by
+   the light theme. */
+#bg{position:fixed;inset:0;z-index:var(--z-base);pointer-events:none;
+  background:
+    radial-gradient(1300px 850px at 50% 44%, #0E1A24 0%, rgba(14,26,36,0) 62%),
+    radial-gradient(900px 620px at 84% 10%, rgba(63,211,176,0.075), transparent 60%),
+    radial-gradient(820px 620px at 12% 92%, rgba(242,172,82,0.06), transparent 58%),
+    var(--bg);}
 #bg::after{display:none;}
 
 /* ── PARTICLES ── */

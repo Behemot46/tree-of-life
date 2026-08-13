@@ -522,7 +522,7 @@ function init(){
   updateEraTint(state.currentEra);
   buildSearchIndex();
   // Restore saved theme & language
-  state.isDark=localStorage.getItem('theme')==='dark';
+  state.isDark=(localStorage.getItem('theme')||'dark')!=='light';
   applyTheme();
   state.currentLang=localStorage.getItem('tol-lang')||'en';
   document.documentElement.dir=state.currentLang==='he'?'rtl':'ltr';

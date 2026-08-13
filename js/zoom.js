@@ -138,8 +138,11 @@ export function getStageRect(){
 function nodeExtent(node){
   const r=node.r||12;
   const fs=node.depth===0?14:node.depth===1?12:10;
-  const halfLabel=((node.name||'').length*fs*0.55)/2;
-  return {hx:Math.max(r,halfLabel), hyUp:r, hyDown:r+fs+14};
+  // Full label width, not half: the renderer anchors labels to one side of the
+  // node depending on its angle, so a label runs entirely left or entirely
+  // right. Reserving half of it clips the outermost names against the stage.
+  const label=(node.name||'').length*fs*0.55;
+  return {hx:Math.max(r,label), hyUp:r, hyDown:r+fs+14};
 }
 
 /* Bounding box of everything currently on screen, in world coordinates.

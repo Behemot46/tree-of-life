@@ -399,7 +399,7 @@ async function probePage(page, scenario) {
         if (!Number.isFinite(n._x) || !Number.isFinite(n._y)) continue;
         const r = n.r || 12;
         const fs = n.depth === 0 ? 14 : n.depth === 1 ? 12 : 10;
-        const half = Math.max(r, ((n.name || '').length * fs * 0.55) / 2);
+        const half = Math.max(r, (n.name || '').length * fs * 0.55);
         minX = Math.min(minX, n._x - half); maxX = Math.max(maxX, n._x + half);
         minY = Math.min(minY, n._y - r);    maxY = Math.max(maxY, n._y + r + 26);
       }
@@ -726,7 +726,7 @@ async function probePage(page, scenario) {
       if (!Number.isFinite(n._x) || !Number.isFinite(n._y)) continue;
       const r = n.r || 12;
       const fs = n.depth === 0 ? 14 : n.depth === 1 ? 12 : 10;
-      const half = Math.max(r, ((n.name || '').length * fs * 0.55) / 2);
+      const half = Math.max(r, (n.name || '').length * fs * 0.55);
       minX = Math.min(minX, n._x - half); maxX = Math.max(maxX, n._x + half);
       minY = Math.min(minY, n._y - r);    maxY = Math.max(maxY, n._y + r + 26);
     }

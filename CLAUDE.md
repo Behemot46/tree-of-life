@@ -1,13 +1,60 @@
 # CLAUDE.md — Tree of Life Project Guide
 
+## Working Agreement
+
+How Gabi and Claude work on this project. This section takes precedence over
+any default behaviour.
+
+### Ownership of git & GitHub
+
+Gabi never deals with git or GitHub mechanics. Claude owns the whole loop:
+branch, commit, push, open the PR, watch CI, fix failures, merge, delete the
+branch. Outcomes are reported in plain language — never as diffs or command
+transcripts.
+
+- Always work on a feature branch. Never commit directly to `main`.
+- Never end a session with unpushed work.
+- Every PR that changes the site must be visually verified before merge
+  (see *Visual verification* below).
+
+### Code words
+
+| Word | Means |
+|---|---|
+| **ship it** | Commit, push, open PR, get CI green, merge, delete the branch. |
+| **checkpoint** | Commit and push. No PR. |
+| **status** | Plain-language summary of where things stand. No diffs. |
+| **hold** | Push and open the PR, then stop and wait for Gabi's approval to merge. |
+
+### Language
+
+Reply in whichever language Gabi used last — English, Hebrew and Russian are
+all fine. Code, commit messages, PR text and documentation stay in English.
+
+### Visual verification
+
+Before merging anything that changes the site, open it in a real browser
+(Chromium is preinstalled for Playwright) and confirm it looks right:
+
+- **Desktop** (1440×900) **and phone** (390×844) viewports.
+- **Hebrew** as well as English — the site is trilingual and Hebrew is RTL.
+- Show Gabi screenshots, not diffs.
+
+`node scripts/smoke.mjs` automates the mechanical half of this; screenshots
+land in `.smoke-out/`. It is not a substitute for looking at the result.
+
+---
+
 ## Project Overview
 
 **Tree of Life** is an interactive, browser-based phylogenetic visualization of 3.8 billion years of evolutionary history. Users can explore the tree of life, expand taxonomic nodes, search for species, and view detailed information panels with photos, Wikipedia summaries, and conservation status data.
 
 - **Tech stack:** Vanilla JavaScript, D3.js (CDN, not actively used yet), HTML5, CSS3
 - **No build step** — open `index.html` directly or use `node serve.js`
-- **No package manager** — zero npm dependencies; D3.js loaded from CDN
-- **Deployment:** GitHub Pages via `.github/workflows/deploy.yml` (auto-deploys on push to `master`)
+- **No package manager for the site** — the page itself ships zero npm
+  dependencies; D3.js loads from CDN. `package.json` exists only to pin
+  Playwright for the smoke tests, and is never shipped to the browser.
+- **Deployment:** GitHub Pages via `.github/workflows/deploy.yml` (auto-deploys on push to `main`)
 
 ---
 
@@ -179,7 +226,9 @@ No install step needed. Open `http://localhost:5555` in a browser. Alternatively
 
 ## Known Constraints & Important Notes
 
-1. **No tests** — verify changes by running locally and testing in browser.
+1. **Tests are browser smoke checks, not unit tests** — `node scripts/smoke.mjs`
+   opens the real page in Chromium and asserts ~30 things about layout, i18n
+   and rendering. See *Smoke tests* below.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
 3. **index.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
 4. **ES modules everywhere** — all data and application files use `export`/`import`. No global `<script>` tags.
@@ -195,7 +244,12 @@ No install step needed. Open `http://localhost:5555` in a browser. Alternatively
 1. Edit files directly — no build step required
 2. Test in browser at `http://localhost:5555` (run `node serve.js`)
 3. Edit CSS in the appropriate file under `css/` (organized by concern)
-4. Verify all three languages (`?lang=en`, `?lang=he`, `?lang=ru`) if touching UI text
+4. Run `npm run smoke` and look at the screenshots in `.smoke-out/`
+5. Verify all three languages if touching UI text. **Note:** there is no
+   `?lang=` URL parameter — the language is read from the `tol-lang`
+   localStorage key at startup. Switch with the language buttons, or seed
+   `localStorage.setItem('tol-lang','he')` before load (which is what the
+   smoke runner does).
 
 ### Adding a New Data Module
 
@@ -205,7 +259,53 @@ No install step needed. Open `http://localhost:5555` in a browser. Alternatively
 
 ### Deployment
 
-Push to `master` → GitHub Actions automatically deploys to GitHub Pages. No manual steps needed.
+Push to `main` → GitHub Actions automatically deploys to GitHub Pages. No manual steps needed.
+
+---
+
+## Smoke Tests
+
+`scripts/smoke.mjs` opens the real page in Chromium and asserts ~35 things per
+scenario across five scenarios — desktop and phone viewports, in English,
+Hebrew and Russian. It runs on every push and pull request via
+`.github/workflows/smoke.yml`, and replaces the old `deploy-check.yml`, which
+only checked that files existed.
+
+```bash
+npm run smoke                        # serve ./ and check it
+node scripts/smoke.mjs --url https://example.com   # check a deployed site
+npm run smoke:update-baseline        # re-record known failures
+```
+
+Screenshots for every scenario land in `.smoke-out/` (git-ignored, and uploaded
+as a CI artifact on every run).
+
+### What it checks
+
+| Group | Covers |
+|---|---|
+| `load:` | uncaught errors, failed requests, SVG render errors, splash dismissal, nothing covering the stage |
+| `tree:` | node and branch counts, **NaN coordinates**, fit-to-stage, spill, root visibility, horizontal scroll |
+| `chrome:` | header/timeline visible, reveal panel vs. zoom controls and timeline, closed panel off-screen, tooltip and fact toast vs. header |
+| `timeline:` | geological era labels clipped or colliding |
+| `i18n:` | document direction and lang, every bound control matches its translation, missing translation keys, Latin text leaking into Hebrew, search placeholder |
+| `interact:` | zoom buttons, reset re-fits, parent expands, leaf opens panel, search returns results |
+
+### The baseline
+
+`scripts/smoke-baseline.json` records checks that are **known to fail today**.
+This lets the suite land red-in-truth but green-in-CI, so it can be written
+before the bugs are fixed.
+
+The run fails if:
+
+- a check that is **not** baselined fails — a regression, or a newly found bug;
+- a check that **is** baselined starts passing — the fix landed, so its entry
+  must be deleted. This is deliberate: it makes each fix delete its own
+  baseline entry, and the file shrinks to nothing as the backlog clears.
+
+When adding a translated control, add a row to `I18N_BINDINGS` in
+`scripts/smoke.mjs` so it is covered.
 
 ---
 

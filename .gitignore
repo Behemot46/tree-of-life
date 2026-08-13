@@ -7,3 +7,6 @@ node_modules/
 *.tmp
 .claude/worktrees/
 .worktrees/
+
+# smoke test output
+.smoke-out/

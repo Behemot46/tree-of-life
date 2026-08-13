@@ -125,15 +125,21 @@ export function branchPath(x1,y1,x2,y2){
 // ══════════════════════════════════════════════════════
 
 const _gradCache=new Map();
-function getBranchGradId(fromColor,toColor){
-  const key=fromColor+'|'+toColor;
+/* A branch reads as one limb growing into another when its stroke fades from
+   the parent's colour to the child's. The gradient has to run *along* the
+   branch, so the vector is chosen from the direction the branch travels;
+   quantising it to four quadrants keeps the number of gradient defs to a
+   handful per colour pair instead of one per branch. */
+function getBranchGradId(fromColor,toColor,dx,dy){
+  const qx=dx>=0?1:0, qy=dy>=0?1:0;
+  const key=fromColor+'|'+toColor+'|'+qx+qy;
   if(_gradCache.has(key)) return _gradCache.get(key);
   const id='bg-'+(Math.random()*1e9|0);
   const defs=document.getElementById('svg').querySelector('defs');
   const grad=document.createElementNS('http://www.w3.org/2000/svg','linearGradient');
   grad.id=id;
-  grad.setAttribute('x1','0');grad.setAttribute('y1','0');
-  grad.setAttribute('x2','1');grad.setAttribute('y2','0');
+  grad.setAttribute('x1',String(1-qx));grad.setAttribute('y1',String(1-qy));
+  grad.setAttribute('x2',String(qx));grad.setAttribute('y2',String(qy));
   const s1=document.createElementNS('http://www.w3.org/2000/svg','stop');
   s1.setAttribute('offset','0%');s1.setAttribute('stop-color',fromColor);
   const s2=document.createElementNS('http://www.w3.org/2000/svg','stop');
@@ -145,17 +151,22 @@ function getBranchGradId(fromColor,toColor){
 }
 
 function getBranchWidth(depth){
-  if(depth<=0) return 5;
-  if(depth===1) return 3.5;
-  if(depth===2) return 2.5;
-  return 1.5;
+  if(depth<=0) return 6;
+  if(depth===1) return 4.2;
+  if(depth===2) return 3;
+  if(depth===3) return 2.2;
+  return 1.7;
 }
 
+/* Atmospheric recession: deeper branches sit further "back" and soften. The
+   old values bottomed out at 0.3, which reads as ghostly against a dark
+   ground rather than distant. */
 function getBranchOpacity(depth){
-  if(depth<=0) return 0.8;
-  if(depth===1) return 0.6;
-  if(depth===2) return 0.45;
-  return 0.3;
+  if(depth<=0) return 0.95;
+  if(depth===1) return 0.88;
+  if(depth===2) return 0.78;
+  if(depth===3) return 0.66;
+  return 0.55;
 }
 
 // Count collapsed siblings at the same level (for ghost clutter control)
@@ -263,14 +274,34 @@ export function render(){
     }
     if(!inEra) op=0.12;
 
-    // Gradient color for cladogram: brown → domain color
-    if(isCladogram&&!onEvoPath&&!onHumanPath){
+    // Parent colour flowing into child colour, in every view mode. This used
+    // to be cladogram-only; the radial tree drew flat single-colour strokes.
+    let strokePaint;
+    if(onEvoPath) strokePaint='var(--accent-secondary)';
+    else if(onHumanPath) strokePaint='var(--accent-primary)';
+    else {
       const fromColor=to.depth<=1?branchBrown:(from.color||branchBrown);
       const toColor=to.color||branchBrown;
-      const gradId=getBranchGradId(fromColor,toColor);
-      p.setAttribute('stroke','url(#'+gradId+')');
-    } else {
-      p.setAttribute('stroke',onEvoPath?'var(--accent-secondary)':(onHumanPath?'var(--accent-primary)':to.color));
+      strokePaint='url(#'+getBranchGradId(fromColor,toColor,to._x-from._x,to._y-from._y)+')';
+    }
+    p.setAttribute('stroke',strokePaint);
+
+    /* Bloom: a wider, faint copy of the stroke underneath, so the branch emits
+       instead of sitting flat on the ground. Cheaper than an SVG blur filter,
+       which would cost a full offscreen pass per branch. Limited to the trunk
+       and the human lineage — the depths where it reads, and few enough
+       elements to stay light. */
+    if(inEra && (to.depth<=2 || onHumanPath) && !state.playbackMode){
+      const bloom=document.createElementNS('http://www.w3.org/2000/svg','path');
+      bloom.setAttribute('d',d);
+      bloom.setAttribute('class','branch-bloom');
+      bloom.setAttribute('fill','none');
+      bloom.setAttribute('stroke',strokePaint);
+      bloom.setAttribute('stroke-width',getBranchWidth(to.depth)*3.2);
+      bloom.setAttribute('stroke-opacity',onHumanPath?0.22:0.14);
+      bloom.setAttribute('stroke-linecap','round');
+      bloom.style.pointerEvents='none';
+      branchFrag.appendChild(bloom);
     }
 
     p.setAttribute('stroke-width',onEvoPath||onHumanPath?Math.max(sw,2):sw);
@@ -480,7 +511,12 @@ export function render(){
     // ── HUMAN PATH: golden border + arrow for collapsed nodes on the path ──
     const isOnHumanPathCollapsed=isCollapsed&&onHumanPath;
     const borderColor=isOnHumanPathCollapsed?'var(--tree-human-path)':n.color;
-    const borderWidth=n.depth===0?3.5:n.depth<=1?2.5:2;
+    /* Ring weight encodes rank. Ranked groups — anything whose latin name
+       carries a rank prefix — get a heavier ring than a species, so a kingdom
+       never reads like a single organism at the same glance. */
+    const isRankedGroup=/^(Domain|Kingdom|Phylum|Subphylum|Superphylum|Division|Class|Subclass|Order|Suborder|Superorder|Infraorder|Family|Tribe|Clade|Paraphyletic|Superkingdom|Supergroup)\b/
+      .test(n.latin||'');
+    const borderWidth=n.depth===0?4:n.depth<=1?3:isRankedGroup?2.4:1.6;
 
     // Highlight ring (search)
     if(isHighlighted){
@@ -602,6 +638,19 @@ export function render(){
     border.setAttribute('class','node-border');
     border.style.setProperty('--nc',n.color);
     if(n.extinct){border.setAttribute('stroke-dasharray','4 2');border.setAttribute('opacity','0.6');}
+    // A soft halo behind ranked groups, so the eye reads hierarchy before text.
+    if(isRankedGroup||n.depth<=1){
+      const halo=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      halo.setAttribute('cx',n._x);halo.setAttribute('cy',n._y);
+      halo.setAttribute('r',nodeR+(n.depth<=1?7:4));
+      halo.setAttribute('fill','none');
+      halo.setAttribute('stroke',n.color);
+      halo.setAttribute('stroke-width',n.depth<=1?3:2);
+      halo.setAttribute('stroke-opacity',n.depth<=1?0.20:0.13);
+      halo.setAttribute('class','node-halo');
+      halo.style.pointerEvents='none';
+      g.insertBefore(halo,g.firstChild);
+    }
     g.appendChild(border);
 
     // ── COLLAPSED-BY-DEFAULT AFFORDANCES: glowing ring + toggle badge ──

@@ -33,12 +33,16 @@ const page = await ctx.newPage();
 page.on('console', (m) => { if (m.type() === 'error') console.log('  console.error:', m.text()); });
 page.on('pageerror', (e) => console.log('  pageerror:', e.message));
 
-await page.addInitScript((l) => { localStorage.setItem('tol-lang', l); localStorage.setItem('tol-intro-seen', '1'); }, lang);
+await page.addInitScript((o) => {
+  localStorage.setItem('tol-lang', o.lang);
+  localStorage.setItem('tol-intro-seen', '1');
+  if (o.theme) localStorage.setItem('theme', o.theme);
+}, { lang, theme: arg('theme', '') });
 await page.goto('http://localhost:5555/', { waitUntil: 'networkidle' });
 await page.evaluate(() => document.querySelector('#splash')?.remove());
 await sleep(1600);
 
-const tag = `${phone ? 'phone' : 'desk'}-${lang}`;
+const tag = `${phone ? 'phone' : 'desk'}-${lang}${arg('theme','') ? '-' + arg('theme','') : ''}`;
 await page.screenshot({ path: `${OUT}/${tag}-01-initial.png` });
 
 // Expand a couple of levels the way a visitor would.

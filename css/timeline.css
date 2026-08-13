@@ -19,9 +19,13 @@
 .era-seg{height:100%;position:relative;transition:filter 0.2s;display:flex;align-items:center;
   justify-content:center;overflow:hidden;cursor:pointer;}
 .era-seg:hover{filter:brightness(1.25);}
-.era-seg-label{font-size:var(--text-2xs);color:rgba(255,255,255,0.85);font-weight:600;letter-spacing:0.04em;
-  text-transform:uppercase;white-space:nowrap;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,0.5);}
-[data-theme="light"] .era-seg-label{color:rgba(0,0,0,0.7);text-shadow:0 1px 2px rgba(255,255,255,0.5);}
+/* Ink is chosen per segment against that segment's own colour — see
+   buildEraSegments(). A single colour for the whole strip cannot work: it runs
+   from a near-black Hadean to a bright yellow Neogene. */
+.era-seg-label{font-size:var(--text-2xs);font-weight:700;letter-spacing:0.04em;
+  text-transform:uppercase;white-space:nowrap;pointer-events:none;}
+.era-seg-label.on-dark{color:#fff;text-shadow:0 1px 2px rgba(0,0,0,0.55);}
+.era-seg-label.on-light{color:#14100C;text-shadow:0 1px 2px rgba(255,255,255,0.45);}
 #tl-thumb{position:absolute;top:50%;transform:translate(-50%,-50%);width:18px;height:26px;border-radius:4px;
   background:var(--accent-primary);border:2px solid rgba(255,255,255,0.9);
   box-shadow:0 2px 8px rgba(0,0,0,0.35),0 0 0 2px rgba(var(--accent-rgb),0.3);

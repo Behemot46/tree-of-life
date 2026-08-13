@@ -58,6 +58,13 @@ const SCENARIOS = [
   { id: 'desktop-ru', viewport: DESKTOP, lang: 'ru' },
   { id: 'phone-en', viewport: PHONE, lang: 'en' },
   { id: 'phone-he', viewport: PHONE, lang: 'he' },
+  /* The light theme is a whole second palette, and a dark-first design fails
+     there quietly: the reveal panel painted itself near-black while its text
+     followed the theme, so "Collapse All" sat at a contrast ratio of 1.15 —
+     in the DOM, invisible on screen. Loaded rather than toggled at runtime,
+     because the theme switch also rebuilds the era strip and the density
+     curve in JS, and half-applying it measures a page nobody sees. */
+  { id: 'desktop-en-light', viewport: DESKTOP, lang: 'en', theme: 'light' },
 ];
 
 // Elements whose text must equal the translation for the active language.
@@ -367,6 +374,11 @@ check('i18n:panel-prose-reads-as-english', 'English species prose is laid out le
   const p = c.probe.panelProse;
   if (!p || !p.checked) return;
   if (p.wrong.length) fail(`${p.wrong.length} English block(s) laid out RTL: ${p.wrong.join(', ')}`);
+});
+
+check('a11y:text-contrast', 'Text meets AA contrast against its background', (c) => {
+  const { theme, hits } = c.probe.contrast || { theme: '?', hits: [] };
+  if (hits.length) fail(`${hits.length} element(s) below AA in the ${theme} theme: ${hits.slice(0, 4).join(', ')}`);
 });
 
 check('chrome:panel-hero-readable', 'Nothing is printed over the species name', (c) => {
@@ -737,6 +749,53 @@ async function probePage(page, scenario) {
     const onScreen = r.right > 8 && r.left < innerWidth - 8 && r.top < innerHeight - 8 && r.bottom > 8;
     return onScreen && r.width > 0;
   });
+  /* Contrast, in both themes. Colour is where a dark-first design quietly
+     fails: the reveal panel painted itself near-black while its text followed
+     the theme, so in light mode "Collapse All" sat at a ratio of 1.15 — present
+     in the DOM, invisible on screen. Measured against the effective background
+     (walking up through transparent ancestors), to the WCAG AA thresholds.
+     Text that is only emoji is skipped: it carries its own colours. */
+  const contrast = await page.evaluate(() => {
+    const parse = (c) => { const m = /rgba?\(([^)]+)\)/.exec(c); if (!m) return null;
+      const [r, g, b, a] = m[1].split(',').map(Number); return { r, g, b, a: a === undefined ? 1 : a }; };
+    const lum = (c) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+      return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b); };
+    const over = (fg, bg) => ({ r: fg.r * fg.a + bg.r * (1 - fg.a), g: fg.g * fg.a + bg.g * (1 - fg.a),
+      b: fg.b * fg.a + bg.b * (1 - fg.a), a: 1 });
+    const ratio = (a, b) => { const l1 = lum(a), l2 = lum(b); return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05); };
+    const effBg = (el) => {
+      let cur = el, acc = null;
+      while (cur) {
+        const c = parse(getComputedStyle(cur).backgroundColor);
+        if (c && c.a > 0.02) { acc = acc ? over(acc, c) : c; if (c.a >= 0.99) return over(acc, { r: 255, g: 255, b: 255, a: 1 }); }
+        cur = cur.parentElement;
+      }
+      return { r: 20, g: 20, b: 20, a: 1 };
+    };
+    const EMOJI_ONLY = /^[\p{Extended_Pictographic}\p{Emoji_Component}\s\u200d\ufe0f]+$/u;
+    const sweep = () => {
+      const out = [];
+      for (const el of document.querySelectorAll('body *')) {
+        const txt = [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent.trim()).join('').trim();
+        if (txt.length < 2 || EMOJI_ONLY.test(txt)) continue;
+        const st = getComputedStyle(el);
+        if (st.display === 'none' || st.visibility === 'hidden' || parseFloat(st.opacity) < 0.15) continue;
+        const r = el.getBoundingClientRect();
+        // Off-screen and clipped affordances — skip links park above the
+        // viewport until focused, and 1px boxes are for screen readers.
+        if (r.width < 10 || r.height < 8) continue;
+        if (r.bottom <= 0 || r.top >= innerHeight || r.right <= 0 || r.left >= innerWidth) continue;
+        const fg = parse(st.color); if (!fg) continue;
+        const bg = effBg(el);
+        const cr = ratio(over(fg, bg), bg);
+        const big = parseFloat(st.fontSize) >= 24 || (parseFloat(st.fontSize) >= 18.66 && parseInt(st.fontWeight, 10) >= 700);
+        if (cr < (big ? 3 : 4.5)) out.push(`${txt.slice(0, 18)} (${cr.toFixed(2)})`);
+      }
+      return out;
+    };
+    return { theme: document.documentElement.getAttribute('data-theme') || 'dark', hits: sweep() };
+  });
+
   /* Species prose is English by policy, so it has to be laid out as English.
      In an RTL paragraph the trailing punctuation of a Latin sentence is
      reordered to the far end — "…that nourish colon .cells" — which is how
@@ -881,7 +940,7 @@ async function probePage(page, scenario) {
   // than on load. This supersedes the value collected in the first pass.
   const cspViolations = [...new Set(await page.evaluate(() => window.__cspViolations || []))];
 
-  return { ...base, ...forced, tooltipShown, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps,
+  return { ...base, ...forced, tooltipShown, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps, contrast,
            searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations };
 }
 
@@ -942,8 +1001,9 @@ async function runScenario(browser, scenario, baseUrl) {
 
   // Seed preferences so the run is deterministic: chosen language, no guided
   // tour modal, no idle nudges.
-  await ctx.addInitScript((lang) => {
-    localStorage.setItem('tol-lang', lang);
+  await ctx.addInitScript((cfg) => {
+    localStorage.setItem('tol-lang', cfg.lang);
+    localStorage.setItem('theme', cfg.theme);
     localStorage.setItem('tol-tour-done', '1');
     localStorage.setItem('tol-splash-seen', '1');
     // A Content-Security-Policy that blocks something the page needs fails
@@ -953,7 +1013,7 @@ async function runScenario(browser, scenario, baseUrl) {
       window.__cspViolations.push(
         `${e.violatedDirective} blocked ${e.blockedURI || 'inline'}`);
     });
-  }, scenario.lang);
+  }, { lang: scenario.lang, theme: scenario.theme || 'dark' });
 
   const page = await ctx.newPage();
   const pageErrors = [], consoleErrors = [], failedRequests = [];

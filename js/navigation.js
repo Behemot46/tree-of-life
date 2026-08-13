@@ -193,10 +193,14 @@ export function updateBreadcrumb(n){
 
   bc.innerHTML=displayPath.map((p,i)=>{
     const isLast=i===displayPath.length-1;
-    const color=p.color||'var(--parchment)';
-    const style=isLast?`color:${color};font-weight:600`:`color:${color};opacity:0.5`;
-    if(p.id==='_ellipsis') return `<span class="bc-item" style="opacity:0.3">…</span><span class="bc-sep">›</span>`;
-    return `<span class="bc-item ${isLast?'active':''}" style="${style}" onclick="${isLast?'':`collapseBelow('${p.id}')`}">${p.icon} ${p.name}</span>${isLast?'':'<span class="bc-sep">›</span>'}`;
+    /* The node's colour rides on a dot, not on the words. Node colours are
+       picked to read as discs against the canvas, and several of them — the
+       pale bacterial blues especially — fall below the contrast floor as small
+       text on the chrome. A crumb in every colour of the tree was noisy as
+       well as illegible. */
+    const dot=p.color?`<i class="bc-dot" style="background:${p.color}"></i>`:'';
+    if(p.id==='_ellipsis') return `<span class="bc-item bc-ellipsis">…</span><span class="bc-sep">›</span>`;
+    return `<span class="bc-item ${isLast?'active':''}" onclick="${isLast?'':`collapseBelow('${p.id}')`}">${dot}${p.icon} ${p.name}</span>${isLast?'':'<span class="bc-sep">›</span>'}`;
   }).join('');
 }
 /* Collapse everything below a given node and zoom to fit its children */

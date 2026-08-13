@@ -2,7 +2,7 @@
 
 /* ── SKIP TO CONTENT ── */
 .skip-link{position:absolute;top:-100%;left:50%;transform:translateX(-50%);
-  padding:0.6rem 1.2rem;background:var(--accent-primary);color:#fff;font-size:0.85rem;
+  padding:0.6rem 1.2rem;background:var(--accent-primary);color:#17120B;font-size:0.85rem;
   font-family:var(--font-sans);font-weight:600;border-radius:0 0 var(--radius-md) var(--radius-md);
   z-index:var(--z-tour);text-decoration:none;transition:top 0.2s ease;}
 .skip-link:focus{top:0;outline:2px solid var(--accent-primary);outline-offset:2px;}
@@ -38,6 +38,9 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,.lang-btn:focus-
   --accent-primary-dim:rgba(242,172,82,0.14);
   --accent-secondary:#3FD3B0;
   --accent-secondary-dim:rgba(63,211,176,0.14);
+  /* The secondary accent as ink. The display colour is tuned to glow on the
+     dark ground; as small text it needs its own value per theme. */
+  --accent-secondary-text:#5FE0C2;
   --accent-success:#5b9a6b;
   --accent-danger:#c45c4a;
   --panel-bg:rgba(28,31,36,0.97);

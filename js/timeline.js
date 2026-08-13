@@ -315,7 +315,8 @@ export function buildEraSegments(){
     const div=document.createElement('div');
     div.className='era-seg';
     div.style.width=widthPct+'%';
-    div.style.background=isLight?seg.colorLight:seg.color;
+    const segColor=isLight?seg.colorLight:seg.color;
+    div.style.background=segColor;
     div.dataset.segId=seg.id;
     div.dataset.min=clampedMin;
     div.dataset.max=clampedMax;
@@ -325,6 +326,11 @@ export function buildEraSegments(){
     if(widthPct>3){
       const label=document.createElement('span');
       label.className='era-seg-label';
+      /* Ink chosen against this segment's own colour. The strip runs from a
+         near-black Hadean to a bright yellow Neogene, and one fixed white for
+         all of them left "Neogene" at a contrast ratio of 1.2 — the word was
+         there, and unreadable. */
+      label.classList.add(isDarkColor(segColor)?'on-dark':'on-light');
       label.textContent=name;
       div.appendChild(label);
     }
@@ -354,6 +360,31 @@ function hideOverflowingEraLabels(container){
       label.style.display=(label.scrollWidth+6>available)?'none':'';
     });
   });
+}
+
+/* Perceived lightness of a CSS colour, as the WCAG relative luminance. The era
+   palette is authored as hex and rgb() strings; anything unparseable is assumed
+   dark, which is the safe default against this mostly-saturated strip. */
+function isDarkColor(css){
+  if(!css) return true;
+  let r,g,b;
+  const hex=/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(css.trim());
+  if(hex){
+    let h=hex[1];
+    if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    const v=parseInt(h,16);
+    r=(v>>16)&255;g=(v>>8)&255;b=v&255;
+  } else {
+    const m=/rgba?\(([^)]+)\)/.exec(css);
+    if(!m) return true;
+    [r,g,b]=m[1].split(',').map(Number);
+  }
+  const f=v=>{v/=255;return v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4);};
+  /* 0.179 is where white and black give identical contrast against a colour:
+     (L+0.05)^2 = 0.05 * 1.05. Choosing the better of the two at that boundary
+     guarantees at least 4.58 against any segment in the strip. Eyeballing the
+     threshold instead left Jurassic at 2.4 — white on a mid blue. */
+  return 0.2126*f(r)+0.7152*f(g)+0.0722*f(b)<0.179;
 }
 
 /* Node density sparkline — when life diversified, drawn under the era track.

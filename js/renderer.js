@@ -5,7 +5,7 @@
 
 import { state, nodeMap, animDone, confirmedPhotoUrls, HUMAN_PATH } from './state.js';
 import { getVisible, getVisibleEdges, countDescendants } from './layout.js';
-import { reducedMotion } from './utils.js';
+import { reducedMotion, displayName } from './utils.js';
 import { getPlaybackNodeState, discoverNode, showDiscoveryCard } from './playback.js';
 import { isExplored } from './engagement.js';
 import { nodeInEra } from './timeline.js';
@@ -381,7 +381,7 @@ export function render(){
       chip.style.color=n.color;
       chip.style.height=`${pillH}px`;
       chip.textContent=`${n.icon} ${n.name} ${indicator}`;
-      chip.addEventListener('mouseenter',()=>{chip.style.borderColor=n.color;chip.style.background=n.color+'44';_showTip(n.name,n.icon);});
+      chip.addEventListener('mouseenter',()=>{chip.style.borderColor=n.color;chip.style.background=n.color+'44';_showTip(displayName(n),n.icon);});
       chip.addEventListener('mouseleave',()=>{chip.style.borderColor=colBorder;chip.style.background=colAlpha;_hideTip();});
       fo.appendChild(chip);g.appendChild(fo);
       if(!animDone.has(n.id)&&!reducedMotion()){
@@ -693,7 +693,7 @@ export function render(){
 
     // ── LABELS ──
     if(inEra){
-      const labelText=n._hominData?n._hominData.short:n.name;
+      const labelText=n._hominData?n._hominData.short:displayName(n);
       const latinText=n.latin||'';
       let lx,ly,anchor,fontSize;
 
@@ -722,7 +722,7 @@ export function render(){
     }
 
     // Hover events (tooltip only, no movement)
-    g.addEventListener('mouseenter',()=>{_showTip(n.name,n.icon,n.funFact);});
+    g.addEventListener('mouseenter',()=>{_showTip(displayName(n),n.icon,n.funFact);});
     g.addEventListener('mouseleave',()=>{_hideTip();});
 
     // Animate in

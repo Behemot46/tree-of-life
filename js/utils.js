@@ -4,6 +4,16 @@
 
 import { nodeMap, state, PHOTO_STATUS_CACHE, PHOTO_VERIFY_PROMISES } from './state.js';
 import { HOMININS, MAX_BRAIN, HOMININ_ID_ALIASES } from './data.js';
+import { TAXON_NAMES } from './taxonNames.js';
+
+/* Display name for a node in the active language. Major taxonomic groups are
+   translated; species are not, so this falls back to the English name. Use it
+   anywhere a node name is shown to the reader. */
+export function displayName(node){
+  if(!node) return '';
+  const table=TAXON_NAMES[state.currentLang];
+  return (table&&table[node.id])||node.name;
+}
 
 // ── REDUCED MOTION HELPER ──
 export const reducedMotion=()=>matchMedia('(prefers-reduced-motion:reduce)').matches;

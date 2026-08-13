@@ -330,34 +330,49 @@ export function computeBaseFitZoom(rootNode) {
 // Smoothly pan + zoom the camera to frame `node` and all currently-visible
 // descendants with 15% padding. Clamped so we never zoom out further than
 // the full-base-tree zoom (state.baseTreeZoom), preventing tiny-children issue.
+/* Never closer than this. A subtree of one node has almost no extent, so
+   fitting it to the stage asked for maximum zoom and left the reader staring
+   at a single disc with nothing around it — which is exactly what collapsing a
+   branch used to do. */
+const FOCUS_MAX_SCALE = 0.9;
+
 export function frameSubtree(node, opts = {}) {
   if (!node || node._x == null || node._y == null) return;
   const padding = opts.padding ?? 0.15;
+  const isCladogram = state.viewMode === 'cladogram' || state.viewMode === 'chronological';
+  const nodeR = window.innerWidth < 768 ? 22 : 26;
 
-  const pts = [];
+  const boxes = [];
+  const add = (n) => {
+    if (!Number.isFinite(n._x) || !Number.isFinite(n._y)) return;
+    const e = nodeFootprint(n, { isCladogram, nodeR });
+    boxes.push({ x0: n._x - e.left, x1: n._x + e.right, y0: n._y - e.up, y1: n._y + e.down });
+  };
   (function walk(n){
-    if (n._x == null || n._y == null) return;
-    const r = n.r || 12;
-    pts.push({x:n._x, y:n._y, r});
+    add(n);
     if (n.children && !n._collapsed) {
       n.children.forEach(c => { if (!c._hiddenByToggle) walk(c); });
     }
   })(node);
 
-  if (!pts.length) return;
-  const minX = Math.min(...pts.map(p => p.x - p.r));
-  const maxX = Math.max(...pts.map(p => p.x + p.r));
-  const minY = Math.min(...pts.map(p => p.y - p.r));
-  const maxY = Math.max(...pts.map(p => p.y + p.r));
+  /* Keep the parent in shot. Moving in on a clade without showing what it hangs
+     off leaves the reader with no idea where they landed, and it is the whole
+     point of a tree that a group is somewhere in particular. */
+  if (opts.withParent !== false && node._parent) add(node._parent);
+
+  if (!boxes.length) return;
+  const minX = Math.min(...boxes.map(b => b.x0));
+  const maxX = Math.max(...boxes.map(b => b.x1));
+  const minY = Math.min(...boxes.map(b => b.y0));
+  const maxY = Math.max(...boxes.map(b => b.y1));
   const bw = (maxX - minX) || 1;
   const bh = (maxY - minY) || 1;
   // Frame into the usable stage, not the raw viewport — otherwise the chrome
   // eats the margin and the subtree lands partly behind the header or rail.
   const st = getStageRect();
-  const vw = st.w;
-  const vh = st.h;
 
-  let s = Math.min(vw / (bw * (1 + padding)), vh / (bh * (1 + padding)));
+  let s = Math.min(st.w / (bw * (1 + padding)), st.h / (bh * (1 + padding)));
+  s = Math.min(s, FOCUS_MAX_SCALE);
   // Clamp: never zoom out further than the full-base-tree zoom
   const floor = state.baseTreeZoom || 0;
   if (s < floor) s = floor;

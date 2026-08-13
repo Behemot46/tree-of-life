@@ -468,6 +468,14 @@ export function render(){
           const ghostR=9;
           const ghostOp=[0.3,0.2,0.1][i];
 
+          /* A ghost is a peek at what is inside — a thumbnail of one of the
+             children. Without the picture it is a 9px circle at 20% opacity
+             next to a much larger disc, which reads as a speck of dust rather
+             than an invitation, so it is only drawn when there is a photo to
+             put in it, and it leaves with the photo if that fails to load. */
+          const best=ImageLoader?ImageLoader.getBestUrl(child):null;
+          if(!best||!best.url) continue;
+
           const gc=document.createElementNS('http://www.w3.org/2000/svg','circle');
           gc.setAttribute('cx',gx);gc.setAttribute('cy',gy);gc.setAttribute('r',ghostR);
           gc.setAttribute('fill','var(--tree-node-fill)');
@@ -476,25 +484,19 @@ export function render(){
           gc.setAttribute('class','node-ghost');
           g.appendChild(gc);
 
-          // Ghost photo
-          if(ImageLoader){
-            const best=ImageLoader.getBestUrl(child);
-            if(best&&best.url){
-              const gfo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
-              gfo.setAttribute('x',gx-ghostR);gfo.setAttribute('y',gy-ghostR);
-              gfo.setAttribute('width',ghostR*2);gfo.setAttribute('height',ghostR*2);
-              gfo.style.pointerEvents='none';gfo.style.overflow='hidden';
-              gfo.setAttribute('opacity',String(ghostOp));
-              const gw=document.createElement('div');
-              gw.className='node-ghost-wrap';
-              gw.style.width=`${ghostR*2}px`;gw.style.height=`${ghostR*2}px`;
-              const gi=document.createElement('img');
-              gi.className='node-ghost-img';
-              gi.src=best.url;gi.alt='';
-              gi.addEventListener('error',()=>{if(gfo.parentNode)gfo.remove();});
-              gw.appendChild(gi);gfo.appendChild(gw);g.appendChild(gfo);
-            }
-          }
+          const gfo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+          gfo.setAttribute('x',gx-ghostR);gfo.setAttribute('y',gy-ghostR);
+          gfo.setAttribute('width',ghostR*2);gfo.setAttribute('height',ghostR*2);
+          gfo.style.pointerEvents='none';gfo.style.overflow='hidden';
+          gfo.setAttribute('opacity',String(ghostOp));
+          const gw=document.createElement('div');
+          gw.className='node-ghost-wrap';
+          gw.style.width=`${ghostR*2}px`;gw.style.height=`${ghostR*2}px`;
+          const gi=document.createElement('img');
+          gi.className='node-ghost-img';
+          gi.src=best.url;gi.alt='';
+          gi.addEventListener('error',()=>{gfo.remove();gc.remove();});
+          gw.appendChild(gi);gfo.appendChild(gw);g.appendChild(gfo);
         }
       }
 
@@ -767,15 +769,27 @@ export function render(){
     g.addEventListener('mouseenter',()=>{_showTip(displayName(n),n.icon,n.funFact);});
     g.addEventListener('mouseleave',()=>{_hideTip();});
 
-    // Animate in
+    /* Animate in. A new node grows out of its parent rather than sliding in
+       from the left: it starts small, sitting on the parent's disc, and travels
+       out along its own branch as that branch draws. Staggered by sibling
+       order, so a clade unfurls instead of appearing all at once.
+
+       Both offsets are in world units — the group is inside #viewport, which
+       carries the camera transform, so translating in screen pixels would
+       drift with the zoom. */
     if(!state.playbackMode&&!animDone.has(n.id)){
       if(reducedMotion()){
         animDone.add(n.id);
       } else {
+        const p=n._parent;
+        const dx=p&&Number.isFinite(p._x)?p._x-n._x:0;
+        const dy=p&&Number.isFinite(p._y)?p._y-n._y:0;
         g.style.setProperty('--stagger',n._sibIndex||0);
+        g.style.setProperty('--from-x',dx.toFixed(1)+'px');
+        g.style.setProperty('--from-y',dy.toFixed(1)+'px');
         g.classList.add('node-entering');
         animDeferred.push(g);
-        setTimeout(()=>animDone.add(n.id),600);
+        setTimeout(()=>animDone.add(n.id),700);
       }
     }
 
@@ -824,7 +838,10 @@ export function render(){
       }
       a11yAnnounce(n.name+(n._collapsed?' collapsed':' expanded'));
       requestAnimationFrame(()=>{
-        if(_frameSubtree) _frameSubtree(n);
+        /* Collapsing frames the parent, not the node. Framing a collapsed node
+           means framing a single disc, which asked for maximum zoom and left
+           the reader nose-to-nose with the one thing they had just closed. */
+        if(_frameSubtree) _frameSubtree(n._collapsed&&n._parent?n._parent:n);
         if(_updateBreadcrumb) _updateBreadcrumb(n._collapsed&&n._parent?n._parent:n);
       });
     });

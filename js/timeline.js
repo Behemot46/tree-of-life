@@ -356,39 +356,85 @@ function hideOverflowingEraLabels(container){
   });
 }
 
-// Node density sparkline — histogram of species by geological time
+/* Node density sparkline — when life diversified, drawn under the era track.
+
+   This was a bar chart on a linear count scale, and it did not read as data:
+   almost everything in the tree appears in the last hundred million years, so
+   the recent buckets saturated into one solid block against a bare left half.
+   Two changes make the shape legible. Counts go through a square root, which
+   keeps the Cambrian and Carboniferous visible next to the Neogene without
+   flattening the difference away. And it is drawn as a filled area with a lit
+   top edge rather than separate bars, so it reads as a curve rather than as a
+   rectangle someone forgot to clip. */
 export function buildDensitySparkline(){
   const canvas=document.getElementById('tl-density');
   if(!canvas)return;
   const dpr=window.devicePixelRatio||1;
   const rect=canvas.getBoundingClientRect();
+  if(!rect.width||!rect.height)return;
   canvas.width=rect.width*dpr;
   canvas.height=rect.height*dpr;
   const ctx=canvas.getContext('2d');
-  ctx.scale(dpr,dpr);
+  ctx.setTransform(dpr,0,0,dpr,0,0);
   const w=rect.width,h=rect.height;
   ctx.clearRect(0,0,w,h);
-  const bucketSize=50;
-  const numBuckets=Math.ceil(3800/bucketSize);
-  const buckets=new Array(numBuckets).fill(0);
+
+  /* Sampled along screen position rather than along time. The time axis is
+     piecewise — the last 66 Ma get a third of the width — so even buckets in
+     millions of years would crowd into a sliver at one end and stretch into a
+     staircase at the other. */
+  const COLS=Math.max(48,Math.round(w/3));
+  const counts=new Array(COLS).fill(0);
   Object.values(nodeMap).forEach(n=>{
     if(!n.appeared)return;
-    const idx=Math.min(numBuckets-1,Math.floor(n.appeared/bucketSize));
-    buckets[idx]++;
+    const i=Math.min(COLS-1,Math.max(0,Math.floor(timeScale(n.appeared)*COLS)));
+    counts[i]++;
   });
-  const maxCount=Math.max(1,...buckets);
+
+  // Two passes of a three-tap blur, so single-species spikes do not become
+  // needles and the profile reads as a range rather than a comb.
+  let smooth=counts;
+  for(let pass=0;pass<2;pass++){
+    const src=smooth;
+    smooth=src.map((_,i)=>((src[i-1]||0)+src[i]*2+(src[i+1]||0))/4);
+  }
+  const peak=Math.max(1,...smooth);
+  const height=v=>Math.sqrt(v/peak)*h*0.92;
+
   const isLight=document.documentElement.getAttribute('data-theme')==='light';
-  ctx.fillStyle=isLight?'rgba(2,132,199,0.35)':'rgba(14,165,233,0.35)';
-  // Render using non-linear scale: each bucket maps to its scaled screen position
-  buckets.forEach((count,i)=>{
-    const barH=(count/maxCount)*h*0.9;
-    const myaHigh=(i+1)*bucketSize;  // older edge of bucket
-    const myaLow=i*bucketSize;       // younger edge of bucket
-    const xLeft=timeScale(myaHigh)*w;
-    const xRight=timeScale(myaLow)*w;
-    const barW=Math.max(1,xRight-xLeft-1);
-    ctx.fillRect(xLeft,h-barH,barW,barH);
-  });
+  const css=getComputedStyle(document.documentElement);
+  const tint=(css.getPropertyValue('--accent-secondary')||'').trim()||'#3FD3B0';
+
+  ctx.beginPath();
+  ctx.moveTo(0,h);
+  for(let i=0;i<COLS;i++) ctx.lineTo((i+0.5)/COLS*w,h-height(smooth[i]));
+  ctx.lineTo(w,h);
+  ctx.closePath();
+
+  const grad=ctx.createLinearGradient(0,0,0,h);
+  grad.addColorStop(0,hexA(tint,isLight?0.38:0.44));
+  grad.addColorStop(1,hexA(tint,0.02));
+  ctx.fillStyle=grad;
+  ctx.fill();
+
+  // Lit crest, so the curve has an edge to read against the track above it.
+  ctx.beginPath();
+  for(let i=0;i<COLS;i++){
+    const x=(i+0.5)/COLS*w,y=h-height(smooth[i]);
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  }
+  ctx.strokeStyle=hexA(tint,isLight?0.55:0.75);
+  ctx.lineWidth=1;
+  ctx.stroke();
+}
+
+/* #RRGGBB plus an alpha, as rgba(). The palette is authored as hex, and canvas
+   has no equivalent of the eight-digit form that works in every browser here. */
+function hexA(hex,a){
+  const m=/^#?([0-9a-f]{6})$/i.exec(hex.trim());
+  if(!m) return `rgba(63,211,176,${a})`;
+  const v=parseInt(m[1],16);
+  return `rgba(${(v>>16)&255},${(v>>8)&255},${v&255},${a})`;
 }
 
 // Custom thumb drag via pointer events

@@ -162,9 +162,11 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   }
   .panel-scroll { padding: 0.8rem 1.2rem 1.5rem; }
   .panel-body { padding: 14px 16px; gap: 12px; }
-  .panel-hero { aspect-ratio: 2/1; max-height: 150px; }
+  /* No max-height: the caption is in the hero's flow, and capping the box was
+     what pushed a long binomial up through the artwork on a narrow screen. */
+  .panel-hero { min-height: 150px; }
   .panel-hero .p-close { width: 40px !important; height: 40px !important; font-size: 1rem; }
-  .panel-hero-meta { bottom: 10px; left: 14px; right: 14px; }
+  .panel-hero-meta { padding: 0 14px 24px; }
   .panel-title { font-size: 18px; }
   .mini-map svg { max-height: 100px; }
   .p-close {

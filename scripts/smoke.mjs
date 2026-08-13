@@ -369,6 +369,12 @@ check('i18n:panel-prose-reads-as-english', 'English species prose is laid out le
   if (p.wrong.length) fail(`${p.wrong.length} English block(s) laid out RTL: ${p.wrong.join(', ')}`);
 });
 
+check('chrome:panel-hero-readable', 'Nothing is printed over the species name', (c) => {
+  const h = c.probe.heroOverlaps;
+  if (!h || !h.checked) return;
+  if (h.hits.length) fail(`hero artwork overlaps ${h.hits.length} caption line(s): ${h.hits.join(', ')}`);
+});
+
 check('interact:camera-settles', 'Camera animations come to rest', (c) => {
   if (!c.probe.cameraSettles) fail('#viewport transform was still changing after 3s');
 });
@@ -746,6 +752,27 @@ async function probePage(page, scenario) {
     return { checked: true, wrong };
   });
 
+  /* The hero caption used to be absolutely positioned inside a fixed-ratio box,
+     so a long binomial over a wrapped time-of-life line overran the artwork and
+     the species emoji printed straight through its own name. Measured rather
+     than trusted, because it only showed up at narrow widths. */
+  const heroOverlaps = await page.evaluate(() => {
+    const root = document.querySelector('#panel.open');
+    if (!root) return { checked: false, hits: [] };
+    const meta = root.querySelector('.panel-hero-meta');
+    if (!meta) return { checked: false, hits: [] };
+    const R = (e) => e && e.getBoundingClientRect();
+    const hit = (a, b) => a && b && a.width && b.width && a.top < b.bottom - 1 && a.bottom > b.top + 1;
+    const art = [root.querySelector('.panel-hero-fb'), root.querySelector('.panel-hero-fallback'),
+                 root.querySelector('.panel-hero-credit')].filter(Boolean).map(R);
+    const hits = [];
+    for (const line of meta.children) {
+      const lr = R(line);
+      for (const a of art) if (hit(lr, a)) hits.push((line.className || line.tagName) + '');
+    }
+    return { checked: true, hits: [...new Set(hits)] };
+  });
+
   // Toast lane: force one open alongside the detail panel and compare boxes.
   const { toastBox, panelOpenBox } = await page.evaluate(() => {
     const c = document.getElementById('achievement-container');
@@ -854,7 +881,7 @@ async function probePage(page, scenario) {
   // than on load. This supersedes the value collected in the first pass.
   const cspViolations = [...new Set(await page.evaluate(() => window.__cspViolations || []))];
 
-  return { ...base, ...forced, tooltipShown, zoomWorks, afterReset, parentExpands, panelOpened, panelProse,
+  return { ...base, ...forced, tooltipShown, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps,
            searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations };
 }
 

@@ -22,8 +22,9 @@ Things waiting on a decision rather than on work.
 
 | Question | Why it matters |
 |---|---|
-| **Connect `treeoflife.wiki` in Vercel** | The only thing left in the migration. The repo side is done — canonical and Open Graph URLs point at the domain, and `verify-deployment.yml` will check the live site automatically. Needs the domain added in the Vercel project and DNS pointed at it. GitHub Pages stays live until then; `deploy.yml` is deleted once it serves. |
 | **Removing the 31 inline `onclick` handlers** | They force `script-src 'unsafe-inline'`, which is the one real weakness in the CSP. Removing them would let the policy actually prevent inline execution rather than only restricting origins. |
+| **Switching GitHub Pages off** | `deploy.yml` is gone, so Pages no longer updates, but it keeps serving its last build until disabled in Settings → Pages. Only reachable by hand. |
+| **Vercel's recommended `www` CNAME** | Vercel suggests `www → 2f3b9f3357c6e4e5.vercel-dns-017.com.` and notes the legacy records keep working, so this is tidiness rather than a fix. |
 
 ### Answered
 
@@ -33,6 +34,7 @@ Things waiting on a decision rather than on work.
 | Localising species names | **Major taxonomic groups only.** The 50 ranked groups are translated; individual species stay English. See `js/taxonNames.js`. |
 | Content-Security-Policy | **Added**, defined in `vercel.json` and enforced by `serve.js` so the smoke suite checks the real policy. |
 | `SECURITY.md` | **Rewritten** for what this project actually is: a static site with no backend and no releases. |
+| The custom domain | **Live at `www.treeoflife.wiki`**, verified by running the full suite against the deployed site rather than assuming it worked. Pages retired afterwards. |
 
 ---
 

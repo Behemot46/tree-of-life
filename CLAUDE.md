@@ -316,15 +316,22 @@ on any PR touching `js/speciesData.js`, so dead links surface on their own.
 
 ### Deployment
 
-Two hosts are live at once during the migration:
+**Vercel** (`sinapsa/tree-of-life`) deploys every push and pull request through
+the GitHub integration. There is no deploy workflow in this repo — Vercel runs
+its own build.
 
-| Host | Trigger | Workflow |
-|---|---|---|
-| **Vercel** (`sinapsa/tree-of-life`) | Every push and PR, via the GitHub integration | none — Vercel's own build |
-| **GitHub Pages** | Push to `main` | `.github/workflows/deploy.yml` |
+Addresses, all serving the same site:
 
-Pages stays until the Vercel custom domain serves correctly, then
-`deploy.yml` is deleted. Nothing else references Pages.
+| URL | Role |
+|---|---|
+| `https://www.treeoflife.wiki/` | Production. Canonical, and what `og:url` points at. |
+| `https://treeoflife.wiki/` | Apex — 308-redirects to `www`. |
+| `https://tree-of-life-sand.vercel.app/` | Vercel's own production alias. |
+
+GitHub Pages has been retired: `deploy.yml` was deleted once the custom domain
+passed the full smoke suite. The old `behemot46.github.io/tree-of-life` URL
+will keep serving its last build until Pages is switched off in the
+repository's Settings → Pages, which has to be done by hand.
 
 `vercel.json` skips dependency installation — the site is static, and
 `package.json` exists only to pin Playwright for the tests. It also sets

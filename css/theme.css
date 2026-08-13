@@ -40,6 +40,15 @@
   --panel-bg:rgba(244,240,234,0.98);
   --border:#d8d0c4;
   --divider:#d8d0c4;
+  /* Depth reads differently on a light ground: glow becomes a soft shadow,
+     and haze recedes toward white rather than black. Defined here so no
+     component ever borrows a dark-theme value. */
+  --bg-deep:#f2ede4;
+  --glow-accent:0 0 14px rgba(154,106,42,0.22);
+  --glow-secondary:0 0 14px rgba(58,122,106,0.20);
+  --depth-near:1;
+  --depth-mid:0.78;
+  --depth-far:0.52;
   --shadow-1:0 1px 3px rgba(0,0,0,0.06),0 1px 2px rgba(0,0,0,0.04);
   --shadow-2:0 4px 12px rgba(0,0,0,0.08),0 2px 4px rgba(0,0,0,0.04);
   --shadow-3:0 8px 32px rgba(0,0,0,0.1),0 4px 8px rgba(0,0,0,0.06);

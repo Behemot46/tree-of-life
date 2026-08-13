@@ -13,7 +13,7 @@ import { reducedMotion, canonicalHomininId, preprocess, sortChildrenByAge, homin
 import { layout, getVisible } from './layout.js';
 
 // ── Zoom / Pan ──
-import { applyT, smoothPanTo, smoothZoomTo, centerOnTree, centerOnRoot, fitTreeToStage, initZoomDeps, initPointerEvents, initRandomButton, computeBaseFitZoom, frameSubtree } from './zoom.js';
+import { applyT, smoothPanTo, smoothZoomTo, centerOnTree, centerOnRoot, fitTreeToStage, smoothFitToStage, initZoomDeps, initPointerEvents, initRandomButton, computeBaseFitZoom, frameSubtree } from './zoom.js';
 
 // ── Renderer ──
 import { render, scheduleRender, branchPath, initRendererDeps } from './renderer.js';
@@ -475,6 +475,11 @@ function init(){
   }
   assignDomains(TREE, 'luca');
   layout();fitTreeToStage();scheduleRender(true);applyT();
+  // Re-fit once the chrome has actually been laid out. The first fit runs in
+  // the same tick as the RTL direction switch, so in Hebrew it measures the
+  // stage with the side rail still on the left and frames the tree ~170px too
+  // far right.
+  requestAnimationFrame(()=>{fitTreeToStage();applyT();});
   // Snapshot the zoom level that frames the full base tree. Used as the floor
   // for frameSubtree() so expanding a huge subtree never zooms out past this.
   {
@@ -517,7 +522,7 @@ function init(){
   updateEraTint(state.currentEra);
   buildSearchIndex();
   // Restore saved theme & language
-  state.isDark=localStorage.getItem('theme')==='dark';
+  state.isDark=(localStorage.getItem('theme')||'dark')!=='light';
   applyTheme();
   state.currentLang=localStorage.getItem('tol-lang')||'en';
   document.documentElement.dir=state.currentLang==='he'?'rtl':'ltr';
@@ -610,6 +615,7 @@ function initRevealPanel(){
     preprocess(TREE);
     layout();
     scheduleRender();
+    smoothFitToStage();
     localStorage.setItem('tol-depth', String(newLimit));
   }
 
@@ -624,11 +630,7 @@ function initRevealPanel(){
     layout();
     scheduleRender();
     localStorage.setItem('tol-depth', '0');
-    // Zoom further out than the base-fit so the collapsed root has breathing room.
-    requestAnimationFrame(() => {
-      const s = (state.baseTreeZoom || 0.18) * 0.55;
-      smoothZoomTo(TREE._x, TREE._y, s);
-    });
+    smoothFitToStage();
   });
 
   // ── Expand All ──
@@ -641,20 +643,7 @@ function initRevealPanel(){
     layout();
     scheduleRender();
     localStorage.setItem('tol-depth', String(state.maxBaseDepth));
-    // Center on the bbox center of all visible nodes (not just on LUCA).
-    requestAnimationFrame(() => {
-      const pts = [];
-      (function walk(n){
-        if (n._x == null || n._y == null) return;
-        pts.push(n);
-        if (n.children && !n._collapsed) n.children.forEach(walk);
-      })(TREE);
-      if (!pts.length) return;
-      const xs = pts.map(p => p._x), ys = pts.map(p => p._y);
-      const cx = (Math.min(...xs) + Math.max(...xs)) / 2;
-      const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
-      smoothZoomTo(cx, cy, state.baseTreeZoom || 0.18);
-    });
+    smoothFitToStage();
   });
 
   // ── Show all species toggle ──
@@ -668,6 +657,7 @@ function initRevealPanel(){
     preprocess(TREE);
     layout();
     scheduleRender();
+    smoothFitToStage();
     localStorage.setItem('tol-species', speciesT.checked ? '1' : '0');
   });
 }

@@ -37,7 +37,12 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ── MOBILE ENGAGEMENT ── */
 @media(max-width:768px){
   #progress-badge{top:auto;bottom:11rem;left:0.5rem;right:auto;font-size:11px;padding:3px 8px;}
-  #achievement-container{bottom:60px;right:10px;left:10px;}
+  /* On phones the detail panel is a bottom sheet taking ~80% of the viewport,
+     so no lane exists that clears it. Toasts sit as high as possible, under
+     the header, and briefly overlay the sheet's top edge rather than covering
+     the content the reader is looking at. Giving them a real home is part of
+     the panel redesign, not a positioning tweak. */
+  #achievement-container{top:60px;bottom:auto;left:10px;right:10px;transform:none;}
   .achievement-toast{min-width:auto;width:100%;}
   #btn-quiz{padding:3px 8px;font-size:11px;}
 }

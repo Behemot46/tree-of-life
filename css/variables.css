@@ -13,30 +13,31 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,.lang-btn:focus-
 .view-btn:focus-visible,.hom-filter:focus-visible,.era-preset:focus-visible{
   outline:2px solid var(--accent-primary);outline-offset:2px;}
 :root{
-  /* ── Core surfaces (warm charcoal) ── */
-  --bg:#141618;
-  --surface:#1c1f24;
-  --surface-raised:#252930;
-  --surface-overlay:rgba(20,22,24,0.97);
-  /* ── Text hierarchy (warm off-whites) ── */
-  --parchment:#ede8df;
-  --text-primary:#ede8df;
-  --text-secondary:#b0a99e;
-  --text-muted:#8a8279;
-  --text-dim:rgba(237,232,223,0.45);
-  --text-faint:rgba(237,232,223,0.30);
-  /* ── Primary accent: warm amber ── */
-  --accent:#c8883a;
-  --accent-light:#daa04d;
-  --accent-dim:rgba(200,136,58,0.15);
-  --accent-rgb:200,136,58;
+  /* ── Core surfaces: abyssal, cool. Deep time reads as depth, not dusk. ── */
+  --bg:#070C11;
+  --bg-deep:#03060A;
+  --surface:#101821;
+  --surface-raised:#18222D;
+  --surface-overlay:rgba(7,12,17,0.97);
+  /* ── Text hierarchy (cool off-whites, to sit on a blue-black ground) ── */
+  --parchment:#E6EEF1;
+  --text-primary:#E6EEF1;
+  --text-secondary:#A2B4BD;
+  --text-muted:#71858F;
+  --text-dim:rgba(230,238,241,0.45);
+  --text-faint:rgba(230,238,241,0.28);
+  /* ── Primary accent: amber, brightened to emit against the dark ── */
+  --accent:#F2AC52;
+  --accent-light:#FFC77A;
+  --accent-dim:rgba(242,172,82,0.16);
+  --accent-rgb:242,172,82;
   /* ── Semantic colors ── */
   --terra:#c45c4a;
   --sage:#5b9a6b;
-  --accent-primary:#c8883a;
-  --accent-primary-dim:rgba(200,136,58,0.12);
-  --accent-secondary:#5b9a8b;
-  --accent-secondary-dim:rgba(91,154,139,0.12);
+  --accent-primary:#F2AC52;
+  --accent-primary-dim:rgba(242,172,82,0.14);
+  --accent-secondary:#3FD3B0;
+  --accent-secondary-dim:rgba(63,211,176,0.14);
   --accent-success:#5b9a6b;
   --accent-danger:#c45c4a;
   --panel-bg:rgba(28,31,36,0.97);
@@ -61,8 +62,8 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,.lang-btn:focus-
   --lineage-human:#b07a3e;--lineage-human-bg:rgba(176,122,62,0.15);--lineage-human-border:rgba(176,122,62,0.35);
   --lineage-ape:#b05050;--lineage-ape-bg:rgba(176,80,80,0.12);--lineage-ape-border:rgba(176,80,80,0.30);
   /* ── Borders (warm tint) ── */
-  --border:#332e28;
-  --divider:#332e28;
+  --border:rgba(150,190,205,0.12);
+  --divider:rgba(150,190,205,0.09);
   /* ── Typography ── */
   --font-head:'Inter',system-ui,sans-serif;
   --font-body:'Inter',system-ui,sans-serif;
@@ -70,9 +71,21 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,.lang-btn:focus-
   --font-sans:'Inter',system-ui,sans-serif;
   --font-mono:'JetBrains Mono','Fira Code',monospace;
   /* ── Elevation system ── */
-  --shadow-1:0 1px 3px rgba(0,0,0,0.12),0 1px 2px rgba(0,0,0,0.08);
-  --shadow-2:0 4px 12px rgba(0,0,0,0.15),0 2px 4px rgba(0,0,0,0.08);
-  --shadow-3:0 8px 32px rgba(0,0,0,0.2),0 4px 8px rgba(0,0,0,0.1);
+  --shadow-1:0 1px 3px rgba(0,0,0,0.50),0 1px 2px rgba(0,0,0,0.40);
+  --shadow-2:0 6px 18px rgba(0,0,0,0.55),0 2px 6px rgba(0,0,0,0.40);
+  --shadow-3:0 16px 48px rgba(0,0,0,0.62),0 6px 16px rgba(0,0,0,0.45);
+  /* ── Depth: glow and atmospheric recession ──
+     Branches and nodes should emit rather than sit flat on the ground, and
+     distant subtrees should recede the way haze works over distance. Stage 02
+     applies these; defined here so the look is decided in one place. */
+  --glow-sm:0 0 6px;
+  --glow-md:0 0 14px;
+  --glow-lg:0 0 28px;
+  --glow-accent:0 0 18px rgba(242,172,82,0.45);
+  --glow-secondary:0 0 18px rgba(63,211,176,0.35);
+  --depth-near:1;
+  --depth-mid:0.72;
+  --depth-far:0.45;
   /* ── Spacing scale ── */
   --sp-1:4px;--sp-2:8px;--sp-3:12px;--sp-4:16px;--sp-5:24px;--sp-6:32px;--sp-7:48px;
   /* ── Typography scale (≈1.2× minor-third ratio) ── */
@@ -91,8 +104,8 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,.lang-btn:focus-
   --transition-fast:150ms cubic-bezier(0.2,0,0,1);
   --transition-normal:250ms cubic-bezier(0.2,0,0,1);
   /* ── Glassmorphism ── */
-  --glass-bg:rgba(28,31,36,0.75);
-  --glass-border:rgba(255,255,255,0.06);
+  --glass-bg:rgba(14,21,29,0.74);
+  --glass-border:rgba(160,200,215,0.10);
   --glass-blur:blur(16px);
   /* ── Radius ── */
   --radius-sm:6px;
@@ -116,11 +129,11 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,.lang-btn:focus-
   /* ── Tree Redesign ── */
   --tree-node-size:52px;
   --tree-node-size-mobile:44px;
-  --tree-node-fill:#1a0f08;
-  --tree-branch-brown:#8b6a3a;
-  --tree-branch-brown-light:#c4a882;
-  --tree-human-path:#c8883a;
-  --tree-human-path-light:#a06a28;
+  --tree-node-fill:#0B131A;
+  --tree-branch-brown:#A87C46;
+  --tree-branch-brown-light:#E8CDA0;
+  --tree-human-path:#F2AC52;
+  --tree-human-path-light:#FFD9A0;
   --tree-photo-opacity:0.93;
   --tree-photo-opacity-hover:1;
   --tree-sibling-dim:0.3;

@@ -9,8 +9,10 @@
  *   node scripts/smoke.mjs --url https://...    # tests a deployed site
  *   node scripts/smoke.mjs --update-baseline    # re-record known failures
  *
- * With --url, an HTTPS_PROXY in the environment is passed through to Chromium
- * so the runner works from behind a proxy. TLS is always verified.
+ * --proxy <server> routes Chromium through a proxy, for running from behind
+ * one. It is opt-in rather than read from HTTPS_PROXY, because picking that up
+ * automatically broke plain --url runs against a local server. TLS is always
+ * verified.
  *
  * Exit code is 0 only when every required check passes AND the baseline of
  * known failures is accurate. A baselined check that starts passing is also an
@@ -39,8 +41,7 @@ const opt = (name, fallback) => {
 const UPDATE_BASELINE = flag('update-baseline');
 const KEEP_SHOTS = !flag('no-screenshots');
 const EXTERNAL_URL = opt('url', process.env.SMOKE_URL || '');
-// Only relevant when testing a deployed site — the local server needs no proxy.
-const PROXY = EXTERNAL_URL ? (process.env.HTTPS_PROXY || process.env.https_proxy || '') : '';
+const PROXY = opt('proxy', '');
 
 // ── Thresholds ────────────────────────────────────────────────────────────────
 // The tree must fill at least this fraction of the stage on its longest axis.

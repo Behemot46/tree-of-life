@@ -1,0 +1,56 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+
+  "//": [
+    "The site is plain static files with no build step. package.json exists",
+    "only to pin Playwright for the smoke tests, so installing dependencies",
+    "on every deploy would pull a browser automation library the site never",
+    "loads. Skipping it keeps deploys fast.",
+    "",
+    "Nothing here is content-hashed, so no asset may be cached immutably — a",
+    "stale js/app.js would strand visitors on old code with no way to bust it.",
+    "Revalidation is cheap because Vercel serves ETags, so code and markup",
+    "revalidate every time and only images get a real TTL."
+  ],
+  "installCommand": "echo 'no runtime dependencies — skipping install'",
+
+  "cleanUrls": false,
+  "trailingSlash": false,
+
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "Permissions-Policy", "value": "geolocation=(), microphone=(), camera=(), interest-cohort=()" }
+      ]
+    },
+    {
+      "source": "/(.*)\\.(html|js|css|json)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }
+      ]
+    },
+    {
+      "source": "/sw.js",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
+        { "key": "Service-Worker-Allowed", "value": "/" }
+      ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=86400, stale-while-revalidate=604800" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+name: Verify Deployment
+
+# Runs the smoke checks against the site Vercel just published, so a green
+# build is not mistaken for a working page. Fires on Vercel's deployment
+# status rather than on push, because only Vercel knows the deployed URL.
+on:
+  deployment_status:
+
+jobs:
+  smoke:
+    name: Smoke the deployed site
+    # Preview deployments can sit behind Vercel's deployment protection, which
+    # would fail the run for an authentication reason rather than a real one.
+    # Production is what stage 4 needs to prove anyway.
+    if: >
+      github.event.deployment_status.state == 'success' &&
+      github.event.deployment_status.environment == 'Production'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Check the site with the suite from the commit that produced it.
+          ref: ${{ github.event.deployment.sha }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run smoke checks against ${{ github.event.deployment_status.target_url }}
+        run: npm run smoke -- --url "${{ github.event.deployment_status.target_url }}"
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployed-smoke-screenshots
+          path: .smoke-out/
+          if-no-files-found: warn
+          retention-days: 14

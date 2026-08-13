@@ -259,7 +259,30 @@ No install step needed. Open `http://localhost:5555` in a browser. Alternatively
 
 ### Deployment
 
-Push to `main` → GitHub Actions automatically deploys to GitHub Pages. No manual steps needed.
+Two hosts are live at once during the migration:
+
+| Host | Trigger | Workflow |
+|---|---|---|
+| **Vercel** (`sinapsa/tree-of-life`) | Every push and PR, via the GitHub integration | none — Vercel's own build |
+| **GitHub Pages** | Push to `main` | `.github/workflows/deploy.yml` |
+
+Pages stays until the Vercel custom domain serves correctly, then
+`deploy.yml` is deleted. Nothing else references Pages.
+
+`vercel.json` skips dependency installation — the site is static, and
+`package.json` exists only to pin Playwright for the tests. It also sets
+cache headers: **nothing may be cached immutably**, because no asset is
+content-hashed and a stale `js/app.js` would strand visitors on old code
+with no way to bust it. ETags make revalidation cheap.
+
+There is deliberately **no Content-Security-Policy** yet. The page pulls from
+Google Fonts, a D3 CDN, Wikimedia and the Wikipedia API; a policy that misses
+one would break the site silently. Worth adding, but only alongside a check
+that would catch a mistake.
+
+`.github/workflows/verify-deployment.yml` runs the full smoke suite against
+the deployed URL whenever Vercel publishes to production, so a green build is
+never mistaken for a working page.
 
 ---
 
@@ -272,9 +295,10 @@ Hebrew and Russian. It runs on every push and pull request via
 only checked that files existed.
 
 ```bash
-npm run smoke                        # serve ./ and check it
+npm run smoke                                      # serve ./ and check it
 node scripts/smoke.mjs --url https://example.com   # check a deployed site
-npm run smoke:update-baseline        # re-record known failures
+node scripts/smoke.mjs --proxy http://host:port    # run from behind a proxy
+npm run smoke:update-baseline                      # re-record known failures
 ```
 
 Screenshots for every scenario land in `.smoke-out/` (git-ignored, and uploaded

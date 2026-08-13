@@ -105,12 +105,14 @@
     <button id="extinct-toggle" class="search-pill" onclick="toggleExtinct()" aria-label="Toggle visibility of extinct species">
       <span>†</span> <span id="extinct-label">Show extinct</span>
     </button>
-    <button id="btn-tour-help" class="search-pill" onclick="showTourSelector()" aria-label="Guided tour" title="Guided Tour">? <span>Guided tour</span></button>
+    <button id="btn-tour-help" class="search-pill" onclick="showTourSelector()" aria-label="Guided tour" title="Guided Tour">? <span id="i-btn-guided-tour">Guided tour</span></button>
   </div>
 
   <div class="rail-foot">
-    <div class="rail-status" aria-label="Species explored">🔬 <b><span id="progress-count">0</span></b> / <b><span id="progress-total">0</span></b> seen</div>
-    <div id="sotd-badge" style="display:none" role="button" tabindex="0" aria-label="Species of the Day">
+    <div class="rail-status" aria-label="Species explored">🔬 <b><span id="progress-count">0</span></b> / <b><span id="progress-total">0</span></b> <span id="i-rail-seen">seen</span></div>
+    <!-- Species names come from the tree data, which is English-only. Exempt
+         from the UI translation checks until the data itself is localised. -->
+    <div id="sotd-badge" data-i18n-exempt="species-name" style="display:none" role="button" tabindex="0" aria-label="Species of the Day">
       <span id="sotd-icon"></span> <span id="sotd-name"></span>
     </div>
   </div>

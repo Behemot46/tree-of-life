@@ -6,8 +6,12 @@ import { state, MIN_ARC_PX, MAX_ARC_PER_LEAF } from './state.js';
 import { DEPTH_R } from './uiData.js';
 import { TREE } from './data.js';
 
-export function getVisible(n){let a=[n];if(n.children&&!n._collapsed)n.children.forEach(c=>a=a.concat(getVisible(c)));return a;}
-export function getVisibleEdges(n){let a=[];if(n.children&&!n._collapsed){n.children.forEach(c=>{a.push({from:n,to:c});a=a.concat(getVisibleEdges(c));});}return a;}
+/* Both walks skip children hidden by the species toggle. assignAngles() skips
+   them too, so they never receive _x/_y — including them here yielded branch
+   paths drawn to undefined coordinates, i.e. `d="M12,34 CNaN,NaN ..."`, which
+   the browser rejects outright. */
+export function getVisible(n){let a=[n];if(n.children&&!n._collapsed)n.children.forEach(c=>{if(!c._hiddenByToggle)a=a.concat(getVisible(c));});return a;}
+export function getVisibleEdges(n){let a=[];if(n.children&&!n._collapsed){n.children.forEach(c=>{if(c._hiddenByToggle)return;a.push({from:n,to:c});a=a.concat(getVisibleEdges(c));});}return a;}
 
 /* Count visible leaves in a subtree — used to weight angular allocation proportionally */
 export function leafCount(n){

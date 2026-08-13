@@ -67,8 +67,13 @@
 @keyframes badgePulse{0%{transform:scale(1)}50%{transform:scale(1.12);box-shadow:0 0 8px var(--accent-dim)}100%{transform:scale(1)}}
 
 /* ── ACHIEVEMENT TOAST ── */
-#achievement-container{position:fixed;bottom:80px;right:20px;z-index:var(--z-toast);
-  display:flex;flex-direction:column;gap:8px;pointer-events:none;}
+/* Toasts get a lane of their own. Bottom-right put them on top of the detail
+   panel, covering the very fact the achievement was congratulating you for
+   reading. Bottom-centre clears the right drawer, the reveal panel, the side
+   rail and the timeline at once. */
+#achievement-container{position:fixed;bottom:104px;left:50%;right:auto;
+  transform:translateX(-50%);z-index:var(--z-toast);
+  display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;}
 .achievement-toast{background:var(--surface);border:1px solid var(--accent-primary,var(--accent));
   border-radius:var(--radius-lg);padding:12px 20px;display:flex;align-items:center;gap:12px;
   box-shadow:var(--shadow-3);pointer-events:auto;min-width:260px;

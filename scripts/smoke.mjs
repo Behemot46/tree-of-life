@@ -327,6 +327,24 @@ check('interact:reset-refits-tree', 'Reset button re-fits the tree to the stage'
   if (best < FILL_MIN) fail(`after reset the tree fills only ${(fillW * 100) | 0}%×${(fillH * 100) | 0}%`);
 });
 
+check('interact:expand-all-refits', 'Expand All reframes the tree it just revealed', (c) => {
+  const { fillW, fillH, spill, clicked } = c.probe.afterExpandAll;
+  if (!clicked) fail('could not click #btn-expand-all — it is covered or unreachable');
+  const best = Math.max(fillW, fillH);
+  if (best < FILL_MIN) fail(`after Expand All the tree fills only ${(fillW * 100) | 0}%×${(fillH * 100) | 0}%`);
+  if (spill > 24) fail(`after Expand All the tree spills ${Math.round(spill)}px off the stage`);
+});
+
+// Desktop only. On a phone the panel is a bottom sheet covering ~80% of the
+// screen, so there is no lane a toast could occupy without touching it — that
+// is a panel-design question, not a positioning bug.
+check('chrome:toast-clear-of-panel', 'Toasts never cover the detail panel', (c) => {
+  const { toastBox, panelOpenBox } = c.probe;
+  if (overlap(toastBox, panelOpenBox)) {
+    fail(`#achievement-container overlaps the open #panel by ${Math.round(overlapArea(toastBox, panelOpenBox))}px²`);
+  }
+}, (s) => s.viewport.name === 'desktop');
+
 check('interact:parent-click-expands', 'Clicking a collapsed parent expands it', (c) => {
   if (!c.probe.parentExpands) fail('clicking a collapsed node revealed no children');
 });
@@ -345,6 +363,8 @@ async function probePage(page, scenario) {
   const base = await page.evaluate(async ({ bindings, lang }) => {
     const T = await import(new URL('js/uiData.js', location.href).href)
       .then((m) => m.TRANSLATIONS).catch(() => null);
+    const DATA = await import(new URL('js/data.js', location.href).href);
+    const LAYOUT = await import(new URL('js/layout.js', location.href).href);
 
     const visible = (el) => {
       if (!el) return false;
@@ -365,21 +385,31 @@ async function probePage(page, scenario) {
     // hide exactly the overflow we care about, so derive the true on-screen
     // extent from the untransformed bbox and the viewport transform instead.
     const vpg = byId('viewport');
+    // From layout coordinates, not getBBox(): the renderer culls off-screen
+    // nodes, so the drawn box describes only what is already visible and would
+    // score a badly-framed tree as perfectly framed.
     const treeExtent = (() => {
       if (!vpg) return null;
-      let bb;
-      try { bb = vpg.getBBox(); } catch { return null; }
-      if (!bb || !bb.width) return null;
       const m = /translate\(\s*(-?[\d.]+)[ ,]+(-?[\d.]+)\s*\)\s*scale\(\s*(-?[\d.]+)/.exec(
         vpg.getAttribute('transform') || '');
       if (!m) return null;
       const [, tx, ty, s] = m.map(Number);
+      let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+      for (const n of LAYOUT.getVisible(DATA.TREE)) {
+        if (!Number.isFinite(n._x) || !Number.isFinite(n._y)) continue;
+        const r = n.r || 12;
+        const fs = n.depth === 0 ? 14 : n.depth === 1 ? 12 : 10;
+        const half = Math.max(r, ((n.name || '').length * fs * 0.55) / 2);
+        minX = Math.min(minX, n._x - half); maxX = Math.max(maxX, n._x + half);
+        minY = Math.min(minY, n._y - r);    maxY = Math.max(maxY, n._y + r + 26);
+      }
+      if (!Number.isFinite(minX)) return null;
       const svgR = byId('svg').getBoundingClientRect();
       return {
-        left: svgR.left + tx + bb.x * s,
-        top: svgR.top + ty + bb.y * s,
-        width: bb.width * s,
-        height: bb.height * s,
+        left: svgR.left + tx + minX * s,
+        top: svgR.top + ty + minY * s,
+        width: (maxX - minX) * s,
+        height: (maxY - minY) * s,
       };
     })();
     const paths = [...document.querySelectorAll('#viewport path')];
@@ -626,19 +656,23 @@ async function probePage(page, scenario) {
         if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) continue;
         const hit = document.elementFromPoint(x, y);
         if (!hit || !hit.closest('#viewport')) continue;
-        return { x, y };
+        return { x, y, id: g.getAttribute('data-node-id') };
       }
       return null;
     }, selector);
-    if (!pt) return false;
+    if (!pt) return null;
     await page.mouse.click(pt.x, pt.y);
     await page.waitForTimeout(900);
-    return true;
+    return pt.id;
   };
 
-  const nodesBefore = await page.locator('#viewport g.node-group').count();
-  await clickNode('#viewport g.node-group[aria-expanded="false"]');
-  const parentExpands = (await page.locator('#viewport g.node-group').count()) > nodesBefore;
+  // Ask the node itself, not the total rendered count: framing the new subtree
+  // culls nodes elsewhere, so the total can fall even when the click worked.
+  const expandedId = await clickNode('#viewport g.node-group[aria-expanded="false"]');
+  const parentExpands = expandedId ? await page.evaluate((id) => {
+    const g = document.querySelector(`#viewport g.node-group[data-node-id="${id}"]`);
+    return !!g && g.getAttribute('aria-expanded') === 'true';
+  }, expandedId) : false;
 
   await clickNode('#viewport g.node-group:not([aria-expanded])');
   panelOpened = await page.evaluate(() => {
@@ -648,8 +682,23 @@ async function probePage(page, scenario) {
     const onScreen = r.right > 8 && r.left < innerWidth - 8 && r.top < innerHeight - 8 && r.bottom > 8;
     return onScreen && r.width > 0;
   });
-  await page.click('#panel-close').catch(() => {});
-  await page.waitForTimeout(400);
+  // Toast lane: force one open alongside the detail panel and compare boxes.
+  const { toastBox, panelOpenBox } = await page.evaluate(() => {
+    const c = document.getElementById('achievement-container');
+    const p = document.getElementById('panel');
+    if (!c || !p) return { toastBox: null, panelOpenBox: null };
+    const probe = document.createElement('div');
+    probe.className = 'achievement-toast';
+    probe.innerHTML = '<div class="at-icon">*</div><div class="at-body">' +
+      '<div class="at-title">Achievement unlocked</div><div class="at-name">Layout probe</div></div>';
+    c.appendChild(probe);
+    const boxes = { toastBox: c.getBoundingClientRect().toJSON(), panelOpenBox: p.getBoundingClientRect().toJSON() };
+    probe.remove();
+    return boxes;
+  });
+  await page.click('#panel .p-close').catch(() => {});
+  await page.waitForTimeout(600);
+
 
   await page.fill('#search-input', 'human').catch(() => {});
   await page.waitForTimeout(700);
@@ -657,12 +706,72 @@ async function probePage(page, scenario) {
     document.querySelectorAll('#search-results .sr-item, #search-results > *').length);
   await page.fill('#search-input', '').catch(() => {});
 
+  // Expand All reveals every species at once — the camera has to follow.
+  // Measured from layout coordinates, not getBBox(): the renderer culls
+  // off-screen nodes, so the drawn bounding box only ever describes what is
+  // already visible and would report a badly-framed tree as perfectly framed.
+  // The label allowance here is deliberately more generous than the one the
+  // fit uses, so this still catches real framing errors.
+  const measureFit = () => page.evaluate(async () => {
+    const { TREE } = await import(new URL('js/data.js', location.href).href);
+    const { getVisible } = await import(new URL('js/layout.js', location.href).href);
+    const vpg = document.getElementById('viewport');
+    const m = /translate\(\s*(-?[\d.]+)[ ,]+(-?[\d.]+)\s*\)\s*scale\(\s*(-?[\d.]+)/
+      .exec(vpg.getAttribute('transform') || '');
+    if (!m) return { fillW: 0, fillH: 0, spill: 0 };
+    const [, tx, ty, s] = m.map(Number);
+
+    let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+    for (const n of getVisible(TREE)) {
+      if (!Number.isFinite(n._x) || !Number.isFinite(n._y)) continue;
+      const r = n.r || 12;
+      const fs = n.depth === 0 ? 14 : n.depth === 1 ? 12 : 10;
+      const half = Math.max(r, ((n.name || '').length * fs * 0.55) / 2);
+      minX = Math.min(minX, n._x - half); maxX = Math.max(maxX, n._x + half);
+      minY = Math.min(minY, n._y - r);    maxY = Math.max(maxY, n._y + r + 26);
+    }
+    if (!Number.isFinite(minX)) return { fillW: 0, fillH: 0, spill: 0 };
+
+    const left = tx + minX * s, top = ty + minY * s;
+    const w = (maxX - minX) * s, h = (maxY - minY) * s;
+    const H = document.getElementById('header');
+    const T = document.getElementById('timeline');
+    const topInset = H ? H.getBoundingClientRect().bottom : 0;
+    const botInset = T ? innerHeight - T.getBoundingClientRect().top : 0;
+    const stageW = innerWidth, stageH = Math.max(120, innerHeight - topInset - botInset);
+    return {
+      fillW: w / stageW, fillH: h / stageH,
+      spill: Math.max(0, -left, topInset - top, left + w - stageW,
+                      top + h - (innerHeight - botInset)),
+    };
+  });
+
+  // The detail panel is a right-hand drawer that covers the reveal controls on
+  // desktop, so make sure it is really shut before reaching for them — and do
+  // not swallow the click, or a missed click looks like a framing failure.
+  // Belt and braces: the panel covers the reveal controls on desktop, so make
+  // certain it is shut before reaching for them.
+  await page.click('#panel .p-close').catch(() => {});
+  await page.waitForTimeout(600);
+  let expandAllClicked = true;
+  try {
+    await page.click('#btn-expand-all', { timeout: 8000 });
+  } catch {
+    expandAllClicked = false;
+  }
+  await page.waitForTimeout(2600);
+  const afterExpandAll = { ...(await measureFit()), clicked: expandAllClicked };
+  await page.click('#btn-collapse-all', { timeout: 8000 }).catch(() => {});
+  await page.waitForTimeout(1800);
+
+
   // Read CSP violations last: inline event handlers are only evaluated when
   // they fire, so blocking them shows up during the interactions above rather
   // than on load. This supersedes the value collected in the first pass.
   const cspViolations = [...new Set(await page.evaluate(() => window.__cspViolations || []))];
 
-  return { ...base, ...forced, tooltipShown, zoomWorks, afterReset, parentExpands, panelOpened, searchResults, cspViolations };
+  return { ...base, ...forced, tooltipShown, zoomWorks, afterReset, parentExpands, panelOpened,
+           searchResults, afterExpandAll, toastBox, panelOpenBox, cspViolations };
 }
 
 // ── Runner ────────────────────────────────────────────────────────────────────

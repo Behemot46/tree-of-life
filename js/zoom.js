@@ -13,6 +13,17 @@ export function initZoomDeps(deps) {
   _getVisible = deps.getVisible;
 }
 
+/* The renderer culls anything outside the viewport, so moving the camera
+   without re-rendering leaves the newly-uncovered area blank — you pan toward
+   a branch and it simply is not drawn. Every camera move ends with a render so
+   culling recomputes. Debounced: gestures fire continuously. */
+let _renderAfterCamTimer=0;
+function renderAfterCamera(){
+  if(!_scheduleRender) return;
+  clearTimeout(_renderAfterCamTimer);
+  _renderAfterCamTimer=setTimeout(()=>_scheduleRender(),90);
+}
+
 export function applyT() {
   const viewport = document.getElementById('viewport');
   viewport.setAttribute('transform', `translate(${state.transform.x},${state.transform.y}) scale(${state.transform.s})`);
@@ -36,7 +47,7 @@ export function smoothPanTo(wx,wy){
     step++;const t=step/steps;const ease=1-Math.pow(1-t,3);
     state.transform.x=sx+dx*ease;state.transform.y=sy+dy*ease;
     applyT();
-    if(step<steps) requestAnimationFrame(tick);
+    if(step<steps) requestAnimationFrame(tick); else renderAfterCamera();
   }
   requestAnimationFrame(tick);
 }
@@ -55,7 +66,7 @@ export function smoothZoomTo(wx,wy,targetScale){
     state.transform.s=ss+ds*ease;
     state.transform.x=sx+dx*ease;state.transform.y=sy+dy*ease;
     applyT();
-    if(step<steps) requestAnimationFrame(tick);
+    if(step<steps) requestAnimationFrame(tick); else renderAfterCamera();
   }
   requestAnimationFrame(tick);
 }
@@ -121,19 +132,34 @@ export function getStageRect(){
   return {x:left,y:top,w,h,cx:left+w/2,cy:top+h/2};
 }
 
+/* How much space a node occupies in world units, disc plus label. The label
+   metrics mirror the renderer: font size by depth, width estimated from the
+   name, and a caption line below for the Latin name. */
+function nodeExtent(node){
+  const r=node.r||12;
+  const fs=node.depth===0?14:node.depth===1?12:10;
+  const halfLabel=((node.name||'').length*fs*0.55)/2;
+  return {hx:Math.max(r,halfLabel), hyUp:r, hyDown:r+fs+14};
+}
+
 /* Bounding box of everything currently on screen, in world coordinates.
    Nodes without a position are skipped — species hidden by the toggle never
-   get one, and letting NaN in here would poison the whole fit. */
+   get one, and letting NaN in here would poison the whole fit.
+
+   Deliberately measured from layout coordinates rather than the rendered
+   getBBox(): the renderer culls nodes outside the viewport, so the drawn
+   bounding box describes only what is already visible. Fitting to that can
+   never converge — each fit reveals more nodes, which enlarges the box. */
 function treeBounds(){
   const nodes=_getVisible(TREE);
   let minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity,n=0;
   for(const node of nodes){
     if(!Number.isFinite(node._x)||!Number.isFinite(node._y)) continue;
-    const r=node.r||12;
-    if(node._x-r<minX)minX=node._x-r;
-    if(node._x+r>maxX)maxX=node._x+r;
-    if(node._y-r<minY)minY=node._y-r;
-    if(node._y+r>maxY)maxY=node._y+r;
+    const e=nodeExtent(node);
+    if(node._x-e.hx<minX)minX=node._x-e.hx;
+    if(node._x+e.hx>maxX)maxX=node._x+e.hx;
+    if(node._y-e.hyUp<minY)minY=node._y-e.hyUp;
+    if(node._y+e.hyDown>maxY)maxY=node._y+e.hyDown;
     n++;
   }
   if(!n) return null;
@@ -141,43 +167,49 @@ function treeBounds(){
   return {minX,maxX,minY,maxY,w,h,cx:(minX+maxX)/2,cy:(minY+maxY)/2};
 }
 
-/* True extent of what is drawn, labels included, in world coordinates.
-   getBBox() ignores the transform on #viewport itself, and labels are sized in
-   world units, so this is independent of the current zoom — which is what lets
-   a single fit pass be exact rather than iterative. Returns null before the
-   first render. */
-function renderedBounds(){
-  const vp=document.getElementById('viewport');
-  if(!vp) return null;
-  let bb;
-  try{ bb=vp.getBBox(); }catch{ return null; }
-  if(!bb||!bb.width||!bb.height||!Number.isFinite(bb.width)) return null;
-  return {w:bb.width,h:bb.height,cx:bb.x+bb.width/2,cy:bb.y+bb.height/2};
-}
-
-function applyFit(b){
+function fitTransform(b){
   const st=getStageRect();
   const s=Math.min(st.w/b.w,st.h/b.h)*(1-FIT_PADDING);
   const scale=Math.min(FIT_MAX_SCALE,Math.max(FIT_MIN_SCALE,s));
-  state.transform={x:st.cx-b.cx*scale,y:st.cy-b.cy*scale,s:scale};
+  return {x:st.cx-b.cx*scale,y:st.cy-b.cy*scale,s:scale};
+}
+
+function applyFit(b){ state.transform=fitTransform(b); }
+
+/* Same framing as fitTreeToStage(), eased rather than snapped. Used by the
+   reveal controls, where a jump cut after changing how much of the tree is
+   shown is disorienting. */
+export function smoothFitToStage(){
+  // Measure two frames out. Callers change the tree and schedule a render, so
+  // the rendered bbox still describes the previous tree until that has landed
+  // — fitting to it would frame whatever was on screen before.
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    const b=treeBounds();
+    if(!b) return;
+    const to=fitTransform(b);
+    const from={...state.transform};
+    const steps=22;let step=0;
+    const token=++_camToken;
+    (function tick(){
+      if(token!==_camToken) return;
+      step++;const t=step/steps;const ease=1-Math.pow(1-t,3);
+      state.transform={
+        x:from.x+(to.x-from.x)*ease,
+        y:from.y+(to.y-from.y)*ease,
+        s:from.s+(to.s-from.s)*ease,
+      };
+      applyT();
+      if(step<steps) requestAnimationFrame(tick); else renderAfterCamera();
+    })();
+  }));
 }
 
 /* Scale and centre the tree so it fills the usable stage. This is the single
    entry point for framing — start-up, reset, view switches and resize all use
    it, so the tree is always as large as it can be without spilling. */
 export function fitTreeToStage(){
-  const rendered=renderedBounds();
-  const b=rendered||treeBounds();
-  if(!b) return;
-  applyFit(b);
-  if(!rendered){
-    // Nothing was drawn yet, so the fit came from node positions alone and did
-    // not account for labels. Correct once the first frame exists.
-    requestAnimationFrame(()=>{
-      const rb=renderedBounds();
-      if(rb){ applyFit(rb); applyT(); }
-    });
-  }
+  const b=treeBounds();
+  if(b) applyFit(b);
 }
 
 // ══════════════════════════════════════════════════════
@@ -218,12 +250,13 @@ export function initPointerEvents(){
     if(activePointers.size===0){
       isPointerPanning=false;
       if(panRAF){cancelAnimationFrame(panRAF);panRAF=0;applyT();}
+      renderAfterCamera();
     }
   });
-  svgEl.addEventListener('wheel',e=>{e.preventDefault();const f=e.deltaY<0?1.13:0.88;const rect=svgEl.getBoundingClientRect();const mx=e.clientX-rect.left,my=e.clientY-rect.top;const ns=Math.min(6,Math.max(0.05,state.transform.s*f));state.transform.x=mx-(mx-state.transform.x)*(ns/state.transform.s);state.transform.y=my-(my-state.transform.y)*(ns/state.transform.s);state.transform.s=ns;if(!zoomRAF){zoomRAF=requestAnimationFrame(()=>{zoomRAF=0;applyT();});}},{passive:false});
+  svgEl.addEventListener('wheel',e=>{e.preventDefault();const f=e.deltaY<0?1.13:0.88;const rect=svgEl.getBoundingClientRect();const mx=e.clientX-rect.left,my=e.clientY-rect.top;const ns=Math.min(6,Math.max(0.05,state.transform.s*f));state.transform.x=mx-(mx-state.transform.x)*(ns/state.transform.s);state.transform.y=my-(my-state.transform.y)*(ns/state.transform.s);state.transform.s=ns;if(!zoomRAF){zoomRAF=requestAnimationFrame(()=>{zoomRAF=0;applyT();});}renderAfterCamera();},{passive:false});
 
-  document.getElementById('btn-in').addEventListener('click',()=>{state.transform.s=Math.min(6,state.transform.s*1.2);applyT();});
-  document.getElementById('btn-out').addEventListener('click',()=>{state.transform.s=Math.max(0.05,state.transform.s*0.83);applyT();});
+  document.getElementById('btn-in').addEventListener('click',()=>{state.transform.s=Math.min(6,state.transform.s*1.2);applyT();renderAfterCamera();});
+  document.getElementById('btn-out').addEventListener('click',()=>{state.transform.s=Math.max(0.05,state.transform.s*0.83);applyT();renderAfterCamera();});
   document.getElementById('btn-reset').addEventListener('click',()=>{_layout();fitTreeToStage();_scheduleRender(true);applyT();});
 }
 

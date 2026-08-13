@@ -471,7 +471,7 @@ export function renderPanelContent(node) {
         ${node.appeared ? (() => { const tc = getTimeContext(node.appeared, node.id); return tc ? `<div class="p-time-context">${tc.text}</div>` : ''; })() : ''}
       </div>
       <div id="${panelCrId}" class="panel-hero-credit">${staticCredit}</div>
-      <button class="p-close" onclick="closePanel()">✕</button>
+      <button class="p-close" id="panel-close" aria-label="${t('panel_close')}" onclick="closePanel()">✕</button>
     </div>
     <div class="panel-body">
       ${node.desc ? `<div class="panel-section"><p class="p-desc" style="margin:0">${node.desc}</p></div>` : ''}

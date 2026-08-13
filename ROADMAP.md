@@ -1,198 +1,99 @@
 # Roadmap — Tree of Life
 
-> Last updated: 2026-03-28
-
-## Vision
-
-Make Tree of Life the most **engaging, intuitive, accurate, and fun** phylogenetic explorer on the web. English-only focus. Clear design across desktop and mobile.
+The decision record for this project. `CLAUDE.md` describes how the code works
+today; this file describes **why it is that way** and what is still open.
 
 ---
 
-## Completed Milestones (p-series)
+## Where things stand
 
-| Phase | Milestone | PR / Branch |
-|-------|-----------|-------------|
-| p1 | Extract data to external JS files | PR #38 |
-| p2 | Fuzzy multilingual search (EN/HE/RU) | `claude/inspiring-burnell` |
-| p3 | Main-tree hominin lineage (28 species) | PR #35 |
-| p4 | Interactive geological timeline | `claude/epic-mayer` (merged as p11) |
-| p6 | Hominin access improvements (floating button, golden ring) | PR #39 |
-| p7 | Visual overhaul (Heebo font, photo thumbnails, WCAG contrast) | PR #39 |
-| p8 | Dead CSS cleanup (deleted `style.css` + 17 dead rules) | PR #39 |
-| p9 | Legacy JS cleanup (deleted 7 dead modules, ~2,800 lines) | PR #39 |
-| p10 | Mobile responsiveness (bottom-sheet, touch gestures, pinch-to-zoom) | PR #45 |
-| p11 | Interactive timeline + 3 alternate tree views | `claude/epic-mayer` |
-| p12 | Modern scientific visual overhaul (Inter/JetBrains, SVG icons, human path) | PR #48 |
-| p13a | Back & Home navigation buttons with history stack | PR #51 |
-| p13b | Species image system (ImageLoader + AI prompt library + PHOTO_MAP 228 entries) | PR #52 |
-| p14 | Inline hominin family tree (28 hominins as tree nodes) | PR #53 |
-| p15 | Stabilization & docs (duplicate removal, scope fixes, doc updates) | PR #54 |
-| p16 | Inline hominin subtree fixes | PR #55 |
-| p17 | Subtree-weighted radial spacing | PR #56 |
-| p18 | Fix overlapping header controls | PR #57 |
-| p19 | Roadmap, project health, splash/intro i18n | PR #58 |
-| p23 | DNA similarity calculator (35 known pairs + LCA estimation model) | PR #60 |
+An interactive phylogenetic visualisation of 3.8 billion years of evolution,
+in English, Hebrew and Russian. Static files, no build step.
 
-### Features shipped without phase numbers
-
-- **Domain legend interactivity** — `toggleDomain()` / `resetDomains()` with click handlers and "Show All" reset
-- **Rich species panels** — Photo hero, funFact, facts table, tags, links, hominin brain/tools/DNA/fossils
-- **Procedural SVG illustrations** — `generateSpeciesIllustration()` (440×200 domain-specific SVG)
-- **Partial ARIA** — roles, labels on all controls
-- **Hominin deep-dive view** — Full-screen view with filtering, timeline cards, compare mode
+Every push and pull request runs `scripts/smoke.mjs`, which opens the real page
+in Chromium and asserts **174 checks across five scenarios** — desktop and
+phone, in all three languages. It is green.
 
 ---
 
-## J-Series — Next Generation
+## Open questions
 
-English-only. Focus: clear design, engaging, intuitive, accurate, fun.
+Things waiting on a decision rather than on work.
 
-### ✅ J1 — Design System Cleanup — **Done** (PR #121)
-**Effort:** Small | **Prompt:** `docs/PROMPTS/SPRINT_J1_DESIGN_CLEANUP.md`
-
-- Renamed `--gold` → `--accent`, removed duplicate `--teal`/`--teal-dim` (~60 refs)
-- Consolidated duplicate light/dark `#panel` rules
-- Defined 13 z-index CSS custom properties, replaced ~30 magic numbers
-- Removed 3 dead CSS classes (`.search-result-*`)
-- Extracted 7 CSS utility classes from JS `cssText`
-- Added `reducedMotion()` JS helper + guards on node/intro animations
-- Unified mobile breakpoints: 3 components `600px` → `768px`
-
-### J2 — Navigation & Interaction Polish ✅
-**Effort:** Small | **Prompt:** `docs/PROMPTS/SPRINT_J2_NAV_POLISH.md`
-
-- ✅ Unified navigation: `panelHistory`/`panelBack()` removed, all nav through `navStack`/`navBack()`
-- ✅ Smooth auto-pan (`smoothPanTo`) on `navigateTo()` and `showMainPanel()`
-- ✅ Keyboard: Escape = Back, Shift+Escape = Home, `?` = shortcuts help overlay
-- ✅ `navHome()` closes all overlays (DNA, evo-path, trivia, kbd-help)
-- ✅ Deleted stale modularized files (core.js, panel.js, renderer.js, search.js)
-- ✅ Fixed dead `openHomininView()` → `navigateTo('hominini')`
-
-### ✅ J3 — Code Modularization — **Done**
-**Effort:** Large | **Prompt:** `docs/PROMPTS/SPRINT_J3_MODULARIZATION.md`
-
-- Split 4,783-line index.html inline JS → 17 ES modules + state.js
-- `<script type="module">` — no build step needed
-- Modules: app, state, renderer, layout, panel, navigation, search, timeline, hominin, dnaCalc, evoPath, trivia, playback, zoom, theme, engagement, utils
-- Deleted outdated p24 extraction files (core.js + old renderer/panel/search)
-
-### ✅ J4 — Accessibility Foundation — **Done** (PR TBD)
-**Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J4_ACCESSIBILITY.md`
-
-- WAI TreeView keyboard navigation: 4 distinct arrow keys (Right=expand/child, Left=collapse/parent, Down/Up=tree-order)
-- `aria-selected` on focused node, `tabindex="0"` on root (LUCA)
-- Focus traps for DNA calculator and Evo-path panels
-- Focus restoration on modal close (saves/restores trigger element)
-- `aria-live` announcements: panel close, expand/collapse, view mode change, search results
-- SVG `<title>` + `<desc>` for screen readers
-- All touch targets ≥ 44px on mobile (lang, theme, extinct, legend, zoom)
-
-### ✅ J5 — SVG Performance — **Done** (PR TBD)
-**Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J5_PERFORMANCE.md`
-
-- Viewport culling — only render visible nodes (100px margin)
-- GPU compositing with `will-change: transform` on #viewport
-- CSS-class animations (`.branch-entering`/`.node-entering`) replace inline styles
-- rAF-debounced pointermove and wheel handlers
-- Spatial hash for O(n) label collision detection
-- animDone.clear() on view mode switch for animation replay
-
-### ✅ J6 — Discovery & Fun — **Done** (PR #127)
-**Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J6_ENGAGEMENT.md`
-
-- Progress tracker: "X/338 species discovered" with pill badge
-- 12 unlockable achievements with toast notifications
-- Idle fact cards (45s timer, FACTS library integration)
-- Enhanced hover tooltips with funFact data (500ms delay)
-- Quiz mode: 5 random trivia questions from 200+ pool
-- Exploration visual cue on visited nodes
-
-### ✅ J7 — Data Enrichment — **Done**
-**Effort:** Large | **Prompt:** `docs/PROMPTS/SPRINT_J7_DATA_ENRICHMENT.md`
-
-- Expanded tree to 339 unique species (was 157 in treeData.js + 198 via treeExpansion.js)
-- IUCN conservation badges (CR/EN/VU/NT/LC) on 263 species with color-coded CSS
-- DNA_KNOWN expanded from 36 → 61 pairs
-- FACTS library expanded from 148 → 170 facts
-- funFact on all treeData.js nodes + 44 key treeExpansion.js species
-- Conservation badge rendering in species panel hero section
-
-### ✅ J8 — Offline & PWA — **Done**
-**Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J8_PWA.md`
-
-- Service worker with 39-file precache (cache-first app shell, network-first API, stale-while-revalidate images)
-- Web app manifest with SVG icons (192px, 512px, maskable)
-- Offline indicator banner (red bar, auto-shows on connection loss)
-- Apple PWA meta tags for iOS home screen
-- deploy-check.yml validates sw.js + manifest.json + all JS modules
-
-### ✅ J9 — Guided Educational Tours — **Done**
-**Effort:** Medium | **Prompt:** `docs/PROMPTS/SPRINT_J9_GUIDED_TOURS.md`
-
-- "From LUCA to You" — 8-step human evolution path
-- "The Five Kingdoms" — 7-step domain tour
-- "Mass Extinctions" — 7-step timeline tour
-- Spotlight overlay + narration cards
-- Tour selector modal with 3 cards
-- First-visit prompt, "?" button for replay
-
-### J10 — Image & Visual Polish
-**Effort:** Large | **Prompt:** `docs/PROMPTS/SPRINT_J10_IMAGE_POLISH.md`
-
-- 100% PHOTO_MAP coverage — every node gets a real Wikimedia Commons photo
-- No emoji fallbacks anywhere — replaced with elegant SVG silhouette placeholders
-- Smooth fade-in image loading with shimmer skeletons
-- Image retry logic for transient network failures
-- Higher resolution (1280px) hero images for retina displays
-- Photo quality standards: real photos only, no illustrations or clipart
+| Question | Why it matters |
+|---|---|
+| **Custom domain name** | Stage 4 cannot finish without it. Vercel is deploying; the domain is unconnected. |
+| **Phone layout for a wide tree** | The radial tree is ~2:1; a phone screen is ~1:2. It fits the width correctly and leaves vertical space empty. A portrait-specific layout (or defaulting phones to the cladogram) would fix it, but that is a design choice. |
+| **Localising species names** | 336 species names are English-only, so "Dugong" shows in Hebrew. The UI chrome is fully translated. This is a content project, not a code one. |
+| **Content-Security-Policy** | The page pulls from Google Fonts, a D3 CDN, Wikimedia and the Wikipedia API. A policy that misses one breaks the site silently, so it should land with a check that would catch the mistake. |
+| **`SECURITY.md`** | Still GitHub's unfilled template — it advertises versions 4.0/5.0/5.1 that do not exist and tells the reader to "use this section to tell people…". |
 
 ---
 
-## Execution Order
+## Decision log
 
-```
-Sprint 1: J1 + J2 (foundation cleanup)
-Sprint 2: J3 (modularization)
-Sprint 3: J4 (accessibility)
-Sprint 4: J5 (performance)
-Sprint 5: J6 (engagement)
-Sprint 6: J7 (data enrichment)
-Sprint 7: J8 (PWA)
-Sprint 8: J9 (guided tours)
-Sprint 9: J10 (image & visual polish)
-```
+### 2026-08 — Takeover and polish
 
-## Deferred (Future Series)
+| Decision | Rationale |
+|---|---|
+| Verification before fixes | The suite was written and landed *before* any bug was fixed, so every later change had something to prove itself against. It found three problems nobody had reported. |
+| Baseline file of known failures | Let the suite land red-in-truth but green-in-CI. The run fails both on a new failure **and** on a baselined check that starts passing, so each fix has to delete its own entry. The file went 44 → 0 over three stages and is now empty. |
+| Smoke checks replace `deploy-check.yml` | The old workflow only asserted that files existed. It could not have caught a single one of the reported problems. |
+| One `fitTreeToStage()` for all framing | The camera had been pinned to a hardcoded `scale(0.18)` in five places. Start-up, reset, view switches and resize now share one path, so they cannot drift apart again. |
+| Fit measures the rendered bbox, not node positions | Labels extend past their nodes. Because labels are sized in world units, `getBBox()` is independent of zoom, so one pass is exact instead of iterative. |
+| The "stage" excludes header, timeline and side rail | Fitting to the raw viewport hides part of the tree behind chrome. Corner widgets are deliberately *not* subtracted — reserving their full height would waste most of the screen. |
+| Nothing is cached immutably | No asset is content-hashed, so an `immutable` header on `js/app.js` would strand visitors on old code with no way to bust it. ETags make revalidation cheap. |
+| Species names exempt from i18n checks | The tree data is English-only. Marked `data-i18n-exempt` in the markup so the boundary is explicit and the check still guards everything else. |
+| Era labels hide rather than clip | Segment widths are proportional to geological time, so no fixed heuristic fits every language. A missing label reads as deliberate; `Paleoproterozo` reads as broken. The full name moved to the tooltip. |
+| Pages stays until the domain works | Two hosts briefly, rather than a window with none. |
+| Proxy support is opt-in (`--proxy`) | Reading `HTTPS_PROXY` automatically broke plain `--url` runs against a local server — the mode CI uses. Shipped, then corrected once tested. |
 
-- HE/RU i18n completeness and RTL polish
-- Node content localization (desc/detail/facts × 3 languages)
-- AI-generated species illustrations pipeline
-- Naturalist pen-and-ink node artwork
-
----
-
-## Architectural Principles
-
-1. **No build step** — static files, CDN dependencies, ES modules natively
-2. **GitHub Pages compatible** — no server-side logic
-3. **Vanilla JS** — no frameworks, no package manager
-4. **Data-driven** — content in JS data files, rendering logic separate
-5. **Museum-quality UX** — polish over features
-6. **English-first** — i18n infrastructure stays but expansion deferred
-
----
-
-## Decision Log
+### Earlier decisions
 
 | Date | Decision | Rationale |
-|------|----------|-----------|
-| 2026-03-10 | Keep all CSS inline in index.html | No build step; external style.css was deleted |
-| 2026-03-11 | Use Inter + JetBrains Mono + Heebo | Modern scientific look |
-| 2026-03-12 | SVG silhouette icons over emojis | Cross-platform consistency |
-| 2026-03-13 | ImageLoader fallback chain | Generated → PHOTO_MAP → emoji; graceful degradation |
-| 2026-03-14 | Separate navStack from panelHistory | Quick ship; unification deferred to J2 |
-| 2026-03-29 | J2: Unified nav stack, deleted stale JS modules | panelHistory/panelBack removed; smooth pan; kbd help overlay |
-| 2026-03-15 | Roadmap created | Formalize priorities |
-| 2026-03-16 | Unified roadmap with scaling tiers | Reconciled duplicate phases, integrated data infrastructure priorities |
-| 2026-03-28 | J-series replaces p-series | Fresh start with 7-agent audit, English-only focus |
-| 2026-03-28 | Sprint prompt files per phase | Self-contained session instructions for reproducible execution |
+|---|---|---|
+| 2026-03-11 | Inter + JetBrains Mono + Heebo | Modern scientific look with Hebrew and Cyrillic coverage |
+| 2026-03-12 | SVG silhouette icons over emoji | Cross-platform consistency |
+| 2026-03-13 | `ImageLoader` fallback chain | Generated → `PHOTO_MAP` → emoji; degrades gracefully |
+| 2026-03-28 | J-series replaced the p-series | Fresh start after an audit |
+| 2026-03-29 | Unified nav stack | `panelHistory`/`panelBack` removed in favour of one stack |
+| 2026-04-03 | CSS extracted from `index.html` into `css/` | The "keep all CSS inline" decision from 2026-03-10 no longer held once the file grew past readability |
+| 2026-04-03 | JS split into ES modules with late-bound deps | Avoids circular imports without a bundler |
+
+---
+
+## Shipped
+
+Condensed from the p- and J-series logs, which are no longer kept as separate
+files. Git history has the detail.
+
+**p-series (2026-03)** — data extracted to modules; fuzzy trilingual search;
+hominin lineage (28 species); interactive geological timeline; mobile
+responsiveness with touch and pinch-zoom; alternate tree views; navigation
+history stack; species image system with `PHOTO_MAP`; rich species panels; DNA
+similarity calculator.
+
+**J-series (2026-03 → 2026-04)** — design-system cleanup (z-index scale, accent
+token consolidation); navigation polish; code modularisation into ES modules;
+accessibility foundation; SVG performance and viewport culling; discovery and
+fun features; data enrichment; offline/PWA support; guided tours.
+
+**2026-04** — collapsed-by-default tree; superarchaic DNA story exhibit; game
+modes and achievements; Reveal panel (depth slider + species toggle).
+
+**2026-08** — browser smoke suite in CI; fit-to-stage camera; the rendering,
+layout and i18n fixes listed in the decision log above.
+
+---
+
+## Architectural principles
+
+1. **No build step** — static files, CDN dependencies, ES modules natively.
+2. **No runtime dependencies** — `package.json` exists only to pin Playwright
+   for the tests and is never shipped to the browser.
+3. **Vanilla JS** — no frameworks.
+4. **Data-driven** — content lives in JS data files, separate from rendering.
+5. **Trilingual, RTL-aware** — Hebrew is a first-class layout, not a translation
+   layer bolted on.
+6. **Verified in a real browser** — anything that changes the site is checked on
+   desktop and phone, in Hebrew as well as English, before it merges.

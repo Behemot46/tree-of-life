@@ -50,7 +50,7 @@ See [CHANGELOG.md](CHANGELOG.md)
 
 ## Documentation
 
-- [Architecture](docs/ARCHITECTURE.md) — Technical decisions and file structure
-- [Data Schema](docs/DATA_SCHEMA.md) — Tree and hominin data format
-- [I18N Guide](docs/I18N_GUIDE.md) — How to add/edit translations
-- [Assets](docs/ASSETS.md) — Image sources and licenses
+- [CLAUDE.md](CLAUDE.md) — how the project works: architecture, data shape,
+  styling, i18n, smoke tests, deployment
+- [ROADMAP.md](ROADMAP.md) — why it works that way: decision record, what
+  shipped, what is still open

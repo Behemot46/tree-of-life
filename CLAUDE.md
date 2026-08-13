@@ -49,7 +49,9 @@ land in `.smoke-out/`. It is not a substitute for looking at the result.
 
 **Tree of Life** is an interactive, browser-based phylogenetic visualization of 3.8 billion years of evolutionary history. Users can explore the tree of life, expand taxonomic nodes, search for species, and view detailed information panels with photos, Wikipedia summaries, and conservation status data.
 
-- **Tech stack:** Vanilla JavaScript, D3.js (CDN, not actively used yet), HTML5, CSS3
+- **Tech stack:** Vanilla JavaScript, HTML5, CSS3. **No D3** — earlier docs
+  claimed a D3 CDN dependency, but `index.html` has exactly one script tag
+  (`js/app.js`) and the renderer is hand-written SVG.
 - **No build step** — open `index.html` directly or use `node serve.js`
 - **No package manager for the site** — the page itself ships zero npm
   dependencies; D3.js loads from CDN. `package.json` exists only to pin
@@ -243,11 +245,23 @@ Then add the language object to `TRANSLATIONS` and a `.lang-btn` in
 
 ### What is *not* translated
 
-**Species names, descriptions and facts are English-only** — they live in the
-tree data (`js/treeData.js`, `js/treeExpansion.js`), which has not been
-localised. The UI chrome is fully translated in all three languages. Elements
-that legitimately show English data carry `data-i18n-exempt` so the smoke
-suite's leak check skips them rather than being weakened.
+**Major taxonomic groups are translated; individual species are not.**
+
+`js/taxonNames.js` holds Hebrew and Russian names for the 50 ranked groups —
+domains, kingdoms, phyla, classes, orders and the like. `displayName(node)` in
+`js/utils.js` resolves a node's name for the active language and falls back to
+English, so adding a group node never breaks a language. It is used for tree
+labels, tooltips and the detail panel.
+
+The boundary is the `latin` field: ranked groups carry a rank prefix
+(`Class Mammalia`), species carry a binomial (`Panthera leo`). Species
+descriptions and facts stay English too — a half-translated tree reads worse
+than a consistently English one.
+
+`i18n:taxon-labels-translated` in the smoke suite fails if a group node renders
+its English name in Hebrew or Russian. Elements that legitimately show English
+data — the species-of-the-day badge — carry `data-i18n-exempt` so the leak
+check skips them rather than being weakened.
 
 ---
 
@@ -318,10 +332,20 @@ cache headers: **nothing may be cached immutably**, because no asset is
 content-hashed and a stale `js/app.js` would strand visitors on old code
 with no way to bust it. ETags make revalidation cheap.
 
-There is deliberately **no Content-Security-Policy** yet. The page pulls from
-Google Fonts, a D3 CDN, Wikimedia and the Wikipedia API; a policy that misses
-one would break the site silently. Worth adding, but only alongside a check
-that would catch a mistake.
+The **Content-Security-Policy** lives in `vercel.json`. `serve.js` reads that
+same header block, so the dev server and the smoke suite enforce exactly what
+production serves — a policy that would break the deployed site breaks locally
+first. `scripts/smoke.mjs` fails on any CSP violation, and reads them *after*
+the interaction phase because inline handlers only fire when clicked.
+
+The policy allows `script-src 'unsafe-inline'`: `index.html` uses 31 inline
+`onclick` handlers, so it restricts *which origins* are reachable rather than
+preventing inline execution. Removing those handlers would let it tighten.
+
+Allowed origins are deliberately narrow — `fonts.googleapis.com` (styles),
+`fonts.gstatic.com` (fonts), `upload.wikimedia.org` (every one of the 393
+`PHOTO_MAP` images). Species "learn more" links point at ~200 other hosts, but
+those are anchor targets, not loaded resources, so CSP does not govern them.
 
 `.github/workflows/verify-deployment.yml` runs the full smoke suite against
 the deployed URL whenever Vercel publishes to production, so a green build is

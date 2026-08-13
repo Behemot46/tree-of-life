@@ -134,6 +134,11 @@ check('load:splash-dismissible', 'Splash screen can be dismissed', (c) => {
   if (!c.probe.splashDismissed) fail('#splash still visible after clicking skip');
 });
 
+check('load:no-csp-violations', 'Content-Security-Policy blocks nothing the page needs', (c) => {
+  const v = c.probe.cspViolations;
+  if (v.length) fail(`${v.length} CSP violation(s): ${v.slice(0, 3).join('; ')}`);
+});
+
 check('load:critical-elements', 'All critical elements are present', (c) => {
   const missing = c.probe.missingIds;
   if (missing.length) fail(`missing element(s): ${missing.join(', ')}`);
@@ -297,6 +302,15 @@ check('i18n:no-latin-leak', 'No English text leaks into the Hebrew UI', (c) => {
   }
 }, (s) => s.lang === 'he');
 
+check('i18n:taxon-labels-translated', 'Major taxonomic groups are labelled in the active language', (c) => {
+  const { taxonLabels } = c.probe;
+  if (!taxonLabels.checked) return; // none of the sample groups on screen
+  if (taxonLabels.untranslated.length) {
+    fail(`${taxonLabels.untranslated.length} group(s) still showing English: ` +
+      taxonLabels.untranslated.slice(0, 4).map((t) => `${t.id}="${t.got}" want "${t.want}"`).join(', '));
+  }
+}, (s) => s.lang !== 'en');
+
 check('i18n:search-placeholder-translated', 'Search placeholder is translated', (c) => {
   const { got, want } = c.probe.searchPlaceholder;
   if (want && got !== want) fail(`placeholder "${got}", expected "${want}"`);
@@ -448,6 +462,28 @@ async function probePage(page, scenario) {
       }
     }
 
+    const cspViolations = [...new Set(window.__cspViolations || [])];
+
+    // Major taxonomic groups must render their localised name in the tree.
+    // Species deliberately stay English, so only ranked groups are checked.
+    const TAXA = await import(new URL('js/taxonNames.js', location.href).href)
+      .then((m) => m.TAXON_NAMES).catch(() => null);
+    const taxonLabels = { checked: false, untranslated: [] };
+    if (TAXA && TAXA[lang]) {
+      for (const g of document.querySelectorAll('#viewport g.node-group')) {
+        const id = g.getAttribute('data-node-id');
+        const want = TAXA[lang][id];
+        if (!want) continue;
+        // Not just any <text>: a node group also holds the collapse-count
+        // badge, which would match first and always look "untranslated".
+        const label = g.querySelector('text.node-label-name');
+        if (!label || !visible(label)) continue;
+        taxonLabels.checked = true;
+        const got = (label.textContent || '').trim();
+        if (got !== want) taxonLabels.untranslated.push({ id, got, want });
+      }
+    }
+
     const si = byId('search-input');
     const searchPlaceholder = {
       got: si ? si.placeholder : '',
@@ -493,7 +529,7 @@ async function probePage(page, scenario) {
       },
       eraClipped, eraOverlaps,
       i18nMismatches, i18nMissingKeys, latinLeaks, searchPlaceholder,
-      centerHit,
+      centerHit, cspViolations, taxonLabels,
     };
   }, { bindings: I18N_BINDINGS, lang: scenario.lang });
 
@@ -621,7 +657,12 @@ async function probePage(page, scenario) {
     document.querySelectorAll('#search-results .sr-item, #search-results > *').length);
   await page.fill('#search-input', '').catch(() => {});
 
-  return { ...base, ...forced, tooltipShown, zoomWorks, afterReset, parentExpands, panelOpened, searchResults };
+  // Read CSP violations last: inline event handlers are only evaluated when
+  // they fire, so blocking them shows up during the interactions above rather
+  // than on load. This supersedes the value collected in the first pass.
+  const cspViolations = [...new Set(await page.evaluate(() => window.__cspViolations || []))];
+
+  return { ...base, ...forced, tooltipShown, zoomWorks, afterReset, parentExpands, panelOpened, searchResults, cspViolations };
 }
 
 // ── Runner ────────────────────────────────────────────────────────────────────
@@ -640,6 +681,13 @@ async function runScenario(browser, scenario, baseUrl) {
     localStorage.setItem('tol-lang', lang);
     localStorage.setItem('tol-tour-done', '1');
     localStorage.setItem('tol-splash-seen', '1');
+    // A Content-Security-Policy that blocks something the page needs fails
+    // silently in the UI. Record every violation so a check can fail on it.
+    window.__cspViolations = [];
+    document.addEventListener('securitypolicyviolation', (e) => {
+      window.__cspViolations.push(
+        `${e.violatedDirective} blocked ${e.blockedURI || 'inline'}`);
+    });
   }, scenario.lang);
 
   const page = await ctx.newPage();

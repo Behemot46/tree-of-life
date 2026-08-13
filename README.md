@@ -2,7 +2,7 @@
 
 An interactive visualization of 3.8 billion years of evolution.
 
-Live at: **[behemot46.github.io/tree-of-life](https://behemot46.github.io/tree-of-life/)**
+Live at: **[treeoflife.wiki](https://treeoflife.wiki/)**
 
 ## Features
 

@@ -19,12 +19,19 @@ jobs:
 
       - name: Extract and check PHOTO_MAP URLs
         run: |
-          # Extract only PHOTO_MAP section (starts at "const PHOTO_MAP", ends at next "const " or EOF)
-          sed -n '/^const PHOTO_MAP/,/^const [A-Z]/p' js/speciesData.js | \
+          # Extract only the PHOTO_MAP section. The declaration is
+          # `export const PHOTO_MAP`, so a pattern anchored on `^const` matched
+          # nothing and this job silently checked zero URLs while reporting
+          # success. Fail loudly rather than pass on an empty list.
+          sed -n '/^export const PHOTO_MAP/,/^export const [A-Z]/p' js/speciesData.js | \
             grep -o "url:'[^']*'" | sed "s/^url:'//;s/'$//" | sort -u > /tmp/photo_urls.txt
 
           total=$(wc -l < /tmp/photo_urls.txt)
           echo "Found $total unique photo URLs to check"
+          if [ "$total" -eq 0 ]; then
+            echo "❌ Extracted no URLs from PHOTO_MAP — the extraction is broken, not the links."
+            exit 1
+          fi
           echo ""
 
           broken=0

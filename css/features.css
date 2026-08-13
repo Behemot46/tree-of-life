@@ -133,7 +133,6 @@
 .view-btn.active{background:var(--accent-primary-dim);color:var(--accent-light);}
 .view-btn:active{transform:scale(0.97);}
 .view-btn+.view-btn{border-left:none;border-top:1px solid var(--border);}
-[dir="rtl"] #top-right-controls{right:auto;left:0.5rem;}
 [dir="rtl"] #view-toggle{left:auto;right:1rem;}
 
 /* ══════════════════════════════════════════════════════ */

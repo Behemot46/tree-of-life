@@ -6,6 +6,7 @@
 import { state, nodeMap, animDone, confirmedPhotoUrls, HUMAN_PATH } from './state.js';
 import { getVisible, getVisibleEdges, countDescendants } from './layout.js';
 import { reducedMotion, displayName } from './utils.js';
+import { labelBox, labelOffset } from './labelMetrics.js';
 import { getPlaybackNodeState, discoverNode, showDiscoveryCard } from './playback.js';
 import { isExplored } from './engagement.js';
 import { nodeInEra } from './timeline.js';
@@ -753,32 +754,13 @@ export function render(){
 
     // ── LABELS ──
     if(inEra && labelEarnsSpace(n.depth,state.transform.s)){
-      const labelText=n._hominData?n._hominData.short:displayName(n);
-      const latinText=n.latin||'';
-      let lx,ly,anchor,fontSize;
-
-      if(isCladogram){
-        // Horizontal: label to the right of node
-        fontSize=n.depth===0?13:n.depth<=1?12:10;
-        lx=n._x+nodeR+8;
-        ly=n._y;
-        anchor='start';
-      } else {
-        // Radial: label positioned by angle from center
-        const sibCount=n._parent?.children?.length||1;
-        const angleRad=(n._angle||0)-Math.PI/2;
-        const lDist=nodeR+18+Math.max(0,(n.depth-3)*4);
-        lx=n._x+Math.cos(angleRad)*lDist;
-        ly=n._y+Math.sin(angleRad)*lDist;
-        const cos=Math.cos(angleRad);
-        fontSize=n.depth===0?14:n.depth===1?12:sibCount>12?8:sibCount>8?9:10;
-        anchor=cos<-0.15?'end':cos>0.15?'start':'middle';
-      }
-
-      const textW=labelText.length*fontSize*0.55;
-      const textH=fontSize+12;
-      const bx=anchor==='end'?lx-textW:anchor==='start'?lx:lx-textW/2;
-      pendingLabels.push({n,lx,ly,fontSize,textW,textH,bx,by:ly-textH/2,anchor:anchor||'middle',labelText,latinText,g,onHumanPath});
+      const box=labelBox(n,isCladogram);
+      const off=labelOffset(n,isCladogram,nodeR);
+      const lx=n._x+off.lx,ly=n._y+off.ly,anchor=off.anchor;
+      // Height covers both lines, so a name never sits on the caption above it.
+      const textH=box.h+4;
+      const bx=anchor==='end'?lx-box.w:anchor==='start'?lx:lx-box.w/2;
+      pendingLabels.push({n,lx,ly,fontSize:box.fs,latinSize:box.lfs,textW:box.w,textH,bx,by:ly-box.fs/2-2,anchor,labelText:box.name,latinText:box.latin,g,onHumanPath});
     }
 
     // Hover events (tooltip only, no movement)
@@ -867,6 +849,7 @@ export function render(){
     if(b.n.depth<=1&&a.n.depth>1) return 1;
     return a.n.depth-b.n.depth;
   });
+  const rtl=document.documentElement.dir==='rtl';
   const labelGrid=createSpatialHash(100);
   function boxesOverlap(a,b){
     return a.bx<b.bx+b.textW&&a.bx+a.textW>b.bx&&a.by<b.by+b.textH&&a.by+a.textH>b.by;
@@ -881,14 +864,25 @@ export function render(){
     }
     labelGrid.insert(lb);
 
+    /* `text-anchor` is resolved against the writing direction, not the screen:
+       under dir="rtl" `start` means the right-hand edge. Labels are placed
+       geometrically — outward from the node along its branch — so in Hebrew
+       every one of them was anchored on the wrong side and ran back across its
+       own node. Swap the two so the anchor keeps its geometric meaning. */
+    const anchorOf=a=>rtl?(a==='start'?'end':a==='end'?'start':a):a;
+
     // Species name
     const svgText=document.createElementNS('http://www.w3.org/2000/svg','text');
     svgText.setAttribute('x',lb.lx);svgText.setAttribute('y',lb.ly);
-    svgText.setAttribute('text-anchor',lb.anchor||'middle');
+    svgText.setAttribute('text-anchor',anchorOf(lb.anchor||'middle'));
     svgText.setAttribute('dominant-baseline','middle');
     svgText.setAttribute('fill',lb.onHumanPath?'var(--tree-human-path)':lb.n.color);
-    svgText.setAttribute('font-size',lb.fontSize);
-    svgText.setAttribute('font-weight',lb.onHumanPath||lb.n.depth<=1?'600':'400');
+    /* Inline style, not the font-size attribute: .node-label-name sets a size
+       in the stylesheet, and a CSS declaration beats a presentation attribute.
+       Every label was therefore drawn at the same 10px no matter what depth
+       asked for — the root read exactly like a bacterium. */
+    svgText.style.fontSize=lb.fontSize+'px';
+    svgText.style.fontWeight=lb.onHumanPath||lb.n.depth<=1?'700':lb.n.depth===2?'600':'500';
     svgText.setAttribute('class','node-label-name');
     svgText.textContent=lb.labelText;
     lb.g.appendChild(svgText);
@@ -896,8 +890,9 @@ export function render(){
     // Latin name
     if(lb.latinText){
       const latin=document.createElementNS('http://www.w3.org/2000/svg','text');
-      latin.setAttribute('x',lb.lx);latin.setAttribute('y',lb.ly+12);
-      latin.setAttribute('text-anchor',lb.anchor||'middle');
+      latin.setAttribute('x',lb.lx);latin.setAttribute('y',lb.ly+lb.fontSize/2+lb.latinSize*0.8);
+      latin.setAttribute('text-anchor',anchorOf(lb.anchor||'middle'));
+      latin.style.fontSize=lb.latinSize+'px';
       latin.setAttribute('class','node-label-latin');
       latin.textContent=lb.latinText;
       lb.g.appendChild(latin);

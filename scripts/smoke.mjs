@@ -240,6 +240,11 @@ check('chrome:panel-closed-offscreen', 'Detail panel is off-screen while closed'
   if (intruding > 0.02) fail(`#panel covers ${(intruding * 100) | 0}% of the screen while closed`);
 });
 
+check('chrome:no-stretched-overlay', 'No floating control stretches across the window', (c) => {
+  const s = c.probe.stretchedChrome || [];
+  if (s.length) fail(`${s.length} floating element(s) span the window: ${s.join(', ')}`);
+});
+
 check('chrome:tooltip-hidden-initially', 'Tooltip is hidden on load', (c) => {
   if (c.probe.boxes.tooltip) fail('#tooltip is visible before any hover');
 });
@@ -499,6 +504,26 @@ async function probePage(page, scenario) {
     const cspViolations = [...new Set(window.__cspViolations || [])];
 
     // Major taxonomic groups must render their localised name in the tree.
+    /* Floating chrome that has stretched across the window. A fixed element
+       with both physical edges pinned and no width fills the screen: an
+       invisible sheet over the map that dims what is under it and swallows
+       every click. It happens whenever an `!important` physical offset meets
+       an RTL override that cannot release it, which is why this is measured
+       rather than trusted — the elements still look fine in LTR. */
+    const stretchedChrome = [...document.querySelectorAll('body > *')]
+      .filter((el) => {
+        const s = getComputedStyle(el);
+        if (s.position !== 'fixed' && s.position !== 'absolute') return false;
+        if (s.display === 'none' || s.visibility === 'hidden' || parseFloat(s.opacity) < 0.02) return false;
+        // Both edges pinned and no width of its own: the box can only stretch.
+        if (s.left === 'auto' || s.right === 'auto' || s.width !== 'auto') return false;
+        const r = el.getBoundingClientRect();
+        // A control that happens to be as wide as its contents is fine; this is
+        // about boxes dragged open by the cascade.
+        return r.width > Math.min(360, innerWidth * 0.4);
+      })
+      .map((el) => `${el.id || el.tagName}:${Math.round(el.getBoundingClientRect().width)}px`);
+
     // Species deliberately stay English, so only ranked groups are checked.
     const TAXA = await import(new URL('js/taxonNames.js', location.href).href)
       .then((m) => m.TAXON_NAMES).catch(() => null);
@@ -563,7 +588,7 @@ async function probePage(page, scenario) {
       },
       eraClipped, eraOverlaps,
       i18nMismatches, i18nMissingKeys, latinLeaks, searchPlaceholder,
-      centerHit, cspViolations, taxonLabels,
+      centerHit, cspViolations, taxonLabels, stretchedChrome,
     };
   }, { bindings: I18N_BINDINGS, lang: scenario.lang });
 

@@ -1,7 +1,4 @@
 /* ── RTL (Hebrew) ── */
-[dir="rtl"] #header{flex-direction:row-reverse;}
-[dir="rtl"] #top-right-controls{right:auto;left:0.5rem;}
-[dir="rtl"] #search-wrap{left:auto;right:1.5rem;}
 /* breadcrumb is centered with left:50%+translateX(-50%), works in both LTR and RTL — no positional override needed */
 [dir="rtl"] #progress-badge{left:auto;right:1.5rem;}
 [dir="rtl"] #search-input{text-align:right;direction:rtl;}
@@ -9,7 +6,6 @@
 [dir="rtl"] #panel.open{left:0;right:auto;}
 [dir="rtl"] .panel-scroll{direction:rtl;}
 [dir="rtl"] #legend{left:auto;right:1.2rem;}
-[dir="rtl"] #zoom-ctrl{right:auto;left:1.2rem;}
 [dir="rtl"] .p-top{flex-direction:row-reverse;}
 [dir="rtl"] .bc-sep{transform:scaleX(-1);display:inline-block;}
 /* (Removed hominin RTL overrides — view deleted) */
@@ -22,9 +18,6 @@
 [lang="he"] {
   direction: rtl;
   font-family: 'Heebo','Inter',sans-serif;
-}
-[lang="he"] #header {
-  flex-direction: row-reverse;
 }
 [lang="he"] #panel {
   border-left: none;

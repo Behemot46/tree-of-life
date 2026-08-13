@@ -88,7 +88,9 @@
 .nav-btn .nav-arrow{display:inline-block;font-size:var(--text-sm);line-height:1;}
 [data-theme="light"] .nav-btn{background:var(--glass-bg);border-color:var(--glass-border);color:var(--text-secondary);}
 [data-theme="light"] .nav-btn:hover{background:var(--accent-primary-dim);border-color:var(--accent-primary);color:var(--accent-primary);}
-[dir="rtl"] #nav-ctrl{left:auto;right:1.2rem;flex-direction:row-reverse;}
+/* Mirrored across the centre line, not pinned to the far edge: the cluster is
+   centre-offset, so RTL flips the offset rather than the anchor. */
+[dir="rtl"] #nav-ctrl{flex-direction:row-reverse;transform:translateX(calc(-50% + 240px)) !important;}
 [dir="rtl"] .nav-arrow{transform:scaleX(-1);}
 
 /* ── Reveal Panel ── */

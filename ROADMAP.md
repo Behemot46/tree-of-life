@@ -22,11 +22,17 @@ Things waiting on a decision rather than on work.
 
 | Question | Why it matters |
 |---|---|
-| **Custom domain name** | Stage 4 cannot finish without it. Vercel is deploying; the domain is unconnected. |
-| **Phone layout for a wide tree** | The radial tree is ~2:1; a phone screen is ~1:2. It fits the width correctly and leaves vertical space empty. A portrait-specific layout (or defaulting phones to the cladogram) would fix it, but that is a design choice. |
-| **Localising species names** | 336 species names are English-only, so "Dugong" shows in Hebrew. The UI chrome is fully translated. This is a content project, not a code one. |
-| **Content-Security-Policy** | The page pulls from Google Fonts, a D3 CDN, Wikimedia and the Wikipedia API. A policy that misses one breaks the site silently, so it should land with a check that would catch the mistake. |
-| **`SECURITY.md`** | Still GitHub's unfilled template — it advertises versions 4.0/5.0/5.1 that do not exist and tells the reader to "use this section to tell people…". |
+| **Connect `treeoflife.wiki` in Vercel** | The only thing left in the migration. The repo side is done — canonical and Open Graph URLs point at the domain, and `verify-deployment.yml` will check the live site automatically. Needs the domain added in the Vercel project and DNS pointed at it. GitHub Pages stays live until then; `deploy.yml` is deleted once it serves. |
+| **Removing the 31 inline `onclick` handlers** | They force `script-src 'unsafe-inline'`, which is the one real weakness in the CSP. Removing them would let the policy actually prevent inline execution rather than only restricting origins. |
+
+### Answered
+
+| Question | Answer |
+|---|---|
+| Phone layout for a wide tree | **Leave it.** The horizontal fit is acceptable; a portrait-specific layout is not worth the complexity. |
+| Localising species names | **Major taxonomic groups only.** The 50 ranked groups are translated; individual species stay English. See `js/taxonNames.js`. |
+| Content-Security-Policy | **Added**, defined in `vercel.json` and enforced by `serve.js` so the smoke suite checks the real policy. |
+| `SECURITY.md` | **Rewritten** for what this project actually is: a static site with no backend and no releases. |
 
 ---
 
@@ -47,6 +53,10 @@ Things waiting on a decision rather than on work.
 | Era labels hide rather than clip | Segment widths are proportional to geological time, so no fixed heuristic fits every language. A missing label reads as deliberate; `Paleoproterozo` reads as broken. The full name moved to the tooltip. |
 | Pages stays until the domain works | Two hosts briefly, rather than a window with none. |
 | Proxy support is opt-in (`--proxy`) | Reading `HTTPS_PROXY` automatically broke plain `--url` runs against a local server — the mode CI uses. Shipped, then corrected once tested. |
+| CSP lives in `vercel.json`, read by `serve.js` | One source of truth. A policy that would break the deployed site breaks locally and in CI first, instead of only being discovered in production. |
+| CSP violations are read *after* the interaction phase | Inline event handlers are only evaluated when they fire, so reading on load would miss every `script-src` mistake. Found by testing the check rather than trusting it. |
+| Only ranked taxa are translated | A half-translated tree reads worse than a consistently English one. The rank prefix in the `latin` field is the boundary, so the rule is data-driven rather than a hand-maintained list. |
+| `photo-check.yml` fails on an empty extraction | It had been matching zero of 393 URLs for months and reporting success. A checker that cannot tell "nothing broken" from "nothing checked" is worse than none. |
 
 ### Earlier decisions
 

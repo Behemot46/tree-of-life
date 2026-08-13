@@ -233,7 +233,7 @@
 .branch-pb-grow{transition:stroke-dashoffset 0.8s cubic-bezier(.4,0,.2,1)!important;}
 .discovery-card{position:fixed;z-index:var(--z-search);background:var(--surface);border:1px solid var(--accent);border-radius:12px;padding:1rem 1.2rem;max-width:280px;backdrop-filter:blur(12px);animation:panelSlideUp 0.35s ease forwards;pointer-events:auto;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
 .discovery-card .dc-icon{font-size:2rem;margin-bottom:0.3rem;}
-.discovery-card .dc-name{font-family:var(--font-head);font-weight:600;font-size:var(--text-md);color:var(--text);}
+.discovery-card .dc-name{font-family:var(--font-head);font-weight:600;font-size:var(--text-md);color:var(--text-primary);}
 .discovery-card .dc-latin{font-family:var(--font-body);font-size:var(--text-sm);color:var(--parchment);font-style:italic;}
 .discovery-card .dc-era{font-family:'JetBrains Mono',monospace;font-size:var(--text-xs);color:var(--parchment);margin-top:0.15rem;}
 .discovery-card .dc-desc{font-size:var(--text-sm);color:var(--parchment);margin-top:0.5rem;line-height:1.4;}
@@ -247,7 +247,7 @@
 .pb-btn{font-size:var(--text-2xs);padding:3px 10px;border-radius:9999px;border:1px solid var(--accent);background:transparent;color:var(--parchment);cursor:pointer;font-family:var(--font-body);transition:all 0.15s ease;}
 .pb-btn:hover{background:var(--accent);color:var(--bg);}
 .pb-btn.active{background:var(--accent);color:var(--bg);}
-.pb-era-badge{position:fixed;top:45%;left:50%;transform:translate(-50%,-50%);z-index:calc(var(--z-controls) + 80);pointer-events:none;font-family:var(--font-head);font-size:var(--text-xl);font-weight:700;color:var(--text);opacity:0;transition:opacity 0.5s;text-shadow:0 2px 16px rgba(0,0,0,0.7);}
+.pb-era-badge{position:fixed;top:45%;left:50%;transform:translate(-50%,-50%);z-index:calc(var(--z-controls) + 80);pointer-events:none;font-family:var(--font-head);font-size:var(--text-xl);font-weight:700;color:var(--text-primary);opacity:0;transition:opacity 0.5s;text-shadow:0 2px 16px rgba(0,0,0,0.7);}
 .pb-era-badge.show{opacity:0.7;}
 
 /* ══════════════════════════════════════════════════════ */
@@ -1004,7 +1004,7 @@ kbd{
   font-size: var(--text-xs);
   cursor: pointer;
   transition: border-color 0.2s, transform 0.2s;
-  color: var(--text);
+  color: var(--text-primary);
 }
 #sotd-badge:hover { border-color: var(--gold, var(--accent-primary)); transform: translateY(-1px); }
 

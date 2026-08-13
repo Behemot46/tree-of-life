@@ -798,6 +798,51 @@ async function probePage(page, scenario) {
            searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations };
 }
 
+
+// ── Static checks (no browser needed) ────────────────────────────────────────
+/* An undefined custom property does not throw — the declaration is dropped and
+   the element silently loses that style. That is how a glow ring kept being
+   painted with `var(--gold)` for months after --gold was renamed to --accent.
+   Catch it in CI rather than by eye. */
+async function staticChecks() {
+  const { readdir } = await import('node:fs/promises');
+  const cssDir = path.join(ROOT, 'css');
+  const jsDir = path.join(ROOT, 'js');
+  const files = [
+    ...(await readdir(cssDir)).filter((f) => f.endsWith('.css')).map((f) => path.join(cssDir, f)),
+    ...(await readdir(jsDir)).filter((f) => f.endsWith('.js')).map((f) => path.join(jsDir, f)),
+    path.join(ROOT, 'index.html'),
+  ];
+  const defined = new Set();
+  const sources = new Map();
+  for (const f of files) {
+    const src = await readFile(f, 'utf8');
+    sources.set(f, src);
+    if (f.endsWith('.css')) {
+      for (const m of src.matchAll(/(--[a-zA-Z0-9-]+)\s*:/g)) defined.add(m[1]);
+    }
+  }
+  const missing = new Map();
+  for (const [f, src] of sources) {
+    for (const m of src.matchAll(/var\(\s*(--[a-zA-Z0-9-]+)\s*(,)?/g)) {
+      if (defined.has(m[1]) || m[2]) continue;   // defined, or has a fallback
+      if (!missing.has(m[1])) missing.set(m[1], new Set());
+      missing.get(m[1]).add(path.basename(f));
+    }
+  }
+  const results = [];
+  const key = 'static/css:no-undefined-vars';
+  if (missing.size) {
+    const detail = [...missing].slice(0, 5)
+      .map(([v, fs]) => `${v} (${[...fs].join(', ')})`).join('; ');
+    results.push({ key, id: 'css:no-undefined-vars', title: 'No undefined CSS custom properties',
+      ok: false, msg: `${missing.size} undefined: ${detail}` });
+  } else {
+    results.push({ key, id: 'css:no-undefined-vars', title: 'No undefined CSS custom properties', ok: true });
+  }
+  return results;
+}
+
 // ── Runner ────────────────────────────────────────────────────────────────────
 async function runScenario(browser, scenario, baseUrl) {
   const ctx = await browser.newContext({
@@ -877,10 +922,19 @@ if (existsSync(BASELINE_PATH)) {
   baseline = JSON.parse(await readFile(BASELINE_PATH, 'utf8'));
 }
 
+let all = [];
+{
+  const staticResults = await staticChecks();
+  process.stdout.write('\n▸ static\n');
+  for (const r of staticResults) {
+    process.stdout.write(`  ${r.ok ? '✅' : '❌'} ${r.id}${r.ok ? '' : '  ' + r.msg}\n`);
+  }
+  all = all.concat(staticResults);
+}
+
 const browser = await chromium.launch(
   PROXY ? { proxy: { server: PROXY, bypass: 'localhost,127.0.0.1' } } : {});
 if (PROXY) process.stdout.write(`Routing Chromium through ${PROXY}\n`);
-let all = [];
 try {
   for (const scenario of SCENARIOS) {
     process.stdout.write(`\n▸ ${scenario.id}\n`);

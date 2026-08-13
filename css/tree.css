@@ -157,10 +157,10 @@ svg{width:100%;height:100%;}
 /* Glowing ring on collapsed parents */
 .node-ring-expandable{
   fill:none;
-  stroke:var(--gold);
+  stroke:var(--accent);
   stroke-width:2;
   opacity:0.55;
-  filter:drop-shadow(0 0 6px var(--gold));
+  filter:drop-shadow(0 0 6px var(--accent));
   animation:nodeRingPulse 2.4s ease-in-out infinite;
   pointer-events:none;
 }
@@ -172,11 +172,11 @@ svg{width:100%;height:100%;}
 /* +/- toggle badge (bottom-right of parent nodes) */
 .node-toggle-badge-bg{
   fill:rgba(10,8,6,0.85);
-  stroke:var(--gold);
+  stroke:var(--accent);
   stroke-width:1;
 }
 .node-toggle-badge-text{
-  fill:var(--gold);
+  fill:var(--accent);
   font:700 10px/1 'Inter',sans-serif;
   pointer-events:none;
   user-select:none;
@@ -202,4 +202,38 @@ svg{width:100%;height:100%;}
   .node-entered{transition:none;}
   .node-group.dimmed,.branch-path.dimmed,
   .node-group.undimmed,.branch-path.undimmed{transition:none;}
+}
+
+/* ══════════════════════════════════════════════════════
+   HOVER & FOCUS FEEDBACK
+   Nodes were entirely inert under the cursor — nothing grew, brightened or
+   acknowledged the pointer, which is most of why the tree felt like a diagram
+   rather than something you could handle. transform-box/transform-origin are
+   required for percentage origins to mean anything on an SVG group.
+   ══════════════════════════════════════════════════════ */
+.node-group{
+  transform-box:fill-box;
+  transform-origin:center;
+  transition:transform 160ms var(--ease-standard);
+}
+.node-group:hover{ transform:scale(1.09); }
+.node-group:hover .node-border{
+  stroke-width:3;
+  filter:drop-shadow(0 0 10px var(--nc,var(--accent)));
+}
+.node-group:hover .node-halo{ stroke-opacity:0.42; }
+.node-group:focus-visible .node-border{
+  stroke:var(--accent);
+  filter:drop-shadow(0 0 12px var(--accent));
+}
+/* The label of the hovered node steps forward out of its neighbours. */
+.node-group:hover .node-label-name{ fill:var(--text-primary); font-weight:700; }
+
+/* Branches gain a little light when their subtree is hovered. */
+.branch-path{ transition:stroke-opacity 200ms var(--ease-standard); }
+
+@media (prefers-reduced-motion: reduce){
+  .node-group{ transition:none; }
+  .node-group:hover{ transform:none; }
+  .node-ring-expandable{ animation:none; opacity:0.6; }
 }

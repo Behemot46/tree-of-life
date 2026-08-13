@@ -219,8 +219,51 @@ No install step needed. Open `http://localhost:5555` in a browser. Alternatively
 
 ### Adding Translations
 
-1. Add key to all three language objects in `js/uiData.js` `TRANSLATIONS`
-2. Use `t('new_key')` in the rendering code in `index.html`
+1. Add the key to **all three** language objects in `TRANSLATIONS`
+   (`js/uiData.js`). Non-ASCII is written as `\uXXXX` escapes to match the
+   surrounding file.
+2. Apply it — either give the element `data-i18n="some.key"` (dots become
+   underscores, so that reads `some_key`), or set it explicitly by id in
+   `applyI18n()` (`js/theme.js`).
+3. Add the element to `I18N_BINDINGS` in `scripts/smoke.mjs` so the smoke
+   suite fails if it ever stops being translated.
+
+### Adding a Language
+
+`setLang()` currently treats Hebrew as the only RTL language. To add another
+(Arabic, Farsi), generalise the check in `js/theme.js`:
+
+```js
+const RTL_LANGS = ['he', 'ar', 'fa'];
+document.documentElement.dir = RTL_LANGS.includes(lang) ? 'rtl' : 'ltr';
+```
+
+Then add the language object to `TRANSLATIONS` and a `.lang-btn` in
+`index.html`.
+
+### What is *not* translated
+
+**Species names, descriptions and facts are English-only** — they live in the
+tree data (`js/treeData.js`, `js/treeExpansion.js`), which has not been
+localised. The UI chrome is fully translated in all three languages. Elements
+that legitimately show English data carry `data-i18n-exempt` so the smoke
+suite's leak check skips them rather than being weakened.
+
+---
+
+## Images & Attribution
+
+No images are bundled. Species photos load at runtime from **Wikimedia
+Commons** via hardcoded URLs in `PHOTO_MAP` (`js/speciesData.js`), credited in
+the panel through the `photo_credit` string ("Wikipedia / Wikimedia Commons").
+Wikimedia content is CC BY-SA, so that credit line must stay visible wherever a
+photo is shown.
+
+`.github/workflows/photo-check.yml` re-checks every `PHOTO_MAP` URL weekly and
+on any PR touching `js/speciesData.js`, so dead links surface on their own.
+
+`assets/placeholder.svg` is the fallback when a photo is unavailable;
+`ImageLoader` falls back generated → `PHOTO_MAP` → emoji.
 
 ---
 

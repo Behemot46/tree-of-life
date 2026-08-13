@@ -387,6 +387,18 @@ check('chrome:panel-hero-readable', 'Nothing is printed over the species name', 
   if (h.hits.length) fail(`hero artwork overlaps ${h.hits.length} caption line(s): ${h.hits.join(', ')}`);
 });
 
+check('search:finds-the-obvious-answer', 'Common searches return the thing meant', (c) => {
+  const s = c.probe.searchQuality;
+  if (!s) return;
+  if (s.wrong.length) fail(`${s.wrong.length} search(es) wrong: ${s.wrong.join('; ')}`);
+}, (sc) => sc.lang === 'en');
+
+check('search:aliases-resolve', 'Every common-name alias still matches something', (c) => {
+  const s = c.probe.searchQuality;
+  if (!s) return;
+  if (s.dead.length) fail(`${s.dead.length} alias(es) match nothing: ${s.dead.join(', ')}`);
+});
+
 check('interact:camera-settles', 'Camera animations come to rest', (c) => {
   if (!c.probe.cameraSettles) fail('#viewport transform was still changing after 3s');
 });
@@ -749,6 +761,32 @@ async function probePage(page, scenario) {
     const onScreen = r.right > 8 && r.left < innerWidth - 8 && r.top < innerHeight - 8 && r.bottom > 8;
     return onScreen && r.width > 0;
   });
+  /* Search relevance. This was ranking over one blended haystack of name,
+     Latin name, tags and id, so a hit anywhere scored the same: "human"
+     returned Koala, Hominini and Sea urchin and never Homo sapiens, and
+     "whale" put Hippopotamus first. These are the words a visitor actually
+     types; the expected answer is the one a person would call correct. */
+  const searchQuality = await page.evaluate(async () => {
+    const m = await import(new URL('js/search.js', location.href).href);
+    const st = await import(new URL('js/state.js', location.href).href);
+    const CASES = [
+      ['human', 'Homo sapiens'], ['whale', 'Blue whale'], ['tiger', 'Tiger'],
+      ['cat', 'Lion'], ['snake', 'King cobra'], ['bear', 'Polar bear'],
+      ['oak', 'Oak'], ['elephent', 'African elephant'],
+    ];
+    const wrong = [];
+    for (const [q, want] of CASES) {
+      const top = (m.searchEntities(q)[0] || {}).name || '(nothing)';
+      if (top !== want) wrong.push(`${q} → ${top}, wanted ${want}`);
+    }
+    // Every alias must still point at something that exists.
+    const names = st.state.searchIndex.map((x) => (x.name || '').toLowerCase());
+    const dead = (m.SEARCH_ALIASES || [])
+      .filter((a) => !names.some((n) => a.match.test(n)))
+      .map((a) => a.words[0]);
+    return { wrong, dead };
+  });
+
   /* Contrast, in both themes. Colour is where a dark-first design quietly
      fails: the reveal panel painted itself near-black while its text followed
      the theme, so in light mode "Collapse All" sat at a ratio of 1.15 — present
@@ -940,7 +978,7 @@ async function probePage(page, scenario) {
   // than on load. This supersedes the value collected in the first pass.
   const cspViolations = [...new Set(await page.evaluate(() => window.__cspViolations || []))];
 
-  return { ...base, ...forced, tooltipShown, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps, contrast,
+  return { ...base, ...forced, tooltipShown, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps, contrast, searchQuality,
            searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations };
 }
 

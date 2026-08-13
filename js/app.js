@@ -583,7 +583,7 @@ function initRevealPanel(){
   ticksEl.innerHTML = '';
   for (let i = 0; i <= state.maxBaseDepth; i++) {
     const span = document.createElement('span');
-    span.textContent = (i === state.maxBaseDepth) ? 'All' : String(i);
+    span.textContent = (i === state.maxBaseDepth) ? t('tick_all') : String(i);
     ticksEl.appendChild(span);
   }
 
@@ -956,7 +956,7 @@ if(_kbdHelp) _kbdHelp.addEventListener('click',function(e){
 });
 
 // ── Resize handler ──
-window.addEventListener('resize',()=>{layout();fitTreeToStage();scheduleRender();applyT();});
+window.addEventListener('resize',()=>{layout();fitTreeToStage();scheduleRender();applyT();buildEraSegments();});
 
 // ── Mobile enhancements ──
 (function mobilePatch(){

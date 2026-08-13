@@ -366,9 +366,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 @media (max-width: 768px) {
   .reveal-panel {
     left: 8px;
-    right: 8px;
+    /* Stop short of the zoom/dice rail (~56px wide, 8px from the edge)
+       instead of spanning the full width and sitting under it. */
+    right: 72px;
     bottom: 124px; /* clear the fixed #timeline bar on mobile */
     min-width: 0;
     padding: 10px 12px;
   }
+  /* In RTL the rail moves to the leading edge, so mirror the gap. This needs
+     to out-specify [dir="rtl"] .reveal-panel in layout.css. */
+  [dir="rtl"] .reveal-panel { left: 72px; right: 8px; }
 }

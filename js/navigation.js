@@ -224,11 +224,36 @@ window.collapseBelow=function(nodeId){
 
 const tooltipEl = document.getElementById('tooltip');
 let _tipTimer = null;
+let _tipCursor = { x: 0, y: 0 };
+
+/* CSS offsets the tooltip by translate(16px,-50%), so it is vertically centred
+   on the cursor and half of it sits above. Near the top of the screen that put
+   it under the header, where it could sit and look stuck. Clamp the anchor so
+   the whole box stays on screen and clear of the header. */
+function positionTip(x, y) {
+  _tipCursor = { x, y };
+  const r = tooltipEl.getBoundingClientRect();
+  const w = r.width, h = r.height;
+  if (!w || !h) { tooltipEl.style.left = x + 'px'; tooltipEl.style.top = y + 'px'; return; }
+
+  const M = 8, OFFSET_X = 16;
+  const header = document.getElementById('header');
+  const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
+
+  let nx = Math.min(x, window.innerWidth - M - w - OFFSET_X);
+  nx = Math.max(nx, M - OFFSET_X);
+
+  const minY = headerBottom + M + h / 2;
+  const maxY = window.innerHeight - M - h / 2;
+  // On a viewport too short for both constraints, staying on screen wins.
+  const ny = minY > maxY ? maxY : Math.min(Math.max(y, minY), maxY);
+
+  tooltipEl.style.left = nx + 'px';
+  tooltipEl.style.top = ny + 'px';
+}
+
 document.addEventListener('mousemove', function(e) {
-  if (tooltipEl.classList.contains('visible')) {
-    tooltipEl.style.left = e.clientX + 'px';
-    tooltipEl.style.top = e.clientY + 'px';
-  }
+  if (tooltipEl.classList.contains('visible')) positionTip(e.clientX, e.clientY);
 });
 
 let _funFactTimer = null;
@@ -238,12 +263,15 @@ export function showTip(text, icon, funFact) {
   tooltipEl.innerHTML = (icon ? icon + ' ' : '') + text;
   tooltipEl.classList.remove('tip-enhanced');
   tooltipEl.classList.add('visible');
+  positionTip(_tipCursor.x, _tipCursor.y);
   if (funFact) {
     _funFactTimer = setTimeout(() => {
       tooltipEl.innerHTML = (icon ? icon + ' ' : '') + text +
         '<div class="tip-dyk">Did you know?</div>' +
         '<div class="tip-funfact">' + funFact + '</div>';
       tooltipEl.classList.add('tip-enhanced');
+      // The box just grew — re-clamp so the taller version stays clear too.
+      positionTip(_tipCursor.x, _tipCursor.y);
     }, 500);
   }
 }

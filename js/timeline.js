@@ -319,10 +319,13 @@ export function buildEraSegments(){
     div.dataset.segId=seg.id;
     div.dataset.min=clampedMin;
     div.dataset.max=clampedMax;
+    const name=_t(seg.nameKey);
+    // Always available on hover, including when the label itself is hidden.
+    div.title=name;
     if(widthPct>3){
       const label=document.createElement('span');
       label.className='era-seg-label';
-      label.textContent=_t(seg.nameKey);
+      label.textContent=name;
       div.appendChild(label);
     }
     div.addEventListener('click',e=>{
@@ -330,6 +333,26 @@ export function buildEraSegments(){
       animateSliderTo(Math.round((clampedMin+clampedMax)/2));
     });
     container.appendChild(div);
+  });
+  hideOverflowingEraLabels(container);
+}
+
+/* Segment widths are proportional to geological time, so a long era name in a
+   short span gets clipped mid-word — "Paleoproterozo" reads as a rendering
+   bug. Measure once laid out and drop the labels that cannot fit; the era name
+   stays reachable via the segment's tooltip and the info bar above the track.
+   Runs after a frame because widths are unknown until the flex row is laid
+   out, and again on resize and language change via buildEraSegments(). */
+function hideOverflowingEraLabels(container){
+  requestAnimationFrame(()=>{
+    container.querySelectorAll('.era-seg').forEach(seg=>{
+      const label=seg.querySelector('.era-seg-label');
+      if(!label) return;
+      const available=seg.clientWidth;
+      if(!available) return; // not laid out yet — leave as-is
+      label.style.display='';
+      label.style.display=(label.scrollWidth+6>available)?'none':'';
+    });
   });
 }
 

@@ -42,6 +42,22 @@ export function applyI18n(){
   set('i-leg-anim',t('leg_anim'));
   set('i-leg-fungi',t('leg_fungi'));
   set('i-leg-prot',t('leg_prot'));
+  // Generic pass: any element carrying data-i18n="a.b" takes translation a_b.
+  // The markup already had these attributes; nothing was reading them.
+  document.querySelectorAll('[data-i18n]').forEach(node=>{
+    const key=node.getAttribute('data-i18n').replace(/\./g,'_');
+    const value=t(key);
+    if(value&&value!==key) node.textContent=value;
+  });
+  // Left rail
+  set('quiz-label',t('btn_games'));
+  set('stories-label',t('btn_stories'));
+  set('i-btn-hominins',t('btn_hominins'));
+  set('i-btn-guided-tour',t('btn_guided_tour'));
+  set('i-rail-seen',t('rail_seen'));
+  set('extinct-label',t(state.showExtinct?'hide_extinct':'show_extinct'));
+  const credit=document.querySelector('.title-credit');
+  if(credit) credit.textContent=t('credit_by');
   set('i-p-traits',t('p_traits'));
   set('i-p-evo',t('p_evo'));
   set('i-p-sub',t('p_sub'));

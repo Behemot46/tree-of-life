@@ -73,6 +73,8 @@ const I18N_BINDINGS = [
   { id: 'reveal-title', key: 'reveal' },
   { id: 'btn-collapse-all', key: 'collapse_all' },
   { id: 'btn-expand-all', key: 'expand_all' },
+  { id: 'i-btn-guided-tour', key: 'btn_guided_tour' },
+  { id: 'i-rail-seen', key: 'rail_seen' },
 ];
 
 // ── Server ────────────────────────────────────────────────────────────────────
@@ -433,6 +435,8 @@ async function probePage(page, scenario) {
         for (const el of root.querySelectorAll('*')) {
           if (el.children.length) continue;
           if (!visible(el)) continue;
+          // Species names are data, not chrome, and the data is English-only.
+          if (el.closest('[data-i18n-exempt]')) continue;
           const txt = (el.textContent || '').trim();
           if (!txt || txt.length < 2) continue;
           if (/[֐-׿]/.test(txt)) continue;      // contains Hebrew — fine
@@ -492,22 +496,47 @@ async function probePage(page, scenario) {
     };
   }, { bindings: I18N_BINDINGS, lang: scenario.lang });
 
-  // 2. Tooltip / fact toast positions, forced visible
-  const forced = await page.evaluate(() => {
-    const show = (id) => {
-      const el = document.getElementById(id);
-      if (!el) return null;
-      const prev = { cls: el.className, style: el.getAttribute('style') || '' };
-      el.classList.add('show', 'visible');
-      el.style.opacity = '1';
-      el.style.display = el.style.display === 'none' ? '' : el.style.display;
+  // 2. Tooltip position — hover the highest node on screen, which is the case
+  // most likely to collide with the header. A real hover is used rather than
+  // forcing the class, so the positioning code actually runs.
+  const hoverPoint = await page.evaluate(() => {
+    let best = null;
+    for (const g of document.querySelectorAll('#viewport g.node-group')) {
+      const c = g.querySelector('circle');
+      if (!c) continue;
+      const r = c.getBoundingClientRect();
+      if (!r.width || r.top < 0) continue;
+      if (!best || r.top < best.top) best = { top: r.top, x: r.x + r.width / 2, y: r.y + r.height / 2 };
+    }
+    return best;
+  });
+  let tooltipShown = null;
+  if (hoverPoint) {
+    await page.mouse.move(hoverPoint.x, hoverPoint.y);
+    await page.waitForTimeout(900);
+    tooltipShown = await page.evaluate(() => {
+      const el = document.getElementById('tooltip');
+      if (!el || !el.classList.contains('visible')) return null;
       const r = el.getBoundingClientRect();
-      const out = r.width > 0 && r.height > 0 ? r.toJSON() : null;
-      el.className = prev.cls;
-      el.setAttribute('style', prev.style);
-      return out;
-    };
-    return { tooltipShown: show('tooltip'), factShown: show('fact-toast') };
+      return r.width > 0 && r.height > 0 ? r.toJSON() : null;
+    });
+    await page.mouse.move(4, Math.round(page.viewportSize().height / 2));
+    await page.waitForTimeout(200);
+  }
+
+  // The fact toast is positioned purely by CSS, so forcing it visible is a
+  // faithful way to measure where it would land.
+  const forced = await page.evaluate(() => {
+    const el = document.getElementById('fact-toast');
+    if (!el) return { factShown: null };
+    const prev = { cls: el.className, style: el.getAttribute('style') || '' };
+    el.classList.add('show', 'visible');
+    el.style.opacity = '1';
+    const r = el.getBoundingClientRect();
+    const out = r.width > 0 && r.height > 0 ? r.toJSON() : null;
+    el.className = prev.cls;
+    el.setAttribute('style', prev.style);
+    return { factShown: out };
   });
 
   // 3. Interactions
@@ -549,12 +578,20 @@ async function probePage(page, scenario) {
   // icon *and* its label, so its centre is often empty space.
   const clickNode = async (selector) => {
     const pt = await page.evaluate((sel) => {
-      const g = document.querySelector(sel);
-      if (!g) return null;
-      const target = g.querySelector('circle') || g;
-      const r = target.getBoundingClientRect();
-      if (!r.width) return null;
-      return { x: r.x + r.width / 2, y: r.y + r.height / 2 };
+      // Take the first candidate that a user could actually click: on screen,
+      // and not sitting under a panel. Otherwise the click lands on the chrome
+      // and the check fails for a reason that has nothing to do with nodes.
+      for (const g of document.querySelectorAll(sel)) {
+        const target = g.querySelector('circle') || g;
+        const r = target.getBoundingClientRect();
+        if (!r.width) continue;
+        const x = r.x + r.width / 2, y = r.y + r.height / 2;
+        if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) continue;
+        const hit = document.elementFromPoint(x, y);
+        if (!hit || !hit.closest('#viewport')) continue;
+        return { x, y };
+      }
+      return null;
     }, selector);
     if (!pt) return false;
     await page.mouse.click(pt.x, pt.y);
@@ -583,7 +620,7 @@ async function probePage(page, scenario) {
     document.querySelectorAll('#search-results .sr-item, #search-results > *').length);
   await page.fill('#search-input', '').catch(() => {});
 
-  return { ...base, ...forced, zoomWorks, afterReset, parentExpands, panelOpened, searchResults };
+  return { ...base, ...forced, tooltipShown, zoomWorks, afterReset, parentExpands, panelOpened, searchResults };
 }
 
 // ── Runner ────────────────────────────────────────────────────────────────────

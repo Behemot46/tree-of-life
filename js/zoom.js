@@ -18,14 +18,21 @@ export function applyT() {
   viewport.setAttribute('transform', `translate(${state.transform.x},${state.transform.y}) scale(${state.transform.s})`);
 }
 
+/* Camera animations must not overlap: two rAF loops both easing
+   state.transform from their own captured start values interleave and land
+   somewhere neither intended. Each animation takes a token and stops as soon
+   as a newer one starts. */
+let _camToken=0;
+
 export function smoothPanTo(wx,wy){
-  const svgR=(document.getElementById('canvas-wrap')||document.getElementById('svg')).getBoundingClientRect();
-  const cx=svgR.width/2,cy=svgR.height/2;
-  const tx=cx-wx*state.transform.s,ty=cy-wy*state.transform.s;
+  const st=getStageRect();
+  const tx=st.cx-wx*state.transform.s,ty=st.cy-wy*state.transform.s;
   const dx=tx-state.transform.x,dy=ty-state.transform.y;
   const steps=20;let step=0;
   const sx=state.transform.x,sy=state.transform.y;
+  const token=++_camToken;
   function tick(){
+    if(token!==_camToken) return;
     step++;const t=step/steps;const ease=1-Math.pow(1-t,3);
     state.transform.x=sx+dx*ease;state.transform.y=sy+dy*ease;
     applyT();
@@ -35,14 +42,15 @@ export function smoothPanTo(wx,wy){
 }
 
 export function smoothZoomTo(wx,wy,targetScale){
-  const svgR=(document.getElementById('canvas-wrap')||document.getElementById('svg')).getBoundingClientRect();
-  const cx=svgR.width/2,cy=svgR.height/2;
-  const ss=state.transform.s,ts=Math.min(2.0,Math.max(0.05,targetScale));
+  const st=getStageRect();
+  const ss=state.transform.s,ts=Math.min(FIT_MAX_SCALE,Math.max(0.05,targetScale));
   const sx=state.transform.x,sy=state.transform.y;
-  const tx=cx-wx*ts,ty=cy-wy*ts;
+  const tx=st.cx-wx*ts,ty=st.cy-wy*ts;
   const dx=tx-sx,dy=ty-sy,ds=ts-ss;
   const steps=24;let step=0;
+  const token=++_camToken;
   function tick(){
+    if(token!==_camToken) return;
     step++;const t=step/steps;const ease=1-Math.pow(1-t,3);
     state.transform.s=ss+ds*ease;
     state.transform.x=sx+dx*ease;state.transform.y=sy+dy*ease;
@@ -229,22 +237,28 @@ export function initPointerEvents(){
 export function computeBaseFitZoom(rootNode) {
   const pts = [];
   (function walk(n){
-    if (n._x == null || n._y == null) return;
+    // Must be Number.isFinite, not a null check: a NaN coordinate passes
+    // `!= null`, poisons the min/max, and leaves bw/bh as the `|| 1` fallback.
+    // That produced a "floor" of ~339 instead of ~0.1, which pinned every
+    // frameSubtree() call to maximum zoom.
+    if (!Number.isFinite(n._x) || !Number.isFinite(n._y)) return;
     const r = n.r || 12;
     pts.push({x:n._x - r, y:n._y - r, w:2*r, h:2*r});
     if (n.children) n.children.forEach(walk);
   })(rootNode);
-  if (!pts.length) return 0.2;
+  if (!pts.length) return FIT_MIN_SCALE;
   const minX = Math.min(...pts.map(p=>p.x));
   const maxX = Math.max(...pts.map(p=>p.x + p.w));
   const minY = Math.min(...pts.map(p=>p.y));
   const maxY = Math.max(...pts.map(p=>p.y + p.h));
-  const bw = maxX - minX || 1;
-  const bh = maxY - minY || 1;
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const padding = 0.15;
-  return Math.min(vw / (bw * (1 + padding)), vh / (bh * (1 + padding)));
+  const bw = maxX - minX;
+  const bh = maxY - minY;
+  // A degenerate box means the tree was not laid out when this ran. There is
+  // then no meaningful "whole tree" zoom, so impose no floor at all.
+  if (!(bw > 1) || !(bh > 1)) return FIT_MIN_SCALE;
+  const st = getStageRect();
+  const s = Math.min(st.w / (bw * (1 + FIT_PADDING)), st.h / (bh * (1 + FIT_PADDING)));
+  return Math.min(FIT_MAX_SCALE, Math.max(FIT_MIN_SCALE, s));
 }
 
 // Smoothly pan + zoom the camera to frame `node` and all currently-visible
@@ -271,8 +285,11 @@ export function frameSubtree(node, opts = {}) {
   const maxY = Math.max(...pts.map(p => p.y + p.r));
   const bw = (maxX - minX) || 1;
   const bh = (maxY - minY) || 1;
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
+  // Frame into the usable stage, not the raw viewport — otherwise the chrome
+  // eats the margin and the subtree lands partly behind the header or rail.
+  const st = getStageRect();
+  const vw = st.w;
+  const vh = st.h;
 
   let s = Math.min(vw / (bw * (1 + padding)), vh / (bh * (1 + padding)));
   // Clamp: never zoom out further than the full-base-tree zoom

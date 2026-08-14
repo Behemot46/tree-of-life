@@ -52,6 +52,33 @@ async function api(path, attempt = 0) {
   }
 }
 
+/* Diagnostic. The resolver has now guessed the response shape wrong twice —
+   first `_embedded.items`, then `_links.items` — and each guess cost a full CI
+   round trip to disprove because api.phylopic.org is unreachable from the
+   development sandbox. This prints what the API actually returns so the next
+   change is based on the response rather than on a recollection of it.
+
+     node scripts/build-silhouettes.mjs --probe Bacteria
+*/
+if (argv.includes('--probe')) {
+  const name = arg('probe', 'Bacteria');
+  const root = await api('/');
+  console.log('build:', root?.build);
+  for (const path of [
+    `/nodes?filter_name=${encodeURIComponent(name.toLowerCase())}&build=${root?.build}`,
+    `/autocomplete?query=${encodeURIComponent(name.toLowerCase())}`,
+    `/resolve/eol.org/pages?build=${root?.build}`,
+  ]) {
+    console.log('\n=== GET ' + path + ' ===');
+    try {
+      const res = await fetch(API + path, { headers: { 'User-Agent': UA, accept: 'application/json' } });
+      console.log('status', res.status);
+      console.log((await res.text()).slice(0, 2400));
+    } catch (err) { console.log('threw:', err.message); }
+  }
+  process.exit(0);
+}
+
 /* The name to search PhyloPic with. `latin` carries a rank prefix on ranked
    groups ("Class Mammalia") and a binomial on species ("Panthera leo"); the
    prefix is ours, not part of the name, so it has to come off. Species fall

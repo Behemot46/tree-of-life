@@ -29,6 +29,11 @@ jobs:
         with:
           node-version: '20'
 
+      # Prints the API's actual response shapes. Cheap, and the resolver has
+      # already been wrong about them twice.
+      - name: Probe the API
+        run: node scripts/build-silhouettes.mjs --probe Bacteria
+
       - name: Resolve silhouettes
         run: node scripts/build-silhouettes.mjs
 

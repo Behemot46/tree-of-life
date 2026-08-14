@@ -54,9 +54,9 @@ land in `.smoke-out/`. It is not a substitute for looking at the result.
   (`js/app.js`) and the renderer is hand-written SVG.
 - **No build step** — open `index.html` directly or use `node serve.js`
 - **No package manager for the site** — the page itself ships zero npm
-  dependencies; D3.js loads from CDN. `package.json` exists only to pin
-  Playwright for the smoke tests, and is never shipped to the browser.
-- **Deployment:** GitHub Pages via `.github/workflows/deploy.yml` (auto-deploys on push to `main`)
+  dependencies. `package.json` exists only to pin Playwright for the smoke
+  tests, and is never shipped to the browser.
+- **Deployment:** Vercel, on every push and pull request (see *Deployment*).
 
 ---
 
@@ -79,7 +79,7 @@ tree-of-life/
 │   └── responsive.css   # Mobile breakpoints, reduced motion, high contrast
 ├── assets/
 │   ├── placeholder.svg  # Fallback image when taxon photo is unavailable
-│   └── species/.gitkeep # Directory for future AI-generated species images
+│   └── species/*.webp   # Ten commissioned illustrations (domains, kingdoms)
 └── js/                  # All ES modules — single entry: app.js
     ├── # ── Data modules ──
     ├── data.js          # Barrel re-exports for widely-shared constants
@@ -89,7 +89,8 @@ tree-of-life/
     ├── uiData.js        # DEPTH_R, ERA_NAMES, EXTINCTIONS, TRANSLATIONS
     ├── factLibrary.js   # FACTS — random facts for discovery feature
     ├── imagePrompts.js  # AI image prompt library (unused)
-    ├── imageLoader.js   # ImageLoader — fallback chain: generated → PHOTO_MAP → emoji
+    ├── imageLoader.js   # ImageLoader — resolves a node to a URL at a given size
+    ├── photoSnapshot.js # GENERATED — every species photo, two sizes each
     ├── labelMetrics.js  # One source of truth for label size, placement, footprint
     ├── dnaSimilarity.js # DNA_KNOWN, estimateDnaSimilarity(), findLCA()
     ├── nodeIcons.js     # NODE_ICONS SVG paths + getIconGroup()
@@ -127,7 +128,9 @@ tree-of-life/
 node serve.js          # serves on http://localhost:5555
 ```
 
-No install step needed. Open `http://localhost:5555` in a browser. Alternatively, open `index.html` directly — all external resources load from CDN.
+No install step needed. Open `http://localhost:5555` in a browser. Opening
+`index.html` straight off disk also works, but skips the Content-Security-Policy
+that `serve.js` mirrors from `vercel.json`, so prefer the dev server.
 
 ---
 
@@ -150,7 +153,8 @@ No install step needed. Open `http://localhost:5555` in a browser. Alternatively
 - **Library:** Pure vanilla JavaScript + SVG (no D3 layout algorithms)
 - **Layout:** Custom `layout()` function computes `_x`, `_y` positions for each node
 - **Zoom/Pan:** Manual transform `{x, y, s}` applied via `setAttribute('transform', ...)`
-- **Node icons:** Photo thumbnails from `PHOTO_MAP` with emoji fallback
+- **Node icons:** Photo thumbnails via `ImageLoader.getBestUrl(node,'thumb')`,
+  emoji fallback
 
 ### Node Data Shape (in `treeData.js`)
 
@@ -268,17 +272,50 @@ check skips them rather than being weakened.
 
 ## Images & Attribution
 
-No images are bundled. Species photos load at runtime from **Wikimedia
-Commons** via hardcoded URLs in `PHOTO_MAP` (`js/speciesData.js`), credited in
-the panel through the `photo_credit` string ("Wikipedia / Wikimedia Commons").
-Wikimedia content is CC BY-SA, so that credit line must stay visible wherever a
-photo is shown.
+Ten commissioned illustrations ship in `assets/species/` (the domain- and
+kingdom-level nodes). Every other picture is a Wikimedia Commons photograph
+loaded at runtime.
 
-`.github/workflows/photo-check.yml` re-checks every `PHOTO_MAP` URL weekly and
-on any PR touching `js/speciesData.js`, so dead links surface on their own.
+`ImageLoader.getBestUrl(node, size)` is the single resolver. Its chain, best
+first:
 
-`assets/placeholder.svg` is the fallback when a photo is unavailable;
-`ImageLoader` falls back generated → `PHOTO_MAP` → emoji.
+1. `assets/species/{id}.webp` — the commissioned illustrations
+2. `PHOTO_SNAPSHOT` (`js/photoSnapshot.js`) — Wikipedia's current lead image
+3. `PHOTO_MAP` (`js/speciesData.js`) — hand-pinned Commons URLs
+4. `node.img`
+5. the node's emoji
+
+**`size` is not optional in spirit.** Pass `'thumb'` (400px) for tree discs and
+`'hero'` (1280px) for the panel. `PHOTO_MAP` served one 960px file to both,
+so every 40px node icon downloaded roughly thirty times the pixels it could
+display.
+
+### Why there is a snapshot
+
+Hand-pinned Commons URLs are file paths, and they die when a file is renamed,
+re-uploaded or deleted. The old `photo-check.yml` could only *report* that rot;
+someone then had to find a replacement by hand, and nobody did.
+
+`scripts/build-photo-snapshot.mjs` resolves every `WIKI_TITLES` entry through
+the Wikipedia REST summary endpoint, which always returns whatever image the
+article carries today, and writes `js/photoSnapshot.js`.
+`.github/workflows/photo-refresh.yml` runs it weekly and opens a PR when
+anything moved — so a dead photo repairs itself.
+
+The browser never calls that API. It loads the committed snapshot, which is why
+a Wikipedia outage cannot take the pictures down.
+
+```bash
+node scripts/build-photo-snapshot.mjs             # rebuild from Wikipedia
+node scripts/build-photo-snapshot.mjs --bootstrap # offline: re-cut PHOTO_MAP
+node scripts/build-photo-snapshot.mjs --check     # exit 1 if stale
+```
+
+`--bootstrap` needs no network; it re-cuts the URLs already in `PHOTO_MAP` to
+the two sizes. Use it when working offline.
+
+Wikimedia content is CC BY-SA, so the credit line must stay visible wherever a
+photo is shown. `assets/placeholder.svg` is the fallback when nothing resolves.
 
 ---
 

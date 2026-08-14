@@ -5,7 +5,7 @@
 import { state, nodeMap, navStack, HUMAN_PATH, confirmedPhotoUrls } from './state.js';
 import { reducedMotion, canonicalHomininId, getTimeContext, displayName } from './utils.js';
 import { a11yAnnounce, markExplored } from './engagement.js';
-import { PHOTO_MAP, NODE_ICONS, getIconGroup, FACTS, ImageLoader } from './data.js';
+import { NODE_ICONS, getIconGroup, FACTS, ImageLoader } from './data.js';
 import { MAP_PATHS } from './mapPaths.js';
 import { PRIMATE_DATA } from './primateData.js';
 import { GEO_DATA, BRANCH_DATA } from './geoData.js';
@@ -435,11 +435,16 @@ export function renderPanelContent(node) {
   const p = document.getElementById('panel') || document.getElementById('info-panel');
   if (!p) return;
 
-  // Image resolution
-  const photoEntry = PHOTO_MAP[node.id];
-  const generatedUrl = (typeof ImageLoader !== 'undefined') ? ImageLoader.getGeneratedUrl(node.id) : null;
-  let staticUrl = (photoEntry && photoEntry.url) || generatedUrl || node.img || null;
-  const staticCredit = (photoEntry && photoEntry.url) ? (photoEntry.credit || '') : generatedUrl ? 'AI-generated illustration' : (node.imgCredit || '');
+  /* Image resolution. The panel asks for the 'hero' cut — a 1280px file for a
+     full-bleed banner — rather than reusing the disc thumbnail the tree drew.
+     This used to read PHOTO_MAP directly, which meant the panel and the tree
+     resolved images by two different sets of rules and disagreed about which
+     picture a species had. */
+  const best = (typeof ImageLoader !== 'undefined')
+    ? ImageLoader.getBestUrl(node, 'hero')
+    : { url: null, credit: '' };
+  let staticUrl = best.url || node.img || null;
+  const staticCredit = best.url ? (best.credit || '') : (node.imgCredit || '');
 
   const panelImgId = 'pi-' + node.id.replace(/[^a-z0-9]/g, '_');
   const panelFbId  = 'pf-' + node.id.replace(/[^a-z0-9]/g, '_');
@@ -603,7 +608,7 @@ export function renderPanelContent(node) {
     }
   }
 
-  // Load hero image from static URL (PHOTO_MAP → generated → node.img)
+  // Load hero image from the resolved chain (illustration → snapshot → pinned)
   const imgEl = document.getElementById(panelImgId);
   const fbEl  = document.getElementById(panelFbId);
   if (imgEl && fbEl && staticUrl) {

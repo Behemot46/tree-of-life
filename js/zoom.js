@@ -402,6 +402,73 @@ export function frameSubtree(node, opts = {}) {
   smoothZoomTo(cx, cy, s);
 }
 
+/* Bring a newly-expanded node's children into view without losing the reader's
+   place.
+
+   frameSubtree() zooms to fit the subtree, which is right when you deliberately
+   jump somewhere but wrong as the response to an expand: opening Eukaryota took
+   the tree from 21 nodes on screen to 7, because the camera closed in on the
+   clade and pushed Bacteria and Archaea off the edges. You clicked one thing
+   and the whole map moved.
+
+   Expanding reveals more, so the view should only ever get wider. Two rules:
+
+     1. Never zoom in. The scale may drop to fit a big new subtree, but it never
+        rises, so nothing you could already see gets pushed out by magnification.
+     2. Pan the minimum. If the subtree already fits on screen the camera does
+        not move at all; otherwise it slides by exactly enough to bring it in,
+        rather than recentring on it.
+
+   The result is that the map stays where you left it and the children simply
+   appear. */
+export function revealSubtree(node) {
+  if (!node || !Number.isFinite(node._x) || !Number.isFinite(node._y)) return;
+  const isCladogram = state.viewMode === 'cladogram' || state.viewMode === 'chronological';
+
+  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  (function walk(n) {
+    if (Number.isFinite(n._x) && Number.isFinite(n._y)) {
+      const e = nodeFootprint(n, { isCladogram });
+      minX = Math.min(minX, n._x - e.left); maxX = Math.max(maxX, n._x + e.right);
+      minY = Math.min(minY, n._y - e.up);   maxY = Math.max(maxY, n._y + e.down);
+    }
+    if (n.children && !n._collapsed) n.children.forEach((c) => { if (!c._hiddenByToggle) walk(c); });
+  })(node);
+  if (!Number.isFinite(minX)) return;
+
+  const st = getStageRect();
+  const bw = Math.max(1, maxX - minX), bh = Math.max(1, maxY - minY);
+  const fit = Math.min(st.w / (bw * 1.12), st.h / (bh * 1.12));
+
+  // Rule 1 — the scale may fall to fit, never rise.
+  let s = Math.min(state.transform.s, fit);
+  const floor = state.baseTreeZoom || FIT_MIN_SCALE;
+  if (s < floor) s = floor;
+
+  // Rule 2 — the smallest pan that puts the subtree inside the stage.
+  const x0 = minX * s + state.transform.x, x1 = maxX * s + state.transform.x;
+  const y0 = minY * s + state.transform.y, y1 = maxY * s + state.transform.y;
+  const M = 24;
+  let dx = 0, dy = 0;
+  if (x1 - x0 <= st.w - 2 * M) {
+    if (x0 < st.x + M) dx = st.x + M - x0;
+    else if (x1 > st.x + st.w - M) dx = st.x + st.w - M - x1;
+  } else dx = st.cx - (x0 + x1) / 2;      // too wide to fit — centre it
+  if (y1 - y0 <= st.h - 2 * M) {
+    if (y0 < st.y + M) dy = st.y + M - y0;
+    else if (y1 > st.y + st.h - M) dy = st.y + st.h - M - y1;
+  } else dy = st.cy - (y0 + y1) / 2;
+
+  const scaleChanged = Math.abs(s - state.transform.s) > 1e-4;
+  if (!scaleChanged && !dx && !dy) { renderAfterCamera(); return; }
+
+  /* Expressed as a world point to centre, because smoothZoomTo takes one. With
+     no scale change this is just the current centre shifted by the pan. */
+  const wx = (st.cx - state.transform.x - dx) / s;
+  const wy = (st.cy - state.transform.y - dy) / s;
+  smoothZoomTo(wx, wy, s);
+}
+
 export function initRandomButton(deps) {
   const btn = document.getElementById('btn-random');
   if (!btn) return;

@@ -16,7 +16,7 @@ import { registerActions } from './actions.js';
 import { layout, getVisible } from './layout.js';
 
 // ── Zoom / Pan ──
-import { applyT, smoothPanTo, smoothZoomTo, centerOnTree, centerOnRoot, fitTreeToStage, smoothFitToStage, initZoomDeps, initPointerEvents, initRandomButton, computeBaseFitZoom, frameSubtree } from './zoom.js';
+import { applyT, smoothPanTo, smoothZoomTo, centerOnTree, centerOnRoot, fitTreeToStage, smoothFitToStage, initZoomDeps, initPointerEvents, initRandomButton, computeBaseFitZoom, frameSubtree, revealSubtree } from './zoom.js';
 
 // ── Renderer ──
 import { render, scheduleRender, branchPath, initRendererDeps } from './renderer.js';
@@ -69,7 +69,7 @@ import { openProfile, closeProfile, initProfileDeps, initProfileListeners, initP
 // 1. WIRE LATE-BOUND DEPENDENCIES
 // ══════════════════════════════════════════════════════
 
-initRendererDeps({ showMainPanel, showTip, hideTip, smoothPanTo, smoothZoomTo, layout, updateBreadcrumb, frameSubtree });
+initRendererDeps({ showMainPanel, showTip, hideTip, smoothPanTo, smoothZoomTo, layout, updateBreadcrumb, frameSubtree, revealSubtree });
 initZoomDeps({ scheduleRender, layout, getVisible });
 initNavDeps({ showMainPanel, closePanel, smoothPanTo, smoothZoomTo, scheduleRender, layout, centerOnRoot, fitTreeToStage, applyT, renderPanelContent, closeSpeciesCompare, closeGame });
 initTimelineDeps({ scheduleRender, t, togglePlayback, pausePlayback });

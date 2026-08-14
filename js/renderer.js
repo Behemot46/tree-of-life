@@ -6,7 +6,7 @@
 import { state, nodeMap, animDone, confirmedPhotoUrls, HUMAN_PATH } from './state.js';
 import { getVisible, getVisibleEdges, countDescendants } from './layout.js';
 import { reducedMotion, displayName } from './utils.js';
-import { labelBox, labelOffset } from './labelMetrics.js';
+import { labelBox, labelOffset, nodeRadius } from './labelMetrics.js';
 import { getPlaybackNodeState, discoverNode, showDiscoveryCard } from './playback.js';
 import { isExplored } from './engagement.js';
 import { nodeInEra } from './timeline.js';
@@ -48,6 +48,9 @@ const branchLayer = document.getElementById('layer-branches');
 const nodesLayer = document.getElementById('layer-nodes');
 
 // ── Node size (responsive) ──
+/* The fallback for code that has no particular node in hand (ghost previews,
+   the playback placeholder). Per-node sizing lives in labelMetrics.nodeRadius,
+   which the camera reads too — see the note there. */
 function getNodeR(){ return window.innerWidth<768 ? 22 : 26; }
 
 // ── Viewport culling helpers ──
@@ -244,7 +247,6 @@ export function render(){
   const vb=getViewBounds(cullMargin);
   const animDeferred=[];
   const nodeR=getNodeR();
-  const nodeD=nodeR*2;
   const isCladogram=state.viewMode==='cladogram'||state.viewMode==='chronological';
 
   // Read branch brown from CSS variable
@@ -361,6 +363,10 @@ export function render(){
     if(!state.showExtinct && n.extinct) return;
     if(!isInView(n._x,n._y,vb)) return;
 
+    /* Shadows the outer constant deliberately: everything below draws this
+       node, so it should draw it at this node's size. */
+    const nodeR=nodeRadius(n);
+
     const pbState=state.playbackMode?(state.playbackNodeStates.get(n.id)||getPlaybackNodeState(n)):null;
     if(state.playbackMode&&pbState==='hidden') return;
 
@@ -456,49 +462,13 @@ export function render(){
         g.appendChild(sc);
       }
 
-      // Ghost children (max 3, only if 3+ children and <8 collapsed siblings)
-      if(n.children.length>=3&&collapsedSibCount<8&&inEra){
-        const ghostCount=Math.min(3,n.children.length);
-        for(let i=0;i<ghostCount;i++){
-          const child=n.children[i];
-          const angle=-20+i*20;
-          const rad=angle*Math.PI/180;
-          const gx=n._x+nodeR+20+i*24;
-          const gy=n._y+Math.sin(rad)*16;
-          const ghostR=9;
-          const ghostOp=[0.3,0.2,0.1][i];
-
-          /* A ghost is a peek at what is inside — a thumbnail of one of the
-             children. Without the picture it is a 9px circle at 20% opacity
-             next to a much larger disc, which reads as a speck of dust rather
-             than an invitation, so it is only drawn when there is a photo to
-             put in it, and it leaves with the photo if that fails to load. */
-          const best=ImageLoader?ImageLoader.getBestUrl(child):null;
-          if(!best||!best.url) continue;
-
-          const gc=document.createElementNS('http://www.w3.org/2000/svg','circle');
-          gc.setAttribute('cx',gx);gc.setAttribute('cy',gy);gc.setAttribute('r',ghostR);
-          gc.setAttribute('fill','var(--tree-node-fill)');
-          gc.setAttribute('stroke',child.color||n.color);gc.setAttribute('stroke-width','1');
-          gc.setAttribute('opacity',String(ghostOp));
-          gc.setAttribute('class','node-ghost');
-          g.appendChild(gc);
-
-          const gfo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
-          gfo.setAttribute('x',gx-ghostR);gfo.setAttribute('y',gy-ghostR);
-          gfo.setAttribute('width',ghostR*2);gfo.setAttribute('height',ghostR*2);
-          gfo.style.pointerEvents='none';gfo.style.overflow='hidden';
-          gfo.setAttribute('opacity',String(ghostOp));
-          const gw=document.createElement('div');
-          gw.className='node-ghost-wrap';
-          gw.style.width=`${ghostR*2}px`;gw.style.height=`${ghostR*2}px`;
-          const gi=document.createElement('img');
-          gi.className='node-ghost-img';
-          gi.src=best.url;gi.alt='';
-          gi.addEventListener('error',()=>{gfo.remove();gc.remove();});
-          gw.appendChild(gi);gfo.appendChild(gw);g.appendChild(gfo);
-        }
-      }
+      /* There used to be "ghost children" here: up to three 9px discs beside
+         a collapsed node, each holding a thumbnail of one of its children.
+         The intent was a peek at what is inside. At 9px a photograph carries
+         nothing — they rendered as grey specks that read as dirt on the
+         screen, and once the discs grew they read as dirt beside something
+         larger. The count badge below already says how much is in there, and
+         says it in a number rather than in three unreadable smudges. */
 
       // Count badge (only if >2 descendants)
       const totalKids=countDescendants(n);
@@ -617,11 +587,11 @@ export function render(){
         if(best&&best.url){
           const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
           fo.setAttribute('x',n._x-nodeR);fo.setAttribute('y',n._y-nodeR);
-          fo.setAttribute('width',nodeD);fo.setAttribute('height',nodeD);
+          fo.setAttribute('width',nodeR*2);fo.setAttribute('height',nodeR*2);
           fo.style.pointerEvents='none';fo.style.overflow='hidden';
           const wrap=document.createElement('div');
           wrap.className='node-img-wrap';
-          wrap.style.width=`${nodeD}px`;wrap.style.height=`${nodeD}px`;
+          wrap.style.width=`${nodeR*2}px`;wrap.style.height=`${nodeR*2}px`;
           const htmlImg=document.createElement('img');
           htmlImg.className='node-img';
           htmlImg.alt=n.name||'';

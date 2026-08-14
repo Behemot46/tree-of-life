@@ -73,9 +73,26 @@ await page.addInitScript((o) => {
   localStorage.setItem('tol-intro-seen', '1');
   if (o.theme) localStorage.setItem('theme', o.theme);
 }, { lang, theme: arg('theme', '') });
-await page.goto('http://localhost:5555/', { waitUntil: 'networkidle' });
-await page.evaluate(() => document.querySelector('#splash')?.remove());
-await sleep(1600);
+await page.goto('http://localhost:5555/', { waitUntil: 'domcontentloaded' });
+
+/* Clear both curtains. #splash is the canvas title card; .intro-overlay is a
+   second, separate one raised by engagement.js. Removing only the first was
+   enough while the photographs were unreachable — every request failed fast,
+   so the page was quiet by the time the shot was taken. With the cache serving
+   images the load takes longer, the intro is still up, and the screenshot was
+   of the title card rather than the tree. Wait for the tree instead of for the
+   network, which is the thing actually being waited on. */
+async function clearCurtains() {
+  await page.evaluate(() => {
+    document.querySelector('#splash')?.remove();
+    document.querySelector('.intro-overlay')?.remove();
+  });
+}
+await clearCurtains();
+await page.waitForFunction(() => document.querySelectorAll('.node-group').length > 3, null, { timeout: 20000 });
+await clearCurtains();
+await sleep(1800);
+await clearCurtains();
 
 const tag = `${phone ? 'phone' : 'desk'}-${lang}${arg('theme','') ? '-' + arg('theme','') : ''}`;
 await page.screenshot({ path: `${OUT}/${tag}-01-initial.png` });

@@ -29,7 +29,10 @@ import { pathToFileURL } from 'node:url';
 
 const OUT_DIR = 'photo-cache';
 const UA = 'TreeOfLife/1.0 (https://www.treeoflife.wiki; local render cache)';
-const CONCURRENCY = 8;
+/* Three, not eight. Eight lost 141 of 358 images to 429s in a single run —
+   upload.wikimedia.org rate-limits by IP and a CI runner is one address. The
+   whole set still finishes inside a few minutes. */
+const CONCURRENCY = 3;
 
 /* Content-addressed by URL so the manifest is a plain lookup and a re-run
    overwrites rather than duplicating. */
@@ -42,11 +45,16 @@ function nameFor(url) {
 async function download(url, attempt = 0) {
   try {
     const res = await fetch(url, { headers: { 'User-Agent': UA } });
-    if (res.status === 429 || res.status >= 500) throw new Error('HTTP ' + res.status);
+    if (res.status === 429 || res.status >= 500) {
+      const after = Number(res.headers.get('retry-after'));
+      const wait = Number.isFinite(after) && after > 0 ? after * 1000 : 1500 * Math.pow(2, attempt);
+      if (attempt < 6) { await sleep(Math.min(wait, 30000)); return download(url, attempt + 1); }
+      return { error: 'HTTP ' + res.status + ' after ' + (attempt + 1) + ' attempts' };
+    }
     if (!res.ok) return { skipped: res.status };
     return { buf: Buffer.from(await res.arrayBuffer()) };
   } catch (err) {
-    if (attempt < 3) { await sleep(1000 * Math.pow(2, attempt)); return download(url, attempt + 1); }
+    if (attempt < 6) { await sleep(1500 * Math.pow(2, attempt)); return download(url, attempt + 1); }
     return { error: String(err && err.message || err) };
   }
 }
@@ -72,6 +80,9 @@ async function worker() {
     if (existsSync(path)) { manifest[url] = name; done++; continue; }
 
     const r = await download(url);
+    // A breath between requests. The retry ladder handles a burst; pacing
+    // stops us provoking one in the first place.
+    await sleep(120);
     if (r.buf) { writeFileSync(path, r.buf); manifest[url] = name; done++; }
     else if (r.skipped) { skipped++; }
     else { failed++; }

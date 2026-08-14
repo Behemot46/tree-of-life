@@ -24,6 +24,34 @@ const LATIN_RATIO = 0.78;
 // Gap between the two lines, and the caption's descender.
 const LINE_GAP = 3;
 
+/* ── Disc radius ─────────────────────────────────────────────────────────
+   How big a node's disc is drawn. This lived in the renderer as
+   `getNodeR() { return window.innerWidth < 768 ? 22 : 26 }` — a single
+   constant for every node in the tree, so LUCA, Domain Bacteria and a
+   particular species of leech were all drawn at exactly the same size and the
+   tree carried no hierarchy at all. The `r` field in treeData.js, which ranges
+   from 26 down to 8, was never read.
+
+   It sits here rather than in the renderer because nodeFootprint() needs the
+   same number: the camera frames from the footprint and the renderer draws
+   from the radius, and when those two disagree the tree is either clipped or
+   floating in space.
+
+   Ranked groups get a step up on their depth. A phylum and a species can sit
+   at the same depth — Firmicutes and Deinococcus radiodurans are both children
+   of Bacteria — and the group is the more important object. */
+const DISC_R = [46, 36, 28, 23, 20, 18];
+
+export function nodeRadius(node) {
+  const d = Math.min(node.depth || 0, DISC_R.length - 1);
+  let r = DISC_R[d];
+  const isRankedGroup = /^(Domain|Kingdom|Subkingdom|Superphylum|Phylum|Subphylum|Superclass|Class|Subclass|Infraclass|Superorder|Order|Suborder|Infraorder|Family|Subfamily|Tribe|Clade|Division|Superfamily|Parvorder|Section)\b/i.test(node.latin || '');
+  if (isRankedGroup && d >= 2) r += 5;
+  // A parent that is collapsed is a door, not a leaf, and reads as one.
+  if (node._collapsed && node.children && node.children.length) r += 2;
+  return window.innerWidth < 768 ? Math.round(r * 0.82) : r;
+}
+
 /* Font size for a node's common name. This is deliberately a wide range: the
    root and the domains are headings, deep species are captions, and a tree
    where everything is set at one size reads as a diagram rather than a map. */
@@ -113,11 +141,11 @@ export function labelOffset(node, isCladogram, nodeR) {
    units. `withLabel` is false for nodes whose labels the renderer will not draw
    at the current zoom — reserving room for three hundred captions that are not
    on screen would shrink the tree to nothing. */
-export function nodeFootprint(node, { isCladogram = false, nodeR = 26, withLabel = true } = {}) {
-  const r = node.r || nodeR;
+export function nodeFootprint(node, { isCladogram = false, withLabel = true } = {}) {
+  const r = nodeRadius(node);
   if (!withLabel) return { left: r, right: r, up: r, down: r };
   const box = labelBox(node, isCladogram);
-  const off = labelOffset(node, isCladogram, nodeR);
+  const off = labelOffset(node, isCladogram, r);
   // The block's horizontal span, from the anchor point.
   const x0 = off.anchor === 'end' ? off.lx - box.w : off.anchor === 'start' ? off.lx : off.lx - box.w / 2;
   const x1 = x0 + box.w;

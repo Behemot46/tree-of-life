@@ -54,9 +54,6 @@ svg{width:100%;height:100%;}
 
 /* ── COLLAPSED INDICATORS ── */
 .node-stack-card{pointer-events:none;}
-.node-ghost{pointer-events:none;}
-.node-ghost-wrap{border-radius:50%;overflow:hidden;pointer-events:none;}
-.node-ghost-img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
 .node-badge-bg{fill:rgba(255,255,255,0.1);}
 [data-theme="light"] .node-badge-bg{fill:rgba(0,0,0,0.06);}
 

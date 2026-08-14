@@ -3,7 +3,13 @@
 // ══════════════════════════════════════════════════════
 
 /* Radial distance per depth level — wide spacing, accelerating at outer rings */
-export const DEPTH_R=[0,475,900,1375,1925,2563,3300,4150,5125,6250,7500];
+/* Ring radius per depth.
+   Discs are 46px at the root falling to 18px deep in the tree, so a 475px
+   first ring put 95% empty space between the root and its domains: the
+   bounding box the camera fits was mostly nothing, and everything inside it
+   was drawn small to fit. Pulling the rings in lets the same fit zoom
+   further, which is what makes the nodes and their labels legible. */
+export const DEPTH_R=[0,300,570,860,1200,1600,2060,2590,3190,3890,4670];
 
 export const ERA_NAMES={3800:'Eoarchean (3.8 Ga) — LUCA emerges',3500:'Paleoarchean (3.5 Ga) — First Bacteria',2700:'Neoarchean (2.7 Ga) — Cyanobacteria & Oxygen',2400:'Siderian (2.4 Ga) — Great Oxidation Event',2100:'Rhyacian (2.1 Ga) — First Eukaryotes',1000:'Tonian (1 Ga) — First Multicellular Life',541:'Cambrian (541 Ma) — Explosion of Animal Life',445:'Ordovician extinction (445 Ma)',420:'Silurian (420 Ma) — First Vascular Plants',370:'Late Devonian extinction (370 Ma)',252:'Permian–Triassic extinction (252 Ma) — Worst Ever',200:'Triassic–Jurassic extinction (200 Ma)',130:'Cretaceous (130 Ma) — Flowering Plants',66:'K–Pg extinction (66 Ma) — Dinosaurs End',50:'Eocene (50 Ma) — Whales Enter Sea',35:'Oligocene (35 Ma) — Grasslands Spread',23:'Miocene (23 Ma) — Apes Diversify',7:'Late Miocene (7 Ma) — Hominin Split',3:'Pliocene (3 Ma) — Lucy\'s World',1:'Pleistocene (1 Ma) — Ice Ages',0:'Present'};
 

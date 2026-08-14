@@ -3,6 +3,7 @@
 // ══════════════════════════════════════════════════════
 
 import { checkAchievement } from './engagement.js';
+import { registerActions } from './actions.js';
 import { TRIVIA_QUESTIONS } from './triviaData.js';
 
 const HIGH_SCORE_KEY = 'tol-quiz-high';
@@ -108,11 +109,12 @@ function _renderResults() {
 export function initQuizEvents() {
   const overlay = document.getElementById('quiz-overlay');
   if (!overlay) return;
+  registerActions({
+    'close-quiz': () => closeQuiz(),
+    'quiz-again': () => openQuiz(),
+  });
   overlay.addEventListener('click', e => {
-    const action = e.target.dataset.action;
-    if (action === 'close-quiz') closeQuiz();
-    else if (action === 'quiz-again') openQuiz();
-    else if (e.target.classList.contains('quiz-option')) {
+    if (e.target.classList.contains('quiz-option')) {
       answerQuestion(parseInt(e.target.dataset.idx, 10));
     }
   });

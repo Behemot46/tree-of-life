@@ -63,12 +63,12 @@
 <!-- TOP-RIGHT CONTROLS (lang + theme + profile) -->
 <div id="top-right-controls">
   <div id="lang-switcher" role="toolbar" aria-label="Language selector">
-    <button class="lang-btn active" data-lang="en" onclick="setLang('en')" aria-label="Switch to English" aria-pressed="true">EN</button>
-    <button class="lang-btn" data-lang="he" onclick="setLang('he')" aria-label="Switch to Hebrew" aria-pressed="false">עב</button>
-    <button class="lang-btn" data-lang="ru" onclick="setLang('ru')" aria-label="Switch to Russian" aria-pressed="false">РУ</button>
+    <button class="lang-btn active" data-lang="en" data-action="lang:set" aria-label="Switch to English" aria-pressed="true">EN</button>
+    <button class="lang-btn" data-lang="he" data-action="lang:set" aria-label="Switch to Hebrew" aria-pressed="false">עב</button>
+    <button class="lang-btn" data-lang="ru" data-action="lang:set" aria-label="Switch to Russian" aria-pressed="false">РУ</button>
   </div>
-  <button id="theme-btn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle dark mode">☀</button>
-  <button id="profile-btn" onclick="openProfile()" title="Profile" aria-label="Player profile">👤</button>
+  <button id="theme-btn" data-action="theme:toggle" title="Toggle theme" aria-label="Toggle dark mode">☀</button>
+  <button id="profile-btn" data-action="profile:open" title="Profile" aria-label="Player profile">👤</button>
 </div>
 
 <!-- HEADER (title only, subtitle dropped) -->
@@ -85,27 +85,27 @@
 <aside id="left-rail" aria-label="Main controls">
   <div class="rail-caption" data-i18n="rail.view">View</div>
   <div id="view-toggle" class="rail-group" role="toolbar" aria-label="View mode selector">
-    <button class="view-btn active" data-mode="radial" onclick="setViewMode('radial')">&#9673; Radial</button>
-    <button class="view-btn" data-mode="chronological" onclick="setViewMode('chronological')" style="display:none">&#8594; Timeline</button>
-    <button class="view-btn" data-mode="cladogram" onclick="setViewMode('cladogram')">&#9500; Cladogram</button>
-    <button class="view-btn" data-mode="playback" onclick="enterPlaybackMode()" id="i-view-playback">&#9654; Playback</button>
+    <button class="view-btn active" data-mode="radial" data-action="view:set">&#9673; Radial</button>
+    <button class="view-btn" data-mode="chronological" data-action="view:set" style="display:none">&#8594; Timeline</button>
+    <button class="view-btn" data-mode="cladogram" data-action="view:set">&#9500; Cladogram</button>
+    <button class="view-btn" data-mode="playback" data-action="playback:enter" id="i-view-playback">&#9654; Playback</button>
   </div>
 
   <div class="rail-divider"></div>
   <div class="rail-caption" data-i18n="rail.tools">Tools</div>
   <div class="rail-group">
-    <button id="btn-compare" class="search-pill" onclick="openCompare()" aria-label="Species Compare">🔬 <span id="i-btn-compare">Compare</span></button>
-    <button id="btn-quiz" class="search-pill" onclick="openGame()" aria-label="Open games">🎮 <span id="quiz-label">Games</span></button>
+    <button id="btn-compare" class="search-pill" data-action="species-compare:open" aria-label="Species Compare">🔬 <span id="i-btn-compare">Compare</span></button>
+    <button id="btn-quiz" class="search-pill" data-action="game:open" aria-label="Open games">🎮 <span id="quiz-label">Games</span></button>
     <a href="stories/superarchaic-dna.html" class="search-pill" id="btn-stories" style="text-decoration:none;" aria-label="Read interactive stories">📖 <span id="stories-label">Stories</span></a>
-    <button id="hominins-tab" class="search-pill" onclick="navigateTo('hominini')" aria-label="Navigate to Hominin family tree">🧬 <span id="i-btn-hominins">Hominins</span></button>
+    <button id="hominins-tab" class="search-pill" data-action="nav:to" data-arg="hominini" aria-label="Navigate to Hominin family tree">🧬 <span id="i-btn-hominins">Hominins</span></button>
   </div>
 
   <div class="rail-divider"></div>
   <div class="rail-group">
-    <button id="extinct-toggle" class="search-pill" onclick="toggleExtinct()" aria-label="Toggle visibility of extinct species">
+    <button id="extinct-toggle" class="search-pill" data-action="extinct:toggle" aria-label="Toggle visibility of extinct species">
       <span>†</span> <span id="extinct-label">Show extinct</span>
     </button>
-    <button id="btn-tour-help" class="search-pill" onclick="showTourSelector()" aria-label="Guided tour" title="Guided Tour">? <span id="i-btn-guided-tour">Guided tour</span></button>
+    <button id="btn-tour-help" class="search-pill" data-action="tour:selector" aria-label="Guided tour" title="Guided Tour">? <span id="i-btn-guided-tour">Guided tour</span></button>
   </div>
 
   <div class="rail-foot">
@@ -260,7 +260,7 @@
     <div class="hom-title-row">
       <div class="hom-title">🧬 <span id="i-hom-title">Human Evolution</span></div>
       <div class="hom-header-actions">
-        <button id="compare-btn" class="hom-action-btn" onclick="toggleCompareMode()">⚖️ <span id="i-hom-compare">Compare</span><span id="compare-hint">(pick 2–4)</span></button>
+        <button id="compare-btn" class="hom-action-btn" data-action="hominin:compare-toggle">⚖️ <span id="i-hom-compare">Compare</span><span id="compare-hint">(pick 2–4)</span></button>
         <button id="hom-close" class="hom-action-btn" aria-label="Close">✕</button>
       </div>
     </div>
@@ -284,7 +284,7 @@
 <div id="compare-panel" style="display:none;position:fixed;inset:0;z-index:150;background:var(--surface-overlay);overflow-y:auto;padding:1.5rem 2rem;">
   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
     <div id="i-compare-title" style="font-family:var(--font-head);font-size:1.2rem;color:var(--accent);">Species Comparison</div>
-    <button id="i-compare-back" onclick="cancelCompare()" class="btn-back">← Back</button>
+    <button id="i-compare-back" data-action="hominin:compare-cancel" class="btn-back">← Back</button>
   </div>
   <div id="compare-grid" style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));"></div>
 </div>
@@ -292,14 +292,14 @@
 <!-- LEGEND -->
 <div id="legend">
   <div class="leg-title" id="i-leg-title">Domains</div>
-  <div class="leg-row" data-domain="luca" onclick="toggleDomain('luca')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#8b5cf6"></div><span id="i-leg-luca">LUCA / Root</span></div>
-  <div class="leg-row" data-domain="bacteria" onclick="toggleDomain('bacteria')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#ef4444"></div><span id="i-leg-bact">Bacteria</span></div>
-  <div class="leg-row" data-domain="archaea" onclick="toggleDomain('archaea')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#f59e0b"></div><span id="i-leg-arch">Archaea</span></div>
-  <div class="leg-row" data-domain="plantae" onclick="toggleDomain('plantae')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#22c55e"></div><span id="i-leg-plant">Plants</span></div>
-  <div class="leg-row" data-domain="animalia" onclick="toggleDomain('animalia')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#3b82f6"></div><span id="i-leg-anim">Animals</span></div>
-  <div class="leg-row" data-domain="fungi" onclick="toggleDomain('fungi')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#f97316"></div><span id="i-leg-fungi">Fungi</span></div>
-  <div class="leg-row" data-domain="protists" onclick="toggleDomain('protists')" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#a855f7"></div><span id="i-leg-prot">Protists</span></div>
-  <button id="leg-show-all" onclick="resetDomains()" aria-label="Show all domains"><span id="i-leg-show-all">Show All</span></button>
+  <div class="leg-row" data-domain="luca" data-action="domain:toggle" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#8b5cf6"></div><span id="i-leg-luca">LUCA / Root</span></div>
+  <div class="leg-row" data-domain="bacteria" data-action="domain:toggle" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#ef4444"></div><span id="i-leg-bact">Bacteria</span></div>
+  <div class="leg-row" data-domain="archaea" data-action="domain:toggle" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#f59e0b"></div><span id="i-leg-arch">Archaea</span></div>
+  <div class="leg-row" data-domain="plantae" data-action="domain:toggle" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#22c55e"></div><span id="i-leg-plant">Plants</span></div>
+  <div class="leg-row" data-domain="animalia" data-action="domain:toggle" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#3b82f6"></div><span id="i-leg-anim">Animals</span></div>
+  <div class="leg-row" data-domain="fungi" data-action="domain:toggle" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#f97316"></div><span id="i-leg-fungi">Fungi</span></div>
+  <div class="leg-row" data-domain="protists" data-action="domain:toggle" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#a855f7"></div><span id="i-leg-prot">Protists</span></div>
+  <button id="leg-show-all" data-action="domain:reset" aria-label="Show all domains"><span id="i-leg-show-all">Show All</span></button>
 </div>
 
 
@@ -323,32 +323,32 @@
   <div class="compare-panel-inner">
     <div class="compare-panel-header">
       <div class="compare-panel-title" id="i-compare-title">Species Compare</div>
-      <button class="btn-back" onclick="closeCompare()">&#10005;</button>
+      <button class="btn-back" data-action="species-compare:close">&#10005;</button>
     </div>
     <div class="compare-presets" id="compare-presets"></div>
     <div class="compare-slots">
-      <button class="compare-slot" id="compare-slot-a" onclick="openCompareSearch('a')">
+      <button class="compare-slot" id="compare-slot-a" data-action="species-compare:pick" data-arg="a">
         <span class="compare-slot-icon" id="compare-icon-a">?</span>
         <span class="compare-slot-label" id="compare-label-a">Select a species</span>
       </button>
       <div class="compare-vs">vs</div>
-      <button class="compare-slot" id="compare-slot-b" onclick="openCompareSearch('b')">
+      <button class="compare-slot" id="compare-slot-b" data-action="species-compare:pick" data-arg="b">
         <span class="compare-slot-icon" id="compare-icon-b">?</span>
         <span class="compare-slot-label" id="compare-label-b">Select a species</span>
       </button>
-      <button class="zbtn compare-dice" onclick="compareDice()" title="Random pair">&#127922;</button>
+      <button class="zbtn compare-dice" data-action="species-compare:dice" title="Random pair">&#127922;</button>
     </div>
     <div class="compare-search-overlay" id="compare-search-overlay" style="display:none">
       <input type="text" id="compare-search-input" placeholder="Search species..." autocomplete="off">
       <div id="compare-search-results"></div>
     </div>
     <div class="compare-results" id="compare-results" style="display:none"></div>
-    <button id="compare-show-tree" class="trivia-start-btn" style="display:none" onclick="showCompareOnTree()">&#127795; Show on Tree</button>
+    <button id="compare-show-tree" class="trivia-start-btn" style="display:none" data-action="species-compare:show-tree">&#127795; Show on Tree</button>
   </div>
 </div>
 
 <!-- Floating clear-path overlay -->
-<button id="compare-clear-overlay" onclick="clearCompareHighlight()" style="display:none">&#10005; Clear Path</button>
+<button id="compare-clear-overlay" data-action="species-compare:clear" style="display:none">&#10005; Clear Path</button>
 
 <!-- UNIFIED GAME PANEL -->
 <div id="game-panel" class="trivia-panel" aria-hidden="true">
@@ -418,7 +418,7 @@
       <div class="profile-header-name">👤 <span id="profile-player-name">Guest</span></div>
       <div class="profile-header-points" id="profile-player-points">0 pts</div>
     </div>
-    <button class="btn-back" onclick="closeProfile()" aria-label="Close profile panel">✕</button>
+    <button class="btn-back" data-action="profile:close" aria-label="Close profile panel">✕</button>
   </div>
   <div class="profile-tabs" role="tablist">
     <button class="profile-tab active" data-tab="leaderboard" role="tab" aria-selected="true">🏆 Leaderboard</button>

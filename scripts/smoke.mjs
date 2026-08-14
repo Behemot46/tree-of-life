@@ -1026,9 +1026,13 @@ async function staticChecks() {
   const { readdir } = await import('node:fs/promises');
   const cssDir = path.join(ROOT, 'css');
   const jsDir = path.join(ROOT, 'js');
+  // stories/ is same-origin, so it is served the same policy as the app and
+  // has to obey the same rules.
+  const storyDir = path.join(ROOT, 'stories');
   const files = [
     ...(await readdir(cssDir)).filter((f) => f.endsWith('.css')).map((f) => path.join(cssDir, f)),
     ...(await readdir(jsDir)).filter((f) => f.endsWith('.js')).map((f) => path.join(jsDir, f)),
+    ...(await readdir(storyDir)).filter((f) => /\.(js|css|html)$/.test(f)).map((f) => path.join(storyDir, f)),
     path.join(ROOT, 'index.html'),
   ];
   const defined = new Set();
@@ -1038,6 +1042,12 @@ async function staticChecks() {
     sources.set(f, src);
     if (f.endsWith('.css')) {
       for (const m of src.matchAll(/(--[a-zA-Z0-9-]+)\s*:/g)) defined.add(m[1]);
+    } else {
+      /* A custom property set from script is just as defined as one set in a
+         stylesheet — the story tiles colour themselves with setProperty, and
+         reading only .css files reported that as undefined. */
+      for (const m of src.matchAll(/setProperty\(\s*['"`](--[a-zA-Z0-9-]+)/g)) defined.add(m[1]);
+      for (const m of src.matchAll(/style\s*=\s*["'][^"']*?(--[a-zA-Z0-9-]+)\s*:/g)) defined.add(m[1]);
     }
   }
   const missing = new Map();
@@ -1049,6 +1059,77 @@ async function staticChecks() {
     }
   }
   const results = [];
+
+  /* No inline event handlers, anywhere — in the markup or in the template
+     strings the modules build at runtime. `script-src 'self'` (vercel.json)
+     refuses to run them, so one that creeps back in is a dead control, and
+     a dead control is easy to miss by eye. The runtime CSP check only sees
+     handlers that actually fire during the interaction phase; this sees all
+     of them, in files the browser may never reach on a given run.
+     `data-on-error` is the declarative replacement, not a handler. */
+  const HANDLER_ATTR = /\son(?:click|error|load|change|input|submit|focus|blur|key(?:down|up|press)|mouse[a-z]+)\s*=\s*["']/gi;
+  const offenders = [];
+  for (const [f, src] of sources) {
+    if (f.endsWith('.css')) continue;
+    for (const m of src.matchAll(HANDLER_ATTR)) {
+      const line = src.slice(0, m.index).split('\n').length;
+      offenders.push(`${path.basename(f)}:${line}${m[0].trim()}`);
+    }
+  }
+  const inlineKey = 'static/csp:no-inline-handlers';
+  results.push(offenders.length
+    ? { key: inlineKey, id: 'csp:no-inline-handlers', title: 'No inline event handler attributes',
+        ok: false, msg: `${offenders.length} found: ${offenders.slice(0, 4).join(', ')}` }
+    : { key: inlineKey, id: 'csp:no-inline-handlers', title: 'No inline event handler attributes', ok: true });
+
+  /* And the policy that makes the above matter. If script-src ever regains
+     'unsafe-inline' the check above stops protecting anything, so assert the
+     header itself rather than trusting it stays put. */
+  const vercel = JSON.parse(await readFile(path.join(ROOT, 'vercel.json'), 'utf8'));
+  const csp = vercel.headers
+    ?.flatMap((h) => h.headers ?? [])
+    .find((h) => h.key === 'Content-Security-Policy')?.value ?? '';
+  const scriptSrc = csp.split(';').map((d) => d.trim()).find((d) => d.startsWith('script-src')) ?? '';
+  const cspKey = 'static/csp:script-src-blocks-inline';
+  results.push(/'unsafe-inline'|'unsafe-eval'/.test(scriptSrc)
+    ? { key: cspKey, id: 'csp:script-src-blocks-inline', title: 'script-src forbids inline and eval',
+        ok: false, msg: `script-src permits it: "${scriptSrc}"` }
+    : { key: cspKey, id: 'csp:script-src-blocks-inline', title: 'script-src forbids inline and eval', ok: true });
+
+  /* Every data-action names a handler that exists. A control whose action was
+     never registered does nothing at all when clicked, and there is no error
+     to notice — it is the specific way this pattern fails. Browser checks
+     only reach controls they can navigate to; a name is used and registered
+     in source either way, so the pairing is checked there. */
+  const used = new Map();          // action name → where it is written
+  const registered = new Set();
+  for (const [f, src] of sources) {
+    if (f.endsWith('.css')) continue;
+    for (const m of src.matchAll(/data-action="([^"$]+)"/g)) {
+      if (!used.has(m[1])) used.set(m[1], path.basename(f));
+    }
+    /* Keys of the object literals handed to registerActions({ … }). Matched by
+       counting braces rather than by regex: the handlers destructure their
+       context argument, and a non-greedy `}` closes the match on the first
+       `({ el })` it meets, silently truncating the block to one entry. */
+    for (const m of src.matchAll(/registerActions\(\s*\{/g)) {
+      let depth = 1;
+      let i = m.index + m[0].length;
+      while (i < src.length && depth > 0) {
+        if (src[i] === '{') depth++;
+        else if (src[i] === '}') depth--;
+        i++;
+      }
+      for (const k of src.slice(m.index, i).matchAll(/['"]([a-z0-9:_-]+)['"]\s*:/gi)) registered.add(k[1]);
+    }
+  }
+  const orphans = [...used].filter(([name]) => !registered.has(name));
+  const orphanKey = 'static/actions:every-action-has-a-handler';
+  results.push(orphans.length
+    ? { key: orphanKey, id: 'actions:every-action-has-a-handler', title: 'Every data-action resolves to a handler',
+        ok: false, msg: `${orphans.length} unhandled: ${orphans.slice(0, 4).map(([n, f]) => `${n} (${f})`).join(', ')}` }
+    : { key: orphanKey, id: 'actions:every-action-has-a-handler', title: 'Every data-action resolves to a handler', ok: true });
+
   const key = 'static/css:no-undefined-vars';
   if (missing.size) {
     const detail = [...missing].slice(0, 5)

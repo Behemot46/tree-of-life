@@ -102,7 +102,7 @@ export function startCompareFromPanel(nodeId){
     document.body.appendChild(banner);
   }
   banner.classList.add('visible');
-  banner.innerHTML=`<span>⚖ Compare: click 1–3 more hominin species</span><button onclick="finishCompare()" style="padding:4px 12px;border-radius:8px;border:1px solid var(--accent-primary);background:var(--accent-primary-dim);color:var(--accent-primary);cursor:pointer;font-size:var(--text-xs);font-family:Inter,sans-serif;">Done</button><button onclick="cancelCompare()" style="padding:4px 8px;border:none;background:transparent;color:var(--text-secondary);cursor:pointer;font-size:var(--text-base);">✕</button>`;
+  banner.innerHTML=`<span>⚖ Compare: click 1–3 more hominin species</span><button data-action="hominin:compare-finish" style="padding:4px 12px;border-radius:8px;border:1px solid var(--accent-primary);background:var(--accent-primary-dim);color:var(--accent-primary);cursor:pointer;font-size:var(--text-xs);font-family:Inter,sans-serif;">Done</button><button data-action="hominin:compare-cancel" style="padding:4px 8px;border:none;background:transparent;color:var(--text-secondary);cursor:pointer;font-size:var(--text-base);">✕</button>`;
 }
 
 // Hook into showMainPanel to intercept clicks during compare mode + a11y
@@ -317,7 +317,7 @@ export function showHominDetail(h){
     `:''}
     <div class="hp-detail" style="margin-top:0.8rem">${h.detail||''}</div>
     <div class="hp-tags">${(h.tags||[]).map(tg=>`<span class="hp-tag">${tg}</span>`).join('')}</div>
-    <button class="panel-cta" onclick="viewHomininOnTree('${h.id}')" style="margin-top:0.8rem">🌳 View on Tree</button>
+    <button class="panel-cta" data-action="hominin:view-on-tree" data-arg="${h.id}" style="margin-top:0.8rem">🌳 View on Tree</button>
   `;
 }
 

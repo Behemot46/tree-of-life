@@ -5,7 +5,8 @@
 // ══════════════════════════════════════════════════════
 
 import { ACHIEVEMENTS } from './achievements.js';
-import { getUnlockedAchievements, getExploredSpecies } from './engagement.js';
+import { registerActions } from './actions.js';
+import { getUnlockedAchievements, getExploredSpecies, checkAchievement } from './engagement.js';
 
 let _deps = {};
 export function initProfileDeps(deps) { Object.assign(_deps, deps); }
@@ -223,7 +224,7 @@ function renderLeaderboard(container) {
         <td class="lb-rank">${rank}</td>
         <td>${_esc(p.name)}</td>
         <td class="lb-points">${p.totalPoints || 0}</td>
-        <td>${isActive ? '' : `<button class="lb-switch-btn" onclick="window._profileSwitchPlayer('${_esc(p.name)}')">Switch</button>`}</td>
+        <td>${isActive ? '' : `<button class="lb-switch-btn" data-action="profile:switch-player" data-arg="${_esc(p.name)}">Switch</button>`}</td>
       </tr>`;
     });
     html += '</tbody></table>';
@@ -232,7 +233,7 @@ function renderLeaderboard(container) {
   // Add player form
   html += `<div class="lb-add-player">
     <input id="lb-name-input" type="text" maxlength="20" placeholder="Add player name…" aria-label="New player name">
-    <button class="lb-add-btn" onclick="window._profileAddPlayer()">Add</button>
+    <button class="lb-add-btn" data-action="profile:add-player">Add</button>
   </div>`;
 
   container.innerHTML = html;
@@ -241,7 +242,7 @@ function renderLeaderboard(container) {
   const input = container.querySelector('#lb-name-input');
   if (input) {
     input.addEventListener('keydown', e => {
-      if (e.key === 'Enter') window._profileAddPlayer();
+      if (e.key === 'Enter') _addPlayerFromInput();
     });
   }
 }
@@ -281,7 +282,7 @@ function renderAchievements(container) {
       if (!isUnlocked) classes.push('locked');
       if (isSecret) classes.push('secret');
       if (isUnlocked) classes.push('unlocked');
-      html += `<div class="${classes.join(' ')}" onclick="window._profileToggleBadge(this)" title="${_esc(a.desc)}">
+      html += `<div class="${classes.join(' ')}" data-action="profile:toggle-badge" title="${_esc(a.desc)}">
         <div class="ach-badge-icon">${a.icon}</div>
         <div class="ach-badge-name">${_esc(a.name)}</div>
         <div class="ach-badge-desc">${_esc(a.desc)}</div>
@@ -382,45 +383,44 @@ export function initProfile() {
     }, 5000);
   }
 
-  // Expose window helpers used inline in generated HTML
-  window._profileSwitchPlayer = (name) => {
-    setActivePlayer(name);
-    // Re-render leaderboard after switch
-    const sec = document.querySelector('.profile-section[data-section="leaderboard"]');
-    if (sec) renderLeaderboard(sec);
-    // Update header
-    const nameEl = document.getElementById('profile-player-name');
-    const pointsEl = document.getElementById('profile-player-points');
-    const p = getActivePlayer();
-    if (nameEl) nameEl.textContent = p ? p.name : 'Guest';
-    if (pointsEl) pointsEl.textContent = p ? (p.totalPoints || 0) + ' pts' : '0 pts';
-  };
+  registerActions({
+    'profile:switch-player': (name) => _switchPlayer(name),
+    'profile:add-player':    () => _addPlayerFromInput(),
+    'profile:toggle-badge':  (_a, _b, { el }) => el.classList.toggle('expanded'),
+  });
+}
 
-  window._profileAddPlayer = () => {
-    const input = document.getElementById('lb-name-input');
-    if (!input) return;
-    const name = input.value.trim().slice(0, 20);
-    if (!name) return;
-    addPlayer(name);
-    setActivePlayer(name);
-    input.value = '';
-    const sec = document.querySelector('.profile-section[data-section="leaderboard"]');
-    if (sec) renderLeaderboard(sec);
-    // Update header
-    const nameEl = document.getElementById('profile-player-name');
-    const pointsEl = document.getElementById('profile-player-points');
-    const p = getActivePlayer();
-    if (nameEl) nameEl.textContent = p ? p.name : 'Guest';
-    if (pointsEl) pointsEl.textContent = p ? (p.totalPoints || 0) + ' pts' : '0 pts';
-    // Check secret achievement: 3+ players on same device
-    if (_players.length >= 3 && typeof window.checkAchievement === 'function') {
-      window.checkAchievement('family_game_night');
-    }
-  };
+/* Repaint the header and the leaderboard after the active player changes.
+   Both entry points below end the same way. */
+function _refreshPlayerHeader() {
+  const sec = document.querySelector('.profile-section[data-section="leaderboard"]');
+  if (sec) renderLeaderboard(sec);
+  const nameEl = document.getElementById('profile-player-name');
+  const pointsEl = document.getElementById('profile-player-points');
+  const p = getActivePlayer();
+  if (nameEl) nameEl.textContent = p ? p.name : 'Guest';
+  if (pointsEl) pointsEl.textContent = p ? (p.totalPoints || 0) + ' pts' : '0 pts';
+}
 
-  window._profileToggleBadge = (el) => {
-    el.classList.toggle('expanded');
-  };
+function _switchPlayer(name) {
+  setActivePlayer(name);
+  _refreshPlayerHeader();
+}
+
+function _addPlayerFromInput() {
+  const input = document.getElementById('lb-name-input');
+  if (!input) return;
+  const name = input.value.trim().slice(0, 20);
+  if (!name) return;
+  addPlayer(name);
+  setActivePlayer(name);
+  input.value = '';
+  _refreshPlayerHeader();
+  /* Secret achievement: three players on one device. This used to be
+     guarded on `typeof window.checkAchievement === 'function'`, and nothing
+     ever assigned that global — so the achievement could not be won. It is
+     an ordinary import now. */
+  if (_players.length >= 3) checkAchievement('family_game_night');
 }
 
 function _promptPlayerName() {

@@ -100,7 +100,8 @@ tree-of-life/
     ├── mapPaths.js      # MAP_PATHS — continent outlines for mini-map
     ├── tours.js         # Guided tour engine (3 tours)
     ├── # ── Application modules ──
-    ├── app.js           # Entry point — init(), window.* exposures, event listeners
+    ├── actions.js       # Delegated data-action dispatch — the only click wiring
+    ├── app.js           # Entry point — init(), action registry, event listeners
     ├── state.js         # Shared mutable state object + constants
     ├── utils.js         # reducedMotion(), preprocess(), hominin helpers
     ├── layout.js        # layout(), layoutRadial/Cladogram/Chronological/Playback
@@ -147,6 +148,42 @@ that `serve.js` mirrors from `vercel.json`, so prefer the dev server.
 **Shared state:** All mutable state lives in `js/state.js` as a single exported `state` object. Modules import and mutate it directly.
 
 **Dependency injection:** Cross-module calls use late-binding (`initXxxDeps()` functions) to avoid circular imports. `app.js` wires all dependencies at startup.
+
+### Actions — how clicks are wired
+
+Controls declare what they do in markup and `js/actions.js` dispatches from a
+single delegated listener on `document`:
+
+```html
+<button data-action="view:set" data-mode="cladogram">Cladogram</button>
+```
+
+```js
+registerActions({ 'view:set': (_a, _b, { el }) => setViewMode(el.dataset.mode) });
+```
+
+Handlers are called as `(arg, arg2, ctx)` — `data-arg` and `data-arg2`, then
+`{ el, event }`. Arity is fixed so a handler that only wants the element can
+still reach it. Register in the module that renders the markup naming the
+action, not centrally; `app.js` registers only what `index.html` uses.
+
+Three things follow from this that are worth knowing:
+
+- **Delegation is why runtime markup works.** Panels, the game and the compare
+  overlay build their HTML into `innerHTML` long after start-up, and a button
+  works the moment it exists because nothing is wired per element.
+- **The point is the CSP.** `onclick="…"` is script parsed out of an attribute,
+  so permitting one means `script-src 'unsafe-inline'` — which equally permits
+  any `<script>` an injection places on the page. There were 54 of these
+  attributes; removing them let the policy drop the keyword.
+- **A missed action is a silent dead button**, so two static checks guard it:
+  `csp:no-inline-handlers` fails on any handler attribute in source, and
+  `actions:every-action-has-a-handler` fails on a `data-action` no module
+  registers. Both catch controls no browser test happens to click.
+
+Where an element already carries its value (`data-lang`, `data-mode`,
+`data-domain`), the handler reads it from there instead of repeating it in a
+`data-arg` that could drift.
 
 ### Rendering
 
@@ -322,8 +359,8 @@ photo is shown. `assets/placeholder.svg` is the fallback when nothing resolves.
 ## Known Constraints & Important Notes
 
 1. **Tests are browser smoke checks, not unit tests** — `node scripts/smoke.mjs`
-   opens the real page in Chromium and asserts ~45 things per scenario about
-   layout, i18n, contrast and rendering. See *Smoke tests* below.
+   opens the real page in Chromium and asserts 282 things about layout, i18n,
+   contrast and rendering. See *Smoke tests* below.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
 3. **index.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
 4. **ES modules everywhere** — all data and application files use `export`/`import`. No global `<script>` tags.
@@ -342,6 +379,11 @@ photo is shown. `assets/placeholder.svg` is the fallback when nothing resolves.
    and an element pinned at both edges with no width stretches across the whole
    window as an invisible sheet over the map. Use `inset-inline-start/end`.
    `chrome:no-stretched-overlay` fails on the structural signature.
+9. **No inline event handlers — they will not run.** `script-src 'self'`
+   forbids them, so an `onclick="…"` added to markup or to a template string
+   is a control that does nothing, with no error to notice. Use
+   `data-action` + `registerActions()` (see *Actions*), and `data-on-error`
+   for image fallbacks. Two static checks fail the build on a relapse.
 
 ---
 
@@ -396,9 +438,16 @@ production serves — a policy that would break the deployed site breaks locally
 first. `scripts/smoke.mjs` fails on any CSP violation, and reads them *after*
 the interaction phase because inline handlers only fire when clicked.
 
-The policy allows `script-src 'unsafe-inline'`: `index.html` uses 31 inline
-`onclick` handlers, so it restricts *which origins* are reachable rather than
-preventing inline execution. Removing those handlers would let it tighten.
+`script-src` is now `'self'` alone — no `'unsafe-inline'`, no `'unsafe-eval'`.
+The policy refuses inline script outright rather than only restricting where
+external script may come from, which is the difference between narrowing an
+injection and stopping one. See *Actions* below for what that cost.
+
+`style-src` keeps `'unsafe-inline'`, and that is not an oversight waiting to be
+tidied. Inline `style` attributes are load-bearing here: label sizes have to be
+inline to outrank the stylesheet (constraint 7), and the renderer sets
+per-element geometry on the fly. An injected `style` attribute also cannot
+execute anything, so the two keywords are not comparable risks.
 
 Allowed origins are deliberately narrow — `fonts.googleapis.com` (styles),
 `fonts.gstatic.com` (fonts), `upload.wikimedia.org` (every one of the 393
@@ -413,10 +462,11 @@ never mistaken for a working page.
 
 ## Smoke Tests
 
-`scripts/smoke.mjs` opens the real page in Chromium and asserts ~45 things per
-scenario across six scenarios — desktop and phone viewports in English, Hebrew
-and Russian, plus a desktop pass in the light theme. It runs on every push and
-pull request via `.github/workflows/smoke.yml`, and replaces the old
+`scripts/smoke.mjs` opens the real page in Chromium and asserts **282 checks**
+— ~46 per scenario across six scenarios (desktop and phone viewports in
+English, Hebrew and Russian, plus a desktop pass in the light theme), and four
+static checks that read the source before the browser starts. It runs on every
+push and pull request via `.github/workflows/smoke.yml`, and replaces the old
 `deploy-check.yml`, which only checked that files existed.
 
 The light theme is loaded rather than toggled at runtime: switching themes also
@@ -445,7 +495,7 @@ as a CI artifact on every run).
 | `a11y:` | every text node meets AA contrast against its effective background |
 | `search:` | eight canonical queries return the answer a person would call correct; every common-name alias still matches something |
 | `interact:` | zoom buttons, reset re-fits, parent expands, leaf opens panel, search returns results, camera settles |
-| `static/` | CSS custom properties used but never defined (runs before the browser starts) |
+| `static/` | Runs before the browser starts, over `index.html`, `js/`, `css/` and `stories/`: CSS custom properties used but never defined; inline event-handler attributes; `script-src` still forbidding inline and eval; every `data-action` resolving to a registered handler |
 
 ### The baseline
 

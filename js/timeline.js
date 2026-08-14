@@ -315,7 +315,15 @@ export function buildEraSegments(){
     const div=document.createElement('div');
     div.className='era-seg';
     div.style.width=widthPct+'%';
-    const segColor=isLight?seg.colorLight:seg.color;
+    /* The strip carries the ICS chart colours, which run the full spectrum at
+       full saturation. Across the whole width of the window that made it the
+       loudest thing on the page — a rainbow competing with the tree it is
+       meant to annotate. Muting is done here rather than with a CSS filter so
+       that the ink chosen below is judged against the colour actually painted:
+       a filter on the element changes what the eye sees but not what this code
+       measures, and the era names dropped to a contrast ratio of 1.4. */
+    const segColor=muteColor(isLight?seg.colorLight:seg.color,isLight?0.55:0.45,
+                             isLight?'#ffffff':'#0B1118',isLight?0.42:0.40);
     div.style.background=segColor;
     div.dataset.segId=seg.id;
     div.dataset.min=clampedMin;
@@ -365,6 +373,50 @@ function hideOverflowingEraLabels(container){
 /* Perceived lightness of a CSS colour, as the WCAG relative luminance. The era
    palette is authored as hex and rgb() strings; anything unparseable is assumed
    dark, which is the safe default against this mostly-saturated strip. */
+/* Pull a colour toward its own grey, then toward the page. `chroma` is how
+   much of the original saturation survives; `groundAmt` is how far the result
+   is then dragged toward `ground`.
+
+   The second step is what makes the ink choice safe. Desaturating alone
+   preserves luminance, so the strip keeps segments at every brightness from
+   near-black to near-white — including the mid-tones where neither white nor
+   black ink reaches AA, which is how Permian landed at 4.35. Pulling every
+   segment toward the page's own ground lands them all on one side of the
+   midpoint, so a single ink is correct for the whole strip and hue is left to
+   do the distinguishing.
+
+   Returns an rgb() string; anything unparseable is passed through untouched so
+   a future colour format degrades to "too colourful" rather than to blank. */
+export function muteColor(css,chroma,ground,groundAmt){
+  const rgb=parseColor(css);
+  if(!rgb) return css;
+  const [r,g,b]=rgb;
+  const y=0.2126*r+0.7152*g+0.0722*b;
+  const gr=parseColor(ground)||[0,0,0];
+  const mix=(c,i)=>{
+    const grey=y+(c-y)*chroma;
+    return Math.round(grey+(gr[i]-grey)*groundAmt);
+  };
+  return `rgb(${mix(r,0)},${mix(g,1)},${mix(b,2)})`;
+}
+
+/* Shared by isDarkColor() and muteColor(). */
+function parseColor(css){
+  if(!css) return null;
+  const hex=/^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(css.trim());
+  if(hex){
+    let h=hex[1];
+    if(h.length===3) h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    const v=parseInt(h,16);
+    return [(v>>16)&255,(v>>8)&255,v&255];
+  }
+  const m=/rgba?\(([^)]+)\)/.exec(css);
+  if(!m) return null;
+  const parts=m[1].split(',').map(Number);
+  if(parts.length<3||parts.some(Number.isNaN)) return null;
+  return [parts[0],parts[1],parts[2]];
+}
+
 function isDarkColor(css){
   if(!css) return true;
   let r,g,b;

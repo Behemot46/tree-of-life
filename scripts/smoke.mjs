@@ -394,6 +394,8 @@ check('chrome:panel-hero-readable', 'Nothing is printed over the species name', 
 check('panel:hero-photo-loads', 'The species panel shows its photograph', (c) => {
   const h = c.probe.heroPhoto;
   if (!h || !h.checked) return;
+  // Nothing to assert where the host cannot be reached — see wikimediaReachable().
+  if (c.probe.photoHostReachable === false) return;
   if (!h.present) { fail('the panel rendered no hero image element at all'); return; }
   if (!h.loaded) fail(`the hero photograph did not load, so the panel fell back to an emoji: ${h.src}`);
   else if (!h.shown) fail('the hero photograph loaded but is not displayed');
@@ -1050,7 +1052,7 @@ async function probePage(page, scenario) {
   // than on load. This supersedes the value collected in the first pass.
   const cspViolations = [...new Set(await page.evaluate(() => window.__cspViolations || []))];
 
-  return { ...base, ...forced, tooltipShown, tooltipCoversNode, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps, heroPhoto, contrast, searchQuality,
+  return { ...base, ...forced, tooltipShown, tooltipCoversNode, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps, heroPhoto, photoHostReachable: await wikimediaReachable(), contrast, searchQuality,
            searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations };
 }
 
@@ -1111,6 +1113,24 @@ async function staticChecks() {
 
    In CI the directory is absent and the real network serves them, so the check
    means the same thing in both places. Absent the cache this is a no-op. */
+/* Can this machine reach the photograph host? CI can; the development sandbox
+   gets 403 at its egress proxy. A check that asserts an image loaded cannot
+   mean anything where the host is unreachable, and leaving it to fail there
+   would train everyone to ignore a red run. */
+let WIKIMEDIA_REACHABLE = null;
+async function wikimediaReachable() {
+  if (WIKIMEDIA_REACHABLE !== null) return WIKIMEDIA_REACHABLE;
+  try {
+    const ac = new AbortController();
+    const t = setTimeout(() => ac.abort(), 8000);
+    const res = await fetch('https://upload.wikimedia.org/wikipedia/commons/7/73/Deinococcus_radiodurans.jpg',
+      { signal: ac.signal, headers: { 'User-Agent': 'TreeOfLife/1.0 (smoke preflight)' } });
+    clearTimeout(t);
+    WIKIMEDIA_REACHABLE = res.ok;
+  } catch { WIKIMEDIA_REACHABLE = false; }
+  return WIKIMEDIA_REACHABLE;
+}
+
 async function servePhotoCache(ctx) {
   const manifestPath = 'photo-cache/manifest.json';
   if (!existsSync(manifestPath)) return;

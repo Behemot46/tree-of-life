@@ -122,7 +122,12 @@
   box-shadow:var(--shadow-1);
 }
 #top-right-controls #view-toggle{display:none !important;} /* moved to left rail */
-#lang-switcher{display:none !important;} /* language switcher hidden */
+/* The three language buttons are the only way to change language — there is
+   no ?lang= parameter, only the `tol-lang` key they write. Hiding them left
+   Hebrew and Russian reachable solely by editing localStorage, which the
+   smoke suite does, so nothing caught it. The rule below styles them to match
+   the theme and profile buttons beside them, which is what the cluster was
+   built to hold. */
 #lang-switcher{display:flex;gap:2px;}
 #lang-switcher .lang-btn,
 #theme-btn,

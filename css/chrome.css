@@ -140,17 +140,20 @@
 /* ── LEFT RAIL container ───────────────────────────────────── */
 #left-rail{
   position:fixed;
-  top:64px;bottom:120px;left:var(--chrome-pad);
+  /* Sized to its contents, not stretched to the timeline. Pinning both edges
+     left a third of the column empty with the two footer rows stranded at the
+     bottom of a tall dark slab. */
+  top:64px;bottom:auto;max-height:calc(100vh - 190px);left:var(--chrome-pad);
   width:var(--rail-w);
   z-index:var(--z-nav);
   display:flex;flex-direction:column;gap:var(--rail-gap);
   padding:10px;
   background:var(--glass-bg);
   border:1px solid var(--glass-border);
-  border-radius:var(--radius-md);
+  border-radius:var(--radius-lg);
   backdrop-filter:var(--glass-blur);
   -webkit-backdrop-filter:var(--glass-blur);
-  box-shadow:var(--shadow-1);
+  box-shadow:var(--shadow-2),var(--glass-sheen);
   pointer-events:all;
   overflow-y:auto;
   scrollbar-width:thin;
@@ -160,22 +163,43 @@
 [dir="rtl"] #left-rail{left:auto;right:var(--chrome-pad);}
 
 .rail-caption{
-  font-size:9px;text-transform:uppercase;letter-spacing:0.1em;
-  color:var(--text-secondary);opacity:0.7;
-  padding:0 4px;margin-top:4px;
+  font-size:9px;text-transform:uppercase;letter-spacing:0.14em;font-weight:600;
+  color:var(--text-muted,var(--text-secondary));opacity:0.65;
+  padding:0 9px;margin:8px 0 3px;
 }
-.rail-divider{height:1px;background:var(--glass-border);margin:4px 2px;flex-shrink:0;}
+.rail-caption:first-child{margin-top:2px;}
+/* A gap does the dividing. Rules between every group turned a six-item menu
+   into a stack of five framed compartments. */
+.rail-divider{height:0;margin:7px 0;flex-shrink:0;background:none;}
 .rail-group{display:flex;flex-direction:column;gap:4px;}
-.rail-foot{margin-top:auto;display:flex;flex-direction:column;gap:6px;padding-top:6px;}
+.rail-foot{display:flex;flex-direction:column;gap:5px;margin-top:10px;}
 
-/* Buttons inside left rail are full-width and left-aligned */
+/* Buttons inside the left rail.
+
+   The rail is already a bordered, blurred slab, so giving every button inside
+   it a second border and fill boxed each one twice over and made the column
+   read as a developer's control panel rather than a menu. Inside a container
+   the buttons are plain text rows; the container is the only frame, and the
+   fill appears on hover and for the active item. */
 #left-rail .ctrl-btn,
 #left-rail .view-btn,
 #left-rail .search-pill{
   width:100%;
   justify-content:flex-start;
-  padding:0 10px;
-  font-size:12px;
+  height:32px;
+  padding:0 9px;
+  font-size:12.5px;
+  background:transparent;
+  border-color:transparent;
+  color:var(--text-secondary);
+  transition:background 140ms var(--ease-standard), color 140ms var(--ease-standard);
+}
+#left-rail .ctrl-btn:hover,
+#left-rail .view-btn:hover,
+#left-rail .search-pill:hover{
+  background:rgba(255,255,255,0.055);
+  color:var(--text-primary);
+  border-color:transparent;
 }
 
 /* View-toggle inside the rail: drop fixed positioning */
@@ -189,10 +213,8 @@
 }
 #view-toggle .view-btn{
   width:100%;justify-content:flex-start;
-  border-top:1px solid var(--glass-border) !important;
-  border-left:1px solid var(--glass-border) !important;
+  border-color:transparent !important;
 }
-#view-toggle .view-btn:first-child{border-top:1px solid var(--glass-border) !important;}
 
 /* Pills inside rail: drop the row wrapping hack */
 #hominins-tab{margin-top:0 !important;}
@@ -298,12 +320,13 @@
   bottom:auto !important;
   transform:translateY(-50%);
   display:flex !important;flex-direction:column;gap:4px;
-  padding:5px;
+  padding:4px;
   background:var(--glass-bg);
   border:1px solid var(--glass-border);
-  border-radius:var(--radius-md);
+  border-radius:var(--radius-lg);
   backdrop-filter:var(--glass-blur);
-  box-shadow:var(--shadow-1);
+  -webkit-backdrop-filter:var(--glass-blur);
+  box-shadow:var(--shadow-2),var(--glass-sheen);
 }
 /* The detail panel is a drawer over the same edge, so with a species open the
    zoom rail sat behind it and could not be reached at all. It steps aside by

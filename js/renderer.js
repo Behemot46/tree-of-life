@@ -7,6 +7,7 @@ import { state, nodeMap, animDone, confirmedPhotoUrls, HUMAN_PATH } from './stat
 import { getVisible, getVisibleEdges, countDescendants } from './layout.js';
 import { reducedMotion, displayName } from './utils.js';
 import { labelBox, labelOffset, nodeRadius } from './labelMetrics.js';
+import { SILHOUETTES } from './silhouettes.js';
 import { getPlaybackNodeState, discoverNode, showDiscoveryCard } from './playback.js';
 import { isExplored } from './engagement.js';
 import { nodeInEra } from './timeline.js';
@@ -580,8 +581,37 @@ export function render(){
       icon.setAttribute('class','node-fallback-icon');
       g.appendChild(icon);
 
+      /* A silhouette when we have one. Nothing photographic survives a 40px
+         disc — a lion is a brown smudge, an electron micrograph of
+         Proteobacteria is grey static — so the disc gets the organism's shape
+         and the panel gets the photograph. The SVG's fill is currentColor
+         (rewritten by the builder), so `color` here tints it with the node's
+         own hue and the tree reads as one visual language. */
+      const sil=SILHOUETTES[n.id];
+      if(sil){
+        const size=nodeR*1.5;
+        const sfo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+        sfo.setAttribute('x',n._x-size/2);sfo.setAttribute('y',n._y-size/2);
+        sfo.setAttribute('width',size);sfo.setAttribute('height',size);
+        sfo.style.pointerEvents='none';sfo.style.overflow='visible';
+        /* Painted as a CSS mask rather than an <img>. An external SVG loaded
+           through <img> renders in its own isolated document, so the
+           currentColor the builder writes into it resolves to black there and
+           never sees the page's palette — every silhouette came out a dark
+           shape on a dark disc, reading as a hole punched through it. A mask
+           takes only the alpha channel, so the colour is ours to choose. */
+        const sw=document.createElement('div');
+        sw.className='node-silhouette';
+        sw.style.width=`${size}px`;sw.style.height=`${size}px`;
+        sw.style.backgroundColor=n.color;
+        const url=`url("assets/silhouettes/${n.id}.svg")`;
+        sw.style.webkitMaskImage=url;sw.style.maskImage=url;
+        sfo.appendChild(sw);g.appendChild(sfo);
+        if(icon.parentNode) icon.remove();
+      }
+
       // Photo overlay via foreignObject
-      if(ImageLoader){
+      if(!sil&&ImageLoader){
         const cachedUrl=confirmedPhotoUrls.get(n.id);
         const best=cachedUrl?{url:cachedUrl}:ImageLoader.getBestUrl(n);
         if(best&&best.url){

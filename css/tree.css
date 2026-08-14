@@ -244,3 +244,29 @@ svg{width:100%;height:100%;}
   .node-group:hover{ transform:none; }
   .node-ring-expandable{ animation:none; opacity:0.6; }
 }
+
+/* ══════════════════════════════════════════════════════
+   SILHOUETTES
+   The organism's shape, drawn at the disc in the node's own colour. A
+   photograph at 40px is a smudge; a silhouette is the one thing that reads at
+   that size.
+
+   Painted as a mask, not an <img>: an external SVG loaded through <img>
+   renders in its own document and cannot see this page's colours, so every
+   silhouette came out black on a dark disc. A mask uses the alpha channel
+   only, which leaves the colour to us.
+   ══════════════════════════════════════════════════════ */
+.node-silhouette{
+  pointer-events:none;
+  mask-repeat:no-repeat;-webkit-mask-repeat:no-repeat;
+  mask-position:center;-webkit-mask-position:center;
+  mask-size:contain;-webkit-mask-size:contain;
+  /* Lifted off the disc so the shape has an edge instead of sitting flush
+     against a fill of nearly the same colour. */
+  filter:brightness(1.45) saturate(1.2) drop-shadow(0 1px 2px rgba(0,0,0,0.6));
+  opacity:0.95;
+}
+[data-theme="light"] .node-silhouette{
+  filter:brightness(0.72) saturate(1.15) drop-shadow(0 1px 1px rgba(0,0,0,0.2));
+  opacity:0.9;
+}

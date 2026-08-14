@@ -39,8 +39,9 @@ const OUT_MODULE = 'js/silhouettes.js';
 const UA = 'TreeOfLife/1.0 (https://www.treeoflife.wiki; silhouette builder)';
 
 async function api(path, attempt = 0) {
+  const url = path.startsWith('http') ? path : API + path;
   try {
-    const res = await fetch(API + path, { headers: { 'User-Agent': UA, accept: 'application/json' } });
+    const res = await fetch(url, { headers: { 'User-Agent': UA, accept: 'application/json' } });
     if (res.status === 404) return null;
     if (res.status === 429 || res.status >= 500) throw new Error('HTTP ' + res.status);
     if (!res.ok) return null;
@@ -49,6 +50,33 @@ async function api(path, attempt = 0) {
     if (attempt < 4) { await sleep(1500 * Math.pow(2, attempt)); return api(path, attempt + 1); }
     throw err;
   }
+}
+
+/* Diagnostic. The resolver has now guessed the response shape wrong twice —
+   first `_embedded.items`, then `_links.items` — and each guess cost a full CI
+   round trip to disprove because api.phylopic.org is unreachable from the
+   development sandbox. This prints what the API actually returns so the next
+   change is based on the response rather than on a recollection of it.
+
+     node scripts/build-silhouettes.mjs --probe Bacteria
+*/
+if (argv.includes('--probe')) {
+  const name = arg('probe', 'Bacteria');
+  const root = await api('/');
+  console.log('build:', root?.build);
+  for (const path of [
+    `/nodes?filter_name=${encodeURIComponent(name.toLowerCase())}&build=${root?.build}`,
+    `/autocomplete?query=${encodeURIComponent(name.toLowerCase())}`,
+    `/nodes?filter_name=${encodeURIComponent(name.toLowerCase())}&build=${root?.build}&page=0`,
+  ]) {
+    console.log('\n=== GET ' + path + ' ===');
+    try {
+      const res = await fetch(API + path, { headers: { 'User-Agent': UA, accept: 'application/json' } });
+      console.log('status', res.status);
+      console.log((await res.text()).slice(0, 2400));
+    } catch (err) { console.log('threw:', err.message); }
+  }
+  process.exit(0);
 }
 
 /* The name to search PhyloPic with. `latin` carries a rank prefix on ranked
@@ -68,12 +96,26 @@ function searchNames(node) {
   return [...new Set(names.filter(Boolean))];
 }
 
+/* A PhyloPic collection puts its members in `_links.items` as link objects,
+   each already carrying the build in its href. The first version of this read
+   `_embedded.items`, which does not exist, so every lookup found nothing and
+   the run resolved 0 of 165 taxa while reporting no error at all. */
 async function resolveOne(build, name) {
   const found = await api(`/nodes?filter_name=${encodeURIComponent(name.toLowerCase())}&build=${build}`);
-  const item = found?._embedded?.items?.[0];
-  if (!item?.href) return null;
+  if (!found || !found.totalItems) return null;
 
-  const node = await api(item.href + `&build=${build}`.replace('&', item.href.includes('?') ? '&' : '?'));
+  /* The collection response is a paged *envelope*: its _links carry only
+     firstPage, lastPage and self, and the members live on the page resource.
+     Reading items straight off the collection — under either `_embedded.items`
+     or `_links.items` — finds nothing, which is why two earlier versions
+     resolved 0 of 305 taxa while the API was answering 200 with
+     `totalItems: 1`. */
+  const page = await api(found._links?.firstPage?.href ||
+    `/nodes?filter_name=${encodeURIComponent(name.toLowerCase())}&build=${build}&page=0`);
+  const items = page?._links?.items || [];
+  if (!items.length || !items[0].href) return null;
+
+  const node = await api(items[0].href);
   const imgHref = node?._links?.primaryImage?.href;
   if (!imgHref) return null;
 
@@ -81,9 +123,10 @@ async function resolveOne(build, name) {
   const vector = img?._links?.vectorFile?.href;
   if (!vector) return null;
 
+  const lic = img?._links?.license;
   return {
     url: vector.startsWith('http') ? vector : API + vector,
-    license: img?._links?.license?.href || img?._links?.license?.title || '',
+    license: (lic && (lic.href || lic.title)) || '',
     attribution: img?.attribution || '',
   };
 }
@@ -112,7 +155,14 @@ function recolour(svg) {
 
 const { TREE } = await import(pathToFileURL('js/treeData.js').href);
 const { expandTree } = await import(pathToFileURL('js/treeExpansion.js').href);
-try { expandTree(TREE); } catch { /* the tree is usable without the expansion */ }
+const { lightenColor } = await import(pathToFileURL('js/utils.js').href).catch(() => ({}));
+try {
+  expandTree(TREE, lightenColor || ((c) => c));
+} catch (err) {
+  // Loud, not silent: without the expansion only the base tree's 165 taxa are
+  // considered and the 300-odd species are quietly skipped.
+  console.error('expandTree failed, continuing with the base tree only:', err.message);
+}
 
 const nodes = [];
 (function walk(n) { nodes.push(n); (n.children || []).forEach(walk); })(TREE);
@@ -137,7 +187,11 @@ for (let i = 0; i < targets.length; i++) {
     if (got) break;
     await sleep(120);
   }
-  if (!got) { miss++; continue; }
+  if (!got) {
+    miss++;
+    if (miss <= 5) process.stderr.write(`  no silhouette for ${node.id} (${searchNames(node).join(' / ')})\n`);
+    continue;
+  }
 
   const svg = await download(got.url);
   if (!svg || !/<svg/i.test(svg)) { miss++; continue; }

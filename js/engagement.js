@@ -32,7 +32,6 @@ export function dismissToast() {
   clearTimeout(_toastDismissTimer);
   _toastEl.classList.remove('visible');
 }
-window.dismissToast = dismissToast;
 
 export function showSpeciesToast(nodeId) {
   // Try species-specific tooltip fact, then panel fact, then general discovery

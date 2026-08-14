@@ -355,8 +355,6 @@ patchEnrichment();
   });
 })();
 
-// Expose getNodeById globally
-window.getNodeById = id => nodeMap[id];
 
 
 // ══════════════════════════════════════════════════════

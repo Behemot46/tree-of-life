@@ -149,7 +149,7 @@ function showFamilyFoeQuestion() {
     ${s.streak >= 3 ? `<div style="text-align:center;margin:0.3rem 0;"><span class="trivia-streak-badge">🔥 ${s.streak} streak!</span></div>` : ''}
 
     <div class="ff-target">
-      ${photoT ? `<img src="${photoT}" alt="${target.name}" class="ff-target-img" crossorigin="anonymous" onerror="this.style.display='none'">` : ''}
+      ${photoT ? `<img src="${photoT}" alt="${target.name}" class="ff-target-img" crossorigin="anonymous" data-on-error="hide">` : ''}
       <div class="ff-target-info">
         <div style="font-size:var(--text-xs);color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em;">Who is closer to...</div>
         <div class="ff-target-name">${target.icon || '🧬'} ${target.name}</div>
@@ -158,13 +158,13 @@ function showFamilyFoeQuestion() {
 
     <div class="wf-cards">
       <button class="wf-card" data-action="ff-pick" data-pick="b">
-        ${photoB ? `<img src="${photoB}" alt="${optionB.name}" class="wf-card-img" crossorigin="anonymous" onerror="this.style.display='none'">` : ''}
+        ${photoB ? `<img src="${photoB}" alt="${optionB.name}" class="wf-card-img" crossorigin="anonymous" data-on-error="hide">` : ''}
         <div class="wf-card-icon">${optionB.icon || '🧬'}</div>
         <div class="wf-card-name">${optionB.name}</div>
       </button>
       <div class="wf-vs">or</div>
       <button class="wf-card" data-action="ff-pick" data-pick="c">
-        ${photoC ? `<img src="${photoC}" alt="${optionC.name}" class="wf-card-img" crossorigin="anonymous" onerror="this.style.display='none'">` : ''}
+        ${photoC ? `<img src="${photoC}" alt="${optionC.name}" class="wf-card-img" crossorigin="anonymous" data-on-error="hide">` : ''}
         <div class="wf-card-icon">${optionC.icon || '🧬'}</div>
         <div class="wf-card-name">${optionC.name}</div>
       </button>

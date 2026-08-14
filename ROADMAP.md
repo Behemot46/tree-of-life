@@ -11,8 +11,9 @@ An interactive phylogenetic visualisation of 3.8 billion years of evolution,
 in English, Hebrew and Russian. Static files, no build step.
 
 Every push and pull request runs `scripts/smoke.mjs`, which opens the real page
-in Chromium and asserts **174 checks across five scenarios** — desktop and
-phone, in all three languages. It is green.
+in Chromium and asserts **282 checks across six scenarios** — desktop and
+phone, in all three languages, plus a desktop pass in the light theme. It is
+green.
 
 ---
 
@@ -22,7 +23,7 @@ Things waiting on a decision rather than on work.
 
 | Question | Why it matters |
 |---|---|
-| **Removing the 31 inline `onclick` handlers** | They force `script-src 'unsafe-inline'`, which is the one real weakness in the CSP. Removing them would let the policy actually prevent inline execution rather than only restricting origins. |
+| **Deleting three unreachable modules** | `js/trivia.js`, `js/quiz.js` and `js/imagePrompts.js` are imported by nothing — `game.js` superseded the first two. They are ~1,400 lines that every reader has to rule out. Deleting them is a decision, not a fix. |
 | **Switching GitHub Pages off** | `deploy.yml` is gone, so Pages no longer updates, but it keeps serving its last build until disabled in Settings → Pages. Only reachable by hand. |
 | **Vercel's recommended `www` CNAME** | Vercel suggests `www → 2f3b9f3357c6e4e5.vercel-dns-017.com.` and notes the legacy records keep working, so this is tidiness rather than a fix. |
 
@@ -35,10 +36,24 @@ Things waiting on a decision rather than on work.
 | Content-Security-Policy | **Added**, defined in `vercel.json` and enforced by `serve.js` so the smoke suite checks the real policy. |
 | `SECURITY.md` | **Rewritten** for what this project actually is: a static site with no backend and no releases. |
 | The custom domain | **Live at `www.treeoflife.wiki`**, verified by running the full suite against the deployed site rather than assuming it worked. Pages retired afterwards. |
+| The 31 inline `onclick` handlers | **Gone**, along with 23 more the modules generated at runtime. `script-src` is now `'self'` with no `'unsafe-inline'`. See the decision log below. |
 
 ---
 
 ## Decision log
+
+### 2026-08 — Inline handlers removed, CSP tightened
+
+| Decision | Rationale |
+|---|---|
+| One delegated dispatcher, not per-element listeners | Half the handlers were in template strings the modules write into `innerHTML` after start-up. Wiring those individually means re-wiring on every re-render; one listener on `document` means a control works the moment it exists. |
+| The real count was 54, not 31 | The roadmap line said 31, which was the markup. Another 23 lived inside JS template strings, and CSP governs those identically — an attribute is an attribute whoever wrote it. Scope was checked before the work started rather than discovered halfway. |
+| `style-src` keeps `'unsafe-inline'` | Not the same risk and not the same cost. Label sizes must be inline to outrank the stylesheet (CLAUDE.md constraint 7), the renderer sets geometry per element, and an injected `style` attribute cannot execute anything. |
+| Action names read from existing data-attributes | The language, view and legend controls already carried `data-lang`, `data-mode`, `data-domain`. Repeating those values in a `data-arg` would have created two sources of truth that drift. |
+| `game.js`'s dispatcher folded into the shared one | It had grown its own `data-action` vocabulary and its own listener. Two dispatchers watching the same attribute means every game click is a candidate for running twice. Its names kept their original spelling — renaming thirty markup sites for consistency would risk a silent dead button. |
+| Two static checks, not just the runtime one | The existing CSP check only sees violations from handlers that actually fire during the interaction phase. `csp:no-inline-handlers` reads the source, so it covers files a given run never reaches, and `actions:every-action-has-a-handler` catches the new failure mode this pattern introduces: an action nothing registered, which fails by doing nothing at all. |
+| Both new checks were tested by breaking them | A check that cannot fail is worse than no check. Each was run against a deliberately injected defect and confirmed red before being trusted. |
+| Globals deleted rather than left behind | Forty-odd `window.x = x` lines existed solely so `onclick="x()"` could reach them. One survives (`navigateTo`), because two modules genuinely call it across the circular-import boundary. |
 
 ### 2026-08 — Takeover and polish
 

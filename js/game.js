@@ -4,6 +4,7 @@
 // ══════════════════════════════════════════════════════
 
 import { TRIVIA_QUESTIONS } from './triviaData.js';
+import { registerActions } from './actions.js';
 import { checkAchievement, trackQuizComplete } from './engagement.js';
 import { startWhoFirst, answerWhoFirst, nextWhoFirst, diceWhoFirst } from './whoFirst.js';
 import { startFamilyFoe, answerFamilyFoe, nextFamilyFoe, diceFamilyFoe } from './familyFoe.js';
@@ -670,31 +671,32 @@ export function initGameEvents() {
   const panel = document.getElementById('game-panel');
   if (!panel) return;
 
+  /* The game panel had its own delegated dispatcher and its own data-action
+     vocabulary, written before js/actions.js existed. Two dispatchers both
+     watching data-action meant every game click was a candidate for being
+     handled twice, so the names moved to the shared registry. They keep
+     their original spelling — renaming thirty markup sites to match the
+     `namespace:verb` style would risk a silent dead button for tidiness. */
+  registerActions({
+    'close-game':    () => closeGame(),
+    'play-again':    () => showModeSelector(),
+    'next-question': () => nextQuestion(),
+    'select-mode':   (_a, _b, { el }) => {
+      const modeEl = el.dataset.mode ? el : el.closest('[data-mode]');
+      if (modeEl) startGame(modeEl.dataset.mode);
+    },
+    'wf-pick': (_a, _b, { el }) => answerWhoFirst(el.dataset.pick),
+    'wf-next': () => nextWhoFirst(),
+    'wf-dice': () => diceWhoFirst(),
+    'ff-pick': (_a, _b, { el }) => answerFamilyFoe(el.dataset.pick),
+    'ff-next': () => nextFamilyFoe(),
+    'ff-dice': () => diceFamilyFoe(),
+  });
+
+  // Not data-action driven: the backdrop and the answer buttons.
   panel.addEventListener('click', e => {
-    // Close on backdrop click
     if (e.target === panel) { closeGame(); return; }
-
-    // Delegated actions
-    const actionEl = e.target.dataset?.action ? e.target : e.target.closest('[data-action]');
-    if (actionEl) {
-      const action = actionEl.dataset.action;
-      if (action === 'close-game') closeGame();
-      else if (action === 'select-mode') {
-        const modeEl = actionEl.dataset.mode ? actionEl : actionEl.closest('[data-mode]');
-        if (modeEl) startGame(modeEl.dataset.mode);
-      }
-      else if (action === 'play-again') showModeSelector();
-      else if (action === 'next-question') nextQuestion();
-      else if (action === 'wf-pick') answerWhoFirst(actionEl.dataset.pick);
-      else if (action === 'wf-next') nextWhoFirst();
-      else if (action === 'wf-dice') diceWhoFirst();
-      else if (action === 'ff-pick') answerFamilyFoe(actionEl.dataset.pick);
-      else if (action === 'ff-next') nextFamilyFoe();
-      else if (action === 'ff-dice') diceFamilyFoe();
-      return;
-    }
-
-    // Answer option clicks
+    if (e.target.closest('[data-action]')) return;
     const optBtn = e.target.closest('.game-option');
     if (optBtn && gameState && !gameState.answered) {
       answerQuestion(parseInt(optBtn.dataset.idx, 10));

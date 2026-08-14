@@ -76,7 +76,7 @@ function fillSlot(slot, node) {
   const btnEl = document.getElementById('compare-slot-' + slot);
 
   if (photoUrl) {
-    iconEl.innerHTML = '<img class="compare-slot-photo" src="' + photoUrl + '" alt="' + (node.name || '') + '" onerror="this.replaceWith(document.createTextNode(\'' + icon + '\'))">';
+    iconEl.innerHTML = '<img class="compare-slot-photo" src="' + photoUrl + '" alt="' + (node.name || '') + '" data-on-error="text" data-fallback-text="' + icon + '">';
   } else {
     iconEl.textContent = icon;
   }
@@ -110,7 +110,7 @@ export function openCompare() {
       { label: 'You &amp; Bacteria',    a: 'h_sapiens', b: 'bacteria' },
     ];
     presetsEl.innerHTML = presets.map(p =>
-      '<button class="compare-preset" onclick="comparePreset(\'' + p.a + '\',\'' + p.b + '\')">' + p.label + '</button>'
+      '<button class="compare-preset" data-action="species-compare:preset" data-arg="' + p.a + '" data-arg2="' + p.b + '">' + p.label + '</button>'
     ).join('');
   }
 }
@@ -315,11 +315,11 @@ export function computeCompare() {
     const photoUrl = PHOTO_MAP[n.id] ? PHOTO_MAP[n.id].url : null;
     const shortName = n.name.length > 10 ? n.name.slice(0, 9) + '\u2026' : n.name;
     const photoHtml = photoUrl
-      ? '<img class="compare-chain-photo" src="' + photoUrl + '" alt="' + (n.name || '') + '" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">' +
+      ? '<img class="compare-chain-photo" src="' + photoUrl + '" alt="' + (n.name || '') + '" data-on-error="hide-show-next">' +
         '<span class="compare-chain-emoji" style="display:none;width:32px;height:32px;font-size:18px;border:none;position:static;background:var(--surface-raised);border-radius:50%">' + icon + '</span>'
       : '<span style="font-size:22px;line-height:32px;">' + icon + '</span>';
     return (i > 0 ? '<span class="compare-chain-sep">\u203a</span>' : '') +
-      '<div class="compare-chain-node' + (isLca ? ' lca' : '') + '" style="--i:' + i + '" onclick="closeCompare();navigateTo(\'' + n.id + '\')" title="' + n.name + '">' +
+      '<div class="compare-chain-node' + (isLca ? ' lca' : '') + '" style="--i:' + i + '" data-action="species-compare:goto" data-arg="' + n.id + '" title="' + n.name + '">' +
         (isLca ? '<span class="compare-chain-lca-label">' + (t('evo_ancestor') || 'Ancestor') + '</span>' : '') +
         photoHtml +
         '<span class="compare-chain-node-name">' + shortName + '</span></div>';
@@ -329,7 +329,7 @@ export function computeCompare() {
   // Shared ancestor card
   const lcaPhoto = PHOTO_MAP[lca.id] ? PHOTO_MAP[lca.id].url : '';
   html += '<div class="compare-ancestor-card">';
-  if (lcaPhoto) html += '<img class="compare-ancestor-photo" src="' + lcaPhoto + '" alt="' + lca.name + '" onerror="this.style.display=\'none\'">';
+  if (lcaPhoto) html += '<img class="compare-ancestor-photo" src="' + lcaPhoto + '" alt="' + lca.name + '" data-on-error="hide">';
   html += '<div class="compare-ancestor-info">';
   html += '<div class="compare-ancestor-title">' + (t('evo_ancestor') || 'Shared Ancestor') + '</div>';
   html += '<div class="compare-ancestor-name">' + lca.icon + ' ' + lca.name + '</div>';
@@ -425,7 +425,7 @@ export function initCompareEvents() {
         const icon = node.icon || m.icon || '🧬';
         const name = m.name || node.name || m.id;
         const latin = m.latin || node.latin || '';
-        return '<div class="compare-search-item" onclick="selectCompareSpecies(\'' + m.id + '\')">' +
+        return '<div class="compare-search-item" data-action="species-compare:select" data-arg="' + m.id + '">' +
           '<span class="compare-search-item-icon">' + icon + '</span>' +
           '<span class="compare-search-item-name">' + name + '</span>' +
           '<span class="compare-search-item-latin">' + latin + '</span></div>';

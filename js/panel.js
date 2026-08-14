@@ -3,6 +3,10 @@
 // ══════════════════════════════════════════════════════
 
 import { state, nodeMap, navStack, HUMAN_PATH, confirmedPhotoUrls } from './state.js';
+import { registerActions } from './actions.js';
+// Was reached as window.t, which existed only to serve inline onclick
+// attributes. theme.js does not import this module, so there is no cycle.
+import { t } from './theme.js';
 import { reducedMotion, canonicalHomininId, getTimeContext, displayName } from './utils.js';
 import { a11yAnnounce, markExplored } from './engagement.js';
 import { NODE_ICONS, getIconGroup, FACTS, ImageLoader } from './data.js';
@@ -422,7 +426,7 @@ export function _buildRadarChart(node) {
 export function _panelSection(icon, title, content, collapsed) {
   return `
     <div class="panel-section${collapsed ? ' collapsed' : ''}">
-      <div class="panel-section-header" onclick="this.parentElement.classList.toggle('collapsed')">
+      <div class="panel-section-header" data-action="panel:section-toggle">
         <span class="panel-section-title">${icon} ${title}</span>
         <span class="panel-chevron">▼</span>
       </div>
@@ -476,7 +480,7 @@ export function renderPanelContent(node) {
         ${node.appeared ? (() => { const tc = getTimeContext(node.appeared, node.id); return tc ? `<div class="p-time-context" dir="ltr">${tc.text}</div>` : ''; })() : ''}
       </div>
       <div id="${panelCrId}" class="panel-hero-credit" dir="ltr">${staticCredit}</div>
-      <button class="p-close" id="panel-close" aria-label="${t('panel_close')}" onclick="closePanel()">✕</button>
+      <button class="p-close" id="panel-close" aria-label="${t('panel_close')}" data-action="panel:close">✕</button>
     </div>
     <!-- dir="ltr" is deliberate and stays that way in Hebrew. Species prose,
          Latin names, facts and tags are English by policy (see CLAUDE.md), and
@@ -590,7 +594,7 @@ export function renderPanelContent(node) {
       ` : ''}
       ${(()=>{
         const isHom = node._hominData || node.id === 'hominini' || (node.id && node.id.startsWith('hom-'));
-        return isHom ? `<div class="panel-section"><button class="panel-cta" onclick="openHomininView()">🧬 Hominin Deep Dive</button></div>` : '';
+        return isHom ? `<div class="panel-section"><button class="panel-cta" data-action="hominin:open">🧬 Hominin Deep Dive</button></div>` : '';
       })()}
     </div>
   `;
@@ -728,9 +732,15 @@ export function initPanelListeners() {
   if (panelCloseBtn) panelCloseBtn.addEventListener('click', _navBack);
   document.getElementById('svg').addEventListener('click', closePanel);
 
-  // Expose to window for onclick="" attributes in templates
+  // Actions used by the panel templates. Registered here rather than in
+  // app.js because this module is what renders the markup naming them.
+  registerActions({
+    'panel:close': () => closePanel(),
+    // Collapsible sections toggle the wrapper the header sits in. This was
+    // the one handler that needed its own element rather than an argument.
+    'panel:section-toggle': (_a, _b, { el }) => el.parentElement.classList.toggle('collapsed'),
+  });
+
+  // renderer.js closes the panel across the circular-import boundary.
   window.closePanel = closePanel;
-  window.openHomininView = openHomininView;
-  window.showMainPanel = function(n){ showMainPanel(n); };
-  window.getNodeById = id => nodeMap[id];
 }

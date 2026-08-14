@@ -3,6 +3,7 @@
 // ══════════════════════════════════════════════════════
 
 import { state, nodeMap, navStack } from './state.js';
+import { registerActions } from './actions.js';
 import { TREE } from './data.js';
 
 // Redirects for species ids removed during manual duplicate cleanup (PR 0).
@@ -200,11 +201,13 @@ export function updateBreadcrumb(n){
        well as illegible. */
     const dot=p.color?`<i class="bc-dot" style="background:${p.color}"></i>`:'';
     if(p.id==='_ellipsis') return `<span class="bc-item bc-ellipsis">…</span><span class="bc-sep">›</span>`;
-    return `<span class="bc-item ${isLast?'active':''}" onclick="${isLast?'':`collapseBelow('${p.id}')`}">${dot}${p.icon} ${p.name}</span>${isLast?'':'<span class="bc-sep">›</span>'}`;
+    return `<span class="bc-item ${isLast?'active':''}"${isLast?'':` data-action="nav:collapse-below" data-arg="${p.id}"`}>${dot}${p.icon} ${p.name}</span>${isLast?'':'<span class="bc-sep">›</span>'}`;
   }).join('');
 }
-/* Collapse everything below a given node and zoom to fit its children */
-window.collapseBelow=function(nodeId){
+/* Collapse everything below a given node and zoom to fit its children.
+   Reached from the breadcrumb, which names it as data-action rather than
+   through a global — see js/actions.js. */
+function collapseBelow(nodeId){
   const node=nodeMap[nodeId];
   if(!node) return;
   function collapseAll(nd){if(nd.children) nd.children.forEach(c=>{c._collapsed=true;collapseAll(c);});}
@@ -222,7 +225,9 @@ window.collapseBelow=function(nodeId){
     _smoothZoomTo((Math.min(...xs)+Math.max(...xs))/2,(Math.min(...ys)+Math.max(...ys))/2,Math.min(2.0,fitScale));
     updateBreadcrumb(node);
   },100);
-};
+}
+
+registerActions({ 'nav:collapse-below': (id) => collapseBelow(id) });
 
 // ── Tooltip ──
 

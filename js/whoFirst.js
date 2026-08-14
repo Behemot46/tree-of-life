@@ -86,14 +86,14 @@ function showWhoFirstQuestion() {
     <div style="text-align:center;font-size:var(--text-base);color:var(--text-primary);margin:0.8rem 0 0.5rem;font-weight:600;">Which appeared first?</div>
     <div class="wf-cards">
       <button class="wf-card" data-action="wf-pick" data-pick="a">
-        ${photoA ? `<img src="${photoA}" alt="${pair.a.name}" class="wf-card-img" crossorigin="anonymous" onerror="this.style.display='none'">` : ''}
+        ${photoA ? `<img src="${photoA}" alt="${pair.a.name}" class="wf-card-img" crossorigin="anonymous" data-on-error="hide">` : ''}
         <div class="wf-card-icon">${pair.a.icon || '🧬'}</div>
         <div class="wf-card-name">${pair.a.name}</div>
         <div class="wf-card-latin">${pair.a.latin || ''}</div>
       </button>
       <div class="wf-vs">?</div>
       <button class="wf-card" data-action="wf-pick" data-pick="b">
-        ${photoB ? `<img src="${photoB}" alt="${pair.b.name}" class="wf-card-img" crossorigin="anonymous" onerror="this.style.display='none'">` : ''}
+        ${photoB ? `<img src="${photoB}" alt="${pair.b.name}" class="wf-card-img" crossorigin="anonymous" data-on-error="hide">` : ''}
         <div class="wf-card-icon">${pair.b.icon || '🧬'}</div>
         <div class="wf-card-name">${pair.b.name}</div>
         <div class="wf-card-latin">${pair.b.latin || ''}</div>

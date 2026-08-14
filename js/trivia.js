@@ -4,6 +4,7 @@
 
 import { state, nodeMap } from './state.js';
 import { TRIVIA_QUESTIONS } from './triviaData.js';
+import { registerActions } from './actions.js';
 import { ImageLoader } from './data.js';
 
 // ── Late-binding deps (set via initTriviaDeps) ──
@@ -11,6 +12,12 @@ let _t, _navigateTo;
 export function initTriviaDeps(deps) {
   _t = deps.t;
   _navigateTo = deps.navigateTo;
+  registerActions({
+    'trivia:close':   () => closeTrivia(),
+    'trivia:answer':  (i) => answerTrivia(Number(i)),
+    'trivia:next':    () => nextTriviaQuestion(),
+    'trivia:restart': () => startTriviaGame(),
+  });
 }
 function t(key) { return _t ? _t(key) : key; }
 
@@ -93,7 +100,7 @@ export function showTriviaQuestion(){
   const container=document.getElementById('trivia-question');
   container.innerHTML=`
     <div class="trivia-header">
-      <button class="btn-back" onclick="closeTrivia()" aria-label="Close">\u2715</button>
+      <button class="btn-back" data-action="trivia:close" aria-label="Close">\u2715</button>
       <div style="font-size:var(--text-sm);color:var(--text-secondary);">Q ${s.currentIndex+1}/${s.questions.length}</div>
       <div style="display:flex;align-items:center;gap:0.6rem;">
         <div class="trivia-lives" id="trivia-lives">${renderTriviaLives(s.lives)}</div>
@@ -109,7 +116,7 @@ export function showTriviaQuestion(){
     </div>
     <div class="trivia-question-text trivia-fadein">${q.question}</div>
     <div class="trivia-options" id="trivia-options">
-      ${q.answers.map((a,i)=>`<button class="trivia-option" onclick="answerTrivia(${i})" data-idx="${i}">
+      ${q.answers.map((a,i)=>`<button class="trivia-option" data-action="trivia:answer" data-arg="${i}" data-idx="${i}">
         <span class="opt-letter">${letters[i]}</span><span>${a}</span>
       </button>`).join('')}
     </div>
@@ -117,7 +124,7 @@ export function showTriviaQuestion(){
       <div class="trivia-funfact" id="trivia-funfact"></div>
       <div class="trivia-learn-more" id="trivia-learn-more"></div>
     </div>
-    <button class="trivia-next-btn" id="trivia-next-btn" onclick="nextTriviaQuestion()" style="display:none;">${t('trivia_next')||'Next Question'}</button>
+    <button class="trivia-next-btn" id="trivia-next-btn" data-action="trivia:next" style="display:none;">${t('trivia_next')||'Next Question'}</button>
   `;
 }
 
@@ -246,7 +253,7 @@ export function showTriviaResults(){
   result.innerHTML=`
     <div class="trivia-header">
       <div class="trivia-title">${title}</div>
-      <button class="btn-back" onclick="closeTrivia()" aria-label="Close">\u2715</button>
+      <button class="btn-back" data-action="trivia:close" aria-label="Close">\u2715</button>
     </div>
     <div class="trivia-result-emoji">${emoji}</div>
     <div class="trivia-result-score">${s.score}</div>
@@ -265,8 +272,8 @@ export function showTriviaResults(){
       ${breakdownHTML}
     </div>
     <div class="trivia-result-actions">
-      <button class="trivia-start-btn" onclick="startTriviaGame()">${t('trivia_play_again')||'Play Again'}</button>
-      <button class="trivia-next-btn" onclick="closeTrivia()">${t('trivia_close')||'Close'}</button>
+      <button class="trivia-start-btn" data-action="trivia:restart">${t('trivia_play_again')||'Play Again'}</button>
+      <button class="trivia-next-btn" data-action="trivia:close">${t('trivia_close')||'Close'}</button>
     </div>
   `;
 }

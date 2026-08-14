@@ -170,7 +170,7 @@ function buildHero() {
   const h = SAPIENS_HERO;
   sec.innerHTML = `
     <img class="sap-hero-bg" src="${h.bgImage}" alt="" loading="eager"
-         onerror="this.style.display='none'"/>
+         data-on-error="hide"/>
     <div class="sap-hero-gradient"></div>
     <div class="sap-hero-glow"></div>
     <div class="sap-hero-content">
@@ -637,7 +637,7 @@ function buildTraitCards() {
     el.innerHTML = `
       <div class="sap-card-hero">
         <img src="${card.heroImage}" alt="" loading="lazy"
-             onerror="this.style.display='none'"/>
+             data-on-error="hide"/>
       </div>
       <div class="sap-card-badge">${card.icon}</div>
       <div class="sap-card-body">

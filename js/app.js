@@ -9,6 +9,9 @@ import { state, nodeMap, navStack, animDone, confirmedPhotoUrls, HUMAN_PATH, TAX
 // ── Utilities ──
 import { reducedMotion, canonicalHomininId, preprocess, sortChildrenByAge, homininToTreeNode, getRandomSpecies } from './utils.js';
 
+// ── Delegated event dispatch (replaces inline onclick attributes) ──
+import { registerActions } from './actions.js';
+
 // ── Layout ──
 import { layout, getVisible } from './layout.js';
 
@@ -715,7 +718,7 @@ searchInput.addEventListener('input',()=>{
     const displayName=localName||m.name;
     const subName=localName?m.name:'';
     const eraText=m.era?m.era.replace('~','').split(' ').slice(0,3).join(' '):'';
-    return `<div class="sr-item" role="option" tabindex="-1" onclick="navigateTo('${m.id}')"><span class="sri-icon" aria-hidden="true">${m.icon}</span><span class="sri-name">${displayName}${subName?' <span style="font-size:0.8em;opacity:0.55;font-style:italic">'+subName+'</span>':''}</span><span class="sri-sub">${eraText}</span></div>`;
+    return `<div class="sr-item" role="option" tabindex="-1" data-action="nav:to" data-arg="${m.id}"><span class="sri-icon" aria-hidden="true">${m.icon}</span><span class="sri-name">${displayName}${subName?' <span style="font-size:0.8em;opacity:0.55;font-style:italic">'+subName+'</span>':''}</span><span class="sri-sub">${eraText}</span></div>`;
   }).join('');
   if(!matches.length){
     searchResults.innerHTML=`<div style="padding:16px;text-align:center;font-size:var(--text-sm);color:var(--text-muted);font-family:'Heebo',sans-serif;">${t('search_no_results')}</div>`;
@@ -1041,77 +1044,68 @@ window.addEventListener('resize',()=>{layout();fitTreeToStage();scheduleRender()
 
 
 // ══════════════════════════════════════════════════════
-// 8. WINDOW EXPOSURES
+// 8. ACTIONS
+//
+// Controls name what they do in markup (`data-action="view:set"`) and
+// js/actions.js dispatches from one delegated listener. This block used
+// to be forty-odd `window.x = x` lines, which existed for one reason: an
+// `onclick="x()"` attribute can only reach a global. Those attributes are
+// gone, so the globals went with them — see js/actions.js for why the
+// Content-Security-Policy made that worth doing.
+//
+// Where the element already carries its own value in a data-attribute,
+// the handler reads it from there rather than having it repeated in a
+// data-arg that could drift out of step.
 // ══════════════════════════════════════════════════════
 
-// Core UI
-window.setLang = setLang;
-window.toggleTheme = toggleTheme;
-window.toggleExtinct = toggleExtinct;
-window.navigateTo = navigateTo;
-
-// Domain filtering
-window.toggleDomain = toggleDomain;
-window.resetDomains = resetDomains;
-
-// View modes
-window.setViewMode = setViewMode;
-window.enterPlaybackMode = enterPlaybackMode;
-
-// Panel & navigation
-window.showMainPanel = wrappedShowMainPanel;
-window.closePanel = closePanel;
-window.openHomininView = openHomininView;
-window.toggleCompareMode = toggleCompareMode;
-window.viewHomininOnTree = viewHomininOnTree;
-window.finishCompare = finishCompare;
-window.cancelCompare = cancelCompare;
-window.startCompareFromPanel = startCompareFromPanel;
-
-// Species Compare (unified DNA + Evo Path)
-window.openCompare = openCompare;
-window.closeCompare = closeSpeciesCompare;
-window.comparePreset = comparePreset;
-window.openCompareSearch = openCompareSearch;
-window.selectCompareSpecies = selectCompareSpecies;
-window.compareDice = compareDice;
-window.computeCompare = computeCompare;
-window.showCompareOnTree = showCompareOnTree;
-window.clearCompareHighlight = clearCompareHighlight;
-
-// Trivia
-window.openGame = openGame;
-window.closeGame = closeGame;
-
-// Tours
 initTourDeps({ state, nodeMap, layout, scheduleRender, applyT, animateSliderTo, t });
-window.showTourSelector = showTourSelector;
-window.startTour = startTour;
-window.endTour = endTour;
-window.t = t;
 
-// Helpers
-window.focusNode = focusNode;
-window.a11yAnnounce = a11yAnnounce;
-window.getNodeById = id => nodeMap[id];
+registerActions({
+  // Core UI
+  'lang:set':        (_a, _b, { el }) => setLang(el.dataset.lang),
+  'theme:toggle':    () => toggleTheme(),
+  'extinct:toggle':  () => toggleExtinct(),
+  'nav:to':          (id) => navigateTo(id),
 
-// Playback
-window.togglePlayback = togglePlayback;
-window.exitPlaybackMode = exitPlaybackMode;
-window.skipToNextEvent = skipToNextEvent;
-window.setPlaybackSpeed = setPlaybackSpeed;
-window.resetPlayback = resetPlayback;
+  // Domain filtering — the legend rows already carry data-domain
+  'domain:toggle':   (_a, _b, { el }) => toggleDomain(el.dataset.domain),
+  'domain:reset':    () => resetDomains(),
 
-// Profile
-window.openProfile = openProfile;
-window.closeProfile = closeProfile;
+  // View modes — the buttons already carry data-mode
+  'view:set':        (_a, _b, { el }) => setViewMode(el.dataset.mode),
+  'playback:enter':  () => enterPlaybackMode(),
 
-// Toast
-window.dismissToast = dismissToast;
+  // Hominin deep dive
+  'hominin:open':            () => openHomininView(),
+  'hominin:compare-toggle':  () => toggleCompareMode(),
+  'hominin:compare-finish':  () => finishCompare(),
+  'hominin:compare-cancel':  () => cancelCompare(),
+  'hominin:view-on-tree':    (id) => viewHomininOnTree(id),
 
-// Timeline
-window.toggleEraPlay = toggleEraPlay;
-window.showExtinctionPopover = showExtinctionPopover;
+  // Species Compare (unified DNA + Evo Path)
+  'species-compare:open':      () => openCompare(),
+  'species-compare:close':     () => closeSpeciesCompare(),
+  'species-compare:pick':      (slot) => openCompareSearch(slot),
+  'species-compare:select':    (id) => selectCompareSpecies(id),
+  'species-compare:preset':    (a, b) => comparePreset(a, b),
+  'species-compare:dice':      () => compareDice(),
+  'species-compare:show-tree': () => showCompareOnTree(),
+  'species-compare:clear':     () => clearCompareHighlight(),
+  'species-compare:goto':      (id) => { closeSpeciesCompare(); navigateTo(id); },
+
+  // Games, tours, profile
+  'game:open':     () => openGame(),
+  'tour:selector': () => showTourSelector(),
+  'profile:open':  () => openProfile(),
+  'profile:close': () => closeProfile(),
+});
+
+/* One global survives, and only because panel.js and hominin.js reach
+   navigateTo across the circular-import boundary the late-binding pattern
+   exists to avoid. That is module plumbing, not a handler surface.
+   (renderer.js reaches closePanel the same way; panel.js owns and exposes
+   that one, next to the function itself.) */
+window.navigateTo = navigateTo;
 
 
 // ══════════════════════════════════════════════════════

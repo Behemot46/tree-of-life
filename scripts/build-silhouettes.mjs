@@ -67,7 +67,7 @@ if (argv.includes('--probe')) {
   for (const path of [
     `/nodes?filter_name=${encodeURIComponent(name.toLowerCase())}&build=${root?.build}`,
     `/autocomplete?query=${encodeURIComponent(name.toLowerCase())}`,
-    `/resolve/eol.org/pages?build=${root?.build}`,
+    `/nodes?filter_name=${encodeURIComponent(name.toLowerCase())}&build=${root?.build}&page=0`,
   ]) {
     console.log('\n=== GET ' + path + ' ===');
     try {
@@ -102,7 +102,17 @@ function searchNames(node) {
    the run resolved 0 of 165 taxa while reporting no error at all. */
 async function resolveOne(build, name) {
   const found = await api(`/nodes?filter_name=${encodeURIComponent(name.toLowerCase())}&build=${build}`);
-  const items = found?._links?.items || [];
+  if (!found || !found.totalItems) return null;
+
+  /* The collection response is a paged *envelope*: its _links carry only
+     firstPage, lastPage and self, and the members live on the page resource.
+     Reading items straight off the collection — under either `_embedded.items`
+     or `_links.items` — finds nothing, which is why two earlier versions
+     resolved 0 of 305 taxa while the API was answering 200 with
+     `totalItems: 1`. */
+  const page = await api(found._links?.firstPage?.href ||
+    `/nodes?filter_name=${encodeURIComponent(name.toLowerCase())}&build=${build}&page=0`);
+  const items = page?._links?.items || [];
   if (!items.length || !items[0].href) return null;
 
   const node = await api(items[0].href);

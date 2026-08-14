@@ -23,7 +23,7 @@
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { mkdir, writeFile, readFile, rm } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -389,6 +389,14 @@ check('chrome:panel-hero-readable', 'Nothing is printed over the species name', 
   const h = c.probe.heroOverlaps;
   if (!h || !h.checked) return;
   if (h.hits.length) fail(`hero artwork overlaps ${h.hits.length} caption line(s): ${h.hits.join(', ')}`);
+});
+
+check('panel:hero-photo-loads', 'The species panel shows its photograph', (c) => {
+  const h = c.probe.heroPhoto;
+  if (!h || !h.checked) return;
+  if (!h.present) { fail('the panel rendered no hero image element at all'); return; }
+  if (!h.loaded) fail(`the hero photograph did not load, so the panel fell back to an emoji: ${h.src}`);
+  else if (!h.shown) fail('the hero photograph loaded but is not displayed');
 });
 
 check('search:finds-the-obvious-answer', 'Common searches return the thing meant', (c) => {
@@ -887,6 +895,36 @@ async function probePage(page, scenario) {
      so a long binomial over a wrapped time-of-life line overran the artwork and
      the species emoji printed straight through its own name. Measured rather
      than trusted, because it only showed up at narrow widths. */
+  /* Does the hero photograph actually arrive? The panel resolves a 1280px cut
+     and falls back to the species emoji on error, so a dead URL degrades
+     silently to something that looks deliberate. The whole point of recording
+     two widths per species is this image; nothing asserted it was reachable.
+
+     naturalWidth is the test: a src that 404s leaves it at 0. Runs in CI,
+     where upload.wikimedia.org is reachable — it cannot be checked from the
+     development sandbox, which is exactly why it needs to be checked here. */
+  const heroPhoto = await page.evaluate(async () => {
+    const root = document.querySelector('#panel.open');
+    if (!root) return { checked: false };
+    const img = root.querySelector('.panel-hero img');
+    if (!img) return { checked: true, present: false };
+    const src = img.getAttribute('src') || '';
+    if (!src) return { checked: true, present: false };
+    if (!img.complete) {
+      await new Promise((r) => {
+        const done = () => r();
+        img.addEventListener('load', done, { once: true });
+        img.addEventListener('error', done, { once: true });
+        setTimeout(done, 8000);
+      });
+    }
+    return {
+      checked: true, present: true, src,
+      loaded: img.naturalWidth > 0,
+      shown: getComputedStyle(img).display !== 'none',
+    };
+  });
+
   const heroOverlaps = await page.evaluate(() => {
     const root = document.querySelector('#panel.open');
     if (!root) return { checked: false, hits: [] };
@@ -1012,7 +1050,7 @@ async function probePage(page, scenario) {
   // than on load. This supersedes the value collected in the first pass.
   const cspViolations = [...new Set(await page.evaluate(() => window.__cspViolations || []))];
 
-  return { ...base, ...forced, tooltipShown, tooltipCoversNode, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps, contrast, searchQuality,
+  return { ...base, ...forced, tooltipShown, tooltipCoversNode, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps, heroPhoto, contrast, searchQuality,
            searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations };
 }
 
@@ -1062,6 +1100,41 @@ async function staticChecks() {
 }
 
 // ── Runner ────────────────────────────────────────────────────────────────────
+
+/* Serve Wikimedia's photographs from photo-cache/ when it is present.
+
+   The development sandbox gets 403 at its egress proxy for
+   upload.wikimedia.org, so locally every photograph fails and any check that
+   asserts one loaded — panel:hero-photo-loads — fails for a reason that is not
+   a defect. .github/workflows/photo-cache.yml fetches them on a runner and
+   pushes them to chore/photo-cache; `npm run photos:pull` brings them down.
+
+   In CI the directory is absent and the real network serves them, so the check
+   means the same thing in both places. Absent the cache this is a no-op. */
+async function servePhotoCache(ctx) {
+  const manifestPath = 'photo-cache/manifest.json';
+  if (!existsSync(manifestPath)) return;
+  const cache = JSON.parse(readFileSync(manifestPath, 'utf8'));
+  /* Indexed by the underlying filename: the tree asks for a 400px cut and the
+     panel for 1280px, which are different URLs for the same Commons file. */
+  const byFile = new Map();
+  const key = (u) => u.split('/').pop().replace(/^\d+px-/, '');
+  for (const [url, name] of Object.entries(cache)) {
+    if (!byFile.has(key(url))) byFile.set(key(url), name);
+  }
+  const MIME = { jpg: 'image/jpeg', jpeg: 'image/jpeg', png: 'image/png', gif: 'image/gif', webp: 'image/webp', svg: 'image/svg+xml' };
+  await ctx.route('https://upload.wikimedia.org/**', async (route) => {
+    const url = route.request().url();
+    const name = cache[url] || byFile.get(key(url));
+    const file = name ? `photo-cache/${name}` : null;
+    if (file && existsSync(file)) {
+      const ext = file.split('.').pop().toLowerCase();
+      await route.fulfill({ body: readFileSync(file), contentType: MIME[ext] || 'image/jpeg' });
+    } else {
+      await route.abort();
+    }
+  });
+}
 async function runScenario(browser, scenario, baseUrl) {
   const ctx = await browser.newContext({
     viewport: { width: scenario.viewport.width, height: scenario.viewport.height },
@@ -1070,6 +1143,8 @@ async function runScenario(browser, scenario, baseUrl) {
     deviceScaleFactor: scenario.viewport.deviceScaleFactor || 1,
     locale: scenario.lang === 'he' ? 'he-IL' : scenario.lang === 'ru' ? 'ru-RU' : 'en-US',
   });
+
+  await servePhotoCache(ctx);
 
   // Seed preferences so the run is deterministic: chosen language, no guided
   // tour modal, no idle nudges.

@@ -1,4 +1,11 @@
 {
   "_comment": "Known-failing smoke checks. Each entry is a bug we have seen and not yet fixed. Remove an entry when its fix lands — the run fails if a baselined check starts passing. Regenerate with: node scripts/smoke.mjs --update-baseline",
-  "known": {}
+  "known": {
+    "desktop-en/panel:hero-photo-loads": "the hero photograph did not load, so the panel fell back to an emoji: https://upload.wikimedia.org/wikipedia/commons/7/73/Deinococcus_radiodurans.jpg",
+    "desktop-he/panel:hero-photo-loads": "the hero photograph did not load, so the panel fell back to an emoji: https://upload.wikimedia.org/wikipedia/commons/7/73/Deinococcus_radiodurans.jpg",
+    "desktop-ru/panel:hero-photo-loads": "the hero photograph did not load, so the panel fell back to an emoji: https://upload.wikimedia.org/wikipedia/commons/7/73/Deinococcus_radiodurans.jpg",
+    "phone-en/panel:hero-photo-loads": "the hero photograph did not load, so the panel fell back to an emoji: https://upload.wikimedia.org/wikipedia/commons/7/73/Deinococcus_radiodurans.jpg",
+    "phone-he/panel:hero-photo-loads": "the hero photograph did not load, so the panel fell back to an emoji: https://upload.wikimedia.org/wikipedia/commons/7/73/Deinococcus_radiodurans.jpg",
+    "desktop-en-light/panel:hero-photo-loads": "the hero photograph did not load, so the panel fell back to an emoji: https://upload.wikimedia.org/wikipedia/commons/7/73/Deinococcus_radiodurans.jpg"
+  }
 }

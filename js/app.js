@@ -434,6 +434,18 @@ const wrappedShowMainPanel = interceptShowMainPanel(showMainPanel);
 // ══════════════════════════════════════════════════════
 
 function init(){
+  /* Language first, before anything reads a translation. The splash sets its
+     skip button and fallback copy once, at construction, and picks up the
+     document's dir for canvas text — all of which ran before this block
+     further down, so the opening screen was English furniture around a
+     Hebrew title, and its canvas text never went RTL. Theme moves up with
+     it: the splash samples the theme's colour tokens the same way. */
+  state.isDark=(localStorage.getItem('theme')||'dark')!=='light';
+  applyTheme();
+  state.currentLang=localStorage.getItem('tol-lang')||'en';
+  document.documentElement.dir=state.currentLang==='he'?'rtl':'ltr';
+  document.documentElement.lang=state.currentLang;
+
   // ── Splash animation ──
   const _splashCanvas = document.getElementById('splash-canvas');
   const _splashFallback = document.getElementById('splash-fallback');
@@ -522,12 +534,8 @@ function init(){
   updateSpeciesCount();
   updateEraTint(state.currentEra);
   buildSearchIndex();
-  // Restore saved theme & language
-  state.isDark=(localStorage.getItem('theme')||'dark')!=='light';
-  applyTheme();
-  state.currentLang=localStorage.getItem('tol-lang')||'en';
-  document.documentElement.dir=state.currentLang==='he'?'rtl':'ltr';
-  document.documentElement.lang=state.currentLang;
+  // Theme and language were restored at the top of init(), before the splash
+  // read them. What is left is the DOM that has to catch up.
   document.querySelectorAll('.lang-btn').forEach(btn=>{
     btn.classList.toggle('active',btn.dataset.lang===state.currentLang);
     btn.setAttribute('aria-pressed',btn.dataset.lang===state.currentLang?'true':'false');

@@ -1,11 +1,16 @@
-/* ── DNA SPLASH SCREEN ── */
+/* ── OPENING SCREEN ──
+   The canvas draws everything; these rules own only the surface it sits on,
+   the skip affordance and the no-canvas fallback. Colours come from the
+   theme tokens so the opening follows the light theme too — the animation
+   reads the same tokens in js/splash.js. */
 
 #splash {
   position: fixed;
   inset: 0;
   background: var(--bg);
   z-index: var(--z-splash, 9999);
-  transition: opacity 0.5s ease;
+  transition: opacity 0.45s ease;
+  cursor: pointer;
 }
 
 #splash-canvas {
@@ -14,26 +19,34 @@
   display: block;
 }
 
-/* ── Skip button ── */
+/* ── Skip ──
+   Visible from the first frame and pinned with logical offsets, so it moves
+   to the other corner in Hebrew instead of sitting over the RTL text. */
 #splash-skip {
   position: fixed;
-  bottom: 24px;
-  right: 24px;
+  bottom: 22px;
+  inset-inline-end: 24px;
+  padding: 7px 15px;
+  border: 1px solid var(--border, rgba(255, 255, 255, 0.14));
+  border-radius: var(--radius-full, 999px);
   font-family: var(--font-sans, 'Inter', sans-serif);
-  font-size: var(--text-sm);
-  letter-spacing: 1px;
-  color: rgba(230, 225, 216, 0.4);
+  font-size: var(--text-xs, 12px);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-secondary, #9a9488);
+  background: transparent;
   cursor: pointer;
   z-index: 10000;
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.4s ease, color 0.2s ease, border-color 0.2s ease;
 }
 
 #splash-skip:hover {
-  color: rgba(230, 225, 216, 0.7);
+  color: var(--text-primary, #e6e1d8);
+  border-color: var(--accent-primary, #c8883a);
 }
 
-/* ── CSS-only fallback ── */
+/* ── Fallback: no canvas, or motion turned down ── */
 #splash-fallback {
   position: absolute;
   inset: 0;
@@ -41,7 +54,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 12px;
+  gap: 14px;
+  padding: 0 24px;
   color: var(--text-primary);
   text-align: center;
   cursor: pointer;
@@ -49,22 +63,29 @@
 }
 
 #splash-fallback h1 {
-  font-size: clamp(2rem, 6vw, 4rem);
+  font-size: clamp(2rem, 6vw, 3.6rem);
   font-weight: 700;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
 }
 
 #splash-fallback p {
-  color: rgba(154, 148, 136, 0.6);
+  color: var(--text-secondary);
   font-size: var(--text-md);
-  max-width: 480px;
+  max-width: 460px;
   line-height: 1.6;
 }
 
-/* ── Reduced motion: skip animation entirely ── */
+#splash-fallback p:last-child {
+  color: var(--text-muted, var(--text-secondary));
+  font-size: var(--text-sm);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+/* ── Reduced motion: the words, and nothing that moves ── */
 @media (prefers-reduced-motion: reduce) {
   #splash { transition: none; }
   #splash-canvas { display: none; }
   #splash-fallback { display: flex !important; }
-  #splash-skip { display: none; }
 }

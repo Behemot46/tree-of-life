@@ -118,6 +118,7 @@ tree-of-life/
     ├── quiz.js          # Multiple-choice quiz mode
     ├── playback.js      # Time-lapse playback mode
     ├── theme.js         # t(), setLang(), applyI18n(), toggleTheme()
+    ├── splash.js        # Opening animation — see *The opening screen*
     └── engagement.js    # Toast notifications, idle timer, intro, particles
 ```
 
@@ -184,6 +185,37 @@ Three things follow from this that are worth knowing:
 Where an element already carries its value (`data-lang`, `data-mode`,
 `data-domain`), the handler reads it from there instead of repeating it in a
 `data-arg` that could drift.
+
+### The opening screen
+
+`js/splash.js` draws to `#splash-canvas`: a point of light at the centre
+(LUCA) radiating outward generation by generation into a radial tree, while a
+readout counts 3,800 Ma down to the present. It runs **4.5 seconds** and can
+be skipped from the first frame.
+
+Things worth knowing before changing it:
+
+- **The layout is radial on purpose.** It is the site's own default view, so
+  the opening rehearses the real thing instead of showing a different picture.
+  It reads the actual `TREE`, pruned to four generations.
+- **A wedge at the bottom is left empty** (`GAP`, in radians) and every word
+  is drawn inside it. The counter runs there, then hands the spot to the
+  title. That is why the text never lands on a branch.
+- **The title measures itself** against the wedge's width at its radius and
+  shrinks to fit — the Russian and Hebrew titles are much longer than the
+  English one, and a narrow phone leaves under 200px of clear width.
+- **Colours are read from the theme tokens**, not hardcoded, so the opening
+  follows the light theme. Line alpha is boosted there: the palette is built
+  for glowing strokes on a dark ground and washes out on cream.
+- **`init()` restores theme and language before the splash starts.** It has
+  to: the splash sets its skip button and fallback copy once at construction
+  and samples both the colour tokens and `documentElement.lang`. When that
+  ran afterwards, the opening was English furniture around a Hebrew title.
+- **Measurements are drawn `dir="ltr"` even in Hebrew.** `"720 Ma"` is a
+  Latin run; laid out RTL it comes back as `"Ma 720"`, the same reordering
+  the detail panel avoids on Latin names.
+- Reduced motion never starts the loop at all — the stylesheet swaps in
+  `#splash-fallback` and `initSplash` returns early.
 
 ### Rendering
 

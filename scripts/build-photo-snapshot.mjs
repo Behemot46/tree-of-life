@@ -68,19 +68,42 @@ function atWidth(url, width) {
   return clean.replace(/\/(\d+)px-([^/]+)$/, `/${width}px-$2`);
 }
 
+/* The REST API rate-limits by IP, and CI runners share addresses, so 429 is
+   the common failure rather than the exceptional one — six workers with a
+   sub-second backoff lost 23 of 185 lookups on the first real run. Retry-After
+   is honoured when sent, the backoff starts at two seconds, and a 429 does not
+   count against the attempt budget as harshly as a hard error would. */
 async function fetchSummary(title, attempt = 0) {
   const url = 'https://en.wikipedia.org/api/rest_v1/page/summary/' +
     encodeURIComponent(title) + '?redirect=true';
   try {
     const res = await fetch(url, { headers: { 'User-Agent': UA, accept: 'application/json' } });
     if (res.status === 404) return { missing: true };
-    if (res.status === 429 || res.status >= 500) throw new Error('HTTP ' + res.status);
+    if (res.status === 429) {
+      const after = Number(res.headers.get('retry-after'));
+      const wait = Number.isFinite(after) && after > 0 ? after * 1000 : 2000 * Math.pow(2, attempt);
+      if (attempt < 5) { await sleep(Math.min(wait, 30000)); return fetchSummary(title, attempt + 1); }
+      return { error: 'HTTP 429 after ' + (attempt + 1) + ' attempts' };
+    }
+    if (res.status >= 500) throw new Error('HTTP ' + res.status);
     if (!res.ok) return { missing: true };
     return await res.json();
   } catch (err) {
-    if (attempt < 3) { await sleep(400 * Math.pow(2, attempt)); return fetchSummary(title, attempt + 1); }
+    if (attempt < 5) { await sleep(2000 * Math.pow(2, attempt)); return fetchSummary(title, attempt + 1); }
     return { error: String(err && err.message || err) };
   }
+}
+
+/* Whatever is already committed, so a lookup that fails today keeps yesterday's
+   photograph instead of deleting it. Without this a rate-limited run silently
+   removes every species it could not reach — the failure mode this whole
+   pipeline exists to prevent. */
+async function loadPrevious() {
+  if (!existsSync(OUT)) return {};
+  try {
+    const mod = await import(pathToFileURL(OUT).href + '?t=' + process.pid);
+    return mod.PHOTO_SNAPSHOT || {};
+  } catch { return {}; }
 }
 
 function renderModule(snapshot, total, sourceLabel) {
@@ -136,16 +159,24 @@ async function main() {
     return;
   }
 
+  const previous = await loadPrevious();
+
   let ids = Object.keys(WIKI_TITLES);
   if (LIMIT) ids = ids.slice(0, LIMIT);
 
-  const snapshot = {};
+  /* Start from what is already committed and overwrite what we can resolve.
+     WIKI_TITLES covers 185 species; the snapshot carries 386, the rest seeded
+     from PHOTO_MAP. Building into an empty object would drop those 201 on
+     every refresh — a "refresh" that deletes more than half the photographs.
+     Merging also means a missing or unreachable article keeps whatever was
+     working before, which is the behaviour this pipeline exists to guarantee. */
+  const snapshot = { ...previous };
   const missing = [];
   const failed = [];
 
-  // Six at a time: polite to the API, and the whole set still finishes in
-  // well under a minute.
-  const CONCURRENCY = 6;
+  // Three at a time. Six drew 429s from the REST API on a CI runner, and the
+  // whole set is under 200 titles — this still finishes in about a minute.
+  const CONCURRENCY = 3;
   let cursor = 0;
   let done = 0;
 
@@ -174,16 +205,23 @@ async function main() {
   process.stderr.write(`Resolving ${ids.length} articles…\n`);
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 
-  /* A transient network failure must never be allowed to blank the snapshot:
-     writing a half-resolved file would silently delete working photographs. */
-  if (failed.length > ids.length * 0.1) {
-    console.error(`\nAborting: ${failed.length}/${ids.length} lookups failed outright.`);
-    console.error(failed.slice(0, 5).map((f) => `  ${f.id}: ${f.error}`).join('\n'));
+  /* Failures already keep their previous value by virtue of the merge above.
+     What matters is how many failed with nothing to fall back on. */
+  const lost = failed.filter((f) => !previous[f.id]).length;
+  const recovered = failed.length - lost;
+
+  /* Abort only if the run would leave real gaps — writing those would shrink
+     the snapshot rather than refresh it. */
+  if (lost > ids.length * 0.05) {
+    console.error(`\nAborting: ${lost}/${ids.length} lookups failed with no previous entry to keep.`);
+    console.error(failed.filter((f) => !previous[f.id]).slice(0, 5)
+      .map((f) => `  ${f.id}: ${f.error}`).join('\n'));
     process.exit(2);
   }
 
   const covered = Object.keys(snapshot).length;
   const curated = Object.keys(PHOTO_MAP).filter((id) => !snapshot[id]);
+  const resolved = ids.length - missing.length - failed.length;
 
   /* Belt and braces for the query-string problem in atWidth(): assert on the
      shape of what we are about to commit, so a URL that would 400 never
@@ -208,9 +246,9 @@ async function main() {
 
   writeFileSync(OUT, body);
   console.log(`\nWrote ${OUT}`);
-  console.log(`  ${covered}/${ids.length} articles resolved to a photograph`);
+  console.log(`  ${resolved}/${ids.length} articles resolved; ${covered} entries in the snapshot`);
   if (missing.length) console.log(`  ${missing.length} articles have no image: ${missing.slice(0, 12).join(', ')}${missing.length > 12 ? '…' : ''}`);
-  if (failed.length) console.log(`  ${failed.length} lookups failed and kept their previous entry`);
+  if (failed.length) console.log(`  ${failed.length} lookups failed; ${recovered} kept their previous entry, ${lost} had none`);
   if (curated.length) console.log(`  ${curated.length} ids fall back to the curated PHOTO_MAP`);
 }
 

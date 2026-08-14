@@ -45,9 +45,22 @@ const MIME = { '.jpg': 'image/jpeg', '.png': 'image/png', '.gif': 'image/gif', '
 let cache = null;
 if (existsSync(`${CACHE_DIR}/manifest.json`)) {
   cache = JSON.parse(readFileSync(`${CACHE_DIR}/manifest.json`, 'utf8'));
+
+  /* The cache holds the 400px tree-disc cut. The panel asks for the 1280px
+     hero, which is the same Commons file at a different width — a different
+     URL, so an exact-match lookup missed it and the panel fell back to an
+     emoji. That looked like a broken hero image when it was only a gap in the
+     cache. Index by the underlying filename so either width resolves. */
+  const byFile = new Map();
+  for (const [url, name] of Object.entries(cache)) {
+    const file = url.split('/').pop().replace(/^\d+px-/, '');
+    if (!byFile.has(file)) byFile.set(file, name);
+  }
+
   let served = 0, absent = 0;
   await ctx.route('https://upload.wikimedia.org/**', async (route) => {
-    const name = cache[route.request().url()];
+    const url = route.request().url();
+    const name = cache[url] || byFile.get(url.split('/').pop().replace(/^\d+px-/, ''));
     const path = name ? `${CACHE_DIR}/${name}` : null;
     if (path && existsSync(path)) {
       served++;
@@ -113,8 +126,29 @@ const clickNode = async (id) => {
 
 await clickNode('eukaryota');
 await page.screenshot({ path: `${OUT}/${tag}-02-eukaryota.png` });
-await clickNode('animals');
-await page.screenshot({ path: `${OUT}/${tag}-03-animals.png` });
+
+/* Open a species panel. Every visitor who clicks a node lands here, and it is
+   where the 1280px photograph lives now that the discs draw silhouettes. */
+const panelFor = arg('panel', '');
+const leaf = await page.evaluate((wanted) => {
+  const groups = [...document.querySelectorAll('.node-group[data-node-id]')];
+  // A leaf has no aria-expanded — only parents carry it.
+  const g = wanted
+    ? groups.find((x) => x.dataset.nodeId === wanted)
+    : groups.find((x) => !x.hasAttribute('aria-expanded'));
+  if (!g) return null;
+  const c = g.querySelector('circle');
+  const r = c.getBoundingClientRect();
+  return { id: g.dataset.nodeId, x: r.x + r.width / 2, y: r.y + r.height / 2 };
+}, panelFor);
+if (leaf) {
+  await page.mouse.click(leaf.x, leaf.y);
+  await sleep(2400);
+  await page.screenshot({ path: `${OUT}/${tag}-03-panel-${leaf.id}.png` });
+  console.log(`  panel: ${leaf.id}`);
+} else {
+  console.log('  panel: no leaf found');
+}
 
 // Hover feedback: does the node move when it scales?
 const drift = await page.evaluate(async () => {

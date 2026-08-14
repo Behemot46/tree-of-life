@@ -1,4 +1,4 @@
 {
-  "_comment": "Known-failing smoke checks. Each entry is a bug we have seen and not yet fixed. Remove an entry when its fix lands — the run fails if a baselined check starts passing. Regenerate with: node scripts/smoke.mjs --update-baseline",
+  "_comment": "Known-failing smoke checks. Each entry is a bug we have seen and not yet fixed. Remove an entry when its fix lands \u2014 the run fails if a baselined check starts passing. Regenerate with: node scripts/smoke.mjs --update-baseline",
   "known": {}
 }

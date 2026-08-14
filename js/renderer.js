@@ -16,13 +16,14 @@ import { t } from './theme.js';
 import { TREE, NODE_ICONS, getIconGroup, ImageLoader } from './data.js';
 
 // ── Late-bound deps (avoid circular imports) ──
-let _showMainPanel, _showTip, _hideTip, _smoothPanTo, _smoothZoomTo, _layout, _updateBreadcrumb, _frameSubtree;
+let _showMainPanel, _showTip, _hideTip, _smoothPanTo, _smoothZoomTo, _layout, _updateBreadcrumb, _frameSubtree, _revealSubtree;
 export function initRendererDeps(deps) {
   _showMainPanel = deps.showMainPanel; _showTip = deps.showTip;
   _hideTip = deps.hideTip; _smoothPanTo = deps.smoothPanTo;
   _smoothZoomTo = deps.smoothZoomTo; _layout = deps.layout;
   _updateBreadcrumb = deps.updateBreadcrumb;
   _frameSubtree = deps.frameSubtree;
+  _revealSubtree = deps.revealSubtree;
 }
 
 // True if node is a leaf, or all descendants are expanded (not collapsed).
@@ -820,14 +821,23 @@ export function render(){
         _showMainPanel(n);
         return;
       }
-      // Parent: expand or collapse — never open panel directly
-      const _wasCollapsed=n._collapsed;
-      if(n._collapsed){
-        n._collapsed=false;
-        n._manualExpand=true;
-      } else {
-        collapseSubtree(n);
+      /* Clicking a parent expands it. Clicking one that is *already* expanded
+         opens its panel — it does not collapse.
+
+         Collapsing on click was the single worst thing about navigating this
+         tree. The opening view already has two levels open, so the first thing
+         a visitor clicks is an expanded node, and the tree answered by hiding
+         the very branch they reached for: clicking Eukaryota took the tree
+         from 21 nodes to 17 and made Animals unreachable until they clicked
+         again. Closing a branch is a deliberate act and has its own control —
+         the − badge on the disc. */
+      if(!n._collapsed){
+        _showMainPanel(n);
+        return;
       }
+      n._collapsed=false;
+      n._manualExpand=true;
+      const _wasCollapsed=true;
       _layout();scheduleRender(true);
       // First-time expand hint — one-shot, localStorage-gated
       if(_wasCollapsed&&!localStorage.getItem('tol-expand-hint-seen')){
@@ -838,11 +848,13 @@ export function render(){
       }
       a11yAnnounce(n.name+(n._collapsed?' collapsed':' expanded'));
       requestAnimationFrame(()=>{
-        /* Collapsing frames the parent, not the node. Framing a collapsed node
-           means framing a single disc, which asked for maximum zoom and left
-           the reader nose-to-nose with the one thing they had just closed. */
-        if(_frameSubtree) _frameSubtree(n._collapsed&&n._parent?n._parent:n);
-        if(_updateBreadcrumb) _updateBreadcrumb(n._collapsed&&n._parent?n._parent:n);
+        /* Reveal, not reframe. frameSubtree zooms to fit the clade, which threw
+           away everything around it; revealSubtree only ever widens the view and
+           pans by the minimum needed, so the map stays put and the children
+           simply appear. */
+        if(_revealSubtree) _revealSubtree(n);
+        else if(_frameSubtree) _frameSubtree(n);
+        if(_updateBreadcrumb) _updateBreadcrumb(n);
       });
     });
     g.addEventListener('dblclick',e=>{

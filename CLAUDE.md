@@ -79,7 +79,7 @@ tree-of-life/
 │   └── responsive.css   # Mobile breakpoints, reduced motion, high contrast
 ├── assets/
 │   ├── placeholder.svg  # Fallback image when taxon photo is unavailable
-│   └── species/*.webp   # Ten commissioned illustrations (domains, kingdoms)
+│   └── silhouettes/*.svg # 267 PhyloPic outlines, one per taxon
 └── js/                  # All ES modules — single entry: app.js
     ├── # ── Data modules ──
     ├── data.js          # Barrel re-exports for widely-shared constants
@@ -341,18 +341,26 @@ check skips them rather than being weakened.
 
 ## Images & Attribution
 
-Ten commissioned illustrations ship in `assets/species/` (the domain- and
-kingdom-level nodes). Every other picture is a Wikimedia Commons photograph
-loaded at runtime.
+Two layers. The tree draws a **PhyloPic silhouette** on each disc — pure shape,
+which is the only thing that reads at 40px — and the panel shows a **Wikimedia
+Commons photograph** at 1280px, where it can actually be seen.
+
+`assets/species/` used to hold ten "commissioned illustrations" above both.
+They were AI-generated marketing-page mockups — LUCA's was a web page for
+"ancientoceans.org", complete with a body-copy column; vertebrates' had a LEARN
+MORE button — and being first in the chain they beat the silhouettes and the
+real photographs for the ten most prominent nodes on screen. Deleted.
 
 `ImageLoader.getBestUrl(node, size)` is the single resolver. Its chain, best
 first:
 
-1. `assets/species/{id}.webp` — the commissioned illustrations
-2. `PHOTO_SNAPSHOT` (`js/photoSnapshot.js`) — Wikipedia's current lead image
-3. `PHOTO_MAP` (`js/speciesData.js`) — hand-pinned Commons URLs
-4. `node.img`
-5. the node's emoji
+1. `PHOTO_SNAPSHOT` (`js/photoSnapshot.js`) — Wikipedia's current lead image
+2. `PHOTO_MAP` (`js/speciesData.js`) — hand-pinned Commons URLs
+3. `node.img`
+4. the node's emoji
+
+Silhouettes are resolved separately, by `js/silhouettes.js` — see
+*Silhouettes* below.
 
 **`size` is not optional in spirit.** Pass `'thumb'` (400px) for tree discs and
 `'hero'` (1280px) for the panel. `PHOTO_MAP` served one 960px file to both,

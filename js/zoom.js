@@ -191,7 +191,7 @@ function treeBounds(scaleHint){
   for(const node of nodes){
     if(!Number.isFinite(node._x)||!Number.isFinite(node._y)) continue;
     const withLabel=scaleHint==null||labelShown(node.depth||0,scaleHint);
-    const e=nodeFootprint(node,{isCladogram,nodeR,withLabel});
+    const e=nodeFootprint(node,{isCladogram,withLabel});
     if(node._x-e.left<minX)minX=node._x-e.left;
     if(node._x+e.right>maxX)maxX=node._x+e.right;
     if(node._y-e.up<minY)minY=node._y-e.up;
@@ -363,7 +363,7 @@ export function frameSubtree(node, opts = {}) {
   const boxes = [];
   const add = (n) => {
     if (!Number.isFinite(n._x) || !Number.isFinite(n._y)) return;
-    const e = nodeFootprint(n, { isCladogram, nodeR });
+    const e = nodeFootprint(n, { isCladogram });
     boxes.push({ x0: n._x - e.left, x1: n._x + e.right, y0: n._y - e.up, y1: n._y + e.down });
   };
   (function walk(n){

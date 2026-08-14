@@ -6,7 +6,7 @@
 import { state, nodeMap, animDone, confirmedPhotoUrls, HUMAN_PATH } from './state.js';
 import { getVisible, getVisibleEdges, countDescendants } from './layout.js';
 import { reducedMotion, displayName } from './utils.js';
-import { labelBox, labelOffset } from './labelMetrics.js';
+import { labelBox, labelOffset, nodeRadius } from './labelMetrics.js';
 import { getPlaybackNodeState, discoverNode, showDiscoveryCard } from './playback.js';
 import { isExplored } from './engagement.js';
 import { nodeInEra } from './timeline.js';
@@ -48,6 +48,9 @@ const branchLayer = document.getElementById('layer-branches');
 const nodesLayer = document.getElementById('layer-nodes');
 
 // ── Node size (responsive) ──
+/* The fallback for code that has no particular node in hand (ghost previews,
+   the playback placeholder). Per-node sizing lives in labelMetrics.nodeRadius,
+   which the camera reads too — see the note there. */
 function getNodeR(){ return window.innerWidth<768 ? 22 : 26; }
 
 // ── Viewport culling helpers ──
@@ -244,7 +247,6 @@ export function render(){
   const vb=getViewBounds(cullMargin);
   const animDeferred=[];
   const nodeR=getNodeR();
-  const nodeD=nodeR*2;
   const isCladogram=state.viewMode==='cladogram'||state.viewMode==='chronological';
 
   // Read branch brown from CSS variable
@@ -360,6 +362,10 @@ export function render(){
     if(n._domain && n._domain!=='luca' && !state.activeDomains.has(n._domain)) return;
     if(!state.showExtinct && n.extinct) return;
     if(!isInView(n._x,n._y,vb)) return;
+
+    /* Shadows the outer constant deliberately: everything below draws this
+       node, so it should draw it at this node's size. */
+    const nodeR=nodeRadius(n);
 
     const pbState=state.playbackMode?(state.playbackNodeStates.get(n.id)||getPlaybackNodeState(n)):null;
     if(state.playbackMode&&pbState==='hidden') return;
@@ -617,11 +623,11 @@ export function render(){
         if(best&&best.url){
           const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
           fo.setAttribute('x',n._x-nodeR);fo.setAttribute('y',n._y-nodeR);
-          fo.setAttribute('width',nodeD);fo.setAttribute('height',nodeD);
+          fo.setAttribute('width',nodeR*2);fo.setAttribute('height',nodeR*2);
           fo.style.pointerEvents='none';fo.style.overflow='hidden';
           const wrap=document.createElement('div');
           wrap.className='node-img-wrap';
-          wrap.style.width=`${nodeD}px`;wrap.style.height=`${nodeD}px`;
+          wrap.style.width=`${nodeR*2}px`;wrap.style.height=`${nodeR*2}px`;
           const htmlImg=document.createElement('img');
           htmlImg.className='node-img';
           htmlImg.alt=n.name||'';

@@ -42,6 +42,20 @@ Things waiting on a decision rather than on work.
 
 ## Decision log
 
+### 2026-08 — A new opening screen
+
+| Decision | Rationale |
+|---|---|
+| Four and a half seconds, not twelve | The old opening ran a four-phase DNA-helix sequence and auto-dismissed at twelve seconds. Nothing on a website earns twelve seconds before it can be used. Skip is now live from the first frame rather than fading in after one. |
+| The tree it shows is the tree the site draws | The old screen unravelled a helix into a flat fan that appears nowhere in the app, so the first thing a visitor learned was wrong. The opening is radial, reads the real `TREE`, and rehearses the actual default view. |
+| Deep time as the running caption | One number counting 3,800 Ma down to the present says what the site is about. It replaced three static captions — a species count, a domain count, a fact — that each said less. |
+| An empty wedge for the words | The old title was drawn on top of the branches and fought them for legibility. Leaving an angular gap at the bottom and anchoring every line inside it means the text never crosses a branch, and the tree keeps its full size. |
+| The title measures itself | "Дерево жизни" and "עץ החיים" are much wider than "Tree of Life", and a phone leaves under 200px of clear width. Fitting to the measured gap beats picking a font size per breakpoint and hoping. |
+| Theme tokens, not constants | The old canvas hardcoded `#141618` and stayed dark behind a light page. Reading the same custom properties the stylesheet defines is what makes the opening follow the theme. |
+| Theme and language restored before the splash runs | Found by looking: the skip button read "Skip" in Hebrew. `initSplash` sets its one-off copy at construction and samples `documentElement.lang`, and both were being set seventy lines later — so the opening was English furniture around a Hebrew title, and canvas text never went RTL. |
+| Measurements forced LTR | `"720 Ma"` rendered as `"Ma 720"` in Hebrew. It is a Latin run in an RTL paragraph, the same case the detail panel already handles with `dir="ltr"` on Latin names. Caught in a screenshot, not by a check. |
+| Skip is a real button | It had been a `<div>`, so it could not be reached or activated from the keyboard. |
+
 ### 2026-08 — Inline handlers removed, CSP tightened
 
 | Decision | Rationale |

@@ -39,8 +39,9 @@ const OUT_MODULE = 'js/silhouettes.js';
 const UA = 'TreeOfLife/1.0 (https://www.treeoflife.wiki; silhouette builder)';
 
 async function api(path, attempt = 0) {
+  const url = path.startsWith('http') ? path : API + path;
   try {
-    const res = await fetch(API + path, { headers: { 'User-Agent': UA, accept: 'application/json' } });
+    const res = await fetch(url, { headers: { 'User-Agent': UA, accept: 'application/json' } });
     if (res.status === 404) return null;
     if (res.status === 429 || res.status >= 500) throw new Error('HTTP ' + res.status);
     if (!res.ok) return null;
@@ -68,12 +69,16 @@ function searchNames(node) {
   return [...new Set(names.filter(Boolean))];
 }
 
+/* A PhyloPic collection puts its members in `_links.items` as link objects,
+   each already carrying the build in its href. The first version of this read
+   `_embedded.items`, which does not exist, so every lookup found nothing and
+   the run resolved 0 of 165 taxa while reporting no error at all. */
 async function resolveOne(build, name) {
   const found = await api(`/nodes?filter_name=${encodeURIComponent(name.toLowerCase())}&build=${build}`);
-  const item = found?._embedded?.items?.[0];
-  if (!item?.href) return null;
+  const items = found?._links?.items || [];
+  if (!items.length || !items[0].href) return null;
 
-  const node = await api(item.href + `&build=${build}`.replace('&', item.href.includes('?') ? '&' : '?'));
+  const node = await api(items[0].href);
   const imgHref = node?._links?.primaryImage?.href;
   if (!imgHref) return null;
 
@@ -81,9 +86,10 @@ async function resolveOne(build, name) {
   const vector = img?._links?.vectorFile?.href;
   if (!vector) return null;
 
+  const lic = img?._links?.license;
   return {
     url: vector.startsWith('http') ? vector : API + vector,
-    license: img?._links?.license?.href || img?._links?.license?.title || '',
+    license: (lic && (lic.href || lic.title)) || '',
     attribution: img?.attribution || '',
   };
 }
@@ -112,7 +118,14 @@ function recolour(svg) {
 
 const { TREE } = await import(pathToFileURL('js/treeData.js').href);
 const { expandTree } = await import(pathToFileURL('js/treeExpansion.js').href);
-try { expandTree(TREE); } catch { /* the tree is usable without the expansion */ }
+const { lightenColor } = await import(pathToFileURL('js/utils.js').href).catch(() => ({}));
+try {
+  expandTree(TREE, lightenColor || ((c) => c));
+} catch (err) {
+  // Loud, not silent: without the expansion only the base tree's 165 taxa are
+  // considered and the 300-odd species are quietly skipped.
+  console.error('expandTree failed, continuing with the base tree only:', err.message);
+}
 
 const nodes = [];
 (function walk(n) { nodes.push(n); (n.children || []).forEach(walk); })(TREE);
@@ -137,7 +150,11 @@ for (let i = 0; i < targets.length; i++) {
     if (got) break;
     await sleep(120);
   }
-  if (!got) { miss++; continue; }
+  if (!got) {
+    miss++;
+    if (miss <= 5) process.stderr.write(`  no silhouette for ${node.id} (${searchNames(node).join(' / ')})\n`);
+    continue;
+  }
 
   const svg = await download(got.url);
   if (!svg || !/<svg/i.test(svg)) { miss++; continue; }

@@ -51,11 +51,21 @@ const UA = 'TreeOfLife/1.0 (https://www.treeoflife.wiki; photo snapshot builder)
 /* Commons thumbnail URLs embed their width as `/<n>px-<name>`. Rewriting that
    number is the documented way to ask for another size, and it keeps us on the
    thumbnail host rather than serving a 4000px original to a 40px circle.
-   Originals (no /thumb/ segment) have no such handle and are returned as-is. */
+   Originals (no /thumb/ segment) have no such handle and are returned as-is.
+
+   The query string is dropped first. The REST summary endpoint decorates every
+   image URL with `?utm_source=…&utm_campaign=api`, and upload.wikimedia.org
+   answers 400 to a thumbnail request carrying unexpected query parameters — so
+   passing the API's URLs through verbatim yields a snapshot in which every
+   single photograph is broken. The sample fetch in photo-refresh.yml caught
+   this on the first run; keep both, because the tracking parameters are the
+   API's to change and this is the only thing standing between a quiet upstream
+   tweak and a site with no pictures. */
 function atWidth(url, width) {
   if (!url) return null;
-  if (!url.includes('/thumb/')) return url;
-  return url.replace(/\/(\d+)px-([^/]+)$/, `/${width}px-$2`);
+  const clean = url.split('?')[0];
+  if (!clean.includes('/thumb/')) return clean;
+  return clean.replace(/\/(\d+)px-([^/]+)$/, `/${width}px-$2`);
 }
 
 async function fetchSummary(title, attempt = 0) {
@@ -174,6 +184,18 @@ async function main() {
 
   const covered = Object.keys(snapshot).length;
   const curated = Object.keys(PHOTO_MAP).filter((id) => !snapshot[id]);
+
+  /* Belt and braces for the query-string problem in atWidth(): assert on the
+     shape of what we are about to commit, so a URL that would 400 never
+     reaches the file even if a future edit routes around the stripping. */
+  const dirty = Object.entries(snapshot)
+    .filter(([, e]) => (e.thumb && e.thumb.includes('?')) || (e.hero && e.hero.includes('?')));
+  if (dirty.length) {
+    console.error(`\nAborting: ${dirty.length} resolved URLs still carry a query string, which`);
+    console.error('upload.wikimedia.org answers 400 to. First few:');
+    console.error(dirty.slice(0, 3).map(([id, e]) => `  ${id}: ${e.thumb}`).join('\n'));
+    process.exit(2);
+  }
 
   const body = renderModule(snapshot, ids.length, 'the Wikipedia REST summary API');
 

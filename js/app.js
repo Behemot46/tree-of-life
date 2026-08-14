@@ -954,8 +954,31 @@ if(_kbdHelp) _kbdHelp.addEventListener('click',function(e){
   if(e.target===this) this.classList.remove('visible');
 });
 
-// ── Resize handler ──
-window.addEventListener('resize',()=>{layout();fitTreeToStage();scheduleRender();applyT();buildEraSegments();});
+/* ── Resize handler ──────────────────────────────────────────────────────
+   Refitting the tree throws away wherever the reader had navigated to and
+   returns them to the whole tree with LUCA in the middle. That is correct for
+   a real resize and badly wrong for a spurious one — and on a phone almost
+   every resize is spurious.
+
+   Scrolling on mobile shows and hides the browser's address bar, which fires
+   `resize` with the width unchanged and the height moving by 60-120px. This
+   handler ran on every one of them, so the root kept snapping back to the
+   centre of the screen while you were trying to look at something else.
+
+   So: ignore a height-only twitch, and debounce the rest — a desktop window
+   drag fires resize continuously, and relaying out the tree on each frame is
+   both wasted work and a visibly juddering camera. */
+let _lastW = window.innerWidth, _lastH = window.innerHeight, _resizeTimer = 0;
+window.addEventListener('resize', () => {
+  const dw = Math.abs(window.innerWidth - _lastW);
+  const dh = Math.abs(window.innerHeight - _lastH);
+  if (dw < 2 && dh < 140) return;          // browser chrome, not a resize
+  clearTimeout(_resizeTimer);
+  _resizeTimer = setTimeout(() => {
+    _lastW = window.innerWidth; _lastH = window.innerHeight;
+    layout(); fitTreeToStage(); scheduleRender(); applyT(); buildEraSegments();
+  }, 180);
+});
 
 // ── Mobile enhancements ──
 (function mobilePatch(){

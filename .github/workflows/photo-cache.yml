@@ -1,0 +1,56 @@
+name: Photo cache
+
+# Fetches every species photograph and pushes it to a branch, so a development
+# environment that cannot reach upload.wikimedia.org can still render the tree
+# with its pictures.
+#
+# The sandbox this project is developed in gets 403 at the egress proxy for
+# Wikimedia, so every local screenshot shows empty node discs — the dominant
+# visual element of every node is invisible to whoever is doing the design.
+# The runner has open network and github.com is reachable from the sandbox, so
+# the photographs travel over git instead.
+#
+# Manual only. Nothing in the site depends on this, and the branch it writes is
+# never merged.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  cache:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Download the photographs
+        run: node scripts/fetch-photo-cache.mjs
+
+      # Downscaled hard. These stand in for 32-56px discs, so 256px is already
+      # generous at 2x, and it keeps the branch to a few megabytes rather than
+      # thirty — this is a throwaway branch in a public repo, and its objects
+      # live in the repository forever whether or not it is ever merged.
+      - name: Shrink
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick
+          mogrify -path photo-cache -resize '256x256>' -quality 78 \
+            photo-cache/*.jpg photo-cache/*.png photo-cache/*.gif photo-cache/*.webp 2>/dev/null || true
+          du -sh photo-cache
+
+      - name: Push to the cache branch
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          # An orphan commit each time: the cache has no history worth keeping,
+          # and re-parenting it would grow the repository on every run.
+          git checkout --orphan photo-cache-tmp
+          git rm -rq --cached . || true
+          git add -f photo-cache
+          git commit -qm "chore: species photograph cache for local rendering"
+          git push -f origin photo-cache-tmp:chore/photo-cache
+          echo "Pushed $(ls photo-cache | wc -l) files to chore/photo-cache"

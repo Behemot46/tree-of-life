@@ -11,3 +11,7 @@ node_modules/
 # smoke test output
 .smoke-out/
 .probe-out/
+
+# Species photographs pulled from the chore/photo-cache branch for local
+# rendering. Never shipped; see .github/workflows/photo-cache.yml.
+photo-cache/

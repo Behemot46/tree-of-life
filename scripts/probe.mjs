@@ -9,8 +9,9 @@
  */
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, readFileSync, existsSync } from 'node:fs';
 import { setTimeout as sleep } from 'node:timers/promises';
+import { extname } from 'node:path';
 
 const argv = process.argv.slice(2);
 const arg = (n, d) => { const i = argv.indexOf('--' + n); return i >= 0 ? argv[i + 1] : d; };
@@ -29,8 +30,42 @@ const ctx = await browser.newContext({
   viewport: phone ? { width: 390, height: 844 } : { width: 1440, height: 900 },
   deviceScaleFactor: 2,
 });
+/* Serve Wikimedia's photographs from photo-cache/ when it is present.
+
+   This sandbox gets 403 at the egress proxy for upload.wikimedia.org, so
+   without this every screenshot shows the tree with empty node discs — which
+   is the dominant visual element of every node missing from the one artefact
+   the design is judged on. .github/workflows/photo-cache.yml fetches them on a
+   runner and pushes them to the chore/photo-cache branch; see that file.
+
+   Absent the cache the probe behaves exactly as before, so this is additive
+   rather than a dependency. */
+const CACHE_DIR = 'photo-cache';
+const MIME = { '.jpg': 'image/jpeg', '.png': 'image/png', '.gif': 'image/gif', '.webp': 'image/webp', '.svg': 'image/svg+xml' };
+let cache = null;
+if (existsSync(`${CACHE_DIR}/manifest.json`)) {
+  cache = JSON.parse(readFileSync(`${CACHE_DIR}/manifest.json`, 'utf8'));
+  let served = 0, absent = 0;
+  await ctx.route('https://upload.wikimedia.org/**', async (route) => {
+    const name = cache[route.request().url()];
+    const path = name ? `${CACHE_DIR}/${name}` : null;
+    if (path && existsSync(path)) {
+      served++;
+      await route.fulfill({ body: readFileSync(path), contentType: MIME[extname(path)] || 'image/jpeg' });
+    } else {
+      absent++;
+      await route.abort();
+    }
+  });
+  process.on('exit', () => console.log(`  photo cache: ${served} served, ${absent} not cached`));
+  console.log(`  photo cache: ${Object.keys(cache).length} entries loaded`);
+} else {
+  console.log('  photo cache: absent — node discs will render empty.');
+  console.log('  Run the "Photo cache" workflow, then: npm run photos:pull');
+}
+
 const page = await ctx.newPage();
-page.on('console', (m) => { if (m.type() === 'error') console.log('  console.error:', m.text()); });
+page.on('console', (m) => { if (m.type() === 'error' && !/upload\.wikimedia\.org/.test(m.text())) console.log('  console.error:', m.text()); });
 page.on('pageerror', (e) => console.log('  pageerror:', e.message));
 
 await page.addInitScript((o) => {

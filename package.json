@@ -2,12 +2,13 @@
   "name": "tree-of-life",
   "version": "1.0.0",
   "private": true,
-  "description": "Interactive visualization of 3.8 billion years of evolution. The site itself has no dependencies — this manifest exists only to pin Playwright for the browser smoke checks.",
+  "description": "Interactive visualization of 3.8 billion years of evolution. The site itself has no dependencies \u2014 this manifest exists only to pin Playwright for the browser smoke checks.",
   "//type": "Deliberately NOT \"module\": serve.js is CommonJS. The smoke runner is .mjs, so it is ESM regardless.",
   "scripts": {
     "serve": "node serve.js",
     "smoke": "node scripts/smoke.mjs",
-    "smoke:update-baseline": "node scripts/smoke.mjs --update-baseline"
+    "smoke:update-baseline": "node scripts/smoke.mjs --update-baseline",
+    "photos:pull": "git fetch --depth 1 origin chore/photo-cache && git checkout FETCH_HEAD -- photo-cache && git reset -q photo-cache"
   },
   "devDependencies": {
     "playwright": "1.56.1"

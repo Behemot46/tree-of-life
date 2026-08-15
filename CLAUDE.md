@@ -26,6 +26,24 @@ transcripts.
 | **status** | Plain-language summary of where things stand. No diffs. |
 | **hold** | Push and open the PR, then stop and wait for Gabi's approval to merge. |
 
+### Ending a session
+
+Every session ends with a **handover prompt** — a block Gabi can paste
+straight into a new session. It carries what the next Claude cannot infer from
+the code:
+
+- the branch, and whether its PR is open, merged or absent;
+- what is deployed versus what is only on the branch;
+- what was verified, and by what means;
+- what is known-broken or known-unverified, and why;
+- the next one or two things worth doing.
+
+Not a changelog — git holds that. The point is the things that would otherwise
+be rediscovered the hard way: which environment limits bite, which checks do
+not cover what they appear to, which fixes are unverified on real devices.
+
+Write it unprompted, at the end, alongside the plain-language summary.
+
 ### Language
 
 Reply in whichever language Gabi used last — English, Hebrew and Russian are
@@ -75,6 +93,7 @@ tree-of-life/
 │   ├── hominin.css      # Hominin deep-dive overlay, compare cards
 │   ├── features.css     # Legend, zoom, tooltip, quiz, DNA, evo path, tours
 │   ├── theme.css        # Light theme overrides, dark mode polish
+│   ├── explore.css      # Drill-down shell — cards, path dots
 │   ├── rtl.css          # Hebrew RTL layout overrides
 │   └── responsive.css   # Mobile breakpoints, reduced motion, high contrast
 ├── assets/
@@ -118,6 +137,7 @@ tree-of-life/
     ├── quiz.js          # Multiple-choice quiz mode
     ├── playback.js      # Time-lapse playback mode
     ├── theme.js         # t(), setLang(), applyI18n(), toggleTheme()
+    ├── explore.js       # Drill-down shell — see *The two shells*
     ├── splash.js        # Opening animation — see *The opening screen*
     └── engagement.js    # Toast notifications, idle timer, intro, particles
 ```
@@ -185,6 +205,38 @@ Three things follow from this that are worth knowing:
 Where an element already carries its value (`data-lang`, `data-mode`,
 `data-domain`), the handler reads it from there instead of repeating it in a
 `data-arg` that could drift.
+
+### The two shells
+
+The site has two front doors, switched from the rail and remembered in
+`localStorage` under `tol-shell-view`. `body[data-view]` carries the choice and
+the CSS hides one side wholesale.
+
+**Explore** (`js/explore.js`) is the default and the thing a visitor lands on.
+One screen, one level: a header saying where you are, a grid of large tappable
+cards saying what is inside, one back button, and dots showing your depth from
+LUCA. There is no camera — nothing can be panned off-screen, zoomed into
+nothing, or collapsed out from under you, and every tap has exactly one
+meaning.
+
+**Map** is the radial tree. It is an expert visualisation: lovely once you know
+what a clade is, and on a 390px phone it showed four circles in the corner of a
+black void with 85% of the screen empty. It is the identity of the site and
+worth keeping — it just should not be the front door.
+
+Things worth knowing before changing Explore:
+
+- **It reads every child, ignoring `_hiddenByToggle`.** That flag belongs to
+  the map's "show all species" switch, which exists to stop three hundred discs
+  crowding the canvas. A list has no such problem, and honouring it made every
+  phylum look childless — most of the tree was unreachable.
+- **A leaf opens the detail panel** rather than descending into an empty
+  screen. `showMainPanel` is injected via `initExploreDeps()` to keep this
+  module clear of `panel.js`.
+- **It has no automated coverage yet.** All 288 smoke checks measure the
+  canvas, and the suite seeds `tol-shell-view = 'map'` so they keep doing so.
+  Explore is the default view and nothing tests it — that is the first gap to
+  close.
 
 ### The opening screen
 

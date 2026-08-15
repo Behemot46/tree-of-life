@@ -239,6 +239,110 @@ export function scheduleRender(force=false){
 // RENDER
 // ══════════════════════════════════════════════════════
 
+/* ── Silhouettes ─────────────────────────────────────────────────────────
+   Fetched once per taxon and cached as a parsed <symbol>-like fragment, then
+   cloned into each node group. The files are a few kilobytes of path data and
+   same-origin, so this costs one request per taxon for the whole session.
+
+   `fill` is set on the group rather than relying on the currentColor the
+   builder writes into the file: inlined markup does inherit currentColor, but
+   setting it explicitly means the tint survives being cloned into a context
+   that happens to define its own colour. */
+const _silCache = new Map();   // id -> Promise
+const _silReady = new Map();   // id -> parsed, ready to clone
+
+function loadSilhouette(id) {
+  if (_silCache.has(id)) return _silCache.get(id);
+  const p = fetch(`assets/silhouettes/${id}.svg`)
+    .then((r) => (r.ok ? r.text() : null))
+    .then((txt) => {
+      if (!txt) return null;
+      const doc = new DOMParser().parseFromString(txt, 'image/svg+xml');
+      const svg = doc.querySelector('svg');
+      if (!svg || doc.querySelector('parsererror')) return null;
+      let vb = (svg.getAttribute('viewBox') || '').trim().split(/[\s,]+/).map(Number);
+      if (vb.length !== 4 || vb.some((v) => !Number.isFinite(v))) {
+        const w = parseFloat(svg.getAttribute('width')) || 100;
+        const h = parseFloat(svg.getAttribute('height')) || 100;
+        vb = [0, 0, w, h];
+      }
+      return { vb, nodes: Array.from(svg.childNodes) };
+    })
+    .catch(() => null);
+  _silCache.set(id, p);
+  return p;
+}
+
+function attachSilhouette(g, n, nodeR) {
+  const sil = _silReady.get(n.id);
+
+  /* Only ever inserted synchronously, from cache, by the same render pass that
+     positioned the disc.
+
+     The first version inserted it from the fetch's .then(), computing the
+     transform from n._x at whatever moment the network happened to answer. Any
+     layout between the request and the reply — moving the reveal slider,
+     expanding a branch — left the silhouette pinned to coordinates the disc no
+     longer occupied, so shapes ended up floating in open space beside empty
+     circles. An async callback must not be the thing that decides where
+     something goes. */
+  if (!sil) { primeSilhouette(n.id); return; }
+
+  const size = nodeR * 1.5;
+  const [vx, vy, vw, vh] = sil.vb;
+  const scale = Math.min(size / (vw || 1), size / (vh || 1));
+  const wrap = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  wrap.setAttribute('class', 'node-silhouette');
+  /* Both, deliberately. The builder rewrites every fill in the file to
+     `currentColor`, and an attribute on a child beats a fill inherited from
+     this group — so setting fill alone left every silhouette the page's text
+     colour, i.e. white. */
+  wrap.style.color = n.color;
+  wrap.setAttribute('fill', n.color);
+  wrap.setAttribute('pointer-events', 'none');
+  wrap.setAttribute('transform',
+    `translate(${n._x - (vw * scale) / 2 - vx * scale},${n._y - (vh * scale) / 2 - vy * scale}) scale(${scale})`);
+  for (const child of sil.nodes) wrap.appendChild(child.cloneNode(true));
+  if (!wrap.childNodes.length) return;
+  g.appendChild(wrap);
+  g.querySelector('.node-fallback-icon')?.remove();
+}
+
+/* Fetch on first sight, then ask for a redraw so the next pass can place it
+   synchronously. Coalesced, because a render touches every visible node.
+
+   Queued six at a time. A first paint with the tree expanded wants a silhouette
+   for every visible node at once — 131 of them — and firing that many parallel
+   requests made even the local dev server answer 503. On a phone it would be a
+   burst of connections at exactly the moment the page is trying to become
+   interactive. Six keeps it quick without the stampede. */
+const _silQueue = [];
+let _silActive = 0;
+let _silRedraw = 0;
+const SIL_CONCURRENCY = 6;
+
+function pumpSilhouettes() {
+  while (_silActive < SIL_CONCURRENCY && _silQueue.length) {
+    const id = _silQueue.shift();
+    _silActive++;
+    loadSilhouette(id)
+      .then((sil) => { if (sil) _silReady.set(id, sil); })
+      .finally(() => {
+        _silActive--;
+        clearTimeout(_silRedraw);
+        _silRedraw = setTimeout(() => scheduleRender(), 120);
+        pumpSilhouettes();
+      });
+  }
+}
+
+function primeSilhouette(id) {
+  if (_silReady.has(id) || _silCache.has(id) || _silQueue.includes(id)) return;
+  _silQueue.push(id);
+  pumpSilhouettes();
+}
+
+
 export function render(){
   const branchFrag=document.createDocumentFragment();
   const nodesFrag=document.createDocumentFragment();
@@ -585,61 +689,48 @@ export function render(){
       /* A silhouette when we have one. Nothing photographic survives a 40px
          disc — a lion is a brown smudge, an electron micrograph of
          Proteobacteria is grey static — so the disc gets the organism's shape
-         and the panel gets the photograph. The SVG's fill is currentColor
-         (rewritten by the builder), so `color` here tints it with the node's
-         own hue and the tree reads as one visual language. */
-      const sil=SILHOUETTES[n.id];
-      if(sil){
-        const size=nodeR*1.5;
-        const sfo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
-        sfo.setAttribute('x',n._x-size/2);sfo.setAttribute('y',n._y-size/2);
-        sfo.setAttribute('width',size);sfo.setAttribute('height',size);
-        sfo.style.pointerEvents='none';sfo.style.overflow='visible';
-        /* Painted as a CSS mask rather than an <img>. An external SVG loaded
-           through <img> renders in its own isolated document, so the
-           currentColor the builder writes into it resolves to black there and
-           never sees the page's palette — every silhouette came out a dark
-           shape on a dark disc, reading as a hole punched through it. A mask
-           takes only the alpha channel, so the colour is ours to choose. */
-        const sw=document.createElement('div');
-        sw.className='node-silhouette';
-        sw.style.width=`${size}px`;sw.style.height=`${size}px`;
-        sw.style.backgroundColor=n.color;
-        const url=`url("assets/silhouettes/${n.id}.svg")`;
-        sw.style.webkitMaskImage=url;sw.style.maskImage=url;
-        sfo.appendChild(sw);g.appendChild(sfo);
-        if(icon.parentNode) icon.remove();
-      }
+         and the panel gets the photograph.
 
-      // Photo overlay via foreignObject
-      if(!sil&&ImageLoader){
+         Inlined as native SVG. The first version put a CSS-masked <div> inside
+         a <foreignObject>: three fragile layers stacked, and on iOS Safari the
+         result was nothing at all — every disc empty, no picture and no icon.
+         Painting the paths straight into the tree's own SVG needs no
+         foreignObject, no mask and no filter, so there is nothing left to be
+         unevenly supported. It also drops one foreignObject per node. */
+      if(SILHOUETTES[n.id]) attachSilhouette(g,n,nodeR);
+
+      /* Photo overlay, for the taxa with no silhouette.
+
+         Attached only once the image has actually decoded. It used to be
+         inserted immediately and then removed again from an error handler, so
+         on a connection where Wikimedia is slow or blocked every node flashed
+         an empty box and then dropped it — and because every click re-renders
+         the tree, the flash repeated on every click. Loading first and
+         attaching second means a node either shows its photograph or shows its
+         icon, and never both in sequence. */
+      if(ImageLoader&&!SILHOUETTES[n.id]){
         const cachedUrl=confirmedPhotoUrls.get(n.id);
-        const best=cachedUrl?{url:cachedUrl}:ImageLoader.getBestUrl(n);
+        const best=cachedUrl?{url:cachedUrl}:ImageLoader.getBestUrl(n,'thumb');
         if(best&&best.url){
-          const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
-          fo.setAttribute('x',n._x-nodeR);fo.setAttribute('y',n._y-nodeR);
-          fo.setAttribute('width',nodeR*2);fo.setAttribute('height',nodeR*2);
-          fo.style.pointerEvents='none';fo.style.overflow='hidden';
-          const wrap=document.createElement('div');
-          wrap.className='node-img-wrap';
-          wrap.style.width=`${nodeR*2}px`;wrap.style.height=`${nodeR*2}px`;
-          const htmlImg=document.createElement('img');
-          htmlImg.className='node-img';
-          htmlImg.alt=n.name||'';
-          htmlImg.addEventListener('load',function(){this.classList.add('loaded');});
-          if(cachedUrl){
-            htmlImg.addEventListener('error',function(){
-              if(!this.dataset.retried){this.dataset.retried='1';this.src=cachedUrl+'?retry=1';}
-              else{if(fo.parentNode)fo.remove();confirmedPhotoUrls.delete(n.id);}
-            });
-            htmlImg.src=cachedUrl;
-          } else {
-            ImageLoader.loadInto(n,htmlImg,{
-              onLoad:function(){confirmedPhotoUrls.set(n.id,htmlImg.src);},
-              onFallback:function(){if(fo.parentNode)fo.remove();}
-            });
-          }
-          wrap.appendChild(htmlImg);fo.appendChild(wrap);g.appendChild(fo);
+          const probe=new Image();
+          probe.onload=()=>{
+            if(!g.isConnected) return;
+            confirmedPhotoUrls.set(n.id,best.url);
+            const fo=document.createElementNS('http://www.w3.org/2000/svg','foreignObject');
+            fo.setAttribute('x',n._x-nodeR);fo.setAttribute('y',n._y-nodeR);
+            fo.setAttribute('width',nodeR*2);fo.setAttribute('height',nodeR*2);
+            fo.style.pointerEvents='none';fo.style.overflow='hidden';
+            const wrap=document.createElement('div');
+            wrap.className='node-img-wrap';
+            wrap.style.width=`${nodeR*2}px`;wrap.style.height=`${nodeR*2}px`;
+            const htmlImg=document.createElement('img');
+            htmlImg.className='node-img loaded';
+            htmlImg.alt='';htmlImg.src=best.url;
+            wrap.appendChild(htmlImg);fo.appendChild(wrap);g.appendChild(fo);
+            g.querySelector('.node-fallback-icon')?.remove();
+          };
+          probe.onerror=()=>{ confirmedPhotoUrls.delete(n.id); };
+          probe.src=best.url;
         }
       }
     }

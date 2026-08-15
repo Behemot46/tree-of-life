@@ -401,6 +401,48 @@ check('panel:hero-photo-loads', 'The species panel shows its photograph', (c) =>
   else if (!h.shown) fail('the hero photograph loaded but is not displayed');
 });
 
+check('explore:is-usable', 'The drill-down renders and descends', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked) { fail(`explore could not be probed: ${e && e.reason}`); return; }
+  const [root] = e.steps;
+  if (!root.visible) { fail('the explore view has no width'); return; }
+  if (!root.cards) { fail('the root screen offers no cards to tap'); return; }
+  if (e.steps.length < 3) { fail(`only descended ${e.steps.length - 1} level(s) — a card did not open`); return; }
+  for (let i = 1; i < e.steps.length; i++) {
+    const prev = e.steps[i - 1], now = e.steps[i];
+    if (now.title === prev.title) fail(`level ${i} did not change the heading (still "${now.title}")`);
+    if (now.dots !== prev.dots + 1) fail(`level ${i} shows ${now.dots} path dots, expected ${prev.dots + 1}`);
+    if (!now.cards) fail(`level ${i} ("${now.title}") offers nothing to tap`);
+  }
+});
+
+check('explore:back-returns', 'Back climbs one level', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked || !e.afterBack) return;
+  const last = e.steps[e.steps.length - 1];
+  if (e.afterBack.dots !== last.dots - 1) {
+    fail(`back left ${e.afterBack.dots} dots, expected ${last.dots - 1}`);
+  }
+  if (e.afterBack.title === last.title) fail('back did not change the heading');
+});
+
+check('explore:says-where-you-are', 'Every screen names the step you are on', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked) return;
+  for (const s of e.steps) {
+    if (s.here !== s.title) fail(`"${s.title}" is labelled "${s.here}" on the path`);
+    if (!/^You are here: /.test(s.current)) fail(`the current dot on "${s.title}" is not announced as your position`);
+    if (!s.named) fail(`a path dot on "${s.title}" carries no name`);
+  }
+});
+
+check('explore:no-horizontal-scroll', 'The drill-down never scrolls sideways', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked) return;
+  const bad = e.steps.filter((s) => s.overflow).map((s) => s.title);
+  if (bad.length) fail(`${bad.length} screen(s) overflow horizontally: ${bad.join(', ')}`);
+});
+
 check('search:finds-the-obvious-answer', 'Common searches return the thing meant', (c) => {
   const s = c.probe.searchQuality;
   if (!s) return;
@@ -1047,13 +1089,60 @@ async function probePage(page, scenario) {
     requestAnimationFrame(tick);
   }));
 
+  /* ── Explore ──────────────────────────────────────────────────────────
+     The drill-down is the view a visitor actually lands on, and until now
+     every check in this file measured the canvas instead. It is walked last
+     because it swaps the shell, and the map measurements above have to be
+     taken against the map.
+
+     Descends two levels by clicking real cards, then climbs back with the
+     back button, asserting at each step that the screen changed the way a
+     reader would expect it to. */
+  const explore = await page.evaluate(async () => {
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    const btn = document.querySelector('#view-toggle [data-view="explore"]');
+    if (!btn) return { checked: false, reason: 'no explore toggle' };
+    btn.click();
+    await wait(400);
+
+    const root = document.getElementById('explore');
+    if (!root) return { checked: false, reason: 'no #explore' };
+
+    const snap = () => ({
+      title: document.querySelector('.ex-title')?.textContent.trim() || '',
+      cards: document.querySelectorAll('.ex-card').length,
+      dots: document.querySelectorAll('.ex-step').length,
+      here: document.querySelector('.ex-here')?.textContent.trim() || '',
+      current: document.querySelector('.ex-step.current')?.getAttribute('aria-label') || '',
+      named: [...document.querySelectorAll('.ex-step')].every((d) => d.getAttribute('data-name')),
+      overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
+      visible: root.getBoundingClientRect().width > 0,
+    });
+
+    const steps = [snap()];
+    for (let i = 0; i < 2; i++) {
+      const card = [...document.querySelectorAll('.ex-card')].find((c) => c.querySelector('.ex-card-chev'));
+      if (!card) break;
+      card.click();
+      await wait(450);
+      steps.push(snap());
+    }
+    const back = document.querySelector('.ex-back');
+    let afterBack = null;
+    if (back && back.tagName === 'BUTTON') { back.click(); await wait(450); afterBack = snap(); }
+
+    document.querySelector('#view-toggle [data-view="map"]')?.click();
+    await wait(300);
+    return { checked: true, steps, afterBack };
+  });
+
   // Read CSP violations last: inline event handlers are only evaluated when
   // they fire, so blocking them shows up during the interactions above rather
   // than on load. This supersedes the value collected in the first pass.
   const cspViolations = [...new Set(await page.evaluate(() => window.__cspViolations || []))];
 
   return { ...base, ...forced, tooltipShown, tooltipCoversNode, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps, heroPhoto, photoHostReachable: await wikimediaReachable(), contrast, searchQuality,
-           searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations };
+           searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations, explore };
 }
 
 

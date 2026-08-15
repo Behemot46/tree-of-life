@@ -248,7 +248,8 @@ export function scheduleRender(force=false){
    builder writes into the file: inlined markup does inherit currentColor, but
    setting it explicitly means the tint survives being cloned into a context
    that happens to define its own colour. */
-const _silCache = new Map();
+const _silCache = new Map();   // id -> Promise
+const _silReady = new Map();   // id -> parsed, ready to clone
 
 function loadSilhouette(id) {
   if (_silCache.has(id)) return _silCache.get(id);
@@ -273,34 +274,49 @@ function loadSilhouette(id) {
 }
 
 function attachSilhouette(g, n, nodeR) {
+  const sil = _silReady.get(n.id);
+
+  /* Only ever inserted synchronously, from cache, by the same render pass that
+     positioned the disc.
+
+     The first version inserted it from the fetch's .then(), computing the
+     transform from n._x at whatever moment the network happened to answer. Any
+     layout between the request and the reply — moving the reveal slider,
+     expanding a branch — left the silhouette pinned to coordinates the disc no
+     longer occupied, so shapes ended up floating in open space beside empty
+     circles. An async callback must not be the thing that decides where
+     something goes. */
+  if (!sil) { primeSilhouette(n.id); return; }
+
   const size = nodeR * 1.5;
-  loadSilhouette(n.id).then((sil) => {
-    // The tree may have re-rendered while this was in flight.
-    if (!sil || !g.isConnected) return;
-    const [vx, vy, vw, vh] = sil.vb;
-    const scale = Math.min(size / (vw || 1), size / (vh || 1));
-    const wrap = document.createElementNS('http://www.w3.org/2000/svg', 'g');
-    wrap.setAttribute('class', 'node-silhouette');
-    /* Both, deliberately. The builder rewrites every fill in the file to
-       `currentColor`, and an attribute on a child beats a fill inherited from
-       this group — so setting fill alone left every silhouette the page's text
-       colour, i.e. white. `color` is what those currentColor references
-       actually resolve against; `fill` covers any child that carries no fill
-       of its own. */
-    wrap.style.color = n.color;
-    wrap.setAttribute('fill', n.color);
-    wrap.setAttribute('pointer-events', 'none');
-    wrap.setAttribute('transform',
-      `translate(${n._x - (vw * scale) / 2 - vx * scale},${n._y - (vh * scale) / 2 - vy * scale}) scale(${scale})`);
-    for (const child of sil.nodes) {
-      if (child.nodeType === 1 && !/^(metadata|title|desc)$/i.test(child.nodeName)) {
-        wrap.appendChild(child.cloneNode(true));
-      }
-    }
-    if (!wrap.childNodes.length) return;
-    g.appendChild(wrap);
-    // Only now is the emoji redundant.
-    g.querySelector('.node-fallback-icon')?.remove();
+  const [vx, vy, vw, vh] = sil.vb;
+  const scale = Math.min(size / (vw || 1), size / (vh || 1));
+  const wrap = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  wrap.setAttribute('class', 'node-silhouette');
+  /* Both, deliberately. The builder rewrites every fill in the file to
+     `currentColor`, and an attribute on a child beats a fill inherited from
+     this group — so setting fill alone left every silhouette the page's text
+     colour, i.e. white. */
+  wrap.style.color = n.color;
+  wrap.setAttribute('fill', n.color);
+  wrap.setAttribute('pointer-events', 'none');
+  wrap.setAttribute('transform',
+    `translate(${n._x - (vw * scale) / 2 - vx * scale},${n._y - (vh * scale) / 2 - vy * scale}) scale(${scale})`);
+  for (const child of sil.nodes) wrap.appendChild(child.cloneNode(true));
+  if (!wrap.childNodes.length) return;
+  g.appendChild(wrap);
+  g.querySelector('.node-fallback-icon')?.remove();
+}
+
+/* Fetch on first sight, then ask for a redraw so the next pass can place it
+   synchronously. Coalesced, because a render touches every visible node. */
+let _silRedraw = 0;
+function primeSilhouette(id) {
+  loadSilhouette(id).then((sil) => {
+    if (!sil) return;
+    _silReady.set(id, sil);
+    clearTimeout(_silRedraw);
+    _silRedraw = setTimeout(() => scheduleRender(), 60);
   });
 }
 

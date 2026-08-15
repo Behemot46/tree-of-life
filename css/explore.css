@@ -25,6 +25,16 @@ body[data-view="explore"] #svg,
 body[data-view="explore"] #zoom-ctrl,
 body[data-view="explore"] .reveal-panel { display: none !important; }
 
+/* The timeline is the map's instrument: an axis for a camera this view does
+   not have, and a slider that moves nothing here. Leaving it up did more than
+   waste the strip — it sat on the path ribbon and swallowed it whole. Both are
+   pinned to `bottom: 0`, the timeline at --z-nav (200) and the ribbon at an
+   effective 30 from #explore's own stacking context, so the timeline won every
+   pixel. Hit-testing the centre of each path dot returned #tl-density: the
+   "where am I" ribbon was unclickable and invisible in every language, on both
+   viewports, while the check that covers it read the DOM and passed. */
+body[data-view="explore"] #timeline { display: none !important; }
+
 /* ── Back ── */
 .ex-head { margin-bottom: 10px; }
 .ex-back {
@@ -69,11 +79,18 @@ body[data-view="explore"] .reveal-panel { display: none !important; }
 }
 
 /* ── What's inside ──
-   Two columns on a phone, more as the window allows. auto-fill rather than a
-   breakpoint ladder, so there is no width at which this is wrong. */
+   Two columns on a phone, more as the window allows. auto-fit rather than a
+   breakpoint ladder, so there is no width at which this is wrong.
+
+   auto-*fit*, not auto-fill: they differ only when there are fewer cards than
+   the row could hold, which is exactly the root screen — three domains of
+   life. auto-fill kept the seven empty tracks a 1160px row can fit, so the
+   three cards stayed 164px wide and huddled against the left edge of a canvas
+   eight times their width. auto-fit drops the empty tracks and lets the cards
+   share the row. */
 .ex-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
   gap: 10px;
 }
 .ex-card {
@@ -141,10 +158,43 @@ body[data-view="explore"] .reveal-panel { display: none !important; }
 
 /* Desktop has room for the hero to breathe and for more columns. */
 @media (min-width: 780px) {
-  #explore { top: var(--ex-top, 64px); padding: 14px 28px 90px; }
+  /* Longhands, not the `padding` shorthand: the rail clearance below is an
+     inline-start override, and a shorthand declared after it would silently
+     reset it back to the gutter. */
+  #explore { top: var(--ex-top, 64px); padding-block: 14px 90px; padding-inline: 28px; }
   .ex-hero-img { width: 140px; height: 140px; }
   .ex-title { font-size: 28px; }
   .ex-desc { -webkit-line-clamp: 5; }
+  /* A card the size of a card, now that it has room. At 164px the media was
+     larger than the gap between two of them. */
+  .ex-grid { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; align-content: start; }
+  /* Tied to the window's height, so the root screen — three domains, one row —
+     reaches down the canvas instead of leaving a third of it black, while a
+     screen with four rows still scrolls rather than squashing. Clamped so a
+     short laptop does not crush the card and a tall monitor does not stretch
+     one row into a billboard. */
+  .ex-card { min-height: clamp(188px, 26vh, 268px); padding: 16px; }
+  .ex-card-media { height: 92px; margin-bottom: 10px; }
+  .ex-card-img { width: 92px; height: 92px; }
+  .ex-card-sil { width: 84px; height: 84px; }
+  .ex-card-emoji { font-size: 54px; }
+  .ex-card-name { font-size: 16px; }
+  .ex-card-sub { font-size: 12.5px; }
+}
+
+/* ── Room for the rail ──
+   #left-rail is fixed at the inline start with --z-nav, well above #explore,
+   and it is 208px of opaque glass. It covered the first card of every screen
+   outright — at the root that is Bacteria, one of the three domains of life,
+   invisible on the view every visitor lands on — along with the title, the
+   Latin name and the first line of the description.
+
+   769px, not the 780px above: that is the width at which the rail stops being
+   a bottom sheet and starts floating over the stage, and clearance has to
+   begin in the same pixel. inset-inline so Hebrew, where the rail sits at the
+   right, is released by the same rule (constraint 8). */
+@media (min-width: 769px) {
+  #explore { padding-inline-start: calc(var(--chrome-pad) + var(--rail-w) + 12px); }
 }
 
 @media (prefers-reduced-motion: reduce) {

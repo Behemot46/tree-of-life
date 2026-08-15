@@ -42,6 +42,14 @@ const UPDATE_BASELINE = flag('update-baseline');
 const KEEP_SHOTS = !flag('no-screenshots');
 const EXTERNAL_URL = opt('url', process.env.SMOKE_URL || '');
 const PROXY = opt('proxy', '');
+/* Run one scenario instead of all seven: `--only desktop-he`, comma-separated
+   for more than one. The full matrix is a ~35 minute round trip, which is too
+   slow to answer "does this new check actually go red when I break the code?"
+   — and a check nobody has watched fail is a check nobody has tested. Never
+   use it to decide a branch is green: the pass/fail summary below counts only
+   what ran, and the baseline reconciliation is meaningless over a subset,
+   which is why a filtered run refuses to touch the baseline file. */
+const ONLY = opt('only', '').split(',').map((s) => s.trim()).filter(Boolean);
 
 // ── Thresholds ────────────────────────────────────────────────────────────────
 // The tree must fill at least this fraction of the stage on its longest axis.
@@ -431,7 +439,7 @@ check('explore:says-where-you-are', 'Every screen names the step you are on', (c
   if (!e || !e.checked) return;
   for (const s of e.steps) {
     if (s.here !== s.title) fail(`"${s.title}" is labelled "${s.here}" on the path`);
-    if (!/^You are here: /.test(s.current)) fail(`the current dot on "${s.title}" is not announced as your position`);
+    if (!s.current.startsWith(e.herePrefix)) fail(`the current dot on "${s.title}" is not announced as your position (want "${e.herePrefix}…", got "${s.current}")`);
     if (!s.named) fail(`a path dot on "${s.title}" carries no name`);
   }
 });
@@ -442,6 +450,39 @@ check('explore:no-horizontal-scroll', 'The drill-down never scrolls sideways', (
   const bad = e.steps.filter((s) => s.overflow).map((s) => s.title);
   if (bad.length) fail(`${bad.length} screen(s) overflow horizontally: ${bad.join(', ')}`);
 });
+
+/* The drill-down is the default view, and until these three it was the only
+   part of the site no language check ever looked at. See the sweep in the
+   Explore probe for why the map-view pass cannot reach it. */
+check('i18n:explore-no-latin-leak', 'No English text leaks into the Hebrew drill-down', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked || !e.i18n) return;
+  const { leaks } = e.i18n;
+  if (leaks.length) {
+    fail(`${leaks.length} Latin-script string(s) in the Hebrew drill-down: ` +
+      leaks.slice(0, 4).map((l) => `${l.where}="${l.txt}"`).join(', '));
+  }
+}, (s) => s.lang === 'he');
+
+check('i18n:explore-prose-reads-as-english', 'English prose in the drill-down is laid out left-to-right', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked || !e.i18n) return;
+  const { rtlProse } = e.i18n;
+  if (rtlProse.length) {
+    fail(`${rtlProse.length} English block(s) laid out RTL: ` +
+      rtlProse.slice(0, 4).map((l) => `${l.where}="${l.txt}"`).join(', '));
+  }
+}, (s) => s.lang === 'he');
+
+check('i18n:explore-taxa-translated', 'Drill-down cards name their group in the active language', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked || !e.i18n) return;
+  const { untranslated } = e.i18n;
+  if (untranslated.length) {
+    fail(`${untranslated.length} card(s) still showing English: ` +
+      untranslated.slice(0, 4).map((t) => `${t.id}="${t.got}" want "${t.want}"`).join(', '));
+  }
+}, (s) => s.lang !== 'en');
 
 check('search:finds-the-obvious-answer', 'Common searches return the thing meant', (c) => {
   const s = c.probe.searchQuality;
@@ -1098,7 +1139,7 @@ async function probePage(page, scenario) {
      Descends two levels by clicking real cards, then climbs back with the
      back button, asserting at each step that the screen changed the way a
      reader would expect it to. */
-  const explore = await page.evaluate(async () => {
+  const explore = await page.evaluate(async (lang) => {
     const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     const btn = document.querySelector('#view-toggle [data-view="explore"]');
     if (!btn) return { checked: false, reason: 'no explore toggle' };
@@ -1107,6 +1148,70 @@ async function probePage(page, scenario) {
 
     const root = document.getElementById('explore');
     if (!root) return { checked: false, reason: 'no #explore' };
+
+    /* ── i18n over the drill-down ──────────────────────────────────────
+       None of the i18n sweep above can see any of this. The runner seeds
+       tol-shell-view=map, because the map measurements have to be taken
+       against the map — which left the view a visitor actually lands on
+       with no language coverage at all, and the suite reported green over
+       untranslated English and an English paragraph laid out right-to-left.
+
+       Two rules, and they lean on the same marker:
+
+         a leaf with Latin words and no `data-i18n-exempt` is chrome that
+         was never translated;
+
+         an element that *is* exempt has declared itself English data, so in
+         Hebrew it must also be laid out left-to-right, or bidi carries its
+         punctuation to the far end — ".of all life".
+
+       That second rule is why exempting something cannot quietly weaken the
+       check: an exemption moves an element from one rule to the other. */
+    const TAXA = await import(new URL('js/taxonNames.js', location.href).href)
+      .then((m) => m.TAXON_NAMES).catch(() => null);
+    const T = await import(new URL('js/uiData.js', location.href).href)
+      .then((m) => m.TRANSLATIONS).catch(() => null);
+    // The current dot announces itself with a translated prefix now, so the
+    // assertion has to be against this language's string, not the English one.
+    const herePrefix = (T && T[lang] && T[lang].ex_you_are_here) || 'You are here:';
+    const vis = (el) => {
+      const s = getComputedStyle(el);
+      if (s.display === 'none' || s.visibility === 'hidden' || +s.opacity < 0.02) return false;
+      const r = el.getBoundingClientRect();
+      return r.width > 0 && r.height > 0;
+    };
+    const name = (el) => '.' + (String(el.className || el.tagName).split(' ')[0] || el.tagName);
+    const ALLOW = /^(luca|dna|rna|ma|ga|mya|3d|2d|\d+(\.\d+)?x?|[0-9\s.,:/×–—-]+)$/i;
+    const latin = (s) => /[A-Za-z]{2,}/.test(s) && !/[֐-׿]/.test(s);
+
+    const i18n = { checked: lang !== 'en', leaks: [], rtlProse: [], untranslated: [] };
+    const sweep = () => {
+      if (lang === 'en') return;
+      for (const el of root.querySelectorAll('*')) {
+        if (el.children.length || !vis(el)) continue;
+        const txt = (el.textContent || '').trim();
+        if (txt.length < 2) continue;
+        const exempt = el.closest('[data-i18n-exempt]');
+        if (!exempt) {
+          if (lang !== 'he') continue;              // leak scan is Hebrew-only
+          if (!latin(txt) || ALLOW.test(txt)) continue;
+          i18n.leaks.push({ where: name(el), txt: txt.slice(0, 40) });
+        } else if (lang === 'he' && latin(txt) && getComputedStyle(el).direction !== 'ltr') {
+          i18n.rtlProse.push({ where: name(el), txt: txt.slice(0, 40) });
+        }
+      }
+      // Ranked groups are translated even though species are not, so the
+      // cards naming them have to show the localised name.
+      if (!TAXA || !TAXA[lang]) return;
+      for (const card of root.querySelectorAll('.ex-card')) {
+        const want = TAXA[lang][card.getAttribute('data-arg')];
+        const label = card.querySelector('.ex-card-name');
+        if (!want || !label || !vis(label)) continue;
+        const got = (label.textContent || '').trim();
+        if (got !== want) i18n.untranslated.push({ id: card.getAttribute('data-arg'), got, want });
+      }
+    };
+    sweep();
 
     const snap = () => ({
       title: document.querySelector('.ex-title')?.textContent.trim() || '',
@@ -1126,6 +1231,9 @@ async function probePage(page, scenario) {
       card.click();
       await wait(450);
       steps.push(snap());
+      // Every screen, not just the first: the hero prose and the card
+      // subtitles only appear once there is a real taxon to describe.
+      sweep();
     }
     const back = document.querySelector('.ex-back');
     let afterBack = null;
@@ -1133,8 +1241,8 @@ async function probePage(page, scenario) {
 
     document.querySelector('#view-toggle [data-view="map"]')?.click();
     await wait(300);
-    return { checked: true, steps, afterBack };
-  });
+    return { checked: true, steps, afterBack, i18n, herePrefix };
+  }, scenario.lang);
 
   // Read CSP violations last: inline event handlers are only evaluated when
   // they fire, so blocking them shows up during the interactions above rather
@@ -1426,6 +1534,7 @@ const browser = await chromium.launch(
 if (PROXY) process.stdout.write(`Routing Chromium through ${PROXY}\n`);
 try {
   for (const scenario of SCENARIOS) {
+    if (ONLY.length && !ONLY.includes(scenario.id)) continue;
     process.stdout.write(`\n▸ ${scenario.id}\n`);
     const results = await runScenario(browser, scenario, server.url);
     all = all.concat(results);
@@ -1448,6 +1557,12 @@ const failures = all.filter((r) => !r.ok);
 const unexpectedFailures = failures.filter((r) => !Object.prototype.hasOwnProperty.call(baseline.known, r.key));
 const fixedButBaselined = all.filter((r) => r.ok && Object.prototype.hasOwnProperty.call(baseline.known, r.key));
 
+if (UPDATE_BASELINE && ONLY.length) {
+  process.stdout.write('\nRefusing to rewrite the baseline from a filtered run: it would '
+    + 'delete every entry the skipped scenarios own.\n');
+  process.exit(1);
+}
+
 if (UPDATE_BASELINE) {
   const known = {};
   for (const r of failures) known[r.key] = r.msg.slice(0, 200);
@@ -1463,7 +1578,9 @@ if (UPDATE_BASELINE) {
 
 const passed = all.length - failures.length;
 process.stdout.write(`\n${'─'.repeat(60)}\n`);
-process.stdout.write(`${passed}/${all.length} checks passed across ${SCENARIOS.length} scenarios.\n`);
+const ran = ONLY.length ? SCENARIOS.filter((sc) => ONLY.includes(sc.id)) : SCENARIOS;
+process.stdout.write(`${passed}/${all.length} checks passed across ${ran.length} scenario(s)`
+  + (ONLY.length ? ` — FILTERED to ${ONLY.join(', ')}, not a full run.\n` : '.\n'));
 if (failures.length) process.stdout.write(`${failures.length - unexpectedFailures.length} known issue(s) still open (baselined).\n`);
 
 if (unexpectedFailures.length) {

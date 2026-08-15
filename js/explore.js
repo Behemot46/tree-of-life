@@ -76,12 +76,18 @@ function cardHTML(node) {
      Latin run in an RTL paragraph, which bidi reorders to "inside 10" — the
      same reordering the detail panel already guards against. */
   const sub = kids ? `${kids} ${t('ex_inside')}` : (node.era || node.latin || '');
+  /* With children the subtitle is a translated word; without them it is the
+     node's era or binomial, which come from the tree data and are English by
+     policy. Marking which one it is here is what lets the leak scan tell an
+     untranslated control from data that is meant to stay English — and, in
+     Hebrew, what enrols it in the direction check instead. */
+  const subData = kids ? '' : ' data-i18n-exempt="species-data" dir="ltr"';
   return `
     <button class="ex-card" data-action="explore:open" data-arg="${node.id}"
             style="--cc:${node.color}">
       <span class="ex-card-media">${cardImage(node)}</span>
-      <span class="ex-card-name">${displayName(node)}</span>
-      <span class="ex-card-sub">${sub}</span>
+      <span class="ex-card-name" data-i18n-exempt="species-data" dir="auto">${displayName(node)}</span>
+      <span class="ex-card-sub"${subData}>${sub}</span>
       ${kids ? '<span class="ex-card-chev" aria-hidden="true">›</span>' : ''}
     </button>`;
 }
@@ -100,7 +106,8 @@ export function renderExplore() {
     <div class="ex-head">
       ${parent
         ? `<button class="ex-back" data-action="explore:open" data-arg="${parent.id}">
-             <span aria-hidden="true">‹</span> ${displayName(parent)}
+             <span aria-hidden="true">‹</span>
+             <span data-i18n-exempt="species-data" dir="auto">${displayName(parent)}</span>
            </button>`
         : `<span class="ex-back ex-back-root">${t('ex_all_life')}</span>`}
     </div>
@@ -110,27 +117,32 @@ export function renderExplore() {
         ? `<img class="ex-hero-img" src="${hero.url}" alt="" data-on-error="hide">`
         : `<span class="ex-hero-emoji">${n.icon || ''}</span>`}
       <div class="ex-hero-text">
-        <h2 class="ex-title">${displayName(n)}</h2>
-        ${n.latin ? `<p class="ex-latin" dir="ltr">${n.latin}</p>` : ''}
-        ${n.desc ? `<p class="ex-desc">${n.desc}</p>` : ''}
+        <h2 class="ex-title" data-i18n-exempt="species-data" dir="auto">${displayName(n)}</h2>
+        ${n.latin ? `<p class="ex-latin" data-i18n-exempt="species-data" dir="ltr">${n.latin}</p>` : ''}
+        ${/* English by policy, so it has to be laid out as English. Left RTL,
+              bidi moves the sentence's full stop to the far end — the hero
+              read ".of all life" in Hebrew, and the phone clamp put its
+              ellipsis at the start of the line. Same guard the detail panel
+              already carries on its own prose. */''}
+        ${n.desc ? `<p class="ex-desc" data-i18n-exempt="species-data" dir="ltr">${n.desc}</p>` : ''}
       </div>
     </div>
 
     ${kids.length
       ? `<div class="ex-grid">${kids.map(cardHTML).join('')}</div>`
-      : `<p class="ex-leaf">This is as deep as this branch goes.</p>`}
+      : `<p class="ex-leaf">${t('ex_leaf_end')}</p>`}
 
-    <nav class="ex-path" aria-label="Your path from the origin of life">
+    <nav class="ex-path" aria-label="${t('ex_path_label')}">
       ${path.map((p, i) => {
         const here = i === path.length - 1;
         return `
         <button class="ex-step${here ? ' current' : ''}"
                 data-action="explore:open" data-arg="${p.id}"
                 data-name="${displayName(p)}"
-                aria-label="${here ? 'You are here: ' : 'Go to '}${displayName(p)}"
+                aria-label="${here ? t('ex_you_are_here') : t('ex_go_to')} ${displayName(p)}"
                 ${here ? 'aria-current="true"' : ''}><span></span></button>`;
       }).join('')}
-      <span class="ex-here" aria-hidden="true">${displayName(n)}</span>
+      <span class="ex-here" aria-hidden="true" data-i18n-exempt="species-data" dir="auto">${displayName(n)}</span>
     </nav>`;
 
   // Silhouette cards: the file is fetched by the map's cache, so just paint

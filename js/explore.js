@@ -117,10 +117,16 @@ export function renderExplore() {
       : `<p class="ex-leaf">This is as deep as this branch goes.</p>`}
 
     <nav class="ex-path" aria-label="Your path from the origin of life">
-      ${path.map((p, i) => `
-        <button class="ex-step${i === path.length - 1 ? ' current' : ''}"
+      ${path.map((p, i) => {
+        const here = i === path.length - 1;
+        return `
+        <button class="ex-step${here ? ' current' : ''}"
                 data-action="explore:open" data-arg="${p.id}"
-                title="${displayName(p)}"><span></span></button>`).join('')}
+                data-name="${displayName(p)}"
+                aria-label="${here ? 'You are here: ' : 'Go to '}${displayName(p)}"
+                ${here ? 'aria-current="true"' : ''}><span></span></button>`;
+      }).join('')}
+      <span class="ex-here" aria-hidden="true">${displayName(n)}</span>
     </nav>`;
 
   // Silhouette cards: the file is fetched by the map's cache, so just paint

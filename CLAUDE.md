@@ -26,6 +26,24 @@ transcripts.
 | **status** | Plain-language summary of where things stand. No diffs. |
 | **hold** | Push and open the PR, then stop and wait for Gabi's approval to merge. |
 
+### Ending a session
+
+Every session ends with a **handover prompt** — a block Gabi can paste
+straight into a new session. It carries what the next Claude cannot infer from
+the code:
+
+- the branch, and whether its PR is open, merged or absent;
+- what is deployed versus what is only on the branch;
+- what was verified, and by what means;
+- what is known-broken or known-unverified, and why;
+- the next one or two things worth doing.
+
+Not a changelog — git holds that. The point is the things that would otherwise
+be rediscovered the hard way: which environment limits bite, which checks do
+not cover what they appear to, which fixes are unverified on real devices.
+
+Write it unprompted, at the end, alongside the plain-language summary.
+
 ### Language
 
 Reply in whichever language Gabi used last — English, Hebrew and Russian are

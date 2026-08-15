@@ -84,9 +84,13 @@ land in `.smoke-out/`. It is not a substitute for looking at the result.
 tree-of-life/
 ├── index.html           # SPA — pure HTML markup (~462 lines)
 ├── serve.js             # Local dev server (port 5555): node serve.js
-├── css/                 # External stylesheets (10 files)
+├── css/                 # External stylesheets (15 files)
 │   ├── variables.css    # CSS custom properties, reset, focus styles
 │   ├── layout.css       # Header, search, breadcrumb, nav controls
+│   ├── chrome.css       # Left rail, floating controls, search pill
+│   ├── splash.css       # Opening animation, reduced-motion fallback
+│   ├── profile.css      # Player profile overlay
+│   ├── sapiens.css      # Human-origins deep dive
 │   ├── tree.css         # SVG tree rendering, node/branch styles
 │   ├── timeline.css     # Era browser, extinction markers, playback
 │   ├── panel.css        # Species detail panel, hero images, cards
@@ -160,7 +164,7 @@ that `serve.js` mirrors from `vercel.json`, so prefer the dev server.
 
 ### Modular Architecture
 
-**CSS layer:** 10 external stylesheets in `css/` directory, loaded via `<link>` tags.
+**CSS layer:** 15 external stylesheets in `css/` directory, loaded via `<link>` tags.
 
 **Data layer:** 14 ES module files with explicit exports. Widely-shared constants re-exported via `js/data.js` barrel.
 
@@ -309,7 +313,7 @@ Things worth knowing before changing it:
 
 ### CSS Architecture
 
-- CSS lives in 10 external files in the `css/` directory, loaded via `<link>` tags
+- CSS lives in 15 external files in the `css/` directory, loaded via `<link>` tags
 - Organized by concern: variables, layout, tree, timeline, panel, hominin, features, theme, rtl, responsive
 - **CSS custom properties** control all colors — defined in `:root` (dark default) and `[data-theme="light"]`
 - `data-theme` attribute on `<html>` controls the active theme
@@ -389,6 +393,35 @@ its English name in Hebrew or Russian. Elements that legitimately show English
 data — the species-of-the-day badge — carry `data-i18n-exempt` so the leak
 check skips them rather than being weakened.
 
+### Explore has its own i18n checks, and why
+
+The map-view sweep cannot see the drill-down. The smoke runner seeds
+`tol-shell-view=map` before it measures — it has to, because the tree geometry
+has to be measured against the tree — so for a while the view a visitor
+actually lands on had no language coverage at all, and the suite reported
+green over untranslated English and an English paragraph laid out
+right-to-left.
+
+Three checks now run inside `#explore`, from the probe that already walks it:
+
+| Check | Fails when |
+|---|---|
+| `i18n:explore-no-latin-leak` | a Hebrew screen shows Latin-script chrome |
+| `i18n:explore-prose-reads-as-english` | English data is laid out RTL |
+| `i18n:explore-taxa-translated` | a card names a ranked group in English |
+
+**`data-i18n-exempt` is the hinge, and it cannot be used to buy silence.**
+An element without it must be translated; an element with it has declared
+itself English data, which enrols it in the direction rule instead. So
+exempting something moves it from one check to the other rather than out of
+both.
+
+Names take `dir="auto"` rather than `dir="ltr"`, because the same element
+holds a Hebrew group name on one screen and a Latin binomial on the next —
+`auto` resolves the direction from the content, which is measurably `rtl`
+for `חיידקים` and `ltr` for `Panthera leo`. Prose that is English by policy
+(`.ex-desc`, `.ex-latin`) takes `dir="ltr"` outright.
+
 ---
 
 ## Images & Attribution
@@ -451,7 +484,7 @@ photo is shown. `assets/placeholder.svg` is the fallback when nothing resolves.
 ## Known Constraints & Important Notes
 
 1. **Tests are browser smoke checks, not unit tests** — `node scripts/smoke.mjs`
-   opens the real page in Chromium and asserts 282 things about layout, i18n,
+   opens the real page in Chromium and asserts 319 things about layout, i18n,
    contrast and rendering. See *Smoke tests* below.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
 3. **index.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
@@ -554,10 +587,11 @@ never mistaken for a working page.
 
 ## Smoke Tests
 
-`scripts/smoke.mjs` opens the real page in Chromium and asserts **282 checks**
-— ~46 per scenario across six scenarios (desktop and phone viewports in
+`scripts/smoke.mjs` opens the real page in Chromium and asserts **319 checks**
+— ~52 per scenario across six scenarios (desktop and phone viewports in
 English, Hebrew and Russian, plus a desktop pass in the light theme), and four
-static checks that read the source before the browser starts. It runs on every
+static checks that read the source before the browser starts. Scenarios differ
+in count because some checks are language- or viewport-specific. It runs on every
 push and pull request via `.github/workflows/smoke.yml`, and replaces the old
 `deploy-check.yml`, which only checked that files existed.
 
@@ -569,8 +603,19 @@ measures a page nobody ever sees.
 npm run smoke                                      # serve ./ and check it
 node scripts/smoke.mjs --url https://example.com   # check a deployed site
 node scripts/smoke.mjs --proxy http://host:port    # run from behind a proxy
+node scripts/smoke.mjs --only desktop-he           # one scenario, ~1 min
 npm run smoke:update-baseline                      # re-record known failures
 ```
+
+`--only` exists for one job: proving a new check can fail. Break the code,
+watch the check go red, put the code back. The full matrix is a ~35 minute
+round trip, which is too slow to do that honestly, and a check nobody has
+watched fail is a check nobody has tested. It takes a comma-separated list.
+
+Never read a filtered run as a green branch — the summary counts only what
+ran and says so. It refuses `--update-baseline` outright, since rewriting the
+baseline from a subset would silently delete every entry the skipped
+scenarios own.
 
 Screenshots for every scenario land in `.smoke-out/` (git-ignored, and uploaded
 as a CI artifact on every run).
@@ -583,7 +628,7 @@ as a CI artifact on every run).
 | `tree:` | node and branch counts, **NaN coordinates**, fit-to-stage, spill, root visibility, horizontal scroll |
 | `chrome:` | header/timeline visible, reveal panel vs. zoom controls and timeline, closed panel off-screen, tooltip and fact toast vs. header, tooltip vs. the node it describes, nothing printed over the species name, **no floating control stretched across the window** |
 | `timeline:` | geological era labels clipped or colliding |
-| `i18n:` | document direction and lang, every bound control matches its translation, missing translation keys, Latin text leaking into Hebrew, search placeholder, English species prose laid out left-to-right |
+| `i18n:` | document direction and lang, every bound control matches its translation, missing translation keys, Latin text leaking into Hebrew, search placeholder, English species prose laid out left-to-right, and the same three rules again **inside the drill-down**, which the map-view sweep cannot reach |
 | `a11y:` | every text node meets AA contrast against its effective background |
 | `search:` | eight canonical queries return the answer a person would call correct; every common-name alias still matches something |
 | `interact:` | zoom buttons, reset re-fits, parent expands, leaf opens panel, search returns results, camera settles |

@@ -116,6 +116,15 @@ export function applyI18n(){
   if(svgEl2) svgEl2.setAttribute('aria-label',t('a11y_tree'));
   const homView=document.getElementById('hominin-view');
   if(homView) homView.setAttribute('aria-label',t('a11y_hominin_view'));
+  const exploreEl=document.getElementById('explore');
+  if(exploreEl) exploreEl.setAttribute('aria-label',t('ex_region'));
+  /* Explore builds its whole screen into innerHTML, so nothing above reaches
+     it: the generic data-i18n pass and the by-id assignments both run over
+     markup that renderExplore replaces wholesale. Switching language left every
+     card name, era and "N inside" in the language you had just left, until you
+     happened to navigate. Re-render it the way the era strip and the density
+     curve are rebuilt a few lines up. */
+  if(_deps.renderExplore) _deps.renderExplore();
   // Refresh tour card text if tour is active
   if (typeof tourState !== 'undefined' && tourState.active && _deps._showTourStep) _deps._showTourStep(tourState.step);
 }

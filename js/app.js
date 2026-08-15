@@ -11,7 +11,7 @@ import { reducedMotion, canonicalHomininId, preprocess, sortChildrenByAge, homin
 
 // ── Delegated event dispatch (replaces inline onclick attributes) ──
 import { registerActions } from './actions.js';
-import { initExplore, openInExplore, initExploreDeps } from './explore.js';
+import { initExplore, openInExplore, initExploreDeps, renderExplore } from './explore.js';
 
 // ── Layout ──
 import { layout, getVisible } from './layout.js';
@@ -81,7 +81,7 @@ setHomininOverlayOpener(openHomininOverlay);
 initCompareDeps({ searchEntities, t, showMainPanel, scheduleRender, smoothPanTo, layout, applyT });
 initGameDeps({ t, navigateTo: (...args) => navigateTo(...args) });
 initPlaybackDeps({ layout, centerOnTree, scheduleRender, applyT, buildEraPresets, getEraName, updateEraTint, updateSpeciesCount, t });
-initThemeDeps({ buildEraPresets, buildExtinctionMarkers, buildEraSegments, updateSpeciesCount, buildDensitySparkline, scheduleRender });
+initThemeDeps({ buildEraPresets, buildExtinctionMarkers, buildEraSegments, updateSpeciesCount, buildDensitySparkline, scheduleRender, renderExplore });
 initEngagementDeps({ t, navigateTo: (...args) => navigateTo(...args), showMainPanel });
 initRandomButton({ getRandomSpecies: () => getRandomSpecies(nodeMap), showMainPanel });
 initWhoFirstDeps({ t, checkAchievement });

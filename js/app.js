@@ -1137,8 +1137,15 @@ registerActions({
   'domain:reset':    () => resetDomains(),
 
   // View modes — the buttons already carry data-mode
-  'view:set':        (_a, _b, { el }) => setViewMode(el.dataset.mode),
-  'playback:enter':  () => enterPlaybackMode(),
+  /* Three of the rail's controls are instruments of the map, and the rail is on
+     screen in both shells. Used from Explore they drove a canvas the CSS had
+     hidden: playback animated 3.8 billion years of an invisible tree, and the
+     layout buttons appeared to do nothing at all. Latent before — #svg was
+     already hidden in this view — and it got worse once the timeline went with
+     it, because the Exit button went too and there was no way back out. They
+     bring the map with them now. */
+  'view:set':        (_a, _b, { el }) => { setShellView('map'); setViewMode(el.dataset.mode); },
+  'playback:enter':  () => { setShellView('map'); enterPlaybackMode(); },
 
   // Hominin deep dive
   'hominin:open':            () => openHomininView(),
@@ -1160,7 +1167,7 @@ registerActions({
 
   // Games, tours, profile
   'game:open':     () => openGame(),
-  'tour:selector': () => showTourSelector(),
+  'tour:selector': () => { setShellView('map'); showTourSelector(); },
   'profile:open':  () => openProfile(),
   'profile:close': () => closeProfile(),
 });

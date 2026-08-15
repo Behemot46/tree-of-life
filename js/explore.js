@@ -150,7 +150,14 @@ export function openInExplore(nodeOrId) {
      to leave you on a screen whose only content was "this is as deep as this
      branch goes" — a dead end at exactly the moment the reader had arrived at
      the thing they were looking for. The detail panel is what they wanted. */
-  if (!childrenOf(node).length && _showMainPanel) { _showMainPanel(node); return; }
+  if (!childrenOf(node).length && _showMainPanel) {
+    /* Move to its parent first, so closing the panel leaves the reader among
+       the species' siblings rather than wherever they happened to be standing
+       when they searched for it. */
+    if (node._parent) { _current = node._parent; renderExplore(); }
+    _showMainPanel(node);
+    return;
+  }
 
   _current = node;
   renderExplore();

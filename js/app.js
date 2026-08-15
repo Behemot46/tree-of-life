@@ -404,6 +404,18 @@ function navigateTo(id){
     }
   }
   const n=nodeMap[id];if(!n)return;
+
+  /* In the drill-down, a search result is a place to stand, not a place to fly
+     to. Panning a camera the reader cannot see does nothing for them; landing
+     on the group's own screen — with its cards, and the path from LUCA already
+     filled in behind it — is the same answer expressed in the shell they are
+     actually in. A species has no screen of its own, so it opens its panel,
+     which is what openInExplore already does for a leaf. */
+  if (document.body.getAttribute('data-view') === 'explore') {
+    openInExplore(n);
+    return;
+  }
+
   state.highlightedId=id;
   // Ensure path is not collapsed
   let c=n;while(c._parent){c._parent._collapsed=false;c=c._parent;}

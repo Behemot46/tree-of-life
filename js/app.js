@@ -11,7 +11,7 @@ import { reducedMotion, canonicalHomininId, preprocess, sortChildrenByAge, homin
 
 // ── Delegated event dispatch (replaces inline onclick attributes) ──
 import { registerActions } from './actions.js';
-import { initExplore, openInExplore } from './explore.js';
+import { initExplore, openInExplore, initExploreDeps } from './explore.js';
 
 // ── Layout ──
 import { layout, getVisible } from './layout.js';
@@ -498,6 +498,7 @@ function init(){
   /* The drill-down, and whichever shell was last chosen. Explore is the
      default: the map is an expert view, and a first-time visitor needs a door
      before they need a map. */
+  initExploreDeps({ showMainPanel });
   initExplore();
   setShellView((()=>{ try { return localStorage.getItem('tol-shell-view') || 'explore'; } catch(e){ return 'explore'; } })());
 

@@ -28,6 +28,11 @@ import { SILHOUETTES } from './silhouettes.js';
 
 let _current = TREE;
 
+/* Late-bound so this module can stay clear of panel.js, which imports plenty
+   of its own. app.js wires it at start-up. */
+let _showMainPanel = null;
+export function initExploreDeps(deps) { _showMainPanel = deps.showMainPanel; }
+
 const el = () => document.getElementById('explore');
 
 /* The chain from LUCA to here, which is what gives the descent its sense of
@@ -38,8 +43,15 @@ function pathTo(node) {
   return out;
 }
 
+/* Every child, including the ones the map hides.
+
+   `_hiddenByToggle` is set by the map's "show all species" switch, which
+   exists to stop three hundred discs crowding the canvas. A list has no such
+   problem, and inheriting that flag here made every phylum look childless —
+   tapping Spirochetes opened a panel instead of descending, so most of the
+   tree was simply unreachable from the view that is meant to be the way in. */
 function childrenOf(node) {
-  return (node.children || []).filter((c) => !c._hiddenByToggle);
+  return node.children || [];
 }
 
 function cardImage(node) {
@@ -127,8 +139,32 @@ export function openInExplore(nodeOrId) {
     ? (state.nodeMap ? state.nodeMap[nodeOrId] : null) || findById(TREE, nodeOrId)
     : nodeOrId;
   if (!node) return;
+
+  /* A species is the destination, not another level. Descending into one used
+     to leave you on a screen whose only content was "this is as deep as this
+     branch goes" — a dead end at exactly the moment the reader had arrived at
+     the thing they were looking for. The detail panel is what they wanted. */
+  if (!childrenOf(node).length && _showMainPanel) { _showMainPanel(node); return; }
+
   _current = node;
   renderExplore();
+}
+
+/* Swipe right to go up a level, the gesture a phone reader will try first. */
+function initSwipeBack(root) {
+  let x0 = 0, y0 = 0, live = false;
+  root.addEventListener('touchstart', (e) => {
+    if (e.touches.length !== 1) { live = false; return; }
+    x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; live = true;
+  }, { passive: true });
+  root.addEventListener('touchend', (e) => {
+    if (!live) return;
+    live = false;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - x0, dy = t.clientY - y0;
+    // Horizontal, decisive, and not a scroll.
+    if (dx > 70 && Math.abs(dy) < 50 && _current._parent) openInExplore(_current._parent);
+  }, { passive: true });
 }
 
 function findById(n, id) {
@@ -139,5 +175,7 @@ function findById(n, id) {
 
 export function initExplore() {
   registerActions({ 'explore:open': (id) => openInExplore(id) });
+  const root = el();
+  if (root) initSwipeBack(root);
   renderExplore();
 }

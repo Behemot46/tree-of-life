@@ -309,15 +309,37 @@ function attachSilhouette(g, n, nodeR) {
 }
 
 /* Fetch on first sight, then ask for a redraw so the next pass can place it
-   synchronously. Coalesced, because a render touches every visible node. */
+   synchronously. Coalesced, because a render touches every visible node.
+
+   Queued six at a time. A first paint with the tree expanded wants a silhouette
+   for every visible node at once — 131 of them — and firing that many parallel
+   requests made even the local dev server answer 503. On a phone it would be a
+   burst of connections at exactly the moment the page is trying to become
+   interactive. Six keeps it quick without the stampede. */
+const _silQueue = [];
+let _silActive = 0;
 let _silRedraw = 0;
+const SIL_CONCURRENCY = 6;
+
+function pumpSilhouettes() {
+  while (_silActive < SIL_CONCURRENCY && _silQueue.length) {
+    const id = _silQueue.shift();
+    _silActive++;
+    loadSilhouette(id)
+      .then((sil) => { if (sil) _silReady.set(id, sil); })
+      .finally(() => {
+        _silActive--;
+        clearTimeout(_silRedraw);
+        _silRedraw = setTimeout(() => scheduleRender(), 120);
+        pumpSilhouettes();
+      });
+  }
+}
+
 function primeSilhouette(id) {
-  loadSilhouette(id).then((sil) => {
-    if (!sil) return;
-    _silReady.set(id, sil);
-    clearTimeout(_silRedraw);
-    _silRedraw = setTimeout(() => scheduleRender(), 60);
-  });
+  if (_silReady.has(id) || _silCache.has(id) || _silQueue.includes(id)) return;
+  _silQueue.push(id);
+  pumpSilhouettes();
 }
 
 

@@ -1252,6 +1252,11 @@ async function runScenario(browser, scenario, baseUrl) {
   await ctx.addInitScript((cfg) => {
     localStorage.setItem('tol-lang', cfg.lang);
     localStorage.setItem('theme', cfg.theme);
+    /* The map, not the drill-down. Explore is what a visitor lands on, but
+       every check below this line measures the canvas — node counts, framing,
+       spill, the camera. Seeding the shell here keeps that coverage honest;
+       the drill-down needs its own checks rather than borrowing these. */
+    localStorage.setItem('tol-shell-view', 'map');
     localStorage.setItem('tol-tour-done', '1');
     localStorage.setItem('tol-splash-seen', '1');
     // A Content-Security-Policy that blocks something the page needs fails

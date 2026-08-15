@@ -42,6 +42,12 @@ const UPDATE_BASELINE = flag('update-baseline');
 const KEEP_SHOTS = !flag('no-screenshots');
 const EXTERNAL_URL = opt('url', process.env.SMOKE_URL || '');
 const PROXY = opt('proxy', '');
+/* `--only he` runs just the scenarios whose id contains "he". The full matrix
+   takes about seven minutes, which is too slow a loop for the one thing every
+   new check owes the suite: proving it can fail. Never used in CI — the
+   workflow runs the whole matrix, and a partial run refuses to touch the
+   baseline, so a filtered run cannot quietly record a pass it never made. */
+const ONLY = opt('only', '');
 
 // ── Thresholds ────────────────────────────────────────────────────────────────
 // The tree must fill at least this fraction of the stage on its longest axis.
@@ -399,6 +405,117 @@ check('panel:hero-photo-loads', 'The species panel shows its photograph', (c) =>
   if (!h.present) { fail('the panel rendered no hero image element at all'); return; }
   if (!h.loaded) fail(`the hero photograph did not load, so the panel fell back to an emoji: ${h.src}`);
   else if (!h.shown) fail('the hero photograph loaded but is not displayed');
+});
+
+check('explore:is-usable', 'The drill-down renders and descends', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked) { fail(`explore could not be probed: ${e && e.reason}`); return; }
+  const [root] = e.steps;
+  if (!root.visible) { fail('the explore view has no width'); return; }
+  if (!root.cards) { fail('the root screen offers no cards to tap'); return; }
+  if (e.steps.length < 3) { fail(`only descended ${e.steps.length - 1} level(s) — a card did not open`); return; }
+  for (let i = 1; i < e.steps.length; i++) {
+    const prev = e.steps[i - 1], now = e.steps[i];
+    if (now.title === prev.title) fail(`level ${i} did not change the heading (still "${now.title}")`);
+    if (now.dots !== prev.dots + 1) fail(`level ${i} shows ${now.dots} path dots, expected ${prev.dots + 1}`);
+    if (!now.cards) fail(`level ${i} ("${now.title}") offers nothing to tap`);
+  }
+});
+
+check('explore:back-returns', 'Back climbs one level', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked || !e.afterBack) return;
+  const last = e.steps[e.steps.length - 1];
+  if (e.afterBack.dots !== last.dots - 1) {
+    fail(`back left ${e.afterBack.dots} dots, expected ${last.dots - 1}`);
+  }
+  if (e.afterBack.title === last.title) fail('back did not change the heading');
+});
+
+check('explore:says-where-you-are', 'Every screen names the step you are on', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked) return;
+  /* The prefix comes from the page's own translations rather than being spelt
+     out here: it used to be the literal "You are here: ", which is what a
+     Hebrew screen reader was announcing. */
+  const want = `${e.herePrefix}: `;
+  for (const s of e.steps) {
+    if (s.here !== s.title) fail(`"${s.title}" is labelled "${s.here}" on the path`);
+    if (!s.current.startsWith(want)) fail(`the current dot on "${s.title}" is announced "${s.current}", expected it to start "${want}"`);
+    if (!s.named) fail(`a path dot on "${s.title}" carries no name`);
+  }
+});
+
+/* ── The three that read geometry, not the DOM ────────────────────────────
+   Each of these covers a defect that shipped under a green suite, because
+   every existing Explore check asks the DOM what is there rather than asking
+   the browser what a reader can see and touch. */
+
+check('explore:path-is-reachable', 'The path ribbon can actually be seen and tapped', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked) return;
+  for (const s of e.steps) {
+    if (!s.dots) { fail(`"${s.title}" shows no path at all`); continue; }
+    if (s.dotsSeen !== s.dots) {
+      fail(`only ${s.dotsSeen} of ${s.dots} path dots are visible on "${s.title}"`);
+    }
+    if (s.dotsBlocked.length) {
+      fail(`${s.dotsBlocked.length} path dot(s) on "${s.title}" are covered: ` +
+        s.dotsBlocked.slice(0, 3).map((d) => `${d.name} by ${d.by}`).join(', '));
+    }
+    if (!s.hereSeen) fail(`the "you are here" label is not visible on "${s.title}"`);
+  }
+});
+
+check('explore:cards-are-not-covered', 'Nothing is painted over a card', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked) return;
+  for (const s of e.steps) {
+    if (s.cardsCovered.length) {
+      fail(`${s.cardsCovered.length} card(s) on "${s.title}" covered: ` +
+        s.cardsCovered.slice(0, 3).map((x) => `${x.name} ${x.pct}% by ${x.by}`).join(', '));
+    }
+  }
+});
+
+check('explore:cards-draw-something', 'Every card shows a photo, a silhouette or its icon', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked) return;
+  for (const s of e.steps) {
+    if (s.cardsBlank.length) {
+      fail(`${s.cardsBlank.length} of ${s.cards} card(s) on "${s.title}" draw nothing: ` +
+        s.cardsBlank.slice(0, 4).join(', '));
+    }
+    /* Cards whose photograph never settled are excluded above rather than
+       failed. Say so when that leaves nothing judged, so a screen nobody
+       measured cannot read as a screen that passed. */
+    if (s.cardsOnScreen && s.cardsPending === s.cardsOnScreen) {
+      fail(`all ${s.cardsOnScreen} visible card(s) on "${s.title}" were still loading — nothing was checked`);
+    }
+  }
+});
+
+check('i18n:explore-is-translated', 'The drill-down speaks the active language', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked) return;
+  const leaks = [], groups = [];
+  for (const s of e.steps) {
+    for (const l of s.leaks) leaks.push(`${s.title}: ${l.where}="${l.txt}"`);
+    for (const g of s.untranslatedGroups) groups.push(`${g.id}="${g.got}" want "${g.want}"`);
+  }
+  if (leaks.length) {
+    fail(`${leaks.length} untranslated string(s) in #explore: ${leaks.slice(0, 4).join(', ')}`);
+  }
+  if (groups.length) {
+    fail(`${groups.length} group card(s) still English: ${groups.slice(0, 4).join(', ')}`);
+  }
+}, (s) => s.lang !== 'en');
+
+check('explore:no-horizontal-scroll', 'The drill-down never scrolls sideways', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked) return;
+  const bad = e.steps.filter((s) => s.overflow).map((s) => s.title);
+  if (bad.length) fail(`${bad.length} screen(s) overflow horizontally: ${bad.join(', ')}`);
 });
 
 check('search:finds-the-obvious-answer', 'Common searches return the thing meant', (c) => {
@@ -1047,13 +1164,251 @@ async function probePage(page, scenario) {
     requestAnimationFrame(tick);
   }));
 
+  /* ── Explore ──────────────────────────────────────────────────────────
+     The drill-down is the view a visitor actually lands on, and until now
+     every check in this file measured the canvas instead. It is walked last
+     because it swaps the shell, and the map measurements above have to be
+     taken against the map.
+
+     Descends two levels by clicking real cards, then climbs back with the
+     back button, asserting at each step that the screen changed the way a
+     reader would expect it to.
+
+     Every measurement below is taken *while Explore is on screen*, which is
+     why they live here rather than in the first pass. The three that read
+     geometry rather than the DOM are the ones that matter: the suite was 312
+     green over a path ribbon buried under the timeline, a card hidden behind
+     the rail and a grid of cards drawing nothing at all, because reading
+     textContent cannot see any of that. */
+  const explore = await page.evaluate(async (lang) => {
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    const btn = document.querySelector('#view-toggle [data-view="explore"]');
+    if (!btn) return { checked: false, reason: 'no explore toggle' };
+    btn.click();
+    await wait(400);
+
+    const root = document.getElementById('explore');
+    if (!root) return { checked: false, reason: 'no #explore' };
+
+    const T = await import(new URL('js/uiData.js', location.href).href)
+      .then((m) => m.TRANSLATIONS).catch(() => null);
+    const TAXA = await import(new URL('js/taxonNames.js', location.href).href)
+      .then((m) => m.TAXON_NAMES).catch(() => null);
+    const tr = (k) => (T && T[lang] && T[lang][k]) || (T && T.en && T.en[k]) || k;
+
+    const seen = (e) => {
+      if (!e) return false;
+      const s = getComputedStyle(e);
+      if (s.display === 'none' || s.visibility === 'hidden' || +s.opacity === 0) return false;
+      const b = e.getBoundingClientRect();
+      return b.width > 2 && b.height > 2 && b.bottom > 0 && b.right > 0
+        && b.top < innerHeight && b.left < innerWidth;
+    };
+
+    /* How much of this element a reader can actually see: clipped to both the
+       viewport and Explore's own scroll box. A card scrolled below the fold is
+       out of sight but nothing is covering it and nothing is wrong with it, so
+       it must not be judged at all — the alternative reported #bg as covering
+       it and its unstarted lazy image as drawing nothing. */
+    const shownArea = (e) => {
+      const b = e.getBoundingClientRect(), rb = root.getBoundingClientRect();
+      return {
+        left: Math.max(b.left, rb.left, 0), right: Math.min(b.right, rb.right, innerWidth),
+        top: Math.max(b.top, rb.top, 0), bottom: Math.min(b.bottom, rb.bottom, innerHeight),
+      };
+    };
+    const onScreen = (e) => {
+      const a = shownArea(e);
+      return a.right - a.left > 8 && a.bottom - a.top > 8;
+    };
+
+    /* Is this element the thing the browser would hand a tap at its centre?
+       The ribbon passed every DOM-reading check while the timeline sat on top
+       of it at ten times the z-index, so the only honest question is what
+       elementFromPoint returns. */
+    const reachable = (e) => {
+      const b = e.getBoundingClientRect();
+      const hit = document.elementFromPoint(b.x + b.width / 2, b.y + b.height / 2);
+      if (!hit) return { ok: false, by: 'nothing' };
+      if (e === hit || e.contains(hit) || hit.contains(e)) return { ok: true };
+      return { ok: false, by: hit.id ? '#' + hit.id : hit.tagName.toLowerCase() + '.' + String(hit.className || '').split(' ')[0] };
+    };
+
+    /* Is anything painted over this card?
+
+       Asked by sampling points and reading back what the browser says is on
+       top, rather than by intersecting rectangles with every fixed element on
+       the page. Rectangle arithmetic answered a different question and got it
+       wrong twice over: it counted #bg, a full-window layer that sits *behind*
+       Explore, and it counted the part of a card scrolled below the fold —
+       which is out of sight but nothing is covering it.
+
+       The nine points are taken inside the card's *visible* rect, clipped to
+       both the viewport and Explore's own scroll box, so only a card a reader
+       can see is judged, and only by what would actually intercept their tap. */
+    const covering = (card) => {
+      if (!onScreen(card)) return null;
+      const { left, right, top, bottom } = shownArea(card);
+      const hits = {};
+      let blocked = 0, total = 0;
+      for (let gx = 1; gx <= 3; gx++) {
+        for (let gy = 1; gy <= 3; gy++) {
+          const hit = document.elementFromPoint(
+            left + (right - left) * gx / 4, top + (bottom - top) * gy / 4);
+          total++;
+          if (!hit || hit === root || root.contains(hit)) continue;
+          blocked++;
+          const name = hit.id ? '#' + hit.id
+            : hit.tagName.toLowerCase() + '.' + String(hit.className || '').split(' ')[0];
+          hits[name] = (hits[name] || 0) + 1;
+        }
+      }
+      const pct = Math.round(100 * blocked / total);
+      if (pct < 20) return null;   // two of nine points, well clear of the borders
+      return { pct, by: Object.entries(hits).sort((a, b) => b[1] - a[1])[0][0] };
+    };
+
+    /* Latin (or, in Russian, Cyrillic-less) copy that should have been
+       translated. The first-pass scan walks a fixed list of chrome ids and
+       #explore is not one of them — nor could it be, since that pass runs
+       against the map. Two untranslated strings shipped under 312 green
+       checks for exactly this reason. */
+    // Escaped, not literal: a bare Cyrillic range in a regex is unreadable.
+    const LOCAL = { he: /[\u0590-\u05FF]/, ru: /[\u0400-\u04FF]/ };
+    const ALLOW = /^(luca|dna|rna|ma|ga|mya|3d|2d|\d+(\.\d+)?x?|[0-9\s.,:/×–—-]+)$/i;
+    const leaksIn = () => {
+      const out = [];
+      const native = LOCAL[lang];
+      if (!native) return out;
+      const consider = (txt, where, el) => {
+        const s = (txt || '').trim();
+        if (!s || s.length < 2) return;
+        if (el && el.closest('[data-i18n-exempt]')) return;
+        if (native.test(s)) return;                 // has the language's own script
+        if (!/[A-Za-z]{2,}/.test(s)) return;        // no Latin words at all
+        if (ALLOW.test(s)) return;
+        out.push({ where, txt: s.slice(0, 40) });
+      };
+      for (const el of root.querySelectorAll('*')) {
+        if (el.children.length || !seen(el)) continue;
+        consider(el.textContent, '.' + (String(el.className || el.tagName).split(' ')[0]), el);
+      }
+      // Read aloud is still copy: four of these were hardcoded English.
+      consider(root.getAttribute('aria-label'), '#explore[aria-label]', null);
+      for (const el of root.querySelectorAll('[aria-label]')) {
+        if (!seen(el)) continue;
+        consider(el.getAttribute('aria-label'), '.' + String(el.className || '').split(' ')[0] + '[aria-label]', el);
+      }
+      return out;
+    };
+
+    /* Ranked groups must carry their localised name here as well as on the
+       map. The card name is data-i18n-exempt — species are English by policy
+       and the leak scan cannot tell the two apart — so this is what keeps
+       group names covered in the drill-down. */
+    const groupNames = () => {
+      const bad = [];
+      if (!TAXA || !TAXA[lang]) return bad;
+      for (const c of root.querySelectorAll('.ex-card')) {
+        const id = c.getAttribute('data-arg');
+        const want = TAXA[lang][id];
+        if (!want) continue;
+        const got = (c.querySelector('.ex-card-name')?.textContent || '').trim();
+        if (got !== want) bad.push({ id, got, want });
+      }
+      return bad;
+    };
+
+    const snap = () => {
+      const cards = [...root.querySelectorAll('.ex-card')];
+      const dots = [...root.querySelectorAll('.ex-step')];
+      return {
+        title: document.querySelector('.ex-title')?.textContent.trim() || '',
+        cards: cards.length,
+        dots: dots.length,
+        here: document.querySelector('.ex-here')?.textContent.trim() || '',
+        current: document.querySelector('.ex-step.current')?.getAttribute('aria-label') || '',
+        named: dots.every((d) => d.getAttribute('data-name')),
+        overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
+        visible: root.getBoundingClientRect().width > 0,
+
+        // Is the ribbon actually reachable, or only present?
+        dotsSeen: dots.filter(seen).length,
+        dotsBlocked: dots.map((d) => ({ name: d.getAttribute('data-name'), ...reachable(d) }))
+          .filter((r) => !r.ok),
+        hereSeen: seen(document.querySelector('.ex-here')),
+
+        // Is anything painted over a card?
+        cardsCovered: cards.map((c) => {
+          const w = covering(c);
+          return w ? { name: c.querySelector('.ex-card-name')?.textContent || '?', ...w } : null;
+        }).filter(Boolean),
+
+        /* Does each card draw anything at all? A photograph that resolves and
+           then fails to load used to hide itself and leave a blank rectangle,
+           because the silhouette and emoji were else-arms that never ran.
+
+           Only cards on screen whose image has reached a terminal state count.
+           A photograph in flight is neither drawn nor blank, and judging one
+           mid-load failed on Russian alone the first time this ran — a flaky
+           check, which is worse than no check. */
+        cardsBlank: cards.filter(onScreen).map((c) => {
+          const img = c.querySelector('.ex-card-img');
+          if (img && !img.complete) return null;      // still deciding
+          const drew = ['.ex-card-img', '.ex-card-sil', '.ex-card-emoji']
+            .some((sel) => {
+              const e = c.querySelector(sel);
+              if (!e || !seen(e)) return false;
+              return e.tagName !== 'IMG' || e.naturalWidth > 0;
+            });
+          return drew ? null : (c.querySelector('.ex-card-name')?.textContent || '?');
+        }).filter(Boolean),
+        cardsOnScreen: cards.filter(onScreen).length,
+        cardsPending: cards.filter(onScreen)
+          .filter((c) => { const i = c.querySelector('.ex-card-img'); return i && !i.complete; }).length,
+
+        leaks: leaksIn(),
+        untranslatedGroups: groupNames(),
+      };
+    };
+
+    /* Photographs decide late, so let every one on screen reach load-or-error
+       before measuring. Without this the root screen was judged mid-flight and
+       the blank-card check failed on Russian alone, purely on timing. */
+    const settle = () => Promise.all(
+      [...root.querySelectorAll('.ex-card-img, .ex-hero-img')].map((img) => img.complete ? null
+        : new Promise((r) => {
+          img.addEventListener('load', r, { once: true });
+          img.addEventListener('error', r, { once: true });
+          setTimeout(r, 2500);
+        })));
+
+    await settle();
+    const steps = [snap()];
+    for (let i = 0; i < 2; i++) {
+      const card = [...document.querySelectorAll('.ex-card')].find((c) => c.querySelector('.ex-card-chev'));
+      if (!card) break;
+      card.click();
+      await wait(450);
+      await settle();
+      steps.push(snap());
+    }
+    const back = document.querySelector('.ex-back');
+    let afterBack = null;
+    if (back && back.tagName === 'BUTTON') { back.click(); await wait(450); await settle(); afterBack = snap(); }
+
+    document.querySelector('#view-toggle [data-view="map"]')?.click();
+    await wait(300);
+    return { checked: true, steps, afterBack, herePrefix: tr('ex_you_are_here') };
+  }, scenario.lang);
+
   // Read CSP violations last: inline event handlers are only evaluated when
   // they fire, so blocking them shows up during the interactions above rather
   // than on load. This supersedes the value collected in the first pass.
   const cspViolations = [...new Set(await page.evaluate(() => window.__cspViolations || []))];
 
   return { ...base, ...forced, tooltipShown, tooltipCoversNode, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps, heroPhoto, photoHostReachable: await wikimediaReachable(), contrast, searchQuality,
-           searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations };
+           searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations, explore };
 }
 
 
@@ -1252,6 +1607,11 @@ async function runScenario(browser, scenario, baseUrl) {
   await ctx.addInitScript((cfg) => {
     localStorage.setItem('tol-lang', cfg.lang);
     localStorage.setItem('theme', cfg.theme);
+    /* The map, not the drill-down. Explore is what a visitor lands on, but
+       every check below this line measures the canvas — node counts, framing,
+       spill, the camera. Seeding the shell here keeps that coverage honest;
+       the drill-down needs its own checks rather than borrowing these. */
+    localStorage.setItem('tol-shell-view', 'map');
     localStorage.setItem('tol-tour-done', '1');
     localStorage.setItem('tol-splash-seen', '1');
     // A Content-Security-Policy that blocks something the page needs fails
@@ -1330,8 +1690,16 @@ let all = [];
 const browser = await chromium.launch(
   PROXY ? { proxy: { server: PROXY, bypass: 'localhost,127.0.0.1' } } : {});
 if (PROXY) process.stdout.write(`Routing Chromium through ${PROXY}\n`);
+const RUNNING = ONLY ? SCENARIOS.filter((s) => s.id.includes(ONLY)) : SCENARIOS;
+if (ONLY) {
+  if (!RUNNING.length) {
+    process.stdout.write(`\nNo scenario id contains "${ONLY}". Known ids: ${SCENARIOS.map((s) => s.id).join(', ')}\n`);
+    process.exit(2);
+  }
+  process.stdout.write(`\n--only ${ONLY}: running ${RUNNING.map((s) => s.id).join(', ')} (partial run — the verdict covers these scenarios only)\n`);
+}
 try {
-  for (const scenario of SCENARIOS) {
+  for (const scenario of RUNNING) {
     process.stdout.write(`\n▸ ${scenario.id}\n`);
     const results = await runScenario(browser, scenario, server.url);
     all = all.concat(results);
@@ -1354,6 +1722,11 @@ const failures = all.filter((r) => !r.ok);
 const unexpectedFailures = failures.filter((r) => !Object.prototype.hasOwnProperty.call(baseline.known, r.key));
 const fixedButBaselined = all.filter((r) => r.ok && Object.prototype.hasOwnProperty.call(baseline.known, r.key));
 
+if (UPDATE_BASELINE && ONLY) {
+  process.stdout.write('\n--update-baseline needs the full matrix: a partial run would delete every ' +
+    'known failure belonging to the scenarios it skipped. Re-run without --only.\n');
+  process.exit(2);
+}
 if (UPDATE_BASELINE) {
   const known = {};
   for (const r of failures) known[r.key] = r.msg.slice(0, 200);
@@ -1369,7 +1742,7 @@ if (UPDATE_BASELINE) {
 
 const passed = all.length - failures.length;
 process.stdout.write(`\n${'─'.repeat(60)}\n`);
-process.stdout.write(`${passed}/${all.length} checks passed across ${SCENARIOS.length} scenarios.\n`);
+process.stdout.write(`${passed}/${all.length} checks passed across ${RUNNING.length} scenario(s).\n`);
 if (failures.length) process.stdout.write(`${failures.length - unexpectedFailures.length} known issue(s) still open (baselined).\n`);
 
 if (unexpectedFailures.length) {

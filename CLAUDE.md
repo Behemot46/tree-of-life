@@ -26,6 +26,24 @@ transcripts.
 | **status** | Plain-language summary of where things stand. No diffs. |
 | **hold** | Push and open the PR, then stop and wait for Gabi's approval to merge. |
 
+### Ending a session
+
+Every session ends with a **handover prompt** — a block Gabi can paste
+straight into a new session. It carries what the next Claude cannot infer from
+the code:
+
+- the branch, and whether its PR is open, merged or absent;
+- what is deployed versus what is only on the branch;
+- what was verified, and by what means;
+- what is known-broken or known-unverified, and why;
+- the next one or two things worth doing.
+
+Not a changelog — git holds that. The point is the things that would otherwise
+be rediscovered the hard way: which environment limits bite, which checks do
+not cover what they appear to, which fixes are unverified on real devices.
+
+Write it unprompted, at the end, alongside the plain-language summary.
+
 ### Language
 
 Reply in whichever language Gabi used last — English, Hebrew and Russian are
@@ -75,6 +93,7 @@ tree-of-life/
 │   ├── hominin.css      # Hominin deep-dive overlay, compare cards
 │   ├── features.css     # Legend, zoom, tooltip, quiz, DNA, evo path, tours
 │   ├── theme.css        # Light theme overrides, dark mode polish
+│   ├── explore.css      # Drill-down shell — cards, path dots
 │   ├── rtl.css          # Hebrew RTL layout overrides
 │   └── responsive.css   # Mobile breakpoints, reduced motion, high contrast
 ├── assets/
@@ -118,6 +137,7 @@ tree-of-life/
     ├── quiz.js          # Multiple-choice quiz mode
     ├── playback.js      # Time-lapse playback mode
     ├── theme.js         # t(), setLang(), applyI18n(), toggleTheme()
+    ├── explore.js       # Drill-down shell — see *The two shells*
     ├── splash.js        # Opening animation — see *The opening screen*
     └── engagement.js    # Toast notifications, idle timer, intro, particles
 ```
@@ -185,6 +205,63 @@ Three things follow from this that are worth knowing:
 Where an element already carries its value (`data-lang`, `data-mode`,
 `data-domain`), the handler reads it from there instead of repeating it in a
 `data-arg` that could drift.
+
+### The two shells
+
+The site has two front doors, switched from the rail and remembered in
+`localStorage` under `tol-shell-view`. `body[data-view]` carries the choice and
+the CSS hides one side wholesale.
+
+**Explore** (`js/explore.js`) is the default and the thing a visitor lands on.
+One screen, one level: a header saying where you are, a grid of large tappable
+cards saying what is inside, one back button, and dots showing your depth from
+LUCA. There is no camera — nothing can be panned off-screen, zoomed into
+nothing, or collapsed out from under you, and every tap has exactly one
+meaning.
+
+**Map** is the radial tree. It is an expert visualisation: lovely once you know
+what a clade is, and on a 390px phone it showed four circles in the corner of a
+black void with 85% of the screen empty. It is the identity of the site and
+worth keeping — it just should not be the front door.
+
+Things worth knowing before changing Explore:
+
+- **It reads every child, ignoring `_hiddenByToggle`.** That flag belongs to
+  the map's "show all species" switch, which exists to stop three hundred discs
+  crowding the canvas. A list has no such problem, and honouring it made every
+  phylum look childless — most of the tree was unreachable.
+- **A leaf opens the detail panel** rather than descending into an empty
+  screen. `showMainPanel` is injected via `initExploreDeps()` to keep this
+  module clear of `panel.js`.
+- **It shares the window with the map's chrome, and loses.** `#explore` sits at
+  z-index 30; the left rail and the timeline are both `--z-nav`, which is 200.
+  The timeline swallowed the path ribbon whole — same `bottom: 0`, ten times the
+  z-index — and the rail covered the first card of every screen, which at the
+  root is one of the three domains of life. The timeline is now hidden in this
+  view (it is an axis for a camera Explore does not have) and `#explore` carries
+  a `padding-inline-start` clearing the rail from 769px up, the width at which
+  the rail stops being a bottom sheet.
+- **A card draws a photograph *and* a hidden understudy.** The silhouette and
+  emoji used to be `else` arms, so an image that resolved and then failed to
+  load hid itself and left a blank rectangle — six of six on the Protists
+  screen. `data-on-error="hide-show-next"` reveals the sibling instead.
+- **Its own copy is translated; its data is not, and says so.** Geological eras
+  resolve through the timeline's existing `seg_*` keys (whole string, then first
+  and last word, so "Late Cretaceous" lands on `cretaceous`); where no period
+  matches, the card shows the binomial instead of a freeform "~100 Mya".
+  Descriptions and species names stay English and carry `dir="ltr"` and
+  `data-i18n-exempt` — inherited RTL had been sending full stops and the clamp's
+  ellipsis to the wrong end of the paragraph.
+- **A language switch re-renders it.** Explore builds its screen into
+  `innerHTML`, so neither the `data-i18n` pass nor `applyI18n`'s by-id
+  assignments reach it; `applyI18n` calls `renderExplore` (injected through
+  `initThemeDeps`) the way it rebuilds the era strip.
+- **Four of its checks read geometry, not the DOM.** `explore:path-is-reachable`,
+  `explore:cards-are-not-covered` and `explore:cards-draw-something` hit-test
+  with `elementFromPoint` and ask whether images decoded, because the suite was
+  312 green over a buried ribbon, a hidden card and a grid of blank rectangles —
+  every one of them present and correct in the DOM. When adding a check here,
+  ask what a reader can *see and tap*, not what exists.
 
 ### The opening screen
 
@@ -337,6 +414,19 @@ its English name in Hebrew or Russian. Elements that legitimately show English
 data — the species-of-the-day badge — carry `data-i18n-exempt` so the leak
 check skips them rather than being weakened.
 
+**The leak scan is per-zone, so a new surface is invisible to it until it is
+added.** `i18n:no-latin-leak` walks a fixed list of chrome ids (`header`,
+`left-rail`, `search-pill-row`, `nav-ctrl`, `reveal-panel`, `tl-controls`) in
+the map view, and Hebrew only. Explore was in neither the list nor the view, so
+untranslated strings shipped inside it under a green suite.
+`i18n:explore-is-translated` covers that surface separately — it runs while
+Explore is on screen, in Hebrew *and* Russian, and reads `aria-label` as well as
+text, which is where four of the leaks were. A card name is exempt there because
+species are English by policy and the scan cannot tell a species from an
+untranslated group; the group half stays covered by comparing every card's
+`data-arg` against `TAXON_NAMES`. If you add a third surface, it needs its own
+zone or its own check — nothing scans the page as a whole.
+
 ---
 
 ## Images & Attribution
@@ -399,7 +489,7 @@ photo is shown. `assets/placeholder.svg` is the fallback when nothing resolves.
 ## Known Constraints & Important Notes
 
 1. **Tests are browser smoke checks, not unit tests** — `node scripts/smoke.mjs`
-   opens the real page in Chromium and asserts 282 things about layout, i18n,
+   opens the real page in Chromium and asserts 333 things about layout, i18n,
    contrast and rendering. See *Smoke tests* below.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
 3. **index.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
@@ -502,8 +592,8 @@ never mistaken for a working page.
 
 ## Smoke Tests
 
-`scripts/smoke.mjs` opens the real page in Chromium and asserts **282 checks**
-— ~46 per scenario across six scenarios (desktop and phone viewports in
+`scripts/smoke.mjs` opens the real page in Chromium and asserts **333 checks**
+— ~55 per scenario across six scenarios (desktop and phone viewports in
 English, Hebrew and Russian, plus a desktop pass in the light theme), and four
 static checks that read the source before the browser starts. It runs on every
 push and pull request via `.github/workflows/smoke.yml`, and replaces the old
@@ -515,6 +605,7 @@ measures a page nobody ever sees.
 
 ```bash
 npm run smoke                                      # serve ./ and check it
+node scripts/smoke.mjs --only desktop-he           # one scenario — for a fast loop
 node scripts/smoke.mjs --url https://example.com   # check a deployed site
 node scripts/smoke.mjs --proxy http://host:port    # run from behind a proxy
 npm run smoke:update-baseline                      # re-record known failures
@@ -531,7 +622,8 @@ as a CI artifact on every run).
 | `tree:` | node and branch counts, **NaN coordinates**, fit-to-stage, spill, root visibility, horizontal scroll |
 | `chrome:` | header/timeline visible, reveal panel vs. zoom controls and timeline, closed panel off-screen, tooltip and fact toast vs. header, tooltip vs. the node it describes, nothing printed over the species name, **no floating control stretched across the window** |
 | `timeline:` | geological era labels clipped or colliding |
-| `i18n:` | document direction and lang, every bound control matches its translation, missing translation keys, Latin text leaking into Hebrew, search placeholder, English species prose laid out left-to-right |
+| `i18n:` | document direction and lang, every bound control matches its translation, missing translation keys, Latin text leaking into Hebrew, search placeholder, English species prose laid out left-to-right, **the drill-down's own copy and `aria-label`s in Hebrew and Russian** |
+| `explore:` | the drill-down renders and descends, back climbs one level, every screen names your step, no sideways scroll, and three that measure rather than read: **the path ribbon is visible and hit-tests to itself, nothing is painted over a card, every card draws a photo/silhouette/icon** |
 | `a11y:` | every text node meets AA contrast against its effective background |
 | `search:` | eight canonical queries return the answer a person would call correct; every common-name alias still matches something |
 | `interact:` | zoom buttons, reset re-fits, parent expands, leaf opens panel, search returns results, camera settles |
@@ -552,6 +644,15 @@ The run fails if:
 
 When adding a translated control, add a row to `I18N_BINDINGS` in
 `scripts/smoke.mjs` so it is covered.
+
+`--only <substring>` runs just the scenarios whose id matches, which turns a
+seven-minute matrix into a one-minute loop. It exists for the one thing every
+new check owes the suite: **prove it can fail.** Break the code the check is
+meant to catch, watch it go red, put the code back. A check written against
+already-fixed code and never seen to fail is a check that might be asserting
+nothing. CI always runs the whole matrix, and `--update-baseline` refuses to run
+alongside `--only` — a partial run would delete the known failures of every
+scenario it skipped.
 
 ---
 

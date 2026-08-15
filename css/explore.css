@@ -1,0 +1,246 @@
+/* ══════════════════════════════════════════════════════
+   explore.css — the drill-down view
+
+   Sized for a phone first and allowed to widen, because the failure this
+   replaces was a layout that only worked at desktop proportions. Everything
+   here is ordinary block flow: no absolute positioning, no camera, nothing
+   that can leave the screen.
+   ══════════════════════════════════════════════════════ */
+
+#explore {
+  position: fixed;
+  inset: 0;
+  top: var(--ex-top, 108px);   /* clear of the title and the floating buttons */
+  bottom: var(--ex-bottom, 0px);
+  z-index: 30;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 8px 14px 90px;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+body[data-view="map"] #explore { display: none; }
+body[data-view="explore"] #svg,
+body[data-view="explore"] #zoom-ctrl,
+body[data-view="explore"] .reveal-panel { display: none !important; }
+
+/* The timeline is the map's instrument: an axis for a camera this view does
+   not have, and a slider that moves nothing here. Leaving it up did more than
+   waste the strip — it sat on the path ribbon and swallowed it whole. Both are
+   pinned to `bottom: 0`, the timeline at --z-nav (200) and the ribbon at an
+   effective 30 from #explore's own stacking context, so the timeline won every
+   pixel. Hit-testing the centre of each path dot returned #tl-density: the
+   "where am I" ribbon was unclickable and invisible in every language, on both
+   viewports, while the check that covers it read the DOM and passed. */
+body[data-view="explore"] #timeline { display: none !important; }
+
+/* ── Back ── */
+.ex-head { margin-bottom: 10px; }
+.ex-back {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 44px;               /* a thumb target, not a mouse target */
+  padding: 0 14px 0 8px;
+  background: transparent; border: 0;
+  color: var(--accent); font-size: 15px; font-weight: 600;
+  font-family: inherit; cursor: pointer;
+}
+.ex-back span { font-size: 22px; line-height: 1; }
+.ex-back-root { color: var(--text-muted, var(--text-secondary)); font-weight: 500; }
+
+/* ── The thing you are looking at ── */
+.ex-hero {
+  display: flex; gap: 14px; align-items: flex-start;
+  padding: 14px; margin-bottom: 18px;
+  border: 1px solid var(--glass-border);
+  border-inline-start: 3px solid var(--cc, var(--accent));
+  border-radius: var(--radius-lg);
+  background: var(--surface, rgba(255,255,255,0.03));
+}
+.ex-hero-img {
+  width: 92px; height: 92px; flex: 0 0 auto;
+  object-fit: cover; border-radius: var(--radius-md);
+}
+.ex-hero-emoji { font-size: 54px; line-height: 1; flex: 0 0 auto; }
+.ex-hero-text { min-width: 0; }
+.ex-title { margin: 0; font-size: 22px; line-height: 1.15; font-weight: 700; }
+.ex-latin {
+  margin: 2px 0 0; font-style: italic; font-size: 13px;
+  color: var(--text-secondary);
+}
+.ex-desc {
+  margin: 8px 0 0; font-size: 14px; line-height: 1.45;
+  color: var(--parchment, var(--text-secondary));
+  /* Clamped: LUCA's description alone filled a phone screen and pushed every
+     card below the fold, which is the one thing this view exists to prevent.
+     The full text is in the detail panel. */
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4;
+  overflow: hidden;
+}
+
+/* ── What's inside ──
+   Two columns on a phone, more as the window allows. auto-fit rather than a
+   breakpoint ladder, so there is no width at which this is wrong.
+
+   auto-*fit*, not auto-fill: they differ only when there are fewer cards than
+   the row could hold, which is exactly the root screen — three domains of
+   life. auto-fill kept the seven empty tracks a 1160px row can fit, so the
+   three cards stayed 164px wide and huddled against the left edge of a canvas
+   eight times their width. auto-fit drops the empty tracks and lets the cards
+   share the row. */
+.ex-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 10px;
+}
+.ex-card {
+  position: relative;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  min-height: 132px; padding: 12px;
+  text-align: start;
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  background: var(--surface, rgba(255,255,255,0.03));
+  color: inherit; font-family: inherit; cursor: pointer;
+  transition: background 140ms var(--ease-standard), border-color 140ms var(--ease-standard);
+}
+.ex-card:hover, .ex-card:focus-visible {
+  background: rgba(255,255,255,0.06);
+  border-color: var(--cc, var(--accent));
+}
+.ex-card-media {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; height: 62px; margin-bottom: 6px;
+}
+.ex-card-img { width: 62px; height: 62px; object-fit: cover; border-radius: 50%;
+  border: 2px solid var(--cc, var(--accent)); }
+.ex-card-emoji { font-size: 38px; line-height: 1; }
+/* Masked, not filled: the file paints itself black and we want the taxon's
+   colour. Safe here because it is a plain block, not a foreignObject. */
+.ex-card-sil {
+  width: 56px; height: 56px; display: block;
+  background-color: var(--sc, var(--accent));
+  mask-repeat: no-repeat; -webkit-mask-repeat: no-repeat;
+  mask-position: center; -webkit-mask-position: center;
+  mask-size: contain; -webkit-mask-size: contain;
+}
+.ex-card-name { font-size: 14px; font-weight: 650; line-height: 1.2; }
+.ex-card-sub { font-size: 11.5px; color: var(--text-secondary); }
+.ex-card-chev {
+  position: absolute; inset-inline-end: 10px; top: 10px;
+  color: var(--text-muted, var(--text-secondary)); font-size: 18px; line-height: 1;
+}
+.ex-leaf { color: var(--text-secondary); font-size: 14px; }
+
+/* ── How far down am I ──
+   Dots, not text: it has to survive a nine-deep lineage on a narrow screen,
+   and the names are already in the header and the cards. */
+.ex-path {
+  position: fixed; inset-inline: 0; bottom: 0;
+  display: flex; justify-content: center; align-items: center; gap: 7px;
+  padding: 12px; z-index: 2;
+  background: linear-gradient(to top, var(--bg) 55%, transparent);
+}
+.ex-step {
+  width: 22px; height: 22px; padding: 0;
+  display: grid; place-items: center;
+  background: none; border: 0; cursor: pointer;
+}
+.ex-step span {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--text-secondary); opacity: 0.4;
+  transition: transform 140ms var(--ease-standard), opacity 140ms var(--ease-standard);
+}
+.ex-step:hover span { opacity: 0.8; }
+.ex-step.current span {
+  background: var(--accent); opacity: 1; transform: scale(1.7);
+}
+
+/* Desktop has room for the hero to breathe and for more columns. */
+@media (min-width: 780px) {
+  /* Longhands, not the `padding` shorthand: the rail clearance below is an
+     inline-start override, and a shorthand declared after it would silently
+     reset it back to the gutter. */
+  #explore { top: var(--ex-top, 64px); padding-block: 14px 90px; padding-inline: 28px; }
+  .ex-hero-img { width: 140px; height: 140px; }
+  .ex-title { font-size: 28px; }
+  .ex-desc { -webkit-line-clamp: 5; }
+  /* A card the size of a card, now that it has room. At 164px the media was
+     larger than the gap between two of them. */
+  .ex-grid { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 14px; align-content: start; }
+  /* Tied to the window's height, so the root screen — three domains, one row —
+     reaches down the canvas instead of leaving a third of it black, while a
+     screen with four rows still scrolls rather than squashing. Clamped so a
+     short laptop does not crush the card and a tall monitor does not stretch
+     one row into a billboard. */
+  .ex-card { min-height: clamp(188px, 26vh, 268px); padding: 16px; }
+  .ex-card-media { height: 92px; margin-bottom: 10px; }
+  .ex-card-img { width: 92px; height: 92px; }
+  .ex-card-sil { width: 84px; height: 84px; }
+  .ex-card-emoji { font-size: 54px; }
+  .ex-card-name { font-size: 16px; }
+  .ex-card-sub { font-size: 12.5px; }
+}
+
+/* ── Room for the rail ──
+   #left-rail is fixed at the inline start with --z-nav, well above #explore,
+   and it is 208px of opaque glass. It covered the first card of every screen
+   outright — at the root that is Bacteria, one of the three domains of life,
+   invisible on the view every visitor lands on — along with the title, the
+   Latin name and the first line of the description.
+
+   769px, not the 780px above: that is the width at which the rail stops being
+   a bottom sheet and starts floating over the stage, and clearance has to
+   begin in the same pixel. inset-inline so Hebrew, where the rail sits at the
+   right, is released by the same rule (constraint 8). */
+@media (min-width: 769px) {
+  #explore { padding-inline-start: calc(var(--chrome-pad) + var(--rail-w) + 12px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ex-card, .ex-step span { transition: none; }
+}
+
+/* ── "You are here" ──
+   The dots alone said how deep you were but not what you were standing on, and
+   the native `title` they carried is unreachable on a phone — a tooltip that
+   needs a mouse is no tooltip on the device this view was built for.
+
+   So the current step is labelled permanently, and the others name themselves
+   on hover or keyboard focus. Both are CSS on a data attribute, which keeps
+   this out of the CSP's way — an inline handler here would not run at all. */
+.ex-path { flex-wrap: wrap; gap: 7px 7px; }
+.ex-here {
+  flex-basis: 100%;
+  text-align: center;
+  margin-top: 2px;
+  font-size: 12px; font-weight: 600;
+  color: var(--accent);
+  letter-spacing: 0.01em;
+}
+
+.ex-step { position: relative; }
+.ex-step::after {
+  content: attr(data-name);
+  position: absolute; bottom: calc(100% + 6px); left: 50%;
+  transform: translateX(-50%) translateY(3px);
+  padding: 4px 9px; border-radius: var(--radius-sm);
+  background: var(--surface, #12161c);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  font-size: 12px; font-weight: 600; white-space: nowrap;
+  opacity: 0; pointer-events: none;
+  transition: opacity 120ms var(--ease-standard), transform 120ms var(--ease-standard);
+  z-index: 3;
+}
+.ex-step:hover::after,
+.ex-step:focus-visible::after {
+  opacity: 1; transform: translateX(-50%) translateY(0);
+}
+/* The current step already has its name printed below; a second copy floating
+   above it is noise. */
+.ex-step.current::after { content: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .ex-step::after { transition: none; }
+}

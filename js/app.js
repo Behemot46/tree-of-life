@@ -11,6 +11,7 @@ import { reducedMotion, canonicalHomininId, preprocess, sortChildrenByAge, homin
 
 // ── Delegated event dispatch (replaces inline onclick attributes) ──
 import { registerActions } from './actions.js';
+import { initExplore, openInExplore, initExploreDeps, renderExplore } from './explore.js';
 
 // ── Layout ──
 import { layout, getVisible } from './layout.js';
@@ -80,7 +81,7 @@ setHomininOverlayOpener(openHomininOverlay);
 initCompareDeps({ searchEntities, t, showMainPanel, scheduleRender, smoothPanTo, layout, applyT });
 initGameDeps({ t, navigateTo: (...args) => navigateTo(...args) });
 initPlaybackDeps({ layout, centerOnTree, scheduleRender, applyT, buildEraPresets, getEraName, updateEraTint, updateSpeciesCount, t });
-initThemeDeps({ buildEraPresets, buildExtinctionMarkers, buildEraSegments, updateSpeciesCount, buildDensitySparkline, scheduleRender });
+initThemeDeps({ buildEraPresets, buildExtinctionMarkers, buildEraSegments, updateSpeciesCount, buildDensitySparkline, scheduleRender, renderExplore });
 initEngagementDeps({ t, navigateTo: (...args) => navigateTo(...args), showMainPanel });
 initRandomButton({ getRandomSpecies: () => getRandomSpecies(nodeMap), showMainPanel });
 initWhoFirstDeps({ t, checkAchievement });
@@ -403,6 +404,18 @@ function navigateTo(id){
     }
   }
   const n=nodeMap[id];if(!n)return;
+
+  /* In the drill-down, a search result is a place to stand, not a place to fly
+     to. Panning a camera the reader cannot see does nothing for them; landing
+     on the group's own screen — with its cards, and the path from LUCA already
+     filled in behind it — is the same answer expressed in the shell they are
+     actually in. A species has no screen of its own, so it opens its panel,
+     which is what openInExplore already does for a leaf. */
+  if (document.body.getAttribute('data-view') === 'explore') {
+    openInExplore(n);
+    return;
+  }
+
   state.highlightedId=id;
   // Ensure path is not collapsed
   let c=n;while(c._parent){c._parent._collapsed=false;c=c._parent;}
@@ -493,6 +506,14 @@ function init(){
   // stage with the side rail still on the left and frames the tree ~170px too
   // far right.
   requestAnimationFrame(()=>{fitTreeToStage();applyT();});
+
+  /* The drill-down, and whichever shell was last chosen. Explore is the
+     default: the map is an expert view, and a first-time visitor needs a door
+     before they need a map. */
+  initExploreDeps({ showMainPanel });
+  initExplore();
+  setShellView((()=>{ try { return localStorage.getItem('tol-shell-view') || 'explore'; } catch(e){ return 'explore'; } })());
+
   // Snapshot the zoom level that frames the full base tree. Used as the floor
   // for frameSubtree() so expanding a huge subtree never zooms out past this.
   {
@@ -1089,7 +1110,22 @@ window.addEventListener('resize', () => {
 
 initTourDeps({ state, nodeMap, layout, scheduleRender, applyT, animateSliderTo, t });
 
+/* Which shell is on screen. Explore is the default: the map is an expert
+   view, and a first-time visitor needs a door before they need a map. Kept as
+   a body attribute so the CSS can hide one side wholesale, and remembered so
+   the choice survives a reload. */
+function setShellView(v){
+  const view = v === 'map' ? 'map' : 'explore';
+  document.body.setAttribute('data-view', view);
+  try { localStorage.setItem('tol-shell-view', view); } catch (e) {}
+  document.querySelectorAll('#view-toggle [data-view]').forEach((b) => {
+    b.classList.toggle('active', b.dataset.view === view);
+  });
+  if (view === 'map') { layout(); fitTreeToStage(); scheduleRender(true); applyT(); }
+}
+
 registerActions({
+  'shell:view': (_a,_b,{el}) => setShellView(el.dataset.view),
   // Core UI
   'lang:set':        (_a, _b, { el }) => setLang(el.dataset.lang),
   'theme:toggle':    () => toggleTheme(),
@@ -1101,8 +1137,15 @@ registerActions({
   'domain:reset':    () => resetDomains(),
 
   // View modes — the buttons already carry data-mode
-  'view:set':        (_a, _b, { el }) => setViewMode(el.dataset.mode),
-  'playback:enter':  () => enterPlaybackMode(),
+  /* Three of the rail's controls are instruments of the map, and the rail is on
+     screen in both shells. Used from Explore they drove a canvas the CSS had
+     hidden: playback animated 3.8 billion years of an invisible tree, and the
+     layout buttons appeared to do nothing at all. Latent before — #svg was
+     already hidden in this view — and it got worse once the timeline went with
+     it, because the Exit button went too and there was no way back out. They
+     bring the map with them now. */
+  'view:set':        (_a, _b, { el }) => { setShellView('map'); setViewMode(el.dataset.mode); },
+  'playback:enter':  () => { setShellView('map'); enterPlaybackMode(); },
 
   // Hominin deep dive
   'hominin:open':            () => openHomininView(),
@@ -1124,7 +1167,7 @@ registerActions({
 
   // Games, tours, profile
   'game:open':     () => openGame(),
-  'tour:selector': () => showTourSelector(),
+  'tour:selector': () => { setShellView('map'); showTourSelector(); },
   'profile:open':  () => openProfile(),
   'profile:close': () => closeProfile(),
 });

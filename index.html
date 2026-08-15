@@ -39,6 +39,7 @@
 <link rel="stylesheet" href="css/theme.css">
 <link rel="stylesheet" href="css/rtl.css">
 <link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/explore.css">
 <link rel="stylesheet" href="css/splash.css">
 <link rel="stylesheet" href="css/sapiens.css">
 <link rel="stylesheet" href="css/profile.css">
@@ -85,7 +86,9 @@
 <aside id="left-rail" aria-label="Main controls">
   <div class="rail-caption" data-i18n="rail.view">View</div>
   <div id="view-toggle" class="rail-group" role="toolbar" aria-label="View mode selector">
-    <button class="view-btn active" data-mode="radial" data-action="view:set">&#9673; Radial</button>
+    <button class="view-btn active" data-view="explore" data-action="shell:view" id="i-view-explore" data-i18n="view.explore">&#9776; Explore</button>
+    <button class="view-btn" data-view="map" data-action="shell:view" id="i-view-map" data-i18n="view.map">&#9673; Map</button>
+    <button class="view-btn" data-mode="radial" data-action="view:set">&#9673; Radial</button>
     <button class="view-btn" data-mode="chronological" data-action="view:set" style="display:none">&#8594; Timeline</button>
     <button class="view-btn" data-mode="cladogram" data-action="view:set">&#9500; Cladogram</button>
     <button class="view-btn" data-mode="playback" data-action="playback:enter" id="i-view-playback">&#9654; Playback</button>
@@ -153,6 +156,8 @@
 
 <!-- SVG CANVAS -->
 <div id="canvas-wrap" tabindex="-1">
+  <div id="explore" role="region" aria-label="Explore life by group"></div>
+
   <svg id="svg" xmlns="http://www.w3.org/2000/svg" role="tree" aria-label="Interactive Tree of Life showing evolutionary relationships among 130+ species. Use arrow keys to navigate, Enter to open details." aria-labelledby="svg-title" aria-describedby="svg-desc" tabindex="0">
     <title id="svg-title">Tree of Life — Interactive Phylogenetic Tree</title>
     <desc id="svg-desc">Interactive phylogenetic tree showing approximately 130 species across 3.8 billion years of evolution. Navigate between species using arrow keys. Press Enter to view species details. Press Home to return to the root.</desc>

@@ -147,6 +147,22 @@ body[data-view="explore"] .reveal-panel { display: none !important; }
   .ex-desc { -webkit-line-clamp: 5; }
 }
 
+/* The left rail is a fixed column from 769px up (below that it collapses to a
+   ☰ button and is display:none until opened). Explore is ordinary block flow
+   across the whole viewport, so without this the hero title, its description
+   and the whole first domain card render underneath the rail — on the default
+   view, at first paint. It never showed on a phone, which is where this view
+   was designed.
+
+   Logical property, and keyed to the rail's own breakpoint rather than the
+   780px one below: in Hebrew the rail pins to the right, and padding-inline-
+   start follows it there. Same expression the search box already uses to
+   clear the rail (chrome.css). Declared after the 780px block because that
+   block sets the `padding` shorthand, which would otherwise reset this. */
+@media (min-width: 769px) {
+  #explore { padding-inline-start: calc(var(--chrome-pad) + var(--rail-w) + 20px); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .ex-card, .ex-step span { transition: none; }
 }

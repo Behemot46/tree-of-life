@@ -24,6 +24,7 @@ import { ImageLoader } from './data.js';
 import { state } from './state.js';
 import { displayName } from './utils.js';
 import { registerActions } from './actions.js';
+import { t } from './theme.js';
 import { SILHOUETTES } from './silhouettes.js';
 
 let _current = TREE;
@@ -71,7 +72,10 @@ function cardImage(node) {
 
 function cardHTML(node) {
   const kids = childrenOf(node).length;
-  const sub = kids ? `${kids} inside` : (node.era || node.latin || '');
+  /* Translated, and the count kept beside a translated word. "10 inside" put a
+     Latin run in an RTL paragraph, which bidi reorders to "inside 10" — the
+     same reordering the detail panel already guards against. */
+  const sub = kids ? `${kids} ${t('ex_inside')}` : (node.era || node.latin || '');
   return `
     <button class="ex-card" data-action="explore:open" data-arg="${node.id}"
             style="--cc:${node.color}">
@@ -98,7 +102,7 @@ export function renderExplore() {
         ? `<button class="ex-back" data-action="explore:open" data-arg="${parent.id}">
              <span aria-hidden="true">‹</span> ${displayName(parent)}
            </button>`
-        : '<span class="ex-back ex-back-root">All life on Earth</span>'}
+        : `<span class="ex-back ex-back-root">${t('ex_all_life')}</span>`}
     </div>
 
     <div class="ex-hero" style="--cc:${n.color}">

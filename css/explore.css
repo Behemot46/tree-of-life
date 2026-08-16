@@ -31,7 +31,15 @@ body[data-view="map"] #explore { display: none; }
 
    elementFromPoint is what found it. explore:says-where-you-are reads the
    labels out of the DOM and passed the whole time — a control can be present,
-   correct, translated and completely invisible. */
+   correct, translated and completely invisible.
+
+   Hiding the strip is not free, and the cost is not in this file: it cannot
+   measure itself while display:none, so every rebuild it receives here — from
+   a language switch, a theme toggle, or start-up, which builds it after the
+   shell has already been chosen — is silently skipped, and it is revealed
+   still carrying the last thing it computed. setShellView() in js/app.js
+   rebuilds it on the way back into the map. Hide anything else that sizes
+   itself from its own box and it needs the same. */
 body[data-view="explore"] #svg,
 body[data-view="explore"] #zoom-ctrl,
 body[data-view="explore"] #timeline,

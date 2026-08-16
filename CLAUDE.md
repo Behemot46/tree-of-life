@@ -243,6 +243,15 @@ Things worth knowing before changing Explore:
   therefore checked from its own probe — usability, language and contrast. See
   *Explore's own checks* below for what runs there and why each one had to be
   written twice.
+- **The map's furniture is hidden here, and hiding it has a cost.** The era
+  slider filters the canvas and does nothing to a card grid, so `#timeline`
+  joins the zoom controls and the reveal panel in being hidden — it was also
+  painting over the path dots, which is what made this urgent. But a hidden
+  strip cannot measure itself (constraint 11), and a language switch, a theme
+  toggle or a plain first visit all rebuild it while it is hidden. That is why
+  `setShellView` rebuilds the era segments and the density curve on the way
+  back into the map. Hide any other self-measuring component here and it needs
+  the same treatment.
 
 ### The opening screen
 
@@ -507,7 +516,7 @@ photo is shown. `assets/placeholder.svg` is the fallback when nothing resolves.
 ## Known Constraints & Important Notes
 
 1. **Tests are browser smoke checks, not unit tests** — `node scripts/smoke.mjs`
-   opens the real page in Chromium and asserts 337 things about layout, i18n,
+   opens the real page in Chromium and asserts 349 things about layout, i18n,
    contrast and rendering. See *Smoke tests* below.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
 3. **index.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
@@ -540,7 +549,18 @@ photo is shown. `assets/placeholder.svg` is the fallback when nothing resolves.
     view for the rest of the session after a visitor typed a query and deleted
     it. Toggle the class and nothing else. Same family as constraint 8: an
     override applied at a stronger level cannot be released at a weaker one.
-11. **Being in the DOM is not being on screen.** Checks that read
+11. **A hidden element cannot measure itself, and will not notice it failed.**
+    Anything that sizes itself from a box — trimming labels to their column,
+    sizing a canvas to its rect — is written to bail when the box is zero,
+    which is correct and silent. So hiding a component means every rebuild it
+    receives while hidden is quietly skipped, and it is revealed still carrying
+    whatever it last computed. Hiding `#timeline` in Explore did this twice
+    over: era names came back sliced mid-word (`ARBONIFEROL`) and the density
+    curve came back drawn in the previous theme's ink, because `applyI18n()`
+    and `applyTheme()` rebuild both, and start-up builds them *after*
+    `setShellView()` has already hidden the strip. Rebuild on reveal —
+    `setShellView` does, on the way into the map.
+12. **Being in the DOM is not being on screen.** Checks that read
     `textContent`, `aria-label` or `getBoundingClientRect` cannot see that
     something else is painted on top. The drill-down's path dots sat under the
     timeline on both viewports from the day they were written while
@@ -626,8 +646,8 @@ never mistaken for a working page.
 
 ## Smoke Tests
 
-`scripts/smoke.mjs` opens the real page in Chromium and asserts **337 checks**
-— ~56 per scenario across six scenarios (desktop and phone viewports in
+`scripts/smoke.mjs` opens the real page in Chromium and asserts **349 checks**
+— ~58 per scenario across six scenarios (desktop and phone viewports in
 English, Hebrew and Russian, plus a desktop pass in the light theme), and four
 static checks that read the source before the browser starts. Scenarios differ
 in count because some checks are language- or viewport-specific. It runs on every
@@ -666,7 +686,7 @@ as a CI artifact on every run).
 | `load:` | uncaught errors, failed requests, SVG render errors, splash dismissal, nothing covering the stage |
 | `tree:` | node and branch counts, **NaN coordinates**, fit-to-stage, spill, root visibility, horizontal scroll |
 | `chrome:` | header/timeline visible, reveal panel vs. zoom controls and timeline, closed panel off-screen, tooltip and fact toast vs. header, tooltip vs. the node it describes, nothing printed over the species name, **no floating control stretched across the window** |
-| `timeline:` | geological era labels clipped or colliding |
+| `timeline:` | geological era labels clipped or colliding, **and both the labels and the density curve rebuilt on the way back from the drill-down**, where the strip is hidden and cannot measure itself |
 | `i18n:` | document direction and lang, every bound control matches its translation, missing translation keys, Latin text leaking into Hebrew, search placeholder, English species prose laid out left-to-right, and the same three rules again **inside the drill-down**, which the map-view sweep cannot reach |
 | `a11y:` | every text node meets AA contrast against its effective background, **in the drill-down as well as the map** |
 | `explore:` | the drill-down renders, descends and climbs back; every screen names where you are; nothing scrolls sideways; **nothing is painted over a card or a control**; the species panel is dismissed when the shell switches |

@@ -3,9 +3,16 @@
  * Ad-hoc visual probe. Not part of CI — a fast way to look at one thing
  * without paying for the whole smoke matrix.
  *
- *   node scripts/probe.mjs                       # desktop, English
+ *   node scripts/probe.mjs                       # desktop, English, the map
  *   node scripts/probe.mjs --lang he --phone
+ *   node scripts/probe.mjs --explore            # the drill-down instead
  *   node scripts/probe.mjs --shots a,b,c
+ *
+ * The shell is seeded explicitly. It used not to be, which left the probe
+ * shooting whatever the app defaults to — and since that default moved to
+ * Explore, "the map probe" was a name rather than a guarantee. --explore is
+ * the other half: the view a visitor actually lands on had no way to be looked
+ * at short of writing a throwaway, which is a poor reason not to look.
  */
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
@@ -19,6 +26,7 @@ const flag = (n) => argv.includes('--' + n);
 
 const lang = arg('lang', 'en');
 const phone = flag('phone');
+const explore = flag('explore');
 const OUT = '.probe-out';
 mkdirSync(OUT, { recursive: true });
 
@@ -84,8 +92,9 @@ page.on('pageerror', (e) => console.log('  pageerror:', e.message));
 await page.addInitScript((o) => {
   localStorage.setItem('tol-lang', o.lang);
   localStorage.setItem('tol-intro-seen', '1');
+  localStorage.setItem('tol-shell-view', o.view);
   if (o.theme) localStorage.setItem('theme', o.theme);
-}, { lang, theme: arg('theme', '') });
+}, { lang, theme: arg('theme', ''), view: explore ? 'explore' : 'map' });
 await page.goto('http://localhost:5555/', { waitUntil: 'domcontentloaded' });
 
 /* Clear both curtains. #splash is the canvas title card; .intro-overlay is a
@@ -102,6 +111,59 @@ async function clearCurtains() {
   });
 }
 await clearCurtains();
+
+/* ── The drill-down ────────────────────────────────────────────────────────
+   Its own walk, because nothing below applies to it: there are no discs to
+   click, no camera to settle and no panel reached by hitting a leaf on a
+   canvas. Descends two levels the way a thumb would, and reports what is
+   painted over the path ribbon — the defect that hid there for the whole life
+   of the view was invisible to every check that read the DOM, and is obvious
+   the moment you ask elementFromPoint what is actually on top. */
+if (explore) {
+  const extag = `${phone ? 'phone' : 'desk'}-${lang}-explore`;
+  await page.waitForFunction(() => document.querySelectorAll('.ex-card').length > 0, null, { timeout: 20000 });
+  await clearCurtains();
+  await sleep(1200);
+  await clearCurtains();
+  await page.screenshot({ path: `${OUT}/${extag}-01-root.png` });
+
+  const whatCovers = () => page.evaluate(() => {
+    const out = {};
+    for (const sel of ['.ex-here', '.ex-step.current', '.ex-back']) {
+      const el = document.querySelector(sel);
+      if (!el) { out[sel] = '(absent)'; continue; }
+      const b = el.getBoundingClientRect();
+      const top = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
+      out[sel] = !top ? '(off-screen)'
+        : (top === el || el.contains(top) || top.contains(el)) ? 'clear'
+        : `COVERED by ${top.tagName}${top.id ? '#' + top.id : ''}` +
+          (typeof top.className === 'string' && top.className ? '.' + top.className.split(' ')[0] : '');
+    }
+    return out;
+  });
+  console.log('  root screen:', JSON.stringify(await whatCovers()));
+
+  for (let level = 2; level <= 3; level++) {
+    const name = await page.evaluate(() => {
+      const c = document.querySelector('.ex-card');
+      if (!c) return null;
+      const label = (c.querySelector('.ex-card-name')?.textContent || 'card').trim();
+      c.click();
+      return label;
+    });
+    if (!name) { console.log('  (no card to descend into)'); break; }
+    await sleep(1100);
+    const slug = name.replace(/[^\w֐-׿-]+/g, '-').slice(0, 24) || 'card';
+    await page.screenshot({ path: `${OUT}/${extag}-0${level}-${slug}.png` });
+    console.log(`  level ${level} (${name}):`, JSON.stringify(await whatCovers()));
+  }
+
+  await browser.close();
+  server.kill();
+  console.log(`  wrote ${OUT}/${extag}-*.png`);
+  process.exit(0);
+}
+
 await page.waitForFunction(() => document.querySelectorAll('.node-group').length > 3, null, { timeout: 20000 });
 await clearCurtains();
 await sleep(1800);

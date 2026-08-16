@@ -300,6 +300,33 @@ check('timeline:era-labels-no-overlap', 'Geological era labels do not collide', 
   if (pairs.length) fail(`${pairs.length} colliding label pair(s): ${pairs.slice(0, 3).join(', ')}`);
 });
 
+/* The two checks above measure a strip that was visible when it was built,
+   because the runner seeds tol-shell-view=map and never sees it any other way.
+   In Explore the strip is display:none, and a hidden element cannot measure
+   itself: the labels come back untrimmed and the curve comes back in the
+   previous theme's ink. Both are reached by a language switch or a theme
+   toggle taken in the drill-down — and by a plain first visit, which lands
+   there by default. */
+check('timeline:era-labels-survive-the-drill-down', 'Era labels are re-fitted on the way back to the map', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked || !e.eraClippedAfterReturn) return;
+  if (e.eraClippedAfterReturn.length) {
+    fail(`${e.eraClippedAfterReturn.length} label(s) clipped after returning from the drill-down: ` +
+         e.eraClippedAfterReturn.slice(0, 4).join(', '));
+  }
+});
+
+check('timeline:density-curve-survives-the-drill-down', 'The density curve is redrawn on the way back to the map', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked) return;
+  /* No canvas, no claim — better than reporting green over a measurement that
+     never happened. */
+  if (!e.densityOnReturn || !e.densityRedrawn) { fail('the density curve could not be read'); return; }
+  if (e.densityOnReturn !== e.densityRedrawn) {
+    fail(`the curve came back stale (${e.densityOnReturn}, a correct redraw is ${e.densityRedrawn})`);
+  }
+});
+
 // ── i18n ──────────────────────────────────────────────────────────────────────
 check('i18n:document-direction', 'Document direction matches the language', (c) => {
   const want = c.scenario.lang === 'he' ? 'rtl' : 'ltr';
@@ -1402,9 +1429,59 @@ async function probePage(page, scenario) {
     let afterBack = null;
     if (back && back.tagName === 'BUTTON') { back.click(); await wait(450); afterBack = snap(); }
 
+    /* ── The era strip, on the way back out ────────────────────────────
+       The timeline is display:none in this view, and neither of its measured
+       parts can draw itself from a zero-sized box — the labels are left
+       untrimmed and the density canvas keeps whatever it last drew. Both are
+       rebuilt by applyI18n() and applyTheme(), so a language switch or a theme
+       toggle taken *here* leaves the map's strip wrong, and start-up does the
+       same because setShellView() hides the strip before init() builds it.
+
+       Toggled once, not twice. Twice would restore the theme here and be
+       tidier, and it would also destroy the thing being tested: a curve that
+       was not redrawn is only wrong if the theme moved under it, so a net-zero
+       toggle leaves a stale canvas indistinguishable from a correct one. It
+       passed against the real bug when written that way. The theme is put back
+       further down, after the measurements, so the scenario still ends on its
+       own palette. */
+    const themeBtn = document.getElementById('theme-btn');
+    if (themeBtn) { themeBtn.click(); await wait(300); }
+
     document.querySelector('#view-toggle [data-view="map"]')?.click();
     await wait(300);
+
+    /* Exactly what timeline:era-labels-not-clipped measures, at the one moment
+       that check cannot reach: the runner seeds tol-shell-view=map, so its
+       pass has only ever seen a strip that was visible when it was built. */
+    await wait(250);                            // hideOverflowingEraLabels waits a frame
+    const eraClippedAfterReturn = [...document.querySelectorAll('#era-segments .era-seg')]
+      .filter((e) => e.scrollWidth > e.clientWidth + 1 && e.clientWidth > 0)
+      .map((e) => (e.textContent || '').trim().slice(0, 24));
+
+    /* The curve has no "clipped" tell — a stale one is a normal-looking chart
+       drawn in the other theme's ink. So compare it against a redraw known to
+       be correct: toggle away and back here, in the map, where the canvas has
+       a box, which lands on the same theme having genuinely repainted twice.
+       Identical pixels mean the return path rebuilt it; different pixels mean
+       it came back carrying the drawing it made before the shell switch. */
+    const fingerprint = () => {
+      const c = document.getElementById('tl-density');
+      if (!c || !c.width || !c.height) return null;
+      const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+      let h = 0;
+      for (let i = 0; i < d.length; i += 4) {
+        if (d[i + 3] > 8) h = (h * 31 + d[i] * 7 + d[i + 1] * 13 + d[i + 2] * 17) >>> 0;
+      }
+      return h.toString(16);
+    };
+    const densityOnReturn = fingerprint();
+    if (themeBtn) { themeBtn.click(); await wait(250); themeBtn.click(); await wait(300); }
+    const densityRedrawn = fingerprint();
+    // Back to the palette this scenario is meant to be measured in.
+    if (themeBtn) { themeBtn.click(); await wait(300); }
+
     return { checked: true, steps, afterBack, i18n, herePrefix, contrast,
+             eraClippedAfterReturn, densityOnReturn, densityRedrawn,
              panelOpenBeforeSwitch: panelWasOpen, panelSurvivedSwitch };
   }, { lang: scenario.lang, panelWasOpen: panelOpenBeforeSwitch });
 

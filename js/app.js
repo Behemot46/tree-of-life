@@ -1140,7 +1140,24 @@ function setShellView(v){
   document.querySelectorAll('#view-toggle [data-view]').forEach((b) => {
     b.classList.toggle('active', b.dataset.view === view);
   });
-  if (view === 'map') { layout(); fitTreeToStage(); scheduleRender(true); applyT(); }
+  /* The timeline is display:none in Explore, and neither of its two measured
+     parts can draw itself from a zero-sized box: hideOverflowingEraLabels()
+     leaves the labels alone when seg.clientWidth is 0, and
+     buildDensitySparkline() returns before it clears the canvas when the rect
+     has no width. Both are correct — you cannot measure what is not laid out —
+     but both are rebuilt by things a reader does in Explore. applyI18n() and
+     applyTheme() call them on every language switch and theme toggle, and
+     start-up calls them after setShellView has already hidden the strip.
+
+     So the strip has to be rebuilt on the way back in, or the map is entered
+     with era names sliced mid-word ("EOPROTEROZPROTERC", "ARBONIFEROL") and a
+     density curve still drawn in the previous theme's ink. Measured, both:
+     four clipped labels on a first visit, and a curve whose pixels differ from
+     the same toggle performed in the map. */
+  if (view === 'map') {
+    layout(); fitTreeToStage(); scheduleRender(true); applyT();
+    buildEraSegments(); buildDensitySparkline();
+  }
 }
 
 registerActions({

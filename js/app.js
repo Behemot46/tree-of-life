@@ -731,7 +731,14 @@ searchInput.addEventListener('input',()=>{
         <div style="font-size:var(--text-sm);color:var(--text-muted);">${t('search_hint')}</div>
       </div>
     `;
-    searchResults.style.display='block';
+    /* `.show` is the only thing that may open this. An inline display:block
+       here outranked both #search-results{display:none} and the .show rule, so
+       once the empty-query hint had appeared the blur handler — which only
+       removes the class — could no longer close the dropdown. It stayed on
+       screen over whatever view was beneath it, for the rest of the session.
+       Reachable by typing a query and deleting it, which is what anyone who
+       mistypes does. Same shape as the pinned-offset rule in CLAUDE.md: an
+       override applied physically cannot be released logically. */
     searchResults.classList.add('show');
     searchInput.setAttribute('aria-expanded','true');
     return;
@@ -1116,12 +1123,41 @@ initTourDeps({ state, nodeMap, layout, scheduleRender, applyT, animateSliderTo, 
    the choice survives a reload. */
 function setShellView(v){
   const view = v === 'map' ? 'map' : 'explore';
+  /* The detail panel belongs to whichever shell opened it. It is fixed, high
+     in the stack and 475px wide on a 1440px window, so switching to Explore
+     from a map with a species open landed the reader on a drill-down with a
+     third of its cards underneath the panel. Close it on the way across: they
+     asked for a different view, not for that species on a new ground.
+
+     Guarded, and not merely tidiness — closePanel() rewrites the URL with
+     history.replaceState and announces "Panel closed" to screen readers. This
+     function also runs once at start-up to restore the remembered shell, and
+     an unguarded call there would wipe the path off a shared deep link and
+     open the site by announcing the closing of a panel nobody opened. */
+  if (document.getElementById('panel')?.classList.contains('open')) closePanel();
   document.body.setAttribute('data-view', view);
   try { localStorage.setItem('tol-shell-view', view); } catch (e) {}
   document.querySelectorAll('#view-toggle [data-view]').forEach((b) => {
     b.classList.toggle('active', b.dataset.view === view);
   });
-  if (view === 'map') { layout(); fitTreeToStage(); scheduleRender(true); applyT(); }
+  /* The timeline is display:none in Explore, and neither of its two measured
+     parts can draw itself from a zero-sized box: hideOverflowingEraLabels()
+     leaves the labels alone when seg.clientWidth is 0, and
+     buildDensitySparkline() returns before it clears the canvas when the rect
+     has no width. Both are correct — you cannot measure what is not laid out —
+     but both are rebuilt by things a reader does in Explore. applyI18n() and
+     applyTheme() call them on every language switch and theme toggle, and
+     start-up calls them after setShellView has already hidden the strip.
+
+     So the strip has to be rebuilt on the way back in, or the map is entered
+     with era names sliced mid-word ("EOPROTEROZPROTERC", "ARBONIFEROL") and a
+     density curve still drawn in the previous theme's ink. Measured, both:
+     four clipped labels on a first visit, and a curve whose pixels differ from
+     the same toggle performed in the map. */
+  if (view === 'map') {
+    layout(); fitTreeToStage(); scheduleRender(true); applyT();
+    buildEraSegments(); buildDensitySparkline();
+  }
 }
 
 registerActions({

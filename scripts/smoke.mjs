@@ -300,6 +300,33 @@ check('timeline:era-labels-no-overlap', 'Geological era labels do not collide', 
   if (pairs.length) fail(`${pairs.length} colliding label pair(s): ${pairs.slice(0, 3).join(', ')}`);
 });
 
+/* The two checks above measure a strip that was visible when it was built,
+   because the runner seeds tol-shell-view=map and never sees it any other way.
+   In Explore the strip is display:none, and a hidden element cannot measure
+   itself: the labels come back untrimmed and the curve comes back in the
+   previous theme's ink. Both are reached by a language switch or a theme
+   toggle taken in the drill-down — and by a plain first visit, which lands
+   there by default. */
+check('timeline:era-labels-survive-the-drill-down', 'Era labels are re-fitted on the way back to the map', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked || !e.eraClippedAfterReturn) return;
+  if (e.eraClippedAfterReturn.length) {
+    fail(`${e.eraClippedAfterReturn.length} label(s) clipped after returning from the drill-down: ` +
+         e.eraClippedAfterReturn.slice(0, 4).join(', '));
+  }
+});
+
+check('timeline:density-curve-survives-the-drill-down', 'The density curve is redrawn on the way back to the map', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked) return;
+  /* No canvas, no claim — better than reporting green over a measurement that
+     never happened. */
+  if (!e.densityOnReturn || !e.densityRedrawn) { fail('the density curve could not be read'); return; }
+  if (e.densityOnReturn !== e.densityRedrawn) {
+    fail(`the curve came back stale (${e.densityOnReturn}, a correct redraw is ${e.densityRedrawn})`);
+  }
+});
+
 // ── i18n ──────────────────────────────────────────────────────────────────────
 check('i18n:document-direction', 'Document direction matches the language', (c) => {
   const want = c.scenario.lang === 'he' ? 'rtl' : 'ltr';
@@ -393,6 +420,24 @@ check('a11y:text-contrast', 'Text meets AA contrast against its background', (c)
   if (hits.length) fail(`${hits.length} element(s) below AA in the ${theme} theme: ${hits.slice(0, 4).join(', ')}`);
 });
 
+/* The same measurement, over the view a visitor actually lands on. The check
+   above cannot reach it: the runner seeds tol-shell-view=map so the tree
+   geometry is measured against the tree, which left the default view's colours
+   unchecked — and they were not fine. In the light theme the accent gold sat at
+   4.40 against 4.5 on the back button and the path label, which is the kind of
+   miss that passes a glance and fails a measurement. */
+check('a11y:explore-text-contrast', 'Drill-down text meets AA contrast against its background', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked || !e.contrast) return;
+  const { theme, hits, available } = e.contrast;
+  /* Without this the check reports green by measuring nothing at all, which is
+     the one failure mode a contrast check must not have. */
+  if (!available) { fail('the contrast sweep was never installed on the page'); return; }
+  if (hits.length) {
+    fail(`${hits.length} element(s) below AA in the drill-down in the ${theme} theme: ${hits.slice(0, 4).join(', ')}`);
+  }
+});
+
 check('chrome:panel-hero-readable', 'Nothing is printed over the species name', (c) => {
   const h = c.probe.heroOverlaps;
   if (!h || !h.checked) return;
@@ -442,6 +487,34 @@ check('explore:says-where-you-are', 'Every screen names the step you are on', (c
     if (!s.current.startsWith(e.herePrefix)) fail(`the current dot on "${s.title}" is not announced as your position (want "${e.herePrefix}…", got "${s.current}")`);
     if (!s.named) fail(`a path dot on "${s.title}" carries no name`);
   }
+});
+
+/* The check above reads its labels out of the DOM, so it passed for as long as
+   the path ribbon existed — while the timeline, fixed to the bottom of the
+   window and painted above it, covered the dots and the "you are here" label
+   at every point on both viewports. Present, correct, translated, invisible.
+   Ask what is actually on top instead. */
+check('explore:controls-are-not-covered', 'The path and the back button are not painted over', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked) return;
+  for (const s of e.steps) {
+    for (const o of s.onTop || []) {
+      if (o.missing || o.offscreen) continue;  // no back button on the root screen; cards scroll
+      if (o.covered) fail(`on "${s.title}", ${o.sel} is covered by ${o.by}`);
+    }
+  }
+});
+
+/* The detail panel belongs to the shell that opened it. Left up across a view
+   switch it covered a third of the drill-down, and no geometric check caught
+   it: it clears the back button and the path entirely, and lands only on the
+   far cards. Assert the dismissal itself rather than hoping something overlaps
+   it. */
+check('explore:view-switch-closes-the-panel', 'Switching to the drill-down dismisses the species panel', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked) return;
+  if (!e.panelOpenBeforeSwitch) return;        // nothing was open, nothing to dismiss
+  if (e.panelSurvivedSwitch) fail('the species panel stayed open over the drill-down after switching views');
 });
 
 check('explore:no-horizontal-scroll', 'The drill-down never scrolls sideways', (c) => {
@@ -503,6 +576,61 @@ check('interact:camera-settles', 'Camera animations come to rest', (c) => {
 check('interact:search-returns-results', 'Search returns results', (c) => {
   if (c.probe.searchResults < 1) fail('search for "human" returned no results');
 });
+
+/* The contrast arithmetic, installed on the page rather than written inline,
+   because it has to run twice: once over the map and once inside the
+   drill-down, which is a different shell reached much later in the probe.
+
+   One copy, deliberately. Two sweeps with two sets of thresholds drift — the
+   second gets a rounder number or forgets that 18.66px at weight 700 counts as
+   large text — and then the two views are held to quietly different standards.
+
+   Colour is where a dark-first design fails silently: the reveal panel painted
+   itself near-black while its text followed the theme, so in light mode
+   "Collapse All" sat at a ratio of 1.15 — present in the DOM, invisible on
+   screen. Measured against the effective background (walking up through
+   transparent ancestors), to the WCAG AA thresholds. Text that is only emoji is
+   skipped: it carries its own colours. */
+function installContrastSweep() {
+  const parse = (c) => { const m = /rgba?\(([^)]+)\)/.exec(c); if (!m) return null;
+    const [r, g, b, a] = m[1].split(',').map(Number); return { r, g, b, a: a === undefined ? 1 : a }; };
+  const lum = (c) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+    return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b); };
+  const over = (fg, bg) => ({ r: fg.r * fg.a + bg.r * (1 - fg.a), g: fg.g * fg.a + bg.g * (1 - fg.a),
+    b: fg.b * fg.a + bg.b * (1 - fg.a), a: 1 });
+  const ratio = (a, b) => { const l1 = lum(a), l2 = lum(b); return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05); };
+  const effBg = (el) => {
+    let cur = el, acc = null;
+    while (cur) {
+      const c = parse(getComputedStyle(cur).backgroundColor);
+      if (c && c.a > 0.02) { acc = acc ? over(acc, c) : c; if (c.a >= 0.99) return over(acc, { r: 255, g: 255, b: 255, a: 1 }); }
+      cur = cur.parentElement;
+    }
+    return { r: 20, g: 20, b: 20, a: 1 };
+  };
+  const EMOJI_ONLY = /^[\p{Extended_Pictographic}\p{Emoji_Component}\s\u200d\ufe0f]+$/u;
+
+  window.__contrastSweep = (root) => {
+    const out = [];
+    for (const el of (root || document.body).querySelectorAll('*')) {
+      const txt = [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent.trim()).join('').trim();
+      if (txt.length < 2 || EMOJI_ONLY.test(txt)) continue;
+      const st = getComputedStyle(el);
+      if (st.display === 'none' || st.visibility === 'hidden' || parseFloat(st.opacity) < 0.15) continue;
+      const r = el.getBoundingClientRect();
+      // Off-screen and clipped affordances — skip links park above the
+      // viewport until focused, and 1px boxes are for screen readers.
+      if (r.width < 10 || r.height < 8) continue;
+      if (r.bottom <= 0 || r.top >= innerHeight || r.right <= 0 || r.left >= innerWidth) continue;
+      const fg = parse(st.color); if (!fg) continue;
+      const bg = effBg(el);
+      const cr = ratio(over(fg, bg), bg);
+      const big = parseFloat(st.fontSize) >= 24 || (parseFloat(st.fontSize) >= 18.66 && parseInt(st.fontWeight, 10) >= 700);
+      if (cr < (big ? 3 : 4.5)) out.push(`${txt.slice(0, 18)} (${cr.toFixed(2)})`);
+    }
+    return out;
+  };
+}
 
 // ── Probe: everything we can learn from one page, in a few passes ─────────────
 async function probePage(page, scenario) {
@@ -914,52 +1042,13 @@ async function probePage(page, scenario) {
     return { wrong, dead };
   });
 
-  /* Contrast, in both themes. Colour is where a dark-first design quietly
-     fails: the reveal panel painted itself near-black while its text followed
-     the theme, so in light mode "Collapse All" sat at a ratio of 1.15 — present
-     in the DOM, invisible on screen. Measured against the effective background
-     (walking up through transparent ancestors), to the WCAG AA thresholds.
-     Text that is only emoji is skipped: it carries its own colours. */
-  const contrast = await page.evaluate(() => {
-    const parse = (c) => { const m = /rgba?\(([^)]+)\)/.exec(c); if (!m) return null;
-      const [r, g, b, a] = m[1].split(',').map(Number); return { r, g, b, a: a === undefined ? 1 : a }; };
-    const lum = (c) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
-      return 0.2126 * f(c.r) + 0.7152 * f(c.g) + 0.0722 * f(c.b); };
-    const over = (fg, bg) => ({ r: fg.r * fg.a + bg.r * (1 - fg.a), g: fg.g * fg.a + bg.g * (1 - fg.a),
-      b: fg.b * fg.a + bg.b * (1 - fg.a), a: 1 });
-    const ratio = (a, b) => { const l1 = lum(a), l2 = lum(b); return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05); };
-    const effBg = (el) => {
-      let cur = el, acc = null;
-      while (cur) {
-        const c = parse(getComputedStyle(cur).backgroundColor);
-        if (c && c.a > 0.02) { acc = acc ? over(acc, c) : c; if (c.a >= 0.99) return over(acc, { r: 255, g: 255, b: 255, a: 1 }); }
-        cur = cur.parentElement;
-      }
-      return { r: 20, g: 20, b: 20, a: 1 };
-    };
-    const EMOJI_ONLY = /^[\p{Extended_Pictographic}\p{Emoji_Component}\s\u200d\ufe0f]+$/u;
-    const sweep = () => {
-      const out = [];
-      for (const el of document.querySelectorAll('body *')) {
-        const txt = [...el.childNodes].filter((n) => n.nodeType === 3).map((n) => n.textContent.trim()).join('').trim();
-        if (txt.length < 2 || EMOJI_ONLY.test(txt)) continue;
-        const st = getComputedStyle(el);
-        if (st.display === 'none' || st.visibility === 'hidden' || parseFloat(st.opacity) < 0.15) continue;
-        const r = el.getBoundingClientRect();
-        // Off-screen and clipped affordances — skip links park above the
-        // viewport until focused, and 1px boxes are for screen readers.
-        if (r.width < 10 || r.height < 8) continue;
-        if (r.bottom <= 0 || r.top >= innerHeight || r.right <= 0 || r.left >= innerWidth) continue;
-        const fg = parse(st.color); if (!fg) continue;
-        const bg = effBg(el);
-        const cr = ratio(over(fg, bg), bg);
-        const big = parseFloat(st.fontSize) >= 24 || (parseFloat(st.fontSize) >= 18.66 && parseInt(st.fontWeight, 10) >= 700);
-        if (cr < (big ? 3 : 4.5)) out.push(`${txt.slice(0, 18)} (${cr.toFixed(2)})`);
-      }
-      return out;
-    };
-    return { theme: document.documentElement.getAttribute('data-theme') || 'dark', hits: sweep() };
-  });
+  /* Contrast over the map, in both themes. See installContrastSweep() above for
+     the arithmetic, and for why it lives on the page rather than inline here. */
+  await page.evaluate(installContrastSweep);
+  const contrast = await page.evaluate(() => ({
+    theme: document.documentElement.getAttribute('data-theme') || 'dark',
+    hits: window.__contrastSweep(document.body),
+  }));
 
   /* Species prose is English by policy, so it has to be laid out as English.
      In an RTL paragraph the trailing punctuation of a Latin sentence is
@@ -1139,12 +1228,44 @@ async function probePage(page, scenario) {
      Descends two levels by clicking real cards, then climbs back with the
      back button, asserting at each step that the screen changed the way a
      reader would expect it to. */
-  const explore = await page.evaluate(async (lang) => {
+  /* A species panel open in the map is fixed, high in the stack and 475px wide
+     on a 1440px desktop — a third of the window, straight over the drill-down
+     and over its cards. Switching shells has to dismiss it, so open one first
+     and let the walk below find out whether it survived the crossing. This is
+     the flow a reader takes: look something up, then ask for the other view.
+
+     Opened through panel.js rather than by clicking a disc. By this point the
+     probe has dragged, zoomed and expanded the canvas, and no leaf is reliably
+     hit-testable any more — clickNode returns null and the panel never opens,
+     which would leave this assertion permanently vacuous rather than failing
+     honestly. ES modules are cached, so this is the same live instance app.js
+     wired at start-up. state.nodeMap does not exist, hence walking TREE. */
+  const panelOpenBeforeSwitch = await page.evaluate(async () => {
+    const P = await import(new URL('js/panel.js', location.href).href).catch(() => null);
+    const D = await import(new URL('js/data.js', location.href).href).catch(() => null);
+    if (!P || !P.showMainPanel || !D || !D.TREE) return false;
+    const leaf = (function down(n) { return n.children && n.children.length ? down(n.children[0]) : n; })(D.TREE);
+    P.showMainPanel(leaf);
+    await new Promise((r) => setTimeout(r, 900));
+    return !!document.querySelector('#panel.open');
+  });
+
+  const explore = await page.evaluate(async ({ lang, panelWasOpen }) => {
     const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    /* Leave the search box the way a visitor leaves it. The interaction pass
+       above types a query and never blurs the field, and the results dropdown
+       hides on blur — so it was still open, floating over the drill-down, and
+       the occlusion check below reported it as an Explore defect. A real click
+       on the rail moves focus and dismisses it; a programmatic .click() does
+       not, which is the difference between the probe and a person. */
+    document.getElementById('search-input')?.blur();
+    await wait(350);                            // the blur handler waits 200ms
+
     const btn = document.querySelector('#view-toggle [data-view="explore"]');
     if (!btn) return { checked: false, reason: 'no explore toggle' };
     btn.click();
     await wait(400);
+    const panelSurvivedSwitch = panelWasOpen && !!document.querySelector('#panel.open');
 
     const root = document.getElementById('explore');
     if (!root) return { checked: false, reason: 'no #explore' };
@@ -1184,6 +1305,30 @@ async function probePage(page, scenario) {
     const ALLOW = /^(luca|dna|rna|ma|ga|mya|3d|2d|\d+(\.\d+)?x?|[0-9\s.,:/×–—-]+)$/i;
     const latin = (s) => /[A-Za-z]{2,}/.test(s) && !/[֐-׿]/.test(s);
 
+    /* ── Contrast over the drill-down ──────────────────────────────────
+       Exactly the gap the i18n sweep had, for exactly the same reason. The
+       runner seeds tol-shell-view=map because the tree geometry has to be
+       measured against the tree, so the a11y sweep above ran over a shell the
+       visitor never sees first, and the view they actually land on had never
+       had its colours checked at all.
+
+       Scoped to #explore rather than the whole body: the shared chrome above
+       it — header, rail, search — is already swept in the map pass, and
+       measuring it twice only reports the same failure twice. Runs on every
+       screen, because the hero prose and the card subtitles do not exist until
+       there is a real taxon to describe. */
+    const contrast = { hits: [], available: typeof window.__contrastSweep === 'function',
+                       theme: document.documentElement.getAttribute('data-theme') || 'dark' };
+    const seenHit = new Set();
+    const contrastSweep = () => {
+      if (!contrast.available) return;
+      for (const hit of window.__contrastSweep(root)) {
+        if (seenHit.has(hit)) continue;      // the back button repeats down the descent
+        seenHit.add(hit);
+        contrast.hits.push(hit);
+      }
+    };
+
     const i18n = { checked: lang !== 'en', leaks: [], rtlProse: [], untranslated: [] };
     const sweep = () => {
       if (lang === 'en') return;
@@ -1212,8 +1357,52 @@ async function probePage(page, scenario) {
       }
     };
     sweep();
+    contrastSweep();
+
+    /* Is the element the thing a finger would actually hit at its own centre?
+       Every other assertion in this probe reads the DOM, and the DOM cannot
+       tell you that another view's fixed footer is painted on top — which is
+       exactly what was happening to the path ribbon. Accept the element
+       itself, a descendant of it, or an ancestor (the label's centre can
+       resolve to the nav that holds it). */
+    const onTop = (sel, node) => {
+      const el = node || document.querySelector(sel);
+      if (!el) return { sel, missing: true };
+      const b = el.getBoundingClientRect();
+      if (b.width < 1 || b.height < 1) return { sel, covered: true, by: '(no box)' };
+      const x = b.left + b.width / 2, y = b.top + b.height / 2;
+      /* Below the fold is scrolling, not covering. The grid is a scrollable
+         list and its last card is legitimately off-screen on a phone; only
+         what is actually on screen can be painted over. */
+      if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) return { sel, offscreen: true };
+      const top = document.elementFromPoint(x, y);
+      if (!top) return { sel, offscreen: true };
+      if (top === el || el.contains(top) || top.contains(el)) return { sel, covered: false };
+      const id = top.tagName + (top.id ? '#' + top.id : '') +
+        (typeof top.className === 'string' && top.className ? '.' + top.className.split(' ')[0] : '');
+      const tr = top.getBoundingClientRect();
+      const ts = getComputedStyle(top);
+      // Enough to name the culprit without a second run: an anonymous <div>
+      // says nothing, its z-index, size and opacity say which one it is.
+      const chain = [];
+      for (let p = top.parentElement, i = 0; p && i < 4; p = p.parentElement, i++) {
+        chain.push(p.tagName + (p.id ? '#' + p.id : '') +
+          (typeof p.className === 'string' && p.className ? '.' + p.className.split(' ')[0] : ''));
+      }
+      return { sel, covered: true,
+        by: `${id} [${Math.round(tr.width)}×${Math.round(tr.height)} z:${ts.zIndex} op:${ts.opacity} pos:${ts.position}] in ${chain.join(' < ')} txt="${(top.textContent||'').trim().slice(0,30)}"` };
+    };
 
     const snap = () => ({
+      /* Every card, not just the chrome. An overlay pinned to one edge — the
+         detail panel takes 475px of a 1440px window — covers the far side of
+         the grid while leaving the back button at the near edge perfectly
+         clear, so checking only the fixed controls would miss it entirely. */
+      onTop: [
+        ...['.ex-step.current', '.ex-here', '.ex-back'].map((s) => onTop(s)),
+        ...[...document.querySelectorAll('.ex-card')]
+          .map((c, i) => onTop(`.ex-card[${i}] "${(c.querySelector('.ex-card-name')?.textContent || '').trim().slice(0, 20)}"`, c)),
+      ],
       title: document.querySelector('.ex-title')?.textContent.trim() || '',
       cards: document.querySelectorAll('.ex-card').length,
       dots: document.querySelectorAll('.ex-step').length,
@@ -1234,15 +1423,67 @@ async function probePage(page, scenario) {
       // Every screen, not just the first: the hero prose and the card
       // subtitles only appear once there is a real taxon to describe.
       sweep();
+      contrastSweep();
     }
     const back = document.querySelector('.ex-back');
     let afterBack = null;
     if (back && back.tagName === 'BUTTON') { back.click(); await wait(450); afterBack = snap(); }
 
+    /* ── The era strip, on the way back out ────────────────────────────
+       The timeline is display:none in this view, and neither of its measured
+       parts can draw itself from a zero-sized box — the labels are left
+       untrimmed and the density canvas keeps whatever it last drew. Both are
+       rebuilt by applyI18n() and applyTheme(), so a language switch or a theme
+       toggle taken *here* leaves the map's strip wrong, and start-up does the
+       same because setShellView() hides the strip before init() builds it.
+
+       Toggled once, not twice. Twice would restore the theme here and be
+       tidier, and it would also destroy the thing being tested: a curve that
+       was not redrawn is only wrong if the theme moved under it, so a net-zero
+       toggle leaves a stale canvas indistinguishable from a correct one. It
+       passed against the real bug when written that way. The theme is put back
+       further down, after the measurements, so the scenario still ends on its
+       own palette. */
+    const themeBtn = document.getElementById('theme-btn');
+    if (themeBtn) { themeBtn.click(); await wait(300); }
+
     document.querySelector('#view-toggle [data-view="map"]')?.click();
     await wait(300);
-    return { checked: true, steps, afterBack, i18n, herePrefix };
-  }, scenario.lang);
+
+    /* Exactly what timeline:era-labels-not-clipped measures, at the one moment
+       that check cannot reach: the runner seeds tol-shell-view=map, so its
+       pass has only ever seen a strip that was visible when it was built. */
+    await wait(250);                            // hideOverflowingEraLabels waits a frame
+    const eraClippedAfterReturn = [...document.querySelectorAll('#era-segments .era-seg')]
+      .filter((e) => e.scrollWidth > e.clientWidth + 1 && e.clientWidth > 0)
+      .map((e) => (e.textContent || '').trim().slice(0, 24));
+
+    /* The curve has no "clipped" tell — a stale one is a normal-looking chart
+       drawn in the other theme's ink. So compare it against a redraw known to
+       be correct: toggle away and back here, in the map, where the canvas has
+       a box, which lands on the same theme having genuinely repainted twice.
+       Identical pixels mean the return path rebuilt it; different pixels mean
+       it came back carrying the drawing it made before the shell switch. */
+    const fingerprint = () => {
+      const c = document.getElementById('tl-density');
+      if (!c || !c.width || !c.height) return null;
+      const d = c.getContext('2d').getImageData(0, 0, c.width, c.height).data;
+      let h = 0;
+      for (let i = 0; i < d.length; i += 4) {
+        if (d[i + 3] > 8) h = (h * 31 + d[i] * 7 + d[i + 1] * 13 + d[i + 2] * 17) >>> 0;
+      }
+      return h.toString(16);
+    };
+    const densityOnReturn = fingerprint();
+    if (themeBtn) { themeBtn.click(); await wait(250); themeBtn.click(); await wait(300); }
+    const densityRedrawn = fingerprint();
+    // Back to the palette this scenario is meant to be measured in.
+    if (themeBtn) { themeBtn.click(); await wait(300); }
+
+    return { checked: true, steps, afterBack, i18n, herePrefix, contrast,
+             eraClippedAfterReturn, densityOnReturn, densityRedrawn,
+             panelOpenBeforeSwitch: panelWasOpen, panelSurvivedSwitch };
+  }, { lang: scenario.lang, panelWasOpen: panelOpenBeforeSwitch });
 
   // Read CSP violations last: inline event handlers are only evaluated when
   // they fire, so blocking them shows up during the interactions above rather

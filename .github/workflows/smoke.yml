@@ -40,5 +40,12 @@ jobs:
         with:
           name: smoke-screenshots
           path: .smoke-out/
+          # .smoke-out is a dotfile, and upload-artifact skips hidden paths
+          # unless told otherwise — so this step had been uploading nothing
+          # since it was written, logging "No files were found" under a green
+          # run while CLAUDE.md promised the screenshots on every run. The
+          # suite is meant to be looked at, not only counted; if-no-files-found
+          # stays on `warn` so a genuinely empty run still does not fail CI.
+          include-hidden-files: true
           if-no-files-found: warn
           retention-days: 14

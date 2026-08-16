@@ -29,10 +29,17 @@
   --text-muted:#645A4A;
   --text-dim:rgba(44,36,24,0.50);
   --text-faint:rgba(44,36,24,0.30);
-  --accent:#9a6a2a;
+  /* Darkened from #9a6a2a for the same reason --text-secondary was. The gold is
+     a text colour as often as it is a border — the drill-down's back button and
+     its path label are both drawn in it — and against the light surfaces it sat
+     at 4.40 and 4.14 against text's 4.5. Below AA on the two controls that say
+     where you are and how to leave, on the view a visitor lands on. It reads as
+     the same gold; it is now measurably legible. Every other use is a fill
+     under white text, which a darker gold only improves. */
+  --accent:#8a5e23;
   --accent-light:#7a5220;
-  --accent-dim:rgba(154,106,42,0.08);
-  --accent-rgb:154,106,42;
+  --accent-dim:rgba(138,94,35,0.08);
+  --accent-rgb:138,94,35;
   --terra:#a03020;
   --sage:#2a7a3a;
   --accent-primary:#8A5D24;

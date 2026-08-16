@@ -237,10 +237,12 @@ Things worth knowing before changing Explore:
 - **A leaf opens the detail panel** rather than descending into an empty
   screen. `showMainPanel` is injected via `initExploreDeps()` to keep this
   module clear of `panel.js`.
-- **It has no automated coverage yet.** All 288 smoke checks measure the
-  canvas, and the suite seeds `tol-shell-view = 'map'` so they keep doing so.
-  Explore is the default view and nothing tests it — that is the first gap to
-  close.
+- **Its coverage is separate from the map's, and has to be.** The suite seeds
+  `tol-shell-view = 'map'` so the tree geometry is measured against the tree,
+  which means no sweep written for the canvas can see this view. Explore is
+  therefore checked from its own probe — usability, language and contrast. See
+  *Explore's own checks* below for what runs there and why each one had to be
+  written twice.
 
 ### The opening screen
 
@@ -393,22 +395,43 @@ its English name in Hebrew or Russian. Elements that legitimately show English
 data — the species-of-the-day badge — carry `data-i18n-exempt` so the leak
 check skips them rather than being weakened.
 
-### Explore has its own i18n checks, and why
+### Explore's own checks, and why they are duplicates
 
-The map-view sweep cannot see the drill-down. The smoke runner seeds
+The map-view sweeps cannot see the drill-down. The smoke runner seeds
 `tol-shell-view=map` before it measures — it has to, because the tree geometry
 has to be measured against the tree — so for a while the view a visitor
 actually lands on had no language coverage at all, and the suite reported
 green over untranslated English and an English paragraph laid out
 right-to-left.
 
-Three checks now run inside `#explore`, from the probe that already walks it:
+**The same blind spot cost the contrast sweep, and it was hiding a real
+failure.** `a11y:text-contrast` walked the whole body, but it walked it in map
+view, so the drill-down's colours had never been measured. They were not fine:
+in the light theme the accent gold sat at 4.40 against text's 4.5 on the back
+button and the path label — the two controls that say how to leave and where
+you are. Legible enough to pass a glance, and not enough to pass a
+measurement. `--accent` was darkened to `#8a5e23`, which is the same fix
+`--text-secondary` had already had for the same reason.
+
+Six checks now cover the drill-down, from the probe that already walks it:
 
 | Check | Fails when |
 |---|---|
 | `i18n:explore-no-latin-leak` | a Hebrew screen shows Latin-script chrome |
 | `i18n:explore-prose-reads-as-english` | English data is laid out RTL |
 | `i18n:explore-taxa-translated` | a card names a ranked group in English |
+| `a11y:explore-text-contrast` | drill-down text falls below AA on any screen |
+| `explore:controls-are-not-covered` | something is painted over a card or a control |
+| `explore:view-switch-closes-the-panel` | the species panel survives the shell switch |
+
+The contrast arithmetic itself is written once, not twice.
+`installContrastSweep()` puts it on the page as `window.__contrastSweep(root)`
+and both passes call it — the map's over `document.body`, Explore's over
+`#explore`. A second copy would be a second set of thresholds to drift out of
+step with the first, and then the two views would be held to quietly different
+standards. Explore's pass is scoped to its own subtree rather than the body
+because the shared chrome above it is already covered by the map pass;
+measuring it twice only reports the same failure twice.
 
 **`data-i18n-exempt` is the hinge, and it cannot be used to buy silence.**
 An element without it must be translated; an element with it has declared
@@ -484,7 +507,7 @@ photo is shown. `assets/placeholder.svg` is the fallback when nothing resolves.
 ## Known Constraints & Important Notes
 
 1. **Tests are browser smoke checks, not unit tests** — `node scripts/smoke.mjs`
-   opens the real page in Chromium and asserts 319 things about layout, i18n,
+   opens the real page in Chromium and asserts 337 things about layout, i18n,
    contrast and rendering. See *Smoke tests* below.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
 3. **index.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
@@ -509,6 +532,22 @@ photo is shown. `assets/placeholder.svg` is the fallback when nothing resolves.
    is a control that does nothing, with no error to notice. Use
    `data-action` + `registerActions()` (see *Actions*), and `data-on-error`
    for image fallbacks. Two static checks fail the build on a relapse.
+10. **A class cannot close what an inline style opened.** If visibility is
+    toggled by a class — `#search-results{display:none}` plus
+    `.show{display:block}` — then setting `el.style.display='block'` anywhere
+    in JS wins permanently, and the handler that removes the class can no
+    longer hide the element. The search dropdown was stuck open over every
+    view for the rest of the session after a visitor typed a query and deleted
+    it. Toggle the class and nothing else. Same family as constraint 8: an
+    override applied at a stronger level cannot be released at a weaker one.
+11. **Being in the DOM is not being on screen.** Checks that read
+    `textContent`, `aria-label` or `getBoundingClientRect` cannot see that
+    something else is painted on top. The drill-down's path dots sat under the
+    timeline on both viewports from the day they were written while
+    `explore:says-where-you-are` passed, and before that the left rail hid the
+    LUCA title on every desktop visit under 312 green checks. Ask
+    `document.elementFromPoint` what is actually there —
+    `explore:controls-are-not-covered` does.
 
 ---
 
@@ -587,8 +626,8 @@ never mistaken for a working page.
 
 ## Smoke Tests
 
-`scripts/smoke.mjs` opens the real page in Chromium and asserts **319 checks**
-— ~52 per scenario across six scenarios (desktop and phone viewports in
+`scripts/smoke.mjs` opens the real page in Chromium and asserts **337 checks**
+— ~56 per scenario across six scenarios (desktop and phone viewports in
 English, Hebrew and Russian, plus a desktop pass in the light theme), and four
 static checks that read the source before the browser starts. Scenarios differ
 in count because some checks are language- or viewport-specific. It runs on every
@@ -629,7 +668,8 @@ as a CI artifact on every run).
 | `chrome:` | header/timeline visible, reveal panel vs. zoom controls and timeline, closed panel off-screen, tooltip and fact toast vs. header, tooltip vs. the node it describes, nothing printed over the species name, **no floating control stretched across the window** |
 | `timeline:` | geological era labels clipped or colliding |
 | `i18n:` | document direction and lang, every bound control matches its translation, missing translation keys, Latin text leaking into Hebrew, search placeholder, English species prose laid out left-to-right, and the same three rules again **inside the drill-down**, which the map-view sweep cannot reach |
-| `a11y:` | every text node meets AA contrast against its effective background |
+| `a11y:` | every text node meets AA contrast against its effective background, **in the drill-down as well as the map** |
+| `explore:` | the drill-down renders, descends and climbs back; every screen names where you are; nothing scrolls sideways; **nothing is painted over a card or a control**; the species panel is dismissed when the shell switches |
 | `search:` | eight canonical queries return the answer a person would call correct; every common-name alias still matches something |
 | `interact:` | zoom buttons, reset re-fits, parent expands, leaf opens panel, search returns results, camera settles |
 | `static/` | Runs before the browser starts, over `index.html`, `js/`, `css/` and `stories/`: CSS custom properties used but never defined; inline event-handler attributes; `script-src` still forbidding inline and eval; every `data-action` resolving to a registered handler |

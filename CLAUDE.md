@@ -673,7 +673,7 @@ photo is shown. `assets/placeholder.svg` is the fallback when nothing resolves.
 ## Known Constraints & Important Notes
 
 1. **Tests are browser smoke checks, not unit tests** — `node scripts/smoke.mjs`
-   opens the real page in Chromium and asserts 361 things about layout, i18n,
+   opens the real page in Chromium and asserts 397 things about layout, i18n,
    contrast and rendering. See *Smoke tests* below.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
 3. **index.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
@@ -803,8 +803,8 @@ never mistaken for a working page.
 
 ## Smoke Tests
 
-`scripts/smoke.mjs` opens the real page in Chromium and asserts **361 checks**
-— ~58 per scenario across six scenarios (desktop and phone viewports in
+`scripts/smoke.mjs` opens the real page in Chromium and asserts **397 checks**
+— ~65 per scenario across six scenarios (desktop and phone viewports in
 English, Hebrew and Russian, plus a desktop pass in the light theme), and four
 static checks that read the source before the browser starts. Scenarios differ
 in count because some checks are language- or viewport-specific. It runs on every

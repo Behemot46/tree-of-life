@@ -34,7 +34,7 @@
 //     language it was read in, and the receiving page honours both for that
 //     visit without overwriting what the recipient had chosen for themselves.
 
-import { state } from './state.js';
+import { state, navStack } from './state.js';
 import { registerActions } from './actions.js';
 import { t } from './theme.js';
 
@@ -78,7 +78,10 @@ export function goBack() {
   const layer = topLayer();
   if (layer) { layer.close(); return; }
   if (shell() === 'explore') { if (D.exploreUp?.()) return; }
-  else if (D.navBack) { D.navBack(); return; }
+  /* navStack, not just navBack: on an empty stack navBack() returns having
+     done nothing, and delegating to it unconditionally is how the map's Back
+     became a dead press at the root — the fall-through below never ran. */
+  else if (D.navBack && navStack.length) { D.navBack(); return; }
   goHome();
 }
 

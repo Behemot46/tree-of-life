@@ -517,6 +517,26 @@ check('explore:view-switch-closes-the-panel', 'Switching to the drill-down dismi
   if (e.panelSurvivedSwitch) fail('the species panel stayed open over the drill-down after switching views');
 });
 
+/* The rewrite's defining property, and the one a screenshot cannot prove: going
+   a level deeper must leave the page standing. The old view wiped innerHTML and
+   repainted a fresh grid, so nothing on screen said the new rows had come out of
+   the row you tapped. If a future change quietly restores the screen-swap, every
+   other explore check still passes — the headings still change, the dots still
+   grow — and only this one notices. */
+check('explore:descending-unfolds-in-place', 'Opening a branch keeps the page it came from', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked || e.steps.length < 2) return;
+  for (let i = 1; i < e.steps.length; i++) {
+    const prev = e.steps[i - 1], now = e.steps[i];
+    if (now.openRows !== prev.openRows + 1) {
+      fail(`level ${i} ("${now.title}") shows ${now.openRows} open rows, expected ${prev.openRows + 1} — the chain above it was discarded`);
+    }
+    if (!now.dimRows) {
+      fail(`level ${i} ("${now.title}") left no branch on screen that was passed over`);
+    }
+  }
+});
+
 check('explore:no-horizontal-scroll', 'The drill-down never scrolls sideways', (c) => {
   const e = c.probe.explore;
   if (!e || !e.checked) return;
@@ -1371,10 +1391,22 @@ async function probePage(page, scenario) {
       const b = el.getBoundingClientRect();
       if (b.width < 1 || b.height < 1) return { sel, covered: true, by: '(no box)' };
       const x = b.left + b.width / 2, y = b.top + b.height / 2;
-      /* Below the fold is scrolling, not covering. The grid is a scrollable
-         list and its last card is legitimately off-screen on a phone; only
-         what is actually on screen can be painted over. */
+      /* Below the fold is scrolling, not covering. The list is scrollable and
+         its far rows are legitimately off-screen on a phone; only what is
+         actually on screen can be painted over. */
       if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) return { sel, offscreen: true };
+      /* Behind the view's own bottom ribbon is also scrolling, not covering.
+         The path bar is fixed and rows pass under it by design — #explore
+         carries 90px of bottom padding so the last row still clears it. This
+         exemption is only for rows: the ribbon's own controls are tested with
+         the strict rule, which is what caught the timeline painting over them. */
+      const ribbon = document.querySelector('.ex-path');
+      if (ribbon && !ribbon.contains(el)) {
+        const rb = ribbon.getBoundingClientRect();
+        if (rb.width && y >= rb.top && y <= rb.bottom && x >= rb.left && x <= rb.right) {
+          return { sel, offscreen: true };
+        }
+      }
       const top = document.elementFromPoint(x, y);
       if (!top) return { sel, offscreen: true };
       if (top === el || el.contains(top) || top.contains(el)) return { sel, covered: false };
@@ -1400,7 +1432,7 @@ async function probePage(page, scenario) {
          clear, so checking only the fixed controls would miss it entirely. */
       onTop: [
         ...['.ex-step.current', '.ex-here', '.ex-back'].map((s) => onTop(s)),
-        ...[...document.querySelectorAll('.ex-card')]
+        ...[...document.querySelectorAll('.ex-card.open, .ex-card-live')]
           .map((c, i) => onTop(`.ex-card[${i}] "${(c.querySelector('.ex-card-name')?.textContent || '').trim().slice(0, 20)}"`, c)),
       ],
       title: document.querySelector('.ex-title')?.textContent.trim() || '',
@@ -1411,11 +1443,21 @@ async function probePage(page, scenario) {
       named: [...document.querySelectorAll('.ex-step')].every((d) => d.getAttribute('data-name')),
       overflow: document.documentElement.scrollWidth > window.innerWidth + 1,
       visible: root.getBoundingClientRect().width > 0,
+      /* The whole point of the rewrite: descending must not wipe the page. The
+         open chain and the branches passed over both stay on it. */
+      openRows: document.querySelectorAll('.ex-card.open').length,
+      dimRows: document.querySelectorAll('.ex-card.dim').length,
     });
 
     const steps = [snap()];
     for (let i = 0; i < 2; i++) {
-      const card = [...document.querySelectorAll('.ex-card')].find((c) => c.querySelector('.ex-card-chev'));
+      /* .ex-card-live, not the first .ex-card on the page. The view unfolds in
+         place now, so every level that is already open is still in the DOM and
+         still carries a chevron — taking the first match just re-clicked the
+         branch already open and folded it back up. .ex-card-live marks the
+         choice set directly beneath the deepest open node, which is the only
+         set a reader could descend into. */
+      const card = [...document.querySelectorAll('.ex-card-live')].find((c) => c.querySelector('.ex-card-chev'));
       if (!card) break;
       card.click();
       await wait(450);

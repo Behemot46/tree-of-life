@@ -11,7 +11,8 @@ import { reducedMotion, canonicalHomininId, preprocess, sortChildrenByAge, homin
 
 // ── Delegated event dispatch (replaces inline onclick attributes) ──
 import { registerActions } from './actions.js';
-import { initExplore, openInExplore, initExploreDeps } from './explore.js';
+import { initExplore, openInExplore, initExploreDeps, exploreSelection, exploreUp, exploreHome } from './explore.js';
+import { initWayfinder, initWayfinderDeps, goBack, goHome } from './wayfinder.js';
 
 // ── Layout ──
 import { layout, getVisible } from './layout.js';
@@ -60,7 +61,7 @@ import { TREE, lightenColor, PHOTO_MAP, FACTS, ImageLoader } from './data.js';
 import { expandTree } from './treeExpansion.js';
 import { initTourDeps, showTourSelector, startTour, endTour } from './tours.js';
 import { initSplash } from './splash.js';
-import { ERA_NAMES } from './uiData.js';
+import { ERA_NAMES, TRANSLATIONS } from './uiData.js';
 import { openSapiens, closeSapiens, initSapiensDeps } from './sapiens.js';
 import { openProfile, closeProfile, initProfileDeps, initProfileListeners, initProfile } from './profile.js';
 
@@ -455,7 +456,12 @@ function init(){
      it: the splash samples the theme's colour tokens the same way. */
   state.isDark=(localStorage.getItem('theme')||'dark')!=='light';
   applyTheme();
-  state.currentLang=localStorage.getItem('tol-lang')||'en';
+  /* A shared link carries the language it was read in. It wins for this visit
+     and is never written back to `tol-lang` — see the shell restore further
+     down for why. Validated against TRANSLATIONS rather than a hardcoded list,
+     so adding a language does not leave ?lang= a step behind. */
+  const _urlLang=new URLSearchParams(location.search).get('lang');
+  state.currentLang=(_urlLang&&TRANSLATIONS[_urlLang])?_urlLang:(localStorage.getItem('tol-lang')||'en');
   document.documentElement.dir=state.currentLang==='he'?'rtl':'ltr';
   document.documentElement.lang=state.currentLang;
 
@@ -512,7 +518,26 @@ function init(){
      before they need a map. */
   initExploreDeps({ showMainPanel });
   initExplore();
-  setShellView((()=>{ try { return localStorage.getItem('tol-shell-view') || 'explore'; } catch(e){ return 'explore'; } })());
+  initWayfinderDeps({
+    closePanel, closeGame, closeProfile, closeSpeciesCompare,
+    closeHomininOverlay, cancelCompare, closeSapiens, endTour,
+    navBack, navHome, exploreUp, exploreHome, exploreSelection, showToast,
+  });
+  initWayfinder();
+  /* A shared link says which of the two front doors it came from. Both the
+     shell and the language live only in localStorage otherwise, so a link that
+     named only the node opened in whatever the *recipient* last used — a
+     drill-down sent to someone whose last visit was the map arrived as a map.
+
+     The URL wins for this visit and is not written back: honouring a link is
+     not the same as the recipient changing their mind, and a link read once
+     should not repoint the site they come back to tomorrow. */
+  const _urlView = new URLSearchParams(location.search).get('view');
+  setShellView(
+    _urlView === 'map' || _urlView === 'explore'
+      ? _urlView
+      : (()=>{ try { return localStorage.getItem('tol-shell-view') || 'explore'; } catch(e){ return 'explore'; } })(),
+    { persist: !_urlView });
 
   // Snapshot the zoom level that frames the full base tree. Used as the floor
   // for frameSubtree() so expanding a huge subtree never zooms out past this.
@@ -766,9 +791,9 @@ searchInput.addEventListener('input',()=>{
 });
 searchInput.addEventListener('blur',()=>setTimeout(()=>{searchResults.classList.remove('show');searchInput.setAttribute('aria-expanded','false');},200));
 
-// ── Nav buttons ──
-document.getElementById('nav-back').addEventListener('click',navBack);
-document.getElementById('nav-home').addEventListener('click',navHome);
+// The wayfinder's three buttons are wired by data-action, like everything
+// else — see js/wayfinder.js. They used to be bound here directly to navBack
+// and navHome, which only ever knew about the map.
 
 // ── Mobile left-rail toggle ──
 const railToggle=document.getElementById('left-rail-toggle');
@@ -807,9 +832,6 @@ document.addEventListener('keydown',e=>{
     if(state.playbackMode){exitPlaybackMode();return;}
     const _toastEl = document.getElementById('fact-toast');
     if(_toastEl && _toastEl.classList.contains('visible')){dismissToast();return;}
-    if(document.getElementById('species-compare-panel').classList.contains('open')){closeSpeciesCompare();return;}
-    if(document.getElementById('game-panel').classList.contains('open')){closeGame();return;}
-    if(document.getElementById('profile-panel').classList.contains('open')){closeProfile();return;}
     // Close search dropdown first if open (not a nav action)
     if(searchResults.classList.contains('show')){
       searchResults.classList.remove('show');
@@ -817,10 +839,13 @@ document.addEventListener('keydown',e=>{
       searchInput.blur();
       return;
     }
-    // Shift+Escape = Home (reset everything)
-    if(e.shiftKey){navHome();return;}
-    // Escape = Back (step back one level)
-    navBack();
+    /* Everything else is the wayfinder's, and deliberately so: this branch used
+       to carry its own list of which overlay to close first, so Escape and the
+       Back button could — and did — disagree about what "back" meant. One list,
+       in js/wayfinder.js. Playback, the toast and the search dropdown stay here
+       because the wayfinder does not own them. */
+    if(e.shiftKey){goHome();return;}
+    goBack();
     return;
   }
   // Prevent shortcuts firing while typing in any input/textarea
@@ -1121,8 +1146,9 @@ initTourDeps({ state, nodeMap, layout, scheduleRender, applyT, animateSliderTo, 
    view, and a first-time visitor needs a door before they need a map. Kept as
    a body attribute so the CSS can hide one side wholesale, and remembered so
    the choice survives a reload. */
-function setShellView(v){
+function setShellView(v, opts){
   const view = v === 'map' ? 'map' : 'explore';
+  const persist = !opts || opts.persist !== false;
   /* The detail panel belongs to whichever shell opened it. It is fixed, high
      in the stack and 475px wide on a 1440px window, so switching to Explore
      from a map with a species open landed the reader on a drill-down with a
@@ -1136,7 +1162,8 @@ function setShellView(v){
      open the site by announcing the closing of a panel nobody opened. */
   if (document.getElementById('panel')?.classList.contains('open')) closePanel();
   document.body.setAttribute('data-view', view);
-  try { localStorage.setItem('tol-shell-view', view); } catch (e) {}
+  /* Not persisted when the view came from a shared link — see init(). */
+  if (persist) { try { localStorage.setItem('tol-shell-view', view); } catch (e) {} }
   document.querySelectorAll('#view-toggle [data-view]').forEach((b) => {
     b.classList.toggle('active', b.dataset.view === view);
   });

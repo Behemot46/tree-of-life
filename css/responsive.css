@@ -67,11 +67,9 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   /* ── BREADCRUMB: hide on mobile ── */
   #breadcrumb { display: none !important; }
 
-  /* ── NAV CTRL: center bottom on mobile ── */
-  #nav-ctrl{top:auto;bottom:5rem;left:50%;transform:translateX(-50%);right:auto;}
-  #nav-ctrl.visible{transform:translateX(-50%) translateY(0);}
-  [dir="rtl"] #nav-ctrl{left:50%;right:auto;transform:translateX(50%);}
-  [dir="rtl"] #nav-ctrl.visible{transform:translateX(50%) translateY(0);}
+  /* The wayfinder's phone placement lives in chrome.css with the rest of its
+     geometry — a fourth anchor in a fourth file is how it ended up unreachable
+     in the first place. */
 
   /* ── SEARCH BAR: full-width on mobile ── */
   #search-wrap {

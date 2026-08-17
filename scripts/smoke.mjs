@@ -86,6 +86,7 @@ const I18N_BINDINGS = [
   { id: 'i-btn-compare', key: 'compare_btn' },
   { id: 'nav-back-label', key: 'nav_back' },
   { id: 'nav-home-label', key: 'nav_home' },
+  { id: 'nav-share-label', key: 'nav_share' },
   { id: 'reveal-title', key: 'reveal' },
   { id: 'btn-collapse-all', key: 'collapse_all' },
   { id: 'btn-expand-all', key: 'expand_all' },
@@ -583,6 +584,27 @@ check('i18n:explore-prose-reads-as-english', 'English prose in the drill-down is
   }
 }, (s) => s.lang === 'he');
 
+check('explore:rows-state-breadth-and-depth', 'Every group row says how wide it is and how deep it runs', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked) return;
+  const facts = e.rowFacts;
+  if (!facts) fail('row facts were never collected');
+  if (facts.error) fail(`reading the tree threw: ${facts.error}`);
+  const groups = facts.filter((f) => f.kids > 0);
+  if (groups.length < 3) fail(`only ${groups.length} group row(s) on screen — nothing was really measured`);
+  const bad = [];
+  for (const f of groups) {
+    if (!f.sub) { bad.push(`${f.id}: empty subtitle`); continue; }
+    if (!f.sub.includes(String(f.kids))) bad.push(`${f.id}: "${f.sub}" never says it holds ${f.kids}`);
+    /* One level down is stated as a species count instead — the same fact in
+       the word the site already uses for it — so only deeper rows owe a
+       number of levels. */
+    if (f.depth > 1 && !f.sub.includes(String(f.depth))) bad.push(`${f.id}: "${f.sub}" never says it runs ${f.depth} levels`);
+    if (f.ranked && f.sub.split('·').length < 2) bad.push(`${f.id}: "${f.sub}" drops the rank`);
+  }
+  if (bad.length) fail(`${bad.length} row(s) understated: ${bad.slice(0, 4).join('; ')}`);
+});
+
 check('i18n:explore-taxa-translated', 'Drill-down cards name their group in the active language', (c) => {
   const e = c.probe.explore;
   if (!e || !e.checked || !e.i18n) return;
@@ -592,6 +614,73 @@ check('i18n:explore-taxa-translated', 'Drill-down cards name their group in the 
       untranslated.slice(0, 4).map((t) => `${t.id}="${t.got}" want "${t.want}"`).join(', '));
   }
 }, (s) => s.lang !== 'en');
+
+/* ── The wayfinder ──────────────────────────────────────────────────────────
+   Back, Home and Share, in every view and over every overlay. The controls
+   these replace were never missing — they were underneath. Reading the DOM
+   said they were fine for as long as they existed. */
+
+check('chrome:wayfinder-is-reachable', 'Back, Home and Share are on top of whatever is open', (c) => {
+  const w = c.probe.wayfinder;
+  if (!w) fail('wayfinder never measured');
+  if (!w.cluster || w.cluster.w < 1) fail('#nav-ctrl has no box — it is not on screen at all');
+  const bad = [...w.overPanel, ...(w.overGame || [])].filter((b) => b.top !== 'clear');
+  if (bad.length) {
+    fail(`${bad.length} wayfinder button(s) unreachable: ` +
+      bad.map((b) => `${b.id} ${b.top}`).join(', '));
+  }
+  if (!w.gameOpen) fail('the games panel never opened, so nothing was tested on top of');
+});
+
+check('chrome:wayfinder-clears-the-chrome', 'The wayfinder is painted over nothing else', (c) => {
+  const w = c.probe.wayfinder;
+  if (!w) return;
+  if (w.collisions && w.collisions.length) {
+    fail(`the wayfinder overlaps ${w.collisions.join(', ')} — it now outranks the whole page, ` +
+      'so anything under it is hidden by it');
+  }
+  /* Either the growing search field misses the cluster, or the cluster stands
+     aside for it. Both are acceptable; overlapping it while visible is not. */
+  if (w.searchCollision && !w.hiddenForSearch) {
+    fail(`the expanded search box runs under the wayfinder (${w.searchCollision}) and the wayfinder stayed visible`);
+  }
+});
+
+check('nav:back-unwinds-one-layer', 'Back closes the topmost overlay and leaves the one beneath it', (c) => {
+  const w = c.probe.wayfinder;
+  if (!w || !w.afterBack) fail('back was never exercised');
+  if (w.afterBack.game) fail('Back did not close the games panel that was on top');
+  if (!w.afterBack.panel) fail('Back closed the species panel underneath as well — back takes off one layer, not all of them');
+});
+
+check('share:link-names-node-view-and-language', 'The share link carries the shell and the language, not just the node', (c) => {
+  const w = c.probe.wayfinder;
+  if (!w || !w.url) fail('no share URL was built');
+  let u;
+  try { u = new URL(w.url); } catch (e) { fail(`share URL does not parse: ${w.url}`); }
+  for (const key of ['view', 'lang']) {
+    if (!u.searchParams.get(key)) {
+      fail(`share link has no ?${key}= — the recipient would open it in their own ${key === 'view' ? 'shell' : 'language'}: ${w.url}`);
+    }
+  }
+  if (u.searchParams.get('lang') !== c.scenario.lang) {
+    fail(`share link says lang=${u.searchParams.get('lang')} in the ${c.scenario.lang} scenario`);
+  }
+  if (!w.shareToast) fail('the share button produced no toast — nothing told the reader what happened');
+});
+
+check('share:link-restores-the-senders-view', 'A shared link opens in the shell and language it was made in', (c) => {
+  const s = c.probe.sharedLink;
+  if (!s) fail('the shared link was never followed');
+  if (s.error) fail(`following the shared link threw: ${s.error}`);
+  if (s.view !== 'explore') fail(`?view=explore landed in the ${s.view} shell`);
+  if (s.lang !== 'ru') fail(`?lang=ru landed in ${s.lang}`);
+  if (!s.cards) fail('the drill-down rendered no rows on the shared link');
+  /* Honouring a link is not the recipient changing their mind. The runner
+     seeds the map in this scenario's language; both have to survive. */
+  if (s.storedView !== 'map') fail(`following a link rewrote the stored shell to ${s.storedView}`);
+  if (s.storedLang !== c.scenario.lang) fail(`following a link rewrote the stored language to ${s.storedLang}`);
+});
 
 check('search:finds-the-obvious-answer', 'Common searches return the thing meant', (c) => {
   const s = c.probe.searchQuality;
@@ -669,7 +758,7 @@ function installContrastSweep() {
 }
 
 // ── Probe: everything we can learn from one page, in a few passes ─────────────
-async function probePage(page, scenario) {
+async function probePage(page, scenario, baseUrl) {
   // 1. Static DOM facts + i18n
   const base = await page.evaluate(async ({ bindings, lang }) => {
     const T = await import(new URL('js/uiData.js', location.href).href)
@@ -1286,6 +1375,108 @@ async function probePage(page, scenario) {
     return !!document.querySelector('#panel.open');
   });
 
+  /* ── The wayfinder ────────────────────────────────────────────────────
+     Measured here, with a species panel open, because "reachable" is the
+     whole claim and an empty page is the one state in which it was never in
+     doubt. The cluster it replaces was present, translated and covered by
+     everything: at --z-nav + 50 it sat under the panel (400), the games
+     (1000), the hominin overlay (1100) and a tour (10000), and below 769px it
+     was display:none outright. Every one of those is a state a reader can
+     reach, and none of them was visible to a check that only read the DOM —
+     so this one asks elementFromPoint, twice, with two different things open.
+
+     The game is opened *on top of* the panel on purpose. One Back has to take
+     the game away and leave the panel standing, which is the layer rule the
+     whole module exists to state; a single-overlay test passes just as well
+     against a Back that closes everything at once. */
+  const wayfinder = await page.evaluate(async () => {
+    const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+    const desc = (el) => !el ? 'none' : el.tagName + (el.id ? '#' + el.id : '') +
+      (typeof el.className === 'string' && el.className ? '.' + el.className.split(' ')[0] : '');
+    const box = (el) => { if (!el) return null; const b = el.getBoundingClientRect(); return { l: b.left, t: b.top, r: b.right, b: b.bottom, w: b.width, h: b.height }; };
+    const onTop = (el) => {
+      if (!el) return 'missing';
+      const b = el.getBoundingClientRect();
+      if (b.width < 1 || b.height < 1) return 'no box';
+      const x = b.left + b.width / 2, y = b.top + b.height / 2;
+      if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) return 'off screen';
+      const top = document.elementFromPoint(x, y);
+      return (top === el || el.contains(top) || top.contains(el)) ? 'clear' : 'covered by ' + desc(top);
+    };
+    const ids = ['nav-back', 'nav-home', 'nav-share'];
+    const state = () => ids.map((id) => ({ id, top: onTop(document.getElementById(id)) }));
+
+    const out = { cluster: box(document.getElementById('nav-ctrl')), overPanel: state() };
+
+    /* Nothing may be painted over the wayfinder — and equally, the wayfinder
+       outranks the whole page now, so nothing of the page may be underneath
+       it either. Boxes, not hit tests: the header has no pointer events, so
+       elementFromPoint reports the canvas through the site title and would
+       have called the original top-inline-start placement clear while it sat
+       squarely on the words "Tree of Life". */
+    const wb = document.getElementById('nav-ctrl')?.getBoundingClientRect();
+    const hidden = (el) => { const s = getComputedStyle(el); return s.display === 'none' || s.visibility === 'hidden' || +s.opacity < 0.02; };
+    const collides = (sel) => {
+      const el = document.querySelector(sel);
+      if (!el || !wb || hidden(el) || hidden(document.getElementById('nav-ctrl'))) return null;
+      const b = el.getBoundingClientRect();
+      if (!b.width || !b.height) return null;
+      const over = b.left < wb.right && b.right > wb.left && b.top < wb.bottom && b.bottom > wb.top;
+      return over ? `${sel} [${Math.round(b.left)},${Math.round(b.top)}–${Math.round(b.right)},${Math.round(b.bottom)}]` : null;
+    };
+    /* #panel .p-close is on this list because of what happened the first time
+       this cluster was placed: parked at the top inline-end, it landed exactly
+       on the drawer's ✕ and, outranking the panel, made it unclosable. It only
+       showed up on an English desktop — Hebrew opens the drawer on the other
+       edge and a phone opens it as a bottom sheet — and the way it surfaced
+       was a click timeout three checks away, not anything that named the
+       wayfinder. The panel body itself is *not* on the list: being over that
+       is the entire point. */
+    const CHROME = ['.title-main', '.title-sub', '#left-rail', '#top-right-controls',
+                    '#left-rail-toggle', '#timeline', '#panel .p-close', '.reveal-panel', '#zoom-ctrl'];
+    out.collisions = CHROME.map(collides).filter(Boolean);
+
+    /* The search field is the one thing that grows into this corner, so it is
+       measured while it is grown. Either it misses the cluster or the cluster
+       stands aside — a text box a reader cannot see the end of is worse than
+       a Back button that needs an Escape first. */
+    const si = document.getElementById('search-input');
+    if (si) {
+      si.focus(); await wait(350);
+      out.searchCollision = collides('#search-wrap');
+      out.hiddenForSearch = hidden(document.getElementById('nav-ctrl'));
+      si.blur(); await wait(350);
+    }
+
+    // A game on top of the panel, then one Back.
+    document.getElementById('btn-quiz')?.click();
+    await wait(700);
+    out.gameOpen = !!document.querySelector('#game-panel.open');
+    out.overGame = state();
+    document.getElementById('nav-back')?.click();
+    await wait(600);
+    out.afterBack = {
+      game: !!document.querySelector('#game-panel.open'),
+      panel: !!document.querySelector('#panel.open'),
+    };
+
+    /* The link itself. It has to name the node, the shell and the language:
+       the last two live only in localStorage, so a link carrying just the node
+       opened in whatever the *recipient* last used. */
+    try {
+      const W = await import(new URL('js/wayfinder.js', location.href).href);
+      out.url = W.shareUrl();
+    } catch (e) { out.url = 'import failed: ' + String(e); }
+
+    // And the button really runs. Clipboard writes are refused in a headless
+    // browser, which is the fallback path — either way a toast has to appear.
+    document.getElementById('nav-share')?.click();
+    await wait(500);
+    out.shareToast = (document.getElementById('ft-text') || {}).textContent || '';
+    document.getElementById('fact-toast')?.classList.remove('visible');
+    return out;
+  });
+
   const explore = await page.evaluate(async ({ lang, panelWasOpen }) => {
     const wait = (ms) => new Promise((r) => setTimeout(r, ms));
     /* Leave the search box the way a visitor leaves it. The interaction pass
@@ -1493,6 +1684,34 @@ async function probePage(page, scenario) {
        lands near the top of the page where nothing can hide. Mammals is six
        levels down, so the row has to be scrolled to, and the bottom of this
        view is covered by its own fixed ribbon. */
+    /* ── Breadth and depth on every group row ──────────────────────────
+       "43 inside" answers half of what a reader wants before they open
+       something. Mammals and insects both read as a wall of rows and only one
+       of them has four more levels underneath it.
+
+       Checked against the tree rather than against a pattern: the row has to
+       state the real child count, and the real number of levels below. A regex
+       for "a number and a word" passes just as happily on the wrong number.
+
+       Depth is deliberately *not* named by the rank it ends at. All 49 groups
+       bottom out at Species, so "down to species" would print the same phrase
+       on every row on the page — which is what measuring the data first, and
+       the label second, is for. */
+    let rowFacts = null;
+    try {
+      const D = await import(new URL('js/data.js', location.href).href);
+      const R = await import(new URL('js/taxonRank.js', location.href).href);
+      const index = new Map();
+      (function walk(n) { index.set(n.id, n); (n.children || []).forEach(walk); })(D.TREE);
+      rowFacts = [...root.querySelectorAll('.ex-card')].map((card) => {
+        const node = index.get(card.getAttribute('data-arg'));
+        const sub = (card.querySelector('.ex-card-sub') || {}).textContent || '';
+        if (!node) return null;
+        const kids = (node.children || []).length;
+        return { id: node.id, kids, depth: R.subtreeDepth(node), ranked: !!R.rankKey(node), sub: sub.trim() };
+      }).filter(Boolean);
+    } catch (e) { rowFacts = { error: String(e) }; }
+
     let deepLanding = null;
     try {
       const EX = await import(new URL('js/explore.js', location.href).href);
@@ -1565,7 +1784,7 @@ async function probePage(page, scenario) {
     // Back to the palette this scenario is meant to be measured in.
     if (themeBtn) { themeBtn.click(); await wait(300); }
 
-    return { checked: true, steps, afterBack, i18n, herePrefix, contrast,
+    return { checked: true, steps, afterBack, i18n, herePrefix, contrast, rowFacts,
              eraClippedAfterReturn, densityOnReturn, densityRedrawn,
              panelOpenBeforeSwitch: panelWasOpen, panelSurvivedSwitch, deepLanding };
   }, { lang: scenario.lang, panelWasOpen: panelOpenBeforeSwitch });
@@ -1575,8 +1794,36 @@ async function probePage(page, scenario) {
   // than on load. This supersedes the value collected in the first pass.
   const cspViolations = [...new Set(await page.evaluate(() => window.__cspViolations || []))];
 
+  /* ── Following a shared link ──────────────────────────────────────────
+     The last thing done in the scenario, because it is the only measurement
+     that needs its own page load and everything above has already been taken.
+
+     The runner seeds the *opposite* of what the link asks for — its
+     localStorage says the map in this scenario's language — so a page that
+     ignored the query string would come up looking exactly like every other
+     scenario and pass by accident. The link asks for the drill-down in
+     Russian; the stored preferences have to survive it untouched, because
+     reading someone else's link is not the same as changing your own mind. */
+  const sharedLink = await (async () => {
+    try {
+      await page.goto(baseUrl + '/index.html?node=primates&view=explore&lang=ru', { waitUntil: 'domcontentloaded' });
+      await page.waitForTimeout(1000);
+      await page.click('#splash-skip', { timeout: 4000 }).catch(() => {});
+      await page.waitForTimeout(1800);
+      return await page.evaluate(() => ({
+        view: document.body.getAttribute('data-view'),
+        lang: document.documentElement.lang,
+        dir: document.documentElement.dir,
+        here: (document.querySelector('.ex-here') || {}).textContent || '',
+        cards: document.querySelectorAll('.ex-card').length,
+        storedLang: localStorage.getItem('tol-lang'),
+        storedView: localStorage.getItem('tol-shell-view'),
+      }));
+    } catch (e) { return { error: String(e) }; }
+  })();
+
   return { ...base, ...forced, tooltipShown, tooltipCoversNode, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps, heroPhoto, photoHostReachable: await wikimediaReachable(), contrast, searchQuality,
-           searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations, explore };
+           searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations, explore, wayfinder, sharedLink };
 }
 
 
@@ -1815,7 +2062,7 @@ async function runScenario(browser, scenario, baseUrl) {
     await page.screenshot({ path: path.join(OUT_DIR, `${scenario.id}.png`), fullPage: false });
   }
 
-  const probe = await probePage(page, scenario);
+  const probe = await probePage(page, scenario, baseUrl);
   const c = { probe, scenario, pageErrors, consoleErrors, failedRequests, page };
 
   const results = [];

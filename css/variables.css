@@ -134,10 +134,17 @@ button:focus-visible,.zbtn:focus-visible,.nav-btn:focus-visible,.lang-btn:focus-
   --z-toast:500;
   --z-modal:1000;
   --z-overlay:1100;
-  --z-splash:9999;
   --z-tour:10000;
   --z-tour-target:10001;
   --z-tour-content:10002;
+  /* Back / Home / Share, above every layer they exist to close. Anything below
+     the tour's own 10000 was painted over by something a reader could open —
+     which is exactly where #nav-ctrl sat, at --z-nav + 50. */
+  --z-wayfinder:10050;
+  /* The opening card is the one thing that outranks the wayfinder: there is
+     nothing to go back to yet, and floating buttons over the title card would
+     be furniture on a screen that has none. */
+  --z-splash:10500;
   /* ── Tree Redesign ── */
   --tree-node-size:52px;
   --tree-node-size-mobile:44px;

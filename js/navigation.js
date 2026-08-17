@@ -124,24 +124,17 @@ export function navHome(){
   updateNavButtons();
 }
 
-export function updateNavButtons(){
-  const ctrl=document.getElementById('nav-ctrl');
-  if(!ctrl) return;
-  const backBtn=document.getElementById('nav-back');
-  if(navStack.length>0){
-    ctrl.classList.add('visible');
-    if(backBtn) backBtn.disabled=false;
-  } else {
-    // Still show Home if we're not at root state
-    const s=currentNavState();
-    if(s.type!=='tree'){
-      ctrl.classList.add('visible');
-      if(backBtn) backBtn.disabled=true;
-    } else {
-      ctrl.classList.remove('visible');
-    }
-  }
-}
+/* Kept as a no-op hook rather than deleted: nine call sites reach it on every
+   panel open, close and navigation, and they are how the old cluster knew to
+   appear.
+
+   It knows nothing worth acting on any more. The wayfinder is always on screen
+   and its Back is never disabled, because the state it would have to be
+   disabled from — a tour, a game, a compare mode, a species panel, a fold of
+   the drill-down — is owned by nine modules, and any one of them forgetting to
+   call this left a live control greyed out or a dead one lit. js/wayfinder.js
+   asks what is open at the moment of the click instead, which cannot go stale. */
+export function updateNavButtons(){}
 
 // ── Lineage Tracing ──
 

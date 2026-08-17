@@ -59,7 +59,9 @@ import { SILHOUETTES } from './silhouettes.js';
 let _selected = TREE;
 
 /* Levels wider than this are cut off, because unfolding mammals' 43 children
-   buries everything under it. Per-node, and forgotten when it closes. */
+   buries everything under it. Per-node, and remembered for the rest of the
+   session: having asked to see all 43 once, being made to ask again every time
+   you pass back through is worse than the crowding. */
 const WIDE = 12;
 const WIDE_HEAD = 8;
 let _showAll = new Set();
@@ -250,8 +252,21 @@ export function renderExplore() {
   /* Not scrollTop = 0 any more. The whole point of unfolding in place is that
      the page does not jump, so bring the row that was just opened into view
      and leave everything else where the reader left it. */
+  /* Not scrollIntoView({block:'nearest'}) on its own. It scrolls until the box
+     is inside the *scroll container*, and it cannot see that the bottom 69px of
+     that container is covered by the fixed path ribbon — so landing on a deep
+     node from search parked it at y=796 in an 844px window, technically
+     scrolled-to and entirely behind the ribbon. Ask whether the row clears the
+     ribbon, and centre it when it does not; leave it alone when it is already
+     comfortably in view, so opening a row near the top does not yank the page. */
   const deepest = [...root.querySelectorAll('.ex-card.open')].pop();
-  if (deepest && _selected !== TREE) deepest.scrollIntoView({ block: 'nearest' });
+  if (deepest && _selected !== TREE) {
+    const ribbon = root.querySelector('.ex-path');
+    const floor = ribbon ? ribbon.getBoundingClientRect().top : window.innerHeight;
+    const ceil = root.getBoundingClientRect().top;
+    const r = deepest.getBoundingClientRect();
+    if (r.bottom > floor || r.top < ceil) deepest.scrollIntoView({ block: 'center' });
+  }
 
   /* Mark only the branch that was just opened, so the unfold animation plays
      there and not on every already-open level — a full re-render would

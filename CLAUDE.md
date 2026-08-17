@@ -256,6 +256,14 @@ Things worth knowing before changing Explore:
   stopped reading exactly where it mattered. The indent step must exceed the
   media-size drop. Measure the inline-start inset per level rather than
   eyeballing a screenshot; it reads identically in Hebrew when it is right.
+- **`scrollIntoView` cannot see the path ribbon.** It scrolls until the row is
+  inside the scroll container and stops, and the bottom 69px of that container
+  is covered by the view's own fixed bar — so arriving from search on a
+  six-deep node parked it at y=796 in an 844px window, correctly scrolled-to
+  and entirely hidden. Measure against the ribbon's top edge, not the
+  viewport's. `explore:deep-landing-is-visible` is the guard, and the probe's
+  own descent cannot catch this because it starts at the root and never travels
+  far enough to need scrolling at all.
 - **Grey is a contrast problem, not a paint job.** Dimmed rows stay tappable,
   so WCAG gives them no disabled-control exemption. They use `--text-secondary`
   (8.3:1 dark, 8.6:1 light), not a low opacity — and note that
@@ -457,6 +465,7 @@ Six checks now cover the drill-down, from the probe that already walks it:
 | `explore:controls-are-not-covered` | something is painted over a card or a control |
 | `explore:view-switch-closes-the-panel` | the species panel survives the shell switch |
 | `explore:descending-unfolds-in-place` | a descent discards the chain above it |
+| `explore:deep-landing-is-visible` | arriving from search parks the node behind the ribbon |
 
 The contrast arithmetic itself is written once, not twice.
 `installContrastSweep()` puts it on the page as `window.__contrastSweep(root)`
@@ -541,7 +550,7 @@ photo is shown. `assets/placeholder.svg` is the fallback when nothing resolves.
 ## Known Constraints & Important Notes
 
 1. **Tests are browser smoke checks, not unit tests** — `node scripts/smoke.mjs`
-   opens the real page in Chromium and asserts 355 things about layout, i18n,
+   opens the real page in Chromium and asserts 361 things about layout, i18n,
    contrast and rendering. See *Smoke tests* below.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
 3. **index.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
@@ -671,7 +680,7 @@ never mistaken for a working page.
 
 ## Smoke Tests
 
-`scripts/smoke.mjs` opens the real page in Chromium and asserts **355 checks**
+`scripts/smoke.mjs` opens the real page in Chromium and asserts **361 checks**
 — ~58 per scenario across six scenarios (desktop and phone viewports in
 English, Hebrew and Russian, plus a desktop pass in the light theme), and four
 static checks that read the source before the browser starts. Scenarios differ

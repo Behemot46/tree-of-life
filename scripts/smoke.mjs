@@ -537,6 +537,22 @@ check('explore:descending-unfolds-in-place', 'Opening a branch keeps the page it
   }
 });
 
+/* Arriving from search is the one way into this view that lands somewhere the
+   reader did not scroll to themselves, and the landing spot is the bottom of a
+   page whose bottom is covered by a fixed ribbon. scrollIntoView cannot see
+   that ribbon — it scrolls until the row is inside the scroll container and
+   stops, which put a six-deep node at y=796 in an 844px window, behind the
+   bar. Nothing else here can catch it: the probe's own descent starts at the
+   root and never travels far enough to need scrolling. */
+check('explore:deep-landing-is-visible', 'Opening a deep node scrolls it clear of the ribbon', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked || !e.deepLanding) return;
+  const d = e.deepLanding;
+  if (d.error) { fail(`could not open a deep node: ${d.error}`); return; }
+  if (!d.onScreen) fail(`"${d.name.trim()}" is off-screen after opening it (top ${d.top})`);
+  else if (!d.clearsRibbon) fail(`"${d.name.trim()}" lands behind the path ribbon (bottom ${d.bottom}, ribbon top ${d.floor})`);
+});
+
 check('explore:no-horizontal-scroll', 'The drill-down never scrolls sideways', (c) => {
   const e = c.probe.explore;
   if (!e || !e.checked) return;
@@ -1471,6 +1487,33 @@ async function probePage(page, scenario) {
     let afterBack = null;
     if (back && back.tagName === 'BUTTON') { back.click(); await wait(450); afterBack = snap(); }
 
+    /* Landing deep, the way search does. openInExplore() is the entry point a
+       search result uses, and nothing until now measured where the reader
+       actually ends up — the probe only ever descends from the root, which
+       lands near the top of the page where nothing can hide. Mammals is six
+       levels down, so the row has to be scrolled to, and the bottom of this
+       view is covered by its own fixed ribbon. */
+    let deepLanding = null;
+    try {
+      const EX = await import(new URL('js/explore.js', location.href).href);
+      if (EX && EX.openInExplore) {
+        EX.openInExplore('mammals');
+        await wait(700);
+        const row = [...root.querySelectorAll('.ex-card.open')].pop();
+        const ribbon = root.querySelector('.ex-path');
+        if (row) {
+          const r = row.getBoundingClientRect();
+          const floor = ribbon ? ribbon.getBoundingClientRect().top : innerHeight;
+          deepLanding = {
+            name: (row.querySelector('.ex-card-name') || {}).textContent || '',
+            clearsRibbon: r.bottom <= floor + 0.5,
+            onScreen: r.top >= root.getBoundingClientRect().top - 0.5 && r.top < innerHeight,
+            top: Math.round(r.top), bottom: Math.round(r.bottom), floor: Math.round(floor),
+          };
+        }
+      }
+    } catch (e) { deepLanding = { error: String(e) }; }
+
     /* ── The era strip, on the way back out ────────────────────────────
        The timeline is display:none in this view, and neither of its measured
        parts can draw itself from a zero-sized box — the labels are left
@@ -1524,7 +1567,7 @@ async function probePage(page, scenario) {
 
     return { checked: true, steps, afterBack, i18n, herePrefix, contrast,
              eraClippedAfterReturn, densityOnReturn, densityRedrawn,
-             panelOpenBeforeSwitch: panelWasOpen, panelSurvivedSwitch };
+             panelOpenBeforeSwitch: panelWasOpen, panelSurvivedSwitch, deepLanding };
   }, { lang: scenario.lang, panelWasOpen: panelOpenBeforeSwitch });
 
   // Read CSP violations last: inline event handlers are only evaluated when

@@ -97,7 +97,7 @@ tree-of-life/
 │   ├── hominin.css      # Hominin deep-dive overlay, compare cards
 │   ├── features.css     # Legend, zoom, tooltip, quiz, DNA, evo path, tours
 │   ├── theme.css        # Light theme overrides, dark mode polish
-│   ├── explore.css      # Drill-down shell — cards, path dots
+│   ├── explore.css      # Drill-down shell — unfolding rows, path dots
 │   ├── rtl.css          # Hebrew RTL layout overrides
 │   └── responsive.css   # Mobile breakpoints, reduced motion, high contrast
 ├── assets/
@@ -217,11 +217,18 @@ The site has two front doors, switched from the rail and remembered in
 the CSS hides one side wholesale.
 
 **Explore** (`js/explore.js`) is the default and the thing a visitor lands on.
-One screen, one level: a header saying where you are, a grid of large tappable
-cards saying what is inside, one back button, and dots showing your depth from
-LUCA. There is no camera — nothing can be panned off-screen, zoomed into
-nothing, or collapsed out from under you, and every tap has exactly one
-meaning.
+One tree, unfolding in place: tapping a group leaves it where it is and opens
+its children directly beneath it, indented a step, while the branches you did
+not take stay on the page greyed. There is no camera — nothing can be panned
+off-screen, zoomed into nothing, or collapsed out from under you, and every tap
+has exactly one meaning.
+
+It used to be one screen per level — tap a card, the page is wiped and
+repainted as a fresh grid of boxes under a new heading. That was legible but it
+was not a tree: every level looked like every other level, and nothing on
+screen said the rows you were now reading had come out of the row you tapped.
+Boxes hanging under a title is a menu. The unfold is what makes the shape of
+the thing visible, which is the entire subject of the site.
 
 **Map** is the radial tree. It is an expert visualisation: lovely once you know
 what a clade is, and on a 390px phone it showed four circles in the corner of a
@@ -237,6 +244,31 @@ Things worth knowing before changing Explore:
 - **A leaf opens the detail panel** rather than descending into an empty
   screen. `showMainPanel` is injected via `initExploreDeps()` to keep this
   module clear of `panel.js`.
+- **Only one lineage is ever open**, and the open path is derived from a single
+  `_selected` node rather than stored. The two can therefore never disagree,
+  and arriving from search is free: set `_selected` and every ancestor is open
+  by construction. It also bounds the page to the depth of the tree (nine) and
+  never to its size (305 nodes), so no lazy rendering is needed.
+- **The indent staircase is load-bearing, and it is easy to invert.** Rows get
+  denser with depth — nine levels of the old 132px cards does not fit a phone —
+  and the first attempt shrank the media box by 22px while gaining only 12px of
+  indent, so depth 2 rendered *further left* than depth 1 and the nesting
+  stopped reading exactly where it mattered. The indent step must exceed the
+  media-size drop. Measure the inline-start inset per level rather than
+  eyeballing a screenshot; it reads identically in Hebrew when it is right.
+- **`scrollIntoView` cannot see the path ribbon.** It scrolls until the row is
+  inside the scroll container and stops, and the bottom 69px of that container
+  is covered by the view's own fixed bar — so arriving from search on a
+  six-deep node parked it at y=796 in an 844px window, correctly scrolled-to
+  and entirely hidden. Measure against the ribbon's top edge, not the
+  viewport's. `explore:deep-landing-is-visible` is the guard, and the probe's
+  own descent cannot catch this because it starts at the root and never travels
+  far enough to need scrolling at all.
+- **Grey is a contrast problem, not a paint job.** Dimmed rows stay tappable,
+  so WCAG gives them no disabled-control exemption. They use `--text-secondary`
+  (8.3:1 dark, 8.6:1 light), not a low opacity — and note that
+  `a11y:explore-text-contrast` *stops* protecting anything faded below
+  `opacity: 0.15`, because the sweep skips it.
 - **Its coverage is separate from the map's, and has to be.** The suite seeds
   `tol-shell-view = 'map'` so the tree geometry is measured against the tree,
   which means no sweep written for the canvas can see this view. Explore is
@@ -432,6 +464,8 @@ Six checks now cover the drill-down, from the probe that already walks it:
 | `a11y:explore-text-contrast` | drill-down text falls below AA on any screen |
 | `explore:controls-are-not-covered` | something is painted over a card or a control |
 | `explore:view-switch-closes-the-panel` | the species panel survives the shell switch |
+| `explore:descending-unfolds-in-place` | a descent discards the chain above it |
+| `explore:deep-landing-is-visible` | arriving from search parks the node behind the ribbon |
 
 The contrast arithmetic itself is written once, not twice.
 `installContrastSweep()` puts it on the page as `window.__contrastSweep(root)`
@@ -516,7 +550,7 @@ photo is shown. `assets/placeholder.svg` is the fallback when nothing resolves.
 ## Known Constraints & Important Notes
 
 1. **Tests are browser smoke checks, not unit tests** — `node scripts/smoke.mjs`
-   opens the real page in Chromium and asserts 349 things about layout, i18n,
+   opens the real page in Chromium and asserts 361 things about layout, i18n,
    contrast and rendering. See *Smoke tests* below.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
 3. **index.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
@@ -646,7 +680,7 @@ never mistaken for a working page.
 
 ## Smoke Tests
 
-`scripts/smoke.mjs` opens the real page in Chromium and asserts **349 checks**
+`scripts/smoke.mjs` opens the real page in Chromium and asserts **361 checks**
 — ~58 per scenario across six scenarios (desktop and phone viewports in
 English, Hebrew and Russian, plus a desktop pass in the light theme), and four
 static checks that read the source before the browser starts. Scenarios differ
@@ -689,7 +723,7 @@ as a CI artifact on every run).
 | `timeline:` | geological era labels clipped or colliding, **and both the labels and the density curve rebuilt on the way back from the drill-down**, where the strip is hidden and cannot measure itself |
 | `i18n:` | document direction and lang, every bound control matches its translation, missing translation keys, Latin text leaking into Hebrew, search placeholder, English species prose laid out left-to-right, and the same three rules again **inside the drill-down**, which the map-view sweep cannot reach |
 | `a11y:` | every text node meets AA contrast against its effective background, **in the drill-down as well as the map** |
-| `explore:` | the drill-down renders, descends and climbs back; every screen names where you are; nothing scrolls sideways; **nothing is painted over a card or a control**; the species panel is dismissed when the shell switches |
+| `explore:` | the drill-down renders, descends and climbs back; **a descent unfolds in place rather than wiping the page**; every screen names where you are; nothing scrolls sideways; nothing is painted over a card or a control; the species panel is dismissed when the shell switches |
 | `search:` | eight canonical queries return the answer a person would call correct; every common-name alias still matches something |
 | `interact:` | zoom buttons, reset re-fits, parent expands, leaf opens panel, search returns results, camera settles |
 | `static/` | Runs before the browser starts, over `index.html`, `js/`, `css/` and `stories/`: CSS custom properties used but never defined; inline event-handler attributes; `script-src` still forbidding inline and eval; every `data-action` resolving to a registered handler |

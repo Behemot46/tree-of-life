@@ -89,6 +89,9 @@ export function applyI18n(){
   if(navBackBtn) navBackBtn.setAttribute('aria-label',t('nav_back'));
   const navHomeBtn=el('nav-home');
   if(navHomeBtn) navHomeBtn.setAttribute('aria-label',t('nav_home'));
+  set('nav-share-label',t('nav_share'));
+  const navShareBtn=el('nav-share');
+  if(navShareBtn) navShareBtn.setAttribute('aria-label',t('nav_share'));
   // Update page title
   document.title=t('title')+' \u2014 '+t('subtitle').split(' ').slice(0,3).join(' ')+'...';
   // Update view toggle labels

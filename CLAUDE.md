@@ -116,6 +116,7 @@ tree-of-life/
     ├── photoSnapshot.js # GENERATED — every species photo, two sizes each
     ├── labelMetrics.js  # One source of truth for label size, placement, footprint
     ├── dnaSimilarity.js # DNA_KNOWN, estimateDnaSimilarity(), findLCA()
+    ├── taxonRank.js     # rankKey(), subtreeDepth() — a node's rank and how deep it runs
     ├── nodeIcons.js     # NODE_ICONS SVG paths + getIconGroup()
     ├── triviaData.js    # TRIVIA_QUESTIONS — 200+ quiz questions
     ├── primateData.js   # PRIMATE_DATA — taxonomy, genome, traits
@@ -142,6 +143,7 @@ tree-of-life/
     ├── playback.js      # Time-lapse playback mode
     ├── theme.js         # t(), setLang(), applyI18n(), toggleTheme()
     ├── explore.js       # Drill-down shell — see *The two shells*
+    ├── wayfinder.js     # Back / Home / Share — see *Getting out, and sharing*
     ├── splash.js        # Opening animation — see *The opening screen*
     └── engagement.js    # Toast notifications, idle timer, intro, particles
 ```
@@ -275,6 +277,27 @@ Things worth knowing before changing Explore:
   therefore checked from its own probe — usability, language and contrast. See
   *Explore's own checks* below for what runs there and why each one had to be
   written twice.
+- **Rows state their rank, their width and their depth.** "43 inside" answers
+  half of what a reader wants before opening something: mammals and insects
+  both read as a wall of rows and only one of them has four more levels
+  underneath. A group row now reads `Class · 43 inside · 4 levels deep`, and a
+  group only one level deep reads `Phylum · 5 species` instead — the same fact
+  in the word the site already uses for it. `js/taxonRank.js` supplies both
+  halves.
+
+  **Depth is deliberately not named by the rank it ends at**, which was the
+  obvious idea and is measurably useless on this data: all 49 groups bottom out
+  at Species, so "down to species" prints the same phrase on every row on the
+  page. Measure the distribution before choosing a label.
+
+  Rank comes only from an explicit prefix in `latin`. Inferring "two words,
+  capital then lower, so it is a binomial" is wrong here and quietly so —
+  `invertebrates` carries "Multiple phyla" and `gymnosperms` carries "Various
+  families", and both would have been labelled Species on a page whose subject
+  is that they are not.
+
+  Russian needs three plural forms, so the Slavic rule is written out in
+  `plural()` rather than sampled from the numbers that happen to occur today.
 - **The map's furniture is hidden here, and hiding it has a cost.** The era
   slider filters the canvas and does nothing to a card grid, so `#timeline`
   joins the zoom controls and the reveal panel in being hidden — it was also
@@ -284,6 +307,72 @@ Things worth knowing before changing Explore:
   `setShellView` rebuilds the era segments and the density curve on the way
   back into the map. Hide any other self-measuring component here and it needs
   the same treatment.
+
+### Getting out, and sharing
+
+`js/wayfinder.js` owns three controls in one fixed cluster (`#nav-ctrl`): Back,
+Home and Share. They work in both shells, on both viewports and over every
+overlay.
+
+They did not before. The cluster existed and was translated, and it sat at
+`--z-nav + 50` — under the detail panel (400), the games (1000), the hominin
+overlay (1100) and a guided tour (10000) — so it was painted over by every
+single thing a reader can open. Below 769px it was `display:none` outright. Its
+geometry was described in three stylesheets with three different anchors and an
+RTL `transform` hack, and it only appeared when the *map's* `navStack` was
+non-empty, which the drill-down never touches.
+
+Things worth knowing before changing it:
+
+- **Back takes off one layer, not all of them.** `LAYERS` in `wayfinder.js` is
+  ordered topmost-first: tour, tour picker, keyboard help, profile, games,
+  species compare, hominin compare *mode*, hominin overlay, the sapiens
+  overlay, the detail panel. Only when none is open does back belong to the
+  shell — one fold up the drill-down, one step back on the map. A reader who
+  opened a tour on top of a species panel expects one Back to take the tour
+  away and leave the panel standing, which is also what
+  `nav:back-unwinds-one-layer` asserts.
+- **Escape and the Back button share that list.** Escape used to carry its own
+  copy of "which overlay closes first", so the two could — and did — disagree.
+  `app.js` keeps only what the wayfinder does not own: playback mode, the fact
+  toast and the search dropdown.
+- **Back is never disabled**, and that is a design decision rather than an
+  omission. A disabled state has to be refreshed from every module that opens
+  or closes anything — nine of them here — and any one that forgets leaves a
+  live control greyed out or a dead one lit. `updateNavButtons()` is now an
+  empty hook for exactly this reason. At the root, Back falls through to Home,
+  which always does something coherent.
+- **It is above everything, so everything is beneath it.** `--z-wayfinder` is
+  10050 and `--z-splash` was raised to 10500 to stay over it. The cost is that
+  the cluster can no longer be *covered* — it can only cover. Its placement was
+  chosen by measuring, and four plausible corners were wrong:
+
+  | Corner | What is actually there |
+  |---|---|
+  | top inline-start | the site title, which `elementFromPoint` sees straight through — the header has no pointer events |
+  | mid-row inline-start | the search field, which grows to 280px on a desktop and full width on a phone |
+  | inline-start below the header | the left rail, which follows the *start* edge into Hebrew |
+  | top inline-end | the detail panel's ✕ — measured at [1398,58]–[1430,90] against a cluster at [1332,56]–[1428,92] |
+
+  That last one was not cosmetic: outranking the panel made the drawer
+  impossible to close, on an English desktop only — Hebrew opens it on the
+  other edge and a phone opens it as a bottom sheet. It surfaced as a click
+  timeout in `interact:expand-all-refits`, three checks away and naming nothing.
+  Desktop now uses the gutter below the rail and above the era strip; a phone
+  has no gutter, so it uses the corner under the theme cluster and stands aside
+  while the search field is expanded.
+- **The share link carries the shell and the language, not only the node.**
+  Both come from `localStorage` otherwise, so a link naming just the node opened
+  in whatever the *recipient* last used. `?node=&view=&lang=` is honoured for
+  that visit and never written back — reading someone else's link is not the
+  same as changing your own mind, which is why `setShellView()` takes
+  `{ persist }` and `init()` validates `?lang=` against `TRANSLATIONS` rather
+  than a hardcoded list.
+- **The address bar is not the share link.** `showMainPanel` still writes a bare
+  `?node=` through `history.replaceState` and `closePanel` still wipes it, so
+  after following a shared link the visible URL loses `view` and `lang`. The
+  Share button always rebuilds a complete one. Unifying the two means deciding
+  what the URL means when no panel is open, which this change did not settle.
 
 ### The opening screen
 
@@ -466,6 +555,40 @@ Six checks now cover the drill-down, from the probe that already walks it:
 | `explore:view-switch-closes-the-panel` | the species panel survives the shell switch |
 | `explore:descending-unfolds-in-place` | a descent discards the chain above it |
 | `explore:deep-landing-is-visible` | arriving from search parks the node behind the ribbon |
+| `explore:rows-state-breadth-and-depth` | a group row understates its width or its depth |
+
+`explore:rows-state-breadth-and-depth` compares each row against the tree
+rather than against a pattern — the row has to state the real child count and
+the real number of levels below it. A regex for "a number and a word" passes
+just as happily on the wrong number.
+
+### The wayfinder's checks
+
+Four more, run from the map pass with a species panel already open, because
+"reachable" is the claim and an empty page is the one state in which it was
+never in doubt:
+
+| Check | Fails when |
+|---|---|
+| `chrome:wayfinder-is-reachable` | a Back, Home or Share button is covered — tested with a panel open, and again with a game on top of it |
+| `chrome:wayfinder-clears-the-chrome` | the cluster is painted over the title, the rail, the era strip, the panel's ✕, the reveal panel or the zoom rail |
+| `nav:back-unwinds-one-layer` | Back closes the game *and* the panel underneath, or neither |
+| `share:link-names-node-view-and-language` | the share link omits the shell or the language, or the button produces no toast |
+| `share:link-restores-the-senders-view` | following `?node=&view=&lang=` opens in the recipient's shell or language, or rewrites their stored preference |
+
+`chrome:wayfinder-clears-the-chrome` compares *boxes*, not hit tests, and has
+to: the header has no pointer events, so `elementFromPoint` reports the canvas
+straight through the site title and would have called the original placement
+clear while it sat squarely on the words. It found a real bug on its first run
+that had nothing to do with the wayfinder — `#left-rail-toggle` pinned a
+physical `left`, so on a Hebrew phone the ☰ sat on the opposite edge from the
+rail it opens (constraint 8).
+
+`share:link-restores-the-senders-view` needs its own page load, so it is the
+last thing `probePage()` does. The runner seeds the *opposite* of what the link
+asks for — the map, in the scenario's own language — because a page that
+ignored the query string would otherwise look exactly like every other scenario
+and pass by accident.
 
 The contrast arithmetic itself is written once, not twice.
 `installContrastSweep()` puts it on the page as `window.__contrastSweep(root)`
@@ -550,7 +673,7 @@ photo is shown. `assets/placeholder.svg` is the fallback when nothing resolves.
 ## Known Constraints & Important Notes
 
 1. **Tests are browser smoke checks, not unit tests** — `node scripts/smoke.mjs`
-   opens the real page in Chromium and asserts 361 things about layout, i18n,
+   opens the real page in Chromium and asserts 397 things about layout, i18n,
    contrast and rendering. See *Smoke tests* below.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
 3. **index.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
@@ -680,8 +803,8 @@ never mistaken for a working page.
 
 ## Smoke Tests
 
-`scripts/smoke.mjs` opens the real page in Chromium and asserts **361 checks**
-— ~58 per scenario across six scenarios (desktop and phone viewports in
+`scripts/smoke.mjs` opens the real page in Chromium and asserts **397 checks**
+— ~65 per scenario across six scenarios (desktop and phone viewports in
 English, Hebrew and Russian, plus a desktop pass in the light theme), and four
 static checks that read the source before the browser starts. Scenarios differ
 in count because some checks are language- or viewport-specific. It runs on every
@@ -719,11 +842,12 @@ as a CI artifact on every run).
 |---|---|
 | `load:` | uncaught errors, failed requests, SVG render errors, splash dismissal, nothing covering the stage |
 | `tree:` | node and branch counts, **NaN coordinates**, fit-to-stage, spill, root visibility, horizontal scroll |
-| `chrome:` | header/timeline visible, reveal panel vs. zoom controls and timeline, closed panel off-screen, tooltip and fact toast vs. header, tooltip vs. the node it describes, nothing printed over the species name, **no floating control stretched across the window** |
+| `chrome:` | header/timeline visible, reveal panel vs. zoom controls and timeline, closed panel off-screen, tooltip and fact toast vs. header, tooltip vs. the node it describes, nothing printed over the species name, **no floating control stretched across the window**, **the wayfinder reachable over every overlay and painted over nothing** |
 | `timeline:` | geological era labels clipped or colliding, **and both the labels and the density curve rebuilt on the way back from the drill-down**, where the strip is hidden and cannot measure itself |
 | `i18n:` | document direction and lang, every bound control matches its translation, missing translation keys, Latin text leaking into Hebrew, search placeholder, English species prose laid out left-to-right, and the same three rules again **inside the drill-down**, which the map-view sweep cannot reach |
 | `a11y:` | every text node meets AA contrast against its effective background, **in the drill-down as well as the map** |
-| `explore:` | the drill-down renders, descends and climbs back; **a descent unfolds in place rather than wiping the page**; every screen names where you are; nothing scrolls sideways; nothing is painted over a card or a control; the species panel is dismissed when the shell switches |
+| `explore:` | the drill-down renders, descends and climbs back; **a descent unfolds in place rather than wiping the page**; every screen names where you are; nothing scrolls sideways; nothing is painted over a card or a control; the species panel is dismissed when the shell switches; **every group row states its real width and depth** |
+| `nav:` / `share:` | **Back takes off one layer and leaves the one beneath it**; the share link names the shell and the language as well as the node; following such a link opens in the sender's view without overwriting the recipient's stored preference |
 | `search:` | eight canonical queries return the answer a person would call correct; every common-name alias still matches something |
 | `interact:` | zoom buttons, reset re-fits, parent expands, leaf opens panel, search returns results, camera settles |
 | `static/` | Runs before the browser starts, over `index.html`, `js/`, `css/` and `stories/`: CSS custom properties used but never defined; inline event-handler attributes; `script-src` still forbidding inline and eval; every `data-action` resolving to a registered handler |

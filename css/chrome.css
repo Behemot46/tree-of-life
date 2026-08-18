@@ -259,20 +259,56 @@
   display:flex;align-items:center;
 }
 
-/* Back/Home buttons: drop fixed positioning, become inline pills near breadcrumb */
+/* ── WAYFINDER: Back / Home / Share ──
+   The single owner of this cluster's geometry. It was previously described in
+   three files at once — a base rule here, an anchor in layout.css and a third
+   in responsive.css — and the result was a control nobody could reach: below
+   769px it was display:none outright, and everywhere else it sat at
+   --z-nav + 50, which is under the detail panel, the games, the hominin
+   overlay and a guided tour. It closes all four of those now, so it has to be
+   painted above them.
+
+   Two anchors, one per viewport, and both were chosen by measuring the page
+   rather than by looking at it. Four places look free and are not:
+
+     the top inline-start corner is the site title — .title-main starts 14px in
+     on both viewports, and the header has no pointer-events, so elementFromPoint
+     reports the canvas straight through the words and no occlusion check would
+     ever have said anything about it;
+
+     mid-row inline-start is where the search field expands to on focus — 280px
+     on a desktop, the full width less 80px on a phone;
+
+     the inline-start column below the header is the left rail, which follows
+     the *start* edge into Hebrew and so is not escaped by flipping;
+
+     the top inline-end corner below the theme cluster is the detail panel's
+     own ✕ — measured at [1398,58]–[1430,90] against a cluster at
+     [1332,56]–[1428,92]. This one is why the anchor moved: the wayfinder now
+     outranks the panel, so parking it there did not merely look wrong, it made
+     the drawer impossible to close. It was also invisible in Hebrew, where the
+     drawer opens on the other edge, and on a phone, where it is a bottom
+     sheet — one viewport in three, and it surfaced as a click timeout in an
+     unrelated check three steps away.
+
+   What is left on a desktop is the gutter below the rail and above the era
+   strip: empty canvas in the map, and outside the drill-down's content column
+   in both directions. */
 #nav-ctrl{
   position:fixed !important;
-  /* Parked left of centre. `right:auto` is not redundant: without it the RTL
-     rule in layout.css sets a right edge that this !important left cannot
-     release, and the cluster stretches to 700px across the header. */
-  top:14px !important;left:50% !important;right:auto !important;
-  transform:translateX(calc(-50% - 240px)) !important;
-  z-index:calc(var(--z-nav) + 50);
+  top:auto !important;
+  bottom:96px !important;
+  inset-inline-start:var(--chrome-pad) !important;
+  inset-inline-end:auto !important;
+  transform:none !important;
+  z-index:var(--z-wayfinder);
   padding:3px;
   background:var(--glass-bg);
   border:1px solid var(--glass-border);
   border-radius:var(--radius-md);
   backdrop-filter:var(--glass-blur);
+  /* Always on screen. It is the way out of things this file cannot see being
+     opened, so there is no state it could usefully be hidden by. */
   display:flex !important;gap:2px;
   opacity:1 !important;visibility:visible !important;
 }
@@ -282,6 +318,10 @@
   background:transparent;border:none;color:var(--text-secondary);
 }
 #nav-ctrl .nav-btn span:not(.nav-arrow){display:none;}
+#nav-ctrl .nav-arrow{font-size:13px;}
+/* Never disabled — see js/wayfinder.js for why the state was removed rather
+   than kept in sync. Scoped to this cluster; .nav-btn is used elsewhere. */
+#nav-ctrl .nav-btn:disabled{opacity:1;pointer-events:auto;}
 
 /* ── SEARCH: collapsed icon, expands on focus/hover ────────── */
 #search-wrap{
@@ -391,8 +431,15 @@ body.detail-open[dir="rtl"] #zoom-ctrl{
     /* collapsed: only show as a small floating button */
     display:none;
   }
+  /* Logical, not `left:8px`. The rail it opens is pinned to the inline start
+     and therefore moves to the right in Hebrew, while its own ☰ stayed on the
+     left — a button on one edge of the phone opening a drawer from the other.
+     It also sat in the corner the wayfinder occupies in RTL, which is how this
+     was found: a check about one control failing on the physical offset of
+     another (constraint 8). */
   #left-rail-toggle{
-    position:fixed;top:60px;left:8px;z-index:calc(var(--z-nav) + 10);
+    position:fixed;top:60px;z-index:calc(var(--z-nav) + 10);
+    inset-inline-start:8px;inset-inline-end:auto;
     width:42px;height:42px;padding:0;
     display:flex;align-items:center;justify-content:center;
     background:var(--glass-bg);border:1px solid var(--glass-border);
@@ -403,7 +450,27 @@ body.detail-open[dir="rtl"] #zoom-ctrl{
   #search-input:focus,#search-input:not(:placeholder-shown){width:calc(100vw - 80px) !important;}
   #zoom-ctrl{top:auto !important;bottom:120px !important;transform:none;}
   #breadcrumb{display:none !important;}
-  #nav-ctrl{display:none !important;}
+  /* Was display:none, which is how Back and Home came to be missing entirely
+     from the device the drill-down exists for.
+
+     Not the desktop's bottom gutter: a phone has no gutter. The drill-down's
+     rows run the full width of the window, so anything floating over them
+     covers a thumbnail and half a name. The corner below the theme cluster is
+     the one that is free, and the detail panel is a bottom sheet here, so the
+     ✕ that ruled that corner out on a desktop is nowhere near it. */
+  #nav-ctrl{
+    top:64px !important;bottom:auto !important;
+    inset-inline-end:8px !important;inset-inline-start:auto !important;
+  }
+  /* The one thing on a phone that reaches this corner: the search field grows
+     to the full width of the window on focus, measured at 60→370 against a
+     cluster at 274→382. It is the one control the wayfinder must not outrank —
+     a text field whose end you cannot see is worse than a Back button that
+     needs an Escape first. It returns on blur. */
+  body:has(#search-input:focus) #nav-ctrl,
+  body:has(#search-input:not(:placeholder-shown)) #nav-ctrl{
+    opacity:0 !important;visibility:hidden !important;pointer-events:none;
+  }
   #top-right-controls{inset-inline-end:8px !important;inset-inline-start:auto !important;top:8px !important;}
 }
 @media (min-width:769px){

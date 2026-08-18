@@ -51,6 +51,7 @@ import { displayName } from './utils.js';
 import { registerActions } from './actions.js';
 import { t } from './theme.js';
 import { SILHOUETTES } from './silhouettes.js';
+import { rankKey, subtreeDepth } from './taxonRank.js';
 
 /* The deepest node the reader has opened. The open path is derived from it
    rather than stored, so the two can never disagree — which is also what makes
@@ -106,14 +107,55 @@ function rowMedia(node) {
   return `<span class="ex-card-emoji">${node.icon || '●'}</span>`;
 }
 
+/* Russian has three plural forms; Hebrew and English have two and repeat the
+   third. The numbers here are small — depth never passes nine, and no level
+   holds more than 43 — but the full Slavic rule is written out rather than a
+   lookup that is right for today's sample and wrong for the first row added
+   after it. */
+function plural(n, base) {
+  if (state.currentLang === 'ru') {
+    const m10 = n % 10, m100 = n % 100;
+    if (m10 === 1 && m100 !== 11) return t(base + '_one');
+    if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return t(base + '_few');
+    return t(base + '_many');
+  }
+  return t(base + (n === 1 ? '_one' : '_many'));
+}
+
+/* How wide a group is and how deep it runs — the two questions a reader is
+   actually asking before they decide whether to open it.
+   "43 inside" alone answers neither: mammals and insects both read as a wall
+   of rows, and only one of them has four more levels underneath.
+
+   Depth is *not* named by the rank it bottoms out at, which was the obvious
+   idea and is measurably useless here: every one of the 49 groups reaches
+   Species, so "down to species" would print the same words on every row on the
+   page. What varies is the number of levels (1 to 9) and the group's own rank,
+   so those are what is shown. A group one level deep says "5 species" instead
+   of "5 inside · 1 level", because that is the same fact in the word the site
+   already uses for it. */
+function groupSub(node, kids) {
+  const bits = [];
+  const rk = rankKey(node);
+  if (rk) bits.push(t(rk));
+  const depth = subtreeDepth(node);
+  if (depth <= 1) {
+    bits.push(`${kids} ${plural(kids, 'ex_species')}`);
+  } else {
+    bits.push(`${kids} ${t('ex_inside')}`);
+    bits.push(`${depth} ${plural(depth, 'ex_levels')}`);
+  }
+  return bits.join(' · ');
+}
+
 /* One row. `lit` is the open lineage plus the choice set directly beneath it;
    everything else is a branch that was passed over and is drawn grey. */
 function rowHTML(node, depth, { open, lit, live, titled }) {
   const kids = childrenOf(node).length;
-  /* Translated, and the count kept beside a translated word. "10 inside" put a
-     Latin run in an RTL paragraph, which bidi reorders to "inside 10" — the
+  /* Translated, and every count kept beside a translated word. "10 inside" put
+     a Latin run in an RTL paragraph, which bidi reorders to "inside 10" — the
      same reordering the detail panel already guards against. */
-  const sub = kids ? `${kids} ${t('ex_inside')}` : (node.era || node.latin || '');
+  const sub = kids ? groupSub(node, kids) : (node.era || node.latin || '');
   /* With children the subtitle is a translated word; without them it is the
      node's era or binomial, which come from the tree data and are English by
      policy. Marking which one it is here is what lets the leak scan tell an
@@ -301,6 +343,26 @@ export function openInExplore(nodeOrId) {
      other half of an unfold — a disclosure that only ever opens is a trap. */
   _selected = (node === _selected && node._parent) ? node._parent : node;
   renderExplore();
+}
+
+/* Where the reader is standing, and the two ways out of it, for the chrome
+   that has to describe or leave this view. Exported as functions rather than
+   by exposing `_selected`: it has exactly one writer and it lives in this
+   file, which is the property that makes the open path safe to derive. */
+export function exploreSelection() { return _selected; }
+
+export function exploreUp() {
+  if (!_selected._parent) return false;
+  _selected = _selected._parent;
+  renderExplore();
+  return true;
+}
+
+export function exploreHome() {
+  if (_selected === TREE) return false;
+  _selected = TREE;
+  renderExplore();
+  return true;
 }
 
 /* Swipe right to go up a level, the gesture a phone reader will try first. */

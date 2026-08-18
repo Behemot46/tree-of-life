@@ -78,10 +78,12 @@
 .bc-sep{font-size:var(--text-2xs);color:var(--text-secondary);opacity:0.4;padding:0 0.3rem;}
 #breadcrumb.hidden{display:none;}
 
-/* ── NAV CONTROLS (Back / Home) ── */
-#nav-ctrl{position:fixed;top:4.2rem;left:1.2rem;z-index:calc(var(--z-nav) + 50);display:flex;align-items:center;gap:0.35rem;
-  pointer-events:all;opacity:0;transform:translateY(-6px);transition:opacity 0.25s ease,transform 0.25s ease;visibility:hidden;}
-#nav-ctrl.visible{opacity:1;transform:translateY(0);visibility:visible;}
+/* ── WAYFINDER (Back / Home / Share) ──
+   Geometry lives in chrome.css and nowhere else. It used to be split across
+   this file, chrome.css and responsive.css, each with its own anchor and its
+   own !important, and the net effect was a control that was hidden on a phone,
+   painted under every overlay, and only visible when the map's nav stack was
+   non-empty. Only the button skin is left here. */
 .nav-btn{padding:0.3rem 0.7rem;background:var(--glass-bg);border:1px solid var(--glass-border);
   border-radius:8px;color:var(--accent);font-size:var(--text-sm);font-family:var(--font-body);
   cursor:pointer;display:inline-flex;align-items:center;gap:0.3rem;transition:all var(--transition-fast);
@@ -92,10 +94,10 @@
 .nav-btn .nav-arrow{display:inline-block;font-size:var(--text-sm);line-height:1;}
 [data-theme="light"] .nav-btn{background:var(--glass-bg);border-color:var(--glass-border);color:var(--text-secondary);}
 [data-theme="light"] .nav-btn:hover{background:var(--accent-primary-dim);border-color:var(--accent-primary);color:var(--accent-primary);}
-/* Mirrored across the centre line, not pinned to the far edge: the cluster is
-   centre-offset, so RTL flips the offset rather than the anchor. */
-[dir="rtl"] #nav-ctrl{flex-direction:row-reverse;transform:translateX(calc(-50% + 240px)) !important;}
-[dir="rtl"] .nav-arrow{transform:scaleX(-1);}
+/* The arrows point the way out, so they mirror with the text. The share glyph
+   does not — it is a picture of a link, not a direction, and a mirrored one
+   just looks broken. */
+[dir="rtl"] .nav-arrow:not(.nav-static){transform:scaleX(-1);}
 
 /* ── Reveal Panel ── */
 .reveal-panel {

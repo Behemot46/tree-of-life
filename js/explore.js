@@ -93,18 +93,37 @@ function childrenOf(node) {
   return node.children || [];
 }
 
+/* No photograph, or none that arrived: the silhouette if there is one, the
+   emoji otherwise. Both read perfectly at row size, which is the point — at
+   40px on the map neither a photo nor an emoji carried much.
+
+   Rendered hidden when it is standing behind a photograph, and revealed by the
+   error handler. Inline `display:none` rather than a class, so that clearing
+   it hands the box back to the stylesheet: a silhouette is a masked block and
+   an emoji is an inline run, and the handler has no business knowing which. */
+function fallbackMedia(node, hidden) {
+  const hide = hidden ? 'display:none;' : '';
+  if (SILHOUETTES[node.id]) {
+    return `<span class="ex-card-sil" style="${hide}--sc:${node.color}" data-sil="${node.id}"></span>`;
+  }
+  return `<span class="ex-card-emoji"${hide ? ` style="${hide}"` : ''}>${node.icon || '●'}</span>`;
+}
+
+/* A URL that resolves is not a URL that loads. Commons files are renamed and
+   deleted, and the visitor's connection gets an opinion too — and the row's
+   only answer was `data-on-error="hide"`, which took the <img> away and left
+   .ex-card-media as an empty 36px hole. Empty is worse than either picture:
+   the reader cannot tell a species with no photograph from a page that is
+   still loading. So the replacement rides along with the photograph rather
+   than being fetched after the fact. The map's discs already do the same
+   thing from the other end, probing the file before they attach it. */
 function rowMedia(node) {
   const best = ImageLoader ? ImageLoader.getBestUrl(node, 'thumb') : null;
   if (best && best.url) {
-    return `<img class="ex-card-img" src="${best.url}" alt="" loading="lazy" data-on-error="hide">`;
+    return `<img class="ex-card-img" src="${best.url}" alt="" loading="lazy" data-on-error="hide-show-next">`
+      + fallbackMedia(node, true);
   }
-  /* No photograph: the silhouette if there is one, the emoji otherwise. Both
-     read perfectly at row size, which is the point — at 40px on the map
-     neither a photo nor an emoji carried much. */
-  if (SILHOUETTES[node.id]) {
-    return `<span class="ex-card-sil" style="--sc:${node.color}" data-sil="${node.id}"></span>`;
-  }
-  return `<span class="ex-card-emoji">${node.icon || '●'}</span>`;
+  return fallbackMedia(node, false);
 }
 
 /* Russian has three plural forms; Hebrew and English have two and repeat the
@@ -232,11 +251,12 @@ function branchHTML(node, depth, openSet) {
 
   if (node === _selected) html += revealHTML(node, depth);
 
+  /* Only _selected is ever both open and childless, and openInExplore
+     guarantees _selected has children — so this is the invariant holding, not
+     a case to render. It used to print "this is as deep as this branch goes"
+     here, which nothing on the running site could ever see. */
   const kids = childrenOf(node);
-  if (!kids.length) {
-    html += `<p class="ex-leaf" style="--d:${Math.min(depth + 1, 4)}">${t('ex_leaf_end')}</p>`;
-    return html;
-  }
+  if (!kids.length) return html;
 
   const cut = kids.length > WIDE && !_showAll.has(node.id);
   const shown = cut ? kids.slice(0, WIDE_HEAD) : kids;
@@ -329,13 +349,22 @@ export function openInExplore(nodeOrId) {
   /* A species is the destination, not another level. Descending into one used
      to leave you on a screen whose only content was "this is as deep as this
      branch goes" — a dead end at exactly the moment the reader had arrived at
-     the thing they were looking for. The detail panel is what they wanted. */
-  if (!childrenOf(node).length && _showMainPanel) {
+     the thing they were looking for. The detail panel is what they wanted.
+
+     Unconditional, and it was not: the guard used to also require
+     _showMainPanel, so a childless node *could* become _selected whenever
+     app.js had not wired the panel in yet. That left the render path carrying
+     a translated "end of this branch" message for a state the running site
+     never reaches — dead copy in three languages, kept alive by a dependency
+     check. The invariant is worth more stated plainly: _selected always has
+     children. Without a panel to open, a species simply lands the reader among
+     its siblings. */
+  if (!childrenOf(node).length) {
     /* Open its parent, so closing the panel leaves the reader among the
        species' siblings rather than wherever they happened to be standing
        when they searched for it. */
     if (node._parent) { _selected = node._parent; renderExplore(); }
-    _showMainPanel(node);
+    if (_showMainPanel) _showMainPanel(node);
     return;
   }
 

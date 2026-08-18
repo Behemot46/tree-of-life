@@ -78,7 +78,14 @@ document.addEventListener('error', (e) => {
     return;
   }
   img.style.display = 'none';
+  /* Hand the layout back to the stylesheet rather than naming one. Clearing
+     the inline `display:none` the fallback was rendered with lets each call
+     site's own rule decide what the replacement is -- a masked block for a
+     silhouette, an inline run for an emoji, a flex circle for a compare slot.
+     Forcing `flex` here was right for exactly the one call site it was
+     written against and wrong for a silhouette, which is a painted box with
+     no children and no business being a flex container. */
   if (mode === 'hide-show-next' && img.nextElementSibling) {
-    img.nextElementSibling.style.display = 'flex';
+    img.nextElementSibling.style.display = '';
   }
 }, true);

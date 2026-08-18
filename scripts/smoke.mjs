@@ -346,6 +346,22 @@ check('i18n:controls-translated', 'Every bound control shows its translation', (
   }
 });
 
+/* A control wears one icon or none. The markup and the translation are two
+   places to write a glyph and neither can see the other, so an icon added to
+   one while the other already carried one reads as two icons on one label --
+   which is what "\u{1F52C} \u2696 Compare Mode" was, in all three languages, for as
+   long as the string existed. i18n:controls-translated cannot see it: the
+   binding matched its translation perfectly. The label has to be measured
+   assembled. */
+check('i18n:one-icon-per-control', 'No control wears two icons at once', (c) => {
+  const bad = c.probe.doubledIcons;
+  if (!bad) return;
+  if (bad.length) {
+    fail(`${bad.length} control(s) show more than one icon: ` +
+      bad.slice(0, 4).map((b) => `#${b.id} "${b.text}" (${b.icons})`).join('; '));
+  }
+});
+
 check('i18n:translation-keys-exist', 'Every bound control has a translation key', (c) => {
   const missing = c.probe.i18nMissingKeys;
   if (missing.length) fail(`no "${c.scenario.lang}" translation for key(s): ${missing.join(', ')}`);
@@ -552,6 +568,21 @@ check('explore:deep-landing-is-visible', 'Opening a deep node scrolls it clear o
   if (d.error) { fail(`could not open a deep node: ${d.error}`); return; }
   if (!d.onScreen) fail(`"${d.name.trim()}" is off-screen after opening it (top ${d.top})`);
   else if (!d.clearsRibbon) fail(`"${d.name.trim()}" lands behind the path ribbon (bottom ${d.bottom}, ribbon top ${d.floor})`);
+});
+
+/* The row keeps a picture when its photograph does not arrive. The media box
+   is a fixed 36px whether or not anything paints in it, so a hidden <img> is
+   not an absent one — it is a hole the reader cannot interpret. See the probe
+   for why this breaks an image rather than looking for a broken one. */
+check('explore:a-broken-photo-still-shows-something', 'A row whose photograph fails falls back to its silhouette', (c) => {
+  const e = c.probe.explore;
+  if (!e || !e.checked || !e.photoFallback) return;
+  const f = e.photoFallback;
+  if (f.error) { fail(`breaking a row photograph threw: ${f.error}`); return; }
+  if (f.skipped) return;
+  if (!f.imgHidden) fail('the <img> that failed to load is still on the row');
+  else if (!f.replacement) fail(`nothing replaced it — ${f.box}px of empty media box`);
+  else if (!f.replacementW) fail(`the replacement (${f.replacement}) rendered at zero width`);
 });
 
 check('explore:no-horizontal-scroll', 'The drill-down never scrolls sideways', (c) => {
@@ -878,6 +909,26 @@ async function probePage(page, scenario, baseUrl) {
       if (got !== String(want).trim()) i18nMismatches.push({ id: b.id, got, want: String(want) });
     }
 
+    /* One icon per control, counted on the rendered label rather than on the
+       markup or the translation alone. The glyph is written in whichever of
+       the two the author had open at the time, and neither one can see the
+       other: the Compare pill carried a microscope in index.html and the
+       translation for the same button opened with a scale, so every visitor
+       in every language read "\u{1F52C} \u2696 Compare Mode". Nothing failed --
+       the binding matched its translation exactly, which is all the i18n
+       check was ever asking. */
+    const doubledIcons = [];
+    for (const b of bindings) {
+      const el = byId(b.id);
+      if (!el) continue;
+      const ctl = el.closest('button, a[href], label, [role="button"]') || el;
+      if (!visible(ctl)) continue;
+      const icons = ((ctl.textContent || '').match(/\p{Extended_Pictographic}/gu) || []);
+      if (icons.length > 1) {
+        doubledIcons.push({ id: b.id, icons: icons.join(' '), text: (ctl.textContent || '').trim().slice(0, 40) });
+      }
+    }
+
     // Latin-script leak scan over visible chrome text (Hebrew only)
     const latinLeaks = [];
     if (lang === 'he') {
@@ -987,7 +1038,7 @@ async function probePage(page, scenario, baseUrl) {
         zoom: boxOf('zoom-ctrl'), tooltip: boxOf('tooltip'),
       },
       eraClipped, eraOverlaps,
-      i18nMismatches, i18nMissingKeys, latinLeaks, searchPlaceholder,
+      i18nMismatches, i18nMissingKeys, latinLeaks, searchPlaceholder, doubledIcons,
       centerHit, cspViolations, taxonLabels, stretchedChrome, labelsOffStage,
     };
   }, { bindings: I18N_BINDINGS, lang: scenario.lang });
@@ -1712,6 +1763,45 @@ async function probePage(page, scenario, baseUrl) {
       }).filter(Boolean);
     } catch (e) { rowFacts = { error: String(e) }; }
 
+    /* ── What is left when a photograph does not arrive ────────────────
+       A URL that resolves is not a URL that loads, and the row's only answer
+       used to be data-on-error="hide": the <img> went away and .ex-card-media
+       stayed behind as an empty 36px hole. Empty is the one outcome that tells
+       the reader nothing — a species with no picture and a page still loading
+       look identical.
+
+       Broken here rather than asserted about, because every other way of
+       asking is a lie on some machine. The sandbox cannot reach Wikimedia at
+       all, so "does every row show a picture" is red for a reason that is not
+       a defect; CI can reach it, so "does any row fail" is green there for a
+       reason that is not a fix. Pointing one row at a file that does not exist
+       fails identically in both places. */
+    let photoFallback = null;
+    try {
+      const img = root.querySelector('.ex-card-img');
+      if (!img) {
+        photoFallback = { skipped: 'no row on screen is showing a photograph' };
+      } else {
+        const media = img.parentElement;
+        const box = Math.round(media.getBoundingClientRect().width);
+        img.loading = 'eager';   // an off-screen lazy image never loads, so never errors
+        img.src = new URL('assets/__no-such-photo.png', location.href).href;
+        for (let i = 0; i < 30 && getComputedStyle(img).display !== 'none'; i++) await wait(100);
+        const shown = [...media.children].filter((c) => {
+          if (c === img) return false;
+          const cs = getComputedStyle(c);
+          const r = c.getBoundingClientRect();
+          return cs.display !== 'none' && cs.visibility !== 'hidden' && r.width > 0 && r.height > 0;
+        });
+        photoFallback = {
+          imgHidden: getComputedStyle(img).display === 'none',
+          replacement: shown.length ? (shown[0].className || shown[0].tagName) : null,
+          replacementW: shown.length ? Math.round(shown[0].getBoundingClientRect().width) : 0,
+          box,
+        };
+      }
+    } catch (e) { photoFallback = { error: String(e) }; }
+
     let deepLanding = null;
     try {
       const EX = await import(new URL('js/explore.js', location.href).href);
@@ -1784,7 +1874,7 @@ async function probePage(page, scenario, baseUrl) {
     // Back to the palette this scenario is meant to be measured in.
     if (themeBtn) { themeBtn.click(); await wait(300); }
 
-    return { checked: true, steps, afterBack, i18n, herePrefix, contrast, rowFacts,
+    return { checked: true, steps, afterBack, i18n, herePrefix, contrast, rowFacts, photoFallback,
              eraClippedAfterReturn, densityOnReturn, densityRedrawn,
              panelOpenBeforeSwitch: panelWasOpen, panelSurvivedSwitch, deepLanding };
   }, { lang: scenario.lang, panelWasOpen: panelOpenBeforeSwitch });

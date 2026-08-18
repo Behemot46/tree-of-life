@@ -2132,13 +2132,21 @@ async function runScenario(browser, scenario, baseUrl) {
   const pageErrors = [], consoleErrors = [], failedRequests = [];
   page.on('pageerror', (e) => pageErrors.push(String(e && e.message ? e.message : e)));
   page.on('console', (m) => { if (m.type() === 'error') consoleErrors.push(m.text()); });
+  /* One 404 is asked for on purpose: explore:a-broken-photo-still-shows-something
+     points a row's photograph at a file that does not exist, because that is
+     the only way to test the fallback that means the same thing on a machine
+     which can reach Wikimedia and one which cannot. Named once here so the
+     exemption is a single literal rather than a pattern that could swallow a
+     real missing asset. */
+  const DELIBERATE_404 = '/assets/__no-such-photo.png';
+  const ours = (u) => u.startsWith(baseUrl) && !u.replace(baseUrl, '').startsWith(DELIBERATE_404);
   page.on('requestfailed', (r) => {
     // Only same-origin resources — third-party CDNs are out of our control and
     // the page is designed to work without them.
-    if (r.url().startsWith(baseUrl)) failedRequests.push(r.url().replace(baseUrl, ''));
+    if (ours(r.url())) failedRequests.push(r.url().replace(baseUrl, ''));
   });
   page.on('response', (r) => {
-    if (r.url().startsWith(baseUrl) && r.status() >= 400) {
+    if (ours(r.url()) && r.status() >= 400) {
       failedRequests.push(`${r.status()} ${r.url().replace(baseUrl, '')}`);
     }
   });

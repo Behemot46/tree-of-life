@@ -171,12 +171,6 @@ body[data-view="explore"] .reveal-panel { display: none !important; }
 }
 .ex-more:hover { color: var(--text-primary); border-color: var(--accent); }
 
-.ex-leaf {
-  margin: 2px 0 6px;
-  margin-inline-start: calc(10px + var(--d, 0) * 16px);
-  color: var(--text-secondary); font-size: 14px;
-}
-
 /* The unfold. Only the branch that was just opened animates — re-rendering
    replays every animation on the page, so without this marker each tap made
    the whole column shimmer. */

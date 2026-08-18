@@ -266,6 +266,23 @@ Things worth knowing before changing Explore:
   viewport's. `explore:deep-landing-is-visible` is the guard, and the probe's
   own descent cannot catch this because it starts at the root and never travels
   far enough to need scrolling at all.
+- **A row carries its own replacement picture.** `data-on-error="hide"` was the
+  whole fallback, and hiding an `<img>` inside a fixed 36px media box leaves a
+  hole, not an absence — a species with no photograph and a page still loading
+  look identical. The silhouette (or the emoji) is now rendered alongside the
+  photograph, hidden, and revealed by the error handler in `actions.js`. That
+  handler clears the sibling's inline `display` rather than setting one:
+  `hide-show-next` used to force `flex`, which suited the one call site it was
+  written against and made a masked silhouette block into a flex container.
+  A URL that resolves is not a URL that loads — Commons files get renamed and
+  deleted, and the visitor's connection gets an opinion too.
+- **`_selected` always has children, unconditionally.** The guard in
+  `openInExplore` used to read `if (!childrenOf(node).length && _showMainPanel)`,
+  so the invariant held only while `app.js` had the panel wired. That left a
+  translated "this is as deep as this branch goes" message in the render path
+  for a state the running site never reaches — dead copy in three languages,
+  kept alive by a dependency check. Both are gone. State an invariant plainly
+  or it grows code to serve the case it forbids.
 - **Grey is a contrast problem, not a paint job.** Dimmed rows stay tappable,
   so WCAG gives them no disabled-control exemption. They use `--text-secondary`
   (8.3:1 dark, 8.6:1 light), not a low opacity — and note that
@@ -520,6 +537,18 @@ The boundary is the `latin` field: ranked groups carry a rank prefix
 descriptions and facts stay English too — a half-translated tree reads worse
 than a consistently English one.
 
+### One icon per control
+
+A control wears one icon or none, and `i18n:one-icon-per-control` measures the
+**assembled** label to say so. The markup and the translation are two places to
+write a glyph and neither can see the other, so the Compare pill carried a
+microscope in `index.html` while `compare_btn` opened with a scale, and every
+visitor in every language read "🔬 ⚖ Compare Mode". Nothing failed:
+`i18n:controls-translated` compares the bound element against its translation
+and the two matched exactly, which is all it was ever asking. Put a glyph in
+one place — the markup, by preference, since it is the same in all three
+languages — and read the rendered result to check.
+
 `i18n:taxon-labels-translated` in the smoke suite fails if a group node renders
 its English name in Hebrew or Russian. Elements that legitimately show English
 data — the species-of-the-day badge — carry `data-i18n-exempt` so the leak
@@ -543,7 +572,7 @@ you are. Legible enough to pass a glance, and not enough to pass a
 measurement. `--accent` was darkened to `#8a5e23`, which is the same fix
 `--text-secondary` had already had for the same reason.
 
-Six checks now cover the drill-down, from the probe that already walks it:
+Ten checks now cover the drill-down, from the probe that already walks it:
 
 | Check | Fails when |
 |---|---|
@@ -556,6 +585,16 @@ Six checks now cover the drill-down, from the probe that already walks it:
 | `explore:descending-unfolds-in-place` | a descent discards the chain above it |
 | `explore:deep-landing-is-visible` | arriving from search parks the node behind the ribbon |
 | `explore:rows-state-breadth-and-depth` | a group row understates its width or its depth |
+| `explore:a-broken-photo-still-shows-something` | a row whose photograph fails is left an empty hole |
+
+`explore:a-broken-photo-still-shows-something` **breaks an image rather than
+looking for a broken one**, and that is the only form of it that means the same
+thing everywhere. The sandbox cannot reach Wikimedia at all, so "every row
+shows a picture" is red there for a reason that is not a defect; CI can reach
+it, so "no row failed" is green there for a reason that is not a fix. Pointing
+one row at a file that does not exist fails identically in both. The 404 it
+asks for is named as a single literal in the runner so
+`load:no-failed-requests` can skip that one URL and nothing else.
 
 `explore:rows-state-breadth-and-depth` compares each row against the tree
 rather than against a pattern — the row has to state the real child count and
@@ -673,7 +712,7 @@ photo is shown. `assets/placeholder.svg` is the fallback when nothing resolves.
 ## Known Constraints & Important Notes
 
 1. **Tests are browser smoke checks, not unit tests** — `node scripts/smoke.mjs`
-   opens the real page in Chromium and asserts 397 things about layout, i18n,
+   opens the real page in Chromium and asserts 409 things about layout, i18n,
    contrast and rendering. See *Smoke tests* below.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
 3. **index.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
@@ -803,8 +842,8 @@ never mistaken for a working page.
 
 ## Smoke Tests
 
-`scripts/smoke.mjs` opens the real page in Chromium and asserts **397 checks**
-— ~65 per scenario across six scenarios (desktop and phone viewports in
+`scripts/smoke.mjs` opens the real page in Chromium and asserts **409 checks**
+— ~67 per scenario across six scenarios (desktop and phone viewports in
 English, Hebrew and Russian, plus a desktop pass in the light theme), and four
 static checks that read the source before the browser starts. Scenarios differ
 in count because some checks are language- or viewport-specific. It runs on every
@@ -844,9 +883,9 @@ as a CI artifact on every run).
 | `tree:` | node and branch counts, **NaN coordinates**, fit-to-stage, spill, root visibility, horizontal scroll |
 | `chrome:` | header/timeline visible, reveal panel vs. zoom controls and timeline, closed panel off-screen, tooltip and fact toast vs. header, tooltip vs. the node it describes, nothing printed over the species name, **no floating control stretched across the window**, **the wayfinder reachable over every overlay and painted over nothing** |
 | `timeline:` | geological era labels clipped or colliding, **and both the labels and the density curve rebuilt on the way back from the drill-down**, where the strip is hidden and cannot measure itself |
-| `i18n:` | document direction and lang, every bound control matches its translation, missing translation keys, Latin text leaking into Hebrew, search placeholder, English species prose laid out left-to-right, and the same three rules again **inside the drill-down**, which the map-view sweep cannot reach |
+| `i18n:` | document direction and lang, every bound control matches its translation, missing translation keys, Latin text leaking into Hebrew, search placeholder, English species prose laid out left-to-right, **no control wearing two icons at once**, and the same three rules again **inside the drill-down**, which the map-view sweep cannot reach |
 | `a11y:` | every text node meets AA contrast against its effective background, **in the drill-down as well as the map** |
-| `explore:` | the drill-down renders, descends and climbs back; **a descent unfolds in place rather than wiping the page**; every screen names where you are; nothing scrolls sideways; nothing is painted over a card or a control; the species panel is dismissed when the shell switches; **every group row states its real width and depth** |
+| `explore:` | the drill-down renders, descends and climbs back; **a descent unfolds in place rather than wiping the page**; every screen names where you are; nothing scrolls sideways; nothing is painted over a card or a control; the species panel is dismissed when the shell switches; **every group row states its real width and depth**; **a row whose photograph fails falls back to its silhouette rather than to an empty box** |
 | `nav:` / `share:` | **Back takes off one layer and leaves the one beneath it**; the share link names the shell and the language as well as the node; following such a link opens in the sender's view without overwriting the recipient's stored preference |
 | `search:` | eight canonical queries return the answer a person would call correct; every common-name alias still matches something |
 | `interact:` | zoom buttons, reset re-fits, parent expands, leaf opens panel, search returns results, camera settles |

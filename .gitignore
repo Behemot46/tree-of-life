@@ -15,3 +15,6 @@ node_modules/
 # Species photographs pulled from the chore/photo-cache branch for local
 # rendering. Never shipped; see .github/workflows/photo-cache.yml.
 photo-cache/
+
+# Local design screenshots (scratch, like .smoke-out/)
+.shots/

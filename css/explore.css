@@ -62,17 +62,45 @@ body[data-view="explore"] .reveal-panel { display: none !important; }
    One column, not a grid. A grid cannot nest, and nesting is the whole point:
    a child has to sit visibly underneath the thing it came out of. On a desktop
    the column is capped rather than stretched, because a 1400px-wide row makes
-   the indent that carries the structure invisible. */
-.ex-tree { max-width: 760px; }
+   the structure that carries the shape invisible.
 
-/* One row. Indent is capped at four steps: the tree runs nine deep, and nine
-   real steps of indent eats a 390px phone. Depth past that is carried by the
-   path ribbon instead. Logical property — physical padding-left puts the
-   indent on the wrong side in Hebrew. */
+   The nesting used to be carried by indent alone, and by an indent that was
+   capped at four steps — the tree runs ten deep, and ten real steps of margin
+   eats a 390px phone. So levels 5 through 10 all rendered at the same offset,
+   and the deepest half of the tree was drawn perfectly flat. Worse, indent on
+   its own is what a nested *list* looks like: nothing on the page joined a row
+   to the row it came out of, so the whole view read as an outline with good
+   manners rather than as a tree.
+
+   It is drawn now — trunks and limbs, below — which costs one narrow gutter
+   per level instead of a whole indent step, so the cap could go. */
+.ex-tree {
+  --ex-step: 15px;      /* what one level of nesting costs horizontally */
+  --elbow-r: 11px;      /* how tightly a limb turns out of its trunk */
+  /* How solid the drawing is. Named rather than inlined because the light
+     theme needs different numbers and the reason is physical: the clade
+     colours are bright strokes chosen against a near-black ground, and the
+     same alpha over cream gives a pastel that disappears. The dimmed limbs
+     went first — Chondrichthyes and Sarcopterygii were a suggestion of a line
+     rather than a line. */
+  --limb-a: 0.6;
+  --limb-dim-a: 0.34;
+  --limb-open-a: 0.9;
+  --trunk-a: 0.13;      /* at the root … */
+  --trunk-gain: 0.26;   /* … plus this much by the level you are standing on */
+  max-width: 760px;
+}
+[data-theme="light"] .ex-tree {
+  --limb-a: 0.75; --limb-dim-a: 0.52; --limb-open-a: 1;
+  --trunk-a: 0.2; --trunk-gain: 0.3;
+}
+
+/* One row. No indent of its own any more: the nesting is drawn by .ex-kids,
+   which is the element that actually knows it is a level. */
 .ex-card {
+  position: relative;
   display: flex; align-items: center; gap: 10px;
   width: 100%; padding: 8px 10px;
-  padding-inline-start: calc(10px + var(--d, 0) * 16px);
   text-align: start;
   border: 0; border-inline-start: 2px solid transparent;
   border-radius: var(--radius-md);
@@ -81,6 +109,96 @@ body[data-view="explore"] .reveal-panel { display: none !important; }
   transition: background 140ms var(--ease-standard);
 }
 .ex-card:hover, .ex-card:focus-visible { background: rgba(127,127,127,0.10); }
+
+/* ══ Trunks and limbs ══════════════════════════════════════════════════
+   A level of children is one gutter wide. The trunk runs down that gutter and
+   each child reaches out of it on a curve.
+
+   Both are borders on pseudo-elements rather than an SVG or a background
+   image, for three reasons: they take their weight and colour from custom
+   properties the renderer already sets per node, they need no second source of
+   truth for geometry, and they flip in Hebrew for free — every offset here is
+   a logical property, so the tree grows from the right edge in RTL without a
+   single mirrored rule.
+
+   The weights are the point. A limb's thickness is drawn from how much life
+   hangs below it (js/taxonRank.js: subtreeSize), on a log scale, so Mammals
+   leaves its parent visibly heavier than Chondrichthyes does — the same fact
+   the subtitle states in words, in the form a tree states it. A trunk is
+   always at least as heavy as any limb leaving it, because its subtree
+   contains theirs. */
+.ex-kids { padding-inline-start: var(--ex-step); }
+
+.ex-branch { position: relative; --row-mid: 22px; }
+.ex-branch-lv1 { --row-mid: 32px; }
+.ex-more { position: relative; --row-mid: 18px; }
+
+/* The trunk: one continuous run down the gutter, in the *parent's* weight and
+   colour, past every child. It stops at the last child's elbow rather than
+   overshooting into empty space — which is the whole difference between a tree
+   and a bracket. */
+.ex-kids > .ex-branch::after,
+.ex-kids > .ex-more::after {
+  content: ''; position: absolute; pointer-events: none;
+  inset-inline-start: calc(-1 * var(--ex-step));
+  top: 0; bottom: 0;
+  border-inline-start: var(--tw, 1.5px) solid var(--tc, var(--accent));
+  /* Receding. Eight nested levels drawn at one opacity are eight identical
+     lines down the side of a phone, and the reader cannot tell which of them
+     is the one they are standing in. --near runs 0 at the root to 1 at the
+     open level, so the trunk beside the current row is solid and the ones it
+     descends from fall back into the page. */
+  opacity: calc(var(--trunk-a) + var(--trunk-gain) * var(--near, 1));
+}
+.ex-kids > :last-child::after { bottom: auto; height: var(--row-mid); }
+
+/* The limb: out of the trunk and into the row, on a curve. Drawn in the
+   child's own weight and its own clade colour, so a heavy branch leaves a
+   visible knot and a single species leaves a hair.
+
+   Hung on the row rather than on the branch, and that is not a detail: a
+   branch box spans the row *and its whole open subtree*, so a percentage of it
+   is meaningless and the elbow had to be placed at a guessed pixel offset
+   instead. It drifted the moment a subtitle wrapped to two lines — "Family · 5
+   inside · 3 levels deep" does exactly that on a 390px phone — and the limb
+   attached somewhere above the row it belonged to. The row's own box is the
+   thing whose middle is worth knowing, so 50% of it is exact at any height. */
+.ex-kids > .ex-branch > .ex-card::before,
+.ex-kids > .ex-more::before {
+  content: ''; position: absolute; pointer-events: none;
+  inset-inline-start: calc(-1 * var(--ex-step));
+  /* A heavy limb turns in a wider arc than a twig does, which is the one piece
+     of branch physics that costs nothing to honour: the sweep is driven by the
+     same weight as the stroke, so a thick branch leaves its trunk on a long
+     curve and a single species leaves on a tight one. Without it every join in
+     the tree turned at an identical drafted radius, which is most of what made
+     the drawing feel machined. */
+  top: calc(50% - var(--elbow-r) - var(--bw, 1.5px));
+  width: var(--ex-step); height: calc(var(--elbow-r) + var(--bw, 1.5px));
+  border-inline-start: var(--bw, 1.5px) solid var(--bc, var(--accent));
+  border-block-end: var(--bw, 1.5px) solid var(--bc, var(--accent));
+  border-end-start-radius: calc(var(--elbow-r) + var(--bw, 1.5px));
+  opacity: var(--limb-a);
+}
+/* The truncation stub belongs to the level, not to the branch above it, and
+   custom properties inherit — without this it borrowed the parent's weight and
+   the "35 more" run was drawn as heavy as Mammals itself. */
+.ex-more { --bw: 1.25px; }
+
+/* The lineage you are standing on is the trunk of the picture, so it is drawn
+   at full strength; the branches passed over stay visible but recede. Both
+   still hang off the same trunk — the roads not taken are half of what makes
+   a tree legible, and fading them out entirely would leave a corridor. */
+.ex-kids > .ex-branch.open > .ex-card::before { opacity: var(--limb-open-a); }
+.ex-kids > .ex-branch.open::after { opacity: calc(var(--trunk-a) + 0.45 * var(--near, 1)); }
+.ex-kids > .ex-branch.dim > .ex-card::before { opacity: var(--limb-dim-a); }
+
+/* A level that has been cut short says so on the trunk. The run into the "35
+   more" button is dashed, because the growth it leads to is real and simply
+   not drawn — a solid line there claims the tree ends at eight children when
+   Mammals has forty-three. */
+.ex-kids > .ex-more::before,
+.ex-kids > .ex-more::after { border-style: dashed; opacity: 0.45; }
 
 /* Depth 1 is the front door and keeps a rich row. Deeper rows are compact —
    the old 132px cards stacked nine deep did not fit the device this view was
@@ -137,7 +255,6 @@ body[data-view="explore"] .reveal-panel { display: none !important; }
 .ex-reveal {
   display: flex; gap: 12px; align-items: flex-start;
   margin: 2px 0 6px;
-  margin-inline-start: calc(10px + var(--d, 0) * 16px);
   padding: 10px 12px;
   border: 1px solid var(--glass-border);
   border-inline-start: 3px solid var(--cc, var(--accent));
@@ -162,7 +279,6 @@ body[data-view="explore"] .reveal-panel { display: none !important; }
    buries every branch below it. */
 .ex-more {
   display: block; margin: 2px 0 4px;
-  margin-inline-start: calc(10px + var(--d, 0) * 16px);
   padding: 6px 10px; min-height: 36px;
   background: transparent; border: 1px dashed var(--glass-border);
   border-radius: var(--radius-md);
@@ -208,7 +324,9 @@ body[data-view="explore"] .reveal-panel { display: none !important; }
 @media (min-width: 780px) {
   #explore { top: var(--ex-top, 64px); padding: 14px 28px 90px; }
   .ex-hero-img { width: 110px; height: 110px; }
-  .ex-tree { max-width: 820px; }
+  /* A wider gutter where there is room for one: the step has to stay tight on
+     a 390px phone, where ten levels of it compete with the names. */
+  .ex-tree { max-width: 820px; --ex-step: 20px; --elbow-r: 13px; }
   .ex-desc { -webkit-line-clamp: 5; }
 }
 

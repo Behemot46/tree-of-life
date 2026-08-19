@@ -585,6 +585,41 @@ check('explore:a-broken-photo-still-shows-something', 'A row whose photograph fa
   else if (!f.replacementW) fail(`the replacement (${f.replacement}) rendered at zero width`);
 });
 
+/* Every level of the lineage starts further in than the one above it — all the
+   way down, not just for the first four. See the probe for what this replaces:
+   a capped indent that drew the bottom half of the tree flat while every other
+   check on this view stayed green. */
+check('explore:depth-is-drawn', 'Each level of the lineage is inset past its parent', (c) => {
+  const n = c.probe.explore && c.probe.explore.nesting;
+  if (!n) return;
+  if (n.error) { fail(`measuring the nesting threw: ${n.error}`); return; }
+  const chain = n.chain || [];
+  if (chain.length < 5) { fail(`only ${chain.length} open level(s) — the deep lineage never opened`); return; }
+  const flat = [];
+  for (let i = 1; i < chain.length; i++) {
+    const step = chain[i].inset - chain[i - 1].inset;
+    if (step < 4) flat.push(`${chain[i - 1].id}→${chain[i].id} gains ${step}px`);
+  }
+  if (flat.length) {
+    fail(`${flat.length} level(s) of ${chain.length - 1} are drawn flat: ${flat.slice(0, 4).join(', ')}`);
+  }
+});
+
+/* And each row is visibly joined to the one it came out of. Indent alone is a
+   nested list; the join is what makes it a tree, and it is drawn entirely in a
+   pseudo-element — so it can disappear without changing one byte of the DOM. */
+check('explore:rows-are-joined-to-their-parent', 'Every row is drawn attached to its parent', (c) => {
+  const n = c.probe.explore && c.probe.explore.nesting;
+  if (!n || n.error) return;
+  const joins = n.joins || [];
+  if (joins.length < 5) { fail(`only ${joins.length} nested row(s) measured`); return; }
+  const bare = joins.filter((j) => !j.w || !j.border || j.alpha < 0.05);
+  if (bare.length) {
+    fail(`${bare.length} of ${joins.length} row(s) hang unattached: ` +
+      bare.slice(0, 4).map((b) => `${b.id} (${b.w}px wide, ${b.border}px stroke, alpha ${b.alpha})`).join('; '));
+  }
+});
+
 check('explore:no-horizontal-scroll', 'The drill-down never scrolls sideways', (c) => {
   const e = c.probe.explore;
   if (!e || !e.checked) return;
@@ -1823,6 +1858,59 @@ async function probePage(page, scenario, baseUrl) {
       }
     } catch (e) { deepLanding = { error: String(e) }; }
 
+    /* ── Is the nesting actually drawn ────────────────────────────────
+       Two things a screenshot shows and no other check here can see.
+
+       The staircase first. Depth used to be carried by an indent capped at
+       four steps, so levels five through ten all rendered at the same offset
+       and the deepest half of the tree was drawn perfectly flat — on the view
+       whose entire subject is the shape of the tree. Every other explore check
+       passed throughout: the rows were present, translated, contrasty, correct
+       about their own breadth and depth, and stacked in a straight line.
+
+       Measured against the *inline* start, not the left edge, because the tree
+       grows from the right in Hebrew and a left-edge measurement there reads a
+       perfect staircase running the wrong way.
+
+       Then the joins. An indent alone is what a nested list looks like; what
+       makes it a tree is that each row is visibly attached to the row it came
+       out of. That attachment is a pseudo-element, so it is invisible to
+       innerHTML, to textContent and to every hit test — it can vanish
+       completely while the DOM stays word for word identical. */
+    let nesting = null;
+    try {
+      const EX = await import(new URL('js/explore.js', location.href).href);
+      if (EX && EX.openInExplore) {
+        EX.openInExplore('hominini');   // the deepest group in the tree: 8 levels
+        await wait(700);
+        const tree = root.querySelector('.ex-tree');
+        const rtl = getComputedStyle(document.documentElement).direction === 'rtl';
+        const box = tree.getBoundingClientRect();
+        const inset = (el) => {
+          const r = el.getBoundingClientRect();
+          return Math.round(rtl ? box.right - r.right : r.left - box.left);
+        };
+        const chain = [...root.querySelectorAll('.ex-card.open')].map((c) => ({
+          id: c.getAttribute('data-arg'),
+          inset: inset(c),
+        }));
+        /* The limb is drawn on the row, so every row below the root owns one.
+           Read the border rather than the box: a pseudo-element with no border
+           still reports a width, and would pass a size-only assertion while
+           drawing nothing at all. */
+        const joins = [...root.querySelectorAll('.ex-kids > .ex-branch > .ex-card')].map((c) => {
+          const cs = getComputedStyle(c, '::before');
+          return {
+            id: c.getAttribute('data-arg'),
+            w: Math.round(parseFloat(cs.width) || 0),
+            border: Math.round((parseFloat(cs.borderBottomWidth) || 0) * 100) / 100,
+            alpha: Math.round((parseFloat(cs.opacity) || 0) * 100) / 100,
+          };
+        });
+        nesting = { chain, joins, rtl };
+      }
+    } catch (e) { nesting = { error: String(e) }; }
+
     /* ── The era strip, on the way back out ────────────────────────────
        The timeline is display:none in this view, and neither of its measured
        parts can draw itself from a zero-sized box — the labels are left
@@ -1874,7 +1962,7 @@ async function probePage(page, scenario, baseUrl) {
     // Back to the palette this scenario is meant to be measured in.
     if (themeBtn) { themeBtn.click(); await wait(300); }
 
-    return { checked: true, steps, afterBack, i18n, herePrefix, contrast, rowFacts, photoFallback,
+    return { checked: true, steps, afterBack, i18n, herePrefix, contrast, rowFacts, photoFallback, nesting,
              eraClippedAfterReturn, densityOnReturn, densityRedrawn,
              panelOpenBeforeSwitch: panelWasOpen, panelSurvivedSwitch, deepLanding };
   }, { lang: scenario.lang, panelWasOpen: panelOpenBeforeSwitch });

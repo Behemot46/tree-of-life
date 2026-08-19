@@ -51,13 +51,21 @@ import { displayName } from './utils.js';
 import { registerActions } from './actions.js';
 import { t } from './theme.js';
 import { SILHOUETTES } from './silhouettes.js';
-import { rankKey, subtreeDepth } from './taxonRank.js';
+import { rankKey, subtreeDepth, subtreeSize } from './taxonRank.js';
 
 /* The deepest node the reader has opened. The open path is derived from it
    rather than stored, so the two can never disagree — which is also what makes
    arriving from search free: set this to the node and every ancestor is open
    by construction. */
 let _selected = TREE;
+
+/* How deep the open lineage runs, recomputed once per render. The tree is
+   drawn with the levels nearest the reader at full strength and the ones they
+   came down through receding — atmospheric perspective, which is the cheapest
+   way to make a flat page carry depth. Doing that needs each level to know how
+   far it is from where the reader is standing, and a level only knows its own
+   depth, so the other half of the sum lives here. */
+let _selDepth = 0;
 
 /* Levels wider than this are cut off, because unfolding mammals' 43 children
    buries everything under it. Per-node, and remembered for the rest of the
@@ -196,7 +204,7 @@ function rowHTML(node, depth, { open, lit, live, titled }) {
 
   return `
     <button class="${cls}" data-action="explore:open" data-arg="${node.id}"
-            style="--cc:${node.color}; --d:${Math.min(depth, 4)}"
+            style="--cc:${node.color}"
             ${kids ? `aria-expanded="${open ? 'true' : 'false'}"` : ''}>
       <span class="ex-card-media">${rowMedia(node)}</span>
       <span class="ex-card-text">
@@ -227,15 +235,50 @@ function revealHTML(node, depth) {
   if (node.desc) text.push(`<p class="ex-desc" data-i18n-exempt="species-data" dir="ltr">${node.desc}</p>`);
   if (!bits.length && !text.length) return '';
   return `
-    <div class="ex-reveal" style="--cc:${node.color}; --d:${Math.min(depth, 4)}">
+    <div class="ex-reveal" style="--cc:${node.color}">
       ${bits.join('')}
       <div class="ex-reveal-text">${text.join('')}</div>
     </div>`;
 }
 
+/* How heavily the line into a branch is drawn.
+
+   Logarithmic, because the counts are not. LUCA carries 305 descendants and
+   well over half the rows carry none, so a linear scale draws one thick line
+   and three hundred identical hairlines — which says nothing at all. On a log
+   scale a species is 1.25px, a five-strong genus is 2.1px and Mammals is
+   3.1px, and the difference is visible at a glance without being measured. */
+/* 0 at the root, 1 at the level the reader is standing on. The stylesheet
+   fades a trunk by this, so eight nested levels read as eight distances rather
+   than as eight identical lines — which is what they looked like: five parallel
+   reds down the side of a phone, none of them saying which was which. */
+function nearness(depth) {
+  return Math.round(Math.min(1, depth / _selDepth) * 100) / 100;
+}
+
+const BRANCH_MIN = 1.25;
+const BRANCH_MAX = 4;
+function branchWeight(node) {
+  const n = subtreeSize(node);
+  if (!n) return BRANCH_MIN;
+  return Math.round(Math.min(BRANCH_MAX, BRANCH_MIN + 1.15 * Math.log10(1 + n)) * 100) / 100;
+}
+
 /* Recursive, but only through open nodes: a closed branch renders its own row
    and stops. That is what keeps this bounded to one lineage rather than 305
-   rows, and it is why no lazy-rendering machinery is needed. */
+   rows, and it is why no lazy-rendering machinery is needed.
+
+   Each branch is wrapped in an element of its own, and that wrapper is what
+   makes the tree drawable. The nesting was always in the DOM — .ex-kids has
+   held it from the first version — but nothing joined a row to the row it came
+   out of, so the page read as a list that happened to be indented. A wrapper
+   per branch gives the stylesheet a box that spans the row *and everything
+   below it*, which is exactly the extent a limb has to cover; without one, a
+   connector could only ever be as tall as a single row, and :last-child could
+   not tell a final sibling from a nested subtree.
+
+   The wrapper carries the two numbers the drawing needs: the branch's weight
+   and the clade's colour. */
 function branchHTML(node, depth, openSet) {
   const open = openSet.has(node);
   const onPath = open;
@@ -246,29 +289,42 @@ function branchHTML(node, depth, openSet) {
   const lit = onPath || live;
   const titled = node === _selected;
 
-  let html = rowHTML(node, depth, { open, lit, live, titled });
-  if (!open) return html;
+  let inner = rowHTML(node, depth, { open, lit, live, titled });
 
-  if (node === _selected) html += revealHTML(node, depth);
+  if (open) {
+    if (node === _selected) inner += revealHTML(node, depth);
 
-  /* Only _selected is ever both open and childless, and openInExplore
-     guarantees _selected has children — so this is the invariant holding, not
-     a case to render. It used to print "this is as deep as this branch goes"
-     here, which nothing on the running site could ever see. */
-  const kids = childrenOf(node);
-  if (!kids.length) return html;
-
-  const cut = kids.length > WIDE && !_showAll.has(node.id);
-  const shown = cut ? kids.slice(0, WIDE_HEAD) : kids;
-  html += `<div class="ex-kids">${shown.map((c) => branchHTML(c, depth + 1, openSet)).join('')}`;
-  if (cut) {
-    const rest = kids.length - WIDE_HEAD;
-    html += `
-      <button class="ex-more" data-action="explore:more" data-arg="${node.id}"
-              style="--d:${Math.min(depth + 1, 4)}">${rest} ${t('ex_more')}</button>`;
+    /* Only _selected is ever both open and childless, and openInExplore
+       guarantees _selected has children — so an open node with no children is
+       the invariant holding, not a case to render. It used to print "this is
+       as deep as this branch goes" here, which nothing on the running site
+       could ever see. */
+    const kids = childrenOf(node);
+    if (kids.length) {
+      const cut = kids.length > WIDE && !_showAll.has(node.id);
+      const shown = cut ? kids.slice(0, WIDE_HEAD) : kids;
+      let k = shown.map((c) => branchHTML(c, depth + 1, openSet)).join('');
+      if (cut) {
+        const rest = kids.length - WIDE_HEAD;
+        k += `<button class="ex-more" data-action="explore:more" data-arg="${node.id}">${rest} ${t('ex_more')}</button>`;
+      }
+      /* The container carries the *trunk's* weight and colour, not the
+         children's. A limb of weight w leaves a trunk of weight W, and the two
+         are different numbers — drawing the run between two siblings in the
+         weight of whichever sibling happened to be above it would make the
+         trunk change thickness between every pair of branches. */
+      inner += `<div class="ex-kids" style="--tw:${branchWeight(node)}px; --tc:${node.color}; --near:${nearness(depth + 1)}">${k}</div>`;
+    }
   }
-  html += '</div>';
-  return html;
+
+  const cls = [
+    'ex-branch',
+    depth <= 1 ? 'ex-branch-lv1' : '',
+    open ? 'open' : '',
+    lit ? '' : 'dim',
+  ].filter(Boolean).join(' ');
+
+  return `<div class="${cls}" style="--bw:${branchWeight(node)}px; --bc:${node.color}">${inner}</div>`;
 }
 
 export function renderExplore() {
@@ -277,6 +333,7 @@ export function renderExplore() {
   const path = pathTo(_selected);
   const openSet = new Set(path);
   const parent = _selected._parent;
+  _selDepth = Math.max(1, path.length - 1);
 
   root.innerHTML = `
     <div class="ex-head">

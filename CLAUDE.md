@@ -251,6 +251,30 @@ Things worth knowing before changing Explore:
   and arriving from search is free: set `_selected` and every ancestor is open
   by construction. It also bounds the page to the depth of the tree (nine) and
   never to its size (305 nodes), so no lazy rendering is needed.
+- **The nesting is drawn, not implied.** Each branch is wrapped in its own
+  `.ex-branch`, and that wrapper is what makes the tree drawable: it spans the
+  row *and everything below it*, which is the extent a limb has to cover. A
+  trunk runs down each level's gutter (`.ex-kids`) and every row reaches out of
+  it on a curve. Both are borders on pseudo-elements rather than an SVG — they
+  take their weight and colour from properties the renderer already sets per
+  node, and every offset is a logical property, so the tree grows from the
+  right edge in Hebrew without one mirrored rule.
+
+  It was an indent and nothing else before, which is what a nested *list* looks
+  like: nothing joined a row to the row it came out of, so the view read as an
+  outline with good manners rather than as a tree — on a site whose whole
+  subject is the shape.
+- **Two numbers carry the scale, and they are the two the rows only stated in
+  words.** A limb's thickness comes from `subtreeSize()` on a log scale, so
+  Mammals leaves its parent visibly heavier than Chondrichthyes; a trunk is
+  always at least as heavy as the limbs leaving it, because its subtree
+  contains theirs. Log, because the counts are not: LUCA carries 305
+  descendants and over half the rows carry none, so a linear scale draws one
+  thick line and three hundred identical hairlines. And trunks fade with
+  distance from the level the reader is standing on (`--near`, 0 at the root
+  and 1 at the open level) — eight nested levels at one opacity are eight
+  identical lines down the side of a phone, and graded they read as eight
+  distances.
 - **The indent staircase is load-bearing, and it is easy to invert.** Rows get
   denser with depth — nine levels of the old 132px cards does not fit a phone —
   and the first attempt shrank the media box by 22px while gaining only 12px of
@@ -258,6 +282,21 @@ Things worth knowing before changing Explore:
   stopped reading exactly where it mattered. The indent step must exceed the
   media-size drop. Measure the inline-start inset per level rather than
   eyeballing a screenshot; it reads identically in Hebrew when it is right.
+
+  **It was then capped at four steps, which is the same failure by another
+  route.** Ten real steps of indent eats a 390px phone, so levels five through
+  ten all rendered at the same offset and the deepest half of the tree was
+  drawn flat — while every check on this view stayed green, because the rows
+  were present, translated, contrasty, correctly counted and stacked in a
+  straight line. Drawing the nesting costs one narrow gutter per level instead
+  of a whole indent step, so the cap could go; `explore:depth-is-drawn` is what
+  keeps it gone.
+- **The limb hangs on the row, not on the branch.** A branch box spans its
+  whole open subtree, so a percentage of it is meaningless and the elbow has to
+  be placed at a guessed pixel offset instead — which drifts the moment a
+  subtitle wraps to two lines, as "Family · 5 inside · 3 levels deep" does on a
+  phone. The row's own box is the one whose middle is worth knowing, and 50% of
+  it is exact at any height.
 - **`scrollIntoView` cannot see the path ribbon.** It scrolls until the row is
   inside the scroll container and stops, and the bottom 69px of that container
   is covered by the view's own fixed bar — so arriving from search on a
@@ -572,7 +611,7 @@ you are. Legible enough to pass a glance, and not enough to pass a
 measurement. `--accent` was darkened to `#8a5e23`, which is the same fix
 `--text-secondary` had already had for the same reason.
 
-Ten checks now cover the drill-down, from the probe that already walks it:
+Twelve checks now cover the drill-down, from the probe that already walks it:
 
 | Check | Fails when |
 |---|---|
@@ -586,6 +625,16 @@ Ten checks now cover the drill-down, from the probe that already walks it:
 | `explore:deep-landing-is-visible` | arriving from search parks the node behind the ribbon |
 | `explore:rows-state-breadth-and-depth` | a group row understates its width or its depth |
 | `explore:a-broken-photo-still-shows-something` | a row whose photograph fails is left an empty hole |
+| `explore:depth-is-drawn` | a level of the lineage is not inset past its parent |
+| `explore:rows-are-joined-to-their-parent` | a row is drawn hanging unattached |
+
+`explore:depth-is-drawn` measures the **inline** start, not the left edge. The
+tree grows from the right in Hebrew, where a left-edge measurement reads a
+correct staircase as one running the wrong way — and would have read the
+genuinely broken flat one as fine. `explore:rows-are-joined-to-their-parent`
+reads the limb's own **border width**, because a pseudo-element with no border
+still reports a box: a size-only assertion passes at full marks while the tree
+draws nothing at all, which is exactly what the mutation test showed.
 
 `explore:a-broken-photo-still-shows-something` **breaks an image rather than
 looking for a broken one**, and that is the only form of it that means the same
@@ -712,7 +761,7 @@ photo is shown. `assets/placeholder.svg` is the fallback when nothing resolves.
 ## Known Constraints & Important Notes
 
 1. **Tests are browser smoke checks, not unit tests** — `node scripts/smoke.mjs`
-   opens the real page in Chromium and asserts 409 things about layout, i18n,
+   opens the real page in Chromium and asserts 421 things about layout, i18n,
    contrast and rendering. See *Smoke tests* below.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
 3. **index.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
@@ -842,8 +891,8 @@ never mistaken for a working page.
 
 ## Smoke Tests
 
-`scripts/smoke.mjs` opens the real page in Chromium and asserts **409 checks**
-— ~67 per scenario across six scenarios (desktop and phone viewports in
+`scripts/smoke.mjs` opens the real page in Chromium and asserts **421 checks**
+— ~70 per scenario across six scenarios (desktop and phone viewports in
 English, Hebrew and Russian, plus a desktop pass in the light theme), and four
 static checks that read the source before the browser starts. Scenarios differ
 in count because some checks are language- or viewport-specific. It runs on every
@@ -885,7 +934,7 @@ as a CI artifact on every run).
 | `timeline:` | geological era labels clipped or colliding, **and both the labels and the density curve rebuilt on the way back from the drill-down**, where the strip is hidden and cannot measure itself |
 | `i18n:` | document direction and lang, every bound control matches its translation, missing translation keys, Latin text leaking into Hebrew, search placeholder, English species prose laid out left-to-right, **no control wearing two icons at once**, and the same three rules again **inside the drill-down**, which the map-view sweep cannot reach |
 | `a11y:` | every text node meets AA contrast against its effective background, **in the drill-down as well as the map** |
-| `explore:` | the drill-down renders, descends and climbs back; **a descent unfolds in place rather than wiping the page**; every screen names where you are; nothing scrolls sideways; nothing is painted over a card or a control; the species panel is dismissed when the shell switches; **every group row states its real width and depth**; **a row whose photograph fails falls back to its silhouette rather than to an empty box** |
+| `explore:` | the drill-down renders, descends and climbs back; **the nesting is drawn — every level inset past its parent and every row joined to it**; **a descent unfolds in place rather than wiping the page**; every screen names where you are; nothing scrolls sideways; nothing is painted over a card or a control; the species panel is dismissed when the shell switches; **every group row states its real width and depth**; **a row whose photograph fails falls back to its silhouette rather than to an empty box** |
 | `nav:` / `share:` | **Back takes off one layer and leaves the one beneath it**; the share link names the shell and the language as well as the node; following such a link opens in the sender's view without overwriting the recipient's stored preference |
 | `search:` | eight canonical queries return the answer a person would call correct; every common-name alias still matches something |
 | `interact:` | zoom buttons, reset re-fits, parent expands, leaf opens panel, search returns results, camera settles |

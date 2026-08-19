@@ -59,3 +59,21 @@ export function subtreeDepth(node) {
   node._subtreeDepth = kids.length ? d + 1 : 0;
   return node._subtreeDepth;
 }
+
+/* Every descendant below this node, not just the direct children. The
+   drill-down draws the line into a branch at a thickness taken from this: a
+   real tree's limbs taper as they divide, and that taper is the one cue that
+   says "a great deal of life is down there" without printing a number.
+   Mammals and Chondrichthyes are both one row, and only one of them leads to
+   forty-three more.
+
+   Memoised for the same reason as the depth — the tree is fixed once
+   expandTree() has run, and renderExplore() asks again on every repaint. */
+export function subtreeSize(node) {
+  if (!node) return 0;
+  if (node._subtreeSize !== undefined) return node._subtreeSize;
+  let n = 0;
+  for (const c of node.children || []) n += 1 + subtreeSize(c);
+  node._subtreeSize = n;
+  return n;
+}

@@ -39,6 +39,7 @@ const SCENARIOS = [
   { name: 'phone-he', lang: 'he', theme: 'dark', viewport: { width: 390, height: 844 }, mobile: true },
   { name: 'small-phone-en', lang: 'en', theme: 'light', viewport: { width: 360, height: 640 }, mobile: true },
   { name: 'desktop-he', lang: 'he', theme: 'light', viewport: { width: 1440, height: 900 }, mobile: false },
+  { name: 'desktop-en', lang: 'en', theme: 'dark', viewport: { width: 1440, height: 900 }, mobile: false },
 ];
 
 async function startServer() {

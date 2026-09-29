@@ -186,7 +186,13 @@ Things worth knowing before changing it:
   personal research and teaching use and forbid redistribution. Every age in
   `js/kin/dates.js` cites an open source; the tests fail on a missing citation,
   on a `timetree.org` URL, and on any ancestor dated younger than a
-  descendant.
+  descendant. A question needs both of its splits dated, which is why the
+  crab (crab vs lobster), rabbit and hamster (rodents vs rabbits) questions
+  were cut: no open source gives a number for either split. Published
+  estimates disagree by 10–20% on most nodes and far more on the deepest; the
+  comment beside each value says whether it is a midpoint or the end of a
+  range chosen so that it nests. Sapindales (citrus vs maple, ~60–125 Ma
+  across studies) and the eukaryote root are the least certain.
 - **`npm run kin:opentree`** replays every question against Open Tree of Life
   (CC0) — needs the network, so it is manual. Open Tree places T. rex and the
   mammoth by taxonomy only (`incertae_sedis`), and its taxonomy keeps birds out

@@ -66,9 +66,6 @@ export const QUESTIONS = [
   q('seal', 'seal', 'dog', 'cat', 2,
     'Seals are dog-like carnivores that took to the water, cousins of bears and weasels.',
     'כלבי הים הם טורפים "דמויי כלב" שעברו לחיות במים, קרובים של הדובים והסמורים.'),
-  q('rabbit', 'rabbit', 'mouse', 'cat', 2,
-    "Rabbits aren't rodents, but they are the rodents' closest cousins.",
-    'הארנב אינו מכרסם, אבל הוא בן הדוד הקרוב ביותר של המכרסמים.'),
   q('sunflower', 'sunflower', 'lettuce', 'rose', 2,
     'Sunflowers and lettuce both belong to the daisy family, Asteraceae.',
     'החמנייה והחסה שייכות שתיהן למשפחת המורכבים.'),
@@ -113,15 +110,9 @@ export const QUESTIONS = [
   q('dolphin', 'dolphin', 'cow', 'shark', 2,
     'Dolphins are mammals that went back to the sea. On land their family includes cows, pigs and hippos.',
     'הדולפינים הם יונקים שחזרו לים. ביבשה המשפחה שלהם כוללת פרות, חזירים והיפופוטמים.'),
-  q('crab', 'crab', 'lobster', 'spider', 1,
-    'Crabs and lobsters are both decapods: ten legs, counting the claws.',
-    'סרטנים ולובסטרים הם שניהם בעלי עשר רגליים, כולל הצבתות.'),
   q('cherry', 'cherry', 'peach', 'grape', 1,
     'Cherries, peaches, plums and almonds all belong to one genus, Prunus.',
     'דובדבן, אפרסק, שזיף ושקד שייכים כולם לאותו סוג, פרונוס.'),
-  q('hamster', 'hamster', 'mouse', 'rabbit', 1,
-    "Hamsters and mice are both rodents. Rabbits aren't, though they're the rodents' closest cousins.",
-    'האוגר והעכבר הם שניהם מכרסמים. הארנב לא, אף שהוא בן הדוד הקרוב ביותר שלהם.'),
   q('mosquito', 'mosquito', 'fly', 'bee', 2,
     'Mosquitoes are true flies, with two wings. Bees have four.',
     'היתוש הוא זבוב של ממש, עם שתי כנפיים. לדבורה יש ארבע.'),
@@ -159,16 +150,19 @@ export const QUESTIONS = [
   q('otter', 'otter', 'seal', 'cat', 1,
     'Otters and seals are both dog-like carnivores that took to the water. Cats are on the other branch.',
     'לוטרות וכלבי ים הם טורפים "דמויי כלב" שעברו למים. החתולים בענף השני.'),
+  q('salmon', 'salmon', 'you', 'shark', 3,
+    'Land animals grew out of the bony fish, the same branch as salmon. Sharks, with skeletons of cartilage, split off earlier.',
+    'חיות היבשה צמחו מתוך דגי הגרם, אותו ענף שממנו בא הסלמון. הכרישים, בעלי שלד סחוסי, התפצלו מוקדם יותר.'),
 ];
 
 /* The first four days are chosen by hand: an opener that surprises, then a
    ramp. From day 5 the engine draws seeded sets from the whole bank. */
 export const CURATED_DAYS = [
   ['you-mushroom', 'koala', 'whale', 'tomato', 'chicken', 'dog', 'lobster', 'strawberry', 'flamingo', 'bat'],
-  ['coffee', 'giraffe', 'frog', 'cucumber', 'snake', 'seal', 'rabbit', 'sunflower', 'turtle', 'hedgehog'],
+  ['coffee', 'giraffe', 'frog', 'cucumber', 'snake', 'seal', 'spider', 'sunflower', 'turtle', 'hedgehog'],
   ['tulip', 'elephant', 'corn', 'butterfly', 'pig', 'gorilla', 'octopus', 'kiwifruit', 'raccoon', 'penguin'],
-  ['dolphin', 'crab', 'cherry', 'hamster', 'mosquito', 'camel', 'banana', 'croc', 'maple', 'cactus'],
+  ['dolphin', 'otter', 'cherry', 'mosquito', 'camel', 'banana', 'croc', 'salmon', 'maple', 'cactus'],
 ];
 
 /* Openers for generated days: questions whose reveal is a jaw-dropper. */
-export const HOOKS = ['you-mushroom', 'coffee', 'tulip', 'lobster', 'bat', 'flamingo', 'mushroom-you', 'hedgehog', 'turtle'];
+export const HOOKS = ['you-mushroom', 'coffee', 'tulip', 'lobster', 'bat', 'flamingo', 'mushroom-you', 'hedgehog', 'turtle', 'salmon'];

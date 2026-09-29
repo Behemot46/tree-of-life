@@ -184,6 +184,9 @@ a { color: var(--kin-accent); text-underline-offset: 3px; }
 .kin-date { font-family: var(--kin-mono); font-size: 10.5px; color: var(--kin-fg-2); }
 .kin-date.hot { color: var(--kin-accent); font-weight: 500; }
 .kin-axis-lab { font-family: var(--kin-mono); font-size: 9.5px; color: var(--kin-fg-3); }
+/* JetBrains Mono has no Hebrew. Hebrew labels fell back letter by letter and
+   kept monospace-width gaps between the words, so they read as spaced out. */
+[dir="rtl"] .kin-date, [dir="rtl"] .kin-axis-lab, [dir="rtl"] .kin-combo { font-family: var(--kin-font); }
 .kin-explain { margin: 0; font-size: 0.95rem; color: var(--kin-fg-2); }
 .kin-explain strong { color: var(--kin-fg); font-weight: 600; }
 .kin-sources { margin: 0; font-size: 0.75rem; color: var(--kin-fg-3); }
@@ -219,6 +222,7 @@ a { color: var(--kin-accent); text-underline-offset: 3px; }
 .kin-res { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; padding-top: 6px; }
 .kin-res > * { margin: 0; }
 .kin-eyebrow { font-family: var(--kin-mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--kin-fg-3); }
+[dir="rtl"] .kin-eyebrow { font-family: var(--kin-font); letter-spacing: 0; }
 .kin-score { font-weight: 800; font-size: 3.6rem; line-height: 1; }
 .kin-score span { font-size: 1.5rem; color: var(--kin-fg-3); }
 .kin-title { font-weight: 700; font-size: 1.15rem; color: var(--kin-accent); }

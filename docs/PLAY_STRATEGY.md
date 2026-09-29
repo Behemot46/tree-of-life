@@ -18,11 +18,13 @@ the code works today; `ROADMAP.md` records decisions once they are made.
   only used to cross-check. The licence question for later phases stays open.
 - **The answer key is a small curated tree** (`js/kin/tree.js`, 80 creatures),
   not the site's `TREE`, and answers are derived from it. Open Tree of Life
-  agrees with every question it can judge (`npm run kin:opentree`: 44 of 46;
+  agrees with every question it can judge (`npm run kin:opentree`: 42 of 44;
   it cannot place T. rex or the mammoth).
 - **The Hebrew name is קרובים.** "Kin" in Hebrew letters is קין, Cain — a
   point for the naming decision.
-- **46 questions** instead of 40; days 1–4 hand-picked, later days seeded.
+- **44 questions** instead of 40; days 1–4 hand-picked, later days seeded.
+  Three drafted questions (crab, rabbit, hamster) were cut because no open
+  source dates the split they turn on.
 - **No analytics yet.** `play.html?stats=1` shows what a tester's device
   remembers, which is enough to see whether someone came back.
 

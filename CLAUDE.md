@@ -83,7 +83,10 @@ land in `.smoke-out/`. It is not a substitute for looking at the result.
 ```
 tree-of-life/
 ├── index.html           # SPA — pure HTML markup (~462 lines)
+├── play.html            # Kin, the daily game — phase-1 test build, unlinked (see *Kin*)
 ├── serve.js             # Local dev server (port 5555): node serve.js
+├── docs/PLAY_STRATEGY.md # Why the site is becoming a game, and the phased plan
+├── tests/kin.test.mjs   # Unit tests for Kin's engine and answer key (npm test)
 ├── css/                 # External stylesheets (15 files)
 │   ├── variables.css    # CSS custom properties, reset, focus styles
 │   ├── layout.css       # Header, search, breadcrumb, nav controls
@@ -99,7 +102,8 @@ tree-of-life/
 │   ├── theme.css        # Light theme overrides, dark mode polish
 │   ├── explore.css      # Drill-down shell — unfolding rows, path dots
 │   ├── rtl.css          # Hebrew RTL layout overrides
-│   └── responsive.css   # Mobile breakpoints, reduced motion, high contrast
+│   ├── responsive.css   # Mobile breakpoints, reduced motion, high contrast
+│   └── kin.css          # play.html only — self-contained, see *Kin*
 ├── assets/
 │   ├── placeholder.svg  # Fallback image when taxon photo is unavailable
 │   └── silhouettes/*.svg # 267 PhyloPic outlines, one per taxon
@@ -145,10 +149,71 @@ tree-of-life/
     ├── explore.js       # Drill-down shell — see *The two shells*
     ├── wayfinder.js     # Back / Home / Share — see *Getting out, and sharing*
     ├── splash.js        # Opening animation — see *The opening screen*
-    └── engagement.js    # Toast notifications, idle timer, intro, particles
+    ├── engagement.js    # Toast notifications, idle timer, intro, particles
+    └── kin/             # Kin, the daily game — see *Kin*
+        ├── tree.js      # The answer key: a curated tree of every creature
+        ├── dates.js     # Sourced age of each branching point, with citations
+        ├── creatures.js # Emoji, English and Hebrew names with grammatical forms
+        ├── questions.js # The bank, one-line "why" in both languages, curated days
+        ├── engine.js    # Pure: MRCA, validation, daily schedule, arcade, streak, share
+        ├── strings.js   # Every word the player reads, English and Hebrew
+        ├── reveal.js    # The three-line tree drawn after each answer
+        ├── main.js      # play.html's only script
+        ├── rng.js · store.js · sfx.js
 ```
 
 ---
+
+## Kin — the daily game (`play.html`)
+
+The site is turning into a game; `docs/PLAY_STRATEGY.md` says why and in what
+order. Phase 1 is `play.html`: a one-minute daily ("who is the closer
+cousin?"), an endless Arcade, English and Hebrew. It is not linked from the
+site and carries `noindex` — it exists to be put in front of testers.
+
+Things worth knowing before changing it:
+
+- **Answers are derived, never typed.** `js/kin/tree.js` is a curated tree of
+  every creature; a question only names a target and two candidates. The
+  engine finds where each pair meets, and a question is valid only if the
+  target meets its nearer relative strictly inside the node where it meets the
+  farther one. `npm test` fails if any question stops being true. The site's
+  own `TREE` was not usable for this: it files a lobster under Insects.
+- **Only uncontested branching is resolved.** Disputed orders (bats among the
+  hoofed mammals and carnivores, the inside of Neoaves, the three arctoid
+  families) are left as polytomies, so no question can hinge on them.
+- **Dates belong to nodes, and none come from TimeTree.** Its terms allow
+  personal research and teaching use and forbid redistribution. Every age in
+  `js/kin/dates.js` cites an open source; the tests fail on a missing citation,
+  on a `timetree.org` URL, and on any ancestor dated younger than a
+  descendant.
+- **`npm run kin:opentree`** replays every question against Open Tree of Life
+  (CC0) — needs the network, so it is manual. Open Tree places T. rex and the
+  mammoth by taxonomy only (`incertae_sedis`), and its taxonomy keeps birds out
+  of Theropoda, so those two questions are reported as undecided rather than
+  failed. Its `extinct` flag is useless for this: it is set on *Homo sapiens*.
+- **The Hebrew name is קרובים, not a transliteration.** "Kin" written in
+  Hebrew letters is קין — Cain. Hebrew "you" is gendered, so the human card
+  reads אנחנו. Sentences are built per language (`le` and `def` forms in
+  `creatures.js`), not translated from one template.
+- **The reveal mirrors in Hebrew** so time runs right to left, and every word
+  on it is HTML over the SVG — SVG text has no dependable bidi handling.
+- **`css/kin.css` is self-contained on purpose.** `css/variables.css` sets
+  `overflow:hidden` and a grab cursor on `<body>` for the map, which would
+  freeze a page that scrolls.
+- **Days are numbered from `EPOCH` in `engine.js`** in each player's own
+  calendar. Days 1–4 are hand-picked; later days are seeded draws, the same on
+  every phone. One `localStorage` record, `kin-v1`, holds progress; the site's
+  `tol-lang` and `theme` keys are shared. `?lang=he` from a shared link is
+  honoured for the visit and not written back.
+- **`play.html?stats=1`** shows what this device remembers (days played,
+  dailies finished, arcade runs, shares). It is how phase 1 learns whether
+  testers came back without adding analytics; nothing leaves the device.
+- **`npm run play:check`** drives the page in Chromium as a first-time visitor
+  (phone and desktop, English and Hebrew): first question within 3 s, reveal
+  labels fit and do not collide, the figure mirrors, no Latin text in Hebrew,
+  share text, reload, arcade end, CSP. Screenshots in `.play-out/`. It runs in
+  CI as its own workflow (`play.yml`), apart from the smoke suite.
 
 ## Running Locally
 
@@ -938,7 +1003,7 @@ as a CI artifact on every run).
 | `nav:` / `share:` | **Back takes off one layer and leaves the one beneath it**; the share link names the shell and the language as well as the node; following such a link opens in the sender's view without overwriting the recipient's stored preference |
 | `search:` | eight canonical queries return the answer a person would call correct; every common-name alias still matches something |
 | `interact:` | zoom buttons, reset re-fits, parent expands, leaf opens panel, search returns results, camera settles |
-| `static/` | Runs before the browser starts, over `index.html`, `js/`, `css/` and `stories/`: CSS custom properties used but never defined; inline event-handler attributes; `script-src` still forbidding inline and eval; every `data-action` resolving to a registered handler |
+| `static/` | Runs before the browser starts, over `index.html`, `play.html`, `js/` (recursively), `css/` and `stories/`: CSS custom properties used but never defined; inline event-handler attributes; `script-src` still forbidding inline and eval; every `data-action` resolving to a registered handler |
 
 ### The baseline
 

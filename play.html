@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<!-- Phase-1 test build: not linked from the site and not indexed. -->
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#070C11">
+<meta name="description" content="Who is the closer cousin? A one-minute daily game about how every living thing is related.">
+<!-- What a shared result unfurls into in a chat app. -->
+<meta property="og:title" content="Kin · Who is the closer cousin?">
+<meta property="og:description" content="A one-minute daily game about how every living thing is related.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://www.treeoflife.wiki/assets/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<title>Kin · Tree of Life</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌳</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/kin.css">
+</head>
+<body class="kin-body">
+<div class="kin-app">
+  <header class="kin-bar">
+    <div class="kin-logo"><span id="kin-brand">Kin</span><small id="kin-num"></small></div>
+    <div class="kin-progress" id="kin-progress"></div>
+    <div class="kin-tools">
+      <button class="kin-tool" id="kin-lang" type="button" data-action="kin:lang">עב</button>
+      <button class="kin-tool" id="kin-sound" type="button" data-action="kin:sound" aria-pressed="false">🔈</button>
+    </div>
+  </header>
+  <main class="kin-stage" id="kin-stage"></main>
+  <footer class="kin-foot"><a href="index.html" id="kin-foot">Test build · treeoflife.wiki</a></footer>
+</div>
+<div class="kin-burst" id="kin-burst" aria-hidden="true"></div>
+<noscript><p class="kin-noscript">Kin needs JavaScript to play.</p></noscript>
+<script type="module" src="js/kin/main.js"></script>
+</body>
+</html>

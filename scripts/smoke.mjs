@@ -2017,11 +2017,15 @@ async function staticChecks() {
   // stories/ is same-origin, so it is served the same policy as the app and
   // has to obey the same rules.
   const storyDir = path.join(ROOT, 'stories');
+  /* js/ is read recursively and play.html is listed beside index.html: the
+     game lives in js/kin/ and a page of its own, and a flat read of js/
+     would have exempted all of it from every rule below without a word. */
   const files = [
     ...(await readdir(cssDir)).filter((f) => f.endsWith('.css')).map((f) => path.join(cssDir, f)),
-    ...(await readdir(jsDir)).filter((f) => f.endsWith('.js')).map((f) => path.join(jsDir, f)),
+    ...(await readdir(jsDir, { recursive: true })).filter((f) => f.endsWith('.js')).map((f) => path.join(jsDir, f)),
     ...(await readdir(storyDir)).filter((f) => /\.(js|css|html)$/.test(f)).map((f) => path.join(storyDir, f)),
     path.join(ROOT, 'index.html'),
+    path.join(ROOT, 'play.html'),
   ];
   const defined = new Set();
   const sources = new Map();

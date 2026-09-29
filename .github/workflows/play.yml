@@ -1,0 +1,51 @@
+name: Kin Checks
+
+# The game's own checks, in a job of their own so they neither wait for nor
+# eat into the main smoke suite's timeout: unit tests for the engine and the
+# answer key (milliseconds), then play.html driven in Chromium as a
+# first-time visitor on phone and desktop, in English and Hebrew.
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: play-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  play:
+    name: Kin unit tests and play checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Unit tests
+        run: npm test
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Play checks
+        run: npm run play:check
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: play-screenshots
+          path: .play-out/
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14

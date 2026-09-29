@@ -1,6 +1,7 @@
 # Kin — the play strategy for treeoflife.wiki
 
-**Status:** proposed 29 Sep 2026. Waiting for Gabi's "go" on phase 1.
+**Status:** phase 1 built (29 Sep 2026): `play.html`, unlinked, on a preview
+deployment for testers. Gate below still open.
 **Visual version, with a playable prototype:** https://claude.ai/artifact/9yBbHFjxeC2Nj4ZPispQ2P
 (private to Gabi until shared).
 
@@ -8,6 +9,22 @@ This file is the plan future sessions execute. `CLAUDE.md` still describes how
 the code works today; `ROADMAP.md` records decisions once they are made.
 
 ---
+
+## Phase 1 as built — what changed from the plan
+
+- **Dates are sourced from open publications, not TimeTree.** The repository
+  and the preview are public, and TimeTree forbids redistribution, so every
+  age in `js/kin/dates.js` cites an openly reachable source; TimeTree was
+  only used to cross-check. The licence question for later phases stays open.
+- **The answer key is a small curated tree** (`js/kin/tree.js`, 80 creatures),
+  not the site's `TREE`, and answers are derived from it. Open Tree of Life
+  agrees with every question it can judge (`npm run kin:opentree`: 44 of 46;
+  it cannot place T. rex or the mammoth).
+- **The Hebrew name is קרובים.** "Kin" in Hebrew letters is קין, Cain — a
+  point for the naming decision.
+- **46 questions** instead of 40; days 1–4 hand-picked, later days seeded.
+- **No analytics yet.** `play.html?stats=1` shows what a tester's device
+  remembers, which is enough to see whether someone came back.
 
 ## The decision in one paragraph
 

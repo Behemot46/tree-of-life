@@ -13,7 +13,7 @@ the code works today; `ROADMAP.md` records decisions once they are made.
 ## Phase 1 as built — what changed from the plan
 
 - **Dates are sourced from open publications, not TimeTree.** The repository
-  and the preview are public, and TimeTree forbids redistribution, so every
+  is public and the game is meant to be, and TimeTree forbids redistribution, so every
   age in `js/kin/dates.js` cites an openly reachable source; TimeTree was
   only used to cross-check. The licence question for later phases stays open.
 - **The answer key is a small curated tree** (`js/kin/tree.js`, 80 creatures),

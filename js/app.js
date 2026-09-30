@@ -57,11 +57,11 @@ import { showToast, dismissToast, showSpeciesToast, a11yAnnounce, spawnParticles
 
 
 // ── Data (barrel + direct for niche modules) ──
-import { TREE, lightenColor, PHOTO_MAP, FACTS, ImageLoader } from './data.js';
+import { TREE, lightenColor, PHOTO_MAP, ImageLoader } from './data.js';
 import { expandTree } from './treeExpansion.js';
 import { initTourDeps, showTourSelector, startTour, endTour } from './tours.js';
 import { initSplash } from './splash.js';
-import { ERA_NAMES, TRANSLATIONS } from './uiData.js';
+import { TRANSLATIONS } from './uiData.js';
 import { openSapiens, closeSapiens, initSapiensDeps } from './sapiens.js';
 import { openProfile, closeProfile, initProfileDeps, initProfileListeners, initProfile } from './profile.js';
 
@@ -466,35 +466,34 @@ function init(){
   document.documentElement.lang=state.currentLang;
 
   // ── Splash animation ──
+  /* js/splash.js owns the whole opening, including what to show when there is
+     no canvas to draw on; it sets data-ready on the canvas when it has started. */
   const _splashCanvas = document.getElementById('splash-canvas');
-  const _splashFallback = document.getElementById('splash-fallback');
 
-  // Fallback: if Canvas doesn't init within 500ms, show CSS fallback
-  setTimeout(() => {
-    if (_splashCanvas && !_splashCanvas.dataset.ready && _splashFallback) {
-      _splashCanvas.style.display = 'none';
-      _splashFallback.style.display = 'flex';
-      _splashFallback.addEventListener('click', () => {
-        const s = document.getElementById('splash');
-        if (s) { s.style.opacity = '0'; setTimeout(() => { s.style.display = 'none'; animateTreeEntrance(); }, 500); }
-      });
+  let _afterOpening = () => {
+    _afterOpening = () => {};                       // once: the opening's own timers may also call it
+    animateTreeEntrance();
+    if (!localStorage.getItem('tol-tour-done') && !new URLSearchParams(location.search).get('node')) {
+      setTimeout(showTourSelector, 1200);
     }
-  }, 500);
-
+  };
   if (_splashCanvas) {
-    initSplash(_splashCanvas, {
-      tree: TREE,
-      photoMap: PHOTO_MAP,
-      t,
-      facts: FACTS,
-      eraNames: ERA_NAMES,
-      onDone: () => {
-        animateTreeEntrance();
-        if (!localStorage.getItem('tol-tour-done') && !new URLSearchParams(location.search).get('node')) {
-          setTimeout(showTourSelector, 1200);
-        }
-      }
-    });
+    try {
+      initSplash(_splashCanvas, {
+        tree: TREE,
+        t,
+        onDone: () => _afterOpening()
+      });
+    } catch (err) {
+      /* The opening is decoration, and a browser that cannot draw it must still
+         get the site: take the curtain down and carry on. The error is thrown
+         again on the way out, so it reaches the console and any error report
+         instead of being swallowed. */
+      const s = document.getElementById('splash');
+      if (s) s.style.display = 'none';
+      _afterOpening();
+      setTimeout(() => { throw err; });
+    }
   }
   function assignDomains(node, domain) {
     node._domain = domain;

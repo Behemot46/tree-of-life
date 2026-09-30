@@ -3,7 +3,11 @@
 <html lang="en" dir="ltr" data-theme="dark">
 <head>
 <meta charset="UTF-8">
+<!-- Before any stylesheet has arrived the browser paints its own canvas, white unless told otherwise. -->
+<meta name="color-scheme" content="dark">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<!-- Theme, language and direction, decided before the first paint (see js/boot.js). -->
+<script src="js/boot.js"></script>
 <meta name="description" content="Explore 3.8 billion years of evolution — an interactive Tree of Life visualization featuring 200+ species from bacteria to humans. Museum-quality, multilingual (EN/HE/RU).">
 <meta name="keywords" content="tree of life, evolution, interactive, species, biology, phylogenetic, museum, visualization">
 <meta name="author" content="Tree of Life Project">
@@ -49,13 +53,27 @@
 <a href="#canvas-wrap" class="skip-link" id="skip-link">Skip to Tree of Life</a>
 <div aria-live="polite" aria-atomic="true" class="sr-only" id="a11y-announce"></div>
 <div id="splash">
-  <canvas id="splash-canvas"></canvas>
-  <button id="splash-skip" type="button" aria-label="Skip intro"></button>
+  <!-- The first paint: plain CSS, so it shows before any script has run (css/splash.css). -->
+  <div class="splash-pre" aria-hidden="true"><i class="sp-scan"></i><i class="sp-ring"></i><i class="sp-ring sp-ring-in"></i><i class="sp-sun"></i></div>
+  <canvas id="splash-under" aria-hidden="true"></canvas>
+  <canvas id="splash-canvas" aria-hidden="true"></canvas>
+  <div id="splash-words" aria-hidden="true">
+    <ol class="sw-scale" id="sw-scale"></ol>
+    <p class="sw-counter" id="sw-counter"><bdi dir="ltr"></bdi></p>
+    <div class="sw-plaque" id="sw-plaque">
+      <svg class="sw-frame" id="sw-frame" focusable="false"></svg>
+      <p class="sw-title" id="sw-title"><span></span></p>
+      <p class="sw-sub" id="sw-sub"><span></span></p>
+    </div>
+    <p class="sw-hint" id="sw-hint"></p>
+  </div>
+  <button id="splash-skip" type="button"></button>
   <div id="splash-fallback">
     <h1 id="splash-fb-title">Tree of Life</h1>
     <p id="splash-fb-subtitle">3.8 Billion Years of Evolution</p>
     <p id="splash-fb-click">Click to explore</p>
   </div>
+  <noscript><p style="position:absolute;inset:auto 0 30% 0;text-align:center;color:#a2b4bd;font:14px sans-serif">Tree of Life needs JavaScript.</p></noscript>
 </div>
 <div id="bg"></div>
 <div id="era-tint-overlay"></div>

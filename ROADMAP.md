@@ -11,7 +11,7 @@ An interactive phylogenetic visualisation of 3.8 billion years of evolution,
 in English, Hebrew and Russian. Static files, no build step.
 
 Every push and pull request runs `scripts/smoke.mjs`, which opens the real page
-in Chromium and asserts **282 checks across six scenarios** — desktop and
+in Chromium and asserts **522 checks across six scenarios** — desktop and
 phone, in all three languages, plus a desktop pass in the light theme. It is
 green.
 
@@ -42,6 +42,27 @@ Things waiting on a decision rather than on work.
 ---
 
 ## Decision log
+
+### 2026-09 — The Astrolabe opening
+
+| Decision | Rationale |
+|---|---|
+| Four directions as live scenes before choosing one | An opening is judged by watching it, and a still mock-up cannot show timing, weight or what a slow phone does to it. Division, the Astrolabe, Stickers and Descent were each built as a function of time in a gallery (`mockups/opening/`), captured on a phone and a desktop in all three languages and both themes, and compared side by side. The other three stay there as sketches; only the Astrolabe was tuned for production. |
+| The Astrolabe | It is the one where the drawing is the claim: distance from the centre is time, so the picture says what the site is about before a word appears. It draws over the real `TREE`, as the opening it replaced did, and it holds together at 390px in both themes. |
+| Radius is time, on a power scale | Linear time gives the last 700 million years — where most of the animals a visitor knows first appear — the outer 18% of the dial. A power scale (exponent 0.45) gives the last 100 million years 19% of the radius. The two microbial domains sit at the ends of the arc; in the site's own order they took a lopsided quarter of the dial. |
+| Every word is HTML, the picture is canvas | Text on a canvas drawn at reduced resolution is soft, has no bidi handling and cannot be translated without touching the art. As DOM the words stay sharp at any canvas size, lay out right-to-left for free, and fit themselves to the plaque by measurement. No string was added: the opening reuses the four `splash_*` keys and `title`. |
+| A first paint that needs no script | Forty modules take a second or more on a phone, and until they arrived the screen was blank. The ring and its point are plain CSS placed by arithmetic that mirrors the JS geometry; the canvas fades in over them. Keeping two descriptions of one geometry in step is a cost, so a check fails when they drift by more than 1.5px. |
+| `js/boot.js` decides theme, language and direction before paint | A light-theme reader watched a dark screen turn cream, a Hebrew reader watched a left-to-right screen lay itself out again, and the browser's own canvas was white until the stylesheets arrived. Only a classic script in `<head>` can run before paint. It cannot import, so its language lists are written by hand and a static check holds them to `TRANSLATIONS` and to `js/theme.js`. |
+| A returning visitor gets the same show at 1.7× | About 2.6 seconds instead of 4.5. A separate short cut would be a second animation to keep right in three languages and two themes. |
+| Reduced motion gets the finished plate, not a fallback | The old opening swapped in a static screen with neither the picture nor the title plaque. The finished plate is where the animation is going, has everything, and needs no clock — which also made it measurable: the checks read it instead of waiting three seconds of animation. |
+| A check found a bug the day it was written | Measured under reduced motion, the English line under the title came out at 8.6px instead of 10 on a phone. `responsive.css` gives every element a 0.01ms transition under reduced motion, a transition answers a same-task read with the size it started from, and the fitting reads the size it has just set. The spans now opt out of transitions. Only visitors who ask for reduced motion ever saw it, so every check that ran in the default mode passed. See constraint 13 in `CLAUDE.md`. |
+| The plate belongs to the splash | A leftover rule in `theme.css` flattened `#splash` to a plain colour in the dark theme only, so the plate's glow and the vignette vanished on every dark visit and nobody saw it. It is deleted, and a check asserts the gradient is painted in both themes. |
+| A late font fits the title and nothing else | Looking at a finished frame with no scale labels in it: laying the words out again when a web font arrived rebuilt the scale, and a rebuilt label fades in from nothing, so the scale blinked out mid-show. The scale is laid out once; the title alone is fitted again. |
+| The readout sits above the plaque | Found in a frame captured mid-reveal: the counter and the title plaque shared one spot, so for about half a second the plaque's rules struck through the word "present". The counter now lives in the gap between the dial and the plaque, and the collision check measures it. |
+| The show follows the wall clock | Found by looking at a screenshot of the finished plate that had no plate in it. Adding up capped frame steps made a slow CPU play the show in slow motion, and the safety-net dismissal on the wall clock then arrived first: at a sixth of this machine's speed the title never appeared. Time is now `performance.now() − start − hidden`, read when the frame runs (the timestamp a frame is handed is when it began, stale by any long task in front of the first one), and the safety net is armed by the first frame rather than by the script. Frames are dropped instead of time. A check simulates a slow device in the page, so it means the same on any runner. The slow-device mode also resizes only the live canvas rather than laying the scene out again. |
+| A scene that throws cannot trap a visitor | The opening does more work than the one it replaced, on more kinds of device. `initSplash` is wrapped: an error takes the curtain down, the site carries on, and the error is thrown again from a timer so it is reported rather than swallowed. A check breaks the scene module on purpose to keep it that way. |
+| Skip is named by its text | It carried an English `aria-label`, so a Hebrew screen reader announced "Skip intro". |
+| Service-worker cache bumped to `tol-v10` | `index.html`'s opening markup, `css/splash.css` and two scripts changed together, and stale-while-revalidate would otherwise let an interrupted background update pair a new page with an old stylesheet for one visit. The same reason as the earlier bump for the Stories pill. |
 
 ### 2026-08 — A new opening screen
 
@@ -125,6 +146,11 @@ modes and achievements; Reveal panel (depth slider + species toggle).
 
 **2026-08** — browser smoke suite in CI; fit-to-stage camera; the rendering,
 layout and i18n fixes listed in the decision log above.
+
+**2026-09** — Kin phase 2 (a generated question bank, a frozen calendar,
+Russian); a credits page for photos, silhouettes and dates; the map tooltip's
+fun fact in three languages; the Astrolabe opening, with its own group of smoke
+checks (see the decision log above).
 
 ---
 

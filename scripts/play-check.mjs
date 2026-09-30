@@ -11,7 +11,8 @@
  * a first visit, and for a game the first visit is the whole product.
  *
  * Each scenario plays a full daily (alternating right and wrong answers so
- * both reveals are exercised), switches language in the middle of a reveal,
+ * both reveals are exercised), switches language in the middle of a reveal
+ * and back,
  * shares the result, reloads, runs the arcade to its end and opens the tester
  * stats. Screenshots land in .play-out/.
  *
@@ -40,7 +41,15 @@ const SCENARIOS = [
   { name: 'small-phone-en', lang: 'en', theme: 'light', viewport: { width: 360, height: 640 }, mobile: true },
   { name: 'desktop-he', lang: 'he', theme: 'light', viewport: { width: 1440, height: 900 }, mobile: false },
   { name: 'desktop-en', lang: 'en', theme: 'dark', viewport: { width: 1440, height: 900 }, mobile: false },
+  /* Russian runs longest, so it takes the narrowest phone. */
+  { name: 'small-phone-ru', lang: 'ru', theme: 'dark', viewport: { width: 360, height: 640 }, mobile: true },
+  { name: 'desktop-ru', lang: 'ru', theme: 'light', viewport: { width: 1440, height: 900 }, mobile: false },
 ];
+
+const LOCALE = { en: 'en-US', he: 'he-IL', ru: 'ru-RU' };
+const BRAND = { en: 'Kin', he: 'קרובים', ru: 'Родня' };
+/* Languages written in another script, where a Latin word is a leak. */
+const SCRIPT = { he: 'hebrew', ru: 'russian' };
 
 async function startServer() {
   if (EXTERNAL_URL) return { url: EXTERNAL_URL.replace(/\/$/, ''), stop: async () => {} };
@@ -83,7 +92,7 @@ const overlap = (a, b) => a.left < b.right - 0.5 && a.right > b.left + 0.5 && a.
 
 async function runScenario(browser, base, sc) {
   process.stdout.write(`\n▸ ${sc.name}\n`);
-  const context = await browser.newContext({ viewport: sc.viewport, isMobile: sc.mobile, hasTouch: sc.mobile, locale: sc.lang === 'he' ? 'he-IL' : 'en-US' });
+  const context = await browser.newContext({ viewport: sc.viewport, isMobile: sc.mobile, hasTouch: sc.mobile, locale: LOCALE[sc.lang] });
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: base }).catch(() => {});
   const page = await context.newPage();
   page.setDefaultTimeout(8000);
@@ -114,6 +123,25 @@ async function runScenario(browser, base, sc) {
     return hit && b.contains(hit);
   }));
   record(sc.name, 'play:options-are-tappable', covered.length === 2 && covered.every(Boolean), `hit test ${JSON.stringify(covered)}`);
+
+  /* The bar holds the name, the day's dots and a button per other language
+     beside the sound toggle; a third language made it one button wider.
+     Nothing in it may run off the screen or into its neighbour. */
+  const bar = await page.evaluate(async () => {
+    const { LANGS } = await import('./js/kin/strings.js');
+    const box = (el) => { const r = el.getBoundingClientRect(); return { left: r.left, right: r.right, top: r.top, bottom: r.bottom }; };
+    const parts = ['.kin-logo', '.kin-progress', '.kin-tools'].map((q) => box(document.querySelector(q)));
+    const buttons = [...document.querySelectorAll('#kin-langs [data-lang]')];
+    return {
+      parts, width: document.documentElement.clientWidth,
+      offered: buttons.map((b) => b.dataset.lang).sort(),
+      expected: LANGS.filter((l) => l !== document.documentElement.lang).sort(),
+    };
+  });
+  const barClash = bar.parts.some((a, i) => bar.parts.some((b, j) => i < j && overlap(a, b)));
+  const barOut = bar.parts.some((p) => p.left < 0 || p.right > bar.width);
+  record(sc.name, 'play:header-fits', !barClash && !barOut, JSON.stringify(bar.parts.map((p) => [Math.round(p.left), Math.round(p.right)])));
+  record(sc.name, 'play:switcher-offers-the-other-languages', JSON.stringify(bar.offered) === JSON.stringify(bar.expected), `${bar.offered} vs ${bar.expected}`);
   await page.screenshot({ path: path.join(OUT, `${sc.name}-1-question.png`) });
 
   const problems = { fit: [], clash: [], mirror: [], latin: [], shape: [] };
@@ -142,7 +170,7 @@ async function runScenario(browser, base, sc) {
         if (onRight !== (sc.lang !== 'he')) problems.mirror.push(`q${i + 1} "${l.text}"`);
       }
     }
-    if (sc.lang === 'he') {
+    if (SCRIPT[sc.lang]) {
       const latin = await page.evaluate(() => {
         const stage = document.getElementById('kin-stage').cloneNode(true);
         stage.querySelectorAll('[data-kin-citation]').forEach((n) => n.remove());
@@ -156,9 +184,9 @@ async function runScenario(browser, base, sc) {
        to the next question — the answer is already recorded. */
     if (i === 2) {
       const before = await page.evaluate(() => ({ dots: document.querySelectorAll('.kin-dots i').length, done: document.querySelectorAll('.kin-dots i.ok, .kin-dots i.no').length }));
-      await page.click('#kin-lang');
+      await page.click('#kin-langs [data-lang]');
       const after = await page.evaluate(() => ({ lang: document.documentElement.lang, reveal: !!document.querySelector('.kin-reveal'), done: document.querySelectorAll('.kin-dots i.ok, .kin-dots i.no').length }));
-      await page.click('#kin-lang');
+      await page.click(`#kin-langs [data-lang="${sc.lang}"]`);
       const back = await page.evaluate(() => ({ lang: document.documentElement.lang, reveal: !!document.querySelector('.kin-reveal') }));
       langSwitchOk = after.lang !== sc.lang && after.reveal && after.done === before.done && back.lang === sc.lang && back.reveal;
     }
@@ -172,7 +200,7 @@ async function runScenario(browser, base, sc) {
   record(sc.name, 'play:reveal-labels-fit', !problems.fit.length, problems.fit.slice(0, 4).join('; '));
   record(sc.name, 'play:reveal-labels-do-not-collide', !problems.clash.length, problems.clash.slice(0, 4).join('; '));
   record(sc.name, 'play:reveal-mirrors-for-the-language', !problems.mirror.length, problems.mirror.slice(0, 4).join('; '));
-  if (sc.lang === 'he') record(sc.name, 'play:hebrew-has-no-latin-text', !problems.latin.length, problems.latin.slice(0, 3).join(' | '));
+  if (SCRIPT[sc.lang]) record(sc.name, `play:${SCRIPT[sc.lang]}-has-no-latin-text`, !problems.latin.length, problems.latin.slice(0, 3).join(' | '));
   record(sc.name, 'play:language-switch-keeps-the-reveal', langSwitchOk === true, 'reveal lost or answer recorded twice');
 
   const resumed = await page.waitForSelector('.kin-res', { timeout: 3000 }).then(() => true, () => false);
@@ -189,7 +217,7 @@ async function runScenario(browser, base, sc) {
   const shared = await page.evaluate(async () => {
     try { return await navigator.clipboard.readText(); } catch { return (document.getElementById('kin-share-text') || {}).value || ''; }
   });
-  const brand = sc.lang === 'he' ? 'קרובים' : 'Kin';
+  const brand = BRAND[sc.lang];
   const shareRe = new RegExp(`^${brand} #\\d+ · ${right}/10 🌳\\n(?:🟩|🟥){10}\\n${base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}/play\\.html`);
   record(sc.name, 'play:share-text', shareRe.test(shared), JSON.stringify(shared));
 
@@ -239,7 +267,7 @@ async function runScenario(browser, base, sc) {
  */
 async function checkEveryReveal(browser, base) {
   process.stdout.write('\n▸ every-reveal (360×640)\n');
-  for (const lang of ['en', 'he']) {
+  for (const lang of Object.keys(LOCALE)) {
     const context = await browser.newContext({ viewport: { width: 360, height: 640 }, isMobile: true, hasTouch: true });
     const page = await context.newPage();
     await page.addInitScript((l) => { try { localStorage.setItem('tol-lang', l); } catch { /* private mode */ } }, lang);

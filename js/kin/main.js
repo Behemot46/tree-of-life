@@ -49,7 +49,8 @@ function chooseLanguage() {
   if (LANGS.includes(fromLink)) return fromLink;
   const site = store.siteGet('tol-lang');
   if (LANGS.includes(site)) return site;
-  return (navigator.language || '').toLowerCase().startsWith('he') ? 'he' : 'en';
+  const device = (navigator.language || '').toLowerCase().slice(0, 2);
+  return LANGS.includes(device) ? device : 'en';
 }
 
 const t = () => STRINGS[lang];
@@ -60,10 +61,12 @@ function applyLanguage() {
   document.title = t().title;
   $('kin-brand').textContent = t().brand;
   $('kin-foot').textContent = t().testBuild;
-  const other = $('kin-lang');
-  other.textContent = t().switchLang;
-  other.setAttribute('aria-label', t().switchLangLabel);
-  other.setAttribute('lang', lang === 'he' ? 'en' : 'he');
+  /* One button for each other language, each named in its own language and
+     script, so a reader finds theirs without reading this one. */
+  $('kin-langs').innerHTML = LANGS.filter((l) => l !== lang).map((l) => {
+    const s = STRINGS[l];
+    return `<button class="kin-tool" type="button" data-action="kin:lang" data-lang="${l}" lang="${l}" dir="${s.dir}" aria-label="${esc(s.name)}" title="${esc(s.name)}">${esc(s.code)}</button>`;
+  }).join('');
   renderSoundButton();
 }
 
@@ -385,8 +388,10 @@ registerActions({
   'kin:share': () => { share(); },
   'kin:arcade': () => { sfx.tap(); startArcade(); },
   'kin:today': () => { sfx.tap(); showToday(); },
-  'kin:lang': () => {
-    lang = lang === 'he' ? 'en' : 'he';
+  'kin:lang': (_a, _b, { el }) => {
+    const prev = lang;
+    if (!LANGS.includes(el.dataset.lang) || el.dataset.lang === prev) return;
+    lang = el.dataset.lang;
     store.siteSet('tol-lang', lang);
     applyLanguage();
     if (screen === 'results') renderResults(false);
@@ -394,6 +399,12 @@ registerActions({
     else if (screen === 'stats') renderStats();
     else if (revealed) { const shown = revealed; renderQuestion(shown.qid); revealed = shown; showReveal(); }
     else renderQuestion();
+    /* The pressed button went with the old row. Unless the redraw put focus
+       somewhere on purpose, leave it on the way back. */
+    if (!document.activeElement || document.activeElement === document.body) {
+      const back = document.querySelector(`#kin-langs [data-lang="${prev}"]`);
+      if (back) back.focus({ preventScroll: true });
+    }
   },
   'kin:sound': () => {
     S.sound = !S.sound;

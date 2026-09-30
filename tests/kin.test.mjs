@@ -52,19 +52,27 @@ test('every date cites an openly reachable source, and none cites TimeTree', () 
   }
 });
 
-test('every creature has both languages, and Hebrew text contains no Latin letters', () => {
+/* Hebrew and Russian are written in their own scripts, so a Latin letter in
+   either is an untranslated word — "T. rex" left in a Russian sentence. */
+const NON_LATIN = ['he', 'ru'];
+
+test('every creature has every language, and Hebrew and Russian contain no Latin letters', () => {
   for (const [id, c] of Object.entries(CREATURES)) {
     for (const lang of LANGS) assert.ok(c[lang] && c[lang].n, `${id}: no ${lang} name`);
     for (const k of ['n', 'def', 'le']) assert.doesNotMatch(c.he[k], /[A-Za-z]/, `${id}: he.${k} has Latin letters`);
+    for (const k of ['n', 'g', 'line', 'the']) {
+      assert.ok(c.ru[k], `${id}: no ru.${k}`);
+      assert.doesNotMatch(c.ru[k], /[A-Za-z]/, `${id}: ru.${k} has Latin letters`);
+    }
     assert.ok(['animal', 'plant', 'fungus'].includes(c.k), `${id}: unknown kingdom`);
   }
   for (const q of QUESTIONS) {
     for (const lang of LANGS) assert.ok(q.why[lang] && q.why[lang].length > 10, `${q.id}: no ${lang} explanation`);
-    assert.doesNotMatch(q.why.he, /[A-Za-z]/, `${q.id}: Hebrew explanation has Latin letters`);
+    for (const lang of NON_LATIN) assert.doesNotMatch(q.why[lang], /[A-Za-z]/, `${q.id}: ${lang} explanation has Latin letters`);
   }
 });
 
-test('sentences assemble in both languages for every question', () => {
+test('sentences assemble in every language for every question', () => {
   for (const q of QUESTIONS) {
     const r = E.resolve(q);
     const [T, N, F] = [CREATURES[q.t], CREATURES[q.near], CREATURES[q.far]];
@@ -74,12 +82,30 @@ test('sentences assemble in both languages for every question', () => {
       assert.ok(!line.includes('undefined') && !line.includes('NaN'), `${q.id}/${lang}: ${line}`);
       assert.ok(!s.right(N).includes('undefined') && !s.wrong(N).includes('undefined'), `${q.id}/${lang}: verdict`);
     }
-    assert.doesNotMatch(STRINGS.he.headline(T, N, F, r.dNear, r.dFar), /[A-Za-z]/, `${q.id}: Hebrew headline has Latin letters`);
+    for (const lang of NON_LATIN) {
+      assert.doesNotMatch(STRINGS[lang].headline(T, N, F, r.dNear, r.dFar), /[A-Za-z]/, `${q.id}: ${lang} headline has Latin letters`);
+    }
   }
   assert.equal(STRINGS.en.headline(CREATURES.whale, CREATURES.hippo, CREATURES.shark, { mya: 53 }, { mya: 460 }),
     'Whales and hippos last shared an ancestor about 53 million years ago. The shark line branched off about 460 million years ago.');
   assert.equal(STRINGS.he.headline(CREATURES.whale, CREATURES.hippo, CREATURES.shark, { mya: 53 }, { mya: 460 }),
     'ללווייתן ולהיפופוטם היה אב קדמון משותף לפני כ־53 מיליון שנה. הקו של הכריש התפצל לפני כ־460 מיליון שנה.');
+  assert.equal(STRINGS.ru.headline(CREATURES.whale, CREATURES.hippo, CREATURES.shark, { mya: 53 }, { mya: 460 }),
+    'Последний общий предок кита и бегемота жил около 53 млн лет назад. Предки акул отделились около 460 млн лет назад.');
+  /* Russian decimals take a comma, a fossil minimum reads "более", and the
+     deepest splits are counted in billions. */
+  assert.equal(STRINGS.ru.headline(CREATURES.chili, CREATURES.tomato, CREATURES.coffee, { mya: 52.2, min: true }, { mya: 1500 }),
+    'Последний общий предок перца чили и помидора жил более 52 млн лет назад. Предки кофе отделились около 1,5 млрд лет назад.');
+  assert.equal(STRINGS.ru.short({ mya: 8.7 }), '8,7 млн лет назад');
+});
+
+test('Russian counts in three forms', () => {
+  const ru = STRINGS.ru;
+  assert.deepEqual([2, 4, 5, 11, 12, 21, 22, 25, 101, 111].map(ru.streak), [
+    '🔥 2 дня подряд', '🔥 4 дня подряд', '🔥 5 дней подряд', '🔥 11 дней подряд', '🔥 12 дней подряд',
+    '🔥 21 день подряд', '🔥 22 дня подряд', '🔥 25 дней подряд', '🔥 101 день подряд', '🔥 111 дней подряд']);
+  assert.deepEqual([0, 1, 2, 5, 14, 21].map(ru.pts), ['0 очков', '1 очко', '2 очка', '5 очков', '14 очков', '21 очко']);
+  assert.deepEqual([0, 1, 2, 3].map(ru.lives), ['Жизней не осталось', 'Осталась последняя жизнь', 'Осталось 2 жизни', 'Осталось 3 жизни']);
 });
 
 test('every string key exists in every language', () => {
@@ -88,6 +114,10 @@ test('every string key exists in every language', () => {
   assert.equal(STRINGS.he.dir, 'rtl');
   /* "Kin" transliterated into Hebrew is קין, Cain. */
   assert.notEqual(STRINGS.he.brand, 'קין');
+  /* The switcher shows every other language by the name it gives itself. */
+  const codes = LANGS.map((l) => STRINGS[l].code);
+  assert.equal(new Set(codes).size, LANGS.length, `language codes collide: ${codes}`);
+  for (const lang of LANGS) assert.ok(STRINGS[lang].name, `${lang} has no name for the switcher`);
 });
 
 test('day numbers count calendar days from the epoch, across daylight-saving changes', () => {
@@ -167,9 +197,11 @@ test('every branch a question can meet at explains itself, in every language', (
   }
   for (const [id, line] of Object.entries(GROUPS)) {
     assert.ok(NODE_DATES[id], `line for ${id}, which has no date`);
-    for (const lang of LANGS) assert.ok(line[lang] && line[lang].length > 10, `${id}: no ${lang} line`);
-    assert.doesNotMatch(line.he, /[A-Za-z]/, `${id}: Hebrew line has Latin letters`);
-    assert.doesNotMatch(line.en, /\d/, `${id}: a line never states a number — the headline does`);
+    for (const lang of LANGS) {
+      assert.ok(line[lang] && line[lang].length > 10, `${id}: no ${lang} line`);
+      assert.doesNotMatch(line[lang], /\d/, `${id}: a ${lang} line never states a number — the headline does`);
+    }
+    for (const lang of NON_LATIN) assert.doesNotMatch(line[lang], /[A-Za-z]/, `${id}: ${lang} line has Latin letters`);
   }
 });
 

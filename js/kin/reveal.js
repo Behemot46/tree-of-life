@@ -48,13 +48,19 @@ export function treeHTML(r, lang) {
   /* A label anchored at x: "start" grows away from the far split (into the
      leaves' side in LTR), "end" grows the other way, "mid" is centred. In
      Hebrew the figure is mirrored, so start and end swap. */
-  const at = (x, y, anchor, cls, html, extra = '') => {
+  const at = (x, y, anchor, cls, html, style = '') => {
     const shift = anchor === 'mid' ? '-50%' : ((anchor === 'start') !== rtl ? '0' : '-100%');
-    return `<span class="kin-lab ${cls}" style="left:${pct(X(x), W)};top:${pct(y, H)};transform:translate(${shift},-50%)"${extra}>${html}</span>`;
+    return `<span class="kin-lab ${cls}" style="left:${pct(X(x), W)};top:${pct(y, H)};transform:translate(${shift},-50%);${style}">${html}</span>`;
   };
 
+  /* A name longer than the room beside the leaves breaks at a space onto a
+     second line instead of running out of the figure. Only the Russian bat,
+     "Летучая мышь", needs it today, and only as the bold target on a 360px
+     phone (131px of name, 129px of room); rows sit far enough apart that two
+     lines clear the names above and below. */
   const leaf = (c, y, cls) => at(X_LEAF + 10, y, 'start', `kin-leaf ${cls}`,
-    `<span aria-hidden="true">${glyph(c)}</span> <span dir="auto">${esc(c[lang].n)}</span>`);
+    `<span aria-hidden="true">${glyph(c)}</span> <span dir="auto">${esc(c[lang].n)}</span>`,
+    `max-width:${pct(W - X_LEAF - 12, W)}`);
 
   /* The near date is centred over its join, except at either end of the
      axis. A recent split sits close to the leaves, and centred there its

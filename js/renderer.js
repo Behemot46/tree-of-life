@@ -858,7 +858,7 @@ export function render(){
     }
 
     // Hover events (tooltip only, no movement)
-    g.addEventListener('mouseenter',()=>{_showTip(displayName(n),n.icon,n.funFact);});
+    g.addEventListener('mouseenter',()=>{_showTip(displayName(n),n.icon,n.funFact,g);});
     g.addEventListener('mouseleave',()=>{_hideTip();});
 
     /* Animate in. A new node grows out of its parent rather than sliding in

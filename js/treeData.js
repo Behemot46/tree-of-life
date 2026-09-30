@@ -226,7 +226,16 @@ export const TREE = {
           funFact:'The discovery of Asgard archaea suggests eukaryotic cells (including yours) evolved from within the Archaea — rewriting the tree of life in 2015.',
           facts:[{l:'Discovered',v:'2015 (from DNA)'},{l:'Cultured',v:'2022'},{l:'Key proteins',v:'Actin, ESCRT, tubulin'},{l:'Relation',v:'Eukaryote ancestors'}],
           tags:['Eukaryote ancestors','Actin homologs','ESCRT machinery','Deep sea'],
-          tipFact:'Our cells may literally be descended from this archaeon.',children:[]},
+          tipFact:'Our cells may literally be descended from this archaeon.',children:[
+          {id:'lokiarchaeota',icon:'🌋',color:lightenColor('#f59e0b','phylum'),r:14,
+            appeared:2000,extinct:null,
+            img:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Loki%27s_Castle_2008_location_map.jpg/320px-Loki%27s_Castle_2008_location_map.jpg',imgCredit:'Centre for Geobiology, CC BY-SA 3.0',
+            name:'Lokiarchaeota',latin:'Candidatus Lokiarchaeota',era:'Proterozoic',
+            desc:'Discovered in 2015 in deep sea sediment near Loki\'s Castle, Lokiarchaeota is the closest known living relative of the ancestor that gave rise to all eukaryotic life — every plant, animal, fungus, and protist.',
+            detail:'Its genome contains genes previously exclusive to eukaryotes, including membrane remodeling genes that may have led to the engulfment of the bacterium that became mitochondria.',
+            funFact:'Lokiarchaeota was discovered from a DNA sample taken from the ocean floor — never grown in a lab, yet its genome reveals it is the missing evolutionary link between simple prokaryotes and all complex life.',
+            facts:[{l:'Discovered',v:'2015, Arctic Ocean'},{l:'Significance',v:'Closest relative of eukaryote ancestor'},{l:'Lab culture',v:'Never grown'}],
+            tags:['Eukaryote origin','Missing link','Asgard archaea'],tipFact:'The closest living relative of the ancestor of all complex life — never grown in a lab.',children:[]}]},
         {id:'halobacterium',icon:'🧂',color:lightenColor('#f59e0b','species'),r:11,
           appeared:3500,extinct:null,
           img:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Halobacterium_sp._NRC-1.jpg/320px-Halobacterium_sp._NRC-1.jpg',
@@ -254,16 +263,7 @@ export const TREE = {
           detail:'At 121°C — standard autoclave sterilization temperature — Pyrolobus merely stops growing but remains viable, resuming when temperatures drop.',
           funFact:'Pyrolobus fumarii grows at 113°C — above the boiling point of water. Put it in an autoclave to sterilize it and it simply waits, then starts growing again when things cool down.',
           facts:[{l:'Max temperature',v:'113°C (record holder)'},{l:'Autoclave',v:'Survives 121°C'},{l:'Habitat',v:'Deep sea vents'}],
-          tags:['Hyperthermophile','Temperature record','Extremophile'],tipFact:'The hottest-living organism known — survives being autoclaved.',children:[]},
-        {id:'lokiarchaeota',icon:'🌋',color:lightenColor('#f59e0b','phylum'),r:14,
-          appeared:2000,extinct:null,
-          img:'https://upload.wikimedia.org/wikipedia/commons/thumb/9/96/Loki%27s_Castle_2008_location_map.jpg/320px-Loki%27s_Castle_2008_location_map.jpg',imgCredit:'Centre for Geobiology, CC BY-SA 3.0',
-          name:'Lokiarchaeota',latin:'Candidatus Lokiarchaeota',era:'Proterozoic',
-          desc:'Discovered in 2015 in deep sea sediment near Loki\'s Castle, Lokiarchaeota is the closest known living relative of the ancestor that gave rise to all eukaryotic life — every plant, animal, fungus, and protist.',
-          detail:'Its genome contains genes previously exclusive to eukaryotes, including membrane remodeling genes that may have led to the engulfment of the bacterium that became mitochondria.',
-          funFact:'Lokiarchaeota was discovered from a DNA sample taken from the ocean floor — never grown in a lab, yet its genome reveals it is the missing evolutionary link between simple prokaryotes and all complex life.',
-          facts:[{l:'Discovered',v:'2015, Arctic Ocean'},{l:'Significance',v:'Closest relative of eukaryote ancestor'},{l:'Lab culture',v:'Never grown'}],
-          tags:['Eukaryote origin','Missing link','Asgard archaea'],tipFact:'The closest living relative of the ancestor of all complex life — never grown in a lab.',children:[]}
+          tags:['Hyperthermophile','Temperature record','Extremophile'],tipFact:'The hottest-living organism known — survives being autoclaved.',children:[]}
       ]},
     // ── EUKARYOTA ──
     {id:'eukaryota',icon:'🔮',color:'#40b8b0',r:20,appeared:2100,extinct:null,
@@ -591,7 +591,17 @@ export const TREE = {
                   funFact:'49 million years ago this tiny fern covered the entire Arctic Ocean for 800,000 years, sucking so much CO2 from the air it cooled the entire planet — the Azolla Event.',
                   facts:[{l:'Growth rate',v:'Doubles mass every 2 days'},{l:'Azolla Event',v:'49 million years ago'},{l:'Nitrogen fixing',v:'Via cyanobacteria symbiont'}],
                   tags:['Carbon sequestration','Azolla Event','Nitrogen fixing'],tipFact:'This tiny fern once cooled the entire planet by covering the Arctic Ocean.',children:[]}
-              ]}
+              ]},
+            {id:'volvox',icon:'🟢',color:lightenColor('#22c55e','species'),r:11,
+              appeared:1000,extinct:null,
+              img:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Volvox_aureus.jpg/320px-Volvox_aureus.jpg',
+              imgCredit:'Frank Fox, CC BY-SA 3.0',
+              name:'Volvox',latin:'Volvox carteri',era:'Proterozoic',
+              desc:'A hollow sphere of up to 50,000 cells swimming together as one organism. Shows the earliest known division of labor — somatic cells that swim and reproductive cells that do nothing else.',
+              detail:'This division of labor — soma versus germ cells — is the fundamental innovation that made complex multicellular life possible. Volvox evolved from single-celled ancestors with surprisingly few genetic changes.',
+              funFact:'Volvox discovered the secret of complex life — that cells must specialize and sacrifice their own reproduction for the whole. This insight, first seen in these tiny spheres, is why you exist.',
+              facts:[{l:'Cell count',v:'500–50,000 cells'},{l:'Innovation',v:'First division of labor'},{l:'Cell types',v:'Somatic + reproductive'}],
+              tags:['Multicellularity','Division of labor','Colonial'],tipFact:'Volvox was the first organism to divide cells into workers and reproducers.',children:[]}
           ]},
         // ── ANIMALIA ──
         {id:'animalia',icon:'🐾',color:'#3b82f6',r:19,appeared:800,extinct:null,
@@ -1032,7 +1042,15 @@ export const TREE = {
                     detail:'The coelacanth\'s fins move in a diagonal pattern identical to the walking gait of four-legged animals. Its brain fills only 1.5% of its skull cavity — the rest is fat.',
                     funFact:'The coelacanth was thought extinct for 65 million years until a fisherman caught one in 1938 — and its fins contain the same bones as your arms and legs, frozen in evolution.',
                     facts:[{l:'Thought extinct',v:'65 million years'},{l:'Rediscovered',v:'1938, South Africa'},{l:'Fin bones',v:'Homologous to human limbs'}],
-                    tags:['Living fossil','Rediscovered','Fish-to-land transition'],tipFact:'Thought extinct for 65 million years — its fins contain the same bones as human arms.',children:[]}
+                    tags:['Living fossil','Rediscovered','Fish-to-land transition'],tipFact:'Thought extinct for 65 million years — its fins contain the same bones as human arms.',children:[]},
+                  {id:'lungfish',icon:'💨',color:lightenColor('#3b82f6','species'),r:10,appeared:380,extinct:null,
+                    name:'Australian lungfish',latin:'Neoceratodus forsteri',era:'Devonian',
+                    desc:'A living fossil unchanged for 100 million years, with the largest genome of any animal — 43 billion base pairs (14× the human genome). It can breathe air using a single lung, bridging the gap between fish and land vertebrates.',
+                    detail:'Unlike African and South American lungfish that estivate in dried mud, the Australian lungfish requires permanent water but supplements gill breathing with its lung during low oxygen conditions.',
+                    funFact:'The Australian lungfish has the largest genome of any animal — 43 billion base pairs, 14 times the size of the human genome.',
+                    facts:[{l:'Class',v:'Sarcopterygii'},{l:'Genome',v:'43 billion bp (largest animal)'},{l:'Breathing',v:'Gills + single lung'},{l:'Fossil record',v:'Unchanged 100 Mya'},{l:'Status',v:'Vulnerable'}],
+                    tags:['Living fossil','Largest genome','Air breathing fish','Fish-tetrapod transition','Single lung'],
+                    tipFact:'Has 14 times more DNA than you — the largest genome of any animal.',children:[]}
                   ]},
                 {id:'chondrichthyes',icon:'🦈',color:lightenColor('#5880c8','class'),r:10,appeared:450,extinct:null,
                   name:'Chondrichthyes',latin:'Class Chondrichthyes',era:'~450 Mya',
@@ -1108,15 +1126,7 @@ export const TREE = {
                       {l:'Depth',v:'Up to 4,000 m'},{l:'Dimorphism',v:'Extreme — males fuse to females'}
                     ],
                     tags:['Bioluminescence','Deep sea','Sexual parasitism','Ambush predator','Extreme dimorphism'],
-                    tipFact:'Male anglerfish fuse permanently to females, sharing blood.',children:[]},
-                  {id:'lungfish',icon:'💨',color:lightenColor('#c84848','species'),r:10,appeared:380,extinct:null,
-                    name:'Australian lungfish',latin:'Neoceratodus forsteri',era:'Devonian',
-                    desc:'A living fossil unchanged for 100 million years, with the largest genome of any animal — 43 billion base pairs (14× the human genome). It can breathe air using a single lung, bridging the gap between fish and land vertebrates.',
-                    detail:'Unlike African and South American lungfish that estivate in dried mud, the Australian lungfish requires permanent water but supplements gill breathing with its lung during low oxygen conditions.',
-                    funFact:'The Australian lungfish has the largest genome of any animal — 43 billion base pairs, 14 times the size of the human genome.',
-                    facts:[{l:'Class',v:'Sarcopterygii'},{l:'Genome',v:'43 billion bp (largest animal)'},{l:'Breathing',v:'Gills + single lung'},{l:'Fossil record',v:'Unchanged 100 Mya'},{l:'Status',v:'Vulnerable'}],
-                    tags:['Living fossil','Largest genome','Air breathing fish','Fish-tetrapod transition','Single lung'],
-                    tipFact:'Has 14 times more DNA than you — the largest genome of any animal.',children:[]}
+                    tipFact:'Male anglerfish fuse permanently to females, sharing blood.',children:[]}
                 ]},
                 {id:'reptiles',icon:'🦎',color:'#88aa44',r:10,appeared:315,extinct:null,
                   name:'Reptiles',latin:'Class Reptilia',era:'~315 Mya',
@@ -1653,9 +1663,8 @@ export const TREE = {
                           facts:[{l:'Order',v:'Primates'},{l:'Family',v:'Cercopithecidae'},{l:'Weight',v:'Up to 37 kg (male)'},{l:'Group size',v:'Up to 800+'},{l:'Status',v:'Vulnerable'}],
                           tags:['Most colorful mammal','Largest monkey','Self-medication','Social rank display','Rainforest'],
                           tipFact:'The most colorful mammal on Earth — a living status badge.',children:[]}
-                      ]}
-                    ]},
-                    {id:'pangolin',icon:'🛡️',color:lightenColor('#c84848','species'),r:10,appeared:50,extinct:null,
+                      ]},
+                    {id:'pangolin',icon:'🛡️',color:lightenColor('#3b82f6','species'),r:10,appeared:50,extinct:null,
                       name:'Pangolin',latin:'Manis javanica',era:'Eocene',
                       desc:'The most trafficked mammal on Earth — over 1 million poached in the last decade. The only mammal covered in keratin scales. When threatened, it rolls into a ball so tight that lions cannot pry it open.',
                       detail:'Pangolin scales are made of keratin — the same protein as human fingernails — yet they are falsely believed to have medicinal properties, driving catastrophic poaching. A pangolin consumes 70 million ants per year.',
@@ -1663,7 +1672,7 @@ export const TREE = {
                       facts:[{l:'Order',v:'Pholidota'},{l:'Scales',v:'Keratin (like fingernails)'},{l:'Diet',v:'70 million ants/year'},{l:'Defense',v:'Impenetrable ball'},{l:'Status',v:'Critically Endangered'}],
                       tags:['Most trafficked mammal','Keratin scales','Ball defense','Ant eater','Critically endangered'],
                       tipFact:'The most trafficked mammal — poached for fingernail-protein scales.',children:[]},
-                    {id:'star-nosed-mole',icon:'🔴',color:lightenColor('#c84848','species'),r:10,appeared:30,extinct:null,
+                    {id:'star-nosed-mole',icon:'🔴',color:lightenColor('#3b82f6','species'),r:10,appeared:30,extinct:null,
                       name:'Star-nosed mole',latin:'Condylura cristata',era:'Oligocene',
                       desc:'The fastest-eating mammal — identifies and consumes prey in 120 milliseconds. Its 22 fleshy nose tentacles contain 100,000 nerve fibers, creating the most sensitive touch organ in any mammal.',
                       detail:'The star-nosed mole can smell underwater by blowing air bubbles onto objects and re-inhaling them — the only mammal known to do so.',
@@ -1671,7 +1680,7 @@ export const TREE = {
                       facts:[{l:'Eating speed',v:'120 ms (fastest mammal)'},{l:'Nose tentacles',v:'22'},{l:'Nerve fibers',v:'100,000'},{l:'Special ability',v:'Smells underwater'},{l:'Touch receptors',v:'6× human hand'}],
                       tags:['Fastest eater','Star nose','Touch specialist','Underwater smelling','Extreme senses'],
                       tipFact:'Eats prey in 120 milliseconds — the fastest-eating mammal.',children:[]},
-                    {id:'honey-badger',icon:'🦡',color:lightenColor('#c84848','species'),r:10,appeared:5,extinct:null,
+                    {id:'honey-badger',icon:'🦡',color:lightenColor('#3b82f6','species'),r:10,appeared:5,extinct:null,
                       name:'Honey badger',latin:'Mellivora capensis',era:'Neogene',
                       desc:'Officially the world\'s most fearless animal (Guinness World Records). Attacks lions, buffalo, and cobras. Largely immune to bee stings and most snake venoms.',
                       detail:'Honey badgers have been observed using tools. Their skin is so thick and loose that a predator gripping its neck gets bitten as the badger twists around inside its own skin.',
@@ -1679,6 +1688,7 @@ export const TREE = {
                       facts:[{l:'Family',v:'Mustelidae'},{l:'Guinness record',v:'Most fearless animal'},{l:'Venom resistance',v:'Most snake venoms'},{l:'Skin',v:'Thick, loose, rotating'},{l:'Intelligence',v:'Tool use observed'}],
                       tags:['Most fearless','Venom resistant','Loose skin defense','Tool user','Solitary'],
                       tipFact:'Guinness World Record: most fearless animal on Earth.',children:[]}
+                    ]}
               ]}
             ]},
           ]},
@@ -1778,17 +1788,7 @@ export const TREE = {
                     funFact:'Amoeba proteus has a genome over 200 times larger than the entire human genome — yet is a single cell with no brain, heart, or any organ whatsoever.',
                     facts:[{l:'Genome size',v:'200x larger than human'},{l:'Movement',v:'Pseudopod extension'},{l:'Size',v:'~0.5mm visible to eye'}],
                     tags:['Pseudopods','Shape-shifting','Predatory'],tipFact:'This single cell has a genome 200 times larger than yours.',children:[]},
-                  {id:'volvox',icon:'🟢',color:lightenColor('#a855f7','species'),r:11,
-                    appeared:1000,extinct:null,
-                    img:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f3/Volvox_aureus.jpg/320px-Volvox_aureus.jpg',
-                    imgCredit:'Frank Fox, CC BY-SA 3.0',
-                    name:'Volvox',latin:'Volvox carteri',era:'Proterozoic',
-                    desc:'A hollow sphere of up to 50,000 cells swimming together as one organism. Shows the earliest known division of labor — somatic cells that swim and reproductive cells that do nothing else.',
-                    detail:'This division of labor — soma versus germ cells — is the fundamental innovation that made complex multicellular life possible. Volvox evolved from single-celled ancestors with surprisingly few genetic changes.',
-                    funFact:'Volvox discovered the secret of complex life — that cells must specialize and sacrifice their own reproduction for the whole. This insight, first seen in these tiny spheres, is why you exist.',
-                    facts:[{l:'Cell count',v:'500–50,000 cells'},{l:'Innovation',v:'First division of labor'},{l:'Cell types',v:'Somatic + reproductive'}],
-                    tags:['Multicellularity','Division of labor','Colonial'],tipFact:'Volvox was the first organism to divide cells into workers and reproducers.',children:[]},
-                ]},
+                  ]},
             ]}
       ]}
   ]

@@ -693,10 +693,20 @@ Things worth knowing before changing it:
   Capping each step is the obvious way to stop a backgrounded tab from jumping,
   and it turns a slow phone into slow motion: throttled to a sixth of this
   machine's speed, the title had not been engraved when the safety net took the
-  opening down at 6.5 s, so those visitors never saw it. Now it arrives at
-  3.2–3.8 s at 1×, 4× and 6×, with fewer frames, and
-  `opening:a-slow-phone-still-gets-the-title` runs a first visit under a 6×
-  throttle to keep it so.
+  opening down, so those visitors never saw it. Three more things had to be
+  right, each found by taking the previous fix and simulating a worse phone:
+  the clock is `performance.now()` read when the frame runs, because the
+  timestamp `requestAnimationFrame` hands over is when the frame *began* and a
+  long task in front of the first frame (the rest of `init()`, seconds on a slow
+  phone) leaves it stale by that long, so the show would start already that far
+  in and skip to its end; the safety net is armed by the first frame and not by
+  the script, or that same task eats its time (a fifteen-second net covers a
+  page whose frames never come); and the title may not arrive early either.
+  `opening:a-slow-phone-still-gets-the-title` simulates the device in the page —
+  a four-second stall after start-up, then a frame every 150 ms, by busy-waiting
+  rather than throttling the CPU, so it means the same on any runner — and wants
+  the title between 2.5 and 5 seconds after the first frame, and before the
+  opening leaves.
 - **`fit()` reads a size the instant it sets it, and a transition answers with
   the size it started from.** `responsive.css` gives every element a `0.01ms`
   transition on all properties under reduced motion. That is enough for the
@@ -754,7 +764,7 @@ a fresh context in that scenario's viewport, language and theme.
 | live | a first visit, sampled while it runs, then left by keyboard | `opening:animates`, `opening:leaves-by-keyboard` |
 | no canvas | `getContext` refused for the opening's own canvases | `opening:no-canvas-fallback` |
 | broken | `js/splashScene.js` replaced by a module that throws while building | `opening:a-broken-opening-does-not-trap-the-visitor` |
-| slow | a first visit on a CPU throttled to a sixth of its speed (`desktop-en` and `phone-en` only, ~10 s each) | `opening:a-slow-phone-still-gets-the-title` |
+| slow | a first visit on a simulated slow device: a four-second stall after start-up, then six frames a second (`desktop-en` and `phone-en` only, ~15 s each) | `opening:a-slow-phone-still-gets-the-title` |
 
 `opening:runs-clean` reads the others for uncaught errors and CSP violations. The
 plate is measured rather than the moving picture because the moving picture is
@@ -1262,7 +1272,7 @@ node scripts/smoke.mjs --url https://example.com   # check a deployed site
 node scripts/smoke.mjs --proxy http://host:port    # run from behind a proxy
 node scripts/smoke.mjs --only desktop-he           # one scenario, ~1 min
 node scripts/smoke.mjs --opening-only --only phone-en  # just the opening group, ~15 s
-node scripts/mutate-opening.mjs                    # break the opening 24 ways, watch each check go red (~4 min)
+node scripts/mutate-opening.mjs                    # break the opening 26 ways, watch each check go red (~4 min)
 npm run smoke:update-baseline                      # re-record known failures
 ```
 

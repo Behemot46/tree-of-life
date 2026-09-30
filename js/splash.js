@@ -19,7 +19,8 @@
 
 import { buildScene, DURATION, T_TITLE, T_HINT } from './splashScene.js';
 
-const AUTO_S = 6.5;             // seconds until it dismisses itself, first visit
+const AUTO_S = 6.5;             // seconds after the first frame until it dismisses itself, first visit
+const NO_FRAME_S = 15;          // ...and if no frame ever comes (a tab that never becomes visible)
 const RETURN_SPEED = 1.7;       // a second visit plays the same show, faster
 const FADE_MS = 450;
 const DPR_CAP = 2;              // the dial is hairlines; the rest is soft
@@ -199,7 +200,7 @@ export function initSplash(canvas, opts) {
   scene.draw(ctx, dpr, 0);
   words(0, false);
   raf = requestAnimationFrame(frame);
-  autoTimer = setTimeout(dismiss, (AUTO_S / speed) * 1000);
+  autoTimer = setTimeout(dismiss, NO_FRAME_S * 1000);
   window.addEventListener('resize', onResize);
   document.addEventListener('visibilitychange', onVisibility);
 
@@ -208,11 +209,26 @@ export function initSplash(canvas, opts) {
      into slow motion: at a sixth of this machine's speed the title had still
      not been engraved when the safety net took the opening down, so the visitor
      never saw it. Frames may be dropped; the title arrives when it is due. Time
-     spent in a hidden tab is taken off instead. */
-  function frame(ts) {
+     spent in a hidden tab is taken off instead.
+
+     The clock is performance.now() read when the frame runs, not the timestamp
+     requestAnimationFrame hands over. That one is when the frame *began*, and a
+     long task in front of the first frame — the rest of init(), seconds on a
+     slow phone — leaves it stale by the length of the task: the show would start
+     already that far in, and skip to its end. */
+  function frame() {
     if (done) return;
-    if (start == null) { start = ts; last = ts; }
-    elapsed = (ts - start) / 1000 - hidden;
+    const tNow = performance.now();
+    if (start == null) {
+      start = tNow; last = tNow;
+      /* The safety net counts from the first frame, not from when the script
+         ran. What comes between them is the rest of init(), which on a slow
+         phone is seconds long, and a timer already running would spend the
+         show's time on it: the opening was taken down before the title. */
+      clearTimeout(autoTimer);
+      autoTimer = setTimeout(dismiss, (AUTO_S / speed) * 1000);
+    }
+    elapsed = (tNow - start) / 1000 - hidden;
     const t = Math.min(DURATION, Math.max(0, elapsed * speed));
     scene.draw(ctx, dpr, t, lite ? 0 : 1);
     words(t, false);
@@ -221,7 +237,7 @@ export function initSplash(canvas, opts) {
     // first stretch, if the average frame is over LITE_MS, draw at one pixel per
     // CSS pixel and leave out the glows. (A single long frame counts as 200 ms
     // at most, and the first few, which carry start-up, not at all.)
-    const dtMs = Math.min(200, ts - last); last = ts;
+    const dtMs = Math.min(200, tNow - last); last = tNow;
     if (!lite && ++frames > 6 && frames <= LITE_AFTER) slowMs += dtMs;
     if (!lite && frames === LITE_AFTER && slowMs / (LITE_AFTER - 6) > LITE_MS) {
       // only the live canvas changes: the still layer is already painted, and laying the whole scene out again cost a visible hitch

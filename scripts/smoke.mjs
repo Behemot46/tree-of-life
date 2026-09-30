@@ -1020,16 +1020,23 @@ check('opening:a-broken-opening-does-not-trap-the-visitor', 'If the scene cannot
   if (!b.reported) fail('the failure was swallowed: nothing reached the page\'s error handler, so no report would ever show it');
 });
 
-/* The show follows the wall clock. Counting capped frame steps instead made a
-   sixth-speed CPU play the whole thing in slow motion, and at that speed the
-   safety net took the opening down before the title was ever engraved. */
-check('opening:a-slow-phone-still-gets-the-title', 'On a CPU a sixth of the speed, the title is still engraved on time and before the opening leaves', (c) => {
+/* Two things made a slow phone miss the title, and both are guarded here. The
+   show once added up capped frame steps, which plays it in slow motion; and the
+   safety net once counted from when the script ran, so a long stall between
+   then and the first frame ate the show's time. The pass simulates the device
+   in the page — a stall after start-up and slow frames — rather than throttling
+   the CPU, so it means the same on a laptop and on a small CI runner. */
+check('opening:a-slow-phone-still-gets-the-title', 'On a device that stalls for four seconds after start-up and draws six frames a second, the title is still engraved on time and before the opening leaves', (c) => {
   const sl = openingPass(openingOf(c), 'slow');
-  if (sl.live == null) fail('the opening never went live on the throttled CPU');
+  if (sl.live == null) fail('the opening never went live on the simulated slow device');
   if (sl.plaque == null) fail('the opening left without ever engraving its title — on a slow phone the visitor would never see it');
   if (sl.gone != null && sl.plaque >= sl.gone) fail('the title arrived only as the opening was leaving');
   const lag = sl.plaque - sl.live;
-  if (lag > 5000) fail(`the title took ${Math.round(lag)} ms to arrive on the throttled CPU (due at 3150 ms, and start-up stalls allowed for)`);
+  if (lag > 5000) fail(`the title took ${Math.round(lag)} ms after the first frame to arrive (due at 3150 ms; a few slow frames allowed for)`);
+  /* And not early either. The timestamp a frame is handed is when it began, and
+     a long task in front of the first one leaves it stale by that long: a clock
+     started from it begins the show already seconds in and skips it. */
+  if (lag < 2500) fail(`the title arrived only ${Math.round(lag)} ms after the first frame (due at 3150 ms) — the show was skipped ahead by the start-up stall`);
 }, (sc) => OPENING_SLOW_SCENARIOS.includes(sc.id));
 
 check('opening:runs-clean', 'The opening throws nothing and breaks no Content-Security-Policy rule, in any of its passes', (c) => {
@@ -1129,16 +1136,18 @@ function installContrastSweep() {
      broken       the scene module throws while building: the opening is
                   decoration, and must not be what stands between a visitor and
                   the site;
-     slow         a first visit on a CPU throttled to a sixth of its speed, in
-                  the scenarios that run it: the title still has to be engraved
-                  before the opening leaves.
+     slow         a first visit on a simulated slow device (a four-second stall
+                  after start-up, then six frames a second), in the scenarios
+                  that run it: the title still has to be engraved before the
+                  opening leaves.
 
    The plate is measured rather than the moving picture because the moving
    picture is a function of time, and a check that has to wait for 3.15 seconds
    of animation to reach the title is a check that flakes on a slow runner. */
 const OPENING_KEYS = ['Escape', 'Enter', 'Space'];
-/* The throttled pass takes about ten seconds, and the behaviour it guards does not
+/* The slow pass takes about fifteen seconds, and the behaviour it guards does not
    depend on language or theme, so one desktop and one phone scenario run it. */
+const OPENING_SLOW = { stallMs: 4000, frameMs: 150 };
 const OPENING_SLOW_SCENARIOS = ['desktop-en', 'phone-en'];
 
 async function openingProbe(page, scenario, baseUrl) {
@@ -1146,7 +1155,7 @@ async function openingProbe(page, scenario, baseUrl) {
   const vp = scenario.viewport;
   const errors = [];
 
-  async function open({ lang = scenario.lang, seen = false, reduced = false, noCanvas = false, blockApp = false, brokenScene = false, throttle = 0 }) {
+  async function open({ lang = scenario.lang, seen = false, reduced = false, noCanvas = false, blockApp = false, brokenScene = false, slow = null }) {
     const ctx = await browser.newContext({
       viewport: { width: vp.width, height: vp.height },
       isMobile: vp.isMobile, hasTouch: vp.hasTouch,
@@ -1173,7 +1182,11 @@ async function openingProbe(page, scenario, baseUrl) {
       });
       // When the opening went live, engraved its title and left, on the page's own clock
       window.__show = { live: null, plaque: null, gone: null };
-      const tick = (t) => {
+      /* performance.now() when the frame runs, not the timestamp the frame was
+         handed: that is when it began, and a long task in front of it leaves it
+         stale by the length of the task. */
+      const tick = () => {
+        const t = performance.now();
         const s = document.getElementById('splash');
         if (s) {
           const S = window.__show;
@@ -1184,7 +1197,23 @@ async function openingProbe(page, scenario, baseUrl) {
         requestAnimationFrame(tick);
       };
       requestAnimationFrame(tick);
-    }, { lang, theme: scenario.theme || 'dark', seen, noCanvas });
+      /* A slow device, made in the page: every frame costs frameMs of main-thread
+         time, and the first request for a frame after the opening goes live is
+         preceded by a stall — the rest of init(), which on a slow phone is
+         seconds long. Busy-waiting instead of throttling the CPU makes it the
+         same device on every runner. */
+      if (cfg.slow) {
+        const busy = (ms) => { const t0 = performance.now(); while (performance.now() - t0 < ms) { /* wait */ } };
+        const raf = window.requestAnimationFrame.bind(window);
+        let stalled = false, lastFrame = -1;
+        window.requestAnimationFrame = (cb) => {
+          const s = document.getElementById('splash');
+          if (!stalled && s && s.classList.contains('is-live')) { stalled = true; Promise.resolve().then(() => busy(cfg.slow.stallMs)); }
+          // one frame's cost per frame, however many callbacks share it
+          return raf((ts) => { if (ts !== lastFrame) { lastFrame = ts; busy(cfg.slow.frameMs); } cb(ts); });
+        };
+      }
+    }, { lang, theme: scenario.theme || 'dark', seen, noCanvas, slow });
     if (blockApp) await ctx.route('**/js/app.js', (r) => r.abort());
     // the module the opening's picture lives in, replaced by one that cannot build
     if (brokenScene) {
@@ -1194,7 +1223,6 @@ async function openingProbe(page, scenario, baseUrl) {
       }));
     }
     const p = await ctx.newPage();
-    if (throttle) await (await ctx.newCDPSession(p)).send('Emulation.setCPUThrottlingRate', { rate: throttle });
     const own = [];
     /* An error thrown on purpose belongs to the pass that threw it, not to the
        shared list opening:runs-clean reads. */
@@ -1397,7 +1425,7 @@ async function openingProbe(page, scenario, baseUrl) {
 
   // 6. A slow phone: the title has to arrive on time even when the frames do not.
   if (OPENING_SLOW_SCENARIOS.includes(scenario.id)) {
-    await run('slow', { seen: false, throttle: 6 }, async (p) => {
+    await run('slow', { seen: false, slow: OPENING_SLOW }, async (p) => {
       await p.goto(baseUrl + '/index.html', { waitUntil: 'domcontentloaded' });
       await p.waitForFunction(() => window.__show && window.__show.gone !== null, null, { timeout: 40000 }).catch(() => {});
       return p.evaluate(() => window.__show);

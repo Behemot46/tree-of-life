@@ -18,8 +18,9 @@
  * here, beside the code it names, rather than deleting it.
  *
  * Each mutation is [scenario, file, old text, new text, checks that must fail].
- * `old` must occur exactly once. Some mutations trip more than one check; only
- * the listed ones are required.
+ * `old` must occur exactly once; for a change in two places, give an array of
+ * [old, new] pairs in place of both. Some mutations trip more than one check;
+ * only the listed ones are required.
  */
 import { spawn } from 'node:child_process';
 import { cpSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
@@ -72,8 +73,18 @@ const MUTATIONS = {
   'ru-overflow': ['phone-en', 'js/splash.js', 'function fit(el, px, limit) {',
     "function fit(el, px, limit) { if (document.documentElement.lang === 'ru') { el.style.fontSize = (px * 1.3) + 'px'; return; }",
     ['opening:title-fits-the-plaque']],
+  // the safety net used to count from when the script ran, so a long stall before the first frame ate the show
+  'timer-from-init': ['phone-en', 'js/splash.js', [
+      ['const NO_FRAME_S = 15; ', 'const NO_FRAME_S = 6.5;'],
+      ['      clearTimeout(autoTimer);\n      autoTimer = setTimeout(dismiss, (AUTO_S / speed) * 1000);\n', ''],
+    ], null, ['opening:a-slow-phone-still-gets-the-title']],
+  // the frame timestamp is when the frame began, stale by the length of any long task before it: the show would start that far in
+  'stale-frame-clock': ['phone-en', 'js/splash.js', [
+      ['  function frame() {', '  function frame(ts) {'],
+      ['const tNow = performance.now();', 'const tNow = ts;'],
+    ], null, ['opening:a-slow-phone-still-gets-the-title']],
   // the clock that made a slow phone play in slow motion: capped steps added up instead of the wall clock
-  'capped-clock': ['phone-en', 'js/splash.js', 'elapsed = (ts - start) / 1000 - hidden;', 'elapsed += Math.min(0.05, (ts - last) / 1000);',
+  'capped-clock': ['phone-en', 'js/splash.js', 'elapsed = (tNow - start) / 1000 - hidden;', 'elapsed += Math.min(0.05, (tNow - last) / 1000);',
     ['opening:a-slow-phone-still-gets-the-title']],
   // laying the words out again when a font arrives used to rebuild the scale, which then faded in from nothing
   'font-blinks-scale': ['desktop-en', 'js/splash.js', "if (done || !scene) return;\n    placeWords(scene.geom);", "if (done || !scene) return;\n    placeScale(scene.geom); placeWords(scene.geom);",
@@ -122,10 +133,13 @@ async function run(name, index) {
   });
   symlinkSync(NODE_MODULES, path.join(dir, 'node_modules'));
   const target = path.join(dir, file);
-  const source = readFileSync(target, 'utf8');
-  const found = source.split(oldText).length - 1;
-  if (found !== 1) return { name, scenario, expect, error: `PATCH FAILED: ${JSON.stringify(oldText.slice(0, 70))} occurs ${found}x in ${file}` };
-  writeFileSync(target, source.replace(oldText, () => newText));
+  let source = readFileSync(target, 'utf8');
+  for (const [from, to] of Array.isArray(oldText) ? oldText : [[oldText, newText]]) {
+    const found = source.split(from).length - 1;
+    if (found !== 1) return { name, scenario, expect, error: `PATCH FAILED: ${JSON.stringify(from.slice(0, 70))} occurs ${found}x in ${file}` };
+    source = source.replace(from, () => to);
+  }
+  writeFileSync(target, source);
 
   const out = await new Promise((resolve) => {
     let text = '';

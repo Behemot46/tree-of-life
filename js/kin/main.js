@@ -34,8 +34,8 @@ import { treeHTML, sourcesHTML, esc } from './reveal.js';
 import { installOffer, isIOS, isStandalone } from './install.js';
 import { track, enabled as counting, visitBucket } from './analytics.js';
 
-/* The encyclopedia. It moves to atlas.html when this page becomes the front door. */
-const ATLAS_URL = 'index.html';
+/* The encyclopedia. This page is the front door; the tree lives one click away. */
+const ATLAS_URL = 'atlas.html';
 
 const params = new URLSearchParams(location.search);
 const launch = E.parseLaunch(location.search);

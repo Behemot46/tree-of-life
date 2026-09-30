@@ -23,8 +23,8 @@ Things waiting on a decision rather than on work.
 
 | Question | Why it matters |
 |---|---|
-| **Turning the site into a daily game (Kin)** | A proposed change of direction: the front door becomes a one-minute daily "who is the closer relative?" game, with the encyclopedia behind it as the Atlas. Evidence, game design and a five-phase plan are in `docs/PLAY_STRATEGY.md`. Waiting on a go for phase 1, a hidden prototype tested on a preview deployment. |
-| **Deleting three unreachable modules** | `js/trivia.js`, `js/quiz.js` and `js/imagePrompts.js` are imported by nothing — `game.js` superseded the first two. They are ~1,400 lines that every reader has to rule out. Deleting them is a decision, not a fix. |
+| **What phase 3 says after four weeks** | Kin is the front page (30 Sep 2026). The gate the plan put before that — testers replaying or sharing — was waived, so the launch is the experiment: D1 ≥ 25%, D7 ≥ 10% and one share per twenty finished dailies, read from the counters once counting is on. Counting needs a site code (GoatCounter recommended) and one line in `vercel.json`; until then the numbers do not exist. See `docs/PLAY_STRATEGY.md`. |
+| **A native reader for the Hebrew and Russian copy** | The game, its Home, the streak and install text and the stats screen have about seventy strings in each language written by the same hand as the rest and never read by a native speaker. The Hebrew name קרובים and the Russian Родня are still the working names. |
 | **Switching GitHub Pages off** | `deploy.yml` is gone, so Pages no longer updates, but it keeps serving its last build until disabled in Settings → Pages. Only reachable by hand. |
 | **Vercel's recommended `www` CNAME** | Vercel suggests `www → 2f3b9f3357c6e4e5.vercel-dns-017.com.` and notes the legacy records keep working, so this is tidiness rather than a fix. |
 
@@ -37,11 +37,28 @@ Things waiting on a decision rather than on work.
 | Content-Security-Policy | **Added**, defined in `vercel.json` and enforced by `serve.js` so the smoke suite checks the real policy. |
 | `SECURITY.md` | **Rewritten** for what this project actually is: a static site with no backend and no releases. |
 | The custom domain | **Live at `www.treeoflife.wiki`**, verified by running the full suite against the deployed site rather than assuming it worked. Pages retired afterwards. |
+| Turning the site into a daily game (Kin) | **Done, 30 Sep 2026**: Kin is `index.html`, the front page; the encyclopedia is `atlas.html`. Built as three pull requests — Home and the return loop, the home screen and offline, then the front-door change. See the decision log and `docs/PLAY_STRATEGY.md`. |
+| Deleting three unreachable modules | **Deleted** with the front-door change: `js/trivia.js`, `js/quiz.js` and `js/imagePrompts.js` (1,101 lines nothing imported). The service worker's old precache list named all three, which is why that list was replaced before they went. |
 | The 31 inline `onclick` handlers | **Gone**, along with 23 more the modules generated at runtime. `script-src` is now `'self'` with no `'unsafe-inline'`. See the decision log below. |
 
 ---
 
 ## Decision log
+
+### 2026-09 — Kin becomes the front page
+
+| Decision | Rationale |
+|---|---|
+| The game is `/`, the encyclopedia is `/atlas.html` | The plan's front-door rule: a first visit is question one, and the tree is one click away, opened on demand. `git mv` kept both files' history. `play.html` stays as a stub so the addresses testers were sent keep working. |
+| Old addresses are forwarded by the page, not by the host | The encyclopedia's own Share button made `/?node=…&view=…&lang=…` and those links are out in the world, as are `play.html?kin=3` from the test. A Vercel redirect depends on the host forwarding the query string — not something this environment can prove before the change is live — and a link that arrives without its species or its day is worse than one that takes one more hop. `js/kin/front.js` (a classic script in `<head>`) and `js/kin/legacy.js` forward with the query and the hash, before the game draws anything. Four checks watch them, each seen failing. |
+| The opening is the encyclopedia's entrance, not a toll | With the game in front, a visitor may go to the tree and back several times. It plays on the first entrance in a visit and never for a link that names a species or a view. `js/boot.js` decides before first paint so nothing flashes; `sessionStorage` carries the mark, so a new visit gets it again. The tour prompt and the tree's entrance animation follow the opening, so they go with it. |
+| `boot.js` is shared | Theme, language and direction before the first paint were the encyclopedia's; the game now has the same need, and two copies of the language lists would drift. Kin ignores the opening decision. |
+| The encyclopedia has a way back | A pill in the rail's Tools group, "Kin · daily game", in three languages with its own binding in the i18n sweep. Home's Atlas tile and Kin's footer are the way in. |
+| The three dead modules are deleted | `trivia.js`, `quiz.js`, `imagePrompts.js`: nothing imports them. The service worker's old list named all three; replacing the list in the previous pull request is what made deleting them safe. |
+| The front page is indexable | `noindex` is gone and the canonical URL is `/`; the encyclopedia's canonical is `/atlas.html`. Kin's link-preview card is `assets/og-kin.png`. |
+| `start_url` is `/?source=pwa` | An installed game opens the game. `id` stays `/` so a device that installed it during the test is updated rather than duplicated. |
+| Production is checked with Kin's own checks too | `verify-deployment.yml` runs the smoke suite against the encyclopedia and now the play checks against the front page (the offline check needs a server it can stop, so it is skipped against a deployed site). |
+| Service-worker cache `tol-v13` | The shell list changed (`/` and `/index.html` are the game now). |
 
 ### 2026-09 — Kin: the home screen, offline, and counting (off)
 

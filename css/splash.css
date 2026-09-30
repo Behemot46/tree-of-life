@@ -48,6 +48,10 @@
   animation: sp-giveup 0.4s ease 30s forwards;
 }
 @supports (height: 1dvh) { #splash { --sp-vh: 1dvh; } }
+/* No opening for this visit (js/boot.js set the attribute before first paint): a link
+   to a species or a view, or a second entrance in one visit. It is not dismissed;
+   it never appears. */
+html[data-no-opening] #splash { display: none !important; }
 @media (min-width: 600px) { #splash { --sp-plate: 88px; } }
 
 /* sepia ink on paper */

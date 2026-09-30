@@ -321,8 +321,8 @@ test('the links a result carries name the day or the run, and the sender languag
 
 test('results titles and the share text', () => {
   assert.deepEqual([0, 3, 4, 6, 8, 9, 10].map(n => E.titleIndex(n)), [0, 0, 1, 2, 3, 3, 4]);
-  const text = E.shareText({ brand: 'Kin', day: 7, picks: [true, true, false, true, true, true, true, false, true, true], url: 'https://x.test/play.html' });
-  assert.equal(text, 'Kin #7 · 8/10 🌳\n🟩🟩🟥🟩🟩🟩🟩🟥🟩🟩\nhttps://x.test/play.html');
+  const text = E.shareText({ brand: 'Kin', day: 7, picks: [true, true, false, true, true, true, true, false, true, true], url: 'https://x.test/' });
+  assert.equal(text, 'Kin #7 · 8/10 🌳\n🟩🟩🟥🟩🟩🟩🟩🟥🟩🟩\nhttps://x.test/');
 });
 
 test('the seeded generator is repeatable', () => {
@@ -400,18 +400,26 @@ test('the service worker precaches exactly the game: every file exists, every mo
   assert.deepEqual(shell.filter((u) => !fs.existsSync(path.join(ROOT, u))), [], 'a precache entry points at a file that is not there');
   assert.equal(new Set(shell).size, shell.length, 'an entry is listed twice');
 
-  // everything main.js reaches through its imports
+  // everything the front page loads: its own scripts and stylesheets, and what main.js reaches through its imports
+  const page = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  const local = (u) => !/^(https?:)?\/\//.test(u);
+  const fromPage = [
+    ...[...page.matchAll(/<script[^>]*\ssrc="([^"]+)"/g)].map((m) => m[1]),
+    ...[...page.matchAll(/<link[^>]*rel="stylesheet"[^>]*href="([^"]+)"/g)].map((m) => m[1]),
+  ].filter(local);
   const seen = new Set();
   const walk = (file) => {
     if (seen.has(file)) return;
     seen.add(file);
+    if (!file.endsWith('.js')) return;
     const src = fs.readFileSync(path.join(ROOT, file), 'utf8');
     for (const m of src.matchAll(/from '(\.{1,2}\/[^']+\.js)'/g)) walk(path.posix.normalize(path.posix.join(path.posix.dirname(file), m[1])));
   };
-  walk('js/kin/main.js');
+  for (const f of fromPage) walk(f);
+  assert.ok(seen.has('js/kin/main.js') && seen.has('js/kin/front.js') && seen.has('css/kin.css'), 'the page\'s own scripts and stylesheet were read');
   const needed = [...seen].map((f) => `/${f}`);
-  assert.deepEqual(needed.filter((u) => !shell.includes(u)), [], 'the game imports a module the offline shell does not hold');
-  for (const u of ['/play.html', '/css/kin.css', '/manifest.json']) assert.ok(shell.includes(u), `${u} is missing from the shell`);
+  assert.deepEqual(needed.filter((u) => !shell.includes(u)), [], 'the front page loads a file the offline shell does not hold');
+  for (const u of ['/', '/index.html', '/css/kin.css', '/manifest.json']) assert.ok(shell.includes(u), `${u} is missing from the shell`);
   // build-time code is not shipped to a phone
   assert.ok(!shell.includes('/js/kin/generate.js'));
 });
@@ -423,7 +431,8 @@ test('the manifest names icons that exist, in the sizes a phone asks for', () =>
   assert.ok(png('192x192', 'any') && png('512x512', 'any'), 'installability wants 192 and 512 pixel PNGs');
   assert.ok(png('512x512', 'maskable'), 'a maskable icon, so a phone does not shrink ours into a white tile');
   assert.ok(fs.existsSync(path.join(ROOT, 'assets/apple-touch-icon.png')), 'iOS ignores an SVG touch icon');
-  for (const page of ['play.html', 'index.html']) {
+  assert.ok(m.start_url.startsWith('/?'), 'the installed game opens the front page, which is the game');
+  for (const page of ['index.html', 'atlas.html']) {
     const html = fs.readFileSync(path.join(ROOT, page), 'utf8');
     const touch = html.match(/rel="apple-touch-icon" href="\/?([^"]+)"/);
     assert.ok(touch && touch[1].endsWith('.png') && fs.existsSync(path.join(ROOT, touch[1])), `${page} needs a PNG touch icon that exists`);
@@ -467,10 +476,10 @@ test('the service worker leaves counting beacons and anything that is not a GET 
   const beacon = fetchEvent(`${SITE}/_c/count?p=%2Fkin%2Fshare&rnd=abc`);
   listeners.fetch(beacon);
   assert.equal(beacon.handled, null, 'a beacon goes straight to the network: each has a new query string and would only fill the cache');
-  const post = fetchEvent(`${SITE}/play.html`, { method: 'POST' });
+  const post = fetchEvent(`${SITE}/index.html`, { method: 'POST' });
   listeners.fetch(post);
   assert.equal(post.handled, null, 'only GETs are the worker\'s business');
-  for (const u of ['/play.html', '/js/kin/main.js', '/css/kin.css', '/index.html']) {
+  for (const u of ['/', '/index.html', '/js/kin/main.js', '/css/kin.css', '/atlas.html']) {
     const e = fetchEvent(`${SITE}${u}`);
     listeners.fetch(e);
     assert.notEqual(e.handled, null, `${u} is handled`);
@@ -481,12 +490,12 @@ test('the service worker leaves counting beacons and anything that is not a GET 
 test('a page is cached under its path, so a shared link is the same page and not a new cache entry', async () => {
   const { listeners, state } = loadWorker();
   for (const q of ['?kin=3', '?c=77&s=12&lang=ru', '?stats=1', '']) {
-    const e = fetchEvent(`${SITE}/play.html${q}`, { mode: 'navigate' });
+    const e = fetchEvent(`${SITE}/${q}`, { mode: 'navigate' });
     listeners.fetch(e);
     await e.handled;
   }
   assert.equal(state.puts.length, 4, 'every navigation was cached');
-  assert.deepEqual([...new Set(state.puts)], [`${SITE}/play.html`], 'under one key');
+  assert.deepEqual([...new Set(state.puts)], [`${SITE}/`], 'under one key');
 });
 
 test('a file that cannot be fetched does not stop the worker installing', async () => {

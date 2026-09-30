@@ -1,0 +1,5 @@
+# The game at /, the encyclopedia at /atlas.html: both are for everyone.
+User-agent: *
+Allow: /
+
+Sitemap: https://www.treeoflife.wiki/sitemap.xml

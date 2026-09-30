@@ -52,6 +52,7 @@ export function applyI18n(){
   // Left rail
   set('quiz-label',t('btn_games'));
   set('stories-label',t('btn_stories'));
+  set('kin-label',t('btn_kin'));
   set('i-btn-hominins',t('btn_hominins'));
   set('i-btn-guided-tour',t('btn_guided_tour'));
   set('i-rail-seen',t('rail_seen'));

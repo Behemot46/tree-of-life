@@ -65,12 +65,12 @@ land in `.smoke-out/`. It is not a substitute for looking at the result.
 
 ## Project Overview
 
-**Tree of Life** is an interactive, browser-based phylogenetic visualization of 3.8 billion years of evolutionary history. Users can explore the tree of life, expand taxonomic nodes, search for species, and view detailed information panels with photos, Wikipedia summaries, and conservation status data.
+**Tree of Life** is two things on one domain. The front page, **Kin**, is a one-minute daily game — "who is the closer cousin?" — about how every living thing is related (`index.html`, see *Kin*). Behind it, one click away, the **Atlas** is an interactive, browser-based phylogenetic visualization of 3.8 billion years of evolutionary history: users explore the tree of life, expand taxonomic nodes, search for species, and view detailed information panels with photos, Wikipedia summaries, and conservation status data (`atlas.html`). Most of this file is about the Atlas, because it is the larger program; Kin has its own section.
 
 - **Tech stack:** Vanilla JavaScript, HTML5, CSS3. **No D3** — earlier docs
-  claimed a D3 CDN dependency, but `index.html` has exactly one script tag
+  claimed a D3 CDN dependency, but `atlas.html` has exactly one script tag
   (`js/app.js`) and the renderer is hand-written SVG.
-- **No build step** — open `index.html` directly or use `node serve.js`
+- **No build step** — open `index.html` or `atlas.html` directly or use `node serve.js`
 - **No package manager for the site** — the page itself ships zero npm
   dependencies. `package.json` exists only to pin Playwright for the smoke
   tests, and is never shipped to the browser.
@@ -82,8 +82,9 @@ land in `.smoke-out/`. It is not a substitute for looking at the result.
 
 ```
 tree-of-life/
-├── index.html           # SPA — pure HTML markup (~462 lines)
-├── play.html            # Kin, the daily game — phase-1 test build, unlinked (see *Kin*)
+├── index.html           # The front page: Kin, the daily game (see *Kin*)
+├── atlas.html           # The Atlas — SPA, pure HTML markup (~462 lines)
+├── play.html            # Forwards to / with its query: where Kin was tested, and what testers were sent
 ├── credits.html         # Who made the photos, silhouettes and dates (see *Credits*)
 ├── serve.js             # Local dev server (port 5555): node serve.js
 ├── docs/PLAY_STRATEGY.md # Why the site is becoming a game, and the phased plan
@@ -105,7 +106,8 @@ tree-of-life/
 │   ├── explore.css      # Drill-down shell — unfolding rows, path dots
 │   ├── rtl.css          # Hebrew RTL layout overrides
 │   ├── responsive.css   # Mobile breakpoints, reduced motion, high contrast
-│   └── kin.css          # play.html only — self-contained, see *Kin*
+│   └── kin.css          # index.html only — self-contained, see *Kin*
+├── robots.txt · sitemap.xml # Both apps are indexable: /, /atlas.html, the story and credits
 ├── manifest.json        # The installed game: Kin's name, icons, start page (see *Kin*)
 ├── sw.js                # Service worker shared by both apps — see *Kin*
 ├── assets/
@@ -122,7 +124,6 @@ tree-of-life/
     ├── speciesData.js   # PHOTO_MAP, WIKI_TITLES, ENRICHMENT
     ├── uiData.js        # DEPTH_R, ERA_NAMES, EXTINCTIONS, TRANSLATIONS
     ├── factLibrary.js   # FACTS — random facts for discovery feature
-    ├── imagePrompts.js  # AI image prompt library (unused)
     ├── imageLoader.js   # ImageLoader — resolves a node to a URL at a given size
     ├── photoSnapshot.js # GENERATED — every species photo, two sizes each
     ├── labelMetrics.js  # One source of truth for label size, placement, footprint
@@ -149,8 +150,6 @@ tree-of-life/
     ├── hominin.js       # buildHomininTree(), compare mode
     ├── dnaCalc.js       # DNA similarity calculator modal
     ├── evoPath.js       # Evolutionary path comparison tool
-    ├── trivia.js        # Trivia quiz game — unreachable, `game.js` superseded it (see ROADMAP)
-    ├── quiz.js          # Multiple-choice quiz mode — unreachable, likewise
     ├── game.js          # The Games panel: Quick, Classic, Survival and Daily, and their results
     ├── whoFirst.js      # Who Appeared First? — a mode of the Games panel
     ├── familyFoe.js     # Family or Foe? — a mode of the Games panel
@@ -178,7 +177,9 @@ tree-of-life/
         ├── engine.js    # Pure: all questions, validation, daily, arcade, streak + freezes, stats, links, share
         ├── strings.js   # Every word the player reads, English, Hebrew and Russian
         ├── reveal.js    # The three-line tree drawn after each answer
-        ├── main.js      # play.html's only script
+        ├── front.js     # Classic script in <head>: a link to a species or a view goes to atlas.html
+        ├── legacy.js    # Classic script of play.html: forwards to / keeping the query
+        ├── main.js      # index.html's only module
         ├── install.js   # Pure: when to offer the home screen, and in which form
         ├── analytics.js # Counting that is off until a page names an endpoint — see *Kin*
         ├── rng.js · store.js · sfx.js
@@ -186,13 +187,25 @@ tree-of-life/
 
 ---
 
-## Kin — the daily game (`play.html`)
+## Kin — the daily game (`index.html`)
 
 The site is turning into a game; `docs/PLAY_STRATEGY.md` says why and in what
-order. `play.html` is a one-minute daily ("who is the closer cousin?"), an
-endless Arcade, a Home for people who come back, streaks with freezes, stats
-and friends' links, in English, Hebrew and Russian. Until the front-door
-change it is not linked from the site and carries `noindex`.
+order. `index.html` — the front page of treeoflife.wiki since 30 Sep 2026 — is
+a one-minute daily ("who is the closer cousin?"), an endless Arcade, a Home for
+people who come back, streaks with freezes, stats and friends' links, in
+English, Hebrew and Russian. The encyclopedia it grew out of is `atlas.html`,
+one tile away; the two link to each other (Home's Atlas tile and the footer one
+way, the rail's "Kin · daily game" pill the other).
+
+- **The old addresses still work, and keep their query.** The encyclopedia used
+  to be `/`: its Share button made `/?node=humans&view=map&lang=he`, and those
+  links are out in the world. `js/kin/front.js`, a classic script in Kin's
+  `<head>`, sends any address naming `node` or `view` to `atlas.html` with its
+  whole query and hash before the game draws anything. The game was tested at
+  `play.html`: that page is now a stub whose `js/kin/legacy.js` forwards to `/`
+  keeping `?kin=3&lang=he`. Both are client-side on purpose: a server redirect
+  depends on the host forwarding the query string, and a link that arrives
+  without its species or its day is worse than one that takes an extra hop.
 
 Things worth knowing before changing it:
 
@@ -405,8 +418,15 @@ Things worth knowing before changing it:
   app or a game), and once each: the service worker caching the whole game and
   the game opening, playing and opening a friend's link with the network off;
   and counting — nothing sent by default, four events when on, no identifier,
-  Do Not Track honoured. Seeded records are written once, because an init
-  script runs again on every navigation.
+  Do Not Track honoured; and the front door — the old `play.html` and the
+  encyclopedia's old `/?node=…&view=…` addresses forwarding with their query,
+  a link to a species showing no opening (in a context of its own: once one
+  entrance has played it, every later load in the tab is skipped anyway), the
+  way between the two apps both ways, and Credits going back to whichever
+  opened it. Seeded records are written once, because an init script runs
+  again on every navigation. `--only front-door,offline` runs just those
+  sweeps; against a deployed site (`--url`) the offline sweep is skipped, since
+  it needs a server it can stop, and `verify-deployment.yml` runs the rest.
   Screenshots in `.play-out/`. It also draws **every** question's reveal
   on a 360px phone in every language (`play:every-reveal-fits-*`), because a
   day only ever shows ten of them — that sweep found a Hebrew fossil-minimum
@@ -421,9 +441,10 @@ Things worth knowing before changing it:
 node serve.js          # serves on http://localhost:5555
 ```
 
-No install step needed. Open `http://localhost:5555` in a browser. Opening
-`index.html` straight off disk also works, but skips the Content-Security-Policy
-that `serve.js` mirrors from `vercel.json`, so prefer the dev server.
+No install step needed. Open `http://localhost:5555` in a browser for the game
+and `http://localhost:5555/atlas.html` for the encyclopedia. Opening either page
+straight off disk also works, but skips the Content-Security-Policy that
+`serve.js` mirrors from `vercel.json`, so prefer the dev server.
 
 ---
 
@@ -457,7 +478,7 @@ registerActions({ 'view:set': (_a, _b, { el }) => setViewMode(el.dataset.mode) }
 Handlers are called as `(arg, arg2, ctx)` — `data-arg` and `data-arg2`, then
 `{ el, event }`. Arity is fixed so a handler that only wants the element can
 still reach it. Register in the module that renders the markup naming the
-action, not centrally; `app.js` registers only what `index.html` uses.
+action, not centrally; `app.js` registers only what `atlas.html` uses.
 
 Three things follow from this that are worth knowing:
 
@@ -708,7 +729,7 @@ has seen it, and can be skipped from the first frame.
 Four directions were built as live scenes before this one was chosen — Division
 (cell division drawn as a tree), the Astrolabe, Stickers (a specimen sheet) and
 Descent (a dive through strata). They are still in `mockups/opening/`, which is
-a gallery and no part of the site: `index.html?scene=astrolabe&lang=he&theme=light`,
+a gallery and no part of the site: `mockups/opening/index.html?scene=astrolabe&lang=he&theme=light`,
 and `&still=1&t=3.2` for one frame. Only the Astrolabe was tuned for production
 — speed, three languages, both themes, phone and desktop. The other three are
 sketches: they draw, but nobody has fitted their words or measured their cost.
@@ -780,6 +801,20 @@ Things worth knowing before changing it:
   again, so a wrong guess costs a flicker and never a wrong state.
   `manifest.json`'s `background_color` and `theme_color` are the same dark
   `#070C11` for the same reason.
+- **The opening is an entrance, not a toll.** The encyclopedia is one click
+  from the game now, and a visitor may go there and back several times. It
+  plays once per visit, and not at all for a link that names a species or a
+  view (`?node=`, `?view=`) — someone following a link wants what it points
+  at. `js/boot.js` decides before first paint: it sets `data-no-opening` on
+  `<html>` from the query, or from `tol-opening-played` in `sessionStorage`;
+  `css/splash.css` then hides `#splash` outright (`display:none !important` —
+  it is never dismissed, it never appears) and `js/app.js` starts nothing and
+  follows it with nothing: no tree entrance and no tour prompt, because someone
+  who came for a species did not come for either. `initSplash` sets the mark
+  when it starts, so a reload in the same tab does not replay it; a second tab,
+  or a new visit, does. With session storage blocked it plays every time, as it
+  always did. `js/boot.js` is shared with the game for theme, language and
+  direction and ignores the rest.
 - **A returning visitor gets the same show, faster** — speed 1.7, so about 2.6
   seconds, and the safety-net dismissal comes sooner by the same factor. A
   shorter cut would have been a second animation to keep right in three
@@ -863,6 +898,7 @@ a fresh context in that scenario's viewport, language and theme.
 | live | a first visit, sampled while it runs, then left by keyboard | `opening:animates`, `opening:leaves-by-keyboard` |
 | no canvas | `getContext` refused for the opening's own canvases | `opening:no-canvas-fallback` |
 | broken | `js/splashScene.js` replaced by a module that throws while building | `opening:a-broken-opening-does-not-trap-the-visitor` |
+| entrance | a link to a species, then two entrances to the encyclopedia in one tab (`desktop-en` and `phone-en` only, a few seconds each) | `opening:a-link-to-a-species-has-no-opening`, `opening:the-opening-plays-once-per-visit` |
 | slow | a first visit on a simulated slow device: a four-second stall after start-up, then six frames a second (`desktop-en` and `phone-en` only, ~15 s each) | `opening:a-slow-phone-still-gets-the-title` |
 
 `opening:runs-clean` reads the others for uncaught errors and CSP violations. The
@@ -1024,7 +1060,7 @@ document.documentElement.dir = RTL_LANGS.includes(lang) ? 'rtl' : 'ltr';
 ```
 
 Then add the language object to `TRANSLATIONS` and a `.lang-btn` in
-`index.html`.
+`atlas.html` (and a button in `js/kin/strings.js`, which lists its own).
 
 ### What is *not* translated
 
@@ -1046,7 +1082,7 @@ than a consistently English one.
 A control wears one icon or none, and `i18n:one-icon-per-control` measures the
 **assembled** label to say so. The markup and the translation are two places to
 write a glyph and neither can see the other, so the Compare pill carried a
-microscope in `index.html` while `compare_btn` opened with a scale, and every
+microscope in `atlas.html` while `compare_btn` opened with a scale, and every
 visitor in every language read "🔬 ⚖ Compare Mode". Nothing failed:
 `i18n:controls-translated` compares the bound element against its translation
 and the two matched exactly, which is all it was ever asking. Put a glyph in
@@ -1316,9 +1352,9 @@ work is shown. So:
    opens the real page in Chromium and asserts 570 things about layout, i18n,
    contrast and rendering. See *Smoke tests* below.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
-3. **index.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
+3. **atlas.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
 4. **ES modules everywhere** — all data and application files use `export`/`import`. No global `<script>` tags.
-5. **No D3** — `index.html` has exactly one script tag (`js/app.js`); the
+5. **No D3** — `atlas.html` has exactly one script tag (`js/app.js`); the
    renderer is hand-written SVG.
 6. **CORS** — all APIs permit browser-side calls. Do not add a server proxy unless needed.
 7. **Label geometry lives in one place.** `js/labelMetrics.js` decides how big a
@@ -1532,7 +1568,7 @@ as a CI artifact on every run).
 | `nav:` / `share:` | **Back takes off one layer and leaves the one beneath it**; the share link names the shell and the language as well as the node; following such a link opens in the sender's view without overwriting the recipient's stored preference |
 | `search:` | eight canonical queries return the answer a person would call correct; every common-name alias still matches something |
 | `interact:` | zoom buttons, reset re-fits, parent expands, leaf opens panel, search returns results, camera settles |
-| `static/` | Runs before the browser starts, over `index.html`, `play.html`, `credits.html`, `js/` (recursively), `css/` and `stories/`: CSS custom properties used but never defined; inline event-handler attributes; `script-src` still forbidding inline and eval; every `data-action` resolving to a registered handler; `js/boot.js` listing every language and every right-to-left one; no file in `js/` calling `alert`, `confirm` or `prompt`; the name offer's six strings present and translated in every language |
+| `static/` | Runs before the browser starts, over `atlas.html`, `index.html`, `play.html`, `credits.html`, `js/` (recursively), `css/` and `stories/`: CSS custom properties used but never defined; inline event-handler attributes; `script-src` still forbidding inline and eval; every `data-action` resolving to a registered handler; `js/boot.js` listing every language and every right-to-left one; no file in `js/` calling `alert`, `confirm` or `prompt`; the name offer's six strings present and translated in every language |
 
 ### The baseline
 

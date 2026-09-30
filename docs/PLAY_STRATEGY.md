@@ -1,16 +1,18 @@
 # Kin — the play strategy for treeoflife.wiki
 
-**Status:** phase 1 live since 30 Sep 2026 at `treeoflife.wiki/play.html`
-(unlinked, noindex), with testers; its gate is still open. Phase 2 is
-built — it did not depend on the gate: 122 creatures and 1,112 questions
-(1,047 generated from the tree), a frozen calendar, the service worker fixed
-for Kin, the Atlas's misplaced species refiled, a credit on every photo and
-silhouette, and the game in Russian. Open Tree of Life disagrees with none of
-it — no question and none of the 272,398 relationships the key states. Still
-owed: a native speaker's review of the Hebrew and Russian text. Phase 3 (the
-new front door) is under way: Gabi asked on 30 Sep for the redesign to be
-implemented and launched on the main site, so it is being built without the
-phase-1 gate having been measured — see *Phase 3 as built*.
+**Status (30 Sep 2026):** phase 3 is built and shipped, and Kin is the front
+page of `treeoflife.wiki`; the encyclopedia is `atlas.html`. Phase 1's gate
+(testers replaying or sharing) was never measured — Gabi asked for the
+redesign to be implemented and launched, so the launch is the experiment and
+phase 3's own gate (D1 ≥ 25%, D7 ≥ 10%, one share per twenty finished
+dailies, after four weeks) is the number to read. Phase 2 was built on the
+way: 122 creatures and 1,112 questions (1,047 generated from the tree), a
+frozen calendar, the service worker fixed for Kin, the Atlas's misplaced
+species refiled, a credit on every photo and silhouette, and the game in
+Russian. Open Tree of Life disagrees with none of it — no question and none of
+the 272,398 relationships the key states. Still owed, and not something a
+session can do: a native speaker's review of the Hebrew and Russian text, a
+site code for counting (it ships switched off), and the four weeks.
 **Visual version, with a playable prototype:** https://claude.ai/artifact/9yBbHFjxeC2Nj4ZPispQ2P
 (private to Gabi until shared).
 
@@ -94,10 +96,16 @@ own:
    friend's Kin, `?c=&s=` a run to beat. The stats are a screen, not a URL.
    Nothing leaves the device. The page borrows the opening's look — the plaque,
    the dial, the ruled scale under the header.
-2. The install prompt, real icons, the service worker registered from the game,
-   and an analytics hook that does nothing until it is given a site code.
-3. The front door: Kin at `/`, the Atlas at `/atlas.html` with the opening as
-   its entrance, the dead modules deleted.
+2. **The home screen, offline, and counting (off).** Home offers the install
+   prompt after two finished Kins (an iPhone is told how, since iOS has no
+   dialog), real PNG icons and a link-preview card, the service worker registered
+   from the game with a shell of just the game, and a counter that does nothing
+   until a page names an endpoint and then sends event names and noise — no id,
+   no cookie — from which D1, D7 and shares per finished daily can be read.
+3. **The front door.** Kin at `/`, the Atlas at `/atlas.html` with the opening
+   as its entrance (once per visit, never for a link to a species), the old
+   addresses forwarded with their query, the dead modules deleted, and both
+   browser suites run against production after every deploy.
 
 ## The decision in one paragraph
 

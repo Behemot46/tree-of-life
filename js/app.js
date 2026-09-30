@@ -477,7 +477,10 @@ function init(){
       setTimeout(showTourSelector, 1200);
     }
   };
-  if (_splashCanvas) {
+  /* js/boot.js decided before first paint that there is no opening to play (a link
+     to a species or a view, or a second entrance in one visit). css/splash.css
+     already hides it; there is nothing to start and nothing to follow it. */
+  if (_splashCanvas && !document.documentElement.hasAttribute('data-no-opening')) {
     try {
       initSplash(_splashCanvas, {
         tree: TREE,
@@ -590,7 +593,9 @@ function init(){
   const urlNode=resolveNodeId(new URLSearchParams(location.search).get('node'));
   if(urlNode){
     setTimeout(()=>navigateTo(urlNode),120);
-  } else {
+  } else if(!document.documentElement.hasAttribute('data-no-opening')){
+    /* The title card that follows the opening. With no opening (a link to a view, or a
+       second entrance in one visit) it would be the only thing on screen for four seconds. */
     showIntro();
   }
   // Keyboard shortcut hint

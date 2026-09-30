@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Kin (play.html) — browser checks.
+ * Kin (the front page) — browser checks.
  *
  *   node scripts/play-check.mjs                     # serves ./ and tests it
  *   node scripts/play-check.mjs --url https://...   # tests a deployed site
@@ -37,8 +37,8 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, '.play-out');
 const argv = process.argv.slice(2);
 const EXTERNAL_URL = argv.includes('--url') ? argv[argv.indexOf('--url') + 1] : null;
-/* --only phone-ru,desktop-en,offline: just those scenarios or sweeps (offline,
-   counting, every-reveal, emoji). It exists to prove a new check can fail
+/* --only phone-ru,desktop-en,offline: just those scenarios or sweeps (front-door,
+   offline, counting, every-reveal, emoji). It exists to prove a new check can fail
    (break the code, watch it go red, put the code back); a filtered run is
    never a green branch. */
 const ONLY = argv.includes('--only') ? argv[argv.indexOf('--only') + 1].split(',') : null;
@@ -62,9 +62,8 @@ const SCENARIOS = [
   { name: 'desktop-ru', lang: 'ru', theme: 'light', viewport: { width: 1440, height: 900 }, mobile: false },
 ];
 
-/* Where Home's second tile leads. The encyclopedia moves to atlas.html when
-   this page becomes the front door. */
-const ATLAS_HREF = 'index.html';
+/* Where Home's second tile leads: the encyclopedia. */
+const ATLAS_HREF = 'atlas.html';
 
 const LOCALE = { en: 'en-US', he: 'he-IL', ru: 'ru-RU' };
 const BRAND = { en: 'Kin', he: 'קרובים', ru: 'Родня' };
@@ -77,7 +76,7 @@ async function startServer() {
   const child = spawn(process.execPath, [path.join(ROOT, 'serve.js')], { env: { ...process.env, PORT: String(port) }, stdio: 'ignore' });
   const url = `http://127.0.0.1:${port}`;
   for (let i = 0; i < 60; i++) {
-    try { if ((await fetch(url + '/play.html')).ok) break; } catch { /* not up yet */ }
+    try { if ((await fetch(url + '/')).ok) break; } catch { /* not up yet */ }
     await new Promise((r) => setTimeout(r, 250));
   }
   return { url, stop: async () => { child.kill(); } };
@@ -130,7 +129,7 @@ async function runScenario(browser, base, sc) {
   }, { lang: sc.lang, theme: sc.theme });
 
   const t0 = Date.now();
-  await page.goto(`${base}/play.html`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${base}/`, { waitUntil: 'domcontentloaded' });
   let firstMs = null;
   try { await page.waitForSelector('.kin-opt', { timeout: 3000 }); firstMs = Date.now() - t0; } catch { /* too slow */ }
   record(sc.name, 'play:first-question-within-3s', firstMs !== null, 'no question after 3000 ms');
@@ -262,7 +261,7 @@ async function runScenario(browser, base, sc) {
   const brand = BRAND[sc.lang];
   /* The link names the Kin and the sender's language, so it opens the same
      questions in the same words — not the front page. */
-  const shareRe = new RegExp(`^${brand} #\\d+ · ${right}/10 🌳\\n(?:🟩|🟥){10}\\n${escapeRe(base)}/play\\.html\\?kin=\\d+${sc.lang === 'en' ? '' : `&lang=${sc.lang}`}$`);
+  const shareRe = new RegExp(`^${brand} #\\d+ · ${right}/10 🌳\\n(?:🟩|🟥){10}\\n${escapeRe(base)}/\\?kin=\\d+${sc.lang === 'en' ? '' : `&lang=${sc.lang}`}$`);
   record(sc.name, 'play:share-text', shareRe.test(shared), JSON.stringify(shared));
 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
@@ -313,7 +312,7 @@ async function runScenario(browser, base, sc) {
   record(sc.name, 'play:arcade-ends-after-three-misses', over.over && over.score.trim() === '2' && over.lost === 3, JSON.stringify(over));
 
   /* ?stats=1 is how testers were sent to their numbers; it still opens them. */
-  await page.goto(`${base}/play.html?stats=1`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${base}/?stats=1`, { waitUntil: 'domcontentloaded' });
   await page.waitForSelector('.kin-stats table');
   const stats = await page.$$eval('.kin-stats tr[data-stat]', (rows) => Object.fromEntries(rows.map((r) => [r.dataset.stat, r.querySelector('td').textContent.trim()])));
   record(sc.name, 'play:stats-count-what-was-played', stats.dailies === '1' && stats['arcade-runs'] === '1' && /^15\b/.test(stats.answers || '') && stats.streak === '1', JSON.stringify(stats));
@@ -372,7 +371,7 @@ async function visit(browser, base, sc, { state = null, query = '', context: ctx
   }, { lang: sc.lang, theme: sc.theme, state });
   if (init) await context.addInitScript(init);
   if (before) await before(context, page);
-  await page.goto(`${base}/play.html${query}`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${base}/${query}`, { waitUntil: 'domcontentloaded' });
   return { context, page, seen };
 }
 
@@ -566,7 +565,7 @@ async function checkFlows(browser, base, sc) {
     R('friend-result-offers-todays-kin-and-no-streak', !res.streak && !res.arcade && (res.today || '').trim() === await say(page, lang, 'playToday') && res.eyebrow === await say(page, lang, 'resultEyebrow', 1), JSON.stringify(res));
     await page.click('#kin-share-btn');
     const shared = await sharedText(page);
-    R('friend-result-shares-that-kin', new RegExp(`\\n${escapeRe(base)}/play\\.html\\?kin=1${suffix}$`).test(shared), JSON.stringify(shared));
+    R('friend-result-shares-that-kin', new RegExp(`\\n${escapeRe(base)}/\\?kin=1${suffix}$`).test(shared), JSON.stringify(shared));
     const rec = await saved(page);
     const kept = rec.stats.answers === 0 && rec.stats.correct === 0 && rec.stats.dailies === 0 && rec.stats.days.length === 0 && rec.streak.count === 0 && rec.daily.picks.length === 0 && Object.keys(rec.history).length === 0;
     R('friend-link-leaves-the-record-alone', kept, JSON.stringify({ stats: rec.stats, streak: rec.streak.count, picks: rec.daily.picks.length, history: rec.history }));
@@ -619,7 +618,7 @@ async function checkFlows(browser, base, sc) {
     R('challenge-result-says-how-it-went', over.button && (over.versus || '').trim() === await say(page, lang, 'challengeResult', 0, 4), JSON.stringify(over));
     await page.click('#kin-challenge-btn');
     const shared = await sharedText(page);
-    R('challenge-share-carries-the-seed-and-the-score', new RegExp(`\\n${escapeRe(base)}/play\\.html\\?c=12345&s=0${suffix}$`).test(shared), JSON.stringify(shared));
+    R('challenge-share-carries-the-seed-and-the-score', new RegExp(`\\n${escapeRe(base)}/\\?c=12345&s=0${suffix}$`).test(shared), JSON.stringify(shared));
     await context.close();
   }
 
@@ -866,7 +865,7 @@ async function checkOffline(browser) {
   const until = async (up) => {
     for (let i = 0; i < 60; i++) {
       let answered = false;
-      try { answered = (await fetch(`${base}/play.html`)).ok; } catch { answered = false; }
+      try { answered = (await fetch(`${base}/`)).ok; } catch { answered = false; }
       if (answered === up) return true;
       await new Promise((r) => setTimeout(r, 250));
     }
@@ -883,7 +882,7 @@ async function checkOffline(browser) {
     const errors = [];
     page.on('pageerror', (e) => errors.push(e.message));
     page.on('console', (m) => { if (m.type() === 'error' && !/Failed to load resource|ERR_CONNECTION_REFUSED/.test(m.text())) errors.push(m.text()); });
-    await page.goto(`${base}/play.html`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${base}/`, { waitUntil: 'domcontentloaded' });
     await page.waitForSelector('.kin-opt');
     const active = await attempt(() => page.evaluate(() => navigator.serviceWorker.ready.then((r) => { if (!r.active) throw new Error('no active worker'); })));
     R('service-worker-registers-from-the-game', active.ok, active.why);
@@ -901,11 +900,11 @@ async function checkOffline(browser) {
     R('every-listed-file-is-cached', shell.every((u) => held.includes(u)), `listed but not cached: ${shell.filter((u) => !held.includes(u)).join(', ')}`);
     const loaded = await page.evaluate(() => performance.getEntriesByType('resource').map((e) => new URL(e.name)).filter((u) => u.origin === location.origin && /\.(js|css)$/.test(u.pathname)).map((u) => u.pathname));
     R('service-worker-precaches-everything-the-game-loads', loaded.length > 15 && loaded.every((u) => held.includes(u)), `loaded but not cached: ${loaded.filter((u) => !held.includes(u)).join(', ')} (${loaded.length} loaded)`);
-    R('the-encyclopedia-is-not-precached', !held.some((u) => u === '/index.html' || u === '/js/app.js'), 'a visitor who came for the game was made to download the Atlas');
+    R('the-encyclopedia-is-not-precached', !held.some((u) => u === '/atlas.html' || u === '/js/app.js'), 'a visitor who came for the game was made to download the Atlas');
 
     /* A few shared links, opened while the server is still there. A cache that keyed on the query string would now hold a copy of each. */
     for (const q of ['?kin=2&lang=ru', '?c=31337&s=2', '?stats=1']) {
-      await page.goto(`${base}/play.html${q}`, { waitUntil: 'domcontentloaded' });
+      await page.goto(`${base}/${q}`, { waitUntil: 'domcontentloaded' });
       await page.waitForSelector('#kin-stage > *');
     }
     const withQuery = Object.values(await cacheKeys()).flat().filter((u) => u.includes('?'));
@@ -915,17 +914,17 @@ async function checkOffline(browser) {
     child.kill();
     const down = await until(false);
     R('offline-server-stopped', down, 'the check could not take its own server down');
-    await page.goto(`${base}/play.html`, { waitUntil: 'domcontentloaded' }).catch(() => {});
+    await page.goto(`${base}/`, { waitUntil: 'domcontentloaded' }).catch(() => {});
     const open = await attempt(() => page.waitForSelector('.kin-opt, .kin-home', { timeout: 6000 }));
     R('the-game-opens-with-no-network', open.ok, open.why);
     if (open.ok) {
       const played = await attempt(async () => { await answer(page, true); await page.waitForSelector('.kin-dots i.ok'); });
       R('the-game-plays-with-no-network', played.ok, played.why);
     }
-    await page.goto(`${base}/play.html?kin=1&lang=he`, { waitUntil: 'domcontentloaded' }).catch(() => {});
+    await page.goto(`${base}/?kin=1&lang=he`, { waitUntil: 'domcontentloaded' }).catch(() => {});
     const link = await attempt(() => page.waitForSelector('.kin-banner', { timeout: 6000 }));
     R('a-friends-link-opens-with-no-network', link.ok, link.why);
-    await page.goto(`${base}/play.html?c=4242&s=3`, { waitUntil: 'domcontentloaded' }).catch(() => {});
+    await page.goto(`${base}/?c=4242&s=3`, { waitUntil: 'domcontentloaded' }).catch(() => {});
     const challenge = await attempt(() => page.waitForSelector('.kin-mode', { timeout: 6000 }));
     R('a-challenge-link-opens-with-no-network', challenge.ok, challenge.why);
 
@@ -935,6 +934,113 @@ async function checkOffline(browser) {
   } finally {
     child.kill();
     if (context) await context.close();
+  }
+}
+
+/**
+ * The two apps and the addresses between them. The game is the front page; the
+ * encyclopedia is atlas.html. Links out in the world point at both old
+ * addresses: `/?node=humans&view=map` (the encyclopedia's own Share button) and
+ * `/play.html?kin=3` (what testers were sent).
+ */
+async function checkFrontDoor(browser, base) {
+  process.stdout.write('\n▸ front door\n');
+  const R = (id, ok, msg) => record('front-door', `play:${id}`, ok, msg);
+  const fresh = async (opts = {}) => {
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, serviceWorkers: 'block', ...opts });
+    const page = await context.newPage();
+    page.setDefaultTimeout(10000);
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    return { context, page, errors };
+  };
+
+  /* The game's old address forwards, query and all. */
+  {
+    const { context, page } = await fresh();
+    await page.goto(`${base}/play.html?kin=1&lang=he`, { waitUntil: 'domcontentloaded' });
+    const shown = await attempt(() => page.waitForSelector('.kin-banner', { timeout: 8000 }));
+    const at = new URL(page.url());
+    R('the-old-play-address-forwards-with-its-query', shown.ok && at.pathname === '/' && at.search === '?kin=1&lang=he', `${at.pathname}${at.search} ${shown.why}`);
+    await context.close();
+  }
+
+  /* The encyclopedia's old addresses forward to it, query and all, before the game has drawn anything. */
+  {
+    const { context, page, errors } = await fresh();
+    const bad = [];
+    for (const q of ['?node=humans&view=map&lang=ru', '?view=explore', '?lang=he&node=primates']) {
+      await page.goto(`${base}/${q}`, { waitUntil: 'domcontentloaded' });
+      const arrived = await attempt(() => page.waitForURL('**/atlas.html*', { timeout: 10000 }));
+      await page.waitForSelector('#canvas-wrap', { state: 'attached', timeout: 10000 }).catch(() => {});
+      const at = new URL(page.url());
+      const isAtlas = await page.evaluate(() => !!document.getElementById('canvas-wrap') && !document.querySelector('.kin-app'));
+      if (!arrived.ok || at.pathname !== '/atlas.html' || at.search !== q || !isAtlas) bad.push(`${q} -> ${at.pathname}${at.search} (${isAtlas ? 'atlas' : 'not the atlas'})`);
+    }
+    R('old-encyclopedia-links-open-the-atlas', !bad.length, bad.join('; '));
+    R('the-atlas-loads-without-errors', !errors.length, errors.slice(0, 3).join('; '));
+    await context.close();
+  }
+
+  /* A link to a species has no opening. In a context of its own: once one entrance has played
+     it, every later load in the same tab is skipped anyway, which would hide the rule. */
+  {
+    const { context, page } = await fresh();
+    await page.goto(`${base}/?node=humans&view=map`, { waitUntil: 'domcontentloaded' });
+    await attempt(() => page.waitForURL('**/atlas.html*', { timeout: 10000 }));
+    await page.waitForSelector('#canvas-wrap', { state: 'attached', timeout: 10000 }).catch(() => {});
+    await page.waitForTimeout(600);
+    const o = await page.evaluate(() => {
+      const s = document.getElementById('splash');
+      return { display: s ? getComputedStyle(s).display : 'missing', live: !!(s && s.classList.contains('is-live')), played: sessionStorage.getItem('tol-opening-played') };
+    });
+    R('a-link-to-a-species-shows-no-opening', o.display === 'none' && !o.live && o.played === null, JSON.stringify(o));
+    await context.close();
+  }
+
+  /* The way between them, both ways. */
+  {
+    const { context, page } = await fresh();
+    await page.goto(`${base}/`, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.kin-opt');
+    await page.click('#kin-foot');
+    const toAtlas = await attempt(() => page.waitForURL('**/atlas.html', { timeout: 10000 }));
+    R('kins-footer-leads-to-the-atlas', toAtlas.ok && await page.evaluate(() => !!document.getElementById('canvas-wrap')), toAtlas.why);
+    /* A link that names a view skips the opening, so the rail is reachable at once. */
+    await page.goto(`${base}/atlas.html?view=explore`, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('#btn-kin', { state: 'attached', timeout: 10000 });
+    const pill = await page.evaluate(async () => {
+      const { TRANSLATIONS } = await import('./js/uiData.js');
+      const el = document.getElementById('btn-kin');
+      return { href: el.getAttribute('href'), text: document.getElementById('kin-label').textContent.trim(), want: TRANSLATIONS.en.btn_kin };
+    });
+    R('the-atlas-has-a-way-back-to-the-game', pill.href === './' && pill.text === pill.want, JSON.stringify(pill));
+    await page.click('#btn-kin');
+    const back = await attempt(() => page.waitForSelector('.kin-opt', { timeout: 10000 }));
+    const at = new URL(page.url());
+    R('the-atlas-leads-back-to-the-game', back.ok && at.pathname === '/', `${at.pathname} ${back.why}`);
+    await context.close();
+  }
+
+  /* Credits is linked from both apps and goes back to whichever opened it. */
+  {
+    const { context, page } = await fresh();
+    const backOf = () => page.evaluate(() => { const a = document.querySelector('.cr-back'); return a ? { text: a.textContent.trim(), href: a.getAttribute('href') } : null; });
+    await page.goto(`${base}/`, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.kin-opt');
+    await page.click('#kin-credits');
+    await attempt(() => page.waitForURL('**/credits.html', { timeout: 10000 }));
+    await page.waitForSelector('.cr-back', { timeout: 10000 }).catch(() => {});
+    const fromGame = await backOf();
+    await page.goto(`${base}/atlas.html?view=explore`, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('#rail-credits', { timeout: 10000 });
+    await page.click('#rail-credits');
+    await attempt(() => page.waitForURL('**/credits.html', { timeout: 10000 }));
+    await page.waitForSelector('.cr-back', { timeout: 10000 }).catch(() => {});
+    const fromAtlas = await backOf();
+    R('credits-goes-back-to-where-it-was-opened-from', !!fromGame && !!fromAtlas && fromGame.href === 'index.html' && fromAtlas.href === 'atlas.html' && /Atlas/.test(fromAtlas.text),
+      JSON.stringify({ fromGame, fromAtlas }));
+    await context.close();
   }
 }
 
@@ -954,7 +1060,7 @@ async function checkCounting(browser, base) {
   };
   /* What the page would carry if the site turned counting on: one meta tag, and a host that answers. */
   const turnOn = async (context) => {
-    await context.route('**/play.html*', async (route) => {
+    await context.route((url) => url.pathname === '/', async (route) => {
       const res = await route.fetch();
       const body = (await res.text()).replace('</head>', '<meta name="kin-analytics" content="/_c/count"></head>');
       await route.fulfill({ response: res, body, headers: { ...res.headers(), 'content-length': String(Buffer.byteLength(body)) } });
@@ -981,7 +1087,7 @@ async function checkCounting(browser, base) {
     const allowed = new Set([new URL(base).host, 'fonts.googleapis.com', 'fonts.gstatic.com', 'upload.wikimedia.org']);
     const strangers = [...hosts].filter((h) => !allowed.has(h));
     R('nothing-is-sent-by-default', !all.some(isBeacon) && !strangers.length, JSON.stringify({ beacons: all.filter(isBeacon).length, strangers }));
-    await page.goto(`${base}/play.html?stats=1`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${base}/?stats=1`, { waitUntil: 'domcontentloaded' });
     await page.waitForSelector('.kin-stats');
     const off = await page.$eval('.kin-note', (e) => e.textContent.trim());
     R('stats-say-nothing-is-sent-when-nothing-is', off === await say(page, 'en', 'statsNote'), off);
@@ -997,7 +1103,7 @@ async function checkCounting(browser, base) {
     R('counting-names-a-visit-a-finish-a-share-and-a-run', JSON.stringify(events) === JSON.stringify(['/kin/visit/d0', '/kin/daily/finish', '/kin/share', '/kin/arcade/start']), JSON.stringify(events));
     R('a-beacon-carries-no-identifier', beacons.length > 0 && beacons.every((u) => [...u.searchParams.keys()].sort().join() === 'e,p,rnd,t' && u.searchParams.get('e') === 'true') && !(await context.cookies()).length && (await page.evaluate(() => document.cookie)) === '',
       JSON.stringify({ keys: [...new Set(beacons.flatMap((u) => [...u.searchParams.keys()]))], cookies: (await context.cookies()).length }));
-    await page.goto(`${base}/play.html?stats=1`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${base}/?stats=1`, { waitUntil: 'domcontentloaded' });
     await page.waitForSelector('.kin-stats');
     const on = await page.$eval('.kin-note', (e) => e.textContent.trim());
     R('stats-say-what-is-counted-when-something-is', on === await say(page, 'en', 'statsNoteCounted'), on);
@@ -1037,7 +1143,7 @@ async function checkEveryReveal(browser, base) {
     const context = await browser.newContext({ viewport: { width: 360, height: 640 }, isMobile: true, hasTouch: true, serviceWorkers: 'block' });
     const page = await context.newPage();
     await page.addInitScript((l) => { try { localStorage.setItem('tol-lang', l); } catch { /* private mode */ } }, lang);
-    await page.goto(`${base}/play.html`, { waitUntil: 'domcontentloaded' });
+    await page.goto(`${base}/`, { waitUntil: 'domcontentloaded' });
     await page.waitForSelector('.kin-opt');
     const res = await page.evaluate(async (l) => {
       const E = await import('./js/kin/engine.js');
@@ -1078,7 +1184,7 @@ async function checkEmojiFallback(browser, base) {
   process.stdout.write('\n▸ emoji\n');
   const context = await browser.newContext({ serviceWorkers: 'block' });
   const page = await context.newPage();
-  await page.goto(`${base}/play.html`, { waitUntil: 'domcontentloaded' });
+  await page.goto(`${base}/`, { waitUntil: 'domcontentloaded' });
   const r = await page.evaluate(async () => {
     const { glyph, drawable } = await import('./js/kin/glyph.js');
     const { CREATURES } = await import('./js/kin/creatures.js');
@@ -1114,6 +1220,10 @@ try {
       try { await checkFlows(browser, server.url, sc); }
       catch (e) { record(sc.name, 'play:flows-complete', false, String(e.message || e).split('\n')[0]); }
     }
+  }
+  if (wants('front-door')) {
+    try { await checkFrontDoor(browser, server.url); }
+    catch (e) { record('front-door', 'play:front-door-complete', false, String(e.message || e).split('\n')[0]); }
   }
   if (wants('offline')) {
     try { await checkOffline(browser, server.url); }

@@ -94,7 +94,7 @@ export const GEO_DATA = {
   'death-cap':        { regions: ['europe', 'north-america', 'east-asia', 'oceania'], label: 'Temperate deciduous forests worldwide; responsible for 90% of fatal mushroom poisonings', type: 'habitat' },
   'shiitake':         { regions: ['east-asia', 'worldwide'], label: 'Native to East Asian deciduous forests; now cultivated worldwide', type: 'habitat' },
   'lions-mane':       { regions: ['north-america', 'europe', 'east-asia'], label: 'Temperate hardwood forests of North America, Europe, and East Asia', type: 'habitat' },
-  'fly-agaric':       { regions: ['europe', 'north-america', 'east-asia', 'oceania'], label: 'Temperate and boreal forests of the Northern Hemisphere; introduced to Southern Hemisphere', type: 'habitat' },
+  'fly-agaric':       { regions: ['europe', 'east-asia'], label: 'Damp broadleaf and conifer woods of Europe and northern Asia; North America has its own destroying angels', type: 'habitat' },
 
   // ── PLANTS ──
   'plantae':          { regions: ['worldwide'], label: 'Terrestrial and freshwater habitats worldwide', type: 'habitat' },
@@ -2454,10 +2454,10 @@ export const BRANCH_DATA = {
     dispersal: 'Wind-dispersed basidiospores from cascading white spines; increasingly cultivated for food and medicine'
   },
   'fly-agaric': {
-    substrate: 'Ectomycorrhizal with birch, pine, and spruce',
-    symbiosis: 'Mutualistic — exchanges soil nutrients for plant sugars',
-    edibility: 'Toxic and psychoactive — contains ibotenic acid and muscimol; historically used as entheogen in Siberian shamanism',
-    dispersal: 'Wind-dispersed basidiospores; iconic red-and-white cap is the archetypal "toadstool" of fairy tales'
+    substrate: 'Ectomycorrhizal with beech, birch, oak and pine',
+    symbiosis: 'Mutualistic — exchanges soil nutrients for tree sugars',
+    edibility: 'Deadly poisonous — amatoxins destroy the liver; symptoms start 6–24 hours after eating, often followed by a false recovery',
+    dispersal: 'Wind-dispersed basidiospores; pure white cap, gills and stem, with a sac-like volva at the base'
   },
   'synchytrium': {
     substrate: 'Obligate plant pathogen — potato tubers and roots',

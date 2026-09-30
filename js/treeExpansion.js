@@ -216,13 +216,7 @@ export function expandTree(TREE, lightenColor) {
       desc:'A brainless single-celled organism that can solve mazes, design efficient transport networks, and "remember" — all without a single neuron.',
       detail:'When placed over a map with food at city locations, Physarum builds a network almost identical to the Tokyo rail system. It transfers "memories" via cytoplasmic fusion.',
       facts:[{l:'Intelligence',v:'Solves mazes, optimizes networks'},{l:'Neurons',v:'Zero'},{l:'Tokyo rail',v:'Replicated the network layout'}],
-      tags:['Brainless intelligence','Network optimization','Slime mold computing'],tipFact:'A brainless blob that independently designed a network matching Tokyo\'s rail system.',children:[]},
-    {id:'radiolaria',icon:'✨',color:XC,r:11,appeared:500,extinct:null,iucn:'NE',
-      name:'Radiolaria',latin:'Superclass Radiolaria',era:'Cambrian',
-      desc:'Marine protists that build exquisite silica skeletons of stunning geometric complexity — spheres, stars, helmets. Ernst Haeckel\'s 1904 drawings of radiolaria inspired Art Nouveau architecture.',
-      detail:'Radiolarian ooze covers ~3.4% of the ocean floor. Their silica shells accumulate into chert and flint over millions of years.',
-      facts:[{l:'Skeleton',v:'Silica (glass)'},{l:'Art influence',v:'Haeckel → Art Nouveau'},{l:'Ocean floor',v:'3.4% coverage'}],
-      tags:['Silica skeleton','Geometric beauty','Haeckel illustrations'],tipFact:'Glass skeletons so beautiful they inspired an entire architectural movement.',children:[]});
+      tags:['Brainless intelligence','Network optimization','Slime mold computing'],tipFact:'A brainless blob that independently designed a network matching Tokyo\'s rail system.',children:[]});
   add('stramenopiles',
     {id:'kelp',icon:'🌊',color:XC,r:11,appeared:25,extinct:null,iucn:'NE',
       name:'Giant kelp',latin:'Macrocystis pyrifera',era:'Neogene',
@@ -398,30 +392,6 @@ export function expandTree(TREE, lightenColor) {
       detail:'Cockroaches can hold their breath for 40 minutes and survive being submerged for 30 minutes. Their legs can sense vibrations as small as 1/1000th of an atomic diameter.',
       facts:[{l:'Headless survival',v:'1 week'},{l:'Radiation resistance',v:'10x human lethal dose'},{l:'Age',v:'300 million years unchanged'}],
       tags:['Radiation resistant','Decapitation survivor','Living fossil'],tipFact:'Can live a week without its head — it eventually dies of thirst, not brain death.',children:[]},
-    {id:'golden-orb-spider',icon:'🕷️',color:ZC,r:11,appeared:165,extinct:null,iucn:'NE',
-      name:'Golden orb-weaver',latin:'Nephila clavipes',era:'Jurassic',
-      desc:'Spins silk 5x stronger than steel by weight and more elastic than nylon. Web silk has been woven into actual fabric — a golden cape took 1 million spiders and 4 years to produce.',
-      detail:'Spider silk is tougher than Kevlar. Nephila webs can trap small birds. Researchers are engineering goats that produce spider silk proteins in their milk.',
-      facts:[{l:'Silk strength',v:'5x steel by weight'},{l:'Web size',v:'Up to 1.5 m diameter'},{l:'Applications',v:'Bulletproof vests, sutures'}],
-      tags:['Strongest natural fiber','Web architecture','Biomaterial'],tipFact:'A pencil-thick strand of spider silk could stop a Boeing 747 in flight.',children:[]},
-    {id:'emperor-scorpion',icon:'🦂',color:ZC,r:11,appeared:430,extinct:null,iucn:'NE',
-      name:'Emperor scorpion',latin:'Pandinus imperator',era:'Silurian (lineage)',
-      desc:'One of the largest scorpions — up to 20 cm. Fluoresces brilliant blue-green under UV light for reasons scientists still don\'t fully understand. Despite its size, its venom is relatively mild.',
-      detail:'Scorpions are among the oldest land animals (430 Mya). They glow under UV due to beta-carboline and 7-hydroxy-4-methylcoumarin in their cuticle. All ~2,500 scorpion species fluoresce.',
-      facts:[{l:'UV fluorescence',v:'All 2,500+ species glow'},{l:'Lineage age',v:'430 million years'},{l:'Venom',v:'Mild (similar to bee sting)'}],
-      tags:['UV fluorescence','Ancient lineage','Largest scorpion'],tipFact:'Every scorpion species on Earth glows under UV light — and nobody knows why.',children:[]},
-    {id:'lobster',icon:'🦞',color:ZC,r:11,appeared:140,extinct:null,iucn:'LC',
-      name:'American lobster',latin:'Homarus americanus',era:'Cretaceous',
-      desc:'May be biologically immortal — shows no measurable aging, growing bigger and more fertile with age. A 140-year-old lobster is stronger, not weaker, than a young one.',
-      detail:'Lobsters produce telomerase indefinitely, preventing chromosome degradation. They were so abundant in colonial America they were fed to prisoners — considered poverty food.',
-      facts:[{l:'Aging',v:'No measurable senescence'},{l:'Largest recorded',v:'20 kg (estimated 100+ years)'},{l:'Telomerase',v:'Indefinite production'}],
-      tags:['Negligible senescence','Telomerase','Former poverty food'],tipFact:'Gets bigger, stronger, and more fertile as it ages — may never die of old age.',children:[]},
-    {id:'japanese-spider-crab',icon:'🦀',color:ZC,r:11,appeared:100,extinct:null,iucn:'NE',
-      name:'Japanese spider crab',latin:'Macrocheira kaempferi',era:'Cretaceous',
-      desc:'The largest living arthropod — leg span up to 3.7 meters. Lives at depths of 200-600m. Despite its fearsome appearance, it is gentle and slow-moving.',
-      detail:'Decorates its shell with sponges and anemones for camouflage. Can live 100+ years. Considered a delicacy in Japan despite being difficult to catch.',
-      facts:[{l:'Leg span',v:'Up to 3.7 m'},{l:'Depth',v:'200-600 m'},{l:'Lifespan',v:'100+ years'}],
-      tags:['Largest arthropod','Deep sea','Shell decorator'],tipFact:'Leg span wider than a car — the largest arthropod alive.',children:[]},
     {id:'stick-insect',icon:'🪵',color:ZC,r:11,appeared:50,extinct:null,iucn:'NE',
       name:'Stick insect',latin:'Phobaeticus chani',era:'Paleogene',
       desc:'The longest insect on Earth — Chan\'s megastick reaches 56.7 cm. So perfectly camouflaged as a twig that it was only discovered in 2008.',
@@ -758,12 +728,6 @@ export function expandTree(TREE, lightenColor) {
       detail:'Armadillos can walk along river bottoms holding their breath for 6 minutes. Their body temperature (32°C) is low enough for Mycobacterium leprae to thrive, making them a natural leprosy reservoir.',
       facts:[{l:'Offspring',v:'Always identical quadruplets'},{l:'Leprosy',v:'Natural reservoir'},{l:'Breath hold',v:'6 minutes (walks underwater)'}],
       tags:['Identical quadruplets','Leprosy host','Armor plating','Underwater walker'],tipFact:'Always gives birth to identical quadruplets — guaranteed genetic clones.',children:[]},
-    {id:'gibbon',icon:'🌳',color:ZC,r:11,appeared:20,extinct:null,iucn:'EN',
-      name:'Lar gibbon',latin:'Hylobates lar',era:'Neogene',
-      desc:'The fastest primate through trees — brachiates at 56 km/h, swinging arm-over-arm across gaps of 15m. Mated pairs sing elaborate duets each morning to reinforce bonds and declare territory.',
-      detail:'Gibbons have the longest arms relative to body size of any primate. Their ball-and-socket wrist joints allow 180° rotation. All 20 gibbon species are threatened.',
-      facts:[{l:'Speed',v:'56 km/h (swinging)'},{l:'Leap',v:'15 m between trees'},{l:'Duets',v:'Daily morning songs'}],
-      tags:['Fastest arboreal primate','Duet singing','Brachiation'],tipFact:'Swings through trees at 56 km/h — the fastest movement of any primate.',children:[]},
     {id:'spotted-hyena',icon:'🐾',color:ZC,r:11,appeared:3,extinct:null,iucn:'LC',
       name:'Spotted hyena',latin:'Crocuta crocuta',era:'Neogene',
       desc:'Not a scavenger but Africa\'s most successful predator — hunts 95% of its food. Has the strongest bite force of any mammal relative to size. Females are larger than males and have pseudo-penises.',
@@ -925,30 +889,12 @@ export function expandTree(TREE, lightenColor) {
       detail:'Found only in the Ituri Rainforest of DR Congo. Okapis communicate using infrasonic calls below human hearing range. Fewer than 10,000-35,000 remain.',
       facts:[{l:'Relation',v:'Only living giraffe relative'},{l:'Tongue',v:'35 cm (ear-washing)'},{l:'Discovered',v:'1901 (by Western science)'}],
       tags:['Giraffe relative','Congo endemic','Infrasonic calls','Prehensile tongue'],tipFact:'The giraffe\'s only living relative — not discovered by Western science until 1901.',children:[]},
-    {id:'aye-aye',icon:'👁️',color:ZC,r:11,appeared:50,extinct:null,iucn:'EN',
-      name:'Aye-aye',latin:'Daubentonia madagascariensis',era:'Paleogene',
-      desc:'A lemur with rodent-like teeth, bat-like ears, and a skeletal middle finger it uses to tap on trees and locate grubs by echolocation — the only primate that uses echolocation for foraging.',
-      detail:'Considered a bad omen in Madagascar — locals often kill them on sight. Its continuously growing incisors were so unusual that it was initially classified as a rodent.',
-      facts:[{l:'Echolocation',v:'Percussion foraging (tap + listen)'},{l:'Finger',v:'Skeletal middle finger for grub extraction'},{l:'Classification error',v:'Initially thought to be a rodent'}],
-      tags:['Percussion foraging','Echolocation primate','Skeletal finger','Superstition'],tipFact:'The only primate that hunts by echolocation — tapping trees with a skeletal finger.',children:[]},
     {id:'african-wild-dog',icon:'🐕',color:ZC,r:11,appeared:2,extinct:null,iucn:'EN',
       name:'African wild dog',latin:'Lycaon pictus',era:'Quaternary',
       desc:'The most successful predator in Africa — 80% hunt success rate (lions: 25%). Makes decisions democratically by sneezing — more sneezes = the pack hunts.',
       detail:'Each dog has a unique coat pattern. Packs care for injured members, bringing food to those who cannot hunt. Only ~6,600 remain in fragmented populations.',
       facts:[{l:'Hunt success',v:'80% (vs lion 25%)'},{l:'Decision making',v:'Sneeze-based voting'},{l:'Population',v:'~6,600'}],
-      tags:['Most successful predator','Sneeze voting','Pack care','Unique coat patterns'],tipFact:'Votes on whether to hunt by sneezing — more sneezes means yes.',children:[]},
-    {id:'platypus-frog',icon:'🐸',color:ZC,r:11,appeared:10,extinct:null,iucn:'EX',
-      name:'Gastric-brooding frog',latin:'Rheobatrachus silus',era:'Neogene',
-      desc:'Swallowed its own fertilized eggs, turned its stomach into a uterus, and gave birth through its mouth. Discovered in 1973, extinct by 1983. Scientists are attempting de-extinction.',
-      detail:'The mother stopped producing stomach acid for 6 weeks while tadpoles developed. This unique reproductive strategy died with the species — likely from chytrid fungus.',
-      facts:[{l:'Birth method',v:'Through the mouth'},{l:'Discovered',v:'1973'},{l:'Extinct',v:'1983'},{l:'De-extinction',v:'Lazarus Project ongoing'}],
-      tags:['Oral birth','Extinct','De-extinction attempt','Unique reproduction'],tipFact:'Gave birth through its mouth — then went extinct before science could understand how.',children:[]},
-    {id:'blue-ringed-octopus',icon:'🐙',color:ZC,r:11,appeared:10,extinct:null,iucn:'LC',
-      name:'Blue-ringed octopus',latin:'Hapalochlaena lunulata',era:'Neogene',
-      desc:'Fits in the palm of your hand but carries enough tetrodotoxin to kill 26 adults in minutes. No antivenom exists. Its iridescent blue rings flash only when provoked — a final warning.',
-      detail:'The venom causes total paralysis while the victim remains conscious. Survival requires artificial respiration until the toxin wears off (24 hours). Found in tide pools across the Indo-Pacific.',
-      facts:[{l:'Venom',v:'Kills 26 adults per bite'},{l:'Size',v:'12-20 cm'},{l:'Antivenom',v:'None exists'}],
-      tags:['Tetrodotoxin','Deadliest octopus','Iridescent warning','No antivenom'],tipFact:'Small enough to hold — deadly enough to kill 26 people.',children:[]});
+      tags:['Most successful predator','Sneeze voting','Pack care','Unique coat patterns'],tipFact:'Votes on whether to hunt by sneezing — more sneezes means yes.',children:[]});
 
   // More invertebrates (+5)
   add('insects',
@@ -973,19 +919,7 @@ export function expandTree(TREE, lightenColor) {
       desc:'Germinates in the canopy and sends roots downward, gradually encasing and killing the host tree — then stands hollow as its own tree. Keystone species feeding 1,200+ animal species.',
       detail:'Figs fruit year-round and support more animal species than any other tropical tree genus. Fig wasps, co-evolved for 80 million years, pollinate each species\' flowers from inside.',
       facts:[{l:'Animals fed',v:'1,200+ species'},{l:'Fruiting',v:'Year-round (keystone)'},{l:'Wasp co-evolution',v:'80 million years'}],
-      tags:['Strangler','Keystone species','Fig wasp mutualism','Year-round fruit'],tipFact:'Feeds more animal species than any other tree genus — the backbone of tropical forests.',children:[]},
-    {id:'welwitschia-2',icon:'🌵',color:PC,r:11,appeared:100,extinct:null,iucn:'LC',
-      name:'Resurrection plant',latin:'Selaginella lepidophylla',era:'Cretaceous',
-      desc:'Can survive complete desiccation for years — curling into a brown ball and appearing dead. Add water and it unfurls and greens within hours. Sold as a novelty "plant that comes back from the dead."',
-      detail:'Trehalose sugar replaces water in cell membranes during drying, preserving cellular structure. Used in research for organ preservation and drought-tolerant crop development.',
-      facts:[{l:'Survival',v:'Years without water'},{l:'Revival time',v:'Hours after rehydration'},{l:'Mechanism',v:'Trehalose sugar replacement'}],
-      tags:['Desiccation tolerant','Resurrection','Trehalose','Extremophile plant'],tipFact:'Can appear completely dead for years — then spring back to life with just a splash of water.',children:[]},
-    {id:'sensitive-fern',icon:'🎋',color:PC,r:11,appeared:360,extinct:null,iucn:'LC',
-      name:'Sensitive fern',latin:'Onoclea sensibilis',era:'Carboniferous',
-      desc:'A living fossil — fossils from 57 million years ago are virtually identical to modern plants. Named "sensitive" because it is the first fern to die back at first frost.',
-      detail:'Produces two types of fronds: green photosynthetic fronds and brown fertile fronds that persist through winter. One of the most ancient unchanged fern lineages.',
-      facts:[{l:'Fossil age',v:'57 Mya (unchanged)'},{l:'Frond types',v:'2 (sterile + fertile)'},{l:'Frost sensitivity',v:'First fern to die back'}],
-      tags:['Living fossil','Two frond types','Frost indicator'],tipFact:'Looks exactly the same as it did 57 million years ago.',children:[]});
+      tags:['Strangler','Keystone species','Fig wasp mutualism','Year-round fruit'],tipFact:'Feeds more animal species than any other tree genus — the backbone of tropical forests.',children:[]});
   add('ferns',
     {id:'resurrection-fern',icon:'🎋',color:PC,r:11,appeared:200,extinct:null,iucn:'LC',
       name:'Resurrection fern',latin:'Pleopeltis polypodioides',era:'Jurassic',
@@ -1007,13 +941,7 @@ export function expandTree(TREE, lightenColor) {
       desc:'A bioluminescent bacterium that lights up the Hawaiian bobtail squid — the squid uses the glow to eliminate its shadow and avoid predators. The key model organism for quorum sensing.',
       detail:'Aliivibrio only glows when enough bacteria are present (quorum sensing). This discovery revolutionized understanding of bacterial communication and is the foundation of synthetic biology.',
       facts:[{l:'Symbiont',v:'Hawaiian bobtail squid'},{l:'Discovery',v:'Quorum sensing model'},{l:'Glow trigger',v:'Population density threshold'}],
-      tags:['Bioluminescence','Quorum sensing','Squid symbiosis'],tipFact:'Only glows when enough bacteria agree to glow — the discovery of bacterial communication.',children:[]},
-    {id:'bdelloid-rotifer',icon:'💧',color:BC,r:11,appeared:100,extinct:null,iucn:'NE',
-      name:'Bdelloid rotifer',latin:'Bdelloidea',era:'Cretaceous',
-      desc:'Has not had sex in 50 million years — the largest group of obligately asexual animals. Survives by stealing genes from fungi, bacteria, and plants via horizontal gene transfer.',
-      detail:'Bdelloid rotifers can survive desiccation, radiation, and freezing. Their genome contains 8% foreign DNA — from 500+ donor species. They revived after 24,000 years frozen in Siberian permafrost.',
-      facts:[{l:'Asexual period',v:'50+ million years'},{l:'Foreign DNA',v:'8% from 500+ species'},{l:'Revival',v:'After 24,000 years frozen'}],
-      tags:['No sex for 50 million years','Gene theft','Desiccation survivor'],tipFact:'Has not had sex in 50 million years — surviving by stealing genes from other kingdoms.',children:[]});
+      tags:['Bioluminescence','Quorum sensing','Squid symbiosis'],tipFact:'Only glows when enough bacteria agree to glow — the discovery of bacterial communication.',children:[]});
 
   // More protists (+2)
   add('alveolates',
@@ -1025,6 +953,9 @@ export function expandTree(TREE, lightenColor) {
       tags:['Glowing waves','Bioluminescence','Milky seas','Dinoflagellate'],tipFact:'The organism that makes ocean waves glow blue at night — visible from space.',children:[]});
 
   // More fungi (+2)
+  /* The id is historical: this node is the destroying angel, and the fly agaric
+     is 'amanita-muscaria' in the base tree. Renaming it would break shared
+     links, so its photo, facts and range were corrected instead. */
   add('basidiomycetes',
     {id:'fly-agaric',icon:'🍄',color:FC,r:11,appeared:50,extinct:null,iucn:'LC',
       name:'Destroying angel',latin:'Amanita virosa',era:'Paleogene',
@@ -1067,6 +998,98 @@ export function expandTree(TREE, lightenColor) {
       detail:'The password system evolved to combat cuckoo brood parasites — cuckoo chicks cannot learn the call and are rejected. Males bring flower petals as courtship gifts.',
       facts:[{l:'Password system',v:'Taught to embryos in egg'},{l:'Purpose',v:'Anti-cuckoo defense'},{l:'Courtship',v:'Males bring flower petals'}],
       tags:['Password call','Anti-parasite defense','Seasonal color change'],tipFact:'Teaches its unborn chicks a secret password — imposters who can\'t sing it are rejected.',children:[]});
+
+  // ── Corrections: species once filed under the wrong group ──
+  // docs/PLAY_STRATEGY.md, finding 2. Each moved here from where it was added
+  // above, so a group only ever holds what belongs in it.
+  // Arachnids and crustaceans are arthropods, not insects.
+  add('arthropoda',
+    {id:'golden-orb-spider',icon:'🕷️',color:ZC,r:11,appeared:165,extinct:null,iucn:'NE',
+      name:'Golden orb-weaver',latin:'Nephila clavipes',era:'Jurassic',
+      desc:'Spins silk 5x stronger than steel by weight and more elastic than nylon. Web silk has been woven into actual fabric — a golden cape took 1 million spiders and 4 years to produce.',
+      detail:'Spider silk is tougher than Kevlar. Nephila webs can trap small birds. Researchers are engineering goats that produce spider silk proteins in their milk.',
+      facts:[{l:'Silk strength',v:'5x steel by weight'},{l:'Web size',v:'Up to 1.5 m diameter'},{l:'Applications',v:'Bulletproof vests, sutures'}],
+      tags:['Strongest natural fiber','Web architecture','Biomaterial'],tipFact:'A pencil-thick strand of spider silk could stop a Boeing 747 in flight.',children:[]},
+    {id:'emperor-scorpion',icon:'🦂',color:ZC,r:11,appeared:430,extinct:null,iucn:'NE',
+      name:'Emperor scorpion',latin:'Pandinus imperator',era:'Silurian (lineage)',
+      desc:'One of the largest scorpions — up to 20 cm. Fluoresces brilliant blue-green under UV light for reasons scientists still don\'t fully understand. Despite its size, its venom is relatively mild.',
+      detail:'Scorpions are among the oldest land animals (430 Mya). They glow under UV due to beta-carboline and 7-hydroxy-4-methylcoumarin in their cuticle. All ~2,500 scorpion species fluoresce.',
+      facts:[{l:'UV fluorescence',v:'All 2,500+ species glow'},{l:'Lineage age',v:'430 million years'},{l:'Venom',v:'Mild (similar to bee sting)'}],
+      tags:['UV fluorescence','Ancient lineage','Largest scorpion'],tipFact:'Every scorpion species on Earth glows under UV light — and nobody knows why.',children:[]},
+    {id:'lobster',icon:'🦞',color:ZC,r:11,appeared:140,extinct:null,iucn:'LC',
+      name:'American lobster',latin:'Homarus americanus',era:'Cretaceous',
+      desc:'May be biologically immortal — shows no measurable aging, growing bigger and more fertile with age. A 140-year-old lobster is stronger, not weaker, than a young one.',
+      detail:'Lobsters produce telomerase indefinitely, preventing chromosome degradation. They were so abundant in colonial America they were fed to prisoners — considered poverty food.',
+      facts:[{l:'Aging',v:'No measurable senescence'},{l:'Largest recorded',v:'20 kg (estimated 100+ years)'},{l:'Telomerase',v:'Indefinite production'}],
+      tags:['Negligible senescence','Telomerase','Former poverty food'],tipFact:'Gets bigger, stronger, and more fertile as it ages — may never die of old age.',children:[]},
+    {id:'japanese-spider-crab',icon:'🦀',color:ZC,r:11,appeared:100,extinct:null,iucn:'NE',
+      name:'Japanese spider crab',latin:'Macrocheira kaempferi',era:'Cretaceous',
+      desc:'The largest living arthropod — leg span up to 3.7 meters. Lives at depths of 200-600m. Despite its fearsome appearance, it is gentle and slow-moving.',
+      detail:'Decorates its shell with sponges and anemones for camouflage. Can live 100+ years. Considered a delicacy in Japan despite being difficult to catch.',
+      facts:[{l:'Leg span',v:'Up to 3.7 m'},{l:'Depth',v:'200-600 m'},{l:'Lifespan',v:'100+ years'}],
+      tags:['Largest arthropod','Deep sea','Shell decorator'],tipFact:'Leg span wider than a car — the largest arthropod alive.',children:[]});
+  // A frog, whatever its eggs do in its stomach.
+  add('amphibians',
+    {id:'platypus-frog',icon:'🐸',color:lightenColor('#78b845','species'),r:11,appeared:10,extinct:null,iucn:'EX',
+      name:'Gastric-brooding frog',latin:'Rheobatrachus silus',era:'Neogene',
+      desc:'Swallowed its own fertilized eggs, turned its stomach into a uterus, and gave birth through its mouth. Discovered in 1973, extinct by 1983. Scientists are attempting de-extinction.',
+      detail:'The mother stopped producing stomach acid for 6 weeks while tadpoles developed. This unique reproductive strategy died with the species — likely from chytrid fungus.',
+      facts:[{l:'Birth method',v:'Through the mouth'},{l:'Discovered',v:'1973'},{l:'Extinct',v:'1983'},{l:'De-extinction',v:'Lazarus Project ongoing'}],
+      tags:['Oral birth','Extinct','De-extinction attempt','Unique reproduction'],tipFact:'Gave birth through its mouth — then went extinct before science could understand how.',children:[]});
+  // An octopus is a mollusc, not a mammal.
+  add('cephalopods',
+    {id:'blue-ringed-octopus',icon:'🐙',color:ZC,r:11,appeared:10,extinct:null,iucn:'LC',
+      name:'Blue-ringed octopus',latin:'Hapalochlaena lunulata',era:'Neogene',
+      desc:'Fits in the palm of your hand but carries enough tetrodotoxin to kill 26 adults in minutes. No antivenom exists. Its iridescent blue rings flash only when provoked — a final warning.',
+      detail:'The venom causes total paralysis while the victim remains conscious. Survival requires artificial respiration until the toxin wears off (24 hours). Found in tide pools across the Indo-Pacific.',
+      facts:[{l:'Venom',v:'Kills 26 adults per bite'},{l:'Size',v:'12-20 cm'},{l:'Antivenom',v:'None exists'}],
+      tags:['Tetrodotoxin','Deadliest octopus','Iridescent warning','No antivenom'],tipFact:'Small enough to hold — deadly enough to kill 26 people.',children:[]});
+  // A lesser ape and a lemur: primates both.
+  add('primates',
+    {id:'gibbon',icon:'🌳',color:lightenColor('#c03a3a','species'),r:11,appeared:20,extinct:null,iucn:'EN',
+      name:'Lar gibbon',latin:'Hylobates lar',era:'Neogene',
+      desc:'The fastest primate through trees — brachiates at 56 km/h, swinging arm-over-arm across gaps of 15m. Mated pairs sing elaborate duets each morning to reinforce bonds and declare territory.',
+      detail:'Gibbons have the longest arms relative to body size of any primate. Their ball-and-socket wrist joints allow 180° rotation. All 20 gibbon species are threatened.',
+      facts:[{l:'Speed',v:'56 km/h (swinging)'},{l:'Leap',v:'15 m between trees'},{l:'Duets',v:'Daily morning songs'}],
+      tags:['Fastest arboreal primate','Duet singing','Brachiation'],tipFact:'Swings through trees at 56 km/h — the fastest movement of any primate.',children:[]},
+    {id:'aye-aye',icon:'👁️',color:lightenColor('#c03a3a','species'),r:11,appeared:50,extinct:null,iucn:'EN',
+      name:'Aye-aye',latin:'Daubentonia madagascariensis',era:'Paleogene',
+      desc:'A lemur with rodent-like teeth, bat-like ears, and a skeletal middle finger it uses to tap on trees and locate grubs by echolocation — the only primate that uses echolocation for foraging.',
+      detail:'Considered a bad omen in Madagascar — locals often kill them on sight. Its continuously growing incisors were so unusual that it was initially classified as a rodent.',
+      facts:[{l:'Echolocation',v:'Percussion foraging (tap + listen)'},{l:'Finger',v:'Skeletal middle finger for grub extraction'},{l:'Classification error',v:'Initially thought to be a rodent'}],
+      tags:['Percussion foraging','Echolocation primate','Skeletal finger','Superstition'],tipFact:'The only primate that hunts by echolocation — tapping trees with a skeletal finger.',children:[]});
+  // A fern, not a flowering plant.
+  add('ferns',
+    {id:'sensitive-fern',icon:'🎋',color:PC,r:11,appeared:360,extinct:null,iucn:'LC',
+      name:'Sensitive fern',latin:'Onoclea sensibilis',era:'Carboniferous',
+      desc:'A living fossil — fossils from 57 million years ago are virtually identical to modern plants. Named "sensitive" because it is the first fern to die back at first frost.',
+      detail:'Produces two types of fronds: green photosynthetic fronds and brown fertile fronds that persist through winter. One of the most ancient unchanged fern lineages.',
+      facts:[{l:'Fossil age',v:'57 Mya (unchanged)'},{l:'Frond types',v:'2 (sterile + fertile)'},{l:'Frost sensitivity',v:'First fern to die back'}],
+      tags:['Living fossil','Two frond types','Frost indicator'],tipFact:'Looks exactly the same as it did 57 million years ago.',children:[]});
+  // Selaginella is a spikemoss: a lycophyte, neither a fern nor a seed plant.
+  add('plantae',
+    {id:'welwitschia-2',icon:'🌵',color:PC,r:11,appeared:100,extinct:null,iucn:'LC',
+      name:'Resurrection plant',latin:'Selaginella lepidophylla',era:'Cretaceous',
+      desc:'Can survive complete desiccation for years — curling into a brown ball and appearing dead. Add water and it unfurls and greens within hours. Sold as a novelty "plant that comes back from the dead."',
+      detail:'Trehalose sugar replaces water in cell membranes during drying, preserving cellular structure. Used in research for organ preservation and drought-tolerant crop development.',
+      facts:[{l:'Survival',v:'Years without water'},{l:'Revival time',v:'Hours after rehydration'},{l:'Mechanism',v:'Trehalose sugar replacement'}],
+      tags:['Desiccation tolerant','Resurrection','Trehalose','Extremophile plant'],tipFact:'Can appear completely dead for years — then spring back to life with just a splash of water.',children:[]});
+  // Rotifers are animals (phylum Rotifera), not bacteria.
+  add('invertebrates',
+    {id:'bdelloid-rotifer',icon:'💧',color:ZC,r:11,appeared:100,extinct:null,iucn:'NE',
+      name:'Bdelloid rotifer',latin:'Bdelloidea',era:'Cretaceous',
+      desc:'Has not had sex in 50 million years — the largest group of obligately asexual animals. Survives by stealing genes from fungi, bacteria, and plants via horizontal gene transfer.',
+      detail:'Bdelloid rotifers can survive desiccation, radiation, and freezing. Their genome contains 8% foreign DNA — from 500+ donor species. They revived after 24,000 years frozen in Siberian permafrost.',
+      facts:[{l:'Asexual period',v:'50+ million years'},{l:'Foreign DNA',v:'8% from 500+ species'},{l:'Revival',v:'After 24,000 years frozen'}],
+      tags:['No sex for 50 million years','Gene theft','Desiccation survivor'],tipFact:'Has not had sex in 50 million years — surviving by stealing genes from other kingdoms.',children:[]});
+  // Radiolarians are Rhizaria, not Amoebozoa.
+  add('protists',
+    {id:'radiolaria',icon:'✨',color:XC,r:11,appeared:500,extinct:null,iucn:'NE',
+      name:'Radiolaria',latin:'Superclass Radiolaria',era:'Cambrian',
+      desc:'Marine protists that build exquisite silica skeletons of stunning geometric complexity — spheres, stars, helmets. Ernst Haeckel\'s 1904 drawings of radiolaria inspired Art Nouveau architecture.',
+      detail:'Radiolarian ooze covers ~3.4% of the ocean floor. Their silica shells accumulate into chert and flint over millions of years.',
+      facts:[{l:'Skeleton',v:'Silica (glass)'},{l:'Art influence',v:'Haeckel → Art Nouveau'},{l:'Ocean floor',v:'3.4% coverage'}],
+      tags:['Silica skeleton','Geometric beauty','Haeckel illustrations'],tipFact:'Glass skeletons so beautiful they inspired an entire architectural movement.',children:[]});
 
   // Log expansion count
   let count = 0;

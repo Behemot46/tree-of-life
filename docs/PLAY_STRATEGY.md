@@ -54,7 +54,9 @@ Chromium and reading the modules.
    per-device leaderboard (`js/profile.js`). It is reachable only from the side
    menu. The daily is one multiple-choice question, and a wrong answer resets
    the streak to zero (`showDailyResults`).
-2. **The answer key is wrong.** At least 14 species sit in the wrong group,
+2. **The answer key is wrong.** *(Fixed 30 Sep 2026: all of the species below
+   are refiled, and the destroying angel's photo, facts and range no longer
+   belong to the fly agaric.)* At least 14 species sit in the wrong group,
    almost all added by `js/treeExpansion.js`:
    - under Insects: emperor scorpion, golden orb-weaver, American lobster,
      Japanese spider crab;

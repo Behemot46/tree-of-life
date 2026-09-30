@@ -349,7 +349,7 @@ patchEnrichment();
     'resplendent-quetzal':'The resplendent quetzal was sacred to the Maya and Aztec, who considered killing one a capital crime — its iridescent tail feathers, up to 65 cm long, were used as currency and worn only by royalty.',
     'greater-bird-of-paradise':'Male greater birds-of-paradise perform one of the most elaborate courtship displays in nature — hanging upside down from branches and transforming their plumage into a cascading golden fountain to attract females.',
     'radiolaria':'Radiolaria have been building the same intricate geometric silica skeletons for 540 million years — their fossilized shells form deep-sea ooze layers kilometers thick, used to date rocks and reconstruct ancient climates.',
-    'fly-agaric':'The iconic red-and-white fly agaric is the most recognizable mushroom on Earth — and possibly the inspiration for Santa\'s red suit. Siberian shamans consumed it for visionary rituals, and reindeer eat it deliberately.'
+    'fly-agaric':'Pure white and innocent-looking, the destroying angel carries the same liver-destroying amatoxins as the death cap. Symptoms wait up to a day, and then often ease — a false recovery while the liver fails.'
   };
   Object.entries(ff).forEach(([id,fact])=>{
     const n=nodeMap[id];

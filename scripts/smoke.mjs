@@ -53,10 +53,17 @@ const ONLY = opt('only', '').split(',').map((s) => s.trim()).filter(Boolean);
 /* --opening-only: run nothing but the `opening:` group. Each scenario skips its
    own page load and every probe but the opening's, so a scenario takes about
    15 seconds instead of a minute. It is the loop for working on the opening
-   and what scripts/mutate-opening.mjs runs; like --only it says nothing about
+   and what scripts/mutate-checks.mjs runs; like --only it says nothing about
    whether a branch is green, and is treated as a filtered run below. */
 const OPENING_ONLY = flag('opening-only');
-const FILTERED = ONLY.length > 0 || OPENING_ONLY;
+/* --profile-only: the same for the name offer. It runs the `profile:` group and
+   the native-dialog check that shares its probe, and nothing else, so a
+   scenario takes 10 to 40 seconds instead of a minute. It is what
+   scripts/mutate-checks.mjs runs for a mutation of the offer. */
+const PROFILE_ONLY = flag('profile-only');
+const GROUP_ONLY = OPENING_ONLY ? 'opening' : PROFILE_ONLY ? 'profile' : '';
+const GROUP_IDS = { opening: /^opening:/, profile: /^(profile:|load:no-native-dialogs$)/ };
+const FILTERED = ONLY.length > 0 || !!GROUP_ONLY;
 
 // ── Thresholds ────────────────────────────────────────────────────────────────
 // The tree must fill at least this fraction of the stage on its longest axis.
@@ -1045,6 +1052,188 @@ check('opening:runs-clean', 'The opening throws nothing and breaks no Content-Se
   if (o.violations && o.violations.length) fail(`${o.violations.length} CSP violation(s): ${o.violations.slice(0, 3).join('; ')}`);
 });
 
+/* ── The name, asked for after a game ───────────────────────────────────────
+   Measured from nameProbe(), which plays games in contexts of its own (see
+   there). Every scenario measures the card in its own language, viewport and
+   theme; the one desktop and one phone scenario in NAME_FULL_SCENARIOS also
+   carry the rest of the story.
+
+   A pass keeps what it measured up to the step that failed, so each check reads
+   only what it needs and one broken thing does not turn all of them red: a
+   check that needs a step the pass never reached says where it stopped. */
+const nameOf = (c) => {
+  const n = c.probe.name;
+  if (!n) fail('the name probe never ran');
+  if (n.error) fail(`the name probe threw: ${n.error}`);
+  return n;
+};
+const namePass = (n, key) => {
+  const v = n[key];
+  if (!v) fail(`the "${key}" pass of the name probe never ran`);
+  return v;
+};
+/** What a pass measured at some step — or where it stopped and why. */
+const reached = (v, step, what) => {
+  if (v[step] === undefined) fail(`${what} was never reached — the pass stopped: ${v.error || 'no reason given'}`);
+  return v[step];
+};
+/** Every card measured for a scenario: its own language, then any the viewport's other scenarios leave uncovered. */
+const nameCards = (n) => [namePass(n, 'visitor'), ...(n.extra || [])].map((v) => {
+  const s = reached(v, 'scored', 'the first game that scored');
+  if (!s.card) fail(`no offer for a name was on screen after a game that scored ${s.score}${s.shown ? '' : ' (and the results never showed)'}`);
+  return s.card;
+});
+const cardTag = (c, card) => (card.lang === c.scenario.lang ? '' : ` [${card.lang} card]`);
+const nameFull = (sc) => NAME_FULL_SCENARIOS.includes(sc.id);
+const names = (players) => JSON.stringify((players || []).map((p) => p.name));
+const NO_NAME_KEPT = 'no name was kept, so there is no player to credit (see profile:keeping-the-name-keeps-the-score)';
+
+check('load:no-native-dialogs', 'The site never raises a native alert, confirm or prompt — not on load, not five seconds in, not after a game', (c) => {
+  const all = [...(c.dialogs || []), ...((c.probe.name && c.probe.name.dialogs) || [])];
+  if (all.length) fail(`${all.length} native dialog(s): ${[...new Set(all)].slice(0, 3).join('; ')}`);
+});
+
+check('profile:a-first-visit-is-not-interrupted', 'A first visit that only looks around is not asked for a name: seven quiet seconds bring no dialog, no offer, no player and no record of having asked', (c) => {
+  const i = reached(namePass(nameOf(c), 'visitor'), 'idle', 'the quiet wait');
+  if (i.dialogs.length) fail(`a native dialog appeared within seven quiet seconds: ${i.dialogs[0]}`);
+  if (i.offer) fail('an offer for a name was on screen after seven quiet seconds');
+  if (i.players && i.players.length) fail(`a player was made after seven quiet seconds: ${names(i.players)}`);
+  if (i.active) fail(`an active player was set after seven quiet seconds: "${i.active}"`);
+  if (i.asked) fail('the name was already marked as asked after seven quiet seconds');
+}, nameFull);
+
+check('profile:looking-around-does-not-make-a-guest', 'A visitor who has opened species on an earlier visit is not turned into a Guest on their return, which would settle the question of a name before it was asked', (c) => {
+  const a = reached(namePass(nameOf(c), 'explorer'), 'arrived', 'the explorer\'s arrival');
+  if (a.players && a.players.length) fail(`a returning explorer was made a player on arrival: ${names(a.players)}`);
+  if (a.active) fail(`a returning explorer was given an active player on arrival: "${a.active}"`);
+}, nameFull);
+
+check('profile:the-name-is-asked-after-a-game-that-scored', 'The first game that scores ends with an offer to keep the score under a name; a game that scored nothing does not use it up', (c) => {
+  const n = nameOf(c);
+  const v = namePass(n, 'visitor');
+  if (n.errors && n.errors.length) fail(`${n.errors.length} uncaught error(s) while playing: ${n.errors[0]}`);
+  const zero = reached(v, 'zero', 'the game that scores nothing');
+  if (!zero.shown) fail('a game that scored nothing never reached its results');
+  if (zero.offer) fail('a game that scored nothing already asked for a name — there was no score to keep');
+  if (zero.asked) fail('a game that scored nothing used up the one ask');
+  if (v.daily !== undefined) {
+    if (!v.daily.shown) fail('the Daily Challenge never reached its results');
+    if (v.daily.offer) fail('the Daily Challenge, which shows no points, asked for a name — there was no score on screen to keep');
+    if (v.daily.asked) fail('the Daily Challenge used up the one ask');
+  }
+  const scored = reached(v, 'scored', 'the first game that scored');
+  if (!scored.shown) fail('the first game that scored never reached its results');
+  if (!(scored.score > 0)) fail(`the game meant to score did not (${scored.score}) — the probe, not the offer, is at fault`);
+  if (!scored.offer) fail(`the results of a game that scored ${scored.score} carry no offer for a name`);
+  if (scored.players && scored.players.length) fail(`a player was made before anyone was asked: ${names(scored.players)}`);
+  if (scored.asked !== '1') fail('the ask was shown but not recorded, so it would be shown again after every game');
+  if (n.explorer) {
+    const x = reached(namePass(n, 'explorer'), 'scored', 'the explorer\'s first game that scored');
+    if (!x.offer) fail(`a returning explorer's first game that scored ${x.score} (a Quick Quiz) carried no offer for a name`);
+  }
+});
+
+check('profile:the-offer-speaks-the-readers-language', 'The offer\'s title, sentence, field, Save and Not now are in the language the site was loaded in, and the field and the card are named for a screen reader', (c) => {
+  for (const card of nameCards(nameOf(c))) {
+    const tag = cardTag(c, card);
+    for (const k of ['title', 'body', 'placeholder', 'save', 'skip']) {
+      if (!card.want[k]) fail(`${card.lang} has no translation for name_offer_${k === 'body' ? 'text' : k}${tag}`);
+      if ((card.text[k] || '').trim() !== card.want[k]) fail(`the ${k} reads "${(card.text[k] || '').trim()}"; ${card.lang} says "${card.want[k]}"${tag}`);
+    }
+    if (!card.named) fail(`the name field has no accessible name in ${card.lang}${tag}`);
+    if (!card.labelled) fail(`the card is not a labelled group for a screen reader${tag}`);
+  }
+});
+
+check('profile:the-offer-fits-and-is-reachable', 'The offer sits inside the screen and inside the reading direction, its field and buttons are inside it, thumb-sized and not covered, and the page gains no sideways scroll', (c) => {
+  for (const card of nameCards(nameOf(c))) {
+    const tag = cardTag(c, card);
+    const { offer, input, save, skip, vw, vh } = card;
+    if (offer.left < -0.5 || offer.right > vw + 0.5) fail(`the card runs off the screen: ${px1(offer.left)}–${px1(offer.right)} in a ${vw}px window${tag}`);
+    if (offer.top < -0.5 || offer.bottom > vh + 0.5) fail(`the card cannot be brought fully into view: ${px1(offer.top)}–${px1(offer.bottom)} in a ${vh}px window${tag}`);
+    if (card.scrollW > vw + 1) fail(`the page scrolls sideways: ${card.scrollW}px wide in a ${vw}px window${tag}`);
+    const want = card.lang === 'he' ? 'rtl' : 'ltr';
+    if (card.dir !== want) fail(`the card reads ${card.dir}; ${card.lang} reads ${want}${tag}`);
+    for (const [name, r] of [['field', input], ['Save', save], ['Not now', skip]]) {
+      if (r.left < offer.left - 0.5 || r.right > offer.right + 0.5) fail(`${name} runs out of the card: ${px1(r.left)}–${px1(r.right)} against ${px1(offer.left)}–${px1(offer.right)}${tag}`);
+      if (r.height < 40) fail(`${name} is ${px1(r.height)}px tall — too small for a thumb${tag}`);
+    }
+    for (const [name, by] of Object.entries(card.covered)) {
+      if (by) fail(`${name} is painted over by <${by}> at its centre${tag}`);
+    }
+    if (card.inputPx < 16) fail(`the field's text is ${card.inputPx}px; under 16px a phone zooms the page in when it takes focus${tag}`);
+    // the field and Save share a row, the field first in the reading direction
+    if (Math.abs(midY(input) - midY(save)) > input.height / 2) fail(`Save has wrapped away from the field (${px1(midY(input))} vs ${px1(midY(save))})${tag}`);
+    if (card.lang === 'he' ? midX(input) <= midX(save) : midX(input) >= midX(save)) fail(`the field is not first in the reading direction${tag}`);
+  }
+});
+
+check('profile:the-offer-is-legible', 'Every word of the offer meets AA contrast in this scenario\'s theme', (c) => {
+  for (const card of nameCards(nameOf(c))) {
+    if (card.contrast === null) fail('the contrast sweep was not on the page');
+    if (card.contrast.length) fail(`${card.contrast.length} low-contrast text(s): ${card.contrast.slice(0, 3).join('; ')}${cardTag(c, card)}`);
+  }
+});
+
+check('profile:keeping-the-name-keeps-the-score', 'Typing a name and pressing Save (the keyboard on a desktop, a tap on a phone) stores that player, makes them the active one, credits the score shown, and says so in the reader\'s language', (c) => {
+  const n = nameOf(c);
+  const v = namePass(n, n.explorer ? 'explorer' : 'visitor');
+  const before = reached(v, 'scored', 'the first game that scored');
+  if (!before.card) fail(`there was no offer to keep a name under (a game that scored ${before.score})`);
+  const kept = reached(v, 'kept', 'keeping the name');
+  if (kept.skipped) fail(kept.skipped);
+  const typed = kept.typed || NAME_TYPED[c.scenario.lang];
+  if (!kept.players || kept.players.length !== 1) fail(`${kept.players ? kept.players.length : 0} player(s) stored after Save; wanted one — ${names(kept.players)}`);
+  const p = kept.players[0];
+  if (p.name !== typed) fail(`the stored name is "${p.name}"; "${typed}" was typed`);
+  if (kept.active !== typed) fail(`the active player is "${kept.active}"; wanted "${typed}"`);
+  if (p.totalPoints !== before.score) fail(`the score shown was ${before.score} and the player was credited ${p.totalPoints}`);
+  if (kept.offer) fail('the card is still asking after the name was kept');
+  if (!kept.focusIn) fail('keyboard focus was lost to the top of the page when the field went away');
+  const want = String(before.card.wantSaved).replace('{name}', typed).replace('{pts}', String(before.score));
+  if ((kept.done || '').trim() !== want) fail(`the confirmation reads "${(kept.done || '').trim()}"; wanted "${want}"`);
+});
+
+check('profile:a-declined-offer-is-not-repeated', 'Not now removes the card, makes no player and is remembered: the next game does not ask again', (c) => {
+  const v = namePass(nameOf(c), 'visitor');
+  const d = reached(v, 'declined', 'the decline');
+  if (d.skipped) fail(d.skipped);
+  if (d.offer) fail('the card is still on screen after Not now');
+  if (d.players && d.players.length) fail(`Not now made a player: ${names(d.players)}`);
+  if (d.asked !== '1') fail('Not now was not remembered');
+  if (!d.focusIn) fail('keyboard focus was lost to the top of the page when the card went away');
+  const next = reached(v, 'next', 'the game after the decline');
+  if (!next.shown) fail('the game after a decline never reached its results');
+  if (next.offer) fail('the game after Not now asked for a name again');
+  if (next.players && next.players.length) fail(`a player was made by the game after Not now: ${names(next.players)}`);
+}, nameFull);
+
+check('profile:a-named-player-earns-points-without-being-asked-again', 'Once a name is kept, every game adds its score to that player and none asks again', (c) => {
+  const x = namePass(nameOf(c), 'explorer');
+  const foe = reached(x, 'foe', 'Family or Foe');
+  const scored = reached(x, 'scored', 'the first game that scored');
+  if (!foe.shown) fail('Family or Foe never reached its results');
+  if (foe.offer) fail('a named player was asked for a name again after Family or Foe');
+  const p = foe.players && foe.players[0];
+  if (!p) fail(NO_NAME_KEPT);
+  const want = scored.score + foe.score;
+  if (p.totalPoints !== want) fail(`after Family or Foe (${foe.score} pts) on top of ${scored.score}, the player has ${p.totalPoints}; wanted ${want}`);
+}, nameFull);
+
+check('profile:a-game-is-scored-once', 'A game whose results are reached twice at once is still credited once', (c) => {
+  const x = namePass(nameOf(c), 'explorer');
+  const classic = reached(x, 'classic', 'Classic');
+  const scored = reached(x, 'scored', 'the first game that scored');
+  const foe = reached(x, 'foe', 'Family or Foe');
+  if (!classic.shown) fail('Classic never reached its results');
+  if (!(classic.score > 0)) fail(`the game meant to score did not (${classic.score}) — the probe, not the guard, is at fault`);
+  if (classic.offer) fail('a named player was asked for a name again after Classic');
+  const p = classic.players && classic.players[0];
+  if (!p) fail(NO_NAME_KEPT);
+  const want = scored.score + foe.score + classic.score;
+  if (p.totalPoints !== want) fail(`Classic scored ${classic.score}, reached twice; the player has ${p.totalPoints} against ${scored.score + foe.score} before it — wanted ${want}`);
+}, nameFull);
+
 check('search:finds-the-obvious-answer', 'Common searches return the thing meant', (c) => {
   const s = c.probe.searchQuality;
   if (!s) return;
@@ -1438,6 +1627,339 @@ async function openingProbe(page, scenario, baseUrl) {
      numbers the thresholds below were chosen from, and the first thing to read
      when one of them goes red on a runner you cannot see. */
   if (process.env.SMOKE_DUMP_OPENING) console.log(scenario.id, JSON.stringify(out));
+  return out;
+}
+
+// ── Probe: the name, asked for after a game ───────────────────────────────────
+/* A native prompt() used to ask for a name five seconds into a first visit:
+   before the visitor had done anything to be named for, in a box that blocks the
+   page, cannot be styled and was never translated. The name is now asked for
+   once, on the results of the first game that scored, as a card that can be
+   ignored (offerNameAfterGame in js/profile.js). And no Guest is made up for a
+   visitor who has only looked around — an earlier version did, which would now
+   have pre-empted the offer for the ordinary visitor.
+
+   Every scenario plays a game to its results in its own language, viewport and
+   theme and measures the card. Two — one desktop, one phone — go on to the rest,
+   in contexts of their own because "a first visit" is the state under test:
+
+     visitor   looks around for seven quiet seconds (the prompt came at five),
+               then plays a game that scores nothing, then one that scores —
+               whose offer is declined — then one more;
+     explorer  has looked around on an earlier visit (`tol-explored`) and is
+               back: not a Guest, and still offered a name after the first
+               game that scores; keeps it; then two more games, the second
+               reached twice at once, which have to be credited to that name
+               exactly once each.
+
+   Games are driven to the result they need, not played: the right or the wrong
+   answer is looked up in the page's own data, so a run means the same on every
+   runner. A quiz that scored nothing when it should have scored something would
+   look like a missing offer, and that is not what these checks are about. */
+const NAME_FULL_SCENARIOS = ['desktop-en', 'phone-he'];
+const NAME_TYPED = { en: 'Gabi', he: 'גבי', ru: 'Габи' };
+/** Seven seconds, where the prompt used to come at five. */
+const NAME_QUIET_MS = 7000;
+
+async function nameProbe(page, scenario, baseUrl) {
+  const browser = page.context().browser();
+  const vp = scenario.viewport;
+  const full = NAME_FULL_SCENARIOS.includes(scenario.id);
+  const dialogs = [], errors = [];
+  const out = { full, dialogs, errors };
+
+  async function open({ lang = scenario.lang, explorer = false }) {
+    const ctx = await browser.newContext({
+      viewport: { width: vp.width, height: vp.height },
+      isMobile: vp.isMobile, hasTouch: vp.hasTouch,
+      deviceScaleFactor: vp.deviceScaleFactor || 1,
+      locale: lang === 'he' ? 'he-IL' : lang === 'ru' ? 'ru-RU' : 'en-US',
+    });
+    await ctx.addInitScript((cfg) => {
+      localStorage.setItem('tol-lang', cfg.lang);
+      localStorage.setItem('theme', cfg.theme);
+      localStorage.setItem('tol-shell-view', 'map');
+      localStorage.setItem('tol-tour-done', '1');
+      localStorage.setItem('tol-splash-seen', '1');
+      // someone who has opened a few species before, and no player: what a visitor is after a first look round
+      if (cfg.explorer) localStorage.setItem('tol-explored', JSON.stringify(['h_sapiens', 'gray-wolf', 'chimpanzee']));
+    }, { lang, theme: scenario.theme || 'dark', explorer });
+    const p = await ctx.newPage();
+    // Every native dialog is recorded and dismissed, so one cannot hold the run up
+    p.on('dialog', (d) => { dialogs.push(`${d.type()}: ${d.message().slice(0, 80)}`); d.dismiss().catch(() => {}); });
+    p.on('pageerror', (e) => errors.push(String(e && e.message ? e.message : e)));
+    return { ctx, p };
+  }
+
+  // ── reading the page ──
+  const snap = (p) => p.evaluate(() => {
+    const raw = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
+    let players = null;
+    try { players = JSON.parse(raw('tol-players') || 'null'); } catch { players = 'unparseable'; }
+    // asking, not merely present: once a name is kept the card stays to say so, without the field
+    const asking = document.querySelector('#game-result .name-offer #name-offer-input');
+    return {
+      players, active: raw('tol-active-player'), asked: raw('tol-name-asked'),
+      offer: !!asking && asking.getClientRects().length > 0,
+      done: (document.querySelector('#game-result .name-offer-done') || {}).textContent || null,
+      // focus must stay in the results when the control that had it goes; on the page's body it starts again from the top
+      focusIn: !!document.activeElement && !!document.activeElement.closest('#game-result'),
+    };
+  });
+  const resultsOf = (p) => p.evaluate(() => {
+    const box = document.getElementById('game-result');
+    const el = document.querySelector('#game-result .trivia-result-score');
+    return {
+      shown: !!el && getComputedStyle(box).display !== 'none',
+      score: el ? parseInt(el.textContent, 10) : null,
+    };
+  });
+  const measureOffer = (p) => p.evaluate(async () => {
+    const offer = document.querySelector('#game-result .name-offer');
+    if (!offer) return null;
+    // Reachable by scrolling is what matters: the results are taller than a phone
+    offer.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+    const box = (el) => { const b = el.getBoundingClientRect(); return { left: b.left, right: b.right, top: b.top, bottom: b.bottom, width: b.width, height: b.height }; };
+    const input = offer.querySelector('#name-offer-input');
+    const save = offer.querySelector('[data-action="profile:save-name"]');
+    const skip = offer.querySelector('[data-action="profile:skip-name"]');
+    const covered = (el) => {
+      if (!el) return 'missing';
+      const b = el.getBoundingClientRect();
+      const top = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
+      if (top && (top === el || el.contains(top))) return null;
+      return top ? `${top.tagName.toLowerCase()}${top.id ? '#' + top.id : ''}${top.className && typeof top.className === 'string' ? '.' + top.className.trim().split(/\s+/)[0] : ''}` : 'nothing';
+    };
+    const T = await import(new URL('js/uiData.js', location.href).href).then((m) => m.TRANSLATIONS).catch(() => null);
+    const tr = (T && T[document.documentElement.lang]) || {};
+    const title = offer.querySelector('.name-offer-title');
+    return {
+      lang: document.documentElement.lang,
+      vw: innerWidth, vh: innerHeight,
+      scrollW: Math.max(document.documentElement.scrollWidth, document.body.scrollWidth),
+      dir: getComputedStyle(offer).direction,
+      offer: box(offer), input: input && box(input), save: save && box(save), skip: skip && box(skip),
+      inputPx: input ? parseFloat(getComputedStyle(input).fontSize) : 0,
+      covered: { input: covered(input), save: covered(save), skip: covered(skip) },
+      text: {
+        title: title && title.textContent, body: (offer.querySelector('.name-offer-text') || {}).textContent,
+        placeholder: input && input.placeholder, save: save && save.textContent, skip: skip && skip.textContent,
+      },
+      want: { title: tr.name_offer_title, body: tr.name_offer_text, placeholder: tr.name_offer_placeholder, save: tr.name_offer_save, skip: tr.name_offer_skip },
+      named: !!input && input.getAttribute('aria-label') === tr.name_offer_placeholder,
+      labelled: offer.getAttribute('role') === 'group' && !!document.getElementById(offer.getAttribute('aria-labelledby') || '_'),
+      wantSaved: tr.name_offer_saved,
+      contrast: typeof window.__contrastSweep === 'function' ? window.__contrastSweep(offer) : null,
+    };
+  });
+
+  // ── driving the games ──
+  const ready = async (p) => {
+    await p.goto(baseUrl + '/index.html', { waitUntil: 'domcontentloaded' });
+    await p.waitForFunction(() => document.querySelectorAll('#viewport g.node-group').length >= 10, null, { timeout: 25000 });
+    await p.waitForFunction(() => getComputedStyle(document.getElementById('splash')).display === 'none', null, { timeout: 15000 });
+    await p.evaluate(installContrastSweep);
+  };
+  const openGames = async (p) => {
+    // the Games pill is not on a phone's screen; the action it carries is
+    await p.evaluate(() => document.getElementById('btn-quiz').click());
+    await p.waitForSelector('.game-mode-card', { state: 'visible', timeout: 6000 });
+  };
+  const again = async (p) => {
+    await p.click('#game-result [data-action="play-again"]', { timeout: 5000 });
+    await p.waitForSelector('.game-mode-card', { state: 'visible', timeout: 5000 });
+  };
+  // the Daily Challenge's results have Close and no Play Again: it can be played once a day
+  const reopen = async (p) => {
+    await p.click('#game-result .trivia-result-actions [data-action="close-game"]', { timeout: 5000 });
+    await openGames(p);
+  };
+  const start = (p, mode) => p.click(`.game-mode-card[data-mode="${mode}"]`, { timeout: 5000 });
+  const finish = (p) => p.waitForSelector('#game-result .trivia-result-score', { state: 'visible', timeout: 9000 });
+
+  /** Answer the question on screen, rightly or not, from the page's own answer key. */
+  const answer = (p, want) => p.evaluate(async (want) => {
+    const { TRIVIA_QUESTIONS } = await import(new URL('js/triviaData.js', location.href).href);
+    const plain = (s) => { const d = document.createElement('div'); d.innerHTML = String(s); return d.textContent.trim(); };
+    const asked = document.querySelector('#game-question .trivia-question-text').textContent.trim();
+    const q = TRIVIA_QUESTIONS.find((x) => plain(x.question) === asked);
+    const options = [...document.querySelectorAll('#game-options .game-option')];
+    const right = q ? options.findIndex((o) => o.lastElementChild.textContent.trim() === plain(q.answers[q.correct])) : -1;
+    if (right < 0) return { known: false, asked };
+    options[want === 'right' ? right : (right + 1) % options.length].click();
+    return { known: true };
+  }, want);
+
+  /** A quiz to its results. `last` names how the final button is pressed. */
+  const playQuiz = async (p, answers, { twice = false } = {}) => {
+    for (let i = 0; i < answers.length; i++) {
+      await p.waitForSelector('#game-options .game-option:not(.answered)', { timeout: 8000 });
+      const asked = await p.evaluate(() => document.querySelector('#game-question .trivia-question-text').textContent);
+      const a = await answer(p, answers[i]);
+      if (!a.known) throw new Error(`a question on screen is not in the answer key: "${String(a.asked).slice(0, 60)}"`);
+      const isLast = i === answers.length - 1;
+      if (await p.evaluate(() => !document.getElementById('game-next-btn') || getComputedStyle(document.getElementById('game-next-btn')).display === 'none')) {
+        // Quick Quiz moves on by itself after 1.8 s
+        if (!isLast) await p.waitForFunction((was) => document.querySelector('#game-question .trivia-question-text').textContent !== was, asked, { timeout: 6000 });
+      } else {
+        await p.evaluate((twice) => { const b = document.getElementById('game-next-btn'); b.click(); if (twice) b.click(); }, twice && isLast);
+      }
+    }
+    await finish(p);
+  };
+  const RIGHT5 = ['right', 'right', 'right', 'right', 'right'];
+
+  /** Who Appeared First?, every answer right: the older of the two is looked up in the tree. */
+  const playWhoFirst = async (p) => {
+    await start(p, 'who-first');
+    for (let i = 0; i < 10; i++) {
+      await p.waitForSelector('.wf-card:not([disabled])', { timeout: 6000 });
+      await p.evaluate(async () => {
+        const { nodeMap } = await import(new URL('js/state.js', location.href).href);
+        const cards = [...document.querySelectorAll('.wf-card')];
+        const seen = cards.map((c) => {
+          const name = c.querySelector('.wf-card-name').textContent.trim();
+          const n = Object.values(nodeMap).find((x) => x.name === name && (!x.children || !x.children.length) && x.appeared > 0);
+          return { pick: c.dataset.pick, appeared: n ? n.appeared : null };
+        });
+        const known = seen.every((s) => s.appeared !== null);
+        const right = known ? (seen[0].appeared >= seen[1].appeared ? seen[0].pick : seen[1].pick) : 'a';
+        cards.find((c) => c.dataset.pick === right).click();
+      });
+      await p.waitForSelector('#wf-next', { state: 'visible', timeout: 4000 });
+      await p.evaluate(() => document.getElementById('wf-next').click());
+    }
+    await finish(p);
+  };
+  /** Family or Foe?: eight rounds, the second card each time. */
+  const playFamilyFoe = async (p) => {
+    await start(p, 'family-foe');
+    for (let i = 0; i < 8; i++) {
+      await p.waitForSelector('.wf-card:not([disabled])', { timeout: 6000 });
+      await p.evaluate(() => document.querySelector('.wf-card[data-pick="c"]').click());
+      await p.waitForSelector('#ff-next', { state: 'visible', timeout: 4000 });
+      await p.evaluate(() => document.getElementById('ff-next').click());
+    }
+    await finish(p);
+  };
+
+  /* A pass writes what it measures into `v` as it goes, so a step that fails
+     leaves everything before it. The checks that needed only that report on it,
+     and the ones that needed the step say where the pass stopped and why. A
+     pass that threw its measurements away at the first error would turn one
+     broken thing into every check red at once, each with the same timeout. */
+  const run = async (name, opts, fn) => {
+    let h;
+    const v = {};
+    out[name] = v;
+    try {
+      h = await open(opts);
+      await fn(h.p, v);
+    } catch (e) {
+      v.error = String(e && e.message ? e.message : e).split('\n')[0];
+    } finally {
+      if (h) await h.ctx.close();
+    }
+  };
+
+  /* A visitor's first games. Every pass runs the first two; the full plan adds
+     the quiet wait beforehand and the decline and one more game after. A step
+     that needs the offer is left out when there is none: the checks say so. */
+  const visitor = (lang, plan) => async (p, v) => {
+    await ready(p);
+    if (plan === 'full') {
+      await p.waitForTimeout(NAME_QUIET_MS);
+      v.idle = { ...(await snap(p)), dialogs: [...dialogs] };
+    }
+    await openGames(p);
+    // a game that scores nothing has nothing to keep
+    await start(p, 'survival');
+    await playQuiz(p, ['wrong']);
+    v.zero = { ...(await resultsOf(p)), ...(await snap(p)) };
+    if (plan === 'full') {
+      // the Daily Challenge scores inside but shows no points, so there is nothing on screen to keep
+      await again(p);
+      await start(p, 'daily');
+      await playQuiz(p, ['right']);
+      v.daily = { ...(await resultsOf(p)), ...(await snap(p)) };
+      await reopen(p);
+    } else {
+      await again(p);
+    }
+    // the first that scores
+    if (plan === 'full') await playWhoFirst(p);
+    else { await start(p, 'survival'); await playQuiz(p, ['right', 'wrong']); }
+    v.scored = { ...(await resultsOf(p)), ...(await snap(p)), card: await measureOffer(p) };
+    // for a person to look at, in the CI artifact beside the scenario's own screenshot
+    if (KEEP_SHOTS) await p.screenshot({ path: path.join(OUT_DIR, `${scenario.id}${lang === scenario.lang ? '' : '-' + lang}-name-offer.png`) }).catch(() => {});
+    if (plan === 'full') {
+      if (v.scored.offer) {
+        await p.click('.name-offer-skip', { timeout: 5000 });
+        v.declined = await snap(p);
+      } else {
+        v.declined = { skipped: 'there was no offer to decline' };
+      }
+      await again(p);
+      await start(p, 'survival');
+      await playQuiz(p, ['right', 'wrong']);
+      v.next = { ...(await resultsOf(p)), ...(await snap(p)) };
+    } else if (v.scored.offer) {
+      // the short plan ends by keeping the name — with a tap on Save, the one control the full plan reaches by keyboard
+      await p.fill('#name-offer-input', NAME_TYPED[lang], { timeout: 5000 });
+      await p.click('.name-offer [data-action="profile:save-name"]', { timeout: 5000 });
+      v.kept = await snap(p);
+    } else {
+      v.kept = { skipped: 'there was no offer to keep a name under' };
+    }
+  };
+  await run('visitor', {}, visitor(scenario.lang, full ? 'full' : 'short'));
+
+  if (full) {
+    await run('explorer', { explorer: true }, async (p, x) => {
+      await ready(p);
+      x.arrived = await snap(p);
+      await openGames(p);
+      await start(p, 'quick');
+      await playQuiz(p, RIGHT5);
+      x.scored = { ...(await resultsOf(p)), ...(await snap(p)), card: await measureOffer(p) };
+      if (x.scored.offer) {
+        await p.fill('#name-offer-input', NAME_TYPED[scenario.lang], { timeout: 5000 });
+        // the keyboard on a desktop, a tap on a phone
+        if (vp.isMobile) await p.click('.name-offer [data-action="profile:save-name"]', { timeout: 5000 });
+        else await p.press('#name-offer-input', 'Enter');
+        await p.waitForSelector('.name-offer-done', { timeout: 3000 }).catch(() => {});    // if it never comes, the check says so
+        x.kept = { ...(await snap(p)), typed: NAME_TYPED[scenario.lang] };
+      } else {
+        x.kept = { skipped: 'there was no offer to keep a name under' };
+      }
+      // a named player is credited without being asked again
+      await again(p);
+      await playFamilyFoe(p);
+      x.foe = { ...(await resultsOf(p)), ...(await snap(p)) };
+      // and a game reached twice at once is counted once
+      await again(p);
+      await start(p, 'classic');
+      await playQuiz(p, ['right', 'wrong', 'wrong', 'wrong'], { twice: true });
+      x.classic = { ...(await resultsOf(p)), ...(await snap(p)) };
+    });
+  }
+
+  /* A language no scenario covers at this viewport still has its card measured,
+     by the first scenario at that viewport: Russian on a phone is the longest
+     text in the narrowest window, and the one combination the matrix skips. */
+  const sameViewport = SCENARIOS.filter((s) => s.viewport.name === vp.name);
+  const uncovered = sameViewport[0].id === scenario.id
+    ? ['en', 'he', 'ru'].filter((l) => !sameViewport.some((s) => s.lang === l)) : [];
+  out.extra = [];
+  for (const lang of uncovered) {
+    await run(`visitor-${lang}`, { lang }, visitor(lang, 'short'));
+    out.extra.push(out[`visitor-${lang}`]);
+    delete out[`visitor-${lang}`];
+  }
+
+  out.errors = errors;
+  if (process.env.SMOKE_DUMP_NAME) console.log(scenario.id, JSON.stringify(out));
   return out;
 }
 
@@ -2658,9 +3180,11 @@ async function probePage(page, scenario, baseUrl) {
   /* The opening has page loads of its own, in contexts of its own, so it goes
      last and touches nothing above. */
   const opening = await openingProbe(page, scenario, baseUrl).catch((e) => ({ error: String(e) }));
+  // and so does the name, in contexts of its own
+  const name = await nameProbe(page, scenario, baseUrl).catch((e) => ({ error: String(e) }));
 
   return { ...base, ...forced, tooltipShown, tooltipCoversNode, tipFact, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps, heroPhoto, photoHostReachable: await wikimediaReachable(), contrast, searchQuality,
-           searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations, explore, wayfinder, sharedLink, opening };
+           searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations, explore, wayfinder, sharedLink, opening, name };
 }
 
 
@@ -2815,6 +3339,54 @@ async function staticChecks() {
     return { key: bootKey, id: bootId, title: bootTitle, ok: true };
   })());
 
+  /* A native alert, confirm or prompt is a box the page cannot style, translate
+     or leave alone, and it stops everything behind it. prompt() asked for a name
+     five seconds into a first visit, in English, on every screen size, and the
+     runtime check (load:no-native-dialogs) only sees a dialog on a path the
+     suite happens to walk. This reads the source, so any path counts. A method
+     of another object — `deferred.prompt()`, the install prompt — is not one. */
+  const dialogKey = 'static/dialogs:none-in-source';
+  const dialogTitle = 'No source file calls alert, confirm or prompt';
+  results.push(await (async () => {
+    const DIALOG = /(?<![\w$.])(?:window\.)?(alert|confirm|prompt)\s*\(/;
+    const hits = [];
+    for (const [f, src] of sources) {
+      if (!f.endsWith('.js')) continue;
+      // comments are stripped first, and `://` is kept: a URL is not one
+      const code = src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:\\])\/\/[^\n]*/g, '$1');
+      const m = DIALOG.exec(code);
+      if (m) hits.push(`${path.relative(ROOT, f)} calls ${m[0]}`);
+    }
+    return hits.length
+      ? { key: dialogKey, id: 'dialogs:none-in-source', title: dialogTitle, ok: false, msg: hits.slice(0, 3).join('; ') }
+      : { key: dialogKey, id: 'dialogs:none-in-source', title: dialogTitle, ok: true };
+  })());
+
+  /* The name offer is built from t('name_offer_*') at the moment it is shown.
+     A key missing from a language falls back to English — quietly, in the one
+     card whose whole point is that it is in the reader's own language — so all
+     six are checked for every language, and the two placeholders the
+     confirmation is filled through must survive translation. */
+  const offerKey = 'static/i18n:name-offer-in-every-language';
+  const offerId = 'i18n:name-offer-in-every-language';
+  const offerTitle = 'The name offer has all six strings, in every language, translated';
+  results.push(await (async () => {
+    const bad = (msg) => ({ key: offerKey, id: offerId, title: offerTitle, ok: false, msg });
+    const ui = await readFile(path.join(ROOT, 'js/uiData.js'), 'utf8');
+    const { TRANSLATIONS } = await import('data:text/javascript,' + encodeURIComponent(ui));
+    const KEYS = ['title', 'text', 'placeholder', 'save', 'skip', 'saved'].map((k) => 'name_offer_' + k);
+    for (const [lang, T] of Object.entries(TRANSLATIONS)) {
+      for (const k of KEYS) {
+        if (typeof T[k] !== 'string' || !T[k].trim()) return bad(`${lang} has no ${k}`);
+        if (lang !== 'en' && T[k] === TRANSLATIONS.en[k]) return bad(`${lang}.${k} is the English text`);
+      }
+      for (const token of ['{name}', '{pts}']) {
+        if (!T.name_offer_saved.includes(token)) return bad(`${lang}.name_offer_saved has lost ${token}`);
+      }
+    }
+    return { key: offerKey, id: offerId, title: offerTitle, ok: true };
+  })());
+
   const key = 'static/css:no-undefined-vars';
   if (missing.size) {
     const detail = [...missing].slice(0, 5)
@@ -2914,8 +3486,13 @@ async function runScenario(browser, scenario, baseUrl) {
   }, { lang: scenario.lang, theme: scenario.theme || 'dark' });
 
   const page = await ctx.newPage();
-  const pageErrors = [], consoleErrors = [], failedRequests = [];
+  const pageErrors = [], consoleErrors = [], failedRequests = [], dialogs = [];
   page.on('pageerror', (e) => pageErrors.push(String(e && e.message ? e.message : e)));
+  /* A native dialog is recorded and dismissed: left alone it would hold the run
+     up, and Playwright's own default — dismiss it in silence — is how a prompt()
+     made a Guest of every visitor in every run of this suite without anyone
+     seeing it. load:no-native-dialogs reads the list. */
+  page.on('dialog', (d) => { dialogs.push(`${d.type()}: ${d.message().slice(0, 80)}`); d.dismiss().catch(() => {}); });
   page.on('console', (m) => { if (m.type() === 'error') consoleErrors.push(m.text()); });
   /* One 404 is asked for on purpose: explore:a-broken-photo-still-shows-something
      points a row's photograph at a file that does not exist, because that is
@@ -2936,7 +3513,7 @@ async function runScenario(browser, scenario, baseUrl) {
     }
   });
 
-  if (!OPENING_ONLY) {
+  if (!GROUP_ONLY) {
     await page.goto(baseUrl + '/index.html', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(1200);
     await page.click('#splash-skip', { timeout: 4000 }).catch(() => {});
@@ -2949,13 +3526,15 @@ async function runScenario(browser, scenario, baseUrl) {
 
   const probe = OPENING_ONLY
     ? { opening: await openingProbe(page, scenario, baseUrl).catch((e) => ({ error: String(e) })) }
-    : await probePage(page, scenario, baseUrl);
-  const c = { probe, scenario, pageErrors, consoleErrors, failedRequests, page };
+    : PROFILE_ONLY
+      ? { name: await nameProbe(page, scenario, baseUrl).catch((e) => ({ error: String(e) })) }
+      : await probePage(page, scenario, baseUrl);
+  const c = { probe, scenario, pageErrors, consoleErrors, failedRequests, dialogs, page };
 
   const results = [];
   for (const chk of checks) {
     if (!chk.when(scenario)) continue;
-    if (OPENING_ONLY && !chk.id.startsWith('opening:')) continue;
+    if (GROUP_ONLY && !GROUP_IDS[GROUP_ONLY].test(chk.id)) continue;
     const key = `${scenario.id}/${chk.id}`;
     try {
       const r = await chk.fn(c);
@@ -3041,7 +3620,7 @@ const passed = all.length - failures.length;
 process.stdout.write(`\n${'─'.repeat(60)}\n`);
 const ran = ONLY.length ? SCENARIOS.filter((sc) => ONLY.includes(sc.id)) : SCENARIOS;
 process.stdout.write(`${passed}/${all.length} checks passed across ${ran.length} scenario(s)`
-  + (FILTERED ? ` — FILTERED to ${[...ONLY, ...(OPENING_ONLY ? ['the opening group'] : [])].join(', ')}, not a full run.\n` : '.\n'));
+  + (FILTERED ? ` — FILTERED to ${[...ONLY, ...(GROUP_ONLY ? [`the ${GROUP_ONLY} group`] : [])].join(', ')}, not a full run.\n` : '.\n'));
 if (failures.length) process.stdout.write(`${failures.length - unexpectedFailures.length} known issue(s) still open (baselined).\n`);
 
 if (unexpectedFailures.length) {

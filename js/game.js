@@ -5,6 +5,7 @@
 
 import { TRIVIA_QUESTIONS } from './triviaData.js';
 import { registerActions } from './actions.js';
+import { offerNameAfterGame } from './profile.js';
 import { checkAchievement, trackQuizComplete } from './engagement.js';
 import { startWhoFirst, answerWhoFirst, nextWhoFirst, diceWhoFirst } from './whoFirst.js';
 import { startFamilyFoe, answerFamilyFoe, nextFamilyFoe, diceFamilyFoe } from './familyFoe.js';
@@ -507,14 +508,18 @@ function showResults() {
   const s = gameState;
   if (!s) return;
 
+  if (s.resultsShown) return;          // the results can be asked for twice; the second time must not score the game again
+  s.resultsShown = true;
+
   document.getElementById('game-question').style.display = 'none';
   const result = document.getElementById('game-result');
   result.style.display = '';
 
-  if (s.mode === 'quick') return showQuickResults(result);
-  if (s.mode === 'classic') return showClassicResults(result);
-  if (s.mode === 'survival') return showSurvivalResults(result);
-  if (s.mode === 'daily') return showDailyResults(result);
+  if (s.mode === 'quick') showQuickResults(result);
+  else if (s.mode === 'classic') showClassicResults(result);
+  else if (s.mode === 'survival') showSurvivalResults(result);
+  else if (s.mode === 'daily') showDailyResults(result);
+  offerNameAfterGame(result, s.mode === 'daily' ? 0 : s.score);
 }
 
 function showDailyResults(container) {

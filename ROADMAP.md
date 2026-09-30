@@ -11,7 +11,7 @@ An interactive phylogenetic visualisation of 3.8 billion years of evolution,
 in English, Hebrew and Russian. Static files, no build step.
 
 Every push and pull request runs `scripts/smoke.mjs`, which opens the real page
-in Chromium and asserts **522 checks across six scenarios** — desktop and
+in Chromium and asserts **570 checks across six scenarios** — desktop and
 phone, in all three languages, plus a desktop pass in the light theme. It is
 green.
 
@@ -42,6 +42,23 @@ Things waiting on a decision rather than on work.
 ---
 
 ## Decision log
+
+### 2026-09 — The name is asked for after a game
+
+| Decision | Rationale |
+|---|---|
+| No dialog on a first visit | A native `prompt()` asked for a name five seconds after a first visit began — about half a second after the new opening ended, so the first thing a visitor met after it was a browser dialog. They had done nothing yet to be named for, and the box blocks the page, cannot be styled, and was English on every screen. |
+| Asked on the results of the first game that scored, once | That is the moment a name means something: there is a score to keep. `tol-name-asked` is set when the card is *shown*, whatever is done with it, so the answer to "not now" is respected. A visitor with a player, or with storage blocked, is never asked. |
+| A card, not a modal | It sits above Play Again, can be ignored, is translated, and follows the reading direction. Nothing waits on it; closing the game is as good an answer as "Not now". |
+| A game that scored nothing does not ask, and neither does the Daily Challenge | "Keep your score?" needs a score on screen. The Daily scores internally but shows no points, and a wrong first Survival answer scores nothing; neither uses up the one ask. |
+| The leaderboard had never shown a point | Found while wiring the offer: `updatePlayerScore()` had no caller, so every player on every device sat on 0 for as long as profiles had existed. Each game's results now credit the active player, and the game that raised the offer is credited once a name is kept. A results screen reached twice would now score twice, so each is guarded. |
+| The Guest migration is deleted | `_migrateOldData()` turned anyone with a `tol-explored` record into a "Guest" on their next visit. With the prompt gone that would have made a Guest of every visitor who looked around first — the ordinary one — and settled the question of a name before it was asked. Nothing it did carried data: progress and achievements are stored globally, and the panel already reads "Guest" with no player. Caught by reading what else touches `tol-players`, not by a check; `profile:looking-around-does-not-make-a-guest` now holds it. |
+| Playwright's silence had hidden it | A dialog with no listener is dismissed without a word, and `prompt()` then returns null — so every smoke run made a Guest of its page, for as long as the prompt existed, and nothing failed. The runner now records every dialog, `load:no-native-dialogs` fails on one, and `dialogs:none-in-source` reads the source so a path no run walks is covered too. |
+| The field is 16px and the controls are 44px | Under 16px iOS Safari zooms the page in when a text field takes focus, and this is the one field that is asked for on phones far more than anywhere else. The existing add-player field, whose input is 13px with the outline removed, was the starting point; the offer overrides both. The leaderboard's own field still has the 13px and is left alone. |
+| Every check was watched failing, and some failed for the wrong reason first | Twenty-three deliberate breakages. The first run of them caught every one — and showed that a missing offer surfaced as a 30-second `fill` timeout in six checks at once. The probe now keeps what it measured up to the step that failed, skips steps that need an offer that is not there, and each check reads only what it needs, so one broken thing reads as one broken thing. |
+| `mutate-opening.mjs` is now `mutate-checks.mjs` | It had a second customer. Each mutation runs the group its first required check belongs to (`--opening-only` or the new `--profile-only`). |
+| Service-worker cache bumped to `tol-v11` | Scripts, strings and a stylesheet changed together, and a new `profile.js` paired with a stale `uiData.js` would show the offer as raw key names for a visit. The same reason as the last two bumps. |
+| Hebrew and Russian copy unreviewed | Six short strings each, written by the same hand as the rest; a native reader has not seen them. The offer is where a visitor is asked for something personal, so it is worth one look. |
 
 ### 2026-09 — The Astrolabe opening
 

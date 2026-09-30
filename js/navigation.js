@@ -227,6 +227,24 @@ registerActions({ 'nav:collapse-below': (id) => collapseBelow(id) });
 const tooltipEl = document.getElementById('tooltip');
 let _tipTimer = null;
 let _tipCursor = { x: 0, y: 0 };
+let _tipAnchor = null;
+
+/* The screen box of a node's discs — the drawn one and the rings and hit area
+   around it — so the tooltip can stand clear of the node itself rather than of
+   a guess at how big nodes get. The label is not part of it; covering a label
+   is the lesser evil next to covering the node. */
+function anchorBox(el) {
+  if (!el || !el.isConnected) return null;
+  let box = null;
+  for (const c of el.querySelectorAll('circle')) {
+    const r = c.getBoundingClientRect();
+    if (!r.width || !r.height) continue;
+    box = box
+      ? { left: Math.min(box.left, r.left), right: Math.max(box.right, r.right) }
+      : { left: r.left, right: r.right };
+  }
+  return box;
+}
 
 /* CSS offsets the tooltip by translate(16px,-50%), so it is vertically centred
    on the cursor and half of it sits above. Near the top of the screen that put
@@ -238,10 +256,14 @@ function positionTip(x, y) {
   const w = r.width, h = r.height;
   if (!w || !h) { tooltipEl.style.left = x + 'px'; tooltipEl.style.top = y + 'px'; return; }
 
-  /* 26px clears the largest node disc — a hovered node is up to 23px on screen
-     at full zoom — so the tooltip sits beside what it describes rather than on
-     its edge. Must match the translateX in #tooltip's CSS transform. */
-  const M = 8, OFFSET_X = 26;
+  /* 26px from the cursor, and never closer than GAP to the hovered node's own
+     discs. The offset alone was sized for "a hovered node is up to 23px on
+     screen", which stops being true whenever the camera frames the tree a
+     little tighter: refiling a few species made Actinobacteria the rightmost
+     node at 26px, and the tooltip landed on it. OFFSET_X must match the
+     translateX in #tooltip's CSS transform. */
+  const M = 8, OFFSET_X = 26, GAP = 6;
+  const node = anchorBox(_tipAnchor);
   const header = document.getElementById('header');
   const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
 
@@ -258,9 +280,11 @@ function positionTip(x, y) {
      node. max-width is the honest bound and it does not depend on timing. */
   const cap = parseFloat(getComputedStyle(tooltipEl).maxWidth);
   const wMax = Number.isFinite(cap) ? Math.max(w, cap) : w;
-  const fitsRight = x + OFFSET_X + wMax + M <= window.innerWidth;
-  const nx = fitsRight ? x : x - OFFSET_X - wMax - OFFSET_X;
-  tooltipEl.style.left = Math.max(M - OFFSET_X, nx) + 'px';
+  const startRight = node ? Math.max(x + OFFSET_X, node.right + GAP) : x + OFFSET_X;
+  const endLeft = node ? Math.min(x - OFFSET_X, node.left - GAP) : x - OFFSET_X;
+  const fitsRight = startRight + wMax + M <= window.innerWidth;
+  const boxLeft = fitsRight ? startRight : endLeft - wMax;
+  tooltipEl.style.left = Math.max(M, boxLeft) - OFFSET_X + 'px';
 
   const minY = headerBottom + M + h / 2;
   const maxY = window.innerHeight - M - h / 2;
@@ -274,9 +298,10 @@ document.addEventListener('mousemove', function(e) {
 });
 
 let _funFactTimer = null;
-export function showTip(text, icon, funFact) {
+export function showTip(text, icon, funFact, anchor) {
   clearTimeout(_tipTimer);
   clearTimeout(_funFactTimer);
+  _tipAnchor = anchor || null;
   tooltipEl.innerHTML = (icon ? icon + ' ' : '') + text;
   tooltipEl.classList.remove('tip-enhanced');
   tooltipEl.classList.add('visible');

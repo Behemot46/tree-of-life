@@ -23,6 +23,7 @@ Things waiting on a decision rather than on work.
 
 | Question | Why it matters |
 |---|---|
+| **Turning the site into a daily game (Kin)** | A proposed change of direction: the front door becomes a one-minute daily "who is the closer relative?" game, with the encyclopedia behind it as the Atlas. Evidence, game design and a five-phase plan are in `docs/PLAY_STRATEGY.md`. Waiting on a go for phase 1, a hidden prototype tested on a preview deployment. |
 | **Deleting three unreachable modules** | `js/trivia.js`, `js/quiz.js` and `js/imagePrompts.js` are imported by nothing — `game.js` superseded the first two. They are ~1,400 lines that every reader has to rule out. Deleting them is a decision, not a fix. |
 | **Switching GitHub Pages off** | `deploy.yml` is gone, so Pages no longer updates, but it keeps serving its last build until disabled in Settings → Pages. Only reachable by hand. |
 | **Vercel's recommended `www` CNAME** | Vercel suggests `www → 2f3b9f3357c6e4e5.vercel-dns-017.com.` and notes the legacy records keep working, so this is tidiness rather than a fix. |

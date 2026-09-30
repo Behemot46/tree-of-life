@@ -1,0 +1,168 @@
+// ══════════════════════════════════════════════════════
+// KIN — THE QUESTIONS
+//
+// Each question names a target and the two candidates, nearer relative
+// first. Nothing here states the answer's dates or even asserts the answer
+// is right: js/kin/engine.js derives both from js/kin/tree.js, and the unit
+// tests fail if the tree disagrees with the order written here.
+//
+// `d` is difficulty, 1–3: how likely a casual player's intuition is to be
+// wrong. It orders the arcade and each day's set; it is a guess until real
+// answers replace it.
+//
+// The "why" is one sentence of explanation, the payoff after the tap. It
+// never repeats a date, so a better-sourced date can never contradict it.
+// ══════════════════════════════════════════════════════
+
+const q = (id, t, near, far, d, en, he) => ({ id, t, near, far, d, why: { en, he } });
+
+export const QUESTIONS = [
+  q('you-mushroom', 'you', 'mushroom', 'daisy', 3,
+    'Fungi and animals are sister kingdoms. A mushroom even stores energy the way you do, as glycogen rather than starch.',
+    'פטריות ובעלי חיים הן ממלכות אחיות. פטרייה אפילו אוגרת אנרגיה כמונו, כגליקוגן ולא כעמילן.'),
+  q('koala', 'koala', 'kangaroo', 'bear', 1,
+    "Koalas aren't bears. They're marsupials, and their babies grow up in a pouch, like a kangaroo's.",
+    'הקואלה אינה דוב. היא חיית כיס, והגורים שלה גדלים בכיס, כמו אצל הקנגורו.'),
+  q('whale', 'whale', 'hippo', 'shark', 2,
+    'Whales descend from four-legged, hoofed land mammals. Their closest living relatives are hippos.',
+    'הלווייתנים התפתחו מיונקי יבשה בעלי ארבע רגליים ופרסות. מכל בעלי החיים שחיים היום, ההיפופוטם הוא הקרוב ביותר אליהם.'),
+  q('tomato', 'tomato', 'potato', 'apple', 1,
+    'Tomatoes and potatoes belong to the same genus, Solanum. So does the eggplant.',
+    'העגבנייה ותפוח האדמה שייכים לאותו סוג, סולנום. גם החציל שייך אליו.'),
+  q('chicken', 'chicken', 'trex', 'croc', 2,
+    'Birds are living dinosaurs, from the same branch of theropods as T. rex. Crocodiles are cousins from an older split.',
+    'הציפורים הן דינוזאורים חיים, מאותו ענף של תרופודים כמו הטירנוזאורוס. התנינים הם בני דודים מפיצול עתיק יותר.'),
+  q('dog', 'dog', 'bear', 'cat', 2,
+    'Dogs and bears are both caniforms, the dog-like carnivores, along with seals and weasels. Cats lead the other branch, with hyenas and mongooses.',
+    'כלבים ודובים הם שניהם טורפים "דמויי כלב", יחד עם כלבי הים והסמורים. החתולים מובילים את הענף השני, יחד עם הצבועים והנמיות.'),
+  q('lobster', 'lobster', 'bee', 'snail', 3,
+    'Insects grew out of the crustacean branch of the tree, so bees are cousins of lobsters. Snails are molluscs, from a far older split.',
+    'החרקים צמחו מתוך הענף של הסרטנאים, ולכן הדבורה היא בת דודה של הלובסטר. החילזון הוא רכיכה, מפיצול עתיק בהרבה.'),
+  q('strawberry', 'strawberry', 'rose', 'blueberry', 2,
+    'Strawberries are in the rose family, with apples, cherries and almonds. Blueberries belong to the heather family.',
+    'התות שייך למשפחת הוורדיים, יחד עם התפוח, הדובדבן והשקד. האוכמנית שייכת למשפחת האברשיים.'),
+  q('flamingo', 'flamingo', 'pigeon', 'duck', 3,
+    'Ducks and chickens split from all other birds early on. Flamingos sit on the other great branch, with pigeons.',
+    'הברווזים והתרנגולות נפרדו משאר הציפורים בשלב מוקדם. הפלמינגו נמצא בענף הגדול השני, יחד עם היונים.'),
+  q('bat', 'bat', 'horse', 'mouse', 3,
+    'Bats share a big branch of mammals with horses, whales, cats and hedgehogs. Mice sit on a different one, with rabbits, monkeys and us.',
+    'העטלפים חולקים ענף גדול של יונקים עם סוסים, לווייתנים, חתולים וקיפודים. העכברים נמצאים בענף אחר, עם הארנבים, הקופים ואיתנו.'),
+
+  q('coffee', 'coffee', 'tomato', 'choc', 3,
+    'Coffee and tomatoes are both asterids. The cocoa tree behind chocolate is a cousin of cotton.',
+    'הקפה והעגבנייה שייכים שניהם לאסטרידים. עץ הקקאו, שממנו מכינים שוקולד, הוא קרוב של הכותנה.'),
+  q('giraffe', 'giraffe', 'cow', 'horse', 1,
+    'Giraffes and cows are both ruminants. They have four-chambered stomachs and chew the cud.',
+    "הג'ירפה והפרה הן שתיהן מעלות גירה, עם קיבה בת ארבעה חלקים."),
+  q('frog', 'frog', 'gecko', 'salmon', 1,
+    'Frogs and geckos both descend from the lobe-finned fish that walked onto land. Salmon come from the other branch of fish.',
+    'צפרדעים ושממיות הם צאצאים של הדגים בעלי סנפירי האונה שעלו ליבשה. הסלמון בא מהענף האחר של הדגים.'),
+  q('cucumber', 'cucumber', 'watermelon', 'tomato', 1,
+    'Cucumbers, melons and pumpkins form one family, the gourds.',
+    'מלפפון, מלון ודלעת הם משפחה אחת, הדלועיים.'),
+  q('snake', 'snake', 'gecko', 'croc', 2,
+    'Snakes and geckos are both squamates, the scaled reptiles. Crocodiles are closer to birds.',
+    'נחשים ושממיות הם שניהם זוחלים קשקשיים. התנינים קרובים יותר לציפורים.'),
+  q('seal', 'seal', 'dog', 'cat', 2,
+    'Seals are dog-like carnivores that took to the water, cousins of bears and weasels.',
+    'כלבי הים הם טורפים "דמויי כלב" שעברו לחיות במים, קרובים של הדובים והסמורים.'),
+  q('sunflower', 'sunflower', 'lettuce', 'rose', 2,
+    'Sunflowers and lettuce both belong to the daisy family, Asteraceae.',
+    'החמנייה והחסה שייכות שתיהן למשפחת המורכבים.'),
+  q('turtle', 'turtle', 'croc', 'gecko', 3,
+    'DNA puts turtles next to crocodiles and birds. That surprised biologists too.',
+    'הדנ"א ממקם את הצבים ליד התנינים והציפורים. גם הביולוגים הופתעו.'),
+  q('hedgehog', 'hedgehog', 'cat', 'mouse', 3,
+    'Hedgehogs look like rodents, but they sit on the branch with cats, bats and horses.',
+    'הקיפוד נראה כמו מכרסם, אבל הוא שייך לענף של החתולים, העטלפים והסוסים.'),
+
+  q('tulip', 'tulip', 'rice', 'rose', 3,
+    'Tulips and rice are both monocots, with a single seed leaf and parallel-veined leaves. Roses are eudicots.',
+    'הצבעוני והאורז הם שניהם חד־פסיגיים, עם עלה פסיג אחד ועורקים מקבילים בעלים. הוורד הוא דו־פסיגי.'),
+  q('elephant', 'elephant', 'mammoth', 'rhino', 1,
+    "Mammoths were elephants, closest of all to today's Asian elephant.",
+    'הממותה הייתה פיל, והקרובה ביותר לפיל האסייתי של היום.'),
+  q('corn', 'corn', 'rice', 'apple', 1,
+    'Corn, rice and wheat are all grasses.',
+    'תירס, אורז וחיטה הם כולם עשבים ממשפחת הדגניים.'),
+  q('butterfly', 'butterfly', 'bee', 'spider', 1,
+    'Butterflies and bees are insects, with six legs. Spiders are arachnids, with eight.',
+    'פרפרים ודבורות הם חרקים, עם שש רגליים. עכבישים הם עכבישנים, עם שמונה.'),
+  q('pig', 'pig', 'hippo', 'horse', 2,
+    'Pigs and hippos have an even number of toes. Horses stand on a single toe per foot.',
+    'לחזירים ולהיפופוטמים יש מספר זוגי של אצבעות. הסוס עומד על אצבע אחת בכל רגל.'),
+  q('gorilla', 'gorilla', 'you', 'orangutan', 2,
+    'You, chimpanzees and gorillas are the African great apes. Orangutans branched off earlier.',
+    'אנחנו, השימפנזים והגורילות הם קופי האדם של אפריקה. האורנגאוטנים התפצלו מוקדם יותר.'),
+  q('octopus', 'octopus', 'snail', 'salmon', 2,
+    'Octopuses are molluscs, like snails. Their big brains evolved separately from ours and from fish.',
+    'התמנון הוא רכיכה, כמו החילזון. המוח הגדול שלו התפתח בנפרד מהמוח שלנו ושל הדגים.'),
+  q('kiwifruit', 'kiwi', 'blueberry', 'apple', 3,
+    'Kiwifruit and blueberries belong to the same order of plants, along with tea.',
+    'הקיווי והאוכמנית שייכים לאותה סדרה של צמחים, יחד עם התה.'),
+  q('raccoon', 'raccoon', 'otter', 'dog', 3,
+    'Raccoons, otters, weasels and skunks form one group of carnivores. Dogs split off earlier.',
+    'דביבונים, לוטרות, סמורים ובואשים הם קבוצה אחת של טורפים. הכלבים התפצלו לפני כן.'),
+  q('penguin', 'penguin', 'eagle', 'duck', 3,
+    'Ducks split from most other birds very early. Penguins and eagles are both on the big branch that came later.',
+    'הברווזים נפרדו משאר הציפורים מוקדם מאוד. הפינגווין והעיט נמצאים שניהם בענף הגדול שהתפצל אחר כך.'),
+
+  q('dolphin', 'dolphin', 'cow', 'shark', 2,
+    'Dolphins are mammals that went back to the sea. On land their family includes cows, pigs and hippos.',
+    'הדולפינים הם יונקים שחזרו לים. ביבשה המשפחה שלהם כוללת פרות, חזירים והיפופוטמים.'),
+  q('cherry', 'cherry', 'peach', 'grape', 1,
+    'Cherries, peaches, plums and almonds all belong to one genus, Prunus.',
+    'דובדבן, אפרסק, שזיף ושקד שייכים כולם לאותו סוג, פרונוס.'),
+  q('mosquito', 'mosquito', 'fly', 'bee', 2,
+    'Mosquitoes are true flies, with two wings. Bees have four.',
+    'היתוש הוא זבוב של ממש, עם שתי כנפיים. לדבורה יש ארבע.'),
+  q('camel', 'camel', 'cow', 'horse', 2,
+    'Camels, like cows, have an even number of toes. Horses belong to the odd-toed group, with rhinos.',
+    'לגמל, כמו לפרה, יש מספר זוגי של אצבעות. הסוס שייך לקבוצה עם מספר אי־זוגי, יחד עם הקרנף.'),
+  q('banana', 'banana', 'palm', 'apple', 2,
+    'Bananas and palms are monocots, like grasses and orchids.',
+    'בננה ודקל הם חד־פסיגיים, כמו הדגניים והסחלבים.'),
+  q('croc', 'croc', 'chicken', 'gecko', 2,
+    'Crocodiles and birds are the last two surviving archosaurs. Geckos split off earlier.',
+    'תנינים וציפורים הם שני הענפים האחרונים ששרדו מהארכוזאורים. השממיות התפצלו לפני כן.'),
+  q('maple', 'maple', 'orange', 'apple', 3,
+    'Maples and citrus trees belong to the same order of plants. Apples sit on another branch.',
+    'האדר ועצי ההדר שייכים לאותה סדרה של צמחים. התפוח נמצא בענף אחר.'),
+  q('cactus', 'cactus', 'rose', 'rice', 2,
+    'Cacti are eudicots, like roses. Rice is a monocot, and that split is older still.',
+    'הקקטוס הוא דו־פסיגי, כמו הוורד. האורז הוא חד־פסיגי, והפיצול הזה עתיק עוד יותר.'),
+
+  q('eggplant', 'eggplant', 'tomato', 'cucumber', 1,
+    'Eggplants are in the same genus as tomatoes and potatoes, Solanum.',
+    'החציל שייך לאותו סוג כמו העגבנייה ותפוח האדמה.'),
+  q('pineapple', 'pineapple', 'banana', 'apple', 2,
+    'Pineapples and bananas are both monocots. An apple is a eudicot, like a rose.',
+    'האננס והבננה הם שניהם חד־פסיגיים. התפוח הוא דו־פסיגי, כמו הוורד.'),
+  q('horse', 'horse', 'rhino', 'cow', 2,
+    'Horses, rhinos and tapirs are the odd-toed hoofed mammals.',
+    'סוסים, קרנפים וטפירים הם בעלי הפרסות עם מספר אי־זוגי של אצבעות.'),
+  q('spider', 'spider', 'scorpion', 'ant', 1,
+    'Spiders and scorpions are arachnids, with eight legs. Ants are insects, with six.',
+    'עכבישים ועקרבים הם עכבישנים, עם שמונה רגליים. הנמלה היא חרק, עם שש.'),
+  q('mushroom-you', 'mushroom', 'you', 'daisy', 3,
+    'A mushroom is closer kin to you than to any plant. Fungi and animals share an ancestor that lived after plants branched off.',
+    'הפטרייה קרובה יותר אלינו מאשר לכל צמח. לפטריות ולבעלי החיים יש אב קדמון משותף שחי אחרי שהצמחים התפצלו.'),
+  q('otter', 'otter', 'seal', 'cat', 1,
+    'Otters and seals are both dog-like carnivores that took to the water. Cats are on the other branch.',
+    'לוטרות וכלבי ים הם טורפים "דמויי כלב" שעברו למים. החתולים בענף השני.'),
+  q('salmon', 'salmon', 'you', 'shark', 3,
+    'Land animals grew out of the bony fish, the same branch as salmon. Sharks, with skeletons of cartilage, split off earlier.',
+    'חיות היבשה צמחו מתוך דגי הגרם, אותו ענף שממנו בא הסלמון. הכרישים, בעלי שלד סחוסי, התפצלו מוקדם יותר.'),
+];
+
+/* The first four days are chosen by hand: an opener that surprises, then a
+   ramp. From day 5 the engine draws seeded sets from the whole bank. */
+export const CURATED_DAYS = [
+  ['you-mushroom', 'koala', 'whale', 'tomato', 'chicken', 'dog', 'lobster', 'strawberry', 'flamingo', 'bat'],
+  ['coffee', 'giraffe', 'frog', 'cucumber', 'snake', 'seal', 'spider', 'sunflower', 'turtle', 'hedgehog'],
+  ['tulip', 'elephant', 'corn', 'butterfly', 'pig', 'gorilla', 'octopus', 'kiwifruit', 'raccoon', 'penguin'],
+  ['dolphin', 'otter', 'cherry', 'mosquito', 'camel', 'banana', 'croc', 'salmon', 'maple', 'cactus'],
+];
+
+/* Openers for generated days: questions whose reveal is a jaw-dropper. */
+export const HOOKS = ['you-mushroom', 'coffee', 'tulip', 'lobster', 'bat', 'flamingo', 'mushroom-you', 'hedgehog', 'turtle', 'salmon'];

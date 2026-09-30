@@ -1,0 +1,285 @@
+/* ══════════════════════════════════════════════════════
+   KIN — the daily game (play.html)
+
+   Self-contained on purpose: css/variables.css sets overflow:hidden and a
+   grab cursor on <body> for the map, which would freeze a page that
+   scrolls. The colour values mirror the site's tokens so the two read as
+   one product; the face is Rubik, which covers Latin, Hebrew and Cyrillic
+   in one friendly family.
+
+   Everything direction-sensitive uses logical properties, so Hebrew needs
+   no mirrored rules beyond the arrow glyph at the bottom.
+   ══════════════════════════════════════════════════════ */
+
+:root {
+  --kin-bg: #070C11;
+  --kin-surface: #101821;
+  --kin-raised: #18222D;
+  --kin-line: rgba(150, 190, 205, 0.16);
+  --kin-line-2: rgba(150, 190, 205, 0.30);
+  --kin-fg: #E6EEF1;
+  --kin-fg-2: #B3C3CB;
+  --kin-fg-3: #8397A1;
+  --kin-accent: #F2AC52;
+  --kin-accent-ink: #1A1206;
+  --kin-accent-soft: rgba(242, 172, 82, 0.14);
+  --kin-ok: #3FD3B0;
+  --kin-ok-soft: rgba(63, 211, 176, 0.16);
+  --kin-bad: #FF8A73;
+  --kin-bad-soft: rgba(255, 138, 115, 0.15);
+  --kin-animal: #6AA6FF;
+  --kin-plant: #5ED08A;
+  --kin-fungus: #FFA95C;
+  --kin-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  --kin-font: 'Rubik', system-ui, -apple-system, 'Segoe UI', 'Heebo', sans-serif;
+  --kin-mono: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  --kin-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  color-scheme: dark;
+}
+[data-theme="light"] {
+  --kin-bg: #FAF7F2;
+  --kin-surface: #FFFDF9;
+  --kin-raised: #ECE7DF;
+  --kin-line: rgba(44, 36, 24, 0.14);
+  --kin-line-2: rgba(44, 36, 24, 0.28);
+  --kin-fg: #2C2418;
+  --kin-fg-2: #4C4335;
+  --kin-fg-3: #645A4A;
+  --kin-accent: #8A5E23;
+  --kin-accent-ink: #FFF8EC;
+  --kin-accent-soft: rgba(138, 94, 35, 0.12);
+  --kin-ok: #1F7A5E;
+  --kin-ok-soft: rgba(31, 122, 94, 0.12);
+  --kin-bad: #B23E2A;
+  --kin-bad-soft: rgba(178, 62, 42, 0.10);
+  --kin-animal: #2F66C4;
+  --kin-plant: #2E8A4F;
+  --kin-fungus: #B8621C;
+  --kin-shadow: 0 10px 26px rgba(60, 40, 10, 0.14);
+  color-scheme: light;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body.kin-body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--kin-bg);
+  color: var(--kin-fg);
+  font-family: var(--kin-font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-tap-highlight-color: transparent;
+}
+button { font: inherit; color: inherit; }
+a { color: var(--kin-accent); text-underline-offset: 3px; }
+:focus-visible { outline: 2px solid var(--kin-accent); outline-offset: 3px; border-radius: 8px; }
+[hidden] { display: none !important; }
+
+.kin-app {
+  max-width: 460px;
+  margin-inline: auto;
+  padding-inline: 16px;
+  padding-block: calc(env(safe-area-inset-top, 0px) + 8px) calc(env(safe-area-inset-bottom, 0px) + 20px);
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Top bar ── */
+.kin-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-block: 8px 12px;
+  border-bottom: 1px solid var(--kin-line);
+}
+.kin-logo { font-weight: 800; font-size: 1.15rem; white-space: nowrap; display: flex; align-items: baseline; gap: 5px; }
+.kin-logo small { font-family: var(--kin-mono); font-weight: 400; font-size: 0.75rem; color: var(--kin-fg-3); }
+.kin-progress { flex: 1; display: flex; justify-content: center; align-items: center; gap: 8px; min-width: 0; font-family: var(--kin-mono); font-size: 0.8rem; color: var(--kin-fg-2); }
+.kin-dots { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; }
+.kin-dots i { display: block; width: 9px; height: 9px; border-radius: 50%; background: var(--kin-raised); border: 1px solid var(--kin-line-2); transition: background 0.25s, transform 0.25s, border-color 0.25s; }
+.kin-dots i.now { border-color: var(--kin-accent); transform: scale(1.25); }
+.kin-dots i.ok { background: var(--kin-ok); border-color: var(--kin-ok); }
+.kin-dots i.no { background: var(--kin-bad); border-color: var(--kin-bad); }
+.kin-mode { font-family: var(--kin-font); font-weight: 600; color: var(--kin-fg); }
+.kin-hearts { color: var(--kin-bad); letter-spacing: 2px; }
+.kin-hearts .lost { opacity: 0.25; }
+.kin-tools { display: flex; gap: 6px; }
+.kin-tool {
+  min-width: 38px; height: 34px; padding-inline: 8px;
+  border-radius: 999px; border: 1px solid var(--kin-line-2); background: transparent;
+  cursor: pointer; font-size: 0.85rem; color: var(--kin-fg-2);
+}
+.kin-tool[aria-pressed="true"] { border-color: var(--kin-accent); color: var(--kin-accent); }
+
+/* ── The stage ── */
+.kin-stage { flex: 1; display: flex; flex-direction: column; gap: 14px; padding-block: 16px 8px; }
+.kin-prompt { margin: 0; text-align: center; color: var(--kin-fg-3); font-size: 0.92rem; }
+.kin-target {
+  display: grid; justify-items: center; gap: 2px;
+  padding: 14px 12px 12px; border-radius: 22px;
+  background: var(--kin-surface); border: 1px solid var(--kin-line);
+  transition: padding 0.25s var(--kin-ease);
+}
+.kin-target .kin-em { font-size: 3.6rem; line-height: 1.1; transition: font-size 0.25s var(--kin-ease); }
+.kin-target .kin-nm { font-weight: 700; font-size: 1.3rem; }
+.kin-combo { align-self: center; font-family: var(--kin-mono); font-size: 0.78rem; color: var(--kin-accent); background: var(--kin-accent-soft); padding: 3px 10px; border-radius: 999px; }
+.kin-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.kin-opt {
+  position: relative; cursor: pointer; touch-action: manipulation;
+  display: grid; justify-items: center; gap: 4px;
+  padding: 16px 8px 14px; border-radius: 22px;
+  background: var(--kin-surface); border: 2px solid var(--kin-line-2);
+  transition: transform 0.12s var(--kin-ease), border-color 0.2s, background 0.2s, padding 0.25s var(--kin-ease), opacity 0.2s;
+}
+.kin-opt:hover { border-color: var(--kin-accent); }
+.kin-opt:active { transform: scale(0.97); }
+.kin-opt .kin-em { font-size: 2.8rem; line-height: 1.1; transition: font-size 0.25s var(--kin-ease); }
+.kin-opt .kin-nm { font-weight: 600; font-size: 1.05rem; }
+.kin-opt[disabled] { cursor: default; }
+.kin-opt[disabled]:hover { border-color: var(--kin-line-2); }
+.kin-opt.is-right { border-color: var(--kin-ok); background: var(--kin-ok-soft); }
+.kin-opt.is-wrong { border-color: var(--kin-bad); background: var(--kin-bad-soft); }
+.kin-opt.is-faded { opacity: 0.55; }
+.kin-k { position: absolute; inset-block-start: 10px; inset-inline-start: 10px; width: 8px; height: 8px; border-radius: 50%; }
+.kin-k-animal { background: var(--kin-animal); }
+.kin-k-plant { background: var(--kin-plant); }
+.kin-k-fungus { background: var(--kin-fungus); }
+.kin-mark { position: absolute; inset-block-start: 6px; inset-inline-end: 10px; font-weight: 800; }
+.is-right .kin-mark { color: var(--kin-ok); }
+.is-wrong .kin-mark { color: var(--kin-bad); }
+.kin-hint { margin: 0; min-height: 1.4em; text-align: center; font-size: 0.86rem; color: var(--kin-fg-3); }
+
+/* Once answered, the cards step back so the reveal fits a phone screen. */
+.kin-stage.revealed { gap: 10px; }
+.kin-stage.revealed .kin-target { padding: 8px 10px 6px; }
+.kin-stage.revealed .kin-target .kin-em { font-size: 2.2rem; }
+.kin-stage.revealed .kin-opt { padding: 8px 6px 6px; }
+.kin-stage.revealed .kin-opt .kin-em { font-size: 1.8rem; }
+.kin-stage.revealed .kin-hint { display: none; }
+
+/* ── The reveal ── */
+.kin-reveal { display: flex; flex-direction: column; gap: 10px; animation: kin-rise 0.35s var(--kin-ease) both; }
+.kin-verdict { margin: 0; font-weight: 700; font-size: 1.1rem; }
+.kin-verdict.ok { color: var(--kin-ok); }
+.kin-verdict.no { color: var(--kin-bad); }
+.kin-tree {
+  position: relative; margin: 0; width: 100%; aspect-ratio: 340 / 150;
+  background: var(--kin-surface); border: 1px solid var(--kin-line); border-radius: 14px; overflow: hidden;
+}
+.kin-tree svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.kin-ln { fill: none; stroke: var(--kin-fg-3); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.kin-ln.hot { stroke: var(--kin-accent); stroke-width: 2.8; }
+.kin-nd { fill: var(--kin-bg); stroke: var(--kin-fg-3); stroke-width: 2; }
+.kin-nd.hot { fill: var(--kin-accent); stroke: var(--kin-accent); }
+.kin-axis { stroke: var(--kin-line-2); stroke-width: 1; stroke-dasharray: 2 4; }
+.kin-labs { position: absolute; inset: 0; }
+.kin-lab { position: absolute; white-space: nowrap; line-height: 1.1; }
+.kin-leaf { font-size: 13px; color: var(--kin-fg); }
+.kin-leaf.target { font-weight: 700; }
+.kin-leaf.near { color: var(--kin-accent); }
+.kin-date { font-family: var(--kin-mono); font-size: 10.5px; color: var(--kin-fg-2); }
+.kin-date.hot { color: var(--kin-accent); font-weight: 500; }
+.kin-axis-lab { font-family: var(--kin-mono); font-size: 9.5px; color: var(--kin-fg-3); }
+/* JetBrains Mono has no Hebrew. Hebrew labels fell back letter by letter and
+   kept monospace-width gaps between the words, so they read as spaced out. */
+[dir="rtl"] .kin-date, [dir="rtl"] .kin-axis-lab, [dir="rtl"] .kin-combo { font-family: var(--kin-font); }
+.kin-explain { margin: 0; font-size: 0.95rem; color: var(--kin-fg-2); }
+.kin-explain strong { color: var(--kin-fg); font-weight: 600; }
+.kin-sources { margin: 0; font-size: 0.75rem; color: var(--kin-fg-3); }
+.kin-sources a { color: var(--kin-fg-3); }
+.kin-intro { margin: 0; padding: 10px 12px; border-radius: 12px; background: var(--kin-accent-soft); color: var(--kin-fg); font-size: 0.9rem; }
+/* On a short phone the reveal runs past the fold; the way on stays in reach.
+   Where everything fits, sticky has nothing to stick to and changes nothing. */
+.kin-reveal #kin-next { position: sticky; bottom: calc(env(safe-area-inset-bottom, 0px) + 12px); box-shadow: var(--kin-shadow); }
+
+.kin-draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: kin-draw 0.55s var(--kin-ease) forwards; }
+.kin-draw.late { animation-delay: 0.72s; }
+.kin-pop { transform-box: fill-box; transform-origin: center; animation: kin-pop 0.32s var(--kin-ease) both; }
+.kin-pop.n1 { animation-delay: 0.52s; }
+.kin-pop.n2 { animation-delay: 1.24s; }
+.kin-fade { animation: kin-fade 0.3s ease both; }
+.kin-fade.n1 { animation-delay: 0.6s; }
+.kin-fade.n2 { animation-delay: 1.3s; }
+.kin-shake { animation: kin-shake 0.28s ease; }
+
+/* ── Buttons ── */
+.kin-btn {
+  cursor: pointer; touch-action: manipulation;
+  display: inline-flex; justify-content: center; align-items: center; gap: 8px;
+  padding: 13px 20px; border-radius: 999px; border: 0;
+  background: var(--kin-accent); color: var(--kin-accent-ink);
+  font-weight: 700; font-size: 1rem;
+}
+.kin-btn:active { transform: scale(0.98); }
+.kin-ghost { background: transparent; color: var(--kin-fg); border: 1px solid var(--kin-line-2); }
+.kin-block { width: 100%; }
+
+/* ── Results, arcade end, stats ── */
+.kin-res { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; padding-top: 6px; }
+.kin-res > * { margin: 0; }
+.kin-eyebrow { font-family: var(--kin-mono); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--kin-fg-3); }
+[dir="rtl"] .kin-eyebrow { font-family: var(--kin-font); letter-spacing: 0; }
+.kin-score { font-weight: 800; font-size: 3.6rem; line-height: 1; }
+.kin-score span { font-size: 1.5rem; color: var(--kin-fg-3); }
+.kin-title { font-weight: 700; font-size: 1.15rem; color: var(--kin-accent); }
+/* The grid follows the reading direction: question 1 sits where a reader of
+   that language starts, which is also how the shared text renders. */
+.kin-grid { font-size: 1.4rem; letter-spacing: 2px; line-height: 1.2; }
+.kin-streak { color: var(--kin-fg-2); }
+.kin-share { width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.kin-share-text {
+  width: 100%; font-family: var(--kin-mono); font-size: 0.8rem; resize: none;
+  background: var(--kin-surface); color: var(--kin-fg); border: 1px solid var(--kin-line-2); border-radius: 10px; padding: 8px;
+}
+.kin-countdown { font-size: 0.85rem; color: var(--kin-fg-3); }
+.kin-clock { font-family: var(--kin-mono); color: var(--kin-fg-2); margin-inline-start: 4px; }
+.kin-note { font-size: 0.84rem; color: var(--kin-fg-3); max-width: 34ch; }
+.kin-recap { width: 100%; text-align: start; border: 1px solid var(--kin-line); border-radius: 12px; background: var(--kin-surface); }
+.kin-recap summary { cursor: pointer; padding: 10px 12px; color: var(--kin-fg-2); font-size: 0.9rem; }
+.kin-recap ol { list-style: none; margin: 0; padding: 0 12px 10px; display: grid; gap: 4px; font-size: 0.88rem; }
+.kin-recap li { display: flex; justify-content: space-between; gap: 8px; color: var(--kin-fg-2); }
+.kin-recap .y { color: var(--kin-ok); }
+.kin-recap .n { color: var(--kin-bad); }
+[dir="rtl"] .kin-arrow { display: inline-block; transform: scaleX(-1); }
+.kin-stats table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+.kin-stats th, .kin-stats td { padding: 8px 4px; border-bottom: 1px solid var(--kin-line); text-align: start; font-weight: 400; }
+.kin-stats th { color: var(--kin-fg-2); }
+.kin-stats td { text-align: end; font-family: var(--kin-mono); }
+
+.kin-foot { text-align: center; padding-top: 18px; font-size: 0.78rem; }
+.kin-foot a { color: var(--kin-fg-3); }
+.kin-noscript { text-align: center; padding: 40px 16px; }
+
+/* ── Leaves ── */
+.kin-burst { position: fixed; inset: 0; pointer-events: none; overflow: hidden; z-index: 50; }
+.kin-leafbit { position: absolute; width: 9px; height: 9px; border-radius: 2px 9px; opacity: 0; animation: kin-fall 1.4s ease-out forwards; }
+.kin-leafbit.k0 { background: var(--kin-animal); }
+.kin-leafbit.k1 { background: var(--kin-plant); }
+.kin-leafbit.k2 { background: var(--kin-fungus); }
+.kin-leafbit.k3 { background: var(--kin-accent); }
+
+@keyframes kin-draw { to { stroke-dashoffset: 0; } }
+@keyframes kin-pop { from { transform: scale(0); } 70% { transform: scale(1.25); } to { transform: scale(1); } }
+@keyframes kin-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes kin-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes kin-shake { 0%, 100% { transform: none; } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+@keyframes kin-fall {
+  0% { opacity: 1; transform: translate(0, 0) rotate(0); }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); }
+}
+
+/* Short phones: tighter cards so the reveal and its button fit the screen. */
+@media (max-height: 700px) {
+  .kin-target .kin-em { font-size: 2.8rem; }
+  .kin-opt .kin-em { font-size: 2.2rem; }
+  .kin-stage { gap: 10px; padding-top: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.001ms !important; animation-delay: 0ms !important; transition-duration: 0.001ms !important; }
+  .kin-draw { stroke-dashoffset: 0; }
+}

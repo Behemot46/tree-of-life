@@ -1368,6 +1368,17 @@ in count because some checks are language- or viewport-specific. It runs on ever
 push and pull request via `.github/workflows/smoke.yml`, and replaces the old
 `deploy-check.yml`, which only checked that files existed.
 
+**CI has a time budget, and the suite is spending it.** On a GitHub runner the
+smoke step takes about nine minutes and installing Chromium anywhere from half a
+minute to nearly six, so both jobs that run the suite (`smoke.yml`, and
+`verify-deployment.yml` against production) are allowed thirty minutes. They were
+allowed fifteen until a run on `main` finished in 14 min 52 s — the name offer's
+probe had added about a minute and a half (seven quiet seconds, a Quick Quiz
+that advances itself, page loads that each play the opening) to a step that had
+taken seven and a half, and the install happened to be on its slow side. A new
+probe should be timed on a runner: this sandbox runs the whole matrix in about
+half an hour and says little about it.
+
 The light theme is loaded rather than toggled at runtime: switching themes also
 rebuilds the era strip and the density curve in JS, so a half-applied theme
 measures a page nobody ever sees.

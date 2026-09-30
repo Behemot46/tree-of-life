@@ -25,7 +25,11 @@ jobs:
       (github.event.deployment_status.state == 'success' &&
        github.event.deployment_status.environment == 'Production')
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    # The suite itself takes about nine minutes; installing Chromium has taken
+    # anywhere from half a minute to nearly six, depending on the day. A run on
+    # main finished with seconds to spare under the old fifteen-minute cap, and a
+    # slow install would have failed it for a reason that is not a defect.
+    timeout-minutes: 30
 
     steps:
       - uses: actions/checkout@v4

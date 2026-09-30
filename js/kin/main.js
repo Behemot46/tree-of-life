@@ -15,6 +15,11 @@
 // Three things can be played: today's Kin (remembered, and it counts toward
 // the streak), a friend's Kin from a link (played once, not remembered), and
 // the Arcade, alone or against a friend's score.
+//
+// Home may also offer the home screen (install.js), and the page counts
+// visits and finished games anonymously if, and only if, it names an endpoint
+// for it (analytics.js). The service worker registered at the bottom serves
+// the game's shell when there is no network.
 // ══════════════════════════════════════════════════════
 
 import { registerActions } from '../actions.js';
@@ -26,6 +31,8 @@ import { STRINGS, LANGS } from './strings.js';
 import * as store from './store.js';
 import { sfx, setEnabled, buzz } from './sfx.js';
 import { treeHTML, sourcesHTML, esc } from './reveal.js';
+import { installOffer, isIOS, isStandalone } from './install.js';
+import { track, enabled as counting, visitBucket } from './analytics.js';
 
 /* The encyclopedia. It moves to atlas.html when this page becomes the front door. */
 const ATLAS_URL = 'index.html';
@@ -45,6 +52,7 @@ let locked = false;
 let revealed = null;           // the answer on screen: { qid, side, right, firstEver }
 let inARow = 0;                // consecutive right answers; pitches the chime
 let countdown = null;
+let installEvent = null;       // the browser's install dialog, held until the player asks for it
 
 const today = E.localDateString();
 const day = E.dayNumber(today);
@@ -261,6 +269,7 @@ function finishDaily() {
   S.history[day] = S.daily.picks.filter(Boolean).length;
   S.streak = E.nextStreak(S.streak, today);
   persist();
+  track('daily/finish');
 }
 
 // ── Results ─────────────────────────────────────────────────────────────────
@@ -309,7 +318,7 @@ function renderResults(celebrate = false) {
 
 /** Hands `text` to the phone's share sheet, or the clipboard, or a box to copy from. */
 async function deliver(text, btn, box) {
-  const counted = () => { S.stats.shares += 1; persist(); };
+  const counted = () => { S.stats.shares += 1; persist(); track('share'); };
   if (navigator.share) {
     try { await navigator.share({ text }); btn.textContent = t().shared; counted(); return; }
     catch (e) { if (e && e.name === 'AbortError') return; }
@@ -362,6 +371,7 @@ function startArcade(seed = (Math.random() * 2 ** 32) >>> 0, against = null) {
   run = { ids: E.arcadeIds(seed), i: 0, lives: E.LIVES, score: 0, seed, challenge: against, over: null };
   S.stats.arcadeRuns += 1;
   persist();
+  track('arcade/start');
   inARow = 0;
   screen = 'arcade';
   renderQuestion();
@@ -468,11 +478,36 @@ function renderHome() {
         <button class="kin-tile" type="button" data-action="kin:arcade"><span class="kin-tile-ic" aria-hidden="true">🎯</span><b>${esc(t().homeArcade)}</b><span>${esc(t().homeArcadeSub(S.stats.bestArcade))}</span></button>
         <a class="kin-tile" href="${ATLAS_URL}"><span class="kin-tile-ic" aria-hidden="true">🌍</span><b>${esc(t().homeAtlas)}</b><span>${esc(t().homeAtlasSub)}</span></a>
       </div>
+      ${installCardHTML()}
       <p class="kin-linkrow"><button class="kin-link" type="button" data-action="kin:stats">${esc(t().stats)}</button></p>
     </div>`;
   renderProgress();
   if (d.done) startCountdown();
   window.scrollTo(0, 0);
+}
+
+// ── The home screen ─────────────────────────────────────────────────────────
+
+/** What to offer right now: the rules are in install.js; this gathers what they need. */
+const offerNow = () => installOffer({
+  standalone: isStandalone(window), installed: S.install.installed, canPrompt: !!installEvent, ios: isIOS(navigator),
+  dismissedOn: S.install.dismissedOn, dailies: S.stats.dailies, today,
+});
+
+/* Only ever on Home: never mid-game, never on a result, never to someone who
+   has not finished two Kins. "Not now" is kept for a month. */
+function installCardHTML() {
+  const offer = offerNow();
+  if (!offer) return '';
+  const buttons = offer === 'ios'
+    ? `<button class="kin-btn kin-small" type="button" data-action="kin:install-not">${esc(t().installGotIt)}</button>`
+    : `<button class="kin-btn kin-small" type="button" data-action="kin:install">${esc(t().installBtn)}</button>
+       <button class="kin-link" type="button" data-action="kin:install-not">${esc(t().installNot)}</button>`;
+  return `<section class="kin-install" data-offer="${offer}" aria-label="${esc(t().installTitle)}">
+      <img class="kin-install-ic" src="assets/icon-192.png" width="44" height="44" alt="">
+      <div class="kin-install-tx"><b>${esc(t().installTitle)}</b><span>${esc(offer === 'ios' ? t().installIos : t().installSub)}</span></div>
+      <div class="kin-install-go">${buttons}</div>
+    </section>`;
 }
 
 // ── Stats ───────────────────────────────────────────────────────────────────
@@ -501,7 +536,7 @@ function renderStats() {
         <p class="kin-eyebrow">${esc(t().statsDist)}</p>
         <ul class="kin-dist">${dist}</ul>
       </div>
-      <p class="kin-note">${esc(t().statsNote)}</p>
+      <p class="kin-note">${esc(counting() ? t().statsNoteCounted : t().statsNote)}</p>
       <button class="kin-btn kin-block" type="button" data-action="kin:home">${esc(t().statsBack)}</button>
       <button class="kin-btn kin-ghost kin-block" type="button" id="kin-reset" data-action="kin:reset">${esc(t().statsReset)}</button>
     </div>`;
@@ -547,8 +582,9 @@ function showToday() {
     through today's Kin, in which case they pick it up where they left it. */
 function start() {
   if (launch.stats) return renderStats();
-  if (launch.challenge) return startArcade(launch.challenge.seed, launch.challenge);
+  if (launch.challenge) { track('link/challenge'); return startArcade(launch.challenge.seed, launch.challenge); }
   if (launch.kin !== null && launch.kin < day) {
+    track('link/kin');
     friend = { day: launch.kin, picks: [], done: false };
     screen = 'daily';
     return renderQuestion();
@@ -578,6 +614,19 @@ registerActions({
   'kin:today': () => { sfx.tap(); showToday(); },
   'kin:home': () => { sfx.tap(); renderHome(); settle(); },
   'kin:results': () => { sfx.tap(); renderResults(false); settle('.kin-btn'); },
+  'kin:install': async () => {
+    const ev = installEvent;
+    if (!ev) return;
+    installEvent = null;                 // the browser allows each event one use
+    try {
+      ev.prompt();
+      const choice = await ev.userChoice;
+      if (!choice || choice.outcome !== 'accepted') S.install.dismissedOn = today;
+    } catch { S.install.dismissedOn = today; }
+    persist();
+    if (screen === 'home') renderHome();
+  },
+  'kin:install-not': () => { sfx.tap(); S.install.dismissedOn = today; persist(); renderHome(); settle(); },
   'kin:stats': () => { sfx.tap(); renderStats(); settle(); },
   'kin:lang': (_a, _b, { el }) => {
     const prev = lang;
@@ -630,7 +679,40 @@ document.addEventListener('keydown', (e) => {
   pick((e.key === 'ArrowLeft' ? l : r).dataset.side);
 });
 
+/* The browser offers its install dialog once it decides the game qualifies.
+   Hold it for the card on Home rather than let it interrupt, and redraw Home
+   only if that changes what Home shows. */
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  const before = offerNow();
+  installEvent = e;
+  S.install.installed = false;           // the browser only offers it to a device that does not have it
+  if (screen === 'home' && offerNow() !== before) renderHome();
+});
+window.addEventListener('appinstalled', () => {
+  installEvent = null;
+  S.install.installed = true;
+  persist();
+  track('install');
+  if (screen === 'home') renderHome();
+});
+
 document.documentElement.dataset.theme = store.siteGet('theme') === 'light' ? 'light' : 'dark';
 applyLanguage();
 persist();
 start();
+
+/* A visit is counted once a day per device, and only if the page turned
+   counting on: d0 on the day a device first played, d1 the next, and so on. */
+if (counting() && S.counted.visitOn !== today) {
+  track(`visit/${visitBucket(S.stats.firstSeen, today)}`);
+  S.counted.visitOn = today;
+  persist();
+}
+
+/* The encyclopedia's service worker also serves the game's shell when there is
+   no network, and is what lets a phone offer to install it. */
+if ('serviceWorker' in navigator) {
+  const register = () => { navigator.serviceWorker.register('/sw.js').catch(() => { /* no worker: the game still plays */ }); };
+  if (document.readyState === 'complete') register(); else addEventListener('load', register);
+}

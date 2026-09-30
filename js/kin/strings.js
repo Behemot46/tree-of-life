@@ -133,6 +133,13 @@ export const STRINGS = {
     ],
     statsNote: 'Kept only on this device. Nothing is sent anywhere.',
     statsBack: 'Back to the game',
+    statsNoteCounted: 'Your numbers are kept on this device. The game counts visits and finished games without names, IDs or cookies.',
+    installTitle: 'Keep Kin on your home screen',
+    installSub: "One tap to today's question, even offline.",
+    installBtn: 'Install',
+    installNot: 'Not now',
+    installIos: 'Tap Share, then \u201cAdd to Home Screen\u201d.',
+    installGotIt: 'Got it',
   },
 
   he: {
@@ -222,6 +229,13 @@ export const STRINGS = {
     ],
     statsNote: 'נשמר רק במכשיר הזה. שום דבר לא נשלח.',
     statsBack: 'חזרה למשחק',
+    statsNoteCounted: 'המספרים שלכם נשמרים במכשיר הזה. המשחק סופר ביקורים ומשחקים שהסתיימו, בלי שמות, מזהים או עוגיות.',
+    installTitle: 'קרובים במסך הבית',
+    installSub: 'הקשה אחת לשאלה של היום, גם בלי רשת.',
+    installBtn: 'התקנה',
+    installNot: 'לא עכשיו',
+    installIos: 'הקישו על \u201cשיתוף\u201d ואז על \u201cהוספה למסך הבית\u201d.',
+    installGotIt: 'הבנתי',
   },
   ru: {
     dir: 'ltr',
@@ -311,6 +325,13 @@ export const STRINGS = {
     ],
     statsNote: 'Хранится только на этом устройстве. Ничего никуда не отправляется.',
     statsBack: 'Вернуться к игре',
+    statsNoteCounted: 'Ваши цифры хранятся на этом устройстве. Игра считает визиты и сыгранные партии без имён, идентификаторов и cookie.',
+    installTitle: 'Родня на домашнем экране',
+    installSub: 'Вопрос дня в одно касание, даже без сети.',
+    installBtn: 'Установить',
+    installNot: 'Не сейчас',
+    installIos: 'Нажмите \u00abПоделиться\u00bb, затем \u00abНа экран \u201cДомой\u201d\u00bb.',
+    installGotIt: 'Понятно',
   },
 };
 

@@ -5,7 +5,7 @@
       <stop offset="1" stop-color="#070C11"/>
     </radialGradient>
   </defs>
-  <rect width="512" height="512" fill="url(#plate)"/><g transform="translate(256 256) scale(0.86) translate(-256 -256)">
+  <rect width="512" height="512" rx="112" fill="url(#plate)"/>
   <circle cx="256" cy="256" r="186" fill="none" stroke="#F2AC52" stroke-width="10"/>
   <circle cx="256" cy="256" r="172" fill="none" stroke="#F2AC52" stroke-opacity="0.35" stroke-width="3"/>
   <path d="M256.0 106.0 L256.0 90.0" stroke="#F2AC52" stroke-opacity="1" stroke-width="9" stroke-linecap="round"/><path d="M373.3 162.5 L385.8 152.5" stroke="#F2AC52" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/><path d="M402.2 289.4 L417.8 292.9" stroke="#F2AC52" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/><path d="M321.1 391.1 L328.0 405.6" stroke="#F2AC52" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/><path d="M190.9 391.1 L184.0 405.6" stroke="#F2AC52" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/><path d="M109.8 289.4 L94.2 292.9" stroke="#F2AC52" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/><path d="M138.7 162.5 L126.2 152.5" stroke="#F2AC52" stroke-opacity="0.5" stroke-width="6" stroke-linecap="round"/>
@@ -19,5 +19,5 @@
   <circle cx="256" cy="344" r="13" fill="#F2AC52"/>
   <circle cx="168" cy="188" r="20" fill="#E6EEF1"/>
   <circle cx="238" cy="172" r="20" fill="#3FD3B0"/>
-  <circle cx="336" cy="220" r="20" fill="#FF8A73"/></g>
+  <circle cx="336" cy="220" r="20" fill="#FF8A73"/>
 </svg>

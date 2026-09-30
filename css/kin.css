@@ -351,6 +351,18 @@ a { color: var(--kin-accent); text-underline-offset: 3px; }
 .kin-dist-bar i { display: block; height: 100%; min-width: 0; background: var(--kin-accent); border-radius: 4px; }
 .kin-dist b { text-align: end; font-family: var(--kin-mono); font-weight: 500; }
 
+/* The home-screen offer: a slim card on Home, never elsewhere. */
+.kin-install {
+  display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 10px 12px;
+  padding: 12px 14px; border: 1px solid var(--kin-line-2); border-radius: 16px; background: var(--kin-surface);
+}
+.kin-install-ic { width: 44px; height: 44px; border-radius: 10px; display: block; }
+.kin-install-tx { display: grid; gap: 2px; text-align: start; min-width: 0; }
+.kin-install-tx b { font-size: 0.95rem; }
+.kin-install-tx span { font-size: 0.82rem; line-height: 1.35; color: var(--kin-fg-2); }
+.kin-install-go { grid-column: 1 / -1; display: flex; align-items: center; justify-content: flex-end; gap: 6px; }
+.kin-small { min-height: 44px; padding: 8px 22px; font-size: 0.95rem; }
+
 .kin-foot { text-align: center; padding-top: 18px; font-size: 0.78rem; }
 .kin-foot a { color: var(--kin-fg-3); }
 .kin-noscript { text-align: center; padding: 40px 16px; }

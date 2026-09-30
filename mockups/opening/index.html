@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Opening screen — art concepts</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Heebo:wght@300;400;500;600&family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../css/variables.css">
+<link rel="stylesheet" href="../../css/theme.css">
+<link rel="stylesheet" href="gallery.css">
+<script type="module" src="gallery.js"></script>
+</head>
+<body class="og">
+<canvas id="stage" aria-label="Opening screen concept"></canvas>
+<div id="ui" hidden>
+  <div class="og-top">
+    <div class="og-tabs" id="tabs" role="tablist"></div>
+    <div class="og-cap"><b id="cap-name"></b><span id="cap-line"></span></div>
+  </div>
+  <div class="og-bar">
+    <button id="play" type="button" aria-label="Replay">↺</button>
+    <input id="scrub" type="range" min="0" max="1000" value="0" aria-label="Time">
+    <span id="clock">0.0s</span>
+    <div class="og-seg" id="langs"></div>
+    <div class="og-seg" id="themes"></div>
+  </div>
+</div>
+<noscript><p style="padding:2rem;color:#ccc">Needs JavaScript.</p></noscript>
+</body>
+</html>

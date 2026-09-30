@@ -7,13 +7,18 @@ today; this file describes **why it is that way** and what is still open.
 
 ## Where things stand
 
-An interactive phylogenetic visualisation of 3.8 billion years of evolution,
-in English, Hebrew and Russian. Static files, no build step.
+Two things on one domain, in English, Hebrew and Russian, as static files with
+no build step. **Kin**, the front page (`/`), is a one-minute daily game about
+how every living thing is related. The **Atlas** (`/atlas.html`) is an
+interactive visualisation of 3.8 billion years of evolution that the game opens
+onto.
 
-Every push and pull request runs `scripts/smoke.mjs`, which opens the real page
-in Chromium and asserts **570 checks across six scenarios** — desktop and
-phone, in all three languages, plus a desktop pass in the light theme. It is
-green.
+Every push and pull request runs three things: 34 unit tests for the game's
+rules and the service worker; `scripts/play-check.mjs`, **495 checks** of the
+game in Chromium; and `scripts/smoke.mjs`, **574 checks across six scenarios**
+of the Atlas — desktop and phone, in all three languages, plus a desktop pass in
+the light theme. Both browser suites run again against production after every
+deploy. All green.
 
 ---
 

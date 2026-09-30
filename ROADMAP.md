@@ -11,7 +11,7 @@ An interactive phylogenetic visualisation of 3.8 billion years of evolution,
 in English, Hebrew and Russian. Static files, no build step.
 
 Every push and pull request runs `scripts/smoke.mjs`, which opens the real page
-in Chromium and asserts **514 checks across six scenarios** — desktop and
+in Chromium and asserts **516 checks across six scenarios** — desktop and
 phone, in all three languages, plus a desktop pass in the light theme. It is
 green.
 
@@ -57,6 +57,8 @@ Things waiting on a decision rather than on work.
 | Reduced motion gets the finished plate, not a fallback | The old opening swapped in a static screen with neither the picture nor the title plaque. The finished plate is where the animation is going, has everything, and needs no clock — which also made it measurable: the checks read it instead of waiting three seconds of animation. |
 | A check found a bug the day it was written | Measured under reduced motion, the English line under the title came out at 8.6px instead of 10 on a phone. `responsive.css` gives every element a 0.01ms transition under reduced motion, a transition answers a same-task read with the size it started from, and the fitting reads the size it has just set. The spans now opt out of transitions. Only visitors who ask for reduced motion ever saw it, so every check that ran in the default mode passed. See constraint 13 in `CLAUDE.md`. |
 | The plate belongs to the splash | A leftover rule in `theme.css` flattened `#splash` to a plain colour in the dark theme only, so the plate's glow and the vignette vanished on every dark visit and nobody saw it. It is deleted, and a check asserts the gradient is painted in both themes. |
+| The readout sits above the plaque | Found in a frame captured mid-reveal: the counter and the title plaque shared one spot, so for about half a second the plaque's rules struck through the word "present". The counter now lives in the gap between the dial and the plaque, and the collision check measures it. |
+| The show follows the wall clock | Found by looking at a screenshot of the finished plate that had no plate in it. Adding up capped frame steps made a slow CPU play the show in slow motion, and the safety-net dismissal on the wall clock then arrived first: at a sixth of this machine's speed the title never appeared. Time is now `now − start − hidden`; frames are dropped instead of time. The slow-device mode also resizes only the live canvas rather than laying the scene out again. |
 | A scene that throws cannot trap a visitor | The opening does more work than the one it replaced, on more kinds of device. `initSplash` is wrapped: an error takes the curtain down, the site carries on, and the error is thrown again from a timer so it is reported rather than swallowed. A check breaks the scene module on purpose to keep it that way. |
 | Skip is named by its text | It carried an English `aria-label`, so a Hebrew screen reader announced "Skip intro". |
 | Service-worker cache bumped to `tol-v10` | `index.html`'s opening markup, `css/splash.css` and two scripts changed together, and stale-while-revalidate would otherwise let an interrupted background update pair a new page with an old stylesheet for one visit. The same reason as the earlier bump for the Stories pill. |

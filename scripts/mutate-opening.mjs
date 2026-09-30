@@ -60,6 +60,10 @@ const MUTATIONS = {
     ['opening:words-are-in-the-readers-language']],
   'no-plaque': ['desktop-en', 'js/splash.js', "splashEl.classList.toggle('show-plaque', t >= T_TITLE);", '',
     ['opening:reduced-motion-holds-still', 'opening:title-fits-the-plaque']],
+  // the counter used to sit where the plaque opens, and its rules ran through the word "present"
+  'counter-in-plaque': ['desktop-en', 'js/splash.js', "counter.style.top = (g.cy + g.Rc + g.gap / 2 - counter.offsetHeight / 2) + 'px';",
+    "counter.style.top = (py + ph * 0.5 - counter.offsetHeight / 2) + 'px';",
+    ['opening:nothing-collides']],
   'hint-overlap': ['desktop-en', 'js/splash.js', "hint.style.top = (py + ph + (g.small ? 22 : 26)) + 'px';", "hint.style.top = (py + 8) + 'px';",
     ['opening:nothing-collides']],
   'no-fit': ['phone-en', 'js/splash.js', 'function fit(el, px, limit) {', "function fit(el, px, limit) { el.style.fontSize = (px * 1.6) + 'px'; return;",
@@ -68,6 +72,9 @@ const MUTATIONS = {
   'ru-overflow': ['phone-en', 'js/splash.js', 'function fit(el, px, limit) {',
     "function fit(el, px, limit) { if (document.documentElement.lang === 'ru') { el.style.fontSize = (px * 1.3) + 'px'; return; }",
     ['opening:title-fits-the-plaque']],
+  // the clock that made a slow phone play in slow motion: capped steps added up instead of the wall clock
+  'capped-clock': ['phone-en', 'js/splash.js', 'elapsed = (ts - start) / 1000 - hidden;', 'elapsed += Math.min(0.05, (ts - last) / 1000);',
+    ['opening:a-slow-phone-still-gets-the-title']],
   'no-key': ['desktop-en', 'js/splash.js', "document.addEventListener('keydown', onKey);", '',
     ['opening:leaves-by-keyboard']],
   'no-canvas-path': ['desktop-en', 'js/splash.js', "splashEl.classList.add('no-canvas');", '',

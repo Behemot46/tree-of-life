@@ -645,7 +645,11 @@ Things worth knowing before changing it:
   it, the hint and Skip are DOM over the canvases, and the plaque's frame is an
   SVG inside a `clip-path` that opens from the middle. `fit()` sizes the title
   and the line to the plaque, so "Дерево жизни" and "עץ החיים" are laid out by
-  measurement rather than by a font size per breakpoint.
+  measurement rather than by a font size per breakpoint. The readout counting
+  down to the present sits in the gap between the dial and the plaque. It used
+  to share the plaque's spot, and for half a second while the plaque opened its
+  rules ran through the word "present"; `opening:nothing-collides` measures the
+  readout against the plaque now.
 - **Two canvases.** `#splash-under` holds what never moves (grain, dial, ticks)
   and is drawn once per layout; `#splash-canvas` is cropped to the dial and
   redrawn every frame at a device-pixel ratio capped at 2. In software raster
@@ -681,9 +685,18 @@ Things worth knowing before changing it:
   seconds, and the safety-net dismissal comes sooner by the same factor. A
   shorter cut would have been a second animation to keep right in three
   languages and two themes.
-- **It watches its own frame rate.** After 34 frames, if the average frame is
-  over 38 ms, it lays out again at one device pixel per CSS pixel and leaves
-  the glows out. A slow phone gets a lighter frame rather than a slideshow.
+- **The show follows the wall clock, and it watches its own frame rate.** After
+  22 frames, if the average frame is over 38 ms, the live canvas drops to one
+  device pixel per CSS pixel and the glows are left out; only that canvas is
+  resized, because laying the whole scene out again mid-show cost a visible
+  hitch. Time is `now − start − time spent hidden`, never a sum of capped steps.
+  Capping each step is the obvious way to stop a backgrounded tab from jumping,
+  and it turns a slow phone into slow motion: throttled to a sixth of this
+  machine's speed, the title had not been engraved when the safety net took the
+  opening down at 6.5 s, so those visitors never saw it. Now it arrives at
+  3.2–3.8 s at 1×, 4× and 6×, with fewer frames, and
+  `opening:a-slow-phone-still-gets-the-title` runs a first visit under a 6×
+  throttle to keep it so.
 - **`fit()` reads a size the instant it sets it, and a transition answers with
   the size it started from.** `responsive.css` gives every element a `0.01ms`
   transition on all properties under reduced motion. That is enough for the
@@ -726,8 +739,8 @@ Things worth knowing before changing it:
 
 **Its checks.** The runner seeds `tol-splash-seen` and clicks Skip, so by the
 time any sweep runs the opening is a `display:none` div; the `opening:` group
-gives it five page loads of its own per scenario, each in a fresh context in
-that scenario's viewport, language and theme.
+gives it five page loads of its own per scenario (six in two of them), each in
+a fresh context in that scenario's viewport, language and theme.
 
 | Pass | What it is | Checks |
 |---|---|---|
@@ -736,6 +749,7 @@ that scenario's viewport, language and theme.
 | live | a first visit, sampled while it runs, then left by keyboard | `opening:animates`, `opening:leaves-by-keyboard` |
 | no canvas | `getContext` refused for the opening's own canvases | `opening:no-canvas-fallback` |
 | broken | `js/splashScene.js` replaced by a module that throws while building | `opening:a-broken-opening-does-not-trap-the-visitor` |
+| slow | a first visit on a CPU throttled to a sixth of its speed (`desktop-en` and `phone-en` only, ~10 s each) | `opening:a-slow-phone-still-gets-the-title` |
 
 `opening:runs-clean` reads the others for uncaught errors and CSP violations. The
 plate is measured rather than the moving picture because the moving picture is
@@ -1083,7 +1097,7 @@ work is shown. So:
 ## Known Constraints & Important Notes
 
 1. **Tests are browser smoke checks, not unit tests** — `node scripts/smoke.mjs`
-   opens the real page in Chromium and asserts 514 things about layout, i18n,
+   opens the real page in Chromium and asserts 516 things about layout, i18n,
    contrast and rendering. See *Smoke tests* below.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
 3. **index.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
@@ -1225,7 +1239,7 @@ never mistaken for a working page.
 
 ## Smoke Tests
 
-`scripts/smoke.mjs` opens the real page in Chromium and asserts **514 checks**
+`scripts/smoke.mjs` opens the real page in Chromium and asserts **516 checks**
 — ~85 per scenario across six scenarios (desktop in English, Hebrew and Russian,
 phone in English and Hebrew, and a desktop pass in the light theme), and five
 static checks that read the source before the browser starts. Scenarios differ
@@ -1243,7 +1257,7 @@ node scripts/smoke.mjs --url https://example.com   # check a deployed site
 node scripts/smoke.mjs --proxy http://host:port    # run from behind a proxy
 node scripts/smoke.mjs --only desktop-he           # one scenario, ~1 min
 node scripts/smoke.mjs --opening-only --only phone-en  # just the opening group, ~15 s
-node scripts/mutate-opening.mjs                    # break the opening 20 ways, watch each check go red (~4 min)
+node scripts/mutate-opening.mjs                    # break the opening 22 ways, watch each check go red (~4 min)
 npm run smoke:update-baseline                      # re-record known failures
 ```
 

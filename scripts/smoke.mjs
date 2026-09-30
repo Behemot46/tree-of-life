@@ -914,6 +914,14 @@ check('opening:nothing-collides', 'The dial, the plaque, the hint, the scale and
         fail(`the ${name} [${px1(r.left)},${px1(r.top)}]–[${px1(r.right)},${px1(r.bottom)}] leaves a ${vw}×${vh} window${tag}`);
       }
     }
+    /* The readout counting down to the present shares the gap between the dial
+       and the plaque; it fades as the plaque opens, and for a moment both are
+       on screen. Wherever it sits it must not be under the plaque's rules, which
+       once ran through the word "present". */
+    const counter = pl.counter;
+    if (!counter || !counter.width) fail(`the counter is not laid out${tag}`);
+    if (overlap(counter, plaque)) fail(`the counter [${px1(counter.top)}–${px1(counter.bottom)}] is under the plaque [${px1(plaque.top)}–${px1(plaque.bottom)}]${tag}`);
+    if (counter.top < ring.bottom || counter.bottom > vh) fail(`the counter [${px1(counter.top)}–${px1(counter.bottom)}] is inside the dial or off screen${tag}`);
     if (plaque.top - 10 < ring.bottom) fail(`the plaque (top ${px1(plaque.top)}) touches the dial (bottom ${px1(ring.bottom)})${tag}`);
     if (hint.top < plaque.bottom) fail(`the hint (top ${px1(hint.top)}) starts inside the plaque (bottom ${px1(plaque.bottom)})${tag}`);
     for (const [name, r] of [['plaque', plaque], ['hint', hint], ['dial', ring]]) {
@@ -948,9 +956,9 @@ check('opening:animates', 'A first visit really does grow: the tree is far fulle
   const lv = openingPass(openingOf(c), 'live');
   if (!lv.firstVisit) fail('a first visit was treated as a return (data-return was set with nothing stored)');
   if (!lv.early || !lv.later) fail('the live canvas could not be read');
-  /* The clock drops frames rather than catching up, so on a slow runner the
-     picture is behind the wall clock; the bounds allow for a runner at half
-     speed. A healthy machine measures 1.8% early and 16–18% later. */
+  /* The show follows the wall clock, so a slow runner drops frames rather than
+     falling behind; the bounds still leave room for one that is slow to start.
+     A healthy machine measures 1.8% early and 16–18% later. */
   if (lv.later.fraction < 0.03) fail(`three seconds in, only ${(lv.later.fraction * 100).toFixed(1)}% of the canvas is painted`);
   if (lv.later.fraction < lv.early.fraction * 2) {
     fail(`the canvas went from ${(lv.early.fraction * 100).toFixed(1)}% painted to ${(lv.later.fraction * 100).toFixed(1)}% in 2.4 s — the show is not running`);
@@ -1001,6 +1009,18 @@ check('opening:a-broken-opening-does-not-trap-the-visitor', 'If the scene cannot
   if (b.nodes < 20) fail(`only ${b.nodes} node(s) rendered behind a failed opening`);
   if (!b.reported) fail('the failure was swallowed: nothing reached the page\'s error handler, so no report would ever show it');
 });
+
+/* The show follows the wall clock. Counting capped frame steps instead made a
+   sixth-speed CPU play the whole thing in slow motion, and at that speed the
+   safety net took the opening down before the title was ever engraved. */
+check('opening:a-slow-phone-still-gets-the-title', 'On a CPU a sixth of the speed, the title is still engraved on time and before the opening leaves', (c) => {
+  const sl = openingPass(openingOf(c), 'slow');
+  if (sl.live == null) fail('the opening never went live on the throttled CPU');
+  if (sl.plaque == null) fail('the opening left without ever engraving its title — on a slow phone the visitor would never see it');
+  if (sl.gone != null && sl.plaque >= sl.gone) fail('the title arrived only as the opening was leaving');
+  const lag = sl.plaque - sl.live;
+  if (lag > 5000) fail(`the title took ${Math.round(lag)} ms to arrive on the throttled CPU (due at 3150 ms, and start-up stalls allowed for)`);
+}, (sc) => OPENING_SLOW_SCENARIOS.includes(sc.id));
 
 check('opening:runs-clean', 'The opening throws nothing and breaks no Content-Security-Policy rule, in any of its passes', (c) => {
   const o = openingOf(c);
@@ -1098,19 +1118,25 @@ function installContrastSweep() {
      no canvas    getContext refused: the path nothing else ever takes;
      broken       the scene module throws while building: the opening is
                   decoration, and must not be what stands between a visitor and
-                  the site.
+                  the site;
+     slow         a first visit on a CPU throttled to a sixth of its speed, in
+                  the scenarios that run it: the title still has to be engraved
+                  before the opening leaves.
 
    The plate is measured rather than the moving picture because the moving
    picture is a function of time, and a check that has to wait for 3.15 seconds
    of animation to reach the title is a check that flakes on a slow runner. */
 const OPENING_KEYS = ['Escape', 'Enter', 'Space'];
+/* The throttled pass takes about ten seconds, and the behaviour it guards does not
+   depend on language or theme, so one desktop and one phone scenario run it. */
+const OPENING_SLOW_SCENARIOS = ['desktop-en', 'phone-en'];
 
 async function openingProbe(page, scenario, baseUrl) {
   const browser = page.context().browser();
   const vp = scenario.viewport;
   const errors = [];
 
-  async function open({ lang = scenario.lang, seen = false, reduced = false, noCanvas = false, blockApp = false, brokenScene = false }) {
+  async function open({ lang = scenario.lang, seen = false, reduced = false, noCanvas = false, blockApp = false, brokenScene = false, throttle = 0 }) {
     const ctx = await browser.newContext({
       viewport: { width: vp.width, height: vp.height },
       isMobile: vp.isMobile, hasTouch: vp.hasTouch,
@@ -1135,6 +1161,19 @@ async function openingProbe(page, scenario, baseUrl) {
       document.addEventListener('securitypolicyviolation', (e) => {
         window.__cspViolations.push(`${e.violatedDirective} blocked ${e.blockedURI || 'inline'}`);
       });
+      // When the opening went live, engraved its title and left, on the page's own clock
+      window.__show = { live: null, plaque: null, gone: null };
+      const tick = (t) => {
+        const s = document.getElementById('splash');
+        if (s) {
+          const S = window.__show;
+          if (S.live === null && s.classList.contains('is-live')) S.live = t;
+          if (S.plaque === null && s.classList.contains('show-plaque')) S.plaque = t;
+          if (S.gone === null && S.live !== null && getComputedStyle(s).display === 'none') S.gone = t;
+        }
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
     }, { lang, theme: scenario.theme || 'dark', seen, noCanvas });
     if (blockApp) await ctx.route('**/js/app.js', (r) => r.abort());
     // the module the opening's picture lives in, replaced by one that cannot build
@@ -1145,6 +1184,7 @@ async function openingProbe(page, scenario, baseUrl) {
       }));
     }
     const p = await ctx.newPage();
+    if (throttle) await (await ctx.newCDPSession(p)).send('Emulation.setCPUThrottlingRate', { rate: throttle });
     const own = [];
     /* An error thrown on purpose belongs to the pass that threw it, not to the
        shared list opening:runs-clean reads. */
@@ -1201,6 +1241,7 @@ async function openingProbe(page, scenario, baseUrl) {
       ring: rect($('.sp-ring')), sun: rect($('.sp-sun')), ringOpacity: px($('.sp-ring'), 'opacity'),
       want: tr && { title: tr.title, splash_subtitle: tr.splash_subtitle, splash_click: tr.splash_click, splash_skip: tr.splash_skip },
       plaque: rect($('#sw-plaque')),
+      counter: words($('#sw-counter')),
       title: words($('#sw-title')), titleText: ($('#sw-title') || {}).textContent, titlePx: px($('#sw-title'), 'fontSize'),
       sub: words($('#sw-sub')), subText: ($('#sw-sub') || {}).textContent, subPx: px($('#sw-sub'), 'fontSize'),
       titleOpacity: px($('#sw-title'), 'opacity'),
@@ -1332,6 +1373,15 @@ async function openingProbe(page, scenario, baseUrl) {
     });
     return { cleared, clearedMs, ...site, reported: h.own.some((m) => /scene failed to build/.test(m)) };
   });
+
+  // 6. A slow phone: the title has to arrive on time even when the frames do not.
+  if (OPENING_SLOW_SCENARIOS.includes(scenario.id)) {
+    await run('slow', { seen: false, throttle: 6 }, async (p) => {
+      await p.goto(baseUrl + '/index.html', { waitUntil: 'domcontentloaded' });
+      await p.waitForFunction(() => window.__show && window.__show.gone !== null, null, { timeout: 40000 }).catch(() => {});
+      return p.evaluate(() => window.__show);
+    });
+  }
 
   out.errors = errors;
   out.violations = [...new Set(out.violations || [])];

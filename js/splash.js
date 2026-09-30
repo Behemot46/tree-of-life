@@ -13,7 +13,8 @@
 //   • honest about loading: the ring is already on screen while the modules
 //     load, and the animation starts when there is something to animate;
 //   • quiet when asked: with reduced motion it paints the finished plate once;
-//   • fast on a slow phone: it watches its own frame rate and drops a notch.
+//   • fast on a slow phone: it watches its own frame rate and drops a notch,
+//     and keeps to the wall clock so the title still arrives on time.
 // ══════════════════════════════════════════════════════
 
 import { buildScene, DURATION, T_TITLE, T_HINT } from './splashScene.js';
@@ -22,6 +23,8 @@ const AUTO_S = 6.5;             // seconds until it dismisses itself, first visi
 const RETURN_SPEED = 1.7;       // a second visit plays the same show, faster
 const FADE_MS = 450;
 const DPR_CAP = 2;              // the dial is hairlines; the rest is soft
+const LITE_AFTER = 22;          // frames watched before deciding whether the device needs a lighter show
+const LITE_MS = 38;             // ...and the average frame time, in ms, above which it does
 
 export function initSplash(canvas, opts) {
   const { tree, t: tr, onDone } = opts;
@@ -59,7 +62,7 @@ export function initSplash(canvas, opts) {
   // ── Layout: everything that depends on the size of the window ──
   let scene = null, dpr = 1, lite = false, W = 0, H = 0;
   let scaleEls = [], lastCounter = null;
-  let elapsed = 0, last = null, frames = 0, slowMs = 0;
+  let elapsed = 0, start = null, last = null, frames = 0, slowMs = 0, hidden = 0, hiddenAt = null;
   const now = () => (reduced ? DURATION : Math.min(DURATION, elapsed * speed));
 
   function layout() {
@@ -72,7 +75,7 @@ export function initSplash(canvas, opts) {
     under.width = Math.round(W * dpr); under.height = Math.round(H * dpr);
     scene.under(uctx, dpr);
     // the live layer: only the dial
-    canvas.width = Math.round(g.box * dpr); canvas.height = Math.round(g.box * dpr);
+    sizeLive(g);
     canvas.style.left = g.boxL + 'px'; canvas.style.top = g.boxT + 'px';
     canvas.style.width = g.box + 'px'; canvas.style.height = g.box + 'px';
 
@@ -82,6 +85,12 @@ export function initSplash(canvas, opts) {
     splashEl.style.setProperty('--Rc', g.Rc + 'px');
 
     placeWords(g);
+  }
+
+  /** The live canvas's bitmap, at the current pixel ratio. Changing it clears it,
+      which is fine: every frame is drawn from nothing. */
+  function sizeLive(g) {
+    canvas.width = Math.round(g.box * dpr); canvas.height = Math.round(g.box * dpr);
   }
 
   function placeWords(g) {
@@ -99,8 +108,9 @@ export function initSplash(canvas, opts) {
     });
 
     const py = g.plaqueTop, ph = g.plate;
+    // the readout sits in the gap between the dial and the plaque, so it can never be under the plaque's rules
     const counter = $('sw-counter');
-    counter.style.top = (py + ph * 0.5 - counter.offsetHeight / 2) + 'px';
+    counter.style.top = (g.cy + g.Rc + g.gap / 2 - counter.offsetHeight / 2) + 'px';
 
     // the plaque: a frame, the title above a rule, the line beneath
     const plaque = $('sw-plaque');
@@ -183,24 +193,39 @@ export function initSplash(canvas, opts) {
   raf = requestAnimationFrame(frame);
   autoTimer = setTimeout(dismiss, (AUTO_S / speed) * 1000);
   window.addEventListener('resize', onResize);
+  document.addEventListener('visibilitychange', onVisibility);
 
+  /* The show follows the wall clock, not the frames. Adding up capped steps —
+     which is what stops a backgrounded tab from jumping — turns a slow phone
+     into slow motion: at a sixth of this machine's speed the title had still
+     not been engraved when the safety net took the opening down, so the visitor
+     never saw it. Frames may be dropped; the title arrives when it is due. Time
+     spent in a hidden tab is taken off instead. */
   function frame(ts) {
     if (done) return;
-    if (last == null) last = ts;
-    const dt = Math.min(0.05, (ts - last) / 1000);           // a backgrounded tab must not jump
-    last = ts;
-    elapsed += dt;
-    const t = Math.min(DURATION, elapsed * speed);
+    if (start == null) { start = ts; last = ts; }
+    elapsed = (ts - start) / 1000 - hidden;
+    const t = Math.min(DURATION, Math.max(0, elapsed * speed));
     scene.draw(ctx, dpr, t, lite ? 0 : 1);
     words(t, false);
 
     // A slow phone gets a lighter frame rather than a slideshow: after the
-    // first stretch, if the average frame is over ~38 ms, draw at one pixel per
-    // CSS pixel and leave out the glows.
-    if (!lite && ++frames > 6 && frames <= 34) slowMs += dt * 1000;
-    if (!lite && frames === 34 && slowMs / 28 > 38) { lite = true; layout(); }
+    // first stretch, if the average frame is over LITE_MS, draw at one pixel per
+    // CSS pixel and leave out the glows. (A single long frame counts as 200 ms
+    // at most, and the first few, which carry start-up, not at all.)
+    const dtMs = Math.min(200, ts - last); last = ts;
+    if (!lite && ++frames > 6 && frames <= LITE_AFTER) slowMs += dtMs;
+    if (!lite && frames === LITE_AFTER && slowMs / (LITE_AFTER - 6) > LITE_MS) {
+      // only the live canvas changes: the still layer is already painted, and laying the whole scene out again cost a visible hitch
+      lite = true; dpr = 1; sizeLive(scene.geom);
+    }
 
     raf = requestAnimationFrame(frame);
+  }
+
+  function onVisibility() {
+    if (document.hidden) hiddenAt = performance.now();
+    else if (hiddenAt != null) { hidden += (performance.now() - hiddenAt) / 1000; hiddenAt = null; }
   }
 
   function onResize() {
@@ -247,6 +272,7 @@ export function initSplash(canvas, opts) {
     if (raf) cancelAnimationFrame(raf);
     window.removeEventListener('resize', onResize);
     document.removeEventListener('keydown', onKey);
+    document.removeEventListener('visibilitychange', onVisibility);
     if (document.fonts && document.fonts.removeEventListener) document.fonts.removeEventListener('loadingdone', onFonts);
     try { localStorage.setItem('tol-splash-seen', '1'); } catch { /* private mode */ }
     if (splashEl) {

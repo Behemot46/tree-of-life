@@ -24,6 +24,19 @@
  *
  *   node scripts/build-silhouettes.mjs             # full run
  *   node scripts/build-silhouettes.mjs --limit 20  # smoke it quickly
+ *   node scripts/build-silhouettes.mjs --only lion,tiger   # rebuild a few,
+ *                                                  # keep everything else
+ *
+ * Non-commercial licences are refused
+ * -----------------------------------
+ * A CC BY-NC silhouette cannot go on a site that may one day carry a donate
+ * button or a sponsor, and seventeen of them had arrived as some taxon's
+ * PhyloPic "primary image". When the primary image is non-commercial, the
+ * builder takes another image of the same taxon instead, and failing that of
+ * the genus. It never reaches into a larger clade on its own: on PhyloPic's
+ * tree the Asgard archaea contain every eukaryote, so "any image in the
+ * clade" can be a mushroom. Where a taxon has nothing usable at either level,
+ * EXTRA_NAMES names a nearby group by hand.
  */
 import { mkdirSync, writeFileSync, existsSync, readdirSync, unlinkSync } from 'node:fs';
 import { setTimeout as sleep } from 'node:timers/promises';
@@ -32,6 +45,26 @@ import { pathToFileURL } from 'node:url';
 const argv = process.argv.slice(2);
 const arg = (n, d) => { const i = argv.indexOf('--' + n); return i >= 0 ? argv[i + 1] : d; };
 const LIMIT = Number(arg('limit', 0)) || 0;
+const ONLY = arg('only', '') ? new Set(arg('only', '').split(',').map((x) => x.trim()).filter(Boolean)) : null;
+
+/* A licence URL is non-commercial when it carries "-nc" (by-nc, by-nc-sa,
+   by-nc-nd). */
+const NON_COMMERCIAL = /\/by-nc/i;
+
+/* Groups to try, after a taxon's own name and its genus, when neither has a
+   usable image. Chosen by hand, and only ever a close group of the same shape. */
+const EXTRA_NAMES = {
+  'leafcutter-ant': ['Attini'], // the fungus-growing ants, leafcutters included
+  asgard: ['Eukaryomorpha'],    // PhyloPic files the Asgard archaea under this name
+};
+
+/* Groups to try *before* a taxon's own name, where the name is broader than
+   what the node shows. The feather star is filed as Crinoidea, the whole
+   class, whose PhyloPic image is a stalked sea lily — right for the class,
+   wrong for a node called "feather star". */
+const SEARCH_AS = {
+  'feather-star': ['Comatulida'],
+};
 
 const API = 'https://api.phylopic.org';
 const OUT_DIR = 'assets/silhouettes';
@@ -100,6 +133,22 @@ function searchNames(node) {
    each already carrying the build in its href. The first version of this read
    `_embedded.items`, which does not exist, so every lookup found nothing and
    the run resolved 0 of 165 taxa while reporting no error at all. */
+/* First image in a PhyloPic /images query that has a vector file and a
+   licence the site can use. The collection is an envelope around its first
+   page, the same as /nodes. */
+async function firstUsableImage(query) {
+  const found = await api(`/images?${query}`);
+  if (!found || !found.totalItems) return null;
+  const page = await api(found._links?.firstPage?.href || `/images?${query}&page=0`);
+  for (const item of page?._links?.items || []) {
+    const img = item.href ? await api(item.href) : null;
+    const lic = img?._links?.license;
+    const licence = (lic && (lic.href || lic.title)) || '';
+    if (img?._links?.vectorFile?.href && !NON_COMMERCIAL.test(licence)) return img;
+  }
+  return null;
+}
+
 async function resolveOne(build, name) {
   const found = await api(`/nodes?filter_name=${encodeURIComponent(name.toLowerCase())}&build=${build}`);
   if (!found || !found.totalItems) return null;
@@ -110,24 +159,48 @@ async function resolveOne(build, name) {
      or `_links.items` — finds nothing, which is why two earlier versions
      resolved 0 of 305 taxa while the API was answering 200 with
      `totalItems: 1`. */
-  const page = await api(found._links?.firstPage?.href ||
-    `/nodes?filter_name=${encodeURIComponent(name.toLowerCase())}&build=${build}&page=0`);
-  const items = page?._links?.items || [];
-  if (!items.length || !items[0].href) return null;
+  const page = await api(`/nodes?filter_name=${encodeURIComponent(name.toLowerCase())}&build=${build}&page=0&embed_items=true`);
+  const items = page?._embedded?.items || [];
 
-  const node = await api(items[0].href);
+  /* A name search returns every node the name touches, and the first is
+     often not the taxon: "panthera uncia" comes back led by the subgenus
+     "Panthera (Tigris)", so the snow leopard and the tiger were drawn from
+     one image, and "macaca" is led by a grunt, Haemulon sciurus, which is how
+     the Japanese macaque was drawn as a fish. Take the node whose scientific
+     name is the name asked for. Failing that, a search that found exactly one
+     node found it under a synonym — PhyloPic knows Cyanobacteria as
+     Cyanobacteriota — and that node is used; several nodes and no exact name
+     is a guess, and a guess is how a monkey became a fish. */
+  const want = name.trim().toLowerCase();
+  const node = items.find((n) => (n.names || []).some((parts) =>
+    parts?.[0]?.class === 'scientific' && String(parts[0].text).trim().toLowerCase() === want))
+    || (items.length === 1 ? items[0] : null);
+  if (!node?._links?.self?.href) return null;
   const imgHref = node?._links?.primaryImage?.href;
-  if (!imgHref) return null;
+  let img = imgHref ? await api(imgHref) : null;
 
-  const img = await api(imgHref);
+  /* The primary image is whatever PhyloPic features for the taxon, and its
+     licence is whatever its artist chose. A non-commercial one is swapped for
+     another image of exactly this taxon — never of a bigger clade. */
+  const primaryLic = img?._links?.license;
+  if (!img || NON_COMMERCIAL.test((primaryLic && (primaryLic.href || primaryLic.title)) || '')) {
+    const uuid = node.uuid || (node._links.self.href.match(/\/nodes\/([^?/]+)/) || [])[1];
+    img = uuid ? await firstUsableImage(`build=${build}&filter_node=${uuid}&filter_license_nc=false`) : null;
+  }
   const vector = img?._links?.vectorFile?.href;
   if (!vector) return null;
 
   const lic = img?._links?.license;
+  const license = (lic && (lic.href || lic.title)) || '';
+  if (NON_COMMERCIAL.test(license)) return null;
+  /* The image's own page on phylopic.org, for credits.html: CC BY asks for a
+     link to the material wherever that is practicable. */
+  const uuid = img?.uuid || ((img?._links?.self?.href || '').match(/\/images\/([^?/]+)/) || [])[1];
   return {
     url: vector.startsWith('http') ? vector : API + vector,
-    license: (lic && (lic.href || lic.title)) || '',
+    license,
     attribution: img?.attribution || '',
+    page: uuid ? `https://www.phylopic.org/images/${uuid}` : '',
   };
 }
 
@@ -153,9 +226,8 @@ function recolour(svg) {
     .replace(/<svg\b(?![^>]*\bfill=)/i, '<svg fill="currentColor"');
 }
 
-const { TREE } = await import(pathToFileURL('js/treeData.js').href);
+const { TREE, lightenColor } = await import(pathToFileURL('js/treeData.js').href);
 const { expandTree } = await import(pathToFileURL('js/treeExpansion.js').href);
-const { lightenColor } = await import(pathToFileURL('js/utils.js').href).catch(() => ({}));
 try {
   expandTree(TREE, lightenColor || ((c) => c));
 } catch (err) {
@@ -168,6 +240,7 @@ const nodes = [];
 (function walk(n) { nodes.push(n); (n.children || []).forEach(walk); })(TREE);
 
 let targets = nodes.filter((n) => n.latin);
+if (ONLY) targets = targets.filter((n) => ONLY.has(n.id));
 if (LIMIT) targets = targets.slice(0, LIMIT);
 
 mkdirSync(OUT_DIR, { recursive: true });
@@ -176,13 +249,16 @@ const build = (await api('/'))?.build;
 if (!build) { console.error('Could not read the PhyloPic build number — aborting.'); process.exit(2); }
 process.stderr.write(`PhyloPic build ${build}; resolving ${targets.length} taxa…\n`);
 
-const manifest = {};
+/* With --only, every taxon not being rebuilt keeps its current silhouette
+   and licence, so a targeted fix does not quietly redraw the other 250. */
+const manifest = ONLY ? { ...(await import(pathToFileURL(OUT_MODULE).href)).SILHOUETTES } : {};
+if (ONLY) for (const id of ONLY) delete manifest[id];
 let hit = 0, miss = 0;
 
 for (let i = 0; i < targets.length; i++) {
   const node = targets[i];
   let got = null;
-  for (const name of searchNames(node)) {
+  for (const name of [...(SEARCH_AS[node.id] || []), ...searchNames(node), ...(EXTRA_NAMES[node.id] || [])]) {
     try { got = await resolveOne(build, name); } catch { got = null; }
     if (got) break;
     await sleep(120);
@@ -197,7 +273,7 @@ for (let i = 0; i < targets.length; i++) {
   if (!svg || !/<svg/i.test(svg)) { miss++; continue; }
 
   writeFileSync(`${OUT_DIR}/${node.id}.svg`, recolour(svg));
-  manifest[node.id] = { license: got.license, attribution: got.attribution };
+  manifest[node.id] = { license: got.license, attribution: got.attribution, page: got.page };
   hit++;
   if ((hit + miss) % 25 === 0) process.stderr.write(`  ${hit + miss}/${targets.length} (${hit} found)\n`);
   await sleep(120);
@@ -218,10 +294,11 @@ const body = [
   ' * photograph: nothing photographic survives 40px, and a silhouette is pure',
   ' * shape, which is the one thing that does.',
   ' *',
-  ` * ${hit} of ${targets.length} taxa resolved.`,
+  ` * ${Object.keys(manifest).length} of ${nodes.filter((n) => n.latin).length} taxa resolved.`,
   ' *',
   ' * PhyloPic content is overwhelmingly CC0 or CC BY. Anything not public',
-  ' * domain needs its attribution shown wherever the silhouette is.',
+  ' * domain needs its attribution shown wherever the silhouette is; credits.html',
+  ' * lists them all. Non-commercial licences are refused at build time.',
   ' */',
   'export const SILHOUETTES = {',
   ...Object.keys(manifest).sort().map((id) =>
@@ -232,4 +309,4 @@ const body = [
 writeFileSync(OUT_MODULE, body);
 
 console.log(`\n${hit} silhouettes written to ${OUT_DIR}, ${miss} taxa had none.`);
-if (hit < 40) { console.error('Suspiciously few resolved — not trusting this run.'); process.exit(2); }
+if (!ONLY && hit < 40) { console.error('Suspiciously few resolved — not trusting this run.'); process.exit(2); }

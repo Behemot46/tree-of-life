@@ -265,6 +265,9 @@ body[data-view="explore"] .reveal-panel { display: none !important; }
   object-fit: cover; border-radius: var(--radius-md); }
 .ex-reveal-text { min-width: 0; }
 .ex-latin { margin: 0; font-style: italic; font-size: 13px; color: var(--text-secondary); }
+/* Author and licence of the photograph above, linked to its Commons page. */
+.ex-credit { margin: 6px 0 0; font-size: 11px; color: var(--text-secondary); overflow-wrap: anywhere; }
+.ex-credit a { color: inherit; text-underline-offset: 2px; }
 .ex-desc {
   margin: 6px 0 0; font-size: 14px; line-height: 1.45;
   color: var(--parchment, var(--text-secondary));

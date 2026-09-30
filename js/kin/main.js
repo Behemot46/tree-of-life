@@ -61,6 +61,7 @@ function applyLanguage() {
   document.title = t().title;
   $('kin-brand').textContent = t().brand;
   $('kin-foot').textContent = t().testBuild;
+  $('kin-credits').textContent = t().credits;
   /* One button for each other language, each named in its own language and
      script, so a reader finds theirs without reading this one. */
   $('kin-langs').innerHTML = LANGS.filter((l) => l !== lang).map((l) => {

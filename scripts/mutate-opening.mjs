@@ -75,6 +75,9 @@ const MUTATIONS = {
   // the clock that made a slow phone play in slow motion: capped steps added up instead of the wall clock
   'capped-clock': ['phone-en', 'js/splash.js', 'elapsed = (ts - start) / 1000 - hidden;', 'elapsed += Math.min(0.05, (ts - last) / 1000);',
     ['opening:a-slow-phone-still-gets-the-title']],
+  // laying the words out again when a font arrives used to rebuild the scale, which then faded in from nothing
+  'font-blinks-scale': ['desktop-en', 'js/splash.js', "if (done || !scene) return;\n    placeWords(scene.geom);", "if (done || !scene) return;\n    placeScale(scene.geom); placeWords(scene.geom);",
+    ['opening:a-late-font-does-not-blink-the-scale']],
   'no-key': ['desktop-en', 'js/splash.js', "document.addEventListener('keydown', onKey);", '',
     ['opening:leaves-by-keyboard']],
   'no-canvas-path': ['desktop-en', 'js/splash.js', "splashEl.classList.add('no-canvas');", '',

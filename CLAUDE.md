@@ -705,9 +705,14 @@ Things worth knowing before changing it:
   out at 8.6px instead of 10 on a phone — for visitors who ask for reduced
   motion and no one else, which is the setting no one tests with. The spans now
   say `transition-property: none`, and constraint 13 is the general form.
-- **A web font arriving lays the words out again.** Every width the title was
-  fitted against changes when Inter replaces the fallback, and `loadingdone`
-  re-runs `placeWords()`. Only the words: the canvases have no text in them.
+- **A web font arriving fits the title again — and only the title.** Every
+  width the title was fitted against changes when Inter replaces the fallback,
+  and `loadingdone` re-runs `placeWords()`. It does not rebuild the scale
+  labels, which depend on no font: a rebuilt label fades in from nothing, so a
+  font that landed at 4 s used to blink the whole scale out of the finished
+  picture (found in a screenshot where the labels were missing).
+  `opening:a-late-font-does-not-blink-the-scale` sends the event by hand,
+  because a real font's arrival cannot be timed.
 - **Reduced motion paints the finished plate once** and leaves after 2.5
   seconds. The plate is what the animation is *for*, so it is the right still
   frame — it has the same picture and the same words as the full show, where
@@ -1097,7 +1102,7 @@ work is shown. So:
 ## Known Constraints & Important Notes
 
 1. **Tests are browser smoke checks, not unit tests** — `node scripts/smoke.mjs`
-   opens the real page in Chromium and asserts 516 things about layout, i18n,
+   opens the real page in Chromium and asserts 522 things about layout, i18n,
    contrast and rendering. See *Smoke tests* below.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
 3. **index.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
@@ -1239,8 +1244,8 @@ never mistaken for a working page.
 
 ## Smoke Tests
 
-`scripts/smoke.mjs` opens the real page in Chromium and asserts **516 checks**
-— ~85 per scenario across six scenarios (desktop in English, Hebrew and Russian,
+`scripts/smoke.mjs` opens the real page in Chromium and asserts **522 checks**
+— ~86 per scenario across six scenarios (desktop in English, Hebrew and Russian,
 phone in English and Hebrew, and a desktop pass in the light theme), and five
 static checks that read the source before the browser starts. Scenarios differ
 in count because some checks are language- or viewport-specific. It runs on every
@@ -1257,7 +1262,7 @@ node scripts/smoke.mjs --url https://example.com   # check a deployed site
 node scripts/smoke.mjs --proxy http://host:port    # run from behind a proxy
 node scripts/smoke.mjs --only desktop-he           # one scenario, ~1 min
 node scripts/smoke.mjs --opening-only --only phone-en  # just the opening group, ~15 s
-node scripts/mutate-opening.mjs                    # break the opening 22 ways, watch each check go red (~4 min)
+node scripts/mutate-opening.mjs                    # break the opening 24 ways, watch each check go red (~4 min)
 npm run smoke:update-baseline                      # re-record known failures
 ```
 

@@ -965,6 +965,16 @@ check('opening:animates', 'A first visit really does grow: the tree is far fulle
   }
 });
 
+check('opening:a-late-font-does-not-blink-the-scale', 'A web font arriving mid-show re-fits the title without making the scale labels disappear', (c) => {
+  const { blink } = openingPass(openingOf(c), 'live');
+  if (!blink || !blink.before.length) fail('there were no scale labels to watch');
+  blink.before.forEach((b, i) => {
+    const a = blink.after[i];
+    if (b < 0.4) fail(`scale label ${i + 1} was only at ${b} opacity before the font arrived — the show had not lit it`);
+    if (a < b - 0.1) fail(`scale label ${i + 1} dropped from ${b} to ${a} opacity when a font arrived: it was rebuilt, and rebuilt labels fade in from nothing`);
+  });
+});
+
 check('opening:reduced-motion-holds-still', 'With reduced motion the finished plate is painted at once, nothing moves, and it leaves by itself', (c) => {
   const pl = openingPass(openingOf(c), 'plate');
   if (!/\bshow-plaque\b/.test(pl.splashClass) || !/\bshow-hint\b/.test(pl.splashClass)) {
@@ -1330,6 +1340,17 @@ async function openingProbe(page, scenario, baseUrl) {
     const early = await measure(p);
     await p.waitForTimeout(2400);
     const later = await measure(p);
+    /* A web font that arrives mid-show makes the title fit itself again. It must
+       not rebuild the scale labels: a rebuilt label fades in from nothing, and
+       the scale would blink out in the middle of the show. The event is sent by
+       hand because a real font's arrival cannot be timed. */
+    const blink = await p.evaluate(async () => {
+      const opacities = () => [...document.querySelectorAll('.sw-scale li')].map((li) => parseFloat(getComputedStyle(li).opacity));
+      const before = opacities();
+      document.fonts.dispatchEvent(new Event('loadingdone'));
+      await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+      return { before, after: opacities() };
+    });
     const key = OPENING_KEYS[SCENARIOS.findIndex((s) => s.id === scenario.id) % OPENING_KEYS.length];
     /* Pressed with the safety-net dismissal (6.5 s after the start) still more
        than three seconds away, and given only 1.4 s to answer: the fade takes
@@ -1339,7 +1360,7 @@ async function openingProbe(page, scenario, baseUrl) {
     const dismissed = await gone(p, 1400);
     return {
       key, dismissed, firstVisit: !early.html.returning,
-      early: early.live, later: later.live, laterUnder: later.under,
+      early: early.live, later: later.live, laterUnder: later.under, blink,
       seenAfter: await p.evaluate(() => localStorage.getItem('tol-splash-seen')),
     };
   });

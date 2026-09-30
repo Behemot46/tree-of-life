@@ -84,6 +84,7 @@ export function initSplash(canvas, opts) {
     splashEl.style.setProperty('--cy', g.cy + 'px');
     splashEl.style.setProperty('--Rc', g.Rc + 'px');
 
+    placeScale(g);
     placeWords(g);
   }
 
@@ -93,8 +94,12 @@ export function initSplash(canvas, opts) {
     canvas.width = Math.round(g.box * dpr); canvas.height = Math.round(g.box * dpr);
   }
 
-  function placeWords(g) {
-    // the radial scale runs down the empty gap at the bottom, into the title
+  /** The radial scale runs down the empty gap at the bottom, into the title.
+      Its numbers are Latin digits in a monospace face and no width here depends
+      on a web font, which is why this is not part of placeWords: laying the words
+      out again when a font arrives would rebuild these, and rebuilt labels fade
+      in from nothing — a visible blink in the middle of the show. */
+  function placeScale(g) {
     const list = $('sw-scale');
     list.textContent = '';
     scaleEls = scene.labels.map((l, i) => {
@@ -106,7 +111,10 @@ export function initSplash(canvas, opts) {
       list.appendChild(li);
       return { li, r: l.r };
     });
+  }
 
+  /** The words whose size depends on the fonts: the readout, the plaque and its title. */
+  function placeWords(g) {
     const py = g.plaqueTop, ph = g.plate;
     // the readout sits in the gap between the dial and the plaque, so it can never be under the plaque's rules
     const counter = $('sw-counter');
@@ -238,12 +246,12 @@ export function initSplash(canvas, opts) {
     }, 120);
   }
 
-  /** A web font arriving changes every width the title was fitted against, so
-      the words are laid out again. Only the words: the picture has no text in it. */
+  /** A web font arriving changes every width the title was fitted against, so the
+      title and its plaque are fitted again. Not the scale, which depends on no
+      font, and not the picture, which has no text in it. */
   function onFonts() {
     if (done || !scene) return;
     placeWords(scene.geom);
-    words(now(), reduced);
   }
 
   // ── Leaving ──────────────────────────────────────────

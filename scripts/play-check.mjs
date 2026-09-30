@@ -47,6 +47,10 @@ const wants = (name) => !ONLY || ONLY.includes(name);
 /* Fonts come from Google; a sandbox without access to them is not a defect
    in the game. Everything else that fails to load is. */
 const IGNORABLE_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
+/* A request the page cancelled itself (a card re-rendered while its picture was still
+   arriving) did not fail. Over a real network an image is in flight long enough for this
+   to happen; against a local server it never is, so this only ever showed in production. */
+const cancelled = (r) => /ERR_ABORTED/.test((r.failure() && r.failure().errorText) || '');
 
 /* `flows` marks the scenarios that also play the long stories (a friend's Kin,
    a challenge, earning and spending a freeze): one of each language, and both
@@ -120,7 +124,7 @@ async function runScenario(browser, base, sc) {
   const failed = [];
   page.on('pageerror', (e) => errors.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text()); });
-  page.on('requestfailed', (r) => { if (!IGNORABLE_HOSTS.some((h) => r.url().includes(h))) failed.push(r.url()); });
+  page.on('requestfailed', (r) => { if (!IGNORABLE_HOSTS.some((h) => r.url().includes(h)) && !cancelled(r)) failed.push(r.url()); });
   await context.addInitScript(({ lang, theme }) => {
     localStorage.setItem('tol-lang', lang);
     localStorage.setItem('theme', theme);
@@ -361,7 +365,7 @@ async function visit(browser, base, sc, { state = null, query = '', context: ctx
   const seen = { errors: [], failed: [] };
   page.on('pageerror', (e) => seen.errors.push(e.message));
   page.on('console', (m) => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) seen.errors.push(m.text()); });
-  page.on('requestfailed', (r) => { if (!IGNORABLE_HOSTS.some((h) => r.url().includes(h))) seen.failed.push(r.url()); });
+  page.on('requestfailed', (r) => { if (!IGNORABLE_HOSTS.some((h) => r.url().includes(h)) && !cancelled(r)) seen.failed.push(r.url()); });
   await context.addInitScript(({ lang, theme, state }) => {
     localStorage.setItem('tol-lang', lang);
     localStorage.setItem('theme', theme);
@@ -708,6 +712,8 @@ async function checkInstall(browser, base, sc) {
     const shown = await attempt(() => page.waitForSelector('.kin-install[data-offer="prompt"]', { timeout: 2000 }));
     R('install-card-appears-when-the-browser-offers-it', !before && shown.ok, before ? 'the card was there before the browser offered anything' : shown.why);
     if (shown.ok) {
+      /* The card's icon is a picture over the network: measure once it has arrived, not while it is on its way. */
+      await page.waitForFunction(() => { const i = document.querySelector('.kin-install img'); return !i || i.complete; }, null, { timeout: 10000 }).catch(() => {});
       const c = await page.evaluate(async (lang) => {
         const { STRINGS } = await import('./js/kin/strings.js');
         const T = STRINGS[lang];

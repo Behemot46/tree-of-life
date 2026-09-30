@@ -38,7 +38,7 @@ Things waiting on a decision rather than on work.
 | `SECURITY.md` | **Rewritten** for what this project actually is: a static site with no backend and no releases. |
 | The custom domain | **Live at `www.treeoflife.wiki`**, verified by running the full suite against the deployed site rather than assuming it worked. Pages retired afterwards. |
 | Turning the site into a daily game (Kin) | **Done, 30 Sep 2026**: Kin is `index.html`, the front page; the encyclopedia is `atlas.html`. Built as three pull requests — Home and the return loop, the home screen and offline, then the front-door change. See the decision log and `docs/PLAY_STRATEGY.md`. |
-| Deleting three unreachable modules | **Deleted** with the front-door change: `js/trivia.js`, `js/quiz.js` and `js/imagePrompts.js` (~1,400 lines nothing imported). The service worker's old precache list named all three, which is why that list was replaced before they went. |
+| Deleting three unreachable modules | **Deleted** with the front-door change: `js/trivia.js`, `js/quiz.js` and `js/imagePrompts.js` (1,101 lines nothing imported). The service worker's old precache list named all three, which is why that list was replaced before they went. |
 | The 31 inline `onclick` handlers | **Gone**, along with 23 more the modules generated at runtime. `script-src` is now `'self'` with no `'unsafe-inline'`. See the decision log below. |
 
 ---

@@ -2,8 +2,9 @@ name: Kin Checks
 
 # The game's own checks, in a job of their own so they neither wait for nor
 # eat into the main smoke suite's timeout: unit tests for the engine and the
-# answer key (milliseconds), then play.html driven in Chromium as a
-# first-time visitor on phone and desktop, in English and Hebrew.
+# answer key (milliseconds), the frozen calendar compared with main, then
+# play.html driven in Chromium as a first-time visitor on phone and desktop,
+# in English and Hebrew.
 on:
   push:
     branches: [ main ]
@@ -33,6 +34,12 @@ jobs:
 
       - name: Unit tests
         run: npm test
+
+      # A day anyone can be playing must never change under them.
+      - name: Past Kin days are unchanged
+        run: |
+          git fetch --no-tags --depth=1 origin main
+          node scripts/kin-check-schedule.mjs --base FETCH_HEAD
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium

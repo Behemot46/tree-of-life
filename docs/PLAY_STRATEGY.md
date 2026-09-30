@@ -1,7 +1,10 @@
 # Kin — the play strategy for treeoflife.wiki
 
-**Status:** phase 1 built (29 Sep 2026): `play.html`, unlinked, on a preview
-deployment for testers. Gate below still open.
+**Status:** phase 1 live since 30 Sep 2026 at `treeoflife.wiki/play.html`
+(unlinked, noindex), with testers; its gate is still open. Phase 2 under way
+while they play — it does not depend on the gate: 571 questions (527
+generated from the tree), a frozen calendar, and the service worker fixed for
+Kin. Phase 3 (the new front door) waits for the gate.
 **Visual version, with a playable prototype:** https://claude.ai/artifact/9yBbHFjxeC2Nj4ZPispQ2P
 (private to Gabi until shared).
 
@@ -25,6 +28,12 @@ the code works today; `ROADMAP.md` records decisions once they are made.
 - **44 questions** instead of 40; days 1–4 hand-picked, later days seeded.
   Three drafted questions (crab, rabbit, hamster) were cut because no open
   source dates the split they turn on.
+- **Phase 2, first step (30 Sep):** the tree now writes most questions. 527
+  are generated — one per target and pair of dated splits, with the most
+  surprising pair of candidates, the trivial ones dropped — and 44 stay
+  hand-written: 571 in all, past the phase-2 gate of 500. The daily comes
+  from a calendar laid out 200 days ahead in one file (`js/kin/schedule.js`),
+  as the truth-engine section asks, and CI fails if a played day changes.
 - **No analytics yet.** `play.html?stats=1` shows what a tester's device
   remembers, which is enough to see whether someone came back.
 

@@ -231,6 +231,48 @@ async function runScenario(browser, base, sc) {
   await context.close();
 }
 
+/**
+ * A scenario reveals the ten questions of one day; the bank holds hundreds,
+ * with dates that only some days would ever show. Draw every question's
+ * reveal on the narrowest phone, in each language, and hold each one to the
+ * same two rules: every label inside the figure, and no two labels touching.
+ */
+async function checkEveryReveal(browser, base) {
+  process.stdout.write('\n▸ every-reveal (360×640)\n');
+  for (const lang of ['en', 'he']) {
+    const context = await browser.newContext({ viewport: { width: 360, height: 640 }, isMobile: true, hasTouch: true });
+    const page = await context.newPage();
+    await page.addInitScript((l) => { try { localStorage.setItem('tol-lang', l); } catch { /* private mode */ } }, lang);
+    await page.goto(`${base}/play.html`, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.kin-opt');
+    const res = await page.evaluate(async (l) => {
+      const E = await import('./js/kin/engine.js');
+      const { treeHTML } = await import('./js/kin/reveal.js');
+      const stage = document.getElementById('kin-stage');
+      const box = document.createElement('div');
+      box.style.cssText = `position:absolute;left:0;top:0;width:${stage.clientWidth}px`;
+      document.body.appendChild(box);
+      const ov = (a, b) => a.left < b.right - 0.5 && a.right > b.left + 0.5 && a.top < b.bottom - 0.5 && a.bottom > b.top + 0.5;
+      const bad = [];
+      for (const q of E.ALL_QUESTIONS) {
+        box.innerHTML = treeHTML(E.resolve(q), l);
+        const f = box.querySelector('.kin-tree').getBoundingClientRect();
+        const labs = [...box.querySelectorAll('.kin-lab')].map((el) => ({ text: el.textContent.trim(), r: el.getBoundingClientRect() }));
+        for (const { text, r } of labs) {
+          if (r.left < f.left - 1 || r.right > f.right + 1 || r.top < f.top - 1 || r.bottom > f.bottom + 1) bad.push(`${q.id}: "${text}" outside`);
+        }
+        for (let a = 0; a < labs.length; a++) for (let b = a + 1; b < labs.length; b++) {
+          if (ov(labs[a].r, labs[b].r)) bad.push(`${q.id}: "${labs[a].text}" × "${labs[b].text}"`);
+        }
+      }
+      box.remove();
+      return { n: E.ALL_QUESTIONS.length, bad };
+    }, lang);
+    record('every-reveal', `play:every-reveal-fits-${lang}`, !res.bad.length, `${res.bad.length} of ${res.n}: ${res.bad.slice(0, 4).join('; ')}`);
+    await context.close();
+  }
+}
+
 await mkdir(OUT, { recursive: true });
 const server = await startServer();
 const browser = await chromium.launch();
@@ -241,6 +283,8 @@ try {
     try { await runScenario(browser, server.url, sc); }
     catch (e) { record(sc.name, 'play:scenario-completes', false, String(e.message || e).split('\n')[0]); }
   }
+  try { await checkEveryReveal(browser, server.url); }
+  catch (e) { record('every-reveal', 'play:every-reveal-completes', false, String(e.message || e).split('\n')[0]); }
 } finally {
   await browser.close();
   await server.stop();

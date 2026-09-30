@@ -152,10 +152,16 @@ tree-of-life/
     ├── engagement.js    # Toast notifications, idle timer, intro, particles
     └── kin/             # Kin, the daily game — see *Kin*
         ├── tree.js      # The answer key: a curated tree of every creature
+        ├── key.js       # Reads the key: MRCA, resolve(), the margin rule
         ├── dates.js     # Sourced age of each branching point, with citations
-        ├── creatures.js # Emoji, English and Hebrew names with grammatical forms
-        ├── questions.js # The bank, one-line "why" in both languages, curated days
-        ├── engine.js    # Pure: MRCA, validation, daily schedule, arcade, streak, share
+        ├── groups.js    # One line per dated branch — the "why" of generated questions
+        ├── creatures.js # Emoji, names with grammatical forms, LOOKS (folk tags)
+        ├── questions.js # Hand-written questions, their "why", days 1–4, hooks
+        ├── generate.js  # Build-time only: picks questions from the tree, lays out days
+        ├── bank.js      # GENERATED: every generated question
+        ├── schedule.js  # GENERATED: the frozen calendar, one line per day
+        ├── calendar.js  # EPOCH, day numbers, the last day playable anywhere
+        ├── engine.js    # Pure: all questions, validation, daily, arcade, streak, share
         ├── strings.js   # Every word the player reads, English and Hebrew
         ├── reveal.js    # The three-line tree drawn after each answer
         ├── main.js      # play.html's only script
@@ -215,11 +221,49 @@ Things worth knowing before changing it:
 - **`play.html?stats=1`** shows what this device remembers (days played,
   dailies finished, arcade runs, shares). It is how phase 1 learns whether
   testers came back without adding analytics; nothing leaves the device.
+- **Most questions are generated, not written.** The tree answers far more
+  than anyone could write: `js/kin/generate.js` takes every target and every
+  pair of creatures meeting it at two different dated nodes, keeps one per
+  shape with the most surprising pair, and drops the trivial ones. Surprise
+  comes from `LOOKS` in `creatures.js` — what a casual player lumps a
+  creature with (sea, furry, fruit…): a question is hard when the wrong
+  answer shares more of those with the target than the right one does. A
+  generated question's "why" is the line in `groups.js` for the node where
+  the target meets its nearer relative, so each line names *that* group and
+  never a broader one. `npm run kin:build` rewrites `bank.js` and extends
+  `schedule.js`; `npm test` fails if `bank.js` differs from a fresh run.
+- **The margin rule applies to generated questions only**: the far split
+  must be ≥ 15% older than the near one (`MARGIN` in `key.js`), because
+  closer than that the published error bars overlap. Hand-written questions
+  are checked by a person and keep their dates.
+- **The calendar is frozen; the past never changes.** `schedule.js` holds
+  every day's ten ids, one line per day. The builder copies every day up to
+  the last one playable anywhere (today in UTC+14) and only rebuilds later
+  ones, and `play.yml` runs `scripts/kin-check-schedule.mjs` against main so
+  a PR that alters a played day fails. It also fails when fewer than 30 days
+  remain: extend with `npm run kin:build -- --days N`. Generated ids are
+  readable (`target.nearer.farther`), so a day stays resolvable after the
+  bank is rebuilt; a tree fix that makes a played question false fails the
+  tests rather than silently changing it.
+- **How a day is laid out**: an opener whose wrong answer is a strong decoy,
+  then nine rising in difficulty — gentle Mondays, hard Saturdays, a themed
+  Sunday — with no target, no meeting node, and no creature more than twice
+  in one day, and no question again within 45 days. When a day cannot be
+  filled, the rules give way one at a time (a Sunday's theme first), but a
+  question never returns within a week.
+- **The service worker fetches Kin network-first.** `sw.js`, registered by
+  the Atlas, serves the rest of the site stale-while-revalidate; for Kin
+  that would hand a returning player the previous build — and so a different
+  daily puzzle from everyone else's — once after every deploy.
 - **`npm run play:check`** drives the page in Chromium as a first-time visitor
   (phone and desktop, English and Hebrew): first question within 3 s, reveal
   labels fit and do not collide, the figure mirrors, no Latin text in Hebrew,
-  share text, reload, arcade end, CSP. Screenshots in `.play-out/`. It runs in
-  CI as its own workflow (`play.yml`), apart from the smoke suite.
+  share text, reload, arcade end, CSP. Screenshots in `.play-out/`. It also
+  draws **every** question's reveal on a 360px phone in both languages
+  (`play:every-reveal-fits-*`), because a day only ever shows ten of them —
+  that sweep found a Hebrew fossil-minimum date running out of the figure on
+  its first run. It runs in CI as its own workflow (`play.yml`), apart from
+  the smoke suite.
 
 ## Running Locally
 

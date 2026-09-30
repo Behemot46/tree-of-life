@@ -105,6 +105,15 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
+  // Kin (play.html and everything it loads) — network-first. The daily
+  // puzzle comes from its code, so a stale copy would hand a returning
+  // player a different game from everyone else's for one visit after every
+  // deploy. The cache is only the offline fallback.
+  if (url.origin === self.location.origin && isKin(url.pathname)) {
+    e.respondWith(networkFirst(e.request, CACHE_VERSION, 4000));
+    return;
+  }
+
   // App shell (same-origin) — cache-first with network update
   if (url.origin === self.location.origin) {
     e.respondWith(staleWhileRevalidate(e.request, CACHE_VERSION));
@@ -114,6 +123,11 @@ self.addEventListener('fetch', (e) => {
   // Everything else — network with cache fallback
   e.respondWith(networkFirst(e.request, CACHE_VERSION, 5000));
 });
+
+function isKin(pathname) {
+  return pathname === '/play.html' || pathname.startsWith('/js/kin/')
+    || pathname === '/css/kin.css' || pathname === '/js/actions.js';
+}
 
 // ── Caching strategies ──
 

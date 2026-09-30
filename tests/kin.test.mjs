@@ -11,6 +11,10 @@ import { QUESTIONS, CURATED_DAYS, HOOKS } from '../js/kin/questions.js';
 import { NODE_DATES, SOURCES } from '../js/kin/dates.js';
 import { STRINGS, LANGS } from '../js/kin/strings.js';
 import { mulberry32, hashString } from '../js/kin/rng.js';
+import { GROUPS } from '../js/kin/groups.js';
+import { BANK } from '../js/kin/bank.js';
+import { SCHEDULE } from '../js/kin/schedule.js';
+import { generateBank, REST_DAYS, MIN_REST_DAYS } from '../js/kin/generate.js';
 
 test('the answer key has no problems', () => {
   /* One list, so a failure names every broken question at once: branching
@@ -95,25 +99,84 @@ test('day numbers count calendar days from the epoch, across daylight-saving cha
   assert.equal(E.localDateString(new Date(2026, 0, 5)), '2026-01-05');
 });
 
-test('days 1-4 are the curated sets; later days are ten valid, distinct, repeatable questions', () => {
+test('days 1-4 are the curated sets; every calendar day is ten valid, distinct, repeatable questions', () => {
   CURATED_DAYS.forEach((set, i) => assert.deepEqual(E.dailyIds(i + 1), set));
-  for (let day = 5; day <= 120; day++) {
+  for (let day = 1; day <= SCHEDULE.length + 30; day++) {
     const ids = E.dailyIds(day);
     assert.equal(ids.length, E.DAILY_SIZE, `day ${day}`);
     assert.equal(new Set(ids).size, E.DAILY_SIZE, `day ${day} repeats a question`);
-    for (const id of ids) assert.ok(E.QUESTION_BY_ID[id], `day ${day}: ${id}`);
-    assert.ok(HOOKS.includes(ids[0]), `day ${day} does not open with a hook`);
+    for (const id of ids) {
+      const q = E.QUESTION_BY_ID[id];
+      assert.ok(q, `day ${day}: ${id}`);
+      const r = E.resolve(q);
+      assert.ok(r.valid && r.dated, `day ${day}: ${id} is not true and dated`);
+    }
+    assert.equal(new Set(ids.map((id) => E.QUESTION_BY_ID[id].t)).size, E.DAILY_SIZE, `day ${day} asks about one creature twice`);
     assert.deepEqual(E.dailyIds(day), ids, `day ${day} is not deterministic`);
     const prev = new Set(E.dailyIds(day - 1));
-    assert.ok(ids.every(id => !prev.has(id)), `day ${day} repeats yesterday`);
+    assert.ok(day === 1 || ids.every((id) => !prev.has(id)), `day ${day} repeats yesterday`);
   }
   assert.deepEqual(E.dailyIds(0), CURATED_DAYS[0], 'a clock set before the epoch still gets a game');
 });
 
+test('a calendar day opens with a surprise and rests its questions', () => {
+  /* The opener is what a player sees first and what makes them share: a
+     hand-picked hook or a generated question whose wrong answer is a strong
+     decoy, and at worst a hard one. A question comes back only after a rest
+     of REST_DAYS where the bank allows; the builder may shorten that to fill
+     a day, but never below MIN_REST_DAYS, and only on a few days. */
+  const bankS = Object.fromEntries(BANK.map((e) => { const cut = e.lastIndexOf('.'); return [e.slice(0, cut), Number(e.slice(cut + 1))]; }));
+  const last = new Map();
+  let shortRests = 0;
+  SCHEDULE.forEach((line, i) => {
+    const ids = line.split(' ');
+    if (i >= CURATED_DAYS.length) {
+      const first = E.QUESTION_BY_ID[ids[0]];
+      assert.ok(HOOKS.includes(ids[0]) || bankS[ids[0]] >= 2 || first.d === 3, `Kin #${i + 1} opens with ${ids[0]}`);
+    }
+    for (const id of ids) {
+      if (last.has(id)) {
+        const gap = i - last.get(id);
+        assert.ok(gap >= MIN_REST_DAYS, `Kin #${i + 1} repeats ${id} after ${gap} days`);
+        if (gap < REST_DAYS) shortRests++;
+      }
+      last.set(id, i);
+    }
+  });
+  assert.ok(shortRests <= SCHEDULE.length / 10, `${shortRests} questions came back early`);
+});
+
+test('the bank has at least 500 true, dated questions, and is what the generator makes', () => {
+  /* The phase-2 gate. Every generated question must also clear the margin
+     rule — the far split at least 15% older than the near one — and the file
+     must match a fresh run, so the bank can never drift from the tree. */
+  assert.ok(E.ALL_QUESTIONS.length >= 500, `${E.ALL_QUESTIONS.length} questions`);
+  for (const q of E.ALL_QUESTIONS.filter((x) => x.generated)) {
+    const r = E.resolve(q);
+    assert.ok(r.valid && r.dated && E.clearMargin(r), `${q.id} fails the margin rule`);
+  }
+  const fresh = generateBank({ curated: QUESTIONS }).map((q) => `${q.id}.${q.s}`);
+  assert.deepEqual(BANK, fresh, 'js/kin/bank.js is stale: run node scripts/kin-build.mjs');
+});
+
+test('every branch a question can meet at explains itself, in every language', () => {
+  const root = E.NODE_IDS[0];
+  for (const id of Object.keys(NODE_DATES)) {
+    if (id === root) continue;
+    assert.ok(GROUPS[id], `no line in js/kin/groups.js for ${id}`);
+  }
+  for (const [id, line] of Object.entries(GROUPS)) {
+    assert.ok(NODE_DATES[id], `line for ${id}, which has no date`);
+    for (const lang of LANGS) assert.ok(line[lang] && line[lang].length > 10, `${id}: no ${lang} line`);
+    assert.doesNotMatch(line.he, /[A-Za-z]/, `${id}: Hebrew line has Latin letters`);
+    assert.doesNotMatch(line.en, /\d/, `${id}: a line never states a number — the headline does`);
+  }
+});
+
 test('the arcade holds every question once, in an order fixed by its seed', () => {
   const a = E.arcadeIds(12345);
-  assert.equal(a.length, QUESTIONS.length);
-  assert.equal(new Set(a).size, QUESTIONS.length);
+  assert.equal(a.length, E.ALL_QUESTIONS.length);
+  assert.equal(new Set(a).size, E.ALL_QUESTIONS.length);
   assert.deepEqual(E.arcadeIds(12345), a);
   assert.notDeepEqual(E.arcadeIds(54321), a);
 });

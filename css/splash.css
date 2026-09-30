@@ -1,23 +1,187 @@
 /* ── OPENING SCREEN ──
-   The canvas draws everything; these rules own only the surface it sits on,
-   the skip affordance and the no-canvas fallback. Colours come from the
-   theme tokens so the opening follows the light theme too — the animation
-   reads the same tokens in js/splash.js. */
+   Three layers and a page of words. What is drawn is drawn by js/splashScene.js
+   on two canvases: a still one for the grain, dial and graticule, and a live one,
+   cropped to the dial, for everything that moves. Every word is DOM, so it stays
+   sharp when the canvas is drawn at a lower resolution, reads right in Hebrew,
+   and can be translated without touching the art.
+
+   None of it has to wait for a script. The first paint already carries the
+   ring and the point — .splash-pre, plain CSS — in the place the canvas will
+   draw them, so a slow phone sees the instrument the moment there is anything
+   to see, not a blank screen while forty modules load. When the canvas is ready
+   it fades in over them (#splash.is-live).
+
+   The geometry below is the arithmetic in geometry() in js/splashScene.js,
+   written as CSS. Keep the two in step. js/splash.js then overwrites --cx, --cy
+   and --Rc with the exact numbers, so any rounding difference is a pixel, and
+   only for the first moment. */
 
 #splash {
+  --sp-vh: 1vh;
+  --sp-plate: 76px;
+  --sp-hint: 44px;
+  --sp-m: max(24px, calc(4 * var(--sp-vh)));
+  --Rc: max(56px, min(44.5vw, calc((100 * var(--sp-vh) - 2 * var(--sp-m) - var(--sp-plate) - var(--sp-hint) - 40px) / 2), 330px));
+  --sp-gap: calc(26px + 0.12 * var(--Rc));
+  --cx: 50vw;
+  --cy: calc(var(--sp-m) + (100 * var(--sp-vh) - 2 * var(--sp-m) - (2 * var(--Rc) + var(--sp-gap) + var(--sp-plate) + var(--sp-hint))) / 2 + var(--Rc));
+
+  /* dark: brass on an abyssal plate */
+  --sp-brass: #d6b066;
+  --sp-sun: #fff4d6;
+  --sp-glow: rgba(242, 172, 82, 0.55);
+  --sp-plate-a: rgba(34, 52, 68, 0.62);
+  --sp-plate-b: rgba(14, 24, 34, 0.28);
+  --sp-vignette: rgba(0, 0, 0, 0.5);
+
   position: fixed;
   inset: 0;
-  background: var(--bg);
+  overflow: hidden;
+  background:
+    radial-gradient(circle at var(--cx) var(--cy), var(--sp-plate-a) 0, var(--sp-plate-b) calc(var(--Rc) * 0.85), transparent calc(var(--Rc) * 1.4)),
+    radial-gradient(ellipse at 50% 50%, transparent 45%, var(--sp-vignette) 100%),
+    var(--bg);
   z-index: var(--z-splash, 9999);
   transition: opacity 0.45s ease;
   cursor: pointer;
+  /* if no script ever runs, the curtain drops on its own rather than staying up for good */
+  animation: sp-giveup 0.4s ease 30s forwards;
+}
+@supports (height: 1dvh) { #splash { --sp-vh: 1dvh; } }
+@media (min-width: 600px) { #splash { --sp-plate: 88px; } }
+
+/* sepia ink on paper */
+[data-theme="light"] #splash {
+  --sp-brass: #684822;
+  --sp-sun: #96462a;
+  --sp-glow: rgba(150, 70, 40, 0.3);
+  --sp-plate-a: rgba(255, 252, 244, 0.9);
+  --sp-plate-b: rgba(226, 210, 178, 0.35);
+  --sp-vignette: rgba(110, 86, 50, 0.16);
 }
 
-#splash-canvas {
-  width: 100%;
-  height: 100%;
-  display: block;
+@keyframes sp-giveup { to { opacity: 0; visibility: hidden; pointer-events: none; } }
+
+/* ── First paint: the ring, the point, and a scan arc that says "loading" ── */
+.splash-pre { position: absolute; inset: 0; pointer-events: none; transition: opacity 0.35s ease; }
+#splash.is-live .splash-pre { opacity: 0; }
+
+.splash-pre i {
+  position: absolute;
+  left: var(--cx);
+  top: var(--cy);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: sp-appear 0.7s ease-out both;
 }
+.sp-ring { width: calc(var(--Rc) * 2); height: calc(var(--Rc) * 2); border: 1px solid var(--sp-brass); opacity: 0.9; }
+.sp-ring-in { width: calc(var(--Rc) * 1.77 + var(--Rc) / 21); height: calc(var(--Rc) * 1.77 + var(--Rc) / 21); border: 1px solid var(--sp-brass); opacity: 0.35; animation-delay: 0.12s; }
+.sp-scan {
+  width: calc(var(--Rc) * 2); height: calc(var(--Rc) * 2);
+  background: conic-gradient(from 0deg, transparent 0 72%, var(--sp-brass) 100%);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
+  animation: sp-appear 0.7s ease-out both, sp-spin 2.4s linear 0.7s infinite;
+}
+.sp-sun {
+  width: calc(var(--Rc) * 0.036); height: calc(var(--Rc) * 0.036);
+  background: var(--sp-sun);
+  box-shadow: 0 0 calc(var(--Rc) * 0.1) calc(var(--Rc) * 0.035) var(--sp-glow);
+  animation: sp-appear 0.5s ease-out both, sp-breathe 2.4s ease-in-out 0.5s infinite;
+}
+@keyframes sp-appear { from { opacity: 0; } }
+@keyframes sp-spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+@keyframes sp-breathe { 50% { transform: translate(-50%, -50%) scale(1.25); } }
+
+/* ── The two canvases ── */
+#splash-under, #splash-canvas {
+  position: absolute;
+  display: block;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  pointer-events: none;
+}
+#splash-under { inset: 0; width: 100%; height: 100%; }
+#splash.is-live #splash-under, #splash.is-live #splash-canvas { opacity: 1; }
+
+/* ── Words ── */
+#splash-words { position: absolute; inset: 0; pointer-events: none; font-family: var(--font-sans, 'Inter', sans-serif); }
+
+.sw-scale { list-style: none; margin: 0; padding: 0; }
+.sw-scale li {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 1px 4px;
+  font: 500 8.5px/1.25 var(--font-mono, monospace);
+  letter-spacing: 0.06em;
+  color: var(--sp-brass);
+  background: var(--bg);
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  white-space: nowrap;
+}
+.sw-scale li.on { opacity: 0.55; }
+.sw-scale li.lit { opacity: 1; }
+
+.sw-counter {
+  position: absolute; left: 0; right: 0; margin: 0;
+  text-align: center;
+  font: 500 16px/1 var(--font-mono, monospace);
+  letter-spacing: 0.18em;
+  color: var(--sp-brass);
+  opacity: 0;
+}
+@media (min-width: 600px) { .sw-counter { font-size: 20px; } }
+
+.sw-plaque {
+  position: absolute;
+  text-align: center;
+  clip-path: inset(-10px 50% -10px 50%);
+  transition: clip-path 0.95s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+#splash.show-plaque .sw-plaque { clip-path: inset(-10px -10px -10px -10px); }
+.sw-frame { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.sw-frame path { fill: none; stroke: var(--sp-brass); vector-effect: non-scaling-stroke; }
+.sw-frame .sw-diamond { fill: var(--bg); }
+.sw-frame .sw-gem { fill: var(--sp-brass); stroke: none; }
+
+.sw-title, .sw-sub {
+  position: absolute; left: 0; right: 0; margin: 0;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.7s ease 0.4s;
+}
+.sw-title { font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-primary); }
+.sw-sub { font-weight: 500; letter-spacing: 0.24em; text-transform: uppercase; color: var(--text-secondary); transition-delay: 0.6s; }
+/* spaced capitals are a Latin habit; Hebrew is set as it is written */
+html[lang="he"] .sw-title { text-transform: none; letter-spacing: 0.04em; }
+html[lang="he"] .sw-sub { text-transform: none; letter-spacing: 0.05em; }
+/* The title and the line beneath it are measured the instant their size changes
+   (fit() in js/splash.js), and a transition answers every read with its starting
+   value until the next frame. responsive.css gives *every* element a 0.01ms
+   transition on all properties under reduced motion, so an inner span inherited
+   a font-size that was still in flight and each fit ran to its floor: the
+   English line came out at 8.6px on a phone. The spans never animate. */
+.sw-title span, .sw-sub span { transition-property: none; }
+/* letter-spacing trails the last letter; the negative margin puts the visible text back in the middle */
+.sw-title span { margin-inline-end: -0.2em; }
+.sw-sub span { margin-inline-end: -0.24em; }
+html[lang="he"] .sw-title span { margin-inline-end: -0.04em; }
+html[lang="he"] .sw-sub span { margin-inline-end: -0.05em; }
+#splash.show-plaque .sw-title, #splash.show-plaque .sw-sub { opacity: 1; }
+#splash.show-plaque .sw-sub { opacity: 0.95; }
+
+.sw-hint {
+  position: absolute; left: 0; right: 0; margin: 0;
+  text-align: center;
+  font-size: 11px; font-weight: 500; letter-spacing: 0.16em;
+  color: var(--text-secondary);
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+@media (min-width: 600px) { .sw-hint { font-size: 13px; } }
+#splash.show-hint .sw-hint { animation: sp-pulse 2.6s ease-in-out infinite; }
+@keyframes sp-pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
 /* ── Skip ──
    Visible from the first frame and pinned with logical offsets, so it moves
@@ -40,13 +204,9 @@
   opacity: 0;
   transition: opacity 0.4s ease, color 0.2s ease, border-color 0.2s ease;
 }
+#splash-skip:hover { color: var(--text-primary, #e6e1d8); border-color: var(--accent-primary, #c8883a); }
 
-#splash-skip:hover {
-  color: var(--text-primary, #e6e1d8);
-  border-color: var(--accent-primary, #c8883a);
-}
-
-/* ── Fallback: no canvas, or motion turned down ── */
+/* ── Fallback: no canvas at all ── */
 #splash-fallback {
   position: absolute;
   inset: 0;
@@ -61,31 +221,16 @@
   cursor: pointer;
   font-family: var(--font-sans, 'Inter', sans-serif);
 }
+#splash.no-canvas #splash-fallback { display: flex; }
+#splash.no-canvas .splash-pre, #splash.no-canvas #splash-words { display: none; }
+#splash-fallback h1 { font-size: clamp(2rem, 6vw, 3.6rem); font-weight: 700; letter-spacing: -0.01em; color: var(--text-primary); }
+#splash-fallback p { color: var(--text-secondary); font-size: var(--text-md); max-width: 460px; line-height: 1.6; }
+#splash-fallback p:last-child { color: var(--text-muted, var(--text-secondary)); font-size: var(--text-sm); letter-spacing: 1.5px; text-transform: uppercase; }
 
-#splash-fallback h1 {
-  font-size: clamp(2rem, 6vw, 3.6rem);
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--text-primary);
-}
-
-#splash-fallback p {
-  color: var(--text-secondary);
-  font-size: var(--text-md);
-  max-width: 460px;
-  line-height: 1.6;
-}
-
-#splash-fallback p:last-child {
-  color: var(--text-muted, var(--text-secondary));
-  font-size: var(--text-sm);
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-}
-
-/* ── Reduced motion: the words, and nothing that moves ── */
+/* ── Reduced motion: the finished plate, and nothing that moves ── */
 @media (prefers-reduced-motion: reduce) {
   #splash { transition: none; }
-  #splash-canvas { display: none; }
-  #splash-fallback { display: flex !important; }
+  .splash-pre i { animation: none; }
+  .sw-plaque, .sw-title, .sw-sub, .sw-hint, .sw-scale li, #splash-under, #splash-canvas, #splash-skip { transition: none; }
+  #splash.show-hint .sw-hint { animation: none; opacity: 0.85; }
 }

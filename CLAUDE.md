@@ -88,11 +88,12 @@ tree-of-life/
 ├── serve.js             # Local dev server (port 5555): node serve.js
 ├── docs/PLAY_STRATEGY.md # Why the site is becoming a game, and the phased plan
 ├── tests/kin.test.mjs   # Unit tests for Kin's engine and answer key (npm test)
+├── mockups/opening/     # Concept gallery for the opening: four live scenes, no part of the site
 ├── css/                 # External stylesheets (15 files)
 │   ├── variables.css    # CSS custom properties, reset, focus styles
 │   ├── layout.css       # Header, search, breadcrumb, nav controls
 │   ├── chrome.css       # Left rail, floating controls, search pill
-│   ├── splash.css       # Opening animation, reduced-motion fallback
+│   ├── splash.css       # Opening: first paint, words, plaque, reduced motion
 │   ├── profile.css      # Player profile overlay
 │   ├── sapiens.css      # Human-origins deep dive
 │   ├── tree.css         # SVG tree rendering, node/branch styles
@@ -149,7 +150,9 @@ tree-of-life/
     ├── theme.js         # t(), setLang(), applyI18n(), toggleTheme()
     ├── explore.js       # Drill-down shell — see *The two shells*
     ├── wayfinder.js     # Back / Home / Share — see *Getting out, and sharing*
-    ├── splash.js        # Opening animation — see *The opening screen*
+    ├── boot.js          # Classic script in <head>, not a module: theme, language, direction before first paint
+    ├── splashScene.js   # The opening's picture — the Astrolabe, a pure function of time
+    ├── splash.js        # The opening's lifecycle — see *The opening screen*
     ├── engagement.js    # Toast notifications, idle timer, intro, particles
     └── kin/             # Kin, the daily game — see *Kin*
         ├── tree.js      # The answer key: a curated tree of every creature
@@ -595,34 +598,140 @@ Things worth knowing before changing it:
 
 ### The opening screen
 
-`js/splash.js` draws to `#splash-canvas`: a point of light at the centre
-(LUCA) radiating outward generation by generation into a radial tree, while a
-readout counts 3,800 Ma down to the present. It runs **4.5 seconds** and can
-be skipped from the first frame.
+The opening is an **Astrolabe**: an engraved dial where distance from the
+centre is time. A point of light at the centre is LUCA, 3.8 billion years ago;
+the site's own `TREE` grows outward from it generation by generation; every
+lineage still alive runs out to the rim and lights up, clockwise; a ring of
+"now" leaves the centre; and a plaque unfolds beneath the dial carrying the
+title. It runs **4.5 seconds** the first time and about **2.6** once a visitor
+has seen it, and can be skipped from the first frame.
+
+Four directions were built as live scenes before this one was chosen — Division
+(cell division drawn as a tree), the Astrolabe, Stickers (a specimen sheet) and
+Descent (a dive through strata). They are still in `mockups/opening/`, which is
+a gallery and no part of the site: `index.html?scene=astrolabe&lang=he&theme=light`,
+and `&still=1&t=3.2` for one frame. Only the Astrolabe was tuned for production
+— speed, three languages, both themes, phone and desktop. The other three are
+sketches: they draw, but nobody has fitted their words or measured their cost.
+
+Four files, in the order they matter:
+
+| File | Owns |
+|---|---|
+| `js/boot.js` | Theme, language, direction and "have they been here before", decided before the first paint |
+| `css/splash.css` | The first paint (a ring and a point that need no script), the words, the plaque, reduced motion |
+| `js/splashScene.js` | The picture: `geometry(W, H)` and `buildScene()` — the dial, the tree, the rim, the ring of now |
+| `js/splash.js` | The lifecycle: laying canvases and words out, the clock, the frame-rate watch, leaving |
 
 Things worth knowing before changing it:
 
-- **The layout is radial on purpose.** It is the site's own default view, so
-  the opening rehearses the real thing instead of showing a different picture.
-  It reads the actual `TREE`, pruned to four generations.
-- **A wedge at the bottom is left empty** (`GAP`, in radians) and every word
-  is drawn inside it. The counter runs there, then hands the spot to the
-  title. That is why the text never lands on a branch.
-- **The title measures itself** against the wedge's width at its radius and
-  shrinks to fit — the Russian and Hebrew titles are much longer than the
-  English one, and a narrow phone leaves under 200px of clear width.
-- **Colours are read from the theme tokens**, not hardcoded, so the opening
-  follows the light theme. Line alpha is boosted there: the palette is built
-  for glowing strokes on a dark ground and washes out on cream.
-- **`init()` restores theme and language before the splash starts.** It has
-  to: the splash sets its skip button and fallback copy once at construction
-  and samples both the colour tokens and `documentElement.lang`. When that
-  ran afterwards, the opening was English furniture around a Hebrew title.
-- **Measurements are drawn `dir="ltr"` even in Hebrew.** `"720 Ma"` is a
-  Latin run; laid out RTL it comes back as `"Ma 720"`, the same reordering
-  the detail panel avoids on Latin names.
-- Reduced motion never starts the loop at all — the stylesheet swaps in
-  `#splash-fallback` and `initSplash` returns early.
+- **Every scene is a pure function of time.** `scene.draw(ctx, dpr, t)` draws
+  frame `t` from `t` and from what was built at construction, nothing carried
+  between frames. That is what lets the gallery scrub, screenshots land on
+  exact times, and reduced motion paint the finished frame by asking for
+  `DURATION`. A scene that accumulated state would need another way of doing
+  all three.
+- **The radius is time, on a power scale, and the two microbial domains sit at
+  the ends of the arc.** Linear time puts the last 700 million years in the
+  outer 18% of the dial. The radius is `1 − (age / 3.8 Ga)^0.45`, which gives
+  the last 100 Ma 19% of it; the rings are labelled 2.0, 1.0, 0.5 and 0.1 Ga
+  down the empty wedge at the bottom. Order matters as much as scale: with the
+  domains in the site's order the microbes took a lopsided quarter of the dial,
+  so bacteria and archaea are placed at the two ends of the arc, where their
+  long lines fall as roots either side of the scale.
+- **Every word is HTML; the picture is canvas.** Text drawn on a canvas at
+  reduced resolution is soft, has no bidi handling and cannot be translated
+  without touching the art. The counter, the scale, the title, the line beneath
+  it, the hint and Skip are DOM over the canvases, and the plaque's frame is an
+  SVG inside a `clip-path` that opens from the middle. `fit()` sizes the title
+  and the line to the plaque, so "Дерево жизни" and "עץ החיים" are laid out by
+  measurement rather than by a font size per breakpoint.
+- **Two canvases.** `#splash-under` holds what never moves (grain, dial, ticks)
+  and is drawn once per layout; `#splash-canvas` is cropped to the dial and
+  redrawn every frame at a device-pixel ratio capped at 2. In software raster
+  the cost of a frame was dominated by large-area alpha blends, not by how many
+  lines were drawn: a full-window vignette, big glows and soft bokeh accounted
+  for nearly all of it, with `shadowBlur` and a DPR above 2 next. So the
+  vignette is a CSS gradient, glows are pre-rendered sprites stamped where
+  needed, strokes are batched by style, and nothing blurs live.
+- **The first paint needs no script.** `.splash-pre` in `css/splash.css` is a
+  ring, an inner ring, a scan arc and a point, placed with `calc()`, `min()`
+  and `max()` arithmetic that mirrors `geometry()`. `js/splash.js` then
+  overwrites `--cx`, `--cy` and `--Rc` with the exact numbers and the canvas
+  fades in over it (`#splash.is-live`). Forty modules take long enough to load
+  on a phone that the first second was otherwise a blank page. The two
+  descriptions of the same geometry have to stay in step;
+  `opening:first-paint-matches-the-canvas` fails when the ring would jump more
+  than 1.5px at the hand-over.
+- **`js/boot.js` decides theme, language and direction before the first
+  paint.** It is a classic script in `<head>`, because a module cannot run
+  before paint, and it only reads: `theme` and `tol-lang` (or `?lang=`) from
+  `localStorage`, setting `data-theme`, `lang`, `dir` and the `color-scheme`
+  meta, and `data-return` when `tol-splash-seen` is set. Without it a
+  light-theme reader watched a dark screen turn cream, a Hebrew reader watched
+  a left-to-right screen lay itself out again, and the browser's own canvas was
+  white until the stylesheets arrived. It cannot import, so its language list
+  and its right-to-left list are written by hand;
+  `static/opening:boot-knows-every-language` fails when `TRANSLATIONS` or the
+  rule in `js/theme.js` disagree with them. `js/app.js` validates everything
+  again, so a wrong guess costs a flicker and never a wrong state.
+  `manifest.json`'s `background_color` and `theme_color` are the same dark
+  `#070C11` for the same reason.
+- **A returning visitor gets the same show, faster** — speed 1.7, so about 2.6
+  seconds, and the safety-net dismissal comes sooner by the same factor. A
+  shorter cut would have been a second animation to keep right in three
+  languages and two themes.
+- **It watches its own frame rate.** After 34 frames, if the average frame is
+  over 38 ms, it lays out again at one device pixel per CSS pixel and leaves
+  the glows out. A slow phone gets a lighter frame rather than a slideshow.
+- **`fit()` reads a size the instant it sets it, and a transition answers with
+  the size it started from.** `responsive.css` gives every element a `0.01ms`
+  transition on all properties under reduced motion. That is enough for the
+  span inside the title to inherit a font size that is still in flight: every
+  fit measured the starting size, ran to its floor, and the English line came
+  out at 8.6px instead of 10 on a phone — for visitors who ask for reduced
+  motion and no one else, which is the setting no one tests with. The spans now
+  say `transition-property: none`, and constraint 13 is the general form.
+- **A web font arriving lays the words out again.** Every width the title was
+  fitted against changes when Inter replaces the fallback, and `loadingdone`
+  re-runs `placeWords()`. Only the words: the canvases have no text in them.
+- **Reduced motion paints the finished plate once** and leaves after 2.5
+  seconds. The plate is what the animation is *for*, so it is the right still
+  frame — it has the same picture and the same words as the full show, where
+  the fallback that used to stand in for it had neither.
+- **With no 2D canvas at all** the words stand on their own (`#splash-fallback`)
+  and the same ways out work — click, Enter, Space, Escape, or four seconds.
+- **Skip is a `<button>` pinned with logical offsets**, so it sits in the
+  other corner in Hebrew, and it is named by its translated text. The
+  `aria-label` it used to carry read "Skip intro" to a Hebrew screen reader.
+- **Measurements are drawn `dir="ltr"` even in Hebrew.** `"720 Ma"` is a Latin
+  run; laid out RTL it comes back as `"Ma 720"`, the same reordering the detail
+  panel avoids on Latin names.
+- **`init()` still restores theme and language before the splash starts.**
+  `boot.js` does it for the stylesheet; `init()` does it for the state the
+  splash reads at construction. When that ran afterwards, the opening was
+  English furniture around a Hebrew title.
+
+**Its checks.** The runner seeds `tol-splash-seen` and clicks Skip, so by the
+time any sweep runs the opening is a `display:none` div; the `opening:` group
+gives it four page loads of its own per scenario, each in a fresh context in
+that scenario's viewport, language and theme.
+
+| Pass | What it is | Checks |
+|---|---|---|
+| first paint | `js/app.js` aborted | `opening:first-paint-needs-no-script`, `opening:first-paint-shows-the-instrument` |
+| the plate | reduced motion, which paints the finished frame at once | `opening:first-paint-matches-the-canvas`, `opening:words-are-in-the-readers-language`, `opening:title-fits-the-plaque`, `opening:nothing-collides`, `opening:canvas-draws`, `opening:reduced-motion-holds-still`, `opening:skip-sits-in-the-inline-end-corner` |
+| live | a first visit, sampled while it runs, then left by keyboard | `opening:animates`, `opening:leaves-by-keyboard` |
+| no canvas | `getContext` refused for the opening's own canvases | `opening:no-canvas-fallback` |
+
+`opening:runs-clean` reads all four for uncaught errors and CSP violations. The
+plate is measured rather than the moving picture because the moving picture is
+a function of time: a check that has to wait 3.15 seconds of animation to reach
+the title is a check that flakes on a slow runner, and the plate is the same
+layout. The canvas thresholds sit at a third to a half of what a healthy frame
+measures on every viewport (tree 17–19% painted, dial 1.9–2.4%), so a slow
+runner cannot trip them and a canvas that draws nothing, or draws in the wrong
+place, always does.
 
 ### Rendering
 
@@ -961,7 +1070,7 @@ work is shown. So:
 ## Known Constraints & Important Notes
 
 1. **Tests are browser smoke checks, not unit tests** — `node scripts/smoke.mjs`
-   opens the real page in Chromium and asserts 429 things about layout, i18n,
+   opens the real page in Chromium and asserts 508 things about layout, i18n,
    contrast and rendering. See *Smoke tests* below.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
 3. **index.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
@@ -1013,6 +1122,18 @@ work is shown. So:
     LUCA title on every desktop visit under 312 green checks. Ask
     `document.elementFromPoint` what is actually there —
     `explore:controls-are-not-covered` does.
+13. **A transition answers every same-task read with the value it started
+    from.** Set a size, read the layout, and while a transition on that
+    property is running you get the old size back. `responsive.css` gives
+    *every* element a `0.01ms` transition on all properties under
+    `prefers-reduced-motion`, so anything that sets a style and measures in the
+    same task — fitting a title, trimming labels to a column, centring — reads
+    stale values for reduced-motion visitors and for nobody else. Every check
+    that runs in the default mode passes. The opening's title fitting ran to
+    its floor this way and left the English line at 8.6px on a phone;
+    `transition-property: none` on whatever is measured fixes it, and
+    `opening:title-fits-the-plaque` measures under reduced motion so it stays
+    fixed.
 
 ---
 
@@ -1091,9 +1212,9 @@ never mistaken for a working page.
 
 ## Smoke Tests
 
-`scripts/smoke.mjs` opens the real page in Chromium and asserts **429 checks**
-— ~70 per scenario across six scenarios (desktop and phone viewports in
-English, Hebrew and Russian, plus a desktop pass in the light theme), and four
+`scripts/smoke.mjs` opens the real page in Chromium and asserts **508 checks**
+— ~84 per scenario across six scenarios (desktop in English, Hebrew and Russian,
+phone in English and Hebrew, and a desktop pass in the light theme), and five
 static checks that read the source before the browser starts. Scenarios differ
 in count because some checks are language- or viewport-specific. It runs on every
 push and pull request via `.github/workflows/smoke.yml`, and replaces the old
@@ -1129,6 +1250,7 @@ as a CI artifact on every run).
 | Group | Covers |
 |---|---|
 | `load:` | uncaught errors, failed requests, SVG render errors, splash dismissal, nothing covering the stage |
+| `opening:` | **the opening screen, in four page loads of its own per scenario**: the first paint with no script at all, the finished plate under reduced motion (title fitted, nothing colliding, both canvases drawn, Skip in the right corner, and Russian on a phone though the matrix has no such scenario), a first visit running for real and left by keyboard, and the path with no 2D canvas |
 | `tree:` | node and branch counts, **NaN coordinates**, fit-to-stage, spill, root visibility, horizontal scroll |
 | `chrome:` | header/timeline visible, reveal panel vs. zoom controls and timeline, closed panel off-screen, tooltip and fact toast vs. header, tooltip vs. the node it describes, nothing printed over the species name, **no floating control stretched across the window**, **the wayfinder reachable over every overlay and painted over nothing** |
 | `timeline:` | geological era labels clipped or colliding, **and both the labels and the density curve rebuilt on the way back from the drill-down**, where the strip is hidden and cannot measure itself |
@@ -1138,7 +1260,7 @@ as a CI artifact on every run).
 | `nav:` / `share:` | **Back takes off one layer and leaves the one beneath it**; the share link names the shell and the language as well as the node; following such a link opens in the sender's view without overwriting the recipient's stored preference |
 | `search:` | eight canonical queries return the answer a person would call correct; every common-name alias still matches something |
 | `interact:` | zoom buttons, reset re-fits, parent expands, leaf opens panel, search returns results, camera settles |
-| `static/` | Runs before the browser starts, over `index.html`, `play.html`, `credits.html`, `js/` (recursively), `css/` and `stories/`: CSS custom properties used but never defined; inline event-handler attributes; `script-src` still forbidding inline and eval; every `data-action` resolving to a registered handler |
+| `static/` | Runs before the browser starts, over `index.html`, `play.html`, `credits.html`, `js/` (recursively), `css/` and `stories/`: CSS custom properties used but never defined; inline event-handler attributes; `script-src` still forbidding inline and eval; every `data-action` resolving to a registered handler; `js/boot.js` listing every language and every right-to-left one |
 
 ### The baseline
 

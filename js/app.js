@@ -466,20 +466,9 @@ function init(){
   document.documentElement.lang=state.currentLang;
 
   // ── Splash animation ──
+  /* js/splash.js owns the whole opening, including what to show when there is
+     no canvas to draw on; it sets data-ready on the canvas when it has started. */
   const _splashCanvas = document.getElementById('splash-canvas');
-  const _splashFallback = document.getElementById('splash-fallback');
-
-  // Fallback: if Canvas doesn't init within 500ms, show CSS fallback
-  setTimeout(() => {
-    if (_splashCanvas && !_splashCanvas.dataset.ready && _splashFallback) {
-      _splashCanvas.style.display = 'none';
-      _splashFallback.style.display = 'flex';
-      _splashFallback.addEventListener('click', () => {
-        const s = document.getElementById('splash');
-        if (s) { s.style.opacity = '0'; setTimeout(() => { s.style.display = 'none'; animateTreeEntrance(); }, 500); }
-      });
-    }
-  }, 500);
 
   if (_splashCanvas) {
     initSplash(_splashCanvas, {

@@ -762,6 +762,230 @@ check('share:link-restores-the-senders-view', 'A shared link opens in the shell 
   if (s.storedLang !== c.scenario.lang) fail(`following a link rewrote the stored language to ${s.storedLang}`);
 });
 
+// ── opening ───────────────────────────────────────────────────────────────────
+/* The opening is measured from openingProbe(), which loads the page four times
+   in contexts of its own (see there). Every check below runs in every scenario,
+   so each language, viewport and theme meets the screen it will actually show. */
+const openingOf = (c) => {
+  const o = c.probe.opening;
+  if (!o) fail('the opening was never probed');
+  if (o.error) fail(`the opening probe threw: ${o.error}`);
+  return o;
+};
+const openingPass = (o, name) => {
+  const v = o[name];
+  if (!v) fail(`the "${name}" pass of the opening probe never ran`);
+  if (v.error) fail(`the "${name}" pass of the opening probe threw: ${v.error}`);
+  return v;
+};
+/** Every plate measured for a scenario: its own language, then any language
+    its viewport's other scenarios leave uncovered (see openingProbe). */
+const openingPlates = (o) => [
+  openingPass(o, 'plate'),
+  ...(o.extraPlates || []).map((v) => { if (v.error) fail(`an extra plate pass threw: ${v.error}`); return v; }),
+];
+/** Which pass a message is about, when it is not the scenario's own. */
+const plateTag = (c, pl) => (pl.html.lang === c.scenario.lang ? '' : ` [${pl.html.lang} plate]`);
+const midX = (r) => (r.left + r.right) / 2;
+const midY = (r) => (r.top + r.bottom) / 2;
+const px1 = (n) => Math.round(n * 10) / 10;
+/** Relative luminance of a colour written as #rgb, #rrggbb or rgb(…). */
+const luminance = (css) => {
+  let rgb;
+  let m = /^#([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(css);
+  if (m) {
+    const h = m[1].length === 3 ? [...m[1]].map((x) => x + x).join('') : m[1];
+    rgb = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16));
+  } else {
+    m = /rgba?\(\s*(\d+)[ ,]+(\d+)[ ,]+(\d+)/.exec(css);
+    if (!m) return null;
+    rgb = [m[1], m[2], m[3]].map(Number);
+  }
+  const [r, g, b] = rgb.map((v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+
+check('opening:first-paint-needs-no-script', 'With no script at all, the opening is already in the reader\'s theme, language and direction', (c) => {
+  const fp = openingPass(openingOf(c), 'firstPaint');
+  const theme = c.scenario.theme === 'light' ? 'light' : 'dark';
+  const dir = c.scenario.lang === 'he' ? 'rtl' : 'ltr';
+  if (fp.html.theme !== theme) fail(`data-theme was "${fp.html.theme}" before any module ran; wanted "${theme}"`);
+  if (fp.html.lang !== c.scenario.lang) fail(`lang was "${fp.html.lang}" before any module ran; wanted "${c.scenario.lang}"`);
+  if (fp.html.dir !== dir) fail(`dir was "${fp.html.dir}" before any module ran; wanted "${dir}"`);
+  if (fp.html.scheme !== theme) fail(`the browser's own canvas was told color-scheme "${fp.html.scheme}"; wanted "${theme}" — otherwise a ${theme} page opens on the wrong colour`);
+  const l = luminance(fp.bg);
+  if (l == null) fail(`--bg reads "${fp.bg}" before any module ran, which does not parse`);
+  if (theme === 'dark' ? l > 0.15 : l < 0.6) fail(`--bg is ${fp.bg} (luminance ${l.toFixed(2)}) in the ${theme} theme`);
+  if (!fp.html.returning) fail('a returning visitor was not recognised before first paint (no data-return), so they would sit through the long opening');
+});
+
+check('opening:first-paint-shows-the-instrument', 'Before any script has run, the ring and its point are already on screen, centred', (c) => {
+  const { ring, sun, vw, vh, ringOpacity } = openingPass(openingOf(c), 'firstPaint');
+  if (!ring || !ring.width) fail('the ring is not on screen before any script has run — a slow phone would see a blank page while the modules load');
+  const d = Math.min(vw, vh);
+  if (ring.width < d * 0.5) fail(`the ring is ${px1(ring.width)}px across in a ${vw}×${vh} window`);
+  if (ring.left < 0 || ring.right > vw || ring.top < 0 || ring.bottom > vh) {
+    fail(`the ring [${px1(ring.left)},${px1(ring.top)}]–[${px1(ring.right)},${px1(ring.bottom)}] runs off a ${vw}×${vh} window`);
+  }
+  if (Math.abs(midX(ring) - vw / 2) > 2) fail(`the ring is ${px1(midX(ring) - vw / 2)}px off the centre line`);
+  if (!sun || Math.abs(midX(sun) - midX(ring)) > 2 || Math.abs(midY(sun) - midY(ring)) > 2) fail('the point of light is not at the ring\'s centre');
+  if (ringOpacity < 0.5) fail(`the ring is at ${ringOpacity} opacity after a second — the first-paint animation never arrived`);
+});
+
+check('opening:first-paint-matches-the-canvas', 'The first paint (CSS) and the canvas (JS) put the ring in the same place', (c) => {
+  const o = openingOf(c);
+  const fp = openingPass(o, 'firstPaint'), pl = openingPass(o, 'plate');
+  /* The point breathes (a scale animation) in the first-paint pass and holds
+     still in the reduced-motion one, so only where it is is compared, not how
+     big it is at the moment of measurement. */
+  for (const [name, a, b, sized] of [['ring', fp.ring, pl.ring, true], ['point', fp.sun, pl.sun, false]]) {
+    if (!a || !b) fail(`the ${name} is missing from one of the two passes`);
+    const off = Math.max(Math.abs(midX(a) - midX(b)), Math.abs(midY(a) - midY(b)), sized ? Math.abs(a.width - b.width) : 0);
+    if (off > 1.5) {
+      fail(`the ${name} jumps ${px1(off)}px when the canvas takes over (CSS: centre ${px1(midX(a))},${px1(midY(a))} ⌀${px1(a.width)}; JS: ${px1(midX(b))},${px1(midY(b))} ⌀${px1(b.width)}) — the arithmetic in css/splash.css has drifted from geometry() in js/splashScene.js`);
+    }
+  }
+});
+
+check('opening:words-are-in-the-readers-language', 'The title, the line beneath it, the hint and Skip are in the language they were loaded in', (c) => {
+  for (const pl of openingPlates(openingOf(c))) {
+    const lang = pl.html.lang, w = pl.want;
+    if (!w) fail(`the translations could not be read on the page${plateTag(c, pl)}`);
+    for (const [label, got, key] of [['title', pl.titleText, 'title'], ['line beneath it', pl.subText, 'splash_subtitle'],
+                                     ['hint', pl.hintText, 'splash_click'], ['skip button', pl.skipText, 'splash_skip']]) {
+      if (!w[key]) fail(`there is no ${lang} translation for "${key}"`);
+      if (got !== w[key]) fail(`the ${label} reads "${got}" in ${lang}; the translation is "${w[key]}"${plateTag(c, pl)}`);
+    }
+  }
+});
+
+/* Sizes the title and the line beneath it start from, and shrink from only when
+   they do not fit. Keep in step with placeWords() in js/splash.js. */
+const OPENING_START_PX = { title: { small: 27, wide: 34 }, sub: { small: 10, wide: 12 } };
+check('opening:title-fits-the-plaque', 'The title and the line beneath it sit inside the plaque, as large as they can be', (c) => {
+  for (const pl of openingPlates(openingOf(c))) {
+    const small = pl.vw < 600;
+    const plaque = pl.plaque;
+    const tag = plateTag(c, pl);
+    if (!plaque || !plaque.width) fail(`the plaque is not laid out${tag}`);
+    for (const [label, box, px, start] of [['title', pl.title, pl.titlePx, OPENING_START_PX.title], ['line beneath it', pl.sub, pl.subPx, OPENING_START_PX.sub]]) {
+      if (!box || !box.width) fail(`the ${label} is not laid out${tag}`);
+      const margin = plaque.width * 0.05;
+      if (box.left < plaque.left + margin || box.right > plaque.right - margin) {
+        fail(`the ${label} runs ${px1(box.left)}–${px1(box.right)} in a plaque ${px1(plaque.left)}–${px1(plaque.right)} (${px1(px)}px type)${tag}`);
+      }
+      /* The fitting shrinks in steps of 7%, so a line it had to shrink ends up
+         within 7% of the room it was fitted to. One far narrower than that was
+         shrunk for nothing — which is what a measurement taken while the size
+         was still animating looks like, and it cost the English line 14% of its
+         size on every phone that asked for reduced motion. */
+      const startPx = small ? start.small : start.wide;
+      if (px < startPx - 0.05 && box.width < plaque.width * 0.75) {
+        fail(`the ${label} was shrunk from ${startPx}px to ${px1(px)}px but fills only ${Math.round((box.width / plaque.width) * 100)}% of the plaque — it was shrunk further than it needed to be${tag}`);
+      }
+      if (px < 8.5) fail(`the ${label} is ${px1(px)}px — too small to read${tag}`);
+    }
+    if (pl.titleOpacity < 0.99) fail(`the title is at ${pl.titleOpacity} opacity on the finished plate${tag}`);
+  }
+});
+
+check('opening:nothing-collides', 'The dial, the plaque, the hint, the scale and Skip do not overlap and stay on screen', (c) => {
+  for (const pl of openingPlates(openingOf(c))) {
+    const { ring, plaque, hint, skip, vw, vh } = pl;
+    const tag = plateTag(c, pl);
+    const named = { plaque, hint, skip, title: pl.title, 'line beneath the title': pl.sub };
+    for (const [name, r] of Object.entries(named)) {
+      if (!r || !r.width) fail(`the ${name} is not laid out${tag}`);
+      if (r.left < -0.5 || r.right > vw + 0.5 || r.top < -0.5 || r.bottom > vh + 0.5) {
+        fail(`the ${name} [${px1(r.left)},${px1(r.top)}]–[${px1(r.right)},${px1(r.bottom)}] leaves a ${vw}×${vh} window${tag}`);
+      }
+    }
+    if (plaque.top - 10 < ring.bottom) fail(`the plaque (top ${px1(plaque.top)}) touches the dial (bottom ${px1(ring.bottom)})${tag}`);
+    if (hint.top < plaque.bottom) fail(`the hint (top ${px1(hint.top)}) starts inside the plaque (bottom ${px1(plaque.bottom)})${tag}`);
+    for (const [name, r] of [['plaque', plaque], ['hint', hint], ['dial', ring]]) {
+      if (overlap(skip, r)) fail(`the Skip button is painted over the ${name}${tag}`);
+    }
+    const labels = pl.scale;
+    if (!labels.length) fail(`the scale labels are missing from the dial${tag}`);
+    labels.forEach((l, i) => {
+      if (l.left < ring.left || l.right > ring.right || l.bottom > ring.bottom) fail(`the scale label "${l.text}" is outside the dial${tag}`);
+      for (const other of labels.slice(i + 1)) if (overlap(l, other)) fail(`the scale labels "${l.text}" and "${other.text}" overlap${tag}`);
+      if (overlap(l, plaque)) fail(`the scale label "${l.text}" runs into the plaque${tag}`);
+    });
+  }
+});
+
+/* What the two canvases hold when the show has run its course. The bounds are a
+   third to a half of what a healthy frame measures on every viewport here
+   (tree 17–19%, dial 1.9–2.4%), so a slow runner cannot trip them and a canvas
+   that draws nothing, or draws in the wrong place, always does. */
+check('opening:canvas-draws', 'The finished frame has a tree on the live canvas and a dial on the still one, centred', (c) => {
+  const pl = openingPass(openingOf(c), 'plate');
+  if (!pl.live) fail('the live canvas has no 2D context or no size');
+  if (!pl.under) fail('the still canvas has no 2D context or no size');
+  if (pl.live.fraction < 0.06) fail(`only ${(pl.live.fraction * 100).toFixed(1)}% of the live canvas is painted — the tree is missing`);
+  if (pl.under.fraction < 0.005) fail(`only ${(pl.under.fraction * 100).toFixed(2)}% of the still canvas is painted — the dial is missing`);
+  for (const [name, v] of [['tree', pl.live], ['dial', pl.under]]) {
+    if (Math.abs(v.centreX - 0.5) > 0.05) fail(`the ${name} is drawn off-centre (mean x at ${(v.centreX * 100).toFixed(1)}% of the canvas)`);
+  }
+});
+
+check('opening:animates', 'A first visit really does grow: the tree is far fuller a few seconds in', (c) => {
+  const lv = openingPass(openingOf(c), 'live');
+  if (!lv.firstVisit) fail('a first visit was treated as a return (data-return was set with nothing stored)');
+  if (!lv.early || !lv.later) fail('the live canvas could not be read');
+  /* The clock drops frames rather than catching up, so on a slow runner the
+     picture is behind the wall clock; the bounds allow for a runner at half
+     speed. A healthy machine measures 1.8% early and 16–18% later. */
+  if (lv.later.fraction < 0.03) fail(`three seconds in, only ${(lv.later.fraction * 100).toFixed(1)}% of the canvas is painted`);
+  if (lv.later.fraction < lv.early.fraction * 2) {
+    fail(`the canvas went from ${(lv.early.fraction * 100).toFixed(1)}% painted to ${(lv.later.fraction * 100).toFixed(1)}% in 2.4 s — the show is not running`);
+  }
+});
+
+check('opening:reduced-motion-holds-still', 'With reduced motion the finished plate is painted at once, nothing moves, and it leaves by itself', (c) => {
+  const pl = openingPass(openingOf(c), 'plate');
+  if (!/\bshow-plaque\b/.test(pl.splashClass) || !/\bshow-hint\b/.test(pl.splashClass)) {
+    fail(`the plate is not complete (#splash is "${pl.splashClass}")`);
+  }
+  if (pl.running.length) fail(`${pl.running.length} animation(s) still running under reduced motion: ${pl.running.join(', ')}`);
+  if (!pl.autoDismissed) fail('the plate never left by itself');
+  if (pl.seenAfter !== '1') fail('leaving did not record that the opening has been seen');
+});
+
+check('opening:leaves-by-keyboard', 'Escape, Enter or Space ends the opening, and it remembers having been seen', (c) => {
+  const lv = openingPass(openingOf(c), 'live');
+  if (!lv.dismissed) fail(`pressing ${lv.key} did not dismiss the opening`);
+  if (lv.seenAfter !== '1') fail(`leaving with ${lv.key} did not record that the opening has been seen`);
+});
+
+check('opening:skip-sits-in-the-inline-end-corner', 'Skip is visible, on screen, and in the corner the reading direction ends in', (c) => {
+  for (const pl of openingPlates(openingOf(c))) {
+    const { skip, vw, vh } = pl;
+    const tag = plateTag(c, pl);
+    if (!skip || !skip.width) fail(`there is no Skip button${tag}`);
+    if (pl.skipOpacity < 0.99) fail(`Skip is at ${pl.skipOpacity} opacity${tag}`);
+    if (skip.left < 0 || skip.right > vw || skip.top < 0 || skip.bottom > vh) fail(`Skip is off screen${tag}`);
+    const rtl = pl.html.lang === 'he';
+    if (rtl ? skip.right > vw / 2 : skip.left < vw / 2) fail(`Skip is on the ${rtl ? 'right' : 'left'} in a ${rtl ? 'right-to-left' : 'left-to-right'} language${tag}`);
+  }
+});
+
+check('opening:no-canvas-fallback', 'Without a 2D canvas the words still show and the same ways out work', (c) => {
+  const n = openingPass(openingOf(c), 'noCanvas');
+  if (!/\bno-canvas\b/.test(n.splashClass)) fail(`#splash never took the no-canvas path (it is "${n.splashClass}")`);
+  if (!n.fallback || n.fallback.display === 'none') fail('the fallback words are hidden');
+  if (n.fallback.title !== n.expectedTitle) fail(`the fallback title reads "${n.fallback.title}"; the ${c.scenario.lang} translation is "${n.expectedTitle}"`);
+  if (n.wordsDisplay !== 'none') fail('the canvas-dependent words are still laid out, over the fallback');
+  if (!n.dismissed) fail('clicking the fallback did not dismiss the opening');
+});
+
+check('opening:runs-clean', 'The opening throws nothing and breaks no Content-Security-Policy rule, in any of its four passes', (c) => {
+  const o = openingOf(c);
+  if (o.errors && o.errors.length) fail(`${o.errors.length} uncaught error(s): ${o.errors[0]}`);
+  if (o.violations && o.violations.length) fail(`${o.violations.length} CSP violation(s): ${o.violations.slice(0, 3).join('; ')}`);
+});
+
 check('search:finds-the-obvious-answer', 'Common searches return the thing meant', (c) => {
   const s = c.probe.searchQuality;
   if (!s) return;
@@ -835,6 +1059,231 @@ function installContrastSweep() {
     }
     return out;
   };
+}
+
+// ── Probe: the opening screen ─────────────────────────────────────────────────
+/* The opening is the first thing every visitor sees, and none of the sweeps
+   below can reach it: the runner seeds `tol-splash-seen` and clicks Skip, so by
+   the time a probe runs the splash is a display:none div. It gets page loads of
+   its own, each in a fresh context and each in the scenario's own viewport,
+   language and theme:
+
+     first paint  js/app.js aborted — what a visitor sees while forty modules
+                  load, or if one never arrives;
+     the plate    reduced motion, which paints the finished frame at once and so
+                  can be measured without waiting on a clock;
+     live         a first visit, sampled while it runs, then left by keyboard;
+     no canvas    getContext refused: the path nothing else ever takes.
+
+   The plate is measured rather than the moving picture because the moving
+   picture is a function of time, and a check that has to wait for 3.15 seconds
+   of animation to reach the title is a check that flakes on a slow runner. */
+const OPENING_KEYS = ['Escape', 'Enter', 'Space'];
+
+async function openingProbe(page, scenario, baseUrl) {
+  const browser = page.context().browser();
+  const vp = scenario.viewport;
+  const errors = [];
+
+  async function open({ lang = scenario.lang, seen = false, reduced = false, noCanvas = false, blockApp = false }) {
+    const ctx = await browser.newContext({
+      viewport: { width: vp.width, height: vp.height },
+      isMobile: vp.isMobile, hasTouch: vp.hasTouch,
+      deviceScaleFactor: vp.deviceScaleFactor || 1,
+      locale: lang === 'he' ? 'he-IL' : lang === 'ru' ? 'ru-RU' : 'en-US',
+      reducedMotion: reduced ? 'reduce' : 'no-preference',
+    });
+    await ctx.addInitScript((cfg) => {
+      localStorage.setItem('tol-lang', cfg.lang);
+      localStorage.setItem('theme', cfg.theme);
+      localStorage.setItem('tol-shell-view', 'map');
+      localStorage.setItem('tol-tour-done', '1');
+      if (cfg.seen) localStorage.setItem('tol-splash-seen', '1');
+      // Only the opening's own canvases are refused; the rest of the page still draws.
+      if (cfg.noCanvas) {
+        const real = HTMLCanvasElement.prototype.getContext;
+        HTMLCanvasElement.prototype.getContext = function (...a) {
+          return this.id && this.id.startsWith('splash') ? null : real.apply(this, a);
+        };
+      }
+      window.__cspViolations = [];
+      document.addEventListener('securitypolicyviolation', (e) => {
+        window.__cspViolations.push(`${e.violatedDirective} blocked ${e.blockedURI || 'inline'}`);
+      });
+    }, { lang, theme: scenario.theme || 'dark', seen, noCanvas });
+    if (blockApp) await ctx.route('**/js/app.js', (r) => r.abort());
+    const p = await ctx.newPage();
+    p.on('pageerror', (e) => errors.push(String(e && e.message ? e.message : e)));
+    return { ctx, p };
+  }
+
+  /* What is on screen, in one pass. Text rectangles come from a Range so a
+     full-width block reports the width of its words rather than of its box. */
+  const measure = (p) => p.evaluate(async () => {
+    const $ = (s) => document.querySelector(s);
+    const rect = (el) => {
+      if (!el) return null;
+      const b = el.getBoundingClientRect();
+      return { left: b.left, right: b.right, top: b.top, bottom: b.bottom, width: b.width, height: b.height };
+    };
+    const words = (el) => {
+      if (!el) return null;
+      const r = document.createRange(); r.selectNodeContents(el);
+      const b = r.getBoundingClientRect();
+      return { left: b.left, right: b.right, top: b.top, bottom: b.bottom, width: b.width, height: b.height };
+    };
+    const px = (el, prop) => (el ? parseFloat(getComputedStyle(el)[prop]) : 0);
+    const root = document.documentElement;
+    const splash = $('#splash');
+    const meta = $('meta[name="color-scheme"]');
+    const T = await import(new URL('js/uiData.js', location.href).href).then((m) => m.TRANSLATIONS).catch(() => null);
+    const tr = T && T[root.lang];
+    const cover = (id) => {
+      const c = document.getElementById(id);
+      const x = c && c.getContext && c.getContext('2d');
+      if (!x || !c.width || !c.height) return null;
+      const d = x.getImageData(0, 0, c.width, c.height).data;
+      let n = 0, sx = 0;
+      const step = 3;                                    // every third pixel is plenty for a fraction
+      for (let y = 0; y < c.height; y += step) {
+        for (let xx = 0; xx < c.width; xx += step) {
+          if (d[(y * c.width + xx) * 4 + 3] > 8) { n++; sx += xx; }
+        }
+      }
+      const total = Math.ceil(c.height / step) * Math.ceil(c.width / step);
+      return { fraction: n / total, centreX: n ? sx / n / c.width : 0.5 };
+    };
+    return {
+      vw: innerWidth, vh: innerHeight,
+      html: {
+        theme: root.getAttribute('data-theme'), lang: root.lang, dir: root.dir,
+        returning: root.hasAttribute('data-return'), scheme: meta && meta.getAttribute('content'),
+      },
+      bg: getComputedStyle(root).getPropertyValue('--bg').trim(),
+      splashDisplay: splash ? getComputedStyle(splash).display : 'missing',
+      splashClass: splash ? splash.className : '',
+      ring: rect($('.sp-ring')), sun: rect($('.sp-sun')), ringOpacity: px($('.sp-ring'), 'opacity'),
+      want: tr && { title: tr.title, splash_subtitle: tr.splash_subtitle, splash_click: tr.splash_click, splash_skip: tr.splash_skip },
+      plaque: rect($('#sw-plaque')),
+      title: words($('#sw-title')), titleText: ($('#sw-title') || {}).textContent, titlePx: px($('#sw-title'), 'fontSize'),
+      sub: words($('#sw-sub')), subText: ($('#sw-sub') || {}).textContent, subPx: px($('#sw-sub'), 'fontSize'),
+      titleOpacity: px($('#sw-title'), 'opacity'),
+      hint: words($('#sw-hint')), hintText: ($('#sw-hint') || {}).textContent, hintOpacity: px($('#sw-hint'), 'opacity'),
+      skip: rect($('#splash-skip')), skipText: ($('#splash-skip') || {}).textContent, skipOpacity: px($('#splash-skip'), 'opacity'),
+      canvasBox: rect($('#splash-canvas')),
+      scale: [...document.querySelectorAll('.sw-scale li')].map((li) => ({ ...rect(li), text: li.textContent, opacity: px(li, 'opacity') })),
+      live: cover('splash-canvas'), under: cover('splash-under'),
+      running: splash
+        ? splash.getAnimations({ subtree: true })
+            .filter((a) => a instanceof CSSAnimation && a.playState === 'running' && a.animationName !== 'sp-giveup')
+            .map((a) => a.animationName)
+        : [],
+      fallback: (() => {
+        const f = $('#splash-fallback');
+        return f ? { display: getComputedStyle(f).display, title: ($('#splash-fb-title') || {}).textContent } : null;
+      })(),
+      wordsDisplay: $('#splash-words') ? getComputedStyle($('#splash-words')).display : 'missing',
+      seen: localStorage.getItem('tol-splash-seen'),
+    };
+  });
+
+  const gone = (p, ms) => p.waitForFunction(
+    () => getComputedStyle(document.getElementById('splash')).display === 'none', null, { timeout: ms },
+  ).then(() => true, () => false);
+
+  const out = {};
+  const run = async (name, opts, fn) => {
+    let h;
+    try {
+      h = await open(opts);
+      out[name] = await fn(h.p);
+    } catch (e) {
+      out[name] = { error: String(e && e.message ? e.message : e) };
+    } finally {
+      if (h) {
+        try { out.violations = [...(out.violations || []), ...(await h.p.evaluate(() => window.__cspViolations || []).catch(() => []))]; } catch { /* page gone */ }
+        await h.ctx.close();
+      }
+    }
+  };
+
+  // 1. What paints before any script has run.
+  await run('firstPaint', { seen: true, blockApp: true }, async (p) => {
+    await p.goto(baseUrl + '/index.html', { waitUntil: 'domcontentloaded' });
+    await p.waitForTimeout(1000);                       // the ring fades in over 0.7 s
+    return measure(p);
+  });
+
+  // 2. The finished plate: reduced motion paints it at once.
+  const plateOf = async (p) => {
+    await p.goto(baseUrl + '/index.html', { waitUntil: 'domcontentloaded' });
+    await p.waitForSelector('#splash.is-live', { timeout: 20000 });
+    /* Web fonts change every width the title was fitted against. Wait for them,
+       as a visitor's eyes would, then let the re-fit settle. */
+    await p.evaluate(() => document.fonts && document.fonts.ready);
+    await p.waitForTimeout(350);
+    const m = await measure(p);
+    const t0 = Date.now();
+    m.autoDismissed = await gone(p, 6000);
+    m.autoDismissMs = Date.now() - t0;
+    m.seenAfter = await p.evaluate(() => localStorage.getItem('tol-splash-seen'));
+    return m;
+  };
+  await run('plate', { seen: true, reduced: true }, plateOf);
+
+  /* A language no scenario covers at this viewport still has its plate measured,
+     by the first scenario at that viewport. Russian on a phone is the tightest
+     fit on any screen — the longest title in the narrowest window — and it is
+     the one combination the matrix does not load. */
+  const sameViewport = SCENARIOS.filter((s) => s.viewport.name === vp.name);
+  const uncovered = sameViewport[0].id === scenario.id
+    ? ['en', 'he', 'ru'].filter((l) => !sameViewport.some((s) => s.lang === l)) : [];
+  out.extraPlates = [];
+  for (const lang of uncovered) {
+    await run(`plate-${lang}`, { lang, seen: true, reduced: true }, plateOf);
+    out.extraPlates.push(out[`plate-${lang}`]);
+    delete out[`plate-${lang}`];
+  }
+
+  // 3. A first visit, running for real.
+  await run('live', { seen: false }, async (p) => {
+    await p.goto(baseUrl + '/index.html', { waitUntil: 'domcontentloaded' });
+    await p.waitForSelector('#splash.is-live', { timeout: 20000 });
+    await p.waitForTimeout(600);
+    const early = await measure(p);
+    await p.waitForTimeout(2400);
+    const later = await measure(p);
+    const key = OPENING_KEYS[SCENARIOS.findIndex((s) => s.id === scenario.id) % OPENING_KEYS.length];
+    /* Pressed with the safety-net dismissal (6.5 s after the start) still more
+       than three seconds away, and given only 1.4 s to answer: the fade takes
+       0.45 s, so a key that works is done long before, and a key that does
+       nothing cannot be mistaken for the timer running out. */
+    await p.keyboard.press(key);
+    const dismissed = await gone(p, 1400);
+    return {
+      key, dismissed, firstVisit: !early.html.returning,
+      early: early.live, later: later.live, laterUnder: later.under,
+      seenAfter: await p.evaluate(() => localStorage.getItem('tol-splash-seen')),
+    };
+  });
+
+  // 4. No 2D canvas: the words on their own, and the same ways out.
+  await run('noCanvas', { seen: false, noCanvas: true }, async (p) => {
+    await p.goto(baseUrl + '/index.html', { waitUntil: 'domcontentloaded' });
+    await p.waitForSelector('#splash.no-canvas', { timeout: 20000 });
+    const m = await measure(p);
+    m.expectedTitle = await p.evaluate(async (lang) => {
+      const T = await import(new URL('js/uiData.js', location.href).href).then((x) => x.TRANSLATIONS);
+      return T[lang].title;
+    }, scenario.lang);
+    await p.click('#splash-fallback', { timeout: 3000 }).catch(() => {});
+    m.dismissed = await gone(p, 2500);            // the four-second timer is well beyond this
+    return m;
+  });
+
+  out.errors = errors;
+  out.violations = [...new Set(out.violations || [])];
+  return out;
 }
 
 // ── Probe: everything we can learn from one page, in a few passes ─────────────
@@ -2051,8 +2500,13 @@ async function probePage(page, scenario, baseUrl) {
     } catch (e) { return { error: String(e) }; }
   })();
 
+  /* The opening has page loads of its own, in contexts of its own, so it goes
+     last and touches nothing above. */
+  const opening = await openingProbe(page, scenario, baseUrl).catch((e) => ({ error: String(e) }));
+  if (process.env.SMOKE_DUMP_OPENING) console.log(scenario.id, JSON.stringify(opening));
+
   return { ...base, ...forced, tooltipShown, tooltipCoversNode, tipFact, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps, heroPhoto, photoHostReachable: await wikimediaReachable(), contrast, searchQuality,
-           searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations, explore, wayfinder, sharedLink };
+           searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations, explore, wayfinder, sharedLink, opening };
 }
 
 
@@ -2173,6 +2627,39 @@ async function staticChecks() {
     ? { key: orphanKey, id: 'actions:every-action-has-a-handler', title: 'Every data-action resolves to a handler',
         ok: false, msg: `${orphans.length} unhandled: ${orphans.slice(0, 4).map(([n, f]) => `${n} (${f})`).join(', ')}` }
     : { key: orphanKey, id: 'actions:every-action-has-a-handler', title: 'Every data-action resolves to a handler', ok: true });
+
+  /* js/boot.js runs before any module and cannot import, so it keeps its own
+     list of languages and of right-to-left ones. A language added to
+     TRANSLATIONS and left out of it would open in the page's defaults — English,
+     left-to-right — until js/app.js corrected it a second later; a right-to-left
+     one would spend that second on the wrong side of the screen. */
+  const bootKey = 'static/opening:boot-knows-every-language';
+  const bootId = 'opening:boot-knows-every-language';
+  const bootTitle = 'js/boot.js lists every language and every right-to-left one';
+  results.push(await (async () => {
+    const bad = (msg) => ({ key: bootKey, id: bootId, title: bootTitle, ok: false, msg });
+    const boot = await readFile(path.join(ROOT, 'js/boot.js'), 'utf8');
+    const list = (name) => {
+      const m = new RegExp(`var ${name} = \\[([^\\]]*)\\]`).exec(boot);
+      return m ? [...m[1].matchAll(/'([^']+)'/g)].map((x) => x[1]).sort() : null;
+    };
+    const langs = list('LANGS'), rtl = list('RTL');
+    if (!langs || !rtl) return bad('could not read LANGS and RTL out of js/boot.js');
+    // a data: URL, so Node reads it as a module without asking package.json what it is
+    const ui = await readFile(path.join(ROOT, 'js/uiData.js'), 'utf8');
+    const { TRANSLATIONS } = await import('data:text/javascript,' + encodeURIComponent(ui));
+    const have = Object.keys(TRANSLATIONS).sort();
+    if (JSON.stringify(langs) !== JSON.stringify(have)) {
+      return bad(`boot.js knows [${langs}] but TRANSLATIONS has [${have}]`);
+    }
+    const theme = await readFile(path.join(ROOT, 'js/theme.js'), 'utf8');
+    const rule = /isRtl\s*=\s*lang\s*===\s*'([a-z]+)'/.exec(theme);
+    if (!rule) return bad('js/theme.js no longer decides direction with `isRtl = lang === \'xx\'` — teach this check the new rule, and js/boot.js with it');
+    if (JSON.stringify(rtl) !== JSON.stringify([rule[1]])) {
+      return bad(`boot.js treats [${rtl}] as right-to-left; js/theme.js treats [${rule[1]}] as right-to-left`);
+    }
+    return { key: bootKey, id: bootId, title: bootTitle, ok: true };
+  })());
 
   const key = 'static/css:no-undefined-vars';
   if (missing.size) {

@@ -127,6 +127,11 @@ export function applyI18n(){
 // ── Theme Toggle ──
 
 export function applyTheme(){
+  /* The browser's own canvas, scrollbars and form controls follow this. It was
+     dark for everyone before the stylesheets loaded (index.html), and js/boot.js
+     sets it for a light-theme reader, so it only needs to keep up from here. */
+  const scheme=document.querySelector('meta[name="color-scheme"]');
+  if(scheme) scheme.setAttribute('content',state.isDark?'dark':'light');
   if(state.isDark){
     document.documentElement.setAttribute('data-theme','dark');
     document.getElementById('theme-btn').textContent='\u2600';

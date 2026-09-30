@@ -1,13 +1,14 @@
 # Kin — the play strategy for treeoflife.wiki
 
 **Status:** phase 1 live since 30 Sep 2026 at `treeoflife.wiki/play.html`
-(unlinked, noindex), with testers; its gate is still open. Phase 2 under way
-while they play — it does not depend on the gate: 122 creatures and 1,112
-questions (1,047 generated from the tree), a frozen calendar, the service
-worker fixed for Kin, and the Atlas's misplaced species refiled. Open Tree of
-Life disagrees with none of it — no question and none of the 272,398
-relationships the key states. Phase 3 (the new front door) waits for the
-gate.
+(unlinked, noindex), with testers; its gate is still open. Phase 2 is
+built — it did not depend on the gate: 122 creatures and 1,112 questions
+(1,047 generated from the tree), a frozen calendar, the service worker fixed
+for Kin, the Atlas's misplaced species refiled, a credit on every photo and
+silhouette, and the game in Russian. Open Tree of Life disagrees with none of
+it — no question and none of the 272,398 relationships the key states. Still
+owed: a native speaker's review of the Hebrew and Russian text. Phase 3 (the
+new front door) waits for the gate.
 **Visual version, with a playable prototype:** https://claude.ai/artifact/9yBbHFjxeC2Nj4ZPispQ2P
 (private to Gabi until shared).
 
@@ -21,7 +22,11 @@ the code works today; `ROADMAP.md` records decisions once they are made.
 - **Dates are sourced from open publications, not TimeTree.** The repository
   is public and the game is meant to be, and TimeTree forbids redistribution, so every
   age in `js/kin/dates.js` cites an openly reachable source; TimeTree was
-  only used to cross-check. The licence question for later phases stays open.
+  only used to cross-check. That settles the licence question for every
+  phase (open decision 3): no permission is needed, because nothing of
+  TimeTree's is shipped. Two cited studies calibrated their own clocks with
+  ages taken from TimeTree; what the game shows is their published result,
+  cited to them.
 - **The answer key is a small curated tree** (`js/kin/tree.js`, 80 creatures),
   not the site's `TREE`, and answers are derived from it. Open Tree of Life
   agrees with every question it can judge (`npm run kin:opentree`: 42 of 44;
@@ -48,6 +53,20 @@ the code works today; `ROADMAP.md` records decisions once they are made.
   source. Where none could be found, the split stays undated so no question
   can hinge on it (sheep vs goat), or the creature waits (beans, which would
   have needed pea vs bean).
+- **Phase 2, third step (30 Sep): credits and licences.** Every photograph
+  now shows its author and licence and links to its Commons page; the 17
+  non-commercial silhouettes are replaced; `credits.html` lists every photo,
+  silhouette and date source, built from the same modules the site draws
+  from.
+- **Phase 2, last step (30 Sep): Russian.** The game is Родня in Russian,
+  with every creature, group line and explanation written for Russian
+  grammar rather than filled into the English sentence, and a switcher that
+  offers the other two languages. It has not had a native speaker's review,
+  and neither has the Hebrew (open decision 6).
+- **Phase 2 is built and its gate is met:** Open Tree disagrees with nothing
+  (`npm run kin:opentree`), every scheduled question passes, and there are
+  1,112 questions against a gate of 500. What phase 2 still owes is a
+  person, not a session: the native review of the Hebrew and Russian text.
 - **No analytics yet.** `play.html?stats=1` shows what a tester's device
   remembers, which is enough to see whether someone came back.
 
@@ -332,9 +351,8 @@ Equus split looks too old against the literature).
 
 1. Testers for phase 1 (5–10, mixed ages, ≥ 3 reading Hebrew).
 2. Name: Kin (working), after a trademark search.
-3. Date source: request TimeTree permission now; build the fallback anyway.
-   Also: may the phase-1 preview show TimeTree dates to ten testers as
-   research use?
+3. ~~Date source~~ Settled: every date comes from an open publication, so
+   no TimeTree permission is needed (see *Status*).
 4. Analytics: GoatCounter recommended.
 5. Money: none / donations / sponsorship — decides how urgently the NC
    silhouettes go.

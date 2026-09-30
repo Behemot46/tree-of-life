@@ -5,6 +5,7 @@
 import { state, nodeMap, navStack } from './state.js';
 import { registerActions } from './actions.js';
 import { TREE } from './data.js';
+import { t } from './theme.js';
 
 // Redirects for species ids removed during manual duplicate cleanup (PR 0).
 // Preserves bookmarked ?node=<old-id> deep links.
@@ -308,9 +309,13 @@ export function showTip(text, icon, funFact, anchor) {
   positionTip(_tipCursor.x, _tipCursor.y);
   if (funFact) {
     _funFactTimer = setTimeout(() => {
+      /* The fact is English data in every language, like the panel's prose,
+         so it is laid out as English: inside a Hebrew tooltip it otherwise
+         ran right-to-left with its full stop at the front. The label above
+         it is the page's own language. */
       tooltipEl.innerHTML = (icon ? icon + ' ' : '') + text +
-        '<div class="tip-dyk">Did you know?</div>' +
-        '<div class="tip-funfact">' + funFact + '</div>';
+        '<div class="tip-dyk">' + t('did_you_know_q') + '</div>' +
+        '<div class="tip-funfact" lang="en" dir="ltr" data-i18n-exempt="fun-fact">' + funFact + '</div>';
       tooltipEl.classList.add('tip-enhanced');
       /* The box just changed shape — one line became a paragraph — so it is
          re-placed on the next frame, once the browser has laid the new content

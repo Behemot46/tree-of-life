@@ -170,7 +170,7 @@ tree-of-life/
         ├── bank.js      # GENERATED: every generated question
         ├── schedule.js  # GENERATED: the frozen calendar, one line per day
         ├── calendar.js  # EPOCH, day numbers, the last day playable anywhere
-        ├── engine.js    # Pure: all questions, validation, daily, arcade, streak, share
+        ├── engine.js    # Pure: all questions, validation, daily, arcade, streak + freezes, stats, links, share
         ├── strings.js   # Every word the player reads, English, Hebrew and Russian
         ├── reveal.js    # The three-line tree drawn after each answer
         ├── main.js      # play.html's only script
@@ -182,9 +182,10 @@ tree-of-life/
 ## Kin — the daily game (`play.html`)
 
 The site is turning into a game; `docs/PLAY_STRATEGY.md` says why and in what
-order. Phase 1 is `play.html`: a one-minute daily ("who is the closer
-cousin?"), an endless Arcade, in English, Hebrew and Russian. It is not linked from the
-site and carries `noindex` — it exists to be put in front of testers.
+order. `play.html` is a one-minute daily ("who is the closer cousin?"), an
+endless Arcade, a Home for people who come back, streaks with freezes, stats
+and friends' links, in English, Hebrew and Russian. Until the front-door
+change it is not linked from the site and carries `noindex`.
 
 Things worth knowing before changing it:
 
@@ -271,9 +272,41 @@ Things worth knowing before changing it:
   every phone. One `localStorage` record, `kin-v1`, holds progress; the site's
   `tol-lang` and `theme` keys are shared. `?lang=he` from a shared link is
   honoured for the visit and not written back.
-- **`play.html?stats=1`** shows what this device remembers (days played,
-  dailies finished, arcade runs, shares). It is how phase 1 learns whether
-  testers came back without adding analytics; nothing leaves the device.
+- **A first visit is question one, and nothing else is in front of it**: no
+  opening, no tour, no menu. Anyone who has answered before lands on **Home**
+  (`renderHome` in `main.js`) — a seven-tick dial of the last week with the
+  streak in its centre, today's Kin on a plaque (Play, Continue at question N,
+  or the finished result with Share), and tiles for the Arcade and the Atlas.
+  Someone part-way through today's Kin is put back at their question rather
+  than shown Home, and the result of a Kin closed on its last reveal is
+  shown, not an eleventh question. The name in the header is a button that
+  leads Home. `start()` holds the whole rule, in order: stats, challenge,
+  friend's Kin, resume, Home, question one.
+- **The streak is forgiving, and never says "you lost it".** `nextStreak`
+  counts a day played the day after the last one; one missed day is covered by
+  a *freeze* if the player holds one (spent when they next finish a Kin); any
+  longer gap starts over quietly — Home shows a sprout and an invitation to
+  start a new streak, never a broken number or a zero. A freeze is earned by scoring 10 in one Arcade run,
+  and at most two are held (`FREEZE_AT`, `MAX_FREEZES` in `engine.js`).
+  `streakNow` is what Home shows; it is read-only, so opening the page can
+  never change the record. A finished Kin is written to `history` (Kin number →
+  score) for the stats screen.
+- **Links carry the game, and are read strictly.** `?kin=N` plays a past Kin
+  once, with a banner and no effect on the streak or the record (a link to
+  today's Kin is just today's Kin); `?c=SEED&s=SCORE` replays an Arcade run and
+  names the score to beat; `?lang=` is the sender's language; `?stats=1` opens
+  the stats. `parseLaunch` accepts only plain integers inside their ranges
+  and ignores everything else, so a hand-edited address asks for nothing. The
+  Share button builds `kinURL`/`challengeURL` from `location.origin +
+  location.pathname`, so a link points at whichever page the game is served
+  from. Shared text is a number, ten squares and a link — no spoilers.
+- **Stats are a screen, and stay on the device.** Home links to it, `?stats=1`
+  still opens it directly (it is how testers were sent to their numbers):
+  streak and best streak, Kin finished, average and best score, questions
+  answered, Arcade runs and best, results shared, first day, and how many
+  finished Kins reached each title. Rows carry `data-stat` so a check reads
+  a number and not a position. Erasing is two taps in place — the button asks
+  again — because the site raises no native dialog. Nothing leaves the device.
 - **Most questions are generated, not written.** The tree answers far more
   than anyone could write: `js/kin/generate.js` takes every target and every
   pair of creatures meeting it at two different dated nodes, keeps one per
@@ -310,9 +343,18 @@ Things worth knowing before changing it:
   daily puzzle from everyone else's — once after every deploy.
 - **`npm run play:check`** drives the page in Chromium as a first-time visitor
   (phone and desktop, English, Hebrew and Russian): first question within
-  3 s, the header fits, reveal labels fit and do not collide, the figure
-  mirrors, no Latin text in Hebrew or Russian, share text, reload, arcade end,
-  CSP. Screenshots in `.play-out/`. It also draws **every** question's reveal
+  3 s, the header fits and its ten dots stay on one row, reveal labels fit and
+  do not collide, the figure mirrors, no Latin text in Hebrew or Russian, the
+  result grid stays on one line, share text and link, a finished Kin coming
+  back as Home, arcade end, CSP. Then, in every scenario, as someone who has
+  played before: Home (streak, freeze, dial, language, fits above the fold,
+  nothing covered), half a Kin resumed, the stats screen against a record with
+  known numbers, and erasing it. In one scenario per language and kind of
+  screen it also plays the long stories — a friend's Kin leaving the record
+  alone, a challenge link, ten in the Arcade earning a freeze, a missed day
+  spending it, a broken streak starting over without blame. Seeded records
+  are written once, because an init script runs again on every navigation.
+  Screenshots in `.play-out/`. It also draws **every** question's reveal
   on a 360px phone in every language (`play:every-reveal-fits-*`), because a
   day only ever shows ten of them — that sweep found a Hebrew fossil-minimum
   date running out of the figure on its first run, and later the Russian bat,

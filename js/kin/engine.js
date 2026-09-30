@@ -14,10 +14,10 @@ import { BANK } from './bank.js';
 import { SCHEDULE } from './schedule.js';
 import { hashString, mulberry32, shuffled } from './rng.js';
 import { LEAF_IDS, NODE_IDS, hasNode, lineage, mrca, dateOf, resolve, clearMargin } from './key.js';
-import { EPOCH, localDateString, dayNumber, msUntilMidnight } from './calendar.js';
+import { EPOCH, localDateString, dayNumber, msUntilMidnight, lastPlayableDay } from './calendar.js';
 
 export { LEAF_IDS, NODE_IDS, lineage, mrca, dateOf, resolve, clearMargin };
-export { EPOCH, localDateString, dayNumber, msUntilMidnight };
+export { EPOCH, localDateString, dayNumber, msUntilMidnight, lastPlayableDay };
 
 export const DAILY_SIZE = 10;
 export const LIVES = 3;
@@ -172,16 +172,105 @@ export function titleIndex(score, of = DAILY_SIZE) {
   return s >= 10 ? 4 : s >= 8 ? 3 : s >= 6 ? 2 : s >= 4 ? 1 : 0;
 }
 
+// ── Streaks ─────────────────────────────────────────────────────────────────
+
+/** Most freezes a player can hold, and the Arcade score that earns one. */
+export const MAX_FREEZES = 2;
+export const FREEZE_AT = 10;
+
 /**
  * The streak counts days played, not days perfect: finishing a Kin on the
  * day after the last one extends it, and a gap starts it again at 1 rather
  * than at 0 — a player who comes back is never told they lost something.
+ *
+ * A freeze covers exactly one missed day: finishing on the second day after
+ * the last one keeps the streak going and spends a freeze, and says so in
+ * `froze` so the result can. Freezes are earned in the Arcade (earnFreeze).
  */
 export function nextStreak(state, today) {
-  const s = state && state.last ? state : { last: null, count: 0 };
+  const s = { last: null, count: 0, best: 0, freezes: 0, froze: false, ...(state || {}) };
   if (s.last === today) return s;
   const gap = s.last ? dayNumber(today) - dayNumber(s.last) : null;
-  return { last: today, count: gap === 1 ? s.count + 1 : 1 };
+  /* A date before the last one played — a phone flown west, a clock set right —
+     is a day already counted, not a missed one. streakNow reads it the same way. */
+  if (gap !== null && gap < 0) return s;
+  let count = 1, freezes = s.freezes, froze = false;
+  if (gap === 1) count = s.count + 1;
+  else if (gap === 2 && freezes > 0) { count = s.count + 1; freezes -= 1; froze = true; }
+  return { last: today, count, best: Math.max(s.best, count), freezes, froze };
+}
+
+/**
+ * What the streak is worth this minute, for the home screen. A streak nobody
+ * has touched for longer than a freeze can cover is shown as not started, not
+ * as a zero: `alive` is false and the copy offers a fresh start.
+ */
+export function streakNow(state, today) {
+  const s = state && state.last ? state : null;
+  if (!s) return { count: 0, alive: false, played: false, covers: false };
+  const gap = dayNumber(today) - dayNumber(s.last);
+  if (gap <= 0) return { count: s.count, alive: true, played: true, covers: false };
+  if (gap === 1) return { count: s.count, alive: true, played: false, covers: false };
+  if (gap === 2 && (s.freezes || 0) > 0) return { count: s.count, alive: true, played: false, covers: true };
+  return { count: 0, alive: false, played: false, covers: false };
+}
+
+/** An Arcade run of FREEZE_AT or more earns a freeze, up to MAX_FREEZES. */
+export function earnFreeze(state, score) {
+  const s = { last: null, count: 0, best: 0, freezes: 0, froze: false, ...(state || {}) };
+  if (score < FREEZE_AT || s.freezes >= MAX_FREEZES) return { streak: s, earned: false };
+  return { streak: { ...s, freezes: s.freezes + 1 }, earned: true };
+}
+
+/** What the stats screen says about finished dailies: `history` maps a Kin
+    number to its score out of DAILY_SIZE. */
+export function dailySummary(history) {
+  const scores = Object.values(history || {}).filter((v) => Number.isFinite(v));
+  const distribution = [0, 0, 0, 0, 0];
+  for (const v of scores) distribution[titleIndex(v)] += 1;
+  const sum = scores.reduce((a, b) => a + b, 0);
+  return {
+    finished: scores.length,
+    average: scores.length ? Math.round((sum / scores.length) * 10) / 10 : 0,
+    best: scores.length ? Math.max(...scores) : 0,
+    distribution,
+  };
+}
+
+// ── Links ───────────────────────────────────────────────────────────────────
+
+/**
+ * What a link is asking for, and nothing it should not be trusted with: every
+ * number is a plain integer inside its range, or it is ignored. A hand-edited
+ * address asks for nothing rather than for nonsense.
+ *
+ *   ?kin=141        a friend's Kin, as a day number
+ *   ?c=9182&s=12    a friend's Arcade run: its seed and the score to beat
+ *   ?lang=he        the sender's language
+ *   ?stats=1        this device's stats
+ */
+export function parseLaunch(search, now = new Date()) {
+  const p = new URLSearchParams(search);
+  const int = (v, lo, hi) => (v !== null && /^\d{1,10}$/.test(v) && Number(v) >= lo && Number(v) <= hi ? Number(v) : null);
+  const seed = int(p.get('c'), 0, 4294967295);
+  return {
+    lang: p.get('lang'),
+    kin: int(p.get('kin'), 1, lastPlayableDay(now)),
+    challenge: seed === null ? null : { seed, score: int(p.get('s'), 0, 9999) },
+    stats: p.get('stats') === '1',
+  };
+}
+
+const withLang = (lang) => (lang && lang !== 'en' ? `&lang=${lang}` : '');
+
+/** The link a shared result carries: that day's Kin, in the sender's language. */
+export function kinURL({ base, day, lang }) {
+  return `${base}?kin=${day}${withLang(lang)}`;
+}
+
+/** The link a challenge carries: the same questions, and a score to beat. */
+export function challengeURL({ base, seed, score, lang }) {
+  return `${base}?c=${seed}&s=${score}${withLang(lang)}`;
 }
 
 export function shareText({ brand, day, picks, url }) {

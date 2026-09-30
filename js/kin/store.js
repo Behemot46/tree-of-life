@@ -5,16 +5,16 @@
 // windows and blocked site data make storage throw or come back empty, and
 // the game has to play the same either way, just without memory.
 //
-// Nothing here leaves the device. The tester stats at ?stats=1 read from
-// this same record, which is how phase 1 learns whether people came back
-// without adding analytics.
+// Nothing here leaves the device. The stats screen (and ?stats=1, which
+// testers were sent to) reads from this same record.
 // ══════════════════════════════════════════════════════
 
 const KEY = 'kin-v1';
 
 const fresh = () => ({
   daily: null,          // { day, picks: [bool], done: bool } for the current Kin
-  streak: { last: null, count: 0 },
+  streak: { last: null, count: 0, best: 0, freezes: 0, froze: false },
+  history: {},          // Kin number -> score out of ten, for the stats screen
   sound: false,
   seenIntro: false,
   stats: { firstSeen: null, days: [], dailies: 0, answers: 0, correct: 0, arcadeRuns: 0, bestArcade: 0, shares: 0 },
@@ -26,7 +26,7 @@ export function load() {
     if (!raw) return fresh();
     const data = JSON.parse(raw);
     const base = fresh();
-    return { ...base, ...data, stats: { ...base.stats, ...(data.stats || {}) }, streak: { ...base.streak, ...(data.streak || {}) } };
+    return { ...base, ...data, stats: { ...base.stats, ...(data.stats || {}) }, streak: { ...base.streak, ...(data.streak || {}) }, history: { ...(data.history || {}) } };
   } catch {
     return fresh();
   }

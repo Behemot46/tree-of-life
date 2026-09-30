@@ -1,35 +1,46 @@
 // ══════════════════════════════════════════════════════
 // KIN — THE PAGE
 //
-// play.html's only script. A first-time visitor sees question one straight
-// away: no opening animation, no tour, no menu. Screens are rendered into
+// A first-time visitor sees question one straight away: no opening animation,
+// no tour, no menu. Someone who has played before lands on Home: today's Kin,
+// their streak, the Arcade and the Atlas. Screens are rendered into
 // #kin-stage; every control is a data-action handled through the site's own
 // dispatcher (js/actions.js), so the page runs under the same
 // Content-Security-Policy as the encyclopedia with no inline script.
 //
-// State that must survive a reload (today's answers, the streak, the tester
-// stats) lives in js/kin/store.js. Everything that decides what a player is
-// told comes from js/kin/engine.js.
+// State that must survive a reload (today's answers, the streak, the stats)
+// lives in js/kin/store.js. Everything that decides what a player is told
+// comes from js/kin/engine.js.
+//
+// Three things can be played: today's Kin (remembered, and it counts toward
+// the streak), a friend's Kin from a link (played once, not remembered), and
+// the Arcade, alone or against a friend's score.
 // ══════════════════════════════════════════════════════
 
 import { registerActions } from '../actions.js';
 import { CREATURES } from './creatures.js';
 import { glyph } from './glyph.js';
 import * as E from './engine.js';
+import { dateOfDay } from './calendar.js';
 import { STRINGS, LANGS } from './strings.js';
 import * as store from './store.js';
 import { sfx, setEnabled, buzz } from './sfx.js';
 import { treeHTML, sourcesHTML, esc } from './reveal.js';
 
+/* The encyclopedia. It moves to atlas.html when this page becomes the front door. */
+const ATLAS_URL = 'index.html';
+
 const params = new URLSearchParams(location.search);
+const launch = E.parseLaunch(location.search);
 const $ = (id) => document.getElementById(id);
 const stage = () => $('kin-stage');
 const reduced = () => { try { return matchMedia('(prefers-reduced-motion: reduce)').matches; } catch { return false; } };
 
 let S = store.load();
 let lang = chooseLanguage();
-let screen = 'daily';          // daily | results | arcade | over | stats
-let run = null;                // { ids, i, lives, score, seed }
+let screen = 'home';           // home | daily | results | arcade | over | stats
+let run = null;                // an Arcade run: { ids, i, lives, score, seed, challenge, over }
+let friend = null;             // a friend's Kin, played once and not kept: { day, picks, done }
 let locked = false;
 let revealed = null;           // the answer on screen: { qid, side, right, firstEver }
 let inARow = 0;                // consecutive right answers; pitches the chime
@@ -37,10 +48,13 @@ let countdown = null;
 
 const today = E.localDateString();
 const day = E.dayNumber(today);
-const dailyIds = E.dailyIds(day);
 if (!S.daily || S.daily.day !== day) S.daily = { day, picks: [], done: false };
 if (!S.stats.firstSeen) S.stats.firstSeen = today;
 setEnabled(S.sound);
+
+/** The Kin being played: today's, which is remembered, or a friend's, which is not. */
+const D = () => friend || S.daily;
+const idsOf = (d) => E.dailyIds(d.day);
 
 /* A shared link's ?lang= is honoured for this visit and never written back:
    following someone's link is not the same as changing your own setting. */
@@ -60,7 +74,8 @@ function applyLanguage() {
   document.documentElement.dir = t().dir;
   document.title = t().title;
   $('kin-brand').textContent = t().brand;
-  $('kin-foot').textContent = t().testBuild;
+  $('kin-home').setAttribute('aria-label', `${t().brand}, ${t().home}`);
+  $('kin-foot').textContent = t().footAtlas;
   $('kin-credits').textContent = t().credits;
   /* One button for each other language, each named in its own language and
      script, so a reader finds theirs without reading this one. */
@@ -85,20 +100,33 @@ function markPlayedToday() {
   if (!S.stats.days.includes(today)) S.stats.days.push(today);
 }
 
+/** Where a shared link points: this very page, wherever it is served from. */
+const baseURL = () => `${location.origin}${location.pathname}`;
+
+/* Programmatic focus after a screen changes, so a keyboard or a screen reader
+   is not left on a control that has just been removed. */
+function settle(selector = '.kin-btn') {
+  try { const el = stage().querySelector(selector); if (el) el.focus({ preventScroll: true }); } catch { /* old browsers */ }
+}
+
 // ── Header progress ─────────────────────────────────────────────────────────
 
 function renderProgress() {
   const el = $('kin-progress');
-  $('kin-num').textContent = screen === 'arcade' || screen === 'over' ? '' : `#${day}`;
+  const daily = screen === 'daily' || screen === 'results';
+  $('kin-num').textContent = daily ? `#${D().day}` : '';
+  /* The Arcade's status is the widest thing the bar carries; on a phone it gets a row of its own. */
+  document.querySelector('.kin-bar').classList.toggle('is-arcade', screen === 'arcade' || screen === 'over');
   if (screen === 'arcade' || screen === 'over') {
     const hearts = [0, 1, 2].map(i => `<span class="${i < run.lives ? '' : 'lost'}" aria-hidden="true">♥</span>`).join('');
     el.innerHTML = `<span class="kin-mode">${esc(t().arcade)}</span><span class="kin-hearts" role="img" aria-label="${esc(t().lives(run.lives))}">${hearts}</span><span class="kin-pts">${esc(t().pts(run.score))}</span>`;
     return;
   }
-  if (screen === 'stats') { el.innerHTML = ''; return; }
-  const picks = S.daily.picks;
-  el.innerHTML = `<span class="kin-dots" aria-hidden="true">${dailyIds.map((_, i) => {
-    const c = i < picks.length ? (picks[i] ? 'ok' : 'no') : (i === picks.length && !S.daily.done ? 'now' : '');
+  if (!daily) { el.innerHTML = ''; return; }
+  const picks = D().picks;
+  const ids = idsOf(D());
+  el.innerHTML = `<span class="kin-dots" aria-hidden="true">${ids.map((_, i) => {
+    const c = i < picks.length ? (picks[i] ? 'ok' : 'no') : (i === picks.length && !D().done ? 'now' : '');
     return `<i class="${c}"></i>`;
   }).join('')}</span>`;
 }
@@ -106,7 +134,7 @@ function renderProgress() {
 // ── A question ──────────────────────────────────────────────────────────────
 
 function currentQuestionId() {
-  return screen === 'arcade' ? run.ids[run.i] : dailyIds[S.daily.picks.length];
+  return screen === 'arcade' ? run.ids[run.i] : idsOf(D())[D().picks.length];
 }
 
 function optionHTML(id, side) {
@@ -119,19 +147,27 @@ function optionHTML(id, side) {
     </button>`;
 }
 
+/** Who this question came from, when it did not come from the game itself. */
+function bannerHTML() {
+  if (screen === 'arcade' && run.challenge) return `<p class="kin-banner">${esc(t().challengeBanner(run.challenge.score))}</p>`;
+  if (friend) return `<p class="kin-banner">${esc(t().friendBanner(friend.day))}</p>`;
+  return '';
+}
+
 function renderQuestion(qid = currentQuestionId()) {
   clearCountdown();
   locked = false;
   revealed = null;
   const q = E.QUESTION_BY_ID[qid];
   const T = CREATURES[q.t];
-  const salt = screen === 'arcade' ? `run-${run.seed}` : `day-${day}`;
+  const salt = screen === 'arcade' ? `run-${run.seed}` : `day-${D().day}`;
   const nearLeft = E.nearOnLeft(q.id, salt);
   const [first, second] = nearLeft ? [q.near, q.far] : [q.far, q.near];
   const firstEver = S.stats.answers === 0;
   const combo = screen === 'arcade' && inARow >= 3 ? `<div class="kin-combo">${esc(t().inARow(inARow))}</div>` : '';
   stage().classList.remove('revealed');
   stage().innerHTML = `
+    ${bannerHTML()}
     <p class="kin-prompt">${esc(q.t === 'you' ? t().promptYou : t().prompt)}</p>
     <div class="kin-target"><span class="kin-em" aria-hidden="true">${glyph(T)}</span><span class="kin-nm">${esc(T[lang].n)}</span></div>
     ${combo}
@@ -151,13 +187,15 @@ function pick(side) {
   const firstEver = !S.seenIntro;
 
   inARow = right ? inARow + 1 : 0;
-  S.stats.answers += 1;
-  if (right) S.stats.correct += 1;
-  markPlayedToday();
+  if (!friend) {
+    S.stats.answers += 1;
+    if (right) S.stats.correct += 1;
+    markPlayedToday();
+  }
   if (screen === 'arcade') {
     if (right) run.score += 1; else run.lives -= 1;
   } else {
-    S.daily.picks.push(right);
+    D().picks.push(right);
   }
   if (firstEver) S.seenIntro = true;
   persist();
@@ -188,7 +226,7 @@ function showReveal() {
 
   const T = CREATURES[q.t], N = CREATURES[q.near], F = CREATURES[q.far];
   const headline = r.dated ? t().headline(T, N, F, r.dNear, r.dFar) : t().headlineNoDates(T, N, F);
-  const lastDaily = screen !== 'arcade' && S.daily.picks.length === dailyIds.length;
+  const lastDaily = screen !== 'arcade' && D().picks.length === idsOf(D()).length;
   const runEnds = screen === 'arcade' && (run.lives <= 0 || run.i >= run.ids.length - 1);
   const label = screen === 'arcade' ? (run.lives <= 0 ? t().seeRun : runEnds ? t().finish : t().next)
                                     : (lastDaily ? t().seeResult : t().next);
@@ -211,8 +249,8 @@ function next() {
     run.i += 1;
     return renderQuestion();
   }
-  if (S.daily.picks.length < dailyIds.length) return renderQuestion();
-  finishDaily();
+  if (D().picks.length < idsOf(D()).length) return renderQuestion();
+  if (friend) friend.done = true; else finishDaily();
   renderResults(true);
 }
 
@@ -220,44 +258,48 @@ function finishDaily() {
   if (S.daily.done) return;
   S.daily.done = true;
   S.stats.dailies += 1;
+  S.history[day] = S.daily.picks.filter(Boolean).length;
   S.streak = E.nextStreak(S.streak, today);
   persist();
 }
 
 // ── Results ─────────────────────────────────────────────────────────────────
 
-function shareURL() {
-  const base = `${location.origin}${location.pathname}`;
-  return lang === 'en' ? base : `${base}?lang=${lang}`;
-}
-
 function renderResults(celebrate = false) {
   screen = 'results';
   stage().classList.remove('revealed');
-  const picks = S.daily.picks;
+  const d = D();
+  const ids = idsOf(d);
+  const picks = d.picks;
   const score = picks.filter(Boolean).length;
   const title = t().titles[E.titleIndex(score, picks.length)];
-  const recap = dailyIds.map((id, i) => {
+  const recap = ids.map((id, i) => {
     const q = E.QUESTION_BY_ID[id];
     const a = CREATURES[q.t], b = CREATURES[q.near];
     return `<li><span><span aria-hidden="true">${glyph(a)}</span> ${esc(a[lang].n)} <span class="kin-arrow" aria-hidden="true">→</span> <span aria-hidden="true">${glyph(b)}</span> ${esc(b[lang].n)}</span><span class="${picks[i] ? 'y' : 'n'}">${picks[i] ? '✓' : '✗'}</span></li>`;
   }).join('');
+  const streak = friend ? '' : `<p class="kin-streak">${esc(t().streak(S.streak.count || 1))}</p>`
+    + (S.streak.froze && S.streak.last === today ? `<p class="kin-note">${esc(t().freezeUsed)}</p>` : '');
   stage().innerHTML = `<div class="kin-res">
-      <p class="kin-eyebrow">${esc(t().resultEyebrow(day))}</p>
-      <p class="kin-score" dir="ltr">${score}<span>/${picks.length}</span></p>
-      <p class="kin-title">${esc(title)}</p>
+      <p class="kin-eyebrow">${esc(t().resultEyebrow(d.day))}</p>
+      <div class="kin-plaque kin-scoreplate">
+        <p class="kin-score" dir="ltr">${score}<span>/${picks.length}</span></p>
+        <p class="kin-title">${esc(title)}</p>
+      </div>
       <p class="kin-grid" role="img" aria-label="${score}/${picks.length}">${picks.map(p => (p ? '🟩' : '🟥')).join('')}</p>
-      <p class="kin-streak">${esc(t().streak(S.streak.count || 1))}</p>
+      ${streak}
       <div class="kin-share">
         <button class="kin-btn kin-block" type="button" id="kin-share-btn" data-action="kin:share">${esc(t().share)}</button>
         <textarea id="kin-share-text" class="kin-share-text" readonly hidden rows="3" aria-label="${esc(t().share)}"></textarea>
       </div>
-      <button class="kin-btn kin-ghost kin-block" type="button" data-action="kin:arcade">${esc(t().playArcade)}</button>
+      ${friend
+        ? `<button class="kin-btn kin-ghost kin-block" type="button" data-action="kin:today">${esc(t().playToday)}</button>`
+        : `<button class="kin-btn kin-ghost kin-block" type="button" data-action="kin:arcade">${esc(t().playArcade)}</button>`}
       <p class="kin-countdown" id="kin-countdown"></p>
       <details class="kin-recap"><summary>${esc(t().recap)}</summary><ol>${recap}</ol></details>
     </div>`;
   renderProgress();
-  startCountdown();
+  if (!friend) startCountdown();
   window.scrollTo(0, 0);
   if (celebrate) {
     sfx.win();
@@ -265,10 +307,8 @@ function renderResults(celebrate = false) {
   }
 }
 
-async function share() {
-  const text = E.shareText({ brand: t().brand, day, picks: S.daily.picks, url: shareURL() });
-  const btn = $('kin-share-btn');
-  const box = $('kin-share-text');
+/** Hands `text` to the phone's share sheet, or the clipboard, or a box to copy from. */
+async function deliver(text, btn, box) {
   const counted = () => { S.stats.shares += 1; persist(); };
   if (navigator.share) {
     try { await navigator.share({ text }); btn.textContent = t().shared; counted(); return; }
@@ -285,6 +325,17 @@ async function share() {
     box.select();
     btn.textContent = t().copyFallback;
   }
+}
+
+function share() {
+  const d = D();
+  const text = E.shareText({ brand: t().brand, day: d.day, picks: d.picks, url: E.kinURL({ base: baseURL(), day: d.day, lang }) });
+  return deliver(text, $('kin-share-btn'), $('kin-share-text'));
+}
+
+function challenge() {
+  const url = E.challengeURL({ base: baseURL(), seed: run.seed, score: run.score, lang });
+  return deliver(`${t().challengeShare(run.score)}\n${url}`, $('kin-challenge-btn'), $('kin-share-text'));
 }
 
 function startCountdown() {
@@ -305,9 +356,10 @@ function clearCountdown() { if (countdown) { clearInterval(countdown); countdown
 
 // ── Arcade ──────────────────────────────────────────────────────────────────
 
-function startArcade() {
-  const seed = (Math.random() * 2 ** 32) >>> 0;
-  run = { ids: E.arcadeIds(seed), i: 0, lives: E.LIVES, score: 0, seed };
+/** A run from a random seed, or from a friend's (`challenge` is their { seed, score }). */
+function startArcade(seed = (Math.random() * 2 ** 32) >>> 0, against = null) {
+  friend = null;
+  run = { ids: E.arcadeIds(seed), i: 0, lives: E.LIVES, score: 0, seed, challenge: against, over: null };
   S.stats.arcadeRuns += 1;
   persist();
   inARow = 0;
@@ -319,15 +371,31 @@ function renderOver() {
   screen = 'over';
   clearCountdown();
   stage().classList.remove('revealed');
-  const best = S.stats.bestArcade;
-  const isBest = run.score > best;
-  if (isBest) { S.stats.bestArcade = run.score; persist(); }
+  /* Worked out once per run: a language switch redraws this screen, and it
+     must not read "new best" the first time and "best run" the second. */
+  if (!run.over) {
+    const isBest = run.score > S.stats.bestArcade;
+    if (isBest) S.stats.bestArcade = run.score;
+    const freeze = E.earnFreeze(S.streak, run.score);
+    if (freeze.earned) S.streak = freeze.streak;
+    persist();
+    run.over = { isBest, freezes: freeze.earned ? S.streak.freezes : 0 };
+  }
+  const { isBest, freezes } = run.over;
   const allPlayed = run.lives > 0;
+  const versus = run.challenge && run.challenge.score !== null
+    ? `<p class="kin-streak">${esc(t().challengeResult(run.score, run.challenge.score))}</p>` : '';
   stage().innerHTML = `<div class="kin-res">
       <p class="kin-eyebrow">${esc(allPlayed ? t().allPlayed : t().runOver)}</p>
-      <p class="kin-score" dir="ltr">${run.score}</p>
-      <p class="kin-title">${esc(isBest ? t().newBest : t().best(Math.max(best, run.score)))}</p>
+      <div class="kin-plaque kin-scoreplate">
+        <p class="kin-score" dir="ltr">${run.score}</p>
+        <p class="kin-title">${esc(isBest ? t().newBest : t().best(Math.max(S.stats.bestArcade, run.score)))}</p>
+      </div>
+      ${versus}
+      ${freezes ? `<p class="kin-streak">${esc(t().freezeEarned(freezes))}</p>` : ''}
       <button class="kin-btn kin-block" type="button" data-action="kin:arcade">${esc(t().playAgain)}</button>
+      <button class="kin-btn kin-ghost kin-block" type="button" id="kin-challenge-btn" data-action="kin:challenge">${esc(t().challengeBtn)}</button>
+      <textarea id="kin-share-text" class="kin-share-text" readonly hidden rows="3" aria-label="${esc(t().challengeBtn)}"></textarea>
       <button class="kin-btn kin-ghost kin-block" type="button" data-action="kin:today">${esc(S.daily.done ? t().backToResult : t().backToKin)}</button>
       <p class="kin-note">${esc(t().arcadeNote)}</p>
     </div>`;
@@ -336,20 +404,109 @@ function renderOver() {
   if (isBest && run.score >= 5) { sfx.win(); burst(24); }
 }
 
-// ── Tester stats (?stats=1) ─────────────────────────────────────────────────
+// ── Home ────────────────────────────────────────────────────────────────────
+
+/* A ring of the last seven days, today at the top and time running clockwise
+   to it: a tick for each day played. It is the opening's dial in small — a
+   scale you read by distance — and the number inside is the streak. */
+function dialHTML(now) {
+  const played = new Set(S.stats.days);
+  let count = 0;
+  const ticks = [];
+  for (let i = 0; i < 7; i++) {
+    const ago = 6 - i;
+    const on = played.has(dateOfDay(day - ago));
+    if (on) count += 1;
+    const a = ((-90 + (i - 6) * (360 / 7)) * Math.PI) / 180;
+    const [x1, y1, x2, y2] = [42, 55].flatMap((r) => [(60 + r * Math.cos(a)).toFixed(1), (60 + r * Math.sin(a)).toFixed(1)]);
+    ticks.push(`<line class="kin-tick${on ? ' on' : ''}${ago === 0 ? ' now' : ''}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`);
+  }
+  const centre = now.alive ? `<b dir="ltr">${now.count}</b>` : '<span class="kin-dial-leaf" aria-hidden="true">🌱</span>';
+  return `<div class="kin-dial" role="img" aria-label="${esc(t().dialLabel(count))}">
+      <svg viewBox="0 0 120 120" aria-hidden="true" focusable="false">
+        <circle class="kin-ring kin-ring-scale" cx="60" cy="60" r="59"/>
+        <circle class="kin-ring" cx="60" cy="60" r="57"/>
+        <circle class="kin-ring kin-ring-in" cx="60" cy="60" r="36"/>
+        ${ticks.join('')}
+      </svg>
+      <div class="kin-dial-in">${centre}</div>
+    </div>`;
+}
+
+function renderHome() {
+  screen = 'home';
+  friend = null;
+  run = null;
+  clearCountdown();
+  stage().classList.remove('revealed');
+  const d = S.daily;
+  const size = idsOf(d).length;
+  const now = E.streakNow(S.streak, today);
+  const streakLine = !now.alive ? t().streakStart : now.played ? t().streak(now.count) : now.covers ? t().streakCovered : t().streakKeep;
+  const freezes = S.streak.freezes > 0 ? `<span class="kin-chip">${esc(t().freezes(S.streak.freezes))}</span>` : '';
+  let plaque;
+  if (d.done) {
+    const score = d.picks.filter(Boolean).length;
+    plaque = `<p class="kin-eyebrow">${esc(t().resultEyebrow(d.day))}</p>
+      <p class="kin-score" dir="ltr">${score}<span>/${d.picks.length}</span></p>
+      <p class="kin-title">${esc(t().titles[E.titleIndex(score, d.picks.length)])}</p>
+      <p class="kin-grid" role="img" aria-label="${score}/${d.picks.length}">${d.picks.map(p => (p ? '🟩' : '🟥')).join('')}</p>
+      <button class="kin-btn kin-block" type="button" id="kin-share-btn" data-action="kin:share">${esc(t().share)}</button>
+      <textarea id="kin-share-text" class="kin-share-text" readonly hidden rows="3" aria-label="${esc(t().share)}"></textarea>
+      <button class="kin-link" type="button" data-action="kin:results">${esc(t().recap)}</button>
+      <p class="kin-countdown" id="kin-countdown"></p>`;
+  } else {
+    const going = d.picks.length > 0;
+    plaque = `<p class="kin-eyebrow">${esc(t().homeToday)} · #${d.day}</p>
+      <p class="kin-sub">${esc(going ? t().homeProgress(d.picks.length, size) : t().homeSub)}</p>
+      <button class="kin-btn kin-block" type="button" data-action="kin:today">${esc(going ? t().homeContinue : t().homePlay)}</button>`;
+  }
+  stage().innerHTML = `<div class="kin-home">
+      <div class="kin-hero">${dialHTML(now)}<p class="kin-streakline">${esc(streakLine)}</p>${freezes}</div>
+      <section class="kin-plaque kin-today">${plaque}</section>
+      <div class="kin-tiles">
+        <button class="kin-tile" type="button" data-action="kin:arcade"><span class="kin-tile-ic" aria-hidden="true">🎯</span><b>${esc(t().homeArcade)}</b><span>${esc(t().homeArcadeSub(S.stats.bestArcade))}</span></button>
+        <a class="kin-tile" href="${ATLAS_URL}"><span class="kin-tile-ic" aria-hidden="true">🌍</span><b>${esc(t().homeAtlas)}</b><span>${esc(t().homeAtlasSub)}</span></a>
+      </div>
+      <p class="kin-linkrow"><button class="kin-link" type="button" data-action="kin:stats">${esc(t().stats)}</button></p>
+    </div>`;
+  renderProgress();
+  if (d.done) startCountdown();
+  window.scrollTo(0, 0);
+}
+
+// ── Stats ───────────────────────────────────────────────────────────────────
 
 function renderStats() {
   screen = 'stats';
   clearCountdown();
-  const rows = t().statsRows(S.stats).map(([k, v]) => `<tr><th scope="row">${esc(k)}</th><td><bdi>${esc(v)}</bdi></td></tr>`).join('');
+  stage().classList.remove('revealed');
+  const sum = E.dailySummary(S.history);
+  const v = {
+    streak: E.streakNow(S.streak, today).count,
+    bestStreak: Math.max(S.streak.best || 0, S.streak.count || 0),
+    finished: Math.max(sum.finished, S.stats.dailies),
+    scored: sum.finished, average: sum.average, best: sum.best,
+    answers: S.stats.answers, correct: S.stats.correct,
+    arcadeRuns: S.stats.arcadeRuns, bestArcade: S.stats.bestArcade,
+    shares: S.stats.shares, firstSeen: S.stats.firstSeen,
+  };
+  const rows = t().statsRows(v).map(([k, label, val]) => `<tr data-stat="${k}"><th scope="row">${esc(label)}</th><td><bdi>${esc(val)}</bdi></td></tr>`).join('');
+  const top = Math.max(1, ...sum.distribution);
+  const dist = sum.distribution.map((n, i) => `<li data-tier="${i}"><span class="kin-dist-l">${esc(t().titles[i])}</span><span class="kin-dist-bar" aria-hidden="true"><i style="width:${Math.round((n / top) * 100)}%"></i></span><b dir="ltr">${n}</b></li>`).reverse().join('');
   stage().innerHTML = `<div class="kin-res kin-stats">
       <p class="kin-eyebrow">${esc(t().stats)}</p>
       <table>${rows}</table>
+      <div class="kin-distwrap">
+        <p class="kin-eyebrow">${esc(t().statsDist)}</p>
+        <ul class="kin-dist">${dist}</ul>
+      </div>
       <p class="kin-note">${esc(t().statsNote)}</p>
-      <button class="kin-btn kin-block" type="button" data-action="kin:today">${esc(t().statsBack)}</button>
-      <button class="kin-btn kin-ghost kin-block" type="button" data-action="kin:reset">${esc(t().statsReset)}</button>
+      <button class="kin-btn kin-block" type="button" data-action="kin:home">${esc(t().statsBack)}</button>
+      <button class="kin-btn kin-ghost kin-block" type="button" id="kin-reset" data-action="kin:reset">${esc(t().statsReset)}</button>
     </div>`;
   renderProgress();
+  window.scrollTo(0, 0);
 }
 
 // ── Leaves, not confetti ────────────────────────────────────────────────────
@@ -374,32 +531,61 @@ function burst(count) {
 
 // ── Wiring ──────────────────────────────────────────────────────────────────
 
+/** Today's question, or today's result if it is already finished. */
 function showToday() {
   screen = 'daily';
+  friend = null;
   inARow = 0;
   /* All ten answered but the page closed on the last reveal: the result is
      theirs, and there is no eleventh question to show. */
-  if (!S.daily.done && S.daily.picks.length >= dailyIds.length) finishDaily();
+  if (!S.daily.done && S.daily.picks.length >= idsOf(S.daily).length) finishDaily();
   if (S.daily.done) renderResults(false); else renderQuestion();
+}
+
+/** Where a page load starts. A first visit gets question one and nothing
+    before it; anyone who has played gets Home, unless they are part-way
+    through today's Kin, in which case they pick it up where they left it. */
+function start() {
+  if (launch.stats) return renderStats();
+  if (launch.challenge) return startArcade(launch.challenge.seed, launch.challenge);
+  if (launch.kin !== null && launch.kin < day) {
+    friend = { day: launch.kin, picks: [], done: false };
+    screen = 'daily';
+    return renderQuestion();
+  }
+  const answered = S.daily.picks.length;
+  if (!S.daily.done && answered >= idsOf(S.daily).length) return showToday();   // closed on the last reveal: that is their result
+  if (answered > 0 && !S.daily.done) return showToday();                        // part-way through: carry on
+  if (S.seenIntro || S.stats.answers > 0) return renderHome();
+  return showToday();
+}
+
+function redraw() {
+  if (screen === 'home') renderHome();
+  else if (screen === 'results') renderResults(false);
+  else if (screen === 'over') renderOver();
+  else if (screen === 'stats') renderStats();
+  else if (revealed) { const shown = revealed; renderQuestion(shown.qid); revealed = shown; showReveal(); }
+  else renderQuestion();
 }
 
 registerActions({
   'kin:pick': (_a, _b, { el }) => pick(el.dataset.side),
   'kin:next': () => next(),
   'kin:share': () => { share(); },
+  'kin:challenge': () => { challenge(); },
   'kin:arcade': () => { sfx.tap(); startArcade(); },
   'kin:today': () => { sfx.tap(); showToday(); },
+  'kin:home': () => { sfx.tap(); renderHome(); settle(); },
+  'kin:results': () => { sfx.tap(); renderResults(false); settle('.kin-btn'); },
+  'kin:stats': () => { sfx.tap(); renderStats(); settle(); },
   'kin:lang': (_a, _b, { el }) => {
     const prev = lang;
     if (!LANGS.includes(el.dataset.lang) || el.dataset.lang === prev) return;
     lang = el.dataset.lang;
     store.siteSet('tol-lang', lang);
     applyLanguage();
-    if (screen === 'results') renderResults(false);
-    else if (screen === 'over') renderOver();
-    else if (screen === 'stats') renderStats();
-    else if (revealed) { const shown = revealed; renderQuestion(shown.qid); revealed = shown; showReveal(); }
-    else renderQuestion();
+    redraw();
     /* The pressed button went with the old row. Unless the redraw put focus
        somewhere on purpose, leave it on the way back. */
     if (!document.activeElement || document.activeElement === document.body) {
@@ -414,13 +600,21 @@ registerActions({
     renderSoundButton();
     if (S.sound) sfx.tap();
   },
-  'kin:reset': () => {
+  /* Erasing everything is not something to do with one stray tap, and the
+     site raises no native dialog: the button asks again in place. */
+  'kin:reset': (_a, _b, { el }) => {
+    if (el.dataset.armed !== '1') {
+      el.dataset.armed = '1';
+      el.textContent = t().statsResetSure;
+      setTimeout(() => { if (el.isConnected) { el.dataset.armed = ''; el.textContent = t().statsReset; } }, 4000);
+      return;
+    }
     store.reset();
     S = store.load();
     S.daily = { day, picks: [], done: false };
     S.stats.firstSeen = today;
     persist();
-    showToday();
+    renderHome();
   },
 });
 
@@ -439,4 +633,4 @@ document.addEventListener('keydown', (e) => {
 document.documentElement.dataset.theme = store.siteGet('theme') === 'light' ? 'light' : 'dark';
 applyLanguage();
 persist();
-if (params.get('stats') === '1') renderStats(); else showToday();
+start();

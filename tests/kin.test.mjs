@@ -222,13 +222,93 @@ test('the side the answer sits on is fixed per day and question, and not always 
 
 test('streaks count days played and never punish a gap below 1', () => {
   let s = E.nextStreak(null, '2026-09-29');
-  assert.deepEqual(s, { last: '2026-09-29', count: 1 });
+  assert.deepEqual(s, { last: '2026-09-29', count: 1, best: 1, freezes: 0, froze: false });
   s = E.nextStreak(s, '2026-09-29');
   assert.equal(s.count, 1, 'playing twice in a day is one day');
   s = E.nextStreak(s, '2026-09-30');
   assert.equal(s.count, 2);
+  assert.equal(s.best, 2);
   s = E.nextStreak(s, '2026-10-05');
   assert.equal(s.count, 1, 'a gap starts again at 1');
+  assert.equal(s.best, 2, 'and the best is kept');
+  // a date before the last one played (a phone flown west, a clock set right) is a day already counted
+  const flown = { last: '2026-10-06', count: 9, best: 9, freezes: 1, froze: false };
+  assert.deepEqual(E.nextStreak(flown, '2026-10-05'), flown, 'a clock set back changes nothing');
+});
+
+test('a freeze covers one missed day, and only one', () => {
+  const held = { last: '2026-09-30', count: 6, best: 6, freezes: 1, froze: false };
+  // finishing the day after the next: one day was missed, the freeze is spent, the streak goes on
+  const covered = E.nextStreak(held, '2026-10-02');
+  assert.deepEqual(covered, { last: '2026-10-02', count: 7, best: 7, freezes: 0, froze: true });
+  // two missed days are more than one freeze can cover
+  assert.equal(E.nextStreak(held, '2026-10-03').count, 1);
+  assert.equal(E.nextStreak(held, '2026-10-03').freezes, 1, 'an unspent freeze is kept');
+  // no freeze, one missed day: a fresh start
+  assert.equal(E.nextStreak({ ...held, freezes: 0 }, '2026-10-02').count, 1);
+  // the next day needs no freeze
+  assert.deepEqual([E.nextStreak(held, '2026-10-01').count, E.nextStreak(held, '2026-10-01').freezes], [7, 1]);
+});
+
+test('what the streak is worth right now is never shown as a loss', () => {
+  const s = { last: '2026-09-30', count: 4, best: 4, freezes: 0 };
+  assert.deepEqual(E.streakNow(s, '2026-09-30'), { count: 4, alive: true, played: true, covers: false });
+  assert.deepEqual(E.streakNow(s, '2026-10-01'), { count: 4, alive: true, played: false, covers: false });
+  assert.equal(E.streakNow(s, '2026-10-02').alive, false, 'a missed day with no freeze is a fresh start');
+  assert.equal(E.streakNow(s, '2026-10-02').count, 0);
+  assert.deepEqual(E.streakNow({ ...s, freezes: 1 }, '2026-10-02'), { count: 4, alive: true, played: false, covers: true });
+  assert.equal(E.streakNow({ ...s, freezes: 1 }, '2026-10-03').alive, false);
+  assert.deepEqual(E.streakNow(null, '2026-10-01'), { count: 0, alive: false, played: false, covers: false });
+  assert.equal(E.streakNow(s, '2026-09-01').played, true, 'a clock set back is not a lost streak');
+});
+
+test('an Arcade run of ten earns a freeze, up to two', () => {
+  const s = { last: null, count: 0, best: 0, freezes: 0, froze: false };
+  assert.equal(E.earnFreeze(s, 9).earned, false);
+  const one = E.earnFreeze(s, 10);
+  assert.deepEqual([one.earned, one.streak.freezes], [true, 1]);
+  const two = E.earnFreeze(one.streak, 25);
+  assert.deepEqual([two.earned, two.streak.freezes], [true, 2]);
+  const three = E.earnFreeze(two.streak, 40);
+  assert.deepEqual([three.earned, three.streak.freezes], [false, 2], 'two is the most anyone holds');
+  assert.equal(E.MAX_FREEZES, 2);
+  assert.equal(E.FREEZE_AT, 10);
+});
+
+test('the stats summary counts finished dailies by title', () => {
+  assert.deepEqual(E.dailySummary({}), { finished: 0, average: 0, best: 0, distribution: [0, 0, 0, 0, 0] });
+  const s = E.dailySummary({ 1: 10, 2: 8, 3: 6, 4: 3, 5: 8, 6: 'x' });
+  assert.deepEqual(s.distribution, [1, 0, 1, 2, 1]);
+  assert.equal(s.finished, 5);
+  assert.equal(s.best, 10);
+  assert.equal(s.average, 7);
+});
+
+test('links ask for what they name and nothing else', () => {
+  const now = new Date('2026-10-05T12:00:00Z');
+  const last = E.lastPlayableDay(now);
+  assert.deepEqual(E.parseLaunch('', now), { lang: null, kin: null, challenge: null, stats: false });
+  assert.deepEqual(E.parseLaunch('?kin=3&lang=he', now), { lang: 'he', kin: 3, challenge: null, stats: false });
+  assert.deepEqual(E.parseLaunch('?c=9182&s=12', now).challenge, { seed: 9182, score: 12 });
+  assert.deepEqual(E.parseLaunch('?c=9182', now).challenge, { seed: 9182, score: null }, 'a challenge with no score is still a challenge');
+  assert.equal(E.parseLaunch('?stats=1', now).stats, true);
+  // numbers are plain integers inside their range or they are ignored
+  for (const bad of ['?kin=0', '?kin=-3', '?kin=2.5', '?kin=abc', '?kin=1e3', '?kin=99999999999', `?kin=${last + 1}`, '?kin=%20']) {
+    assert.equal(E.parseLaunch(bad, now).kin, null, bad);
+  }
+  assert.equal(E.parseLaunch(`?kin=${last}`, now).kin, last, 'a friend a day ahead is still a valid day');
+  for (const bad of ['?c=-1', '?c=4294967296', '?c=x', '?c=']) assert.equal(E.parseLaunch(bad, now).challenge, null, bad);
+  assert.equal(E.parseLaunch('?c=5&s=99999', now).challenge.score, null);
+});
+
+test('the links a result carries name the day or the run, and the sender language', () => {
+  const base = 'https://www.treeoflife.wiki/';
+  assert.equal(E.kinURL({ base, day: 142, lang: 'en' }), 'https://www.treeoflife.wiki/?kin=142');
+  assert.equal(E.kinURL({ base, day: 142, lang: 'he' }), 'https://www.treeoflife.wiki/?kin=142&lang=he');
+  assert.equal(E.challengeURL({ base, seed: 77, score: 12, lang: 'ru' }), 'https://www.treeoflife.wiki/?c=77&s=12&lang=ru');
+  // what the sender builds, the receiver reads back
+  const round = E.parseLaunch(E.challengeURL({ base: '', seed: 77, score: 12, lang: 'ru' }).slice(1), new Date('2026-10-05T12:00:00Z'));
+  assert.deepEqual([round.challenge, round.lang], [{ seed: 77, score: 12 }, 'ru']);
 });
 
 test('results titles and the share text', () => {

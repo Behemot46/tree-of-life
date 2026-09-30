@@ -8,7 +8,9 @@ for Kin, the Atlas's misplaced species refiled, a credit on every photo and
 silhouette, and the game in Russian. Open Tree of Life disagrees with none of
 it — no question and none of the 272,398 relationships the key states. Still
 owed: a native speaker's review of the Hebrew and Russian text. Phase 3 (the
-new front door) waits for the gate.
+new front door) is under way: Gabi asked on 30 Sep for the redesign to be
+implemented and launched on the main site, so it is being built without the
+phase-1 gate having been measured — see *Phase 3 as built*.
 **Visual version, with a playable prototype:** https://claude.ai/artifact/9yBbHFjxeC2Nj4ZPispQ2P
 (private to Gabi until shared).
 
@@ -69,6 +71,33 @@ the code works today; `ROADMAP.md` records decisions once they are made.
   person, not a session: the native review of the Hebrew and Russian text.
 - **No analytics yet.** `play.html?stats=1` shows what a tester's device
   remembers, which is enough to see whether someone came back.
+
+---
+
+## Phase 3 as built
+
+The phase-1 gate (≥ 6 of 10 testers play a second round or share unprompted)
+was never measured. Gabi asked for the rest of the redesign to be implemented
+and launched on the main site (30 Sep), which waives it, and the launch is
+the experiment instead: the numbers the gate stood in for (D1, D7, shares per
+finished daily) are what phase 3's own gate reads after four weeks.
+
+It is built as three pull requests, so each can be checked and reverted on its
+own:
+
+1. **Home and the return loop (on `play.html`, still unlinked).** A first visit
+   is question one and nothing before it. Anyone who has played lands on Home:
+   a seven-tick dial of the week with the streak at its centre, today's Kin,
+   the Arcade and the Atlas. The streak is forgiving — a freeze (earned by 10
+   in one Arcade run, at most two held) covers one missed day, and a longer
+   gap starts over quietly. Shared links carry the game: `?kin=N` opens a
+   friend's Kin, `?c=&s=` a run to beat. The stats are a screen, not a URL.
+   Nothing leaves the device. The page borrows the opening's look — the plaque,
+   the dial, the ruled scale under the header.
+2. The install prompt, real icons, the service worker registered from the game,
+   and an analytics hook that does nothing until it is given a site code.
+3. The front door: Kin at `/`, the Atlas at `/atlas.html` with the opening as
+   its entrance, the dead modules deleted.
 
 ## The decision in one paragraph
 

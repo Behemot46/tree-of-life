@@ -43,6 +43,23 @@ Things waiting on a decision rather than on work.
 
 ## Decision log
 
+### 2026-09 — Kin: Home and the return loop
+
+| Decision | Rationale |
+|---|---|
+| Launch without the phase-1 gate | Gabi asked for the remaining redesign to be implemented and launched on the main site. The gate (≥ 6 of 10 testers replaying or sharing) was never measured, so the launch is the experiment and phase 3's own numbers (D1, D7, shares per finished daily, after four weeks) are what is read. Stated plainly in the strategy doc so nobody later thinks it passed. |
+| Three pull requests, not one | Home and the return loop (still on the unlinked `play.html`), then the install prompt and analytics hook, then the front-door flip. The flip is the only one that moves URLs, so it is the only one that needs a revert plan; the other two can ship and be tested on their own. |
+| A first visit is question one, and Home is for people who come back | The plan's front-door rule. `start()` decides in one place: stats, challenge, a friend's Kin, resuming half a Kin, Home, question one. Someone part-way through today's Kin is put back at their question, not shown a menu. |
+| The streak never says "you lost it" | Loss framing is the thing daily games are criticised for. A freeze (earned by 10 in one Arcade run, at most two) covers one missed day; any longer gap starts over with a sprout and an invitation, never a broken number. `streakNow` is read-only, so opening the page can never change the record, and the rules are tested at their edges (a gap of one day, of two with and without a freeze, of three or more). |
+| Links carry the game, and are read strictly | `?kin=N` plays a past Kin once, leaving the streak and the record alone; `?c=&s=` replays an Arcade run with a score to beat; both carry `?lang=` so the recipient reads the sender's language for that visit and never has it written back. Every number must be a plain integer inside its range or it is ignored, so a hand-edited address asks for nothing. Shared text is a number, ten squares and a link, with no spoilers. |
+| Stats are a screen on the device, erased in two taps | The `?stats=1` page testers were sent to is now reachable from Home and worded for players. Nothing leaves the device, and the site raises no native dialog, so erasing asks again in place. |
+| The look of the opening, in small | The plaque (a hairline plate with a diamond at each end), the ruled scale under the header and a seven-tick dial of the week — distance from the centre is time, as on the Astrolabe. The dial's centre is the streak, or a sprout when there is none. |
+| Header dots give way instead of the row | Found in screenshots, not by a check: in Russian on a 360px phone the ten dots sat on top of the day number and the Arcade's status ran into the name. Dots now shrink from 9px to fit, and the Arcade's status takes a row of its own on a phone. The header check had measured the dots' container, which overflowed silently; it now measures the dots. |
+| A check that found its own bug | `home-fits-and-is-reachable` reported a link "covered" when it was merely below the fold at 640px: `elementFromPoint` answers null off-screen. The check now brings each control into view first. |
+| `play:check` learned `--only` | Same reason as the smoke runner's: a new check has to be watched failing, and the full run takes three minutes. A filtered run says it is not a full pass. |
+| The CI job limit is 20 minutes | The Kin job was allowed ten. It now covers Home, stats and the long stories in four scenarios as well as the first visit, about three minutes on this machine; Chromium's install has taken up to six on a runner. |
+| Hebrew and Russian copy unreviewed | About forty new strings in each; a native reader has not seen them. |
+
 ### 2026-09 — The name is asked for after a game
 
 | Decision | Rationale |

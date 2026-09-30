@@ -58,6 +58,7 @@ Things waiting on a decision rather than on work.
 | The front page is indexable | `noindex` is gone and the canonical URL is `/`; the encyclopedia's canonical is `/atlas.html`. Kin's link-preview card is `assets/og-kin.png`. |
 | `start_url` is `/?source=pwa` | An installed game opens the game. `id` stays `/` so a device that installed it during the test is updated rather than duplicated. |
 | Production is checked with Kin's own checks too | `verify-deployment.yml` runs the smoke suite against the encyclopedia and now the play checks against the front page (the offline check needs a server it can stop, so it is skipped against a deployed site). |
+| The first run against production found a check that only works on localhost | 13 of 483 Kin checks failed against the live site and none locally: the install card's icon arrives over a network, and the check measured it while it was still on its way and counted the request the page cancelled itself, when it re-rendered the card, as a failure. Reproduced locally by delaying the icon 700 ms, then fixed: the check waits for the picture, and a cancelled request is not a failed one. Nothing was wrong with the game. Running the suite against production from this sandbox needs the proxy's CA trusted by Chromium, which a scratch copy does with `--ignore-certificate-errors-spki-list` for that one key and nothing broader. |
 | Service-worker cache `tol-v13` | The shell list changed (`/` and `/index.html` are the game now). |
 
 ### 2026-09 — Kin: the home screen, offline, and counting (off)

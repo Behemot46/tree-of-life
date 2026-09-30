@@ -14,6 +14,7 @@
 
 import { STRINGS } from './strings.js';
 import { CREATURES } from './creatures.js';
+import { glyph } from './glyph.js';
 import { SOURCES } from './dates.js';
 
 const W = 340, H = 150, X_LEAF = 196, X_FAR = 18;
@@ -53,7 +54,7 @@ export function treeHTML(r, lang) {
   };
 
   const leaf = (c, y, cls) => at(X_LEAF + 10, y, 'start', `kin-leaf ${cls}`,
-    `<span aria-hidden="true">${c.e}</span> <span dir="auto">${esc(c[lang].n)}</span>`);
+    `<span aria-hidden="true">${glyph(c)}</span> <span dir="auto">${esc(c[lang].n)}</span>`);
 
   /* The near date is centred over its join, except at either end of the
      axis. A recent split sits close to the leaves, and centred there its
@@ -89,12 +90,14 @@ export function treeHTML(r, lang) {
 }
 
 /** "Dates: Source A; Source B" with links, in the language's own label.
-    Citations are titles of English publications, so they read left to right. */
+    Citations are titles of English publications, so they read left to right —
+    as one run, not link by link: laid out separately inside a Hebrew line,
+    the separator went to the wrong side, "Lu et al. 2023 ;Richardson…". */
 export function sourcesHTML(r, lang) {
   if (!r.dated) return '';
   const keys = [...new Set([r.dNear.src, r.dFar.src].filter(Boolean))];
   const links = keys.map((k) => SOURCES[k]).filter(Boolean)
     .map((src) => `<a href="${esc(src.url)}" target="_blank" rel="noopener" dir="ltr">${esc(src.title)}</a>`);
   if (!links.length) return '';
-  return `<p class="kin-sources" data-kin-citation>${esc(STRINGS[lang].sources)} ${links.join('; ')}</p>`;
+  return `<p class="kin-sources" data-kin-citation>${esc(STRINGS[lang].sources)} <span dir="ltr">${links.join('; ')}</span></p>`;
 }

@@ -155,7 +155,8 @@ tree-of-life/
         ├── key.js       # Reads the key: MRCA, resolve(), the margin rule
         ├── dates.js     # Sourced age of each branching point, with citations
         ├── groups.js    # One line per dated branch — the "why" of generated questions
-        ├── creatures.js # Emoji, names with grammatical forms, LOOKS (folk tags)
+        ├── creatures.js # Emoji, names with grammatical forms, LOOKS (folk tags), SPECIES
+        ├── glyph.js     # Swaps an emoji the device cannot draw for its kingdom's sign
         ├── questions.js # Hand-written questions, their "why", days 1–4, hooks
         ├── generate.js  # Build-time only: picks questions from the tree, lays out days
         ├── bank.js      # GENERATED: every generated question
@@ -187,7 +188,11 @@ Things worth knowing before changing it:
   own `TREE` was not usable for this: it files a lobster under Insects.
 - **Only uncontested branching is resolved.** Disputed orders (bats among the
   hoofed mammals and carnivores, the inside of Neoaves, the three arctoid
-  families) are left as polytomies, so no question can hinge on them.
+  families, the placental root, giraffes vs deer vs cattle, the four orders of
+  the nitrogen-fixing clade, where magnoliids like the avocado sit) are left
+  as polytomies, so no question can hinge on them. "Superasterids" (cactus
+  with the asterids) was collapsed because Open Tree disagrees with it —
+  nothing was dated there, so no question changed.
 - **Dates belong to nodes, and none come from TimeTree.** Its terms allow
   personal research and teaching use and forbid redistribution. Every age in
   `js/kin/dates.js` cites an open source; the tests fail on a missing citation,
@@ -199,10 +204,17 @@ Things worth knowing before changing it:
   comment beside each value says whether it is a midpoint or the end of a
   range chosen so that it nests. Sapindales (citrus vs maple, ~60–125 Ma
   across studies) and the eukaryote root are the least certain.
-- **`npm run kin:opentree`** replays every question against Open Tree of Life
-  (CC0) — needs the network, so it is manual. Open Tree places T. rex and the
-  mammoth by taxonomy only (`incertae_sedis`), and its taxonomy keeps birds out
-  of Theropoda, so those two questions are reported as undecided rather than
+- **`npm run kin:opentree`** checks the key against Open Tree of Life (CC0) —
+  needs the network (`NODE_USE_ENV_PROXY=1` behind a proxy), so it is manual.
+  It replays every question, hand-written and generated, and then every
+  relationship the key states, question or not: for any three creatures where
+  ours says two meet before either meets the third, Open Tree must agree or
+  be unresolved. The second pass is the one that covers questions the
+  generator has not written yet, and it is what caught "superasterids". Each
+  creature's stand-in species is `SPECIES` in `creatures.js` — change it there,
+  not in the script. Open Tree places fossils such as T. rex and the mammoth
+  by taxonomy only (`incertae_sedis`), and its taxonomy keeps birds out of
+  Theropoda, so questions touching them are reported as undecided rather than
   failed. Its `extinct` flag is useless for this: it is set on *Homo sapiens*.
 - **The Hebrew name is קרובים, not a transliteration.** "Kin" written in
   Hebrew letters is קין — Cain. Hebrew "you" is gendered, so the human card
@@ -210,6 +222,15 @@ Things worth knowing before changing it:
   `creatures.js`), not translated from one template.
 - **The reveal mirrors in Hebrew** so time runs right to left, and every word
   on it is HTML over the SVG — SVG text has no dependable bidi handling.
+- **Emoji are the device's own, so a new one can come out as an empty box.**
+  The donkey, jellyfish, ginger and pea pod date from 2022 and the coral and
+  beans from 2021; Windows 10 and older Android phones cannot draw them.
+  `glyph.js` draws each emoji twice on a hidden canvas in two inks — a colour
+  emoji ignores the ink, a missing glyph's box does not — and shows the
+  kingdom's sign (🐾 🌿 🍄) instead of a box. Testing for colour instead
+  would reject the zebra and the panda, which are grey. The name stays on the
+  card either way. `play:missing-emoji-falls-back` feeds it a code point no
+  font has, because CI's Chromium draws every creature.
 - **`css/kin.css` is self-contained on purpose.** `css/variables.css` sets
   `overflow:hidden` and a grab cursor on `<body>` for the map, which would
   freeze a page that scrolls.

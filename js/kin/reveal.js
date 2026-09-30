@@ -14,6 +14,7 @@
 
 import { STRINGS } from './strings.js';
 import { CREATURES } from './creatures.js';
+import { glyph } from './glyph.js';
 import { SOURCES } from './dates.js';
 
 const W = 340, H = 150, X_LEAF = 196, X_FAR = 18;
@@ -53,7 +54,7 @@ export function treeHTML(r, lang) {
   };
 
   const leaf = (c, y, cls) => at(X_LEAF + 10, y, 'start', `kin-leaf ${cls}`,
-    `<span aria-hidden="true">${c.e}</span> <span dir="auto">${esc(c[lang].n)}</span>`);
+    `<span aria-hidden="true">${glyph(c)}</span> <span dir="auto">${esc(c[lang].n)}</span>`);
 
   /* The near date is centred over its join, except at either end of the
      axis. A recent split sits close to the leaves, and centred there its

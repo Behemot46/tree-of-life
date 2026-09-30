@@ -113,9 +113,9 @@ export const GROUPS = {
     'Caniforms, the dog-like carnivores: dogs, bears, seals, weasels and raccoons.',
     'טורפים דמויי כלב: כלבים, דובים, כלבי ים, סמורים ודביבונים.'),
   arctoidea: g(
-    'Bears, seals, weasels and raccoons: the dog-like carnivores, minus the dogs.',
-    'דובים, כלבי ים, סמורים ודביבונים: הטורפים דמויי הכלב, בלי הכלבים.'),
-  musteloidea: g(
+    'Bears, seals, weasels and raccoons: the dog-like carnivores, minus the dog family.',
+    'דובים, כלבי ים, סמורים ודביבונים: הטורפים דמויי הכלב, בלי משפחת הכלביים.'),
+  procyonids_mustelids: g(
     "The raccoon family and the weasel family, which includes otters and badgers, are each other's closest kin.",
     'משפחת הדביבונים ומשפחת הסמוריים, שכוללת לוטרות וגיריות, הן הקרובות ביותר זו לזו.'),
   artiodactyla: g(
@@ -138,14 +138,14 @@ export const GROUPS = {
     'בעלי פרסות עם מספר אי־זוגי של אצבעות: סוסים, קרנפים וטפירים.'),
 
   mesangiospermae: g(
-    'Nearly all flowering plants: monocots like grasses and lilies, and eudicots like roses and daisies.',
-    'כמעט כל הצמחים הפורחים: חד־פסיגיים כמו דגניים ושושנים, ודו־פסיגיים כמו ורדים וחינניות.'),
+    'Nearly all flowering plants: magnolias and avocados, monocots like grasses and lilies, and eudicots like roses and daisies.',
+    'כמעט כל הצמחים הפורחים: מגנוליות ואבוקדו, חד־פסיגיים כמו דגניים ושושנים, ודו־פסיגיים כמו ורדים וחינניות.'),
   monocots_lilies_grasses: g(
     'Monocots: flowering plants with one seed leaf, like lilies, tulips, orchids, palms, bananas and grasses.',
     'חד־פסיגיים: צמחים פורחים עם עלה פסיג אחד, כמו שושנים, צבעונים, סחלבים, דקלים, בננות ודגניים.'),
   commelinids: g(
     'Commelinids: the monocot branch of palms, bananas, ginger, pineapples and grasses.',
-    'ענף של החד־פסיגיים: דקלים, בננות, זנגביל, אננס ודגניים.'),
+    "ענף של החד־פסיגיים: דקלים, בננות, ג'ינג'ר, אננס ודגניים."),
   poaceae: g(
     'Grasses: rice, corn, wheat, bamboo and the grass on a lawn.',
     'דגניים: אורז, תירס, חיטה, במבוק ועשב המדשאה.'),

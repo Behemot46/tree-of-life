@@ -14,6 +14,7 @@
 
 import { registerActions } from '../actions.js';
 import { CREATURES } from './creatures.js';
+import { glyph } from './glyph.js';
 import * as E from './engine.js';
 import { STRINGS, LANGS } from './strings.js';
 import * as store from './store.js';
@@ -108,7 +109,7 @@ function optionHTML(id, side) {
   const c = CREATURES[id];
   return `<button class="kin-opt" type="button" data-action="kin:pick" data-side="${side}" aria-label="${esc(c[lang].n)}">
       <span class="kin-k kin-k-${c.k}" aria-hidden="true"></span>
-      <span class="kin-em" aria-hidden="true">${c.e}</span>
+      <span class="kin-em" aria-hidden="true">${glyph(c)}</span>
       <span class="kin-nm">${esc(c[lang].n)}</span>
       <span class="kin-mark" aria-hidden="true"></span>
     </button>`;
@@ -128,7 +129,7 @@ function renderQuestion(qid = currentQuestionId()) {
   stage().classList.remove('revealed');
   stage().innerHTML = `
     <p class="kin-prompt">${esc(q.t === 'you' ? t().promptYou : t().prompt)}</p>
-    <div class="kin-target"><span class="kin-em" aria-hidden="true">${T.e}</span><span class="kin-nm">${esc(T[lang].n)}</span></div>
+    <div class="kin-target"><span class="kin-em" aria-hidden="true">${glyph(T)}</span><span class="kin-nm">${esc(T[lang].n)}</span></div>
     ${combo}
     <div class="kin-opts">${optionHTML(first, 'a')}${optionHTML(second, 'b')}</div>
     <p class="kin-hint">${firstEver ? esc(t().tapHint) : ''}</p>
@@ -235,7 +236,7 @@ function renderResults(celebrate = false) {
   const recap = dailyIds.map((id, i) => {
     const q = E.QUESTION_BY_ID[id];
     const a = CREATURES[q.t], b = CREATURES[q.near];
-    return `<li><span><span aria-hidden="true">${a.e}</span> ${esc(a[lang].n)} <span class="kin-arrow" aria-hidden="true">→</span> <span aria-hidden="true">${b.e}</span> ${esc(b[lang].n)}</span><span class="${picks[i] ? 'y' : 'n'}">${picks[i] ? '✓' : '✗'}</span></li>`;
+    return `<li><span><span aria-hidden="true">${glyph(a)}</span> ${esc(a[lang].n)} <span class="kin-arrow" aria-hidden="true">→</span> <span aria-hidden="true">${glyph(b)}</span> ${esc(b[lang].n)}</span><span class="${picks[i] ? 'y' : 'n'}">${picks[i] ? '✓' : '✗'}</span></li>`;
   }).join('');
   stage().innerHTML = `<div class="kin-res">
       <p class="kin-eyebrow">${esc(t().resultEyebrow(day))}</p>

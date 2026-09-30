@@ -107,7 +107,7 @@ export const NODE_DATES = {
   carnivora: { mya: 52.7, src: 'hassanin2021' },
   caniformia: { mya: 48, src: 'hassanin2021' },
   arctoidea: { mya: 43.4, src: 'hassanin2021' },
-  musteloidea: { mya: 29, src: 'wMustelidae' }, // mustelids vs procyonids: otter vs raccoon
+  procyonids_mustelids: { mya: 29, src: 'wMustelidae' }, // mustelids vs procyonids: otter vs raccoon
   artiodactyla: { mya: 65, src: 'zhou2012' },
   artiofabula: { mya: 61, src: 'zhou2012' },
   cetruminantia: { mya: 59, src: 'wWhippomorpha' },

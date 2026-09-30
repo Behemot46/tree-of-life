@@ -273,6 +273,33 @@ async function checkEveryReveal(browser, base) {
   }
 }
 
+/**
+ * A creature whose emoji the device cannot draw shows its kingdom's sign, not
+ * an empty box (js/kin/glyph.js). Chromium here draws every creature, so the
+ * check hands it a code point no font has, which is what an older phone meets
+ * with the 2022 emoji. The zebra is the control: a mostly grey emoji that a
+ * cruder "does it have colour" test would throw away.
+ */
+async function checkEmojiFallback(browser, base) {
+  process.stdout.write('\n▸ emoji\n');
+  const context = await browser.newContext();
+  const page = await context.newPage();
+  await page.goto(`${base}/play.html`, { waitUntil: 'domcontentloaded' });
+  const r = await page.evaluate(async () => {
+    const { glyph, drawable } = await import('./js/kin/glyph.js');
+    const { CREATURES } = await import('./js/kin/creatures.js');
+    return {
+      animal: glyph({ e: '\u{10FFFD}', k: 'animal' }),
+      plant: glyph({ e: '\u{10FFFD}', k: 'plant' }),
+      zebra: glyph(CREATURES.zebra),
+      undrawn: Object.keys(CREATURES).filter((k) => !drawable(CREATURES[k].e)),
+    };
+  });
+  record('emoji', 'play:missing-emoji-falls-back', r.animal === '🐾' && r.plant === '🌿' && r.zebra === '🦓', JSON.stringify(r));
+  if (r.undrawn.length) process.stdout.write(`  (this browser draws a sign for: ${r.undrawn.join(', ')})\n`);
+  await context.close();
+}
+
 await mkdir(OUT, { recursive: true });
 const server = await startServer();
 const browser = await chromium.launch();
@@ -285,6 +312,8 @@ try {
   }
   try { await checkEveryReveal(browser, server.url); }
   catch (e) { record('every-reveal', 'play:every-reveal-completes', false, String(e.message || e).split('\n')[0]); }
+  try { await checkEmojiFallback(browser, server.url); }
+  catch (e) { record('emoji', 'play:emoji-check-completes', false, String(e.message || e).split('\n')[0]); }
 } finally {
   await browser.close();
   await server.stop();

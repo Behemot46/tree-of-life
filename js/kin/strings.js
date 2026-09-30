@@ -43,7 +43,7 @@ export const STRINGS = {
     },
     headline(T, N, F, dn, df) {
       return `${cap(T.en.p)} and ${N.en.p} last shared an ancestor ${this.years(dn)} ago. `
-           + `The ${F.en.n.toLowerCase()} line branched off ${this.years(df)} ago.`;
+           + `The ${F.en.line} line branched off ${this.years(df)} ago.`;
     },
     headlineNoDates: (T, N, F) => `${cap(T.en.p)} and ${N.en.p} share a more recent ancestor than either does with ${F.en.p}.`,
     past: 'past', now: 'now',

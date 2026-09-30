@@ -13,45 +13,21 @@
 //   NODE_USE_ENV_PROXY=1 node scripts/kin-check-opentree.mjs   # behind a proxy
 //   node scripts/kin-check-opentree.mjs
 //
-// Exit code 1 when any question disagrees with Open Tree. A question Open
-// Tree cannot decide (its tree is unresolved there, or a species is missing)
-// is reported but does not fail the run.
+// Two passes. Every question — hand-written and generated — is replayed.
+// Then every relationship the key states is checked, question or not: for
+// any three creatures where ours says two meet before either meets the
+// third, Open Tree must agree or be unresolved. That second pass is what
+// covers questions the generator has not written yet.
+//
+// Exit code 1 when anything disagrees with Open Tree. What Open Tree cannot
+// decide (its tree is unresolved there, or a species is missing) is reported
+// but does not fail the run.
 
-import { QUESTIONS } from '../js/kin/questions.js';
+import { ALL_QUESTIONS } from '../js/kin/engine.js';
+import { LEAF_IDS, mrca as keyMrca, lineage } from '../js/kin/key.js';
+import { SPECIES } from '../js/kin/creatures.js';
 
 const API = 'https://api.opentreeoflife.org/v3';
-
-/* One representative species per creature. The game's "gecko" is a gecko
-   and its "lizard"-shaped questions depend on that: which lizard you pick
-   changes where a snake meets it. */
-const SPECIES = {
-  you: 'Homo sapiens', gorilla: 'Gorilla gorilla', orangutan: 'Pongo abelii',
-  mouse: 'Mus musculus', hamster: 'Mesocricetus auratus', rabbit: 'Oryctolagus cuniculus',
-  hedgehog: 'Erinaceus europaeus', bat: 'Rousettus aegyptiacus', cat: 'Felis catus',
-  dog: 'Canis lupus', bear: 'Ursus arctos', seal: 'Phoca vitulina', raccoon: 'Procyon lotor',
-  otter: 'Lutra lutra', horse: 'Equus caballus', rhino: 'Ceratotherium simum',
-  camel: 'Camelus dromedarius', pig: 'Sus scrofa', giraffe: 'Giraffa camelopardalis',
-  cow: 'Bos taurus', hippo: 'Hippopotamus amphibius', whale: 'Balaenoptera musculus',
-  dolphin: 'Tursiops truncatus', elephant: 'Loxodonta africana', mammoth: 'Mammuthus primigenius',
-  koala: 'Phascolarctos cinereus', kangaroo: 'Macropus giganteus', chicken: 'Gallus gallus',
-  duck: 'Anas platyrhynchos', flamingo: 'Phoenicopterus roseus', pigeon: 'Columba livia',
-  penguin: 'Aptenodytes forsteri', eagle: 'Aquila chrysaetos', trex: 'Tyrannosaurus rex',
-  croc: 'Crocodylus porosus', turtle: 'Chelonia mydas', gecko: 'Hemidactylus turcicus',
-  snake: 'Python bivittatus', frog: 'Rana temporaria', salmon: 'Salmo salar',
-  shark: 'Carcharodon carcharias', octopus: 'Octopus vulgaris', snail: 'Cornu aspersum',
-  lobster: 'Homarus americanus', crab: 'Callinectes sapidus', bee: 'Apis mellifera',
-  ant: 'Formica rufa', butterfly: 'Danaus plexippus', mosquito: 'Aedes aegypti',
-  fly: 'Musca domestica', spider: 'Araneus diadematus', scorpion: 'Centruroides sculpturatus',
-  mushroom: 'Agaricus bisporus', daisy: 'Bellis perennis', sunflower: 'Helianthus annuus',
-  lettuce: 'Lactuca sativa', coffee: 'Coffea arabica', tomato: 'Solanum lycopersicum',
-  potato: 'Solanum tuberosum', eggplant: 'Solanum melongena', kiwi: 'Actinidia chinensis',
-  blueberry: 'Vaccinium corymbosum', cactus: 'Carnegiea gigantea', rose: 'Rosa canina',
-  strawberry: 'Fragaria vesca', apple: 'Malus domestica', cherry: 'Prunus avium',
-  peach: 'Prunus persica', cucumber: 'Cucumis sativus', watermelon: 'Citrullus lanatus',
-  orange: 'Citrus sinensis', maple: 'Acer saccharum', choc: 'Theobroma cacao',
-  grape: 'Vitis vinifera', tulip: 'Tulipa gesneriana', palm: 'Phoenix dactylifera',
-  banana: 'Musa acuminata', pineapple: 'Ananas comosus', rice: 'Oryza sativa', corn: 'Zea mays',
-};
 
 async function post(route, body) {
   const res = await fetch(`${API}/${route}`, {
@@ -144,7 +120,7 @@ const leafOf = (creature) => {
 };
 
 let disagree = 0, undecided = 0, agree = 0;
-for (const q of QUESTIONS) {
+for (const q of ALL_QUESTIONS) {
   /* Open Tree grafts T. rex and the mammoth onto its tree by taxonomy alone,
      and that taxonomy keeps birds out of Theropoda, so it puts a chicken
      nearer a crocodile than T. rex. Those questions are checked against the
@@ -160,5 +136,36 @@ for (const q of QUESTIONS) {
   disagree++;
   console.log(`✗  ${q.id}: Open Tree puts ${q.t} closer to ${q.far} than to ${q.near}`);
 }
-console.log(`\nOpen Tree agrees with ${agree} of ${QUESTIONS.length} questions; ${undecided} undecided; ${disagree} disagree.`);
-process.exit(disagree ? 1 : 0);
+console.log(`\nQuestions: Open Tree agrees with ${agree} of ${ALL_QUESTIONS.length}; ${undecided} undecided; ${disagree} disagree.`);
+
+/* Every triple the key resolves. For creatures a, b, c where ours has a and b
+   meeting strictly inside the node where both meet c, Open Tree must not put
+   c closer to either of them. Conflicts are grouped by the node of ours they
+   contradict, which is where a fix would go. */
+const depthInKey = (id) => lineage(id).length;
+const placeable = LEAF_IDS.filter((c) => leafOf(c) && !taxonomyOnly.has(SPECIES[c]));
+const conflicts = new Map();
+let triples = 0, tripleAgree = 0, tripleOpen = 0;
+for (let i = 0; i < placeable.length; i++) for (let j = i + 1; j < placeable.length; j++) {
+  const a = placeable[i], b = placeable[j];
+  const ab = keyMrca(a, b);
+  for (const c of placeable) {
+    if (c === a || c === b) continue;
+    const ac = keyMrca(a, c);
+    if (ab.id === ac.id || depthInKey(ab.id) <= depthInKey(ac.id)) continue;
+    triples++;
+    const [A, B, C] = [leafOf(a), leafOf(b), leafOf(c)];
+    const otAB = mrca(parent, A, B), otAC = mrca(parent, A, C), otBC = mrca(parent, B, C);
+    if (otAB !== otAC && ancestors(parent, otAB).includes(otAC)) { tripleAgree++; continue; }
+    if (otAB === otAC && otAC === otBC) { tripleOpen++; continue; }
+    const k = ab.id;
+    if (!conflicts.has(k)) conflicts.set(k, []);
+    conflicts.get(k).push(`${a}+${b} | ${c}`);
+  }
+}
+for (const [node, list] of conflicts) {
+  console.log(`✗  node ${node}: Open Tree disagrees on ${list.length} triple(s), e.g. ${list.slice(0, 4).join('; ')}`);
+}
+const tripleConflicts = [...conflicts.values()].reduce((n, l) => n + l.length, 0);
+console.log(`Relationships: ${triples} triples the key resolves; Open Tree agrees with ${tripleAgree}, leaves ${tripleOpen} open, disagrees with ${tripleConflicts}.`);
+process.exit(disagree || tripleConflicts ? 1 : 0);

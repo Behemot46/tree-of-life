@@ -235,6 +235,9 @@
   background:rgba(255,255,255,0.02);
 }
 .rail-status b{color:var(--text-primary);font-weight:600;font-family:var(--font-mono,ui-monospace,monospace);}
+/* Who made the photos and silhouettes: credits.html. */
+.rail-credits{align-self:flex-start;padding:2px 10px;font-size:var(--text-2xs);color:var(--text-secondary);text-decoration:underline;text-underline-offset:2px;}
+.rail-credits:hover,.rail-credits:focus-visible{color:var(--text-primary);}
 
 /* SotD inside rail */
 #sotd-badge{

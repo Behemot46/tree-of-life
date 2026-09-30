@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Who made the photographs, silhouettes and dates on treeoflife.wiki, and under which licences.">
+<title>Credits — Tree of Life</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Heebo:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/credits.css">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌳</text></svg>">
+<script type="module" src="js/credits.js"></script>
+</head>
+<body>
+<main class="cr-page">
+  <header class="cr-head">
+    <a class="cr-back" href="index.html">&larr; Tree of Life</a>
+    <h1>Credits</h1>
+    <p class="cr-lede">This site is built on other people's work: photographers on Wikimedia Commons, illustrators on PhyloPic, and the scientists whose papers date the tree. This page says who, and under what terms.</p>
+    <nav class="cr-nav" aria-label="Sections">
+      <a href="#photos">Photographs</a>
+      <a href="#silhouettes">Silhouettes</a>
+      <a href="#dates">Dates in Kin</a>
+      <a href="#data">Data, fonts and emoji</a>
+    </nav>
+  </header>
+
+  <section id="photos" class="cr-sec" aria-labelledby="h-photos">
+    <h2 id="h-photos">Photographs</h2>
+    <p>Every photograph is from Wikimedia Commons and is shown with its author and licence. Each row links to the file's page, which has the full terms. <span id="photo-count"></span></p>
+    <div class="cr-table-wrap">
+      <table class="cr-table" id="photo-table">
+        <thead><tr><th scope="col">Species</th><th scope="col">Author</th><th scope="col">Licence</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="silhouettes" class="cr-sec" aria-labelledby="h-silhouettes">
+    <h2 id="h-silhouettes">Silhouettes</h2>
+    <p>The tree draws a silhouette from PhyloPic on each disc. Most are in the public domain; the rest are under Creative Commons licences that ask for credit. None carries a non-commercial clause. <span id="sil-count"></span></p>
+    <div class="cr-table-wrap">
+      <table class="cr-table" id="sil-table">
+        <thead><tr><th scope="col">Group</th><th scope="col">Artist</th><th scope="col">Licence</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="dates" class="cr-sec" aria-labelledby="h-dates">
+    <h2 id="h-dates">Dates in Kin</h2>
+    <p>Every date in the game Kin comes from an openly readable publication and is cited under the answer it belongs to. These are all of them.</p>
+    <ul class="cr-list cr-cols" id="date-list"></ul>
+  </section>
+
+  <section id="data" class="cr-sec" aria-labelledby="h-data">
+    <h2 id="h-data">Data, fonts and emoji</h2>
+    <ul class="cr-list">
+      <li>Kin's answer key is checked against <a href="https://tree.opentreeoflife.org/">Open Tree of Life</a>, which is released under <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0</a>.</li>
+      <li>Silhouettes are from <a href="https://www.phylopic.org/">PhyloPic</a>; photographs from <a href="https://commons.wikimedia.org/">Wikimedia Commons</a>.</li>
+      <li>Inter, Heebo, JetBrains Mono and Rubik are served by Google Fonts under the <a href="https://openfontlicense.org/">SIL Open Font License</a>.</li>
+      <li>Kin draws its creatures with your device's own emoji.</li>
+    </ul>
+  </section>
+</main>
+</body>
+</html>

@@ -84,6 +84,7 @@ land in `.smoke-out/`. It is not a substitute for looking at the result.
 tree-of-life/
 ├── index.html           # SPA — pure HTML markup (~462 lines)
 ├── play.html            # Kin, the daily game — phase-1 test build, unlinked (see *Kin*)
+├── credits.html         # Who made the photos, silhouettes and dates (see *Credits*)
 ├── serve.js             # Local dev server (port 5555): node serve.js
 ├── docs/PLAY_STRATEGY.md # Why the site is becoming a game, and the phased plan
 ├── tests/kin.test.mjs   # Unit tests for Kin's engine and answer key (npm test)
@@ -863,13 +864,50 @@ a Wikipedia outage cannot take the pictures down.
 node scripts/build-photo-snapshot.mjs             # rebuild from Wikipedia
 node scripts/build-photo-snapshot.mjs --bootstrap # offline: re-cut PHOTO_MAP
 node scripts/build-photo-snapshot.mjs --check     # exit 1 if stale
+node scripts/build-photo-snapshot.mjs --credits-only  # re-read authors and licences only
 ```
 
 `--bootstrap` needs no network; it re-cuts the URLs already in `PHOTO_MAP` to
 the two sizes. Use it when working offline.
 
-Wikimedia content is CC BY-SA, so the credit line must stay visible wherever a
-photo is shown. `assets/placeholder.svg` is the fallback when nothing resolves.
+`assets/placeholder.svg` is the fallback when nothing resolves.
+
+### Credits
+
+Commons photographs are mostly CC BY-SA and PhyloPic silhouettes mostly CC0 or
+CC BY; both licences ask for the author, the licence and a link wherever the
+work is shown. So:
+
+- **The snapshot records who took each photo.** The builder reads each file's
+  Artist and LicenseShortName from Commons and commits them with the file
+  page (`by`, `lic`, `page` in `photoSnapshot.js`). `--credits-only` re-reads
+  them without changing any photo. The panel's hero and the Explore reveal
+  both show `📷 author · licence`, linked to the file page, through
+  `ImageLoader.creditLine()`; the panel hides the line when its photo fails to
+  load, rather than crediting a picture nobody sees. It used to say "Wikipedia
+  / Wikimedia Commons" for all 386 photos, which names neither.
+- **The Wikipedia API now answers on `thumb.wikimedia.org`**, which the CSP
+  does not allow. It serves the same files at the same paths as
+  `upload.wikimedia.org`, so the builder rewrites the host and refuses to write
+  any other; without that, the next weekly refresh would have blanked every
+  photo.
+- **Non-commercial silhouettes are refused at build time.** Seventeen CC BY-NC
+  images had arrived as some taxon's featured PhyloPic image; the builder now
+  takes another image of the same taxon, then of the genus, and never of a
+  larger clade — on PhyloPic's tree the Asgard archaea contain every
+  eukaryote, so "any image in the clade" can be a mushroom.
+- **PhyloPic is matched by exact name.** Its name search returns every node a
+  name touches, and taking the first drew the snow leopard with the tiger's
+  subgenus image and the Japanese macaque as a fish (*Haemulon sciurus* comes
+  first for "macaca"). A single result is accepted as a synonym (Cyanobacteria
+  is Cyanobacteriota there); several with no exact name are refused.
+  `SEARCH_AS` and `EXTRA_NAMES` in the builder name a group by hand where the
+  taxon's own name is too broad or missing, and `--only a,b` rebuilds just
+  those taxa and keeps every other silhouette.
+- **`credits.html` lists all of it** — every photo, every silhouette, every
+  source Kin cites for a date — built at load time from the same modules the
+  site draws from, so a new photo or silhouette is credited with no further
+  step. The Atlas links it from the rail's foot, Kin from its footer.
 
 ---
 
@@ -1053,7 +1091,7 @@ as a CI artifact on every run).
 | `nav:` / `share:` | **Back takes off one layer and leaves the one beneath it**; the share link names the shell and the language as well as the node; following such a link opens in the sender's view without overwriting the recipient's stored preference |
 | `search:` | eight canonical queries return the answer a person would call correct; every common-name alias still matches something |
 | `interact:` | zoom buttons, reset re-fits, parent expands, leaf opens panel, search returns results, camera settles |
-| `static/` | Runs before the browser starts, over `index.html`, `play.html`, `js/` (recursively), `css/` and `stories/`: CSS custom properties used but never defined; inline event-handler attributes; `script-src` still forbidding inline and eval; every `data-action` resolving to a registered handler |
+| `static/` | Runs before the browser starts, over `index.html`, `play.html`, `credits.html`, `js/` (recursively), `css/` and `stories/`: CSS custom properties used but never defined; inline event-handler attributes; `script-src` still forbidding inline and eval; every `data-action` resolving to a registered handler |
 
 ### The baseline
 

@@ -55,6 +55,7 @@ export function applyI18n(){
   set('i-btn-hominins',t('btn_hominins'));
   set('i-btn-guided-tour',t('btn_guided_tour'));
   set('i-rail-seen',t('rail_seen'));
+  set('rail-credits',t('rail_credits'));
   set('extinct-label',t(state.showExtinct?'hide_extinct':'show_extinct'));
   const credit=document.querySelector('.title-credit');
   if(credit) credit.textContent=t('credit_by');

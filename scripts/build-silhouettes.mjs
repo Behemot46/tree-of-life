@@ -193,10 +193,14 @@ async function resolveOne(build, name) {
   const lic = img?._links?.license;
   const license = (lic && (lic.href || lic.title)) || '';
   if (NON_COMMERCIAL.test(license)) return null;
+  /* The image's own page on phylopic.org, for credits.html: CC BY asks for a
+     link to the material wherever that is practicable. */
+  const uuid = img?.uuid || ((img?._links?.self?.href || '').match(/\/images\/([^?/]+)/) || [])[1];
   return {
     url: vector.startsWith('http') ? vector : API + vector,
     license,
     attribution: img?.attribution || '',
+    page: uuid ? `https://www.phylopic.org/images/${uuid}` : '',
   };
 }
 
@@ -269,7 +273,7 @@ for (let i = 0; i < targets.length; i++) {
   if (!svg || !/<svg/i.test(svg)) { miss++; continue; }
 
   writeFileSync(`${OUT_DIR}/${node.id}.svg`, recolour(svg));
-  manifest[node.id] = { license: got.license, attribution: got.attribution };
+  manifest[node.id] = { license: got.license, attribution: got.attribution, page: got.page };
   hit++;
   if ((hit + miss) % 25 === 0) process.stderr.write(`  ${hit + miss}/${targets.length} (${hit} found)\n`);
   await sleep(120);

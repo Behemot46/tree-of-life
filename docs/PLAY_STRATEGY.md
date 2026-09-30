@@ -90,7 +90,9 @@ Chromium and reading the modules.
    tests.
 6. **Heavy start.** 45 JS modules (2.1 MB uncompressed) and 15 stylesheets load
    before the first interaction (local server; production is compressed).
-7. **Image credits.** `js/silhouettes.js` says anything not public domain needs
+7. **Image credits.** *(Fixed 30 Sep 2026: no non-commercial silhouette is
+   left, every photo shows its author and licence where it appears, and
+   `credits.html` lists all of them.)* `js/silhouettes.js` says anything not public domain needs
    attribution wherever shown. 110 of 267 silhouettes are CC BY or BY-SA and no
    silhouette credit is rendered anywhere; 17 are CC BY-NC or BY-NC-SA. The game
    cards in `whoFirst.js` and `familyFoe.js` show Wikimedia photos with no

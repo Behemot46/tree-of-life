@@ -48,6 +48,32 @@ export const ImageLoader = (() => {
    * `size` is 'thumb' (tree discs, ~400px) or 'hero' (panel, ~1280px).
    * Returns { url, source, credit }.
    */
+  /* Who took a photograph and under what licence, for the line shown with
+     it. Snapshot entries carry both, read from Commons by
+     scripts/build-photo-snapshot.mjs, and the file page to link to; a
+     hand-pinned PHOTO_MAP entry carries a free-text credit. */
+  function creditOf(source, id, nodeData) {
+    if (source === 'snapshot') {
+      const s = PHOTO_SNAPSHOT[id] || {};
+      return { credit: [s.by, s.lic].filter(Boolean).join(' · ') || 'Wikimedia Commons', creditUrl: s.page || null };
+    }
+    if (source === 'photomap') return { credit: (photoMap && photoMap[id] && photoMap[id].credit) || '', creditUrl: null };
+    if (source === 'node') return { credit: nodeData.imgCredit || null, creditUrl: null };
+    return { credit: null, creditUrl: null };
+  }
+
+  /* The line shown with a photograph: its author and licence, linked to its
+     file page on Commons when there is one. CC BY and BY-SA ask for all three
+     wherever the photo is shown, so the panel and the Explore reveal both
+     draw it from here. Escaped, because the text is whatever the author wrote
+     on Commons. */
+  const escHTML = (v) => String(v).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  function creditLine(best) {
+    if (!best || !best.credit) return '';
+    const label = '📷 ' + escHTML(best.credit);
+    return best.creditUrl ? `<a href="${escHTML(best.creditUrl)}" target="_blank" rel="noopener">${label}</a>` : label;
+  }
+
   function getBestUrl(nodeData, size = 'thumb') {
     const id = nodeData.id;
 
@@ -59,19 +85,19 @@ export const ImageLoader = (() => {
     const snap = PHOTO_SNAPSHOT[id];
     if (snap) {
       const url = (size === 'hero' ? snap.hero : snap.thumb) || snap.thumb || snap.hero;
-      if (url) return { url, source: 'snapshot', credit: 'Wikipedia / Wikimedia Commons' };
+      if (url) return { url, source: 'snapshot', ...creditOf('snapshot', id, nodeData) };
     }
 
     // 2. Hand-pinned PHOTO_MAP — covers ids with no Wikipedia article image
     if (photoMap && photoMap[id]) {
-      return { url: photoMap[id].url, source: 'photomap', credit: photoMap[id].credit };
+      return { url: photoMap[id].url, source: 'photomap', ...creditOf('photomap', id, nodeData) };
     }
 
     // 3. Node's existing img field
-    if (nodeData.img) return { url: nodeData.img, source: 'node', credit: nodeData.imgCredit || null };
+    if (nodeData.img) return { url: nodeData.img, source: 'node', ...creditOf('node', id, nodeData) };
 
     // 4. No image available
-    return { url: null, source: null, credit: null };
+    return { url: null, source: null, credit: null, creditUrl: null };
   }
 
   /**
@@ -103,8 +129,9 @@ export const ImageLoader = (() => {
 
     const snap = PHOTO_SNAPSHOT[id];
     if (snap) {
-      push(size === 'hero' ? snap.hero : snap.thumb, 'snapshot', 'Wikipedia / Wikimedia Commons');
-      push(size === 'hero' ? snap.thumb : snap.hero, 'snapshot', 'Wikipedia / Wikimedia Commons');
+      const { credit } = creditOf('snapshot', id, nodeData);
+      push(size === 'hero' ? snap.hero : snap.thumb, 'snapshot', credit);
+      push(size === 'hero' ? snap.thumb : snap.hero, 'snapshot', credit);
     }
 
     if (photoMap && photoMap[id]) push(photoMap[id].url, 'photomap', photoMap[id].credit);
@@ -193,6 +220,7 @@ export const ImageLoader = (() => {
   return {
     registerPhotoMap,
     getBestUrl,
+    creditLine,
     getEmoji,
     hasImage,
     loadInto,

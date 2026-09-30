@@ -1,0 +1,80 @@
+/* ══════════════════════════════════════════════════════
+   CREDITS — credits.html only
+   Uses the site's tokens from variables.css, and undoes the map's lockdown
+   there (html,body{overflow:hidden;height:100%}; a grab cursor; no text
+   selection): this is a page to scroll, read and copy from.
+   ══════════════════════════════════════════════════════ */
+
+html:has(.cr-page),
+html:has(.cr-page) body {
+  height: auto;
+  overflow: visible;
+  overflow-y: auto;
+  cursor: auto;
+  user-select: text;
+}
+
+.cr-page {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 32px 16px 64px;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  line-height: 1.55;
+}
+
+.cr-back {
+  display: inline-block;
+  margin-bottom: 16px;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+.cr-back:hover, .cr-back:focus-visible { color: var(--text-primary); text-decoration: underline; }
+
+.cr-head h1 { font-family: var(--font-head); font-size: 2rem; margin: 0 0 8px; }
+.cr-lede { color: var(--text-secondary); max-width: 62ch; margin: 0 0 16px; }
+
+.cr-nav { display: flex; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 8px; }
+.cr-nav a { color: var(--accent); }
+
+.cr-sec { margin-top: 40px; }
+.cr-sec h2 { font-family: var(--font-head); font-size: 1.35rem; margin: 0 0 8px; }
+.cr-sec > p { color: var(--text-secondary); max-width: 70ch; margin: 0 0 16px; }
+
+.cr-page a { color: var(--accent); text-underline-offset: 2px; }
+
+.cr-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+.cr-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+.cr-table th, .cr-table td {
+  text-align: start;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.cr-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  font-weight: 600;
+}
+.cr-table tbody tr:last-child td { border-bottom: 0; }
+.cr-table td:first-child { min-width: 12ch; }
+.cr-table td:last-child { white-space: nowrap; }
+
+.cr-list { padding-inline-start: 20px; margin: 0; }
+.cr-list li { margin: 4px 0; }
+.cr-cols { columns: 2 22ch; column-gap: 32px; }
+
+@media (max-width: 600px) {
+  .cr-page { padding-top: 20px; }
+  .cr-head h1 { font-size: 1.6rem; }
+  .cr-table { font-size: 13px; }
+  .cr-table th, .cr-table td { padding: 6px 8px; }
+  .cr-table td:last-child { white-space: normal; }
+}

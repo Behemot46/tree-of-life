@@ -60,6 +60,7 @@ function applyLanguage() {
   document.title = t().title;
   $('kin-brand').textContent = t().brand;
   $('kin-foot').textContent = t().testBuild;
+  $('kin-credits').textContent = t().credits;
   const other = $('kin-lang');
   other.textContent = t().switchLang;
   other.setAttribute('aria-label', t().switchLangLabel);

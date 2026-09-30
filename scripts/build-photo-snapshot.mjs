@@ -30,6 +30,8 @@
  *   node scripts/build-photo-snapshot.mjs --bootstrap # offline: re-cut PHOTO_MAP
  *   node scripts/build-photo-snapshot.mjs --limit 20  # smoke it quickly
  *   node scripts/build-photo-snapshot.mjs --check     # exit 1 if stale
+ *   node scripts/build-photo-snapshot.mjs --credits-only  # keep every photo,
+ *                                                     # re-read authors and licences
  */
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { setTimeout as sleep } from 'node:timers/promises';
@@ -38,6 +40,7 @@ import { pathToFileURL } from 'node:url';
 const argv = process.argv.slice(2);
 const arg = (n, d) => { const i = argv.indexOf('--' + n); return i >= 0 ? argv[i + 1] : d; };
 const CHECK_ONLY = argv.includes('--check');
+const CREDITS_ONLY = argv.includes('--credits-only');
 const LIMIT = Number(arg('limit', 0)) || 0;
 
 const OUT = 'js/photoSnapshot.js';
@@ -66,9 +69,90 @@ const BATCH = 50;
 
 /* The API decorates image URLs with `?utm_source=…&utm_campaign=api`, and
    upload.wikimedia.org answers 400 to a request carrying unexpected query
-   parameters. Strip them everywhere a URL enters the snapshot. */
+   parameters. Strip them everywhere a URL enters the snapshot.
+
+   It also now answers on thumb.wikimedia.org, which serves the same files at
+   the same paths — and which the Content-Security-Policy does not allow, so a
+   refresh that wrote those URLs would blank every photograph on the site.
+   Rewriting the host keeps the policy to one image origin. */
 function stripQuery(url) {
-  return url ? String(url).split('?')[0] : null;
+  return url ? String(url).split('?')[0].replace(/^https:\/\/thumb\.wikimedia\.org\//, 'https://upload.wikimedia.org/') : null;
+}
+
+// ── Credits ─────────────────────────────────────────────────────────────────
+/* Commons photographs are mostly CC BY-SA, which asks for the author, the
+   licence and a link wherever the photo is shown. The panel used to say
+   "Wikipedia / Wikimedia Commons" for all 386, which names neither. Each
+   file's author and licence are read from Commons here and committed with the
+   URLs, so the panel and credits.html can show them without an API call. */
+const COMMONS = 'https://commons.wikimedia.org/w/api.php';
+
+/* ".../commons/thumb/a/ab/Name.jpg/500px-Name.jpg" and ".../commons/a/ab/Name.jpg"
+   both name the file "Name.jpg". */
+export function commonsFile(url) {
+  const m = String(url || '').match(/\/wikipedia\/commons\/(?:thumb\/)?[0-9a-f]\/[0-9a-f]{2}\/([^/]+)/);
+  return m ? decodeURIComponent(m[1]).replace(/_/g, ' ') : null;
+}
+
+/* Artist is HTML ("<a href=…>Name</a>"), sometimes a paragraph of it. Keep the
+   words, drop the markup, and cap it at a line. */
+function plain(html) {
+  const text = String(html || '').replace(/<[^>]*>/g, ' ').replace(/&amp;/g, '&').replace(/&quot;/g, '"')
+    .replace(/&#0?39;|&apos;/g, "'").replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
+    .replace(/\s+/g, ' ').trim();
+  return text.length > 90 ? text.slice(0, 87).trimEnd() + '…' : text;
+}
+
+async function creditsBatch(files, attempt = 0) {
+  const params = new URLSearchParams({
+    action: 'query', format: 'json', formatversion: '2', prop: 'imageinfo', iiprop: 'extmetadata',
+    iiextmetadatafilter: 'Artist|LicenseShortName|LicenseUrl', titles: files.map((f) => 'File:' + f).join('|'),
+  });
+  try {
+    const res = await fetch(COMMONS + '?' + params, { headers: { 'User-Agent': UA, accept: 'application/json' } });
+    if (res.status === 429 || res.status >= 500) {
+      const after = Number(res.headers.get('retry-after'));
+      const wait = Number.isFinite(after) && after > 0 ? after * 1000 : 3000 * Math.pow(2, attempt);
+      if (attempt < 6) { await sleep(Math.min(wait, 60000)); return creditsBatch(files, attempt + 1); }
+      throw new Error('HTTP ' + res.status);
+    }
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const json = await res.json();
+    const alias = new Map();
+    for (const n of json.query?.normalized || []) alias.set(n.to, n.from);
+    const out = new Map();
+    for (const page of json.query?.pages || []) {
+      const md = page.imageinfo?.[0]?.extmetadata;
+      if (!md) continue;
+      const asked = (alias.get(page.title) || page.title).replace(/^File:/, '').replace(/_/g, ' ');
+      out.set(asked, {
+        by: plain(md.Artist?.value),
+        lic: plain(md.LicenseShortName?.value),
+        page: 'https://commons.wikimedia.org/wiki/' + encodeURIComponent(page.title.replace(/ /g, '_')).replace(/%3A/, ':'),
+      });
+    }
+    return out;
+  } catch (err) {
+    if (attempt < 6) { await sleep(3000 * Math.pow(2, attempt)); return creditsBatch(files, attempt + 1); }
+    throw err;
+  }
+}
+
+/* Credits for every entry in the snapshot, keyed by id. Batches of 50 with a
+   pause between them: Commons answers bursts with 429. */
+async function creditsFor(snapshot) {
+  const fileOf = new Map(Object.entries(snapshot).map(([id, e]) => [id, commonsFile(e.hero || e.thumb)]));
+  const files = [...new Set([...fileOf.values()].filter(Boolean))];
+  const byFile = new Map();
+  for (let i = 0; i < files.length; i += BATCH) {
+    const got = await creditsBatch(files.slice(i, i + BATCH));
+    for (const [k, v] of got) byFile.set(k, v);
+    process.stderr.write(`  credits ${Math.min(i + BATCH, files.length)}/${files.length}\n`);
+    await sleep(1500);
+  }
+  const out = {};
+  for (const [id, f] of fileOf) if (f && byFile.has(f)) out[id] = byFile.get(f);
+  return out;
 }
 
 async function apiBatch(titles, width, attempt = 0) {
@@ -141,13 +225,16 @@ function renderModule(snapshot, total, sourceLabel) {
     ' * thumb — ' + THUMB_W + 'px, for the discs in the tree.',
     ' * hero  — ' + HERO_W + 'px, for the panel.',
     ' *',
-    ' * Images are Wikimedia Commons content, overwhelmingly CC BY-SA, so the',
-    ' * credit line in the panel has to stay wherever one of these is shown.',
+    ' * by, lic, page — the author and licence recorded on Commons, and the',
+    ' * file page. Images are Wikimedia Commons content, overwhelmingly CC BY-SA,',
+    ' * so the credit line in the panel has to stay wherever one of these is',
+    ' * shown; credits.html lists them all.',
     ' */',
     'export const PHOTO_SNAPSHOT = {',
     ...Object.keys(snapshot).sort().map((id) => {
       const e = snapshot[id];
-      return '  ' + JSON.stringify(id) + ': {thumb:' + JSON.stringify(e.thumb) + ',hero:' + JSON.stringify(e.hero) + '},';
+      const credit = e.page ? ',by:' + JSON.stringify(e.by || '') + ',lic:' + JSON.stringify(e.lic || '') + ',page:' + JSON.stringify(e.page) : '';
+      return '  ' + JSON.stringify(id) + ': {thumb:' + JSON.stringify(e.thumb) + ',hero:' + JSON.stringify(e.hero) + credit + '},';
     }),
     '};',
     '',
@@ -194,6 +281,18 @@ async function main() {
   }
 
   const previous = await loadPrevious();
+
+  if (CREDITS_ONLY) {
+    const snapshot = { ...previous };
+    for (const e of Object.values(snapshot)) { e.thumb = stripQuery(e.thumb); e.hero = stripQuery(e.hero); }
+    const credits = await creditsFor(snapshot);
+    for (const [id, e] of Object.entries(snapshot)) if (credits[id]) Object.assign(e, credits[id]);
+    writeFileSync(OUT, renderModule(snapshot, Object.keys(snapshot).length, 'the MediaWiki pageimages API'));
+    const credited = Object.values(snapshot).filter((e) => e.page).length;
+    console.log(`Wrote ${OUT}: ${credited}/${Object.keys(snapshot).length} photos carry an author and licence; no photo changed.`);
+    return;
+  }
+
   let ids = Object.keys(WIKI_TITLES);
   if (LIMIT) ids = ids.slice(0, LIMIT);
   const titles = ids.map((id) => WIKI_TITLES[id]);
@@ -218,14 +317,27 @@ async function main() {
     snapshot[id] = { thumb, hero: heroes.get(titles[i]) || thumb };
   });
 
+  /* Entries carried over from the previous snapshot go through the same host
+     rewrite, and every entry gets its credit re-read: a file can change its
+     licence, or its author can ask for a different credit. When Commons
+     cannot be reached the previous credit stays. */
+  for (const e of Object.values(snapshot)) { e.thumb = stripQuery(e.thumb); e.hero = stripQuery(e.hero); }
+  let credits = {};
+  try { credits = await creditsFor(snapshot); }
+  catch (err) { console.error(`  credits: Commons is not answering (${err.message}); keeping the previous ones.`); }
+  for (const [id, e] of Object.entries(snapshot)) {
+    const c = credits[id];
+    if (c) Object.assign(e, c);
+  }
+
   /* Belt and braces for stripQuery(): assert on the shape of what we are about
-     to commit, so a URL that would 400 cannot reach the file even if a later
-     edit routes around the stripping. */
-  const dirty = Object.entries(snapshot)
-    .filter(([, e]) => (e.thumb && e.thumb.includes('?')) || (e.hero && e.hero.includes('?')));
+     to commit, so a URL that would 400 — or one the CSP would block — cannot
+     reach the file even if a later edit routes around the rewriting. */
+  const allowed = (u) => !u || (u.startsWith('https://upload.wikimedia.org/') && !u.includes('?'));
+  const dirty = Object.entries(snapshot).filter(([, e]) => !allowed(e.thumb) || !allowed(e.hero));
   if (dirty.length) {
     console.error(`\nAborting: ${dirty.length} URLs carry a query string, which upload.wikimedia.org`);
-    console.error('answers 400 to. First few:');
+    console.error('answers 400 to, or a host other than upload.wikimedia.org, which the CSP blocks. First few:');
     console.error(dirty.slice(0, 3).map(([id, e]) => `  ${id}: ${e.thumb}`).join('\n'));
     process.exit(2);
   }
@@ -250,6 +362,10 @@ async function main() {
   }
   const curated = Object.keys(PHOTO_MAP).filter((id) => !snapshot[id]);
   if (curated.length) console.log(`  ${curated.length} ids fall back to the curated PHOTO_MAP`);
+  const credited = Object.values(snapshot).filter((e) => e.page).length;
+  console.log(`  ${credited}/${covered} photos carry an author and licence from Commons`);
 }
 
-main().catch((err) => { console.error(err); process.exit(1); });
+if (import.meta.url === pathToFileURL(process.argv[1] || '').href) {
+  main().catch((err) => { console.error(err); process.exit(1); });
+}

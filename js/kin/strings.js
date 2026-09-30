@@ -69,6 +69,7 @@ export const STRINGS = {
     soundOn: 'Sound on', soundOff: 'Sound off',
     switchLang: 'עב', switchLangLabel: 'עברית',
     testBuild: 'Test build · treeoflife.wiki',
+    credits: 'Credits',
     stats: 'This device', statsReset: 'Reset this device',
     statsRows: (s) => [
       ['First played', s.firstSeen || '—'],
@@ -129,6 +130,7 @@ export const STRINGS = {
     soundOn: 'צליל פועל', soundOff: 'צליל כבוי',
     switchLang: 'EN', switchLangLabel: 'English',
     testBuild: 'גרסת ניסיון · treeoflife.wiki',
+    credits: 'קרדיטים',
     stats: 'המכשיר הזה', statsReset: 'איפוס המכשיר',
     statsRows: (s) => [
       ['שיחקת לראשונה', s.firstSeen || '—'],

@@ -20,6 +20,7 @@ let _pushNav, _updateNavButtons, _updateBreadcrumb, _scheduleRender;
 let _smoothPanTo, _focusNode, _t, _generateSpeciesIllustration;
 let _navBack, _layout, _applyT, _centerOnRoot;
 let _openSapiens;
+
 export function initPanelDeps(deps) {
   _pushNav = deps.pushNav;
   _updateNavButtons = deps.updateNavButtons;
@@ -448,7 +449,7 @@ export function renderPanelContent(node) {
     ? ImageLoader.getBestUrl(node, 'hero')
     : { url: null, credit: '' };
   let staticUrl = best.url || node.img || null;
-  const staticCredit = best.url ? (best.credit || '') : (node.imgCredit || '');
+  const staticCredit = best.url ? ImageLoader.creditLine(best) : ImageLoader.creditLine({ credit: node.imgCredit });
 
   const panelImgId = 'pi-' + node.id.replace(/[^a-z0-9]/g, '_');
   const panelFbId  = 'pf-' + node.id.replace(/[^a-z0-9]/g, '_');
@@ -622,15 +623,20 @@ export function renderPanelContent(node) {
       imgEl.style.display = 'block';
       fbEl.style.display = 'none';
     };
+    /* A credit names the photograph above it; once the emoji stands in for
+       a photo that did not load, the line would be crediting nothing. */
+    const crEl = document.getElementById(panelCrId);
     imgEl.onerror = function() {
       imgEl.style.display = 'none';
       fbEl.style.display = 'flex';
+      if (crEl) crEl.hidden = true;
     };
     // Safety timeout: only hide if no successful load ever happened
     setTimeout(() => {
       if (!loadedOnce) {
         imgEl.style.display = 'none';
         fbEl.style.display = 'flex';
+        if (crEl) crEl.hidden = true;
       }
     }, 6000);
     imgEl.src = staticUrl;

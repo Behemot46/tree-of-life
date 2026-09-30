@@ -226,6 +226,10 @@ function revealHTML(node, depth) {
   if (hero && hero.url) {
     bits.push(`<img class="ex-hero-img" src="${hero.url}" alt="" data-on-error="hide">`);
   }
+  /* The photograph's author and licence travel with it (CC BY and BY-SA ask
+     for both wherever it is shown). English data, so it is laid out as
+     English in every language. */
+  const credit = hero && hero.url ? ImageLoader.creditLine(hero) : '';
   const text = [];
   if (node.latin) text.push(`<p class="ex-latin" data-i18n-exempt="species-data" dir="ltr">${node.latin}</p>`);
   /* English by policy, so it has to be laid out as English. Left RTL, bidi
@@ -233,6 +237,7 @@ function revealHTML(node, depth) {
      in Hebrew, and the phone clamp put its ellipsis at the start of the line.
      Same guard the detail panel already carries on its own prose. */
   if (node.desc) text.push(`<p class="ex-desc" data-i18n-exempt="species-data" dir="ltr">${node.desc}</p>`);
+  if (credit) text.push(`<p class="ex-credit" data-i18n-exempt="photo-credit" dir="ltr">${credit}</p>`);
   if (!bits.length && !text.length) return '';
   return `
     <div class="ex-reveal" style="--cc:${node.color}">

@@ -92,6 +92,7 @@ const I18N_BINDINGS = [
   { id: 'btn-expand-all', key: 'expand_all' },
   { id: 'i-btn-guided-tour', key: 'btn_guided_tour' },
   { id: 'i-rail-seen', key: 'rail_seen' },
+  { id: 'rail-credits', key: 'rail_credits' },
 ];
 
 // ── Server ────────────────────────────────────────────────────────────────────
@@ -2026,6 +2027,7 @@ async function staticChecks() {
     ...(await readdir(storyDir)).filter((f) => /\.(js|css|html)$/.test(f)).map((f) => path.join(storyDir, f)),
     path.join(ROOT, 'index.html'),
     path.join(ROOT, 'play.html'),
+    path.join(ROOT, 'credits.html'),
   ];
   const defined = new Set();
   const sources = new Map();

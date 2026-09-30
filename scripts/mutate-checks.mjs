@@ -16,7 +16,7 @@
  *   node scripts/mutate-checks.mjs --list
  *
  * Run it after changing js/splash.js, js/splashScene.js, js/boot.js,
- * css/splash.css, the opening's markup in index.html or the `opening:` checks;
+ * css/splash.css, the opening's markup in atlas.html or the `opening:` checks;
  * or js/profile.js, the games' results (js/game.js, js/whoFirst.js,
  * js/familyFoe.js), css/profile.css or the `profile:` checks. A mutation whose
  * target text no longer exists reports PATCH FAILED: update it here, beside the
@@ -48,6 +48,15 @@ const MUTATIONS = {
     ['opening:first-paint-needs-no-script']],
   'static-lang': ['desktop-en', 'js/boot.js', "var LANGS = ['en', 'he', 'ru'];", "var LANGS = ['en', 'he'];",
     ['opening:boot-knows-every-language']],
+
+  // the opening is an entrance, not a toll: none for a link to a species, none the second time in a visit
+  'deeplink-plays': ['desktop-en', 'js/boot.js', "/[?&](node|view)=/.test(location.search) || ", '',
+    ['opening:a-link-to-a-species-has-no-opening']],
+  // with no opening the old title card would be the only thing on screen
+  'intro-card-returns': ['desktop-en', 'js/app.js', "} else if(!document.documentElement.hasAttribute('data-no-opening')){", '} else {',
+    ['opening:the-opening-plays-once-per-visit']],
+  'session-forgotten': ['desktop-en', 'js/splash.js', "try { sessionStorage.setItem('tol-opening-played', '1'); } catch (e) { /* the opening will play again: harmless */ }", '',
+    ['opening:the-opening-plays-once-per-visit']],
 
   // ── css/splash.css: the first paint, and where things sit ──
   'css-drift': ['phone-en', 'css/splash.css', 'min(44.5vw,', 'min(40vw,',

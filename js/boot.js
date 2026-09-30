@@ -8,10 +8,16 @@
    direction the whole time. Without it a light-theme reader saw a dark screen
    turn cream, and a Hebrew reader's screen laid itself out left-to-right first.
 
-   It only reads: theme, language and whether they have been here before. Every
-   value is validated again by js/app.js, so a wrong guess here costs a flicker,
-   never a wrong state. Anything it cannot read (private mode) falls back to
-   the page's own defaults, dark and English.
+   It only reads: theme, language, whether they have been here before, and
+   whether the opening should play at all. Every value is validated again by
+   js/app.js, so a wrong guess here costs a flicker, never a wrong state.
+   Anything it cannot read (private mode) falls back to the page's own
+   defaults, dark and English, with the opening playing.
+
+   The opening is the encyclopedia's entrance, not a toll: it plays once per
+   visit to the site, and not at all for a link that names a species or a view
+   (`?node=`, `?view=`) — someone following a link wants what it points at.
+   Kin shares this file for theme, language and direction and ignores the rest.
 
    The languages and the right-to-left ones are listed here by hand because this
    file cannot import. `static/opening:boot-knows-every-language` fails if
@@ -39,4 +45,10 @@
     // someone who has seen the opening gets a shorter one (js/splash.js)
     if (localStorage.getItem('tol-splash-seen')) root.setAttribute('data-return', '');
   } catch (e) { /* storage blocked: the defaults stand */ }
+  try {
+    // no opening for a link to a species or a view, nor a second time in one visit (js/splash.js sets the mark)
+    if (/[?&](node|view)=/.test(location.search) || sessionStorage.getItem('tol-opening-played')) {
+      root.setAttribute('data-no-opening', '');
+    }
+  } catch (e) { /* session storage blocked: the opening plays, as it always did */ }
 })();

@@ -1,0 +1,457 @@
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<!-- Before any stylesheet has arrived the browser paints its own canvas, white unless told otherwise. -->
+<meta name="color-scheme" content="dark">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+<!-- Theme, language and direction, decided before the first paint (see js/boot.js). -->
+<script src="js/boot.js"></script>
+<meta name="description" content="Explore 3.8 billion years of evolution — an interactive Tree of Life visualization featuring 200+ species from bacteria to humans. Museum-quality, multilingual (EN/HE/RU).">
+<meta name="keywords" content="tree of life, evolution, interactive, species, biology, phylogenetic, museum, visualization">
+<meta name="author" content="Tree of Life Project">
+<meta name="theme-color" content="#070C11">
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
+<!-- Open Graph -->
+<meta property="og:title" content="Tree of Life — 3.8 Billion Years of Evolution">
+<meta property="og:description" content="Interactive evolutionary tree featuring 200+ species. Explore life from LUCA to Homo sapiens.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.treeoflife.wiki/atlas.html">
+<meta property="og:image" content="https://www.treeoflife.wiki/assets/og-image.png">
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Tree of Life — 3.8 Billion Years of Evolution">
+<meta name="twitter:description" content="Interactive evolutionary tree featuring 200+ species.">
+<!-- Canonical -->
+<link rel="canonical" href="https://www.treeoflife.wiki/atlas.html">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+<title>Tree of Life — 3.8 Billion Years of Evolution</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Heebo:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/variables.css">
+<link rel="stylesheet" href="css/layout.css">
+<link rel="stylesheet" href="css/tree.css">
+<link rel="stylesheet" href="css/timeline.css">
+<link rel="stylesheet" href="css/panel.css">
+<link rel="stylesheet" href="css/hominin.css">
+<link rel="stylesheet" href="css/features.css">
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/rtl.css">
+<link rel="stylesheet" href="css/responsive.css">
+  <link rel="stylesheet" href="css/explore.css">
+<link rel="stylesheet" href="css/splash.css">
+<link rel="stylesheet" href="css/sapiens.css">
+<link rel="stylesheet" href="css/profile.css">
+<link rel="stylesheet" href="css/chrome.css">
+</head>
+<body>
+<a href="#canvas-wrap" class="skip-link" id="skip-link">Skip to Tree of Life</a>
+<div aria-live="polite" aria-atomic="true" class="sr-only" id="a11y-announce"></div>
+<div id="splash">
+  <!-- The first paint: plain CSS, so it shows before any script has run (css/splash.css). -->
+  <div class="splash-pre" aria-hidden="true"><i class="sp-scan"></i><i class="sp-ring"></i><i class="sp-ring sp-ring-in"></i><i class="sp-sun"></i></div>
+  <canvas id="splash-under" aria-hidden="true"></canvas>
+  <canvas id="splash-canvas" aria-hidden="true"></canvas>
+  <div id="splash-words" aria-hidden="true">
+    <ol class="sw-scale" id="sw-scale"></ol>
+    <p class="sw-counter" id="sw-counter"><bdi dir="ltr"></bdi></p>
+    <div class="sw-plaque" id="sw-plaque">
+      <svg class="sw-frame" id="sw-frame" focusable="false"></svg>
+      <p class="sw-title" id="sw-title"><span></span></p>
+      <p class="sw-sub" id="sw-sub"><span></span></p>
+    </div>
+    <p class="sw-hint" id="sw-hint"></p>
+  </div>
+  <button id="splash-skip" type="button"></button>
+  <div id="splash-fallback">
+    <h1 id="splash-fb-title">Tree of Life</h1>
+    <p id="splash-fb-subtitle">3.8 Billion Years of Evolution</p>
+    <p id="splash-fb-click">Click to explore</p>
+  </div>
+  <noscript><p style="position:absolute;inset:auto 0 30% 0;text-align:center;color:#a2b4bd;font:14px sans-serif">Tree of Life needs JavaScript.</p></noscript>
+</div>
+<div id="bg"></div>
+<div id="era-tint-overlay"></div>
+<div id="particles"></div>
+
+<!-- TOP-RIGHT CONTROLS (lang + theme + profile) -->
+<div id="top-right-controls">
+  <div id="lang-switcher" role="toolbar" aria-label="Language selector">
+    <button class="lang-btn active" data-lang="en" data-action="lang:set" aria-label="Switch to English" aria-pressed="true">EN</button>
+    <button class="lang-btn" data-lang="he" data-action="lang:set" aria-label="Switch to Hebrew" aria-pressed="false">עב</button>
+    <button class="lang-btn" data-lang="ru" data-action="lang:set" aria-label="Switch to Russian" aria-pressed="false">РУ</button>
+  </div>
+  <button id="theme-btn" data-action="theme:toggle" title="Toggle theme" aria-label="Toggle dark mode">☀</button>
+  <button id="profile-btn" data-action="profile:open" title="Profile" aria-label="Player profile">👤</button>
+</div>
+
+<!-- HEADER (title only, subtitle dropped) -->
+<div id="header">
+  <div class="title-wrap">
+    <div class="title-main" id="i-title">Tree of Life</div>
+    <div class="title-credit">By Gabi Weisskopf</div>
+    <div class="title-sub" id="i-subtitle">3.8 Billion Years of Natural Selection</div>
+  </div>
+</div>
+
+<!-- LEFT RAIL (unified glass panel: view modes + tools + status) -->
+<button id="left-rail-toggle" aria-label="Toggle menu">☰</button>
+<aside id="left-rail" aria-label="Main controls">
+  <div class="rail-caption" data-i18n="rail.view">View</div>
+  <div id="view-toggle" class="rail-group" role="toolbar" aria-label="View mode selector">
+    <button class="view-btn active" data-view="explore" data-action="shell:view" id="i-view-explore" data-i18n="view.explore">&#9776; Explore</button>
+    <button class="view-btn" data-view="map" data-action="shell:view" id="i-view-map" data-i18n="view.map">&#9673; Map</button>
+    <button class="view-btn" data-mode="radial" data-action="view:set">&#9673; Radial</button>
+    <button class="view-btn" data-mode="chronological" data-action="view:set" style="display:none">&#8594; Timeline</button>
+    <button class="view-btn" data-mode="cladogram" data-action="view:set">&#9500; Cladogram</button>
+    <button class="view-btn" data-mode="playback" data-action="playback:enter" id="i-view-playback">&#9654; Playback</button>
+  </div>
+
+  <div class="rail-divider"></div>
+  <div class="rail-caption" data-i18n="rail.tools">Tools</div>
+  <div class="rail-group">
+    <button id="btn-compare" class="search-pill" data-action="species-compare:open" aria-label="Species Compare">🔬 <span id="i-btn-compare">Compare</span></button>
+    <button id="btn-quiz" class="search-pill" data-action="game:open" aria-label="Open games">🎮 <span id="quiz-label">Games</span></button>
+    <a href="./" class="search-pill" id="btn-kin" style="text-decoration:none;" aria-label="Kin, the daily game">📅 <span id="kin-label">Kin · daily game</span></a>
+    <a href="stories/superarchaic-dna.html" class="search-pill" id="btn-stories" style="text-decoration:none;" aria-label="Read interactive stories">📖 <span id="stories-label">Stories</span></a>
+    <button id="hominins-tab" class="search-pill" data-action="nav:to" data-arg="hominini" aria-label="Navigate to Hominin family tree">🧬 <span id="i-btn-hominins">Hominins</span></button>
+  </div>
+
+  <div class="rail-divider"></div>
+  <div class="rail-group">
+    <button id="extinct-toggle" class="search-pill" data-action="extinct:toggle" aria-label="Toggle visibility of extinct species">
+      <span>†</span> <span id="extinct-label">Show extinct</span>
+    </button>
+    <button id="btn-tour-help" class="search-pill" data-action="tour:selector" aria-label="Guided tour" title="Guided Tour">? <span id="i-btn-guided-tour">Guided tour</span></button>
+  </div>
+
+  <div class="rail-foot">
+    <div class="rail-status" aria-label="Species explored">🔬 <b><span id="progress-count">0</span></b> / <b><span id="progress-total">0</span></b> <span id="i-rail-seen">seen</span></div>
+    <a id="rail-credits" class="rail-credits" href="credits.html">Credits</a>
+    <!-- Species names come from the tree data, which is English-only. Exempt
+         from the UI translation checks until the data itself is localised. -->
+    <div id="sotd-badge" data-i18n-exempt="species-name" style="display:none" role="button" tabindex="0" aria-label="Species of the Day">
+      <span id="sotd-icon"></span> <span id="sotd-name"></span>
+    </div>
+  </div>
+</aside>
+
+<!-- HIDDEN: progress badge stub kept for legacy JS that toggles its class -->
+<div id="progress-badge" aria-hidden="true" style="display:none"></div>
+
+<!-- SEARCH (collapsed icon, expands on focus) -->
+<div id="search-wrap">
+  <input id="search-input" type="text" placeholder="Search species…" autocomplete="off" aria-label="Search species by name, latin name, or description" role="combobox" aria-expanded="false" aria-controls="search-results">
+  <div id="search-results" role="listbox"></div>
+  <div id="search-pill-row" style="display:none"></div>
+</div>
+
+<!-- WAYFINDER (back / home / share — always on top, in every view; js/wayfinder.js) -->
+<div id="nav-ctrl">
+  <button class="nav-btn" id="nav-back" data-action="way:back" aria-label="Go back"><span class="nav-arrow">←</span> <span id="nav-back-label">Back</span></button>
+  <button class="nav-btn" id="nav-home" data-action="way:home" aria-label="Go to root"><span class="nav-arrow">⌂</span> <span id="nav-home-label">Home</span></button>
+  <button class="nav-btn" id="nav-share" data-action="way:share" aria-label="Share this view"><span class="nav-arrow nav-static">🔗</span> <span id="nav-share-label">Share</span></button>
+</div>
+
+<!-- KEYBOARD HELP OVERLAY -->
+<div id="kbd-help" role="dialog" aria-label="Keyboard shortcuts">
+  <div class="kbd-panel">
+    <h3>Keyboard Shortcuts</h3>
+    <div class="kbd-row"><span>Go back</span><div class="kbd-keys"><kbd>Esc</kbd></div></div>
+    <div class="kbd-row"><span>Go home</span><div class="kbd-keys"><kbd>Shift</kbd><kbd>Esc</kbd></div></div>
+    <div class="kbd-row"><span>Search</span><div class="kbd-keys"><kbd>F</kbd> or <kbd>/</kbd></div></div>
+    <div class="kbd-row"><span>Hominini</span><div class="kbd-keys"><kbd>H</kbd></div></div>
+    <div class="kbd-row"><span>Reset zoom</span><div class="kbd-keys"><kbd>R</kbd></div></div>
+    <div class="kbd-row"><span>Toggle theme</span><div class="kbd-keys"><kbd>D</kbd></div></div>
+    <div class="kbd-row"><span>This help</span><div class="kbd-keys"><kbd>?</kbd></div></div>
+  </div>
+</div>
+
+<!-- BREADCRUMB -->
+<nav id="breadcrumb" class="hidden" role="navigation" aria-label="Breadcrumb"></nav>
+
+<!-- SVG CANVAS -->
+<div id="canvas-wrap" tabindex="-1">
+  <div id="explore" role="region" aria-label="Explore life by group"></div>
+
+  <svg id="svg" xmlns="http://www.w3.org/2000/svg" role="tree" aria-label="Interactive Tree of Life showing evolutionary relationships among 130+ species. Use arrow keys to navigate, Enter to open details." aria-labelledby="svg-title" aria-describedby="svg-desc" tabindex="0">
+    <title id="svg-title">Tree of Life — Interactive Phylogenetic Tree</title>
+    <desc id="svg-desc">Interactive phylogenetic tree showing approximately 130 species across 3.8 billion years of evolution. Navigate between species using arrow keys. Press Enter to view species details. Press Home to return to the root.</desc>
+    <defs>
+      <radialGradient id="rootGrad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#a78bfa"/>
+        <stop offset="55%" stop-color="#8b5cf6"/>
+        <stop offset="100%" stop-color="#6d28d9"/>
+      </radialGradient>
+      <filter id="softGlow" x="-40%" y="-40%" width="180%" height="180%">
+        <feGaussianBlur stdDeviation="4" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <filter id="strongGlow" x="-60%" y="-60%" width="220%" height="220%">
+        <feGaussianBlur stdDeviation="9" result="blur"/>
+        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+      <linearGradient id="branch-grad-template" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#8b6a3a"/>
+        <stop offset="100%" stop-color="#8b6a3a"/>
+      </linearGradient>
+      <radialGradient id="human-path-glow" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#c8883a" stop-opacity="0.3"/>
+        <stop offset="100%" stop-color="#c8883a" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="node-fallback-grad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#8b6a3a" stop-opacity="0.25"/>
+        <stop offset="100%" stop-color="#8b6a3a" stop-opacity="0.05"/>
+      </radialGradient>
+    </defs>
+    <g id="viewport">
+      <g id="layer-branches"></g>
+      <g id="layer-nodes"></g>
+    </g>
+  </svg>
+</div>
+
+<!-- REVEAL PANEL -->
+<div id="reveal-panel" class="reveal-panel" role="group" aria-labelledby="reveal-title">
+  <div class="reveal-header">
+    <span id="reveal-title">Reveal</span>
+    <button id="reveal-help" class="reveal-help" aria-label="Help">?</button>
+  </div>
+  <div class="reveal-slider-row">
+    <input type="range" id="reveal-depth-slider" min="0" max="6" value="1" step="1"
+           aria-label="Tree depth" title="Controls how many levels of the tree are visible." />
+    <span id="reveal-depth-value" class="reveal-depth-value">1</span>
+  </div>
+  <div class="reveal-ticks" id="reveal-ticks"></div>
+  <div class="reveal-buttons">
+    <button id="btn-collapse-all" class="reveal-btn">Collapse All</button>
+    <button id="btn-expand-all" class="reveal-btn">Expand All</button>
+  </div>
+  <label class="reveal-species-toggle">
+    <input type="checkbox" id="reveal-species-toggle" />
+    <span id="reveal-species-label">Show all species</span>
+    <span class="reveal-species-warn" title="Adds ~300 species. Tree gets dense.">⚠</span>
+  </label>
+</div>
+
+<!-- TOOLTIP -->
+<div id="tooltip"></div>
+
+<!-- DISCOVERY FACT TOAST -->
+<div id="fact-toast" role="status" aria-live="polite">
+  <div class="ft-label">💡 DID YOU KNOW</div>
+  <div class="ft-text" id="ft-text"></div>
+</div>
+
+<!-- MAIN DETAIL PANEL -->
+<div id="panel" role="dialog" aria-modal="true" aria-label="Species details" aria-live="polite">
+  <div class="panel-accent" id="panel-accent"></div>
+  <button class="p-close" id="panel-close" aria-label="Close panel">✕</button>
+  <div class="panel-scroll">
+    <div class="p-top">
+      <div class="p-icon-wrap" id="p-icon-wrap"><span id="p-icon"></span></div>
+      <div>
+        <div class="p-era" id="p-era"></div>
+        <div class="p-name" id="p-name"></div>
+        <div class="p-latin" id="p-latin"></div>
+      </div>
+    </div>
+    <div class="p-divider"></div>
+    <div class="p-desc" id="p-desc"></div>
+    <div class="p-facts" id="p-facts"></div>
+    <div id="p-hom-btn-wrap"></div>
+    <div id="p-tags-section">
+      <div class="p-section" id="i-p-traits">Key Traits</div>
+      <div id="p-tags"></div>
+    </div>
+    <div class="p-divider"></div>
+    <div class="p-section" id="i-p-evo">Evolutionary Detail</div>
+    <div class="p-detail" id="p-detail"></div>
+    <div id="p-children-section" style="display:none">
+      <div class="p-divider"></div>
+      <div class="p-section" id="i-p-sub">Sub-groups</div>
+      <ul class="p-children" id="p-children"></ul>
+    </div>
+  </div>
+</div>
+
+<!-- HOMININ DEEP-DIVE OVERLAY -->
+<div id="hominin-view" role="dialog" aria-modal="true" aria-label="Human Evolution Explorer">
+  <div class="hom-header">
+    <div class="hom-title-row">
+      <div class="hom-title">🧬 <span id="i-hom-title">Human Evolution</span></div>
+      <div class="hom-header-actions">
+        <button id="compare-btn" class="hom-action-btn" data-action="hominin:compare-toggle">⚖️ <span id="i-hom-compare">Compare</span><span id="compare-hint">(pick 2–4)</span></button>
+        <button id="hom-close" class="hom-action-btn" aria-label="Close">✕</button>
+      </div>
+    </div>
+    <div class="hom-filters" role="tablist" aria-label="Filter by group">
+      <button class="hom-filter active" data-filter="all" role="tab" aria-selected="true">All</button>
+      <button class="hom-filter" data-filter="proto" role="tab">Proto-hominins</button>
+      <button class="hom-filter" data-filter="australopith" role="tab">Australopithecus</button>
+      <button class="hom-filter" data-filter="paranthropus" role="tab">Paranthropus</button>
+      <button class="hom-filter" data-filter="homo" role="tab">Homo</button>
+    </div>
+  </div>
+  <div class="hom-body">
+    <div id="hom-timeline" class="hom-timeline"></div>
+    <div id="hom-panel" class="hom-detail-panel">
+      <div class="hp-placeholder">Select a species to explore</div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPARE PANEL (standalone overlay) -->
+<div id="compare-panel" style="display:none;position:fixed;inset:0;z-index:150;background:var(--surface-overlay);overflow-y:auto;padding:1.5rem 2rem;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+    <div id="i-compare-title" style="font-family:var(--font-head);font-size:1.2rem;color:var(--accent);">Species Comparison</div>
+    <button id="i-compare-back" data-action="hominin:compare-cancel" class="btn-back">← Back</button>
+  </div>
+  <div id="compare-grid" style="display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));"></div>
+</div>
+
+<!-- LEGEND -->
+<div id="legend">
+  <div class="leg-title" id="i-leg-title">Domains</div>
+  <div class="leg-row" data-domain="luca" data-action="domain:toggle" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#8b5cf6"></div><span id="i-leg-luca">LUCA / Root</span></div>
+  <div class="leg-row" data-domain="bacteria" data-action="domain:toggle" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#ef4444"></div><span id="i-leg-bact">Bacteria</span></div>
+  <div class="leg-row" data-domain="archaea" data-action="domain:toggle" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#f59e0b"></div><span id="i-leg-arch">Archaea</span></div>
+  <div class="leg-row" data-domain="plantae" data-action="domain:toggle" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#22c55e"></div><span id="i-leg-plant">Plants</span></div>
+  <div class="leg-row" data-domain="animalia" data-action="domain:toggle" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#3b82f6"></div><span id="i-leg-anim">Animals</span></div>
+  <div class="leg-row" data-domain="fungi" data-action="domain:toggle" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#f97316"></div><span id="i-leg-fungi">Fungi</span></div>
+  <div class="leg-row" data-domain="protists" data-action="domain:toggle" tabindex="0" role="button" style="cursor:pointer;"><div class="leg-dot" style="background:#a855f7"></div><span id="i-leg-prot">Protists</span></div>
+  <button id="leg-show-all" data-action="domain:reset" aria-label="Show all domains"><span id="i-leg-show-all">Show All</span></button>
+</div>
+
+
+
+<!-- PLAYBACK OVERLAYS -->
+<div id="discovery-card-container"></div>
+<div id="pb-era-badge" class="pb-era-badge"></div>
+
+<!-- ZOOM -->
+<div id="zoom-ctrl" role="toolbar" aria-label="Map controls">
+  <button class="zbtn" id="btn-in" aria-label="Zoom in">+</button>
+  <button class="zbtn" id="btn-reset" title="Reset view" aria-label="Reset view">⌂</button>
+  <button class="zbtn" id="btn-out" aria-label="Zoom out">−</button>
+  <button class="zbtn" id="btn-random" title="Random species" aria-label="Jump to random species" style="font-size:0.9rem;">🎲</button>
+</div>
+
+<!-- FAB group removed: Tour/Compare moved into #left-rail; Trivia superseded by unified Species Compare -->
+
+<!-- SPECIES COMPARE PANEL (unified DNA + Evo Path) -->
+<div id="species-compare-panel" class="compare-panel" role="dialog" aria-label="Species Compare" aria-modal="true" aria-hidden="true">
+  <div class="compare-panel-inner">
+    <div class="compare-panel-header">
+      <div class="compare-panel-title" id="i-compare-title">Species Compare</div>
+      <button class="btn-back" data-action="species-compare:close">&#10005;</button>
+    </div>
+    <div class="compare-presets" id="compare-presets"></div>
+    <div class="compare-slots">
+      <button class="compare-slot" id="compare-slot-a" data-action="species-compare:pick" data-arg="a">
+        <span class="compare-slot-icon" id="compare-icon-a">?</span>
+        <span class="compare-slot-label" id="compare-label-a">Select a species</span>
+      </button>
+      <div class="compare-vs">vs</div>
+      <button class="compare-slot" id="compare-slot-b" data-action="species-compare:pick" data-arg="b">
+        <span class="compare-slot-icon" id="compare-icon-b">?</span>
+        <span class="compare-slot-label" id="compare-label-b">Select a species</span>
+      </button>
+      <button class="zbtn compare-dice" data-action="species-compare:dice" title="Random pair">&#127922;</button>
+    </div>
+    <div class="compare-search-overlay" id="compare-search-overlay" style="display:none">
+      <input type="text" id="compare-search-input" placeholder="Search species..." autocomplete="off">
+      <div id="compare-search-results"></div>
+    </div>
+    <div class="compare-results" id="compare-results" style="display:none"></div>
+    <button id="compare-show-tree" class="trivia-start-btn" style="display:none" data-action="species-compare:show-tree">&#127795; Show on Tree</button>
+  </div>
+</div>
+
+<!-- Floating clear-path overlay -->
+<button id="compare-clear-overlay" data-action="species-compare:clear" style="display:none">&#10005; Clear Path</button>
+
+<!-- UNIFIED GAME PANEL -->
+<div id="game-panel" class="trivia-panel" aria-hidden="true">
+  <div class="trivia-panel-inner">
+    <!-- Mode Selector -->
+    <div id="game-mode-select"></div>
+    <!-- Question Phase -->
+    <div id="game-question" style="display:none"></div>
+    <!-- Result Phase -->
+    <div id="game-result" style="display:none"></div>
+  </div>
+</div>
+
+<!-- ERA BROWSER -->
+<div id="timeline">
+  <div id="tl-info-bar">
+    <div id="tl-era-info">
+      <span id="era-label">PRESENT (0 Ma)</span>
+      <span id="era-time-range"></span>
+    </div>
+    <span id="era-species-count"></span>
+  </div>
+  <canvas id="tl-density"></canvas>
+  <div id="tl-track-wrap">
+    <div id="era-track">
+      <div id="era-segments"></div>
+      <div id="extinction-markers"></div>
+      <div id="tl-thumb" tabindex="0" role="slider"
+           aria-label="Timeline slider" aria-valuemin="0" aria-valuemax="3800" aria-valuenow="3800"></div>
+    </div>
+    <input id="era-slider" type="range" min="0" max="3800" value="3800" step="10"
+           aria-hidden="true" tabindex="-1" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">
+  </div>
+  <div id="tl-controls">
+    <div id="era-presets"></div>
+    <div id="tl-playback">
+      <button id="era-play" title="Play timeline animation" aria-label="Play timeline">&#9654;</button>
+      <div id="tl-speed-group">
+        <button class="tl-speed-btn" data-speed="0.5">0.5x</button>
+        <button class="tl-speed-btn active" data-speed="1">1x</button>
+        <button class="tl-speed-btn" data-speed="2">2x</button>
+      </div>
+    </div>
+  </div>
+  <div id="ext-popover" class="ext-popover hidden"></div>
+</div>
+
+
+<!-- Application (ES module entry point) -->
+<script type="module" src="js/app.js"></script>
+<footer id="i-footer" style="position:fixed;bottom:4px;right:8px;font-family:'Inter',sans-serif;font-size:10px;color:var(--text-muted);opacity:0.6;z-index:10;pointer-events:none;">
+  Tree of Life · Images via Wikimedia Commons · Built with Claude
+</footer>
+<div id="shortcuts-hint" style="position:fixed;bottom:8px;right:8px;font-family:'Inter',sans-serif;font-size:11px;color:var(--text-muted);background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 10px;opacity:0;transition:opacity 300ms ease;pointer-events:none;z-index:50;">
+  <span id="i-shortcuts-hint">Press <kbd style="background:var(--surface-raised);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px;">/</kbd> to search &nbsp;·&nbsp; <kbd style="background:var(--surface-raised);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px;">D</kbd> dark mode &nbsp;·&nbsp; <kbd style="background:var(--surface-raised);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:10px;">Esc</kbd> close</span>
+</div>
+<!-- ACHIEVEMENT TOAST CONTAINER -->
+<div id="achievement-container" aria-live="polite"></div>
+
+<!-- PROFILE BACKDROP -->
+<div id="profile-backdrop" class="profile-backdrop"></div>
+
+<!-- PROFILE PANEL -->
+<div id="profile-panel" class="profile-panel" aria-hidden="true" role="dialog" aria-label="Player profile">
+  <div class="profile-header">
+    <div>
+      <div class="profile-header-name">👤 <span id="profile-player-name">Guest</span></div>
+      <div class="profile-header-points" id="profile-player-points">0 pts</div>
+    </div>
+    <button class="btn-back" data-action="profile:close" aria-label="Close profile panel">✕</button>
+  </div>
+  <div class="profile-tabs" role="tablist">
+    <button class="profile-tab active" data-tab="leaderboard" role="tab" aria-selected="true">🏆 Leaderboard</button>
+    <button class="profile-tab" data-tab="achievements" role="tab" aria-selected="false">🎖 Achievements</button>
+    <button class="profile-tab" data-tab="progress" role="tab" aria-selected="false">📊 Progress</button>
+  </div>
+  <div class="profile-content" id="profile-content"></div>
+</div>
+</body>
+</html>

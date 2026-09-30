@@ -29,6 +29,8 @@ const LITE_MS = 38;             // ...and the average frame time, in ms, above w
 
 export function initSplash(canvas, opts) {
   const { tree, t: tr, onDone } = opts;
+  /* Once per visit: js/boot.js reads this on the next page load and keeps the opening off. */
+  try { sessionStorage.setItem('tol-opening-played', '1'); } catch (e) { /* the opening will play again: harmless */ }
   const splashEl = document.getElementById('splash');
   const under = document.getElementById('splash-under');
   const skipBtn = document.getElementById('splash-skip');

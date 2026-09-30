@@ -64,11 +64,28 @@ jobs:
       - name: Run smoke checks against ${{ steps.target.outputs.url }}
         run: npm run smoke -- --url "${{ steps.target.outputs.url }}"
 
+      # The front page is the game, and the game has its own checks. The offline
+      # one stops a server it starts itself, so it is skipped against a site
+      # that is already deployed; everything else runs as it does in CI.
+      - name: Run Kin checks against ${{ steps.target.outputs.url }}
+        if: always()
+        run: npm run play:check -- --url "${{ steps.target.outputs.url }}"
+
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: deployed-smoke-screenshots
           path: .smoke-out/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Upload Kin screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployed-kin-screenshots
+          path: .play-out/
+          include-hidden-files: true
           if-no-files-found: warn
           retention-days: 14

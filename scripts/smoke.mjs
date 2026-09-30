@@ -96,6 +96,7 @@ const I18N_BINDINGS = [
   { id: 'i-subtitle', key: 'subtitle' },
   { id: 'quiz-label', key: 'btn_games' },
   { id: 'stories-label', key: 'btn_stories' },
+  { id: 'kin-label', key: 'btn_kin' },
   { id: 'i-btn-hominins', key: 'btn_hominins' },
   { id: 'i-btn-compare', key: 'compare_btn' },
   { id: 'nav-back-label', key: 'nav_back' },
@@ -120,7 +121,7 @@ async function startServer() {
   const url = `http://127.0.0.1:${port}`;
   for (let i = 0; i < 60; i++) {
     try {
-      const res = await fetch(url + '/index.html');
+      const res = await fetch(url + '/atlas.html');
       if (res.ok) break;
     } catch { /* not up yet */ }
     await new Promise((r) => setTimeout(r, 250));
@@ -1046,6 +1047,27 @@ check('opening:a-slow-phone-still-gets-the-title', 'On a device that stalls for 
   if (lag < 2500) fail(`the title arrived only ${Math.round(lag)} ms after the first frame (due at 3150 ms) — the show was skipped ahead by the start-up stall`);
 }, (sc) => OPENING_SLOW_SCENARIOS.includes(sc.id));
 
+check('opening:a-link-to-a-species-has-no-opening', 'A link that names a species or a view goes straight to it: no opening, nothing covering the page, and the visit is not marked as having seen one', (c) => {
+  const d = openingPass(openingOf(c), 'deepLink');
+  if (!d.attr) fail('js/boot.js did not mark the page as having no opening');
+  if (d.display !== 'none') fail(`#splash is "${d.display}" for a link to a species`);
+  if (d.live) fail('the opening went live for a link to a species');
+  if (d.played !== null) fail(`the visit was marked "${d.played}" although no opening played, so the next entrance would be denied its opening`);
+  if (d.intro) fail('the old title card (.intro-overlay) is covering a page that has no opening — it would be the only thing on screen for four seconds');
+  if (!(d.cards > 0)) fail('the page the link names never showed its content');
+}, (sc) => OPENING_ENTRANCE_SCENARIOS.includes(sc.id));
+
+check('opening:the-opening-plays-once-per-visit', 'The first entrance to the encyclopedia plays the opening and marks the visit; a second entrance in the same tab does not play it again', (c) => {
+  const t = openingPass(openingOf(c), 'twice');
+  if (t.first.attr) fail('the first entrance was already marked as having no opening');
+  if (t.first.played !== '1') fail(`the first entrance did not mark the visit (sessionStorage says ${JSON.stringify(t.first.played)}), so every entrance would replay it`);
+  if (!t.second.attr) fail('the second entrance in one visit was not marked as having no opening');
+  if (t.second.display !== 'none') fail(`#splash is "${t.second.display}" on the second entrance`);
+  if (t.second.live) fail('the opening played a second time in one visit');
+  if (t.second.intro) fail('the old title card (.intro-overlay) appeared on an entrance that has no opening');
+  if (!(t.second.cards > 0)) fail('the second entrance never showed its content');
+}, (sc) => OPENING_ENTRANCE_SCENARIOS.includes(sc.id));
+
 check('opening:runs-clean', 'The opening throws nothing and breaks no Content-Security-Policy rule, in any of its passes', (c) => {
   const o = openingOf(c);
   if (o.errors && o.errors.length) fail(`${o.errors.length} uncaught error(s): ${o.errors[0]}`);
@@ -1338,6 +1360,9 @@ const OPENING_KEYS = ['Escape', 'Enter', 'Space'];
    depend on language or theme, so one desktop and one phone scenario run it. */
 const OPENING_SLOW = { stallMs: 4000, frameMs: 150 };
 const OPENING_SLOW_SCENARIOS = ['desktop-en', 'phone-en'];
+/* The entrance rules (no opening for a link to a species, none the second time in a
+   visit) do not depend on language or theme either. */
+const OPENING_ENTRANCE_SCENARIOS = ['desktop-en', 'phone-en'];
 
 async function openingProbe(page, scenario, baseUrl) {
   const browser = page.context().browser();
@@ -1365,6 +1390,11 @@ async function openingProbe(page, scenario, baseUrl) {
           return this.id && this.id.startsWith('splash') ? null : real.apply(this, a);
         };
       }
+      /* Whether the old title card ever appeared: it lives for four seconds and a probe that
+         samples once can miss it, so the page remembers. */
+      window.__introSeen = false;
+      new MutationObserver(() => { if (!window.__introSeen && document.querySelector('.intro-overlay')) window.__introSeen = true; })
+        .observe(document, { childList: true, subtree: true });
       window.__cspViolations = [];
       document.addEventListener('securitypolicyviolation', (e) => {
         window.__cspViolations.push(`${e.violatedDirective} blocked ${e.blockedURI || 'inline'}`);
@@ -1513,14 +1543,14 @@ async function openingProbe(page, scenario, baseUrl) {
 
   // 1. What paints before any script has run.
   await run('firstPaint', { seen: true, blockApp: true }, async (p) => {
-    await p.goto(baseUrl + '/index.html', { waitUntil: 'domcontentloaded' });
+    await p.goto(baseUrl + '/atlas.html', { waitUntil: 'domcontentloaded' });
     await p.waitForTimeout(1000);                       // the ring fades in over 0.7 s
     return measure(p);
   });
 
   // 2. The finished plate: reduced motion paints it at once.
   const plateOf = async (p) => {
-    await p.goto(baseUrl + '/index.html', { waitUntil: 'domcontentloaded' });
+    await p.goto(baseUrl + '/atlas.html', { waitUntil: 'domcontentloaded' });
     await p.waitForSelector('#splash.is-live', { timeout: 20000 });
     /* Web fonts change every width the title was fitted against. Wait for them,
        as a visitor's eyes would, then let the re-fit settle. */
@@ -1551,7 +1581,7 @@ async function openingProbe(page, scenario, baseUrl) {
 
   // 3. A first visit, running for real.
   await run('live', { seen: false }, async (p) => {
-    await p.goto(baseUrl + '/index.html', { waitUntil: 'domcontentloaded' });
+    await p.goto(baseUrl + '/atlas.html', { waitUntil: 'domcontentloaded' });
     await p.waitForSelector('#splash.is-live', { timeout: 20000 });
     await p.waitForTimeout(600);
     const early = await measure(p);
@@ -1584,7 +1614,7 @@ async function openingProbe(page, scenario, baseUrl) {
 
   // 4. No 2D canvas: the words on their own, and the same ways out.
   await run('noCanvas', { seen: false, noCanvas: true }, async (p) => {
-    await p.goto(baseUrl + '/index.html', { waitUntil: 'domcontentloaded' });
+    await p.goto(baseUrl + '/atlas.html', { waitUntil: 'domcontentloaded' });
     await p.waitForSelector('#splash.no-canvas', { timeout: 20000 });
     const m = await measure(p);
     m.expectedTitle = await p.evaluate(async (lang) => {
@@ -1598,7 +1628,7 @@ async function openingProbe(page, scenario, baseUrl) {
 
   // 5. The scene fails to build: the curtain has to come down anyway.
   await run('broken', { seen: false, brokenScene: true }, async (p, h) => {
-    await p.goto(baseUrl + '/index.html', { waitUntil: 'domcontentloaded' });
+    await p.goto(baseUrl + '/atlas.html', { waitUntil: 'domcontentloaded' });
     const t0 = Date.now();
     const cleared = await gone(p, 6000);
     const clearedMs = Date.now() - t0;
@@ -1615,9 +1645,51 @@ async function openingProbe(page, scenario, baseUrl) {
   // 6. A slow phone: the title has to arrive on time even when the frames do not.
   if (OPENING_SLOW_SCENARIOS.includes(scenario.id)) {
     await run('slow', { seen: false, slow: OPENING_SLOW }, async (p) => {
-      await p.goto(baseUrl + '/index.html', { waitUntil: 'domcontentloaded' });
+      await p.goto(baseUrl + '/atlas.html', { waitUntil: 'domcontentloaded' });
       await p.waitForFunction(() => window.__show && window.__show.gone !== null, null, { timeout: 40000 }).catch(() => {});
       return p.evaluate(() => window.__show);
+    });
+  }
+
+  // 7. The entrance rules. The opening is the encyclopedia's entrance, not a toll.
+  if (OPENING_ENTRANCE_SCENARIOS.includes(scenario.id)) {
+    /* A link to a species has no opening: someone following it wants what it points at. */
+    await run('deepLink', { seen: false }, async (p) => {
+      await p.goto(baseUrl + '/atlas.html?node=primates&view=explore', { waitUntil: 'domcontentloaded' });
+      await p.waitForSelector('.ex-here', { timeout: 20000 }).catch(() => {});
+      await p.waitForTimeout(800);
+      return p.evaluate(() => {
+        const s = document.getElementById('splash');
+        return {
+          attr: document.documentElement.hasAttribute('data-no-opening'),
+          display: s ? getComputedStyle(s).display : 'missing',
+          live: !!(s && s.classList.contains('is-live')),
+          played: sessionStorage.getItem('tol-opening-played'),
+          intro: !!window.__introSeen,
+          cards: document.querySelectorAll('.ex-card').length,
+        };
+      });
+    });
+    /* Once per visit: the first entrance plays it, a second in the same tab does not. */
+    await run('twice', { seen: false }, async (p) => {
+      await p.goto(baseUrl + '/atlas.html', { waitUntil: 'domcontentloaded' });
+      await p.waitForSelector('#splash.is-live', { timeout: 20000 });
+      const first = await p.evaluate(() => ({ played: sessionStorage.getItem('tol-opening-played'), attr: document.documentElement.hasAttribute('data-no-opening') }));
+      await p.click('#splash-skip', { timeout: 4000 }).catch(() => {});
+      await p.goto(baseUrl + '/atlas.html', { waitUntil: 'domcontentloaded' });     // the same tab: the same visit
+      await p.waitForSelector('#viewport g.node-group, .ex-card', { timeout: 20000 }).catch(() => {});
+      await p.waitForTimeout(1500);
+      const second = await p.evaluate(() => {
+        const s = document.getElementById('splash');
+        return {
+          attr: document.documentElement.hasAttribute('data-no-opening'),
+          display: s ? getComputedStyle(s).display : 'missing',
+          live: !!(s && s.classList.contains('is-live')),
+          intro: !!window.__introSeen,
+          cards: document.querySelectorAll('#viewport g.node-group, .ex-card').length,
+        };
+      });
+      return { first, second };
     });
   }
 
@@ -1756,7 +1828,7 @@ async function nameProbe(page, scenario, baseUrl) {
 
   // ── driving the games ──
   const ready = async (p) => {
-    await p.goto(baseUrl + '/index.html', { waitUntil: 'domcontentloaded' });
+    await p.goto(baseUrl + '/atlas.html', { waitUntil: 'domcontentloaded' });
     await p.waitForFunction(() => document.querySelectorAll('#viewport g.node-group').length >= 10, null, { timeout: 25000 });
     await p.waitForFunction(() => getComputedStyle(document.getElementById('splash')).display === 'none', null, { timeout: 15000 });
     await p.evaluate(installContrastSweep);
@@ -2087,7 +2159,7 @@ async function probePage(page, scenario, baseUrl) {
     /* One icon per control, counted on the rendered label rather than on the
        markup or the translation alone. The glyph is written in whichever of
        the two the author had open at the time, and neither one can see the
-       other: the Compare pill carried a microscope in index.html and the
+       other: the Compare pill carried a microscope in atlas.html and the
        translation for the same button opened with a scale, so every visitor
        in every language read "\u{1F52C} \u2696 Compare Mode". Nothing failed --
        the binding matched its translation exactly, which is all the i18n
@@ -3161,9 +3233,10 @@ async function probePage(page, scenario, baseUrl) {
      reading someone else's link is not the same as changing your own mind. */
   const sharedLink = await (async () => {
     try {
-      await page.goto(baseUrl + '/index.html?node=primates&view=explore&lang=ru', { waitUntil: 'domcontentloaded' });
+      await page.goto(baseUrl + '/atlas.html?node=primates&view=explore&lang=ru', { waitUntil: 'domcontentloaded' });
       await page.waitForTimeout(1000);
-      await page.click('#splash-skip', { timeout: 4000 }).catch(() => {});
+      /* A link to a species has no opening (js/boot.js), so there may be nothing to skip. */
+      await page.evaluate(() => { const b = document.getElementById('splash-skip'); if (b && b.offsetParent !== null) b.click(); });
       await page.waitForTimeout(1800);
       return await page.evaluate(() => ({
         view: document.body.getAttribute('data-view'),
@@ -3200,13 +3273,15 @@ async function staticChecks() {
   // stories/ is same-origin, so it is served the same policy as the app and
   // has to obey the same rules.
   const storyDir = path.join(ROOT, 'stories');
-  /* js/ is read recursively and play.html is listed beside index.html: the
-     game lives in js/kin/ and a page of its own, and a flat read of js/
-     would have exempted all of it from every rule below without a word. */
+  /* js/ is read recursively and every page is listed: the encyclopedia is
+     atlas.html, the game is index.html (and a stub at play.html for old links),
+     and a flat read of js/ would have exempted all of the game's code from every
+     rule below without a word. */
   const files = [
     ...(await readdir(cssDir)).filter((f) => f.endsWith('.css')).map((f) => path.join(cssDir, f)),
     ...(await readdir(jsDir, { recursive: true })).filter((f) => f.endsWith('.js')).map((f) => path.join(jsDir, f)),
     ...(await readdir(storyDir)).filter((f) => /\.(js|css|html)$/.test(f)).map((f) => path.join(storyDir, f)),
+    path.join(ROOT, 'atlas.html'),
     path.join(ROOT, 'index.html'),
     path.join(ROOT, 'play.html'),
     path.join(ROOT, 'credits.html'),
@@ -3514,7 +3589,7 @@ async function runScenario(browser, scenario, baseUrl) {
   });
 
   if (!GROUP_ONLY) {
-    await page.goto(baseUrl + '/index.html', { waitUntil: 'domcontentloaded' });
+    await page.goto(baseUrl + '/atlas.html', { waitUntil: 'domcontentloaded' });
     await page.waitForTimeout(1200);
     await page.click('#splash-skip', { timeout: 4000 }).catch(() => {});
     await page.waitForTimeout(2200);

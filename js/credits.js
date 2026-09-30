@@ -20,6 +20,17 @@ try {
   if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
 } catch { /* private mode: stay dark */ }
 
+/* Back goes to where the visitor came from: the encyclopedia's rail and the game's
+   footer both lead here, and "Tree of Life" is the game. */
+try {
+  const from = new URL(document.referrer);
+  const back = document.querySelector('.cr-back');
+  if (back && from.origin === location.origin && from.pathname.endsWith('/atlas.html')) {
+    back.setAttribute('href', 'atlas.html');
+    back.textContent = '\u2190 Atlas';
+  }
+} catch { /* no referrer: the link to the front page stands */ }
+
 expandTree(TREE, lightenColor);
 const nameOf = new Map();
 (function walk(n) { nameOf.set(n.id, n.name); (n.children || []).forEach(walk); })(TREE);

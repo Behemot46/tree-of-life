@@ -3,7 +3,7 @@
   "short_name": "Kin",
   "description": "A one-minute daily game about how every living thing is related.",
   "id": "/",
-  "start_url": "/play.html?source=pwa",
+  "start_url": "/?source=pwa",
   "scope": "/",
   "display": "standalone",
   "background_color": "#070C11",

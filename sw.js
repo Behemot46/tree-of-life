@@ -1,10 +1,10 @@
 // Tree of Life — Service Worker
 //
 // Kin's shell is precached, so the game opens with no network. Everything else
-// is cached as it is used: the encyclopedia after one visit, fonts and
-// Wikimedia photographs once seen.
+// is cached as it is used: the encyclopedia (atlas.html) after one visit, fonts
+// and Wikimedia photographs once seen.
 
-const CACHE_VERSION = 'tol-v12';
+const CACHE_VERSION = 'tol-v13';
 
 /* What Kin needs to open offline: the page, its stylesheet, the dispatcher and
    every module it imports. Not the encyclopedia — a visitor who came for the
@@ -16,10 +16,13 @@ const CACHE_VERSION = 'tol-v12';
    static check (static/sw-shell-matches-the-game) holds this list to the files
    on disk and to every module the game imports. */
 const APP_SHELL = [
-  '/play.html',
+  '/',
+  '/index.html',
   '/manifest.json',
   '/css/kin.css',
+  '/js/boot.js',
   '/js/actions.js',
+  '/js/kin/front.js',
   '/js/kin/main.js',
   '/js/kin/analytics.js',
   '/js/kin/bank.js',
@@ -97,7 +100,7 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // Kin (play.html and everything it loads) — network-first. The daily
+  // Kin (the front page and everything it loads) — network-first. The daily
   // puzzle comes from its code, so a stale copy would hand a returning
   // player a different game from everyone else's for one visit after every
   // deploy. The cache is only the offline fallback.
@@ -117,7 +120,7 @@ self.addEventListener('fetch', (e) => {
 });
 
 function isKin(pathname) {
-  return pathname === '/play.html' || pathname.startsWith('/js/kin/')
+  return pathname === '/' || pathname === '/index.html' || pathname.startsWith('/js/kin/')
     || pathname === '/css/kin.css' || pathname === '/js/actions.js';
 }
 

@@ -427,6 +427,19 @@ check('interact:leaf-click-opens-panel', 'Clicking a leaf opens the detail panel
   if (!c.probe.panelOpened) fail('detail panel did not open after clicking a leaf node');
 });
 
+/* Hover exists only on a desktop; a phone never shows the fun fact. */
+check('i18n:tooltip-fact-reads-as-english', 'A tooltip fun fact is laid out as the English it is', (c) => {
+  const f = c.probe.tipFact;
+  if (!f || !f.shown) fail('no fun fact appeared on hovering a node that has one');
+  if (f.dir !== 'ltr') fail(`the fun fact is laid out ${f.dir}`);
+}, (sc) => !sc.viewport.isMobile);
+
+check('i18n:tooltip-fact-label-translated', "The tooltip's \"Did you know?\" is in the page's language", (c) => {
+  const f = c.probe.tipFact;
+  if (!f || !f.shown) fail('no fun fact appeared on hovering a node that has one');
+  if (f.label !== f.expected) fail(`label reads "${f.label}", expected "${f.expected}"`);
+}, (sc) => !sc.viewport.isMobile);
+
 check('i18n:panel-prose-reads-as-english', 'English species prose is laid out left-to-right', (c) => {
   const p = c.probe.panelProse;
   if (!p || !p.checked) return;
@@ -1133,6 +1146,43 @@ async function probePage(page, scenario, baseUrl) {
       if (!r.width) return false;
       return r.left < t.x + t.r && r.right > t.x - t.r && r.top < t.y + t.r && r.bottom > t.y - t.r;
     }, edgePoint);
+    await page.mouse.move(4, Math.round(page.viewportSize().height / 2));
+    await page.waitForTimeout(200);
+  }
+
+  /* Half a second into a hover the tooltip grows a fun fact, which is English
+     data in every language, under a label that is not. In Hebrew it was
+     neither: "Did you know?" was typed into the markup, and the fact beneath
+     it ran right-to-left with its full stop at the front. Most nodes on the
+     first screen have no fact, so hover one that does. */
+  let tipFact = null;
+  const factPoint = await page.evaluate(async () => {
+    const { nodeMap } = await import('./js/state.js');
+    const head = document.getElementById('header');
+    const top = head ? head.getBoundingClientRect().bottom : 0;
+    for (const g of document.querySelectorAll('#viewport g.node-group[data-node-id]')) {
+      const n = nodeMap[g.dataset.nodeId];
+      const c = g.querySelector('circle');
+      if (!n || !n.funFact || !c) continue;
+      const r = c.getBoundingClientRect();
+      if (!r.width || r.top < top || r.bottom > innerHeight || r.left < 0 || r.right > innerWidth) continue;
+      const x = r.x + r.width / 2, y = r.y + r.height / 2;
+      const hit = document.elementFromPoint(x, y);
+      if (hit && g.contains(hit)) return { x, y };
+    }
+    return null;
+  });
+  if (factPoint) {
+    await page.mouse.move(factPoint.x, factPoint.y);
+    await page.waitForTimeout(900);
+    tipFact = await page.evaluate(async () => {
+      const { t } = await import('./js/theme.js');
+      const el = document.getElementById('tooltip');
+      const dyk = el && el.querySelector('.tip-dyk');
+      const fact = el && el.querySelector('.tip-funfact');
+      if (!dyk || !fact) return { shown: false };
+      return { shown: true, label: dyk.textContent.trim(), expected: t('did_you_know_q'), dir: getComputedStyle(fact).direction };
+    });
     await page.mouse.move(4, Math.round(page.viewportSize().height / 2));
     await page.waitForTimeout(200);
   }
@@ -2001,7 +2051,7 @@ async function probePage(page, scenario, baseUrl) {
     } catch (e) { return { error: String(e) }; }
   })();
 
-  return { ...base, ...forced, tooltipShown, tooltipCoversNode, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps, heroPhoto, photoHostReachable: await wikimediaReachable(), contrast, searchQuality,
+  return { ...base, ...forced, tooltipShown, tooltipCoversNode, tipFact, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps, heroPhoto, photoHostReachable: await wikimediaReachable(), contrast, searchQuality,
            searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations, explore, wayfinder, sharedLink };
 }
 

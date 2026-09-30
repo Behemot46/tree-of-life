@@ -701,6 +701,18 @@ Things worth knowing before changing it:
   the fallback that used to stand in for it had neither.
 - **With no 2D canvas at all** the words stand on their own (`#splash-fallback`)
   and the same ways out work — click, Enter, Space, Escape, or four seconds.
+- **The splash owns its background, and nothing else may set it.** `theme.css`
+  carried `[data-theme="dark"] #splash{background:var(--bg)}` from the opening
+  before. It outranks `#splash`, so in the dark theme it flattened the plate's
+  glow and the vignette on every visit while the light theme kept them — and
+  nothing failed, because nothing asserted a gradient. Removed;
+  `opening:first-paint-shows-the-instrument` now asks for the gradient in
+  whichever theme the scenario loads. Constraint 8's family: an override at a
+  stronger level cannot be released at a weaker one.
+- **A scene that throws cannot trap a visitor.** `js/app.js` wraps `initSplash`:
+  on an error it takes the curtain down, carries on into the site, and throws
+  the error again from a timer so it reaches the console and any error report
+  instead of being swallowed. The opening is decoration; the site is the point.
 - **Skip is a `<button>` pinned with logical offsets**, so it sits in the
   other corner in Hebrew, and it is named by its translated text. The
   `aria-label` it used to carry read "Skip intro" to a Hebrew screen reader.
@@ -714,7 +726,7 @@ Things worth knowing before changing it:
 
 **Its checks.** The runner seeds `tol-splash-seen` and clicks Skip, so by the
 time any sweep runs the opening is a `display:none` div; the `opening:` group
-gives it four page loads of its own per scenario, each in a fresh context in
+gives it five page loads of its own per scenario, each in a fresh context in
 that scenario's viewport, language and theme.
 
 | Pass | What it is | Checks |
@@ -723,8 +735,9 @@ that scenario's viewport, language and theme.
 | the plate | reduced motion, which paints the finished frame at once | `opening:first-paint-matches-the-canvas`, `opening:words-are-in-the-readers-language`, `opening:title-fits-the-plaque`, `opening:nothing-collides`, `opening:canvas-draws`, `opening:reduced-motion-holds-still`, `opening:skip-sits-in-the-inline-end-corner` |
 | live | a first visit, sampled while it runs, then left by keyboard | `opening:animates`, `opening:leaves-by-keyboard` |
 | no canvas | `getContext` refused for the opening's own canvases | `opening:no-canvas-fallback` |
+| broken | `js/splashScene.js` replaced by a module that throws while building | `opening:a-broken-opening-does-not-trap-the-visitor` |
 
-`opening:runs-clean` reads all four for uncaught errors and CSP violations. The
+`opening:runs-clean` reads the others for uncaught errors and CSP violations. The
 plate is measured rather than the moving picture because the moving picture is
 a function of time: a check that has to wait 3.15 seconds of animation to reach
 the title is a check that flakes on a slow runner, and the plate is the same
@@ -1070,7 +1083,7 @@ work is shown. So:
 ## Known Constraints & Important Notes
 
 1. **Tests are browser smoke checks, not unit tests** — `node scripts/smoke.mjs`
-   opens the real page in Chromium and asserts 508 things about layout, i18n,
+   opens the real page in Chromium and asserts 514 things about layout, i18n,
    contrast and rendering. See *Smoke tests* below.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
 3. **index.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
@@ -1212,8 +1225,8 @@ never mistaken for a working page.
 
 ## Smoke Tests
 
-`scripts/smoke.mjs` opens the real page in Chromium and asserts **508 checks**
-— ~84 per scenario across six scenarios (desktop in English, Hebrew and Russian,
+`scripts/smoke.mjs` opens the real page in Chromium and asserts **514 checks**
+— ~85 per scenario across six scenarios (desktop in English, Hebrew and Russian,
 phone in English and Hebrew, and a desktop pass in the light theme), and five
 static checks that read the source before the browser starts. Scenarios differ
 in count because some checks are language- or viewport-specific. It runs on every
@@ -1229,6 +1242,8 @@ npm run smoke                                      # serve ./ and check it
 node scripts/smoke.mjs --url https://example.com   # check a deployed site
 node scripts/smoke.mjs --proxy http://host:port    # run from behind a proxy
 node scripts/smoke.mjs --only desktop-he           # one scenario, ~1 min
+node scripts/smoke.mjs --opening-only --only phone-en  # just the opening group, ~15 s
+node scripts/mutate-opening.mjs                    # break the opening 20 ways, watch each check go red (~4 min)
 npm run smoke:update-baseline                      # re-record known failures
 ```
 
@@ -1236,6 +1251,17 @@ npm run smoke:update-baseline                      # re-record known failures
 watch the check go red, put the code back. The full matrix is a ~35 minute
 round trip, which is too slow to do that honestly, and a check nobody has
 watched fail is a check nobody has tested. It takes a comma-separated list.
+
+`--opening-only` is the same idea for the opening: it skips each scenario's own
+page load and every probe but the opening's. `scripts/mutate-opening.mjs` is
+that loop automated — one deliberate breakage per check, in a scratch copy of
+the site, each run in the scenario that should notice. Run it after changing
+`js/splash.js`, `js/splashScene.js`, `js/boot.js`, `css/splash.css` or the
+`opening:` checks; a mutation whose target text has moved reports
+`PATCH FAILED` and wants updating beside the code it names.
+`SMOKE_DUMP_OPENING=1` prints everything the opening probe measured, one JSON
+line per scenario: the numbers the thresholds were chosen from, and the first
+thing to read when one goes red on a runner you cannot see.
 
 Never read a filtered run as a green branch — the summary counts only what
 ran and says so. It refuses `--update-baseline` outright, since rewriting the
@@ -1250,7 +1276,7 @@ as a CI artifact on every run).
 | Group | Covers |
 |---|---|
 | `load:` | uncaught errors, failed requests, SVG render errors, splash dismissal, nothing covering the stage |
-| `opening:` | **the opening screen, in four page loads of its own per scenario**: the first paint with no script at all, the finished plate under reduced motion (title fitted, nothing colliding, both canvases drawn, Skip in the right corner, and Russian on a phone though the matrix has no such scenario), a first visit running for real and left by keyboard, and the path with no 2D canvas |
+| `opening:` | **the opening screen, in five page loads of its own per scenario**: the first paint with no script at all, the finished plate under reduced motion (title fitted, nothing colliding, both canvases drawn, Skip in the right corner, and Russian on a phone though the matrix has no such scenario), a first visit running for real and left by keyboard, the path with no 2D canvas, and a scene that throws while building |
 | `tree:` | node and branch counts, **NaN coordinates**, fit-to-stage, spill, root visibility, horizontal scroll |
 | `chrome:` | header/timeline visible, reveal panel vs. zoom controls and timeline, closed panel off-screen, tooltip and fact toast vs. header, tooltip vs. the node it describes, nothing printed over the species name, **no floating control stretched across the window**, **the wayfinder reachable over every overlay and painted over nothing** |
 | `timeline:` | geological era labels clipped or colliding, **and both the labels and the density curve rebuilt on the way back from the drill-down**, where the strip is hidden and cannot measure itself |

@@ -14,7 +14,7 @@
    the page's own defaults, dark and English.
 
    The languages and the right-to-left ones are listed here by hand because this
-   file cannot import. `static/boot-knows-every-language` fails if
+   file cannot import. `static/opening:boot-knows-every-language` fails if
    TRANSLATIONS gains one that is missing from either list.
    ══════════════════════════════════════════════════════ */
 (function () {
@@ -29,7 +29,9 @@
       var meta = document.querySelector('meta[name="color-scheme"]');
       if (meta) meta.setAttribute('content', 'light');
     }
-    var wanted = new URLSearchParams(location.search).get('lang') || localStorage.getItem('tol-lang');
+    // a valid ?lang= wins for this visit and an invalid one is ignored, as in init()
+    var asked = new URLSearchParams(location.search).get('lang');
+    var wanted = LANGS.indexOf(asked) > -1 ? asked : localStorage.getItem('tol-lang');
     if (LANGS.indexOf(wanted) > -1) {
       root.lang = wanted;
       root.dir = RTL.indexOf(wanted) > -1 ? 'rtl' : 'ltr';

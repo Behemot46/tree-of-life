@@ -11,7 +11,7 @@ An interactive phylogenetic visualisation of 3.8 billion years of evolution,
 in English, Hebrew and Russian. Static files, no build step.
 
 Every push and pull request runs `scripts/smoke.mjs`, which opens the real page
-in Chromium and asserts **508 checks across six scenarios** — desktop and
+in Chromium and asserts **514 checks across six scenarios** — desktop and
 phone, in all three languages, plus a desktop pass in the light theme. It is
 green.
 
@@ -56,6 +56,8 @@ Things waiting on a decision rather than on work.
 | A returning visitor gets the same show at 1.7× | About 2.6 seconds instead of 4.5. A separate short cut would be a second animation to keep right in three languages and two themes. |
 | Reduced motion gets the finished plate, not a fallback | The old opening swapped in a static screen with neither the picture nor the title plaque. The finished plate is where the animation is going, has everything, and needs no clock — which also made it measurable: the checks read it instead of waiting three seconds of animation. |
 | A check found a bug the day it was written | Measured under reduced motion, the English line under the title came out at 8.6px instead of 10 on a phone. `responsive.css` gives every element a 0.01ms transition under reduced motion, a transition answers a same-task read with the size it started from, and the fitting reads the size it has just set. The spans now opt out of transitions. Only visitors who ask for reduced motion ever saw it, so every check that ran in the default mode passed. See constraint 13 in `CLAUDE.md`. |
+| The plate belongs to the splash | A leftover rule in `theme.css` flattened `#splash` to a plain colour in the dark theme only, so the plate's glow and the vignette vanished on every dark visit and nobody saw it. It is deleted, and a check asserts the gradient is painted in both themes. |
+| A scene that throws cannot trap a visitor | The opening does more work than the one it replaced, on more kinds of device. `initSplash` is wrapped: an error takes the curtain down, the site carries on, and the error is thrown again from a timer so it is reported rather than swallowed. A check breaks the scene module on purpose to keep it that way. |
 | Skip is named by its text | It carried an English `aria-label`, so a Hebrew screen reader announced "Skip intro". |
 | Service-worker cache bumped to `tol-v10` | `index.html`'s opening markup, `css/splash.css` and two scripts changed together, and stale-while-revalidate would otherwise let an interrupted background update pair a new page with an old stylesheet for one visit. The same reason as the earlier bump for the Stories pill. |
 

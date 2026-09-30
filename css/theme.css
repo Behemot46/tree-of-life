@@ -152,7 +152,6 @@
 [data-theme="dark"] #search-results{background:var(--surface);border-color:var(--border);box-shadow:0 4px 16px rgba(0,0,0,0.4);}
 [data-theme="dark"] #shortcuts-hint{background:var(--surface);border-color:var(--border);color:var(--text-secondary);}
 [data-theme="dark"] kbd{background:var(--surface-raised);border-color:var(--border);color:var(--text-primary);}
-[data-theme="dark"] #splash{background:var(--bg);}
 
 /* ── PANEL ANIMATION ── */
 #panel{transition:transform 250ms ease,opacity 250ms ease,right 0.5s cubic-bezier(0.16,1,0.3,1);}

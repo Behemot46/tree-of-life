@@ -16,13 +16,15 @@
 // calls, so a screenshot can land on exactly 2.4 s and reduced motion can paint
 // the finished picture once.
 //
-// Time is radius on a square-root scale, so the last few hundred million years
-// — where nearly everything on the tree lives — get the room. The scale is
-// labelled, which is why it may be non-linear.
+// Time is radius on a power scale (age to the power 0.45, measured inward from
+// the rim), so the last few hundred million years — where nearly everything on
+// the tree lives — get the room: the last 100 Ma take a fifth of the radius.
+// The scale is labelled, which is why it may be non-linear.
 //
 // Beats (seconds): 0 the plate and the first point · 0.42 the ring of now
-// leaves the centre at 3,800 Ma · 2.25 it reaches the animals · 3.45 it reaches
-// today and the rim ignites, clockwise · 3.15 the title is engraved.
+// leaves the centre at 3,800 Ma · 2.25 it reaches the animals · 3.15 the rim
+// begins to ignite, clockwise, and the title is engraved · 3.45 the ring
+// reaches today · 4.0 the hint · 4.5 the end.
 // ══════════════════════════════════════════════════════
 
 export const DURATION = 4.5;
@@ -172,7 +174,7 @@ function front(t) {
  *   opts.W, opts.H   CSS pixels
  *   opts.light    the light theme
  *   opts.gold     the theme's accent, for the first point
- * Returns { geom, under(ctx, dpr), draw(ctx, t, quality), state(t), labels }.
+ * Returns { geom, labels, state(t), under(ctx, dpr), draw(ctx, dpr, t, full) }.
  */
 export function buildScene({ tree, W, H, light, gold }) {
   const g = geometry(W, H);

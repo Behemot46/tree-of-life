@@ -50,6 +50,13 @@ const PROXY = opt('proxy', '');
    what ran, and the baseline reconciliation is meaningless over a subset,
    which is why a filtered run refuses to touch the baseline file. */
 const ONLY = opt('only', '').split(',').map((s) => s.trim()).filter(Boolean);
+/* --opening-only: run nothing but the `opening:` group. Each scenario skips its
+   own page load and every probe but the opening's, so a scenario takes about
+   15 seconds instead of a minute. It is the loop for working on the opening
+   and what scripts/mutate-opening.mjs runs; like --only it says nothing about
+   whether a branch is green, and is treated as a filtered run below. */
+const OPENING_ONLY = flag('opening-only');
+const FILTERED = ONLY.length > 0 || OPENING_ONLY;
 
 // ── Thresholds ────────────────────────────────────────────────────────────────
 // The tree must fill at least this fraction of the stage on its longest axis.
@@ -819,8 +826,15 @@ check('opening:first-paint-needs-no-script', 'With no script at all, the opening
   if (!fp.html.returning) fail('a returning visitor was not recognised before first paint (no data-return), so they would sit through the long opening');
 });
 
-check('opening:first-paint-shows-the-instrument', 'Before any script has run, the ring and its point are already on screen, centred', (c) => {
-  const { ring, sun, vw, vh, ringOpacity } = openingPass(openingOf(c), 'firstPaint');
+check('opening:first-paint-shows-the-instrument', 'Before any script has run, the plate, the ring and its point are already on screen, centred', (c) => {
+  const { ring, sun, vw, vh, ringOpacity, splashBg } = openingPass(openingOf(c), 'firstPaint');
+  /* The plate's glow and the vignette are gradients on #splash itself. A rule
+     elsewhere that sets `background` on it flattens both without an error and
+     without moving a pixel of the ring — theme.css did exactly that in the dark
+     theme, and the light theme kept them, so half the visits lost them. */
+  if (!/radial-gradient/.test(splashBg)) {
+    fail(`the plate glow and the vignette are not painted (#splash has background-image "${String(splashBg).slice(0, 40)}") — a rule elsewhere is overriding css/splash.css`);
+  }
   if (!ring || !ring.width) fail('the ring is not on screen before any script has run — a slow phone would see a blank page while the modules load');
   const d = Math.min(vw, vh);
   if (ring.width < d * 0.5) fail(`the ring is ${px1(ring.width)}px across in a ${vw}×${vh} window`);
@@ -980,7 +994,15 @@ check('opening:no-canvas-fallback', 'Without a 2D canvas the words still show an
   if (!n.dismissed) fail('clicking the fallback did not dismiss the opening');
 });
 
-check('opening:runs-clean', 'The opening throws nothing and breaks no Content-Security-Policy rule, in any of its four passes', (c) => {
+check('opening:a-broken-opening-does-not-trap-the-visitor', 'If the scene cannot be built the curtain still comes down, the site is there, and the error is reported', (c) => {
+  const b = openingPass(openingOf(c), 'broken');
+  if (!b.cleared) fail('the opening is still up six seconds after its scene threw — a visitor would be stuck behind it');
+  if (b.covered) fail('the curtain is down but something of it still covers the stage');
+  if (b.nodes < 20) fail(`only ${b.nodes} node(s) rendered behind a failed opening`);
+  if (!b.reported) fail('the failure was swallowed: nothing reached the page\'s error handler, so no report would ever show it');
+});
+
+check('opening:runs-clean', 'The opening throws nothing and breaks no Content-Security-Policy rule, in any of its passes', (c) => {
   const o = openingOf(c);
   if (o.errors && o.errors.length) fail(`${o.errors.length} uncaught error(s): ${o.errors[0]}`);
   if (o.violations && o.violations.length) fail(`${o.violations.length} CSP violation(s): ${o.violations.slice(0, 3).join('; ')}`);
@@ -1073,7 +1095,10 @@ function installContrastSweep() {
      the plate    reduced motion, which paints the finished frame at once and so
                   can be measured without waiting on a clock;
      live         a first visit, sampled while it runs, then left by keyboard;
-     no canvas    getContext refused: the path nothing else ever takes.
+     no canvas    getContext refused: the path nothing else ever takes;
+     broken       the scene module throws while building: the opening is
+                  decoration, and must not be what stands between a visitor and
+                  the site.
 
    The plate is measured rather than the moving picture because the moving
    picture is a function of time, and a check that has to wait for 3.15 seconds
@@ -1085,7 +1110,7 @@ async function openingProbe(page, scenario, baseUrl) {
   const vp = scenario.viewport;
   const errors = [];
 
-  async function open({ lang = scenario.lang, seen = false, reduced = false, noCanvas = false, blockApp = false }) {
+  async function open({ lang = scenario.lang, seen = false, reduced = false, noCanvas = false, blockApp = false, brokenScene = false }) {
     const ctx = await browser.newContext({
       viewport: { width: vp.width, height: vp.height },
       isMobile: vp.isMobile, hasTouch: vp.hasTouch,
@@ -1112,9 +1137,19 @@ async function openingProbe(page, scenario, baseUrl) {
       });
     }, { lang, theme: scenario.theme || 'dark', seen, noCanvas });
     if (blockApp) await ctx.route('**/js/app.js', (r) => r.abort());
+    // the module the opening's picture lives in, replaced by one that cannot build
+    if (brokenScene) {
+      await ctx.route('**/js/splashScene.js', (r) => r.fulfill({
+        status: 200, contentType: 'text/javascript',
+        body: 'export const DURATION = 4.5, T_TITLE = 3.15, T_HINT = 4.0; export function buildScene() { throw new Error("scene failed to build"); }',
+      }));
+    }
     const p = await ctx.newPage();
-    p.on('pageerror', (e) => errors.push(String(e && e.message ? e.message : e)));
-    return { ctx, p };
+    const own = [];
+    /* An error thrown on purpose belongs to the pass that threw it, not to the
+       shared list opening:runs-clean reads. */
+    p.on('pageerror', (e) => { const m = String(e && e.message ? e.message : e); own.push(m); if (!brokenScene) errors.push(m); });
+    return { ctx, p, own };
   }
 
   /* What is on screen, in one pass. Text rectangles come from a Range so a
@@ -1160,6 +1195,7 @@ async function openingProbe(page, scenario, baseUrl) {
         returning: root.hasAttribute('data-return'), scheme: meta && meta.getAttribute('content'),
       },
       bg: getComputedStyle(root).getPropertyValue('--bg').trim(),
+      splashBg: splash ? getComputedStyle(splash).backgroundImage : '',
       splashDisplay: splash ? getComputedStyle(splash).display : 'missing',
       splashClass: splash ? splash.className : '',
       ring: rect($('.sp-ring')), sun: rect($('.sp-sun')), ringOpacity: px($('.sp-ring'), 'opacity'),
@@ -1196,7 +1232,7 @@ async function openingProbe(page, scenario, baseUrl) {
     let h;
     try {
       h = await open(opts);
-      out[name] = await fn(h.p);
+      out[name] = await fn(h.p, h);
     } catch (e) {
       out[name] = { error: String(e && e.message ? e.message : e) };
     } finally {
@@ -1281,8 +1317,28 @@ async function openingProbe(page, scenario, baseUrl) {
     return m;
   });
 
+  // 5. The scene fails to build: the curtain has to come down anyway.
+  await run('broken', { seen: false, brokenScene: true }, async (p, h) => {
+    await p.goto(baseUrl + '/index.html', { waitUntil: 'domcontentloaded' });
+    const t0 = Date.now();
+    const cleared = await gone(p, 6000);
+    const clearedMs = Date.now() - t0;
+    await p.waitForTimeout(1500);                       // let the entrance settle
+    const site = await p.evaluate(() => {
+      const c = document.getElementById('canvas-wrap');
+      const r = c && c.getBoundingClientRect();
+      const hit = r && document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      return { nodes: document.querySelectorAll('#viewport g.node-group').length, covered: !!(hit && hit.closest('#splash')) };
+    });
+    return { cleared, clearedMs, ...site, reported: h.own.some((m) => /scene failed to build/.test(m)) };
+  });
+
   out.errors = errors;
   out.violations = [...new Set(out.violations || [])];
+  /* SMOKE_DUMP_OPENING=1 prints everything measured, one line per scenario: the
+     numbers the thresholds below were chosen from, and the first thing to read
+     when one of them goes red on a runner you cannot see. */
+  if (process.env.SMOKE_DUMP_OPENING) console.log(scenario.id, JSON.stringify(out));
   return out;
 }
 
@@ -2503,7 +2559,6 @@ async function probePage(page, scenario, baseUrl) {
   /* The opening has page loads of its own, in contexts of its own, so it goes
      last and touches nothing above. */
   const opening = await openingProbe(page, scenario, baseUrl).catch((e) => ({ error: String(e) }));
-  if (process.env.SMOKE_DUMP_OPENING) console.log(scenario.id, JSON.stringify(opening));
 
   return { ...base, ...forced, tooltipShown, tooltipCoversNode, tipFact, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps, heroPhoto, photoHostReachable: await wikimediaReachable(), contrast, searchQuality,
            searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations, explore, wayfinder, sharedLink, opening };
@@ -2782,21 +2837,26 @@ async function runScenario(browser, scenario, baseUrl) {
     }
   });
 
-  await page.goto(baseUrl + '/index.html', { waitUntil: 'domcontentloaded' });
-  await page.waitForTimeout(1200);
-  await page.click('#splash-skip', { timeout: 4000 }).catch(() => {});
-  await page.waitForTimeout(2200);
+  if (!OPENING_ONLY) {
+    await page.goto(baseUrl + '/index.html', { waitUntil: 'domcontentloaded' });
+    await page.waitForTimeout(1200);
+    await page.click('#splash-skip', { timeout: 4000 }).catch(() => {});
+    await page.waitForTimeout(2200);
 
-  if (KEEP_SHOTS) {
-    await page.screenshot({ path: path.join(OUT_DIR, `${scenario.id}.png`), fullPage: false });
+    if (KEEP_SHOTS) {
+      await page.screenshot({ path: path.join(OUT_DIR, `${scenario.id}.png`), fullPage: false });
+    }
   }
 
-  const probe = await probePage(page, scenario, baseUrl);
+  const probe = OPENING_ONLY
+    ? { opening: await openingProbe(page, scenario, baseUrl).catch((e) => ({ error: String(e) })) }
+    : await probePage(page, scenario, baseUrl);
   const c = { probe, scenario, pageErrors, consoleErrors, failedRequests, page };
 
   const results = [];
   for (const chk of checks) {
     if (!chk.when(scenario)) continue;
+    if (OPENING_ONLY && !chk.id.startsWith('opening:')) continue;
     const key = `${scenario.id}/${chk.id}`;
     try {
       const r = await chk.fn(c);
@@ -2859,7 +2919,7 @@ const failures = all.filter((r) => !r.ok);
 const unexpectedFailures = failures.filter((r) => !Object.prototype.hasOwnProperty.call(baseline.known, r.key));
 const fixedButBaselined = all.filter((r) => r.ok && Object.prototype.hasOwnProperty.call(baseline.known, r.key));
 
-if (UPDATE_BASELINE && ONLY.length) {
+if (UPDATE_BASELINE && FILTERED) {
   process.stdout.write('\nRefusing to rewrite the baseline from a filtered run: it would '
     + 'delete every entry the skipped scenarios own.\n');
   process.exit(1);
@@ -2882,7 +2942,7 @@ const passed = all.length - failures.length;
 process.stdout.write(`\n${'─'.repeat(60)}\n`);
 const ran = ONLY.length ? SCENARIOS.filter((sc) => ONLY.includes(sc.id)) : SCENARIOS;
 process.stdout.write(`${passed}/${all.length} checks passed across ${ran.length} scenario(s)`
-  + (ONLY.length ? ` — FILTERED to ${ONLY.join(', ')}, not a full run.\n` : '.\n'));
+  + (FILTERED ? ` — FILTERED to ${[...ONLY, ...(OPENING_ONLY ? ['the opening group'] : [])].join(', ')}, not a full run.\n` : '.\n'));
 if (failures.length) process.stdout.write(`${failures.length - unexpectedFailures.length} known issue(s) still open (baselined).\n`);
 
 if (unexpectedFailures.length) {

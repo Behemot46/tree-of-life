@@ -103,3 +103,48 @@ export const CREATURES = {
   rice:       c('🌾', 'plant', en('Rice', 'rice', 'rice'), he('אורז', 'האורז', 'לאורז')),
   corn:       c('🌽', 'plant', en('Corn', 'corn', 'corn'), he('תירס', 'התירס', 'לתירס')),
 };
+
+/*
+ * What a casual player lumps each creature with — its look, its habitat, the
+ * aisle it is sold in — not what it is. Only the question generator reads
+ * this (js/kin/generate.js): a question is hard when the wrong answer shares
+ * more of these with the target than the right one does, as the shark does
+ * with the whale and the hippo does not. The mushroom is tagged "plant" on
+ * purpose; that is the belief the game exists to overturn.
+ */
+export const LOOKS = {
+  you: 'human',
+  gorilla: 'ape furry wild big', orangutan: 'ape furry wild',
+  mouse: 'furry small pet rodentlike', hamster: 'furry small pet rodentlike',
+  rabbit: 'furry small pet rodentlike', hedgehog: 'furry small rodentlike wild',
+  bat: 'furry small flyer night wild',
+  cat: 'furry pet hunter', dog: 'furry pet hunter', bear: 'furry wild big hunter',
+  seal: 'sea water wild', raccoon: 'furry wild night', otter: 'furry water wild',
+  horse: 'hoofed farm big', rhino: 'hoofed wild big horned', camel: 'hoofed farm big desert',
+  pig: 'hoofed farm', giraffe: 'hoofed wild big', cow: 'hoofed farm big horned',
+  hippo: 'wild big water',
+  whale: 'sea water big fishlike', dolphin: 'sea water fishlike',
+  elephant: 'wild big trunk', mammoth: 'big trunk extinct',
+  koala: 'furry wild', kangaroo: 'furry wild',
+  chicken: 'bird farm', duck: 'bird farm water', flamingo: 'bird wild water',
+  pigeon: 'bird flyer', penguin: 'bird sea water', eagle: 'bird flyer hunter wild',
+  trex: 'reptile extinct hunter big scaly', croc: 'reptile scaly water hunter',
+  turtle: 'reptile shell water', gecko: 'reptile scaly small', snake: 'reptile scaly legless',
+  frog: 'water small slimy',
+  salmon: 'fish fishlike sea water', shark: 'fish fishlike sea water hunter',
+  octopus: 'sea water', snail: 'shell slimy small',
+  lobster: 'sea shell seafood clawed', crab: 'sea shell seafood clawed',
+  bee: 'bug flyer small', ant: 'bug small', butterfly: 'bug flyer small',
+  mosquito: 'bug flyer small', fly: 'bug flyer small',
+  spider: 'bug small eightlegs', scorpion: 'bug eightlegs desert clawed',
+  mushroom: 'plant veg',
+  daisy: 'plant flower', sunflower: 'plant flower', rose: 'plant flower red', tulip: 'plant flower',
+  lettuce: 'plant veg leafy', tomato: 'plant veg red', potato: 'plant veg', eggplant: 'plant veg',
+  cucumber: 'plant veg', corn: 'plant grain veg', rice: 'plant grain',
+  kiwi: 'plant fruit', blueberry: 'plant fruit berry', strawberry: 'plant fruit berry red',
+  apple: 'plant fruit tree red', cherry: 'plant fruit tree red', peach: 'plant fruit tree',
+  watermelon: 'plant fruit', orange: 'plant fruit tree', grape: 'plant fruit',
+  banana: 'plant fruit', pineapple: 'plant fruit',
+  coffee: 'plant drink', choc: 'plant drink sweet tree',
+  cactus: 'plant desert', maple: 'plant tree', palm: 'plant tree',
+};

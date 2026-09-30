@@ -58,6 +58,14 @@ const EXTRA_NAMES = {
   asgard: ['Eukaryomorpha'],    // PhyloPic files the Asgard archaea under this name
 };
 
+/* Groups to try *before* a taxon's own name, where the name is broader than
+   what the node shows. The feather star is filed as Crinoidea, the whole
+   class, whose PhyloPic image is a stalked sea lily — right for the class,
+   wrong for a node called "feather star". */
+const SEARCH_AS = {
+  'feather-star': ['Comatulida'],
+};
+
 const API = 'https://api.phylopic.org';
 const OUT_DIR = 'assets/silhouettes';
 const OUT_MODULE = 'js/silhouettes.js';
@@ -159,10 +167,14 @@ async function resolveOne(build, name) {
      "Panthera (Tigris)", so the snow leopard and the tiger were drawn from
      one image, and "macaca" is led by a grunt, Haemulon sciurus, which is how
      the Japanese macaque was drawn as a fish. Take the node whose scientific
-     name is the name asked for, and nothing else. */
+     name is the name asked for. Failing that, a search that found exactly one
+     node found it under a synonym — PhyloPic knows Cyanobacteria as
+     Cyanobacteriota — and that node is used; several nodes and no exact name
+     is a guess, and a guess is how a monkey became a fish. */
   const want = name.trim().toLowerCase();
   const node = items.find((n) => (n.names || []).some((parts) =>
-    parts?.[0]?.class === 'scientific' && String(parts[0].text).trim().toLowerCase() === want));
+    parts?.[0]?.class === 'scientific' && String(parts[0].text).trim().toLowerCase() === want))
+    || (items.length === 1 ? items[0] : null);
   if (!node?._links?.self?.href) return null;
   const imgHref = node?._links?.primaryImage?.href;
   let img = imgHref ? await api(imgHref) : null;
@@ -242,7 +254,7 @@ let hit = 0, miss = 0;
 for (let i = 0; i < targets.length; i++) {
   const node = targets[i];
   let got = null;
-  for (const name of [...searchNames(node), ...(EXTRA_NAMES[node.id] || [])]) {
+  for (const name of [...(SEARCH_AS[node.id] || []), ...searchNames(node), ...(EXTRA_NAMES[node.id] || [])]) {
     try { got = await resolveOne(build, name); } catch { got = null; }
     if (got) break;
     await sleep(120);

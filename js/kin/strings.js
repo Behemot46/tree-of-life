@@ -1,8 +1,7 @@
 // ══════════════════════════════════════════════════════
 // KIN — WORDS
 //
-// Everything the player reads, in English and Hebrew. Russian joins in
-// phase 2, when every creature has a reviewed Russian name.
+// Everything the player reads, in English, Hebrew and Russian.
 //
 // The game's Hebrew name is קרובים ("relatives", and also "close ones"),
 // not a transliteration: "Kin" written in Hebrew letters is קין, Cain.
@@ -10,7 +9,17 @@
 // Sentences are built per language rather than translated from one template,
 // because the grammar differs: English says "Whales and hippos last shared
 // an ancestor…", Hebrew says "ללווייתן ולהיפופוטם היה אב קדמון משותף…",
-// with the preposition fused onto each noun (the `le` forms in creatures.js).
+// with the preposition fused onto each noun (the `le` forms in creatures.js),
+// and Russian says "Последний общий предок кита и бегемота жил…", with both
+// nouns in the genitive (the `g` forms).
+//
+// The Russian name is Родня ("kin", "family"). Its prompt ends where the
+// target's card begins: "С кем в более близком родстве…" + "Бегемот" reads as
+// one sentence with the card as its subject, so the card keeps its plain
+// name, where a dative "ближе к…" would have needed "бегемоту" on the card.
+//
+// Each language names itself (`code`, `name`) for the switcher, so adding a
+// language never means editing the others.
 // ══════════════════════════════════════════════════════
 
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
@@ -20,6 +29,20 @@ const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 function num(mya) {
   if (mya < 20) return String(+mya.toFixed(1));
   return Math.round(mya).toLocaleString('en-US');
+}
+
+/* Russian writes the decimal with a comma: "8,7", "1,5 млрд". */
+const numRu = (mya) => num(mya).replace('.', ',');
+const bnRu = (mya) => (mya / 1000).toFixed(1).replace('.', ',');
+
+/* Russian picks one of three forms by the number — 1 день, 2 дня, 5 дней —
+   and 11 to 14 always take the third. Written out rather than sampled from
+   the numbers the game happens to show today. */
+function plural(n, one, few, many) {
+  const d = n % 10, h = n % 100;
+  if (d === 1 && h !== 11) return one;
+  if (d >= 2 && d <= 4 && (h < 12 || h > 14)) return few;
+  return many;
 }
 
 export const STRINGS = {
@@ -67,7 +90,7 @@ export const STRINGS = {
     playAgain: 'Play again', backToResult: 'Back to your result', backToKin: "Back to today's Kin",
     arcadeNote: 'Three wrong answers end a run. Every question in the game is in here.',
     soundOn: 'Sound on', soundOff: 'Sound off',
-    switchLang: 'עב', switchLangLabel: 'עברית',
+    code: 'EN', name: 'English',
     testBuild: 'Test build · treeoflife.wiki',
     credits: 'Credits',
     stats: 'This device', statsReset: 'Reset this device',
@@ -128,7 +151,7 @@ export const STRINGS = {
     playAgain: 'עוד סיבוב', backToResult: 'חזרה לתוצאה', backToKin: 'חזרה למשחק היומי',
     arcadeNote: 'שלוש טעויות מסיימות ריצה. כל השאלות של המשחק נמצאות כאן.',
     soundOn: 'צליל פועל', soundOff: 'צליל כבוי',
-    switchLang: 'EN', switchLangLabel: 'English',
+    code: 'עב', name: 'עברית',
     testBuild: 'גרסת ניסיון · treeoflife.wiki',
     credits: 'קרדיטים',
     stats: 'המכשיר הזה', statsReset: 'איפוס המכשיר',
@@ -143,6 +166,67 @@ export const STRINGS = {
     ],
     statsNote: 'נשמר רק במכשיר הזה. שום דבר לא נשלח.',
     statsBack: 'חזרה למשחק',
+  },
+  ru: {
+    dir: 'ltr',
+    brand: 'Родня',
+    title: 'Родня · Древо жизни',
+    promptYou: 'С кем мы в более близком родстве?',
+    prompt: 'С кем в более близком родстве…',
+    tapHint: 'Нажмите на того, кто, по-вашему, ближе по родству',
+    right: (c) => `✓ Да, ${c.ru.the}.`,
+    wrong: (c) => `✗ Сюрприз: ближе ${c.ru.the}.`,
+    years(d) {
+      if (d.min) return `более ${numRu(d.mya)} млн лет`;
+      if (d.mya >= 1000) return `около ${bnRu(d.mya)} млрд лет`;
+      return `около ${numRu(d.mya)} млн лет`;
+    },
+    short(d) {
+      if (d.mya >= 1000) return `${bnRu(d.mya)} млрд лет назад`;
+      return `${numRu(d.mya)}${d.min ? '+' : ''} млн лет назад`;
+    },
+    headline(T, N, F, dn, df) {
+      return `Последний общий предок ${T.ru.g} и ${N.ru.g} жил ${this.years(dn)} назад. `
+           + `Предки ${F.ru.line} отделились ${this.years(df)} назад.`;
+    },
+    headlineNoDates: (T, N, F) => `${cap(T.ru.the)} и ${N.ru.the} в более близком родстве, чем любой из них и ${F.ru.the}.`,
+    past: 'прошлое', now: 'сегодня',
+    sources: 'Источники дат:',
+    next: 'Дальше', seeResult: 'Посмотреть результат', seeRun: 'К итогам игры', finish: 'Завершить',
+    intro: 'Это «Родня»: десять таких вопросов в день, одинаковых для всех. Каждое дерево показывает, когда жил последний общий предок двух живых существ.',
+    resultEyebrow: (n) => `Родня #${n} · ваш результат`,
+    titles: ['Семечко', 'Росток', 'Саженец', 'Вековое дерево', 'Древо жизни'],
+    share: 'Поделиться результатом', copied: 'Скопировано. Вставьте куда угодно.', shared: 'Отправлено',
+    copyFallback: 'Выделите текст и скопируйте его',
+    playArcade: 'Аркада: игра без конца',
+    nextKin: (t) => `Следующая «Родня» через ${t}`,
+    streak: (n) => (n === 1 ? '🔥 Первый день серии' : `🔥 ${n} ${plural(n, 'день', 'дня', 'дней')} подряд`),
+    recap: 'Ваши ответы',
+    arcade: 'Аркада',
+    lives: (n) => (n === 0 ? 'Жизней не осталось' : n === 1 ? 'Осталась последняя жизнь'
+      : `Осталось ${n} ${plural(n, 'жизнь', 'жизни', 'жизней')}`),
+    pts: (n) => `${n} ${plural(n, 'очко', 'очка', 'очков')}`,
+    inARow: (n) => `${n} подряд`,
+    runOver: 'Аркада · игра окончена', allPlayed: 'Аркада · вы ответили на все вопросы',
+    newBest: 'Новый рекорд', best: (n) => `Рекорд: ${n}`,
+    playAgain: 'Сыграть ещё', backToResult: 'К вашему результату', backToKin: 'К сегодняшней «Родне»',
+    arcadeNote: 'Три ошибки — и игра окончена. Здесь собраны все вопросы игры.',
+    soundOn: 'Звук включён', soundOff: 'Звук выключен',
+    code: 'РУ', name: 'Русский',
+    testBuild: 'Тестовая версия · treeoflife.wiki',
+    credits: 'Авторы и лицензии',
+    stats: 'Это устройство', statsReset: 'Стереть данные на этом устройстве',
+    statsRows: (s) => [
+      ['Первая игра', s.firstSeen || '—'],
+      ['Дней в игре', String(s.days.length)],
+      ['Пройдено ежедневных игр', String(s.dailies)],
+      ['Ответов', `${s.answers} (верных: ${s.correct})`],
+      ['Забегов в аркаде', String(s.arcadeRuns)],
+      ['Рекорд в аркаде', String(s.bestArcade)],
+      ['Поделились результатом', String(s.shares)],
+    ],
+    statsNote: 'Хранится только на этом устройстве. Ничего никуда не отправляется.',
+    statsBack: 'Вернуться к игре',
   },
 };
 

@@ -107,7 +107,7 @@ a { color: var(--kin-accent); text-underline-offset: 3px; }
 .kin-mode { font-family: var(--kin-font); font-weight: 600; color: var(--kin-fg); }
 .kin-hearts { color: var(--kin-bad); letter-spacing: 2px; }
 .kin-hearts .lost { opacity: 0.25; }
-.kin-tools { display: flex; gap: 6px; }
+.kin-tools, .kin-langs { display: flex; gap: 6px; }
 .kin-tool {
   min-width: 38px; height: 34px; padding-inline: 8px;
   border-radius: 999px; border: 1px solid var(--kin-line-2); background: transparent;
@@ -178,15 +178,19 @@ a { color: var(--kin-accent); text-underline-offset: 3px; }
 .kin-axis { stroke: var(--kin-line-2); stroke-width: 1; stroke-dasharray: 2 4; }
 .kin-labs { position: absolute; inset: 0; }
 .kin-lab { position: absolute; white-space: nowrap; line-height: 1.1; }
-.kin-leaf { font-size: 13px; color: var(--kin-fg); }
+.kin-leaf { font-size: 13px; color: var(--kin-fg); white-space: normal; width: max-content; }
 .kin-leaf.target { font-weight: 700; }
 .kin-leaf.near { color: var(--kin-accent); }
 .kin-date { font-family: var(--kin-mono); font-size: 10.5px; color: var(--kin-fg-2); }
 .kin-date.hot { color: var(--kin-accent); font-weight: 500; }
 .kin-axis-lab { font-family: var(--kin-mono); font-size: 9.5px; color: var(--kin-fg-3); }
 /* JetBrains Mono has no Hebrew. Hebrew labels fell back letter by letter and
-   kept monospace-width gaps between the words, so they read as spaced out. */
-[dir="rtl"] .kin-date, [dir="rtl"] .kin-axis-lab, [dir="rtl"] .kin-combo { font-family: var(--kin-font); }
+   kept monospace-width gaps between the words, so they read as spaced out.
+   Russian has the glyphs and the same result: "98 млн лет назад" is three
+   words to English's one abbreviation, and monospaced they read as
+   letter-spaced. */
+[dir="rtl"] .kin-date, [dir="rtl"] .kin-axis-lab, [dir="rtl"] .kin-combo,
+:lang(ru) .kin-date, :lang(ru) .kin-axis-lab, :lang(ru) .kin-combo { font-family: var(--kin-font); }
 .kin-explain { margin: 0; font-size: 0.95rem; color: var(--kin-fg-2); }
 .kin-explain strong { color: var(--kin-fg); font-weight: 600; }
 .kin-sources { margin: 0; font-size: 0.75rem; color: var(--kin-fg-3); }

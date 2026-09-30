@@ -164,7 +164,7 @@ tree-of-life/
         ├── schedule.js  # GENERATED: the frozen calendar, one line per day
         ├── calendar.js  # EPOCH, day numbers, the last day playable anywhere
         ├── engine.js    # Pure: all questions, validation, daily, arcade, streak, share
-        ├── strings.js   # Every word the player reads, English and Hebrew
+        ├── strings.js   # Every word the player reads, English, Hebrew and Russian
         ├── reveal.js    # The three-line tree drawn after each answer
         ├── main.js      # play.html's only script
         ├── rng.js · store.js · sfx.js
@@ -176,7 +176,7 @@ tree-of-life/
 
 The site is turning into a game; `docs/PLAY_STRATEGY.md` says why and in what
 order. Phase 1 is `play.html`: a one-minute daily ("who is the closer
-cousin?"), an endless Arcade, English and Hebrew. It is not linked from the
+cousin?"), an endless Arcade, in English, Hebrew and Russian. It is not linked from the
 site and carries `noindex` — it exists to be put in front of testers.
 
 Things worth knowing before changing it:
@@ -231,6 +231,20 @@ Things worth knowing before changing it:
   Hebrew letters is קין — Cain. Hebrew "you" is gendered, so the human card
   reads אנחנו. Sentences are built per language (`le` and `def` forms in
   `creatures.js`), not translated from one template.
+- **The Russian name is Родня** ("kin"), and the human card reads Мы, as in
+  Hebrew. The prompt «С кем в более близком родстве…» ends where the target
+  card begins, so the card keeps its plain name — "closer to…" would have
+  needed a dative on the card. Sentences take the genitive: `g` for the pair
+  in the headline, `line` after «Предки…» (plural where Russian counts the
+  thing, singular for rice or coffee). A few names are deliberately narrower
+  than the English — Макака, since обезьяна would include the gorilla it is
+  compared with; Черешня and Голубика, the stand-in species' own names;
+  Яблоня, the tree, since a fruit has no ancestors. None of the Russian text
+  has had a native speaker's review yet.
+- **The switcher offers every other language**, each labelled by the `code`
+  and `name` it gives itself in `strings.js`, so adding a language touches no
+  other. The third button made the bar wider; `play:header-fits` holds it on
+  a 360px phone.
 - **The reveal mirrors in Hebrew** so time runs right to left, and every word
   on it is HTML over the SVG — SVG text has no dependable bidi handling.
 - **Emoji are the device's own, so a new one can come out as an empty box.**
@@ -288,14 +302,16 @@ Things worth knowing before changing it:
   that would hand a returning player the previous build — and so a different
   daily puzzle from everyone else's — once after every deploy.
 - **`npm run play:check`** drives the page in Chromium as a first-time visitor
-  (phone and desktop, English and Hebrew): first question within 3 s, reveal
-  labels fit and do not collide, the figure mirrors, no Latin text in Hebrew,
-  share text, reload, arcade end, CSP. Screenshots in `.play-out/`. It also
-  draws **every** question's reveal on a 360px phone in both languages
-  (`play:every-reveal-fits-*`), because a day only ever shows ten of them —
-  that sweep found a Hebrew fossil-minimum date running out of the figure on
-  its first run. It runs in CI as its own workflow (`play.yml`), apart from
-  the smoke suite.
+  (phone and desktop, English, Hebrew and Russian): first question within
+  3 s, the header fits, reveal labels fit and do not collide, the figure
+  mirrors, no Latin text in Hebrew or Russian, share text, reload, arcade end,
+  CSP. Screenshots in `.play-out/`. It also draws **every** question's reveal
+  on a 360px phone in every language (`play:every-reveal-fits-*`), because a
+  day only ever shows ten of them — that sweep found a Hebrew fossil-minimum
+  date running out of the figure on its first run, and later the Russian bat,
+  «Летучая мышь», 2px too wide as the bold target, which is why a leaf name
+  now wraps at a space rather than overflow. It runs in CI as its own
+  workflow (`play.yml`), apart from the smoke suite.
 
 ## Running Locally
 

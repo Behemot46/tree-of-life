@@ -197,13 +197,23 @@ Things worth knowing before changing it:
   personal research and teaching use and forbid redistribution. Every age in
   `js/kin/dates.js` cites an open source; the tests fail on a missing citation,
   on a `timetree.org` URL, and on any ancestor dated younger than a
-  descendant. A question needs both of its splits dated, which is why the
-  crab (crab vs lobster), rabbit and hamster (rodents vs rabbits) questions
-  were cut: no open source gives a number for either split. Published
-  estimates disagree by 10–20% on most nodes and far more on the deepest; the
-  comment beside each value says whether it is a midpoint or the end of a
-  range chosen so that it nests. Sapindales (citrus vs maple, ~60–125 Ma
-  across studies) and the eukaryote root are the least certain.
+  descendant. A question needs both of its splits dated; a node nobody has
+  an open number for stays undated, and no question can land on it. Today
+  that is crab vs lobster, sheep vs goat, and orange vs lemon — the last
+  because both are hybrids, so "when did they split" has no tree-shaped
+  answer. Published estimates disagree by 10–20% on most nodes and far more
+  on the deepest; the comment beside each value says whether it is a
+  midpoint or the end of a range chosen so that it nests. Sapindales (citrus
+  vs maple, ~60–125 Ma across studies) and the eukaryote root are the least
+  certain.
+- **A fossil beats a model when they disagree.** Särkinen et al. 2013 put
+  chili vs tomato at 19.1 Ma, but a 52.2-million-year-old lantern-fruit
+  fossil sits inside that split, so the node carries the fossil as a minimum
+  ("more than 52 million years"). Dog vs fox is the same kind of call:
+  published estimates run 7.8–21.5 Ma by method, so the node says only what a
+  7-million-year-old fox fossil proves. Every value was checked against its
+  source's own text before it went in; the one source that could not be read
+  from here (a fossil monograph giving ~12 Ma for dog vs fox) was not used.
 - **`npm run kin:opentree`** checks the key against Open Tree of Life (CC0) —
   needs the network (`NODE_USE_ENV_PROXY=1` behind a proxy), so it is manual.
   It replays every question, hand-written and generated, and then every

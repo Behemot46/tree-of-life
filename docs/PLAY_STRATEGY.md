@@ -2,9 +2,12 @@
 
 **Status:** phase 1 live since 30 Sep 2026 at `treeoflife.wiki/play.html`
 (unlinked, noindex), with testers; its gate is still open. Phase 2 under way
-while they play — it does not depend on the gate: 571 questions (527
-generated from the tree), a frozen calendar, and the service worker fixed for
-Kin. Phase 3 (the new front door) waits for the gate.
+while they play — it does not depend on the gate: 122 creatures and 1,112
+questions (1,047 generated from the tree), a frozen calendar, the service
+worker fixed for Kin, and the Atlas's misplaced species refiled. Open Tree of
+Life disagrees with none of it — no question and none of the 272,398
+relationships the key states. Phase 3 (the new front door) waits for the
+gate.
 **Visual version, with a playable prototype:** https://claude.ai/artifact/9yBbHFjxeC2Nj4ZPispQ2P
 (private to Gabi until shared).
 
@@ -34,6 +37,17 @@ the code works today; `ROADMAP.md` records decisions once they are made.
   hand-written: 571 in all, past the phase-2 gate of 500. The daily comes
   from a calendar laid out 200 days ahead in one file (`js/kin/schedule.js`),
   as the truth-engine section asks, and CI fails if a played day changes.
+- **Phase 2, second step (30 Sep): 42 more creatures, not ~150.** Pets,
+  farm animals, big cats, dinosaurs, fruit and vegetables, with 21 new
+  hand-written hooks (T. rex nearer the chicken than the brontosaurus; the
+  zebra a striped donkey; chocolate a cousin of hibiscus; a peanut a pea).
+  The cap is the emoji: cards draw the device's own, and familiar organisms
+  that have one are now nearly all in. The rest — most dinosaurs, the
+  platypus, the starfish — need a picture on the card, which is a design
+  decision for phase 3, not a data task. Every new date was read in its
+  source. Where none could be found, the split stays undated so no question
+  can hinge on it (sheep vs goat), or the creature waits (beans, which would
+  have needed pea vs bean).
 - **No analytics yet.** `play.html?stats=1` shows what a tester's device
   remembers, which is enough to see whether someone came back.
 

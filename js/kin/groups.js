@@ -185,4 +185,111 @@ export const GROUPS = {
   asteraceae: g(
     'The daisy family: sunflowers, daisies, lettuce, dandelions and artichokes.',
     'משפחת המורכבים: חמניות, חינניות, חסה, שן הארי וארטישוק.'),
+
+  // ── Added with the second set of creatures ──
+  planulozoa: g(
+    'Jellyfish and corals, and the animals with a left and a right side, from worms to people, share one branch of the animal tree.',
+    'מדוזות ואלמוגים, ובעלי החיים עם צד ימין וצד שמאל, מתולעים ועד בני אדם, חולקים ענף אחד בעץ בעלי החיים.'),
+  cnidaria: g(
+    'Cnidarians: jellyfish, corals and sea anemones, armed with stinging cells.',
+    'צורבים: מדוזות, אלמוגים ושושנות ים, עם תאים צורבים.'),
+  dinosauria: g(
+    'Long-necked sauropods and the theropods, which include T. rex and the birds, are all dinosaurs.',
+    'הסאורופודים ארוכי הצוואר והתרופודים, שכוללים את הטירנוזאורוס ואת הציפורים, הם כולם דינוזאורים.'),
+  galloanserae: g(
+    'Landfowl and waterfowl: chickens, turkeys and peacocks on one side, ducks, geese and swans on the other.',
+    'עופות יבשה ועופות מים: תרנגולות, תרנגולי הודו וטווסים מצד אחד, ברווזים, אווזים וברבורים מהצד השני.'),
+  core_phasianids: g(
+    'Chickens, turkeys and peafowl: the core of the pheasant family, with pheasants and partridges.',
+    'תרנגולות, תרנגולי הודו וטווסים: לב משפחת הפסיוניים, יחד עם פסיונים וחוגלות.'),
+  anatidae: g(
+    'The duck family: ducks, geese and swans.',
+    'משפחת הברווזיים: ברווזים, אווזים וברבורים.'),
+  columbidae: g(
+    'The pigeon family: pigeons, doves, and the extinct dodo.',
+    'משפחת היוניים: יונים, תורים והדודו שנכחד.'),
+  glires: g(
+    'Rodents and rabbits: the gnawing mammals, with front teeth that never stop growing.',
+    'מכרסמים וארנבאים: היונקים המכרסמים, עם שיני חזית שגדלות כל החיים.'),
+  rodentia: g(
+    'Rodents: mice, rats, hamsters, squirrels and beavers.',
+    'מכרסמים: עכברים, חולדות, אוגרים, סנאים ובונים.'),
+  mouse_related: g(
+    'The mouse-related rodents: mice, rats, hamsters and beavers, with gophers and jerboas.',
+    'המכרסמים הקרובים לעכבר: עכברים, חולדות, אוגרים ובונים, יחד עם גופרים וירבועים.'),
+  muroidea: g(
+    'Mice, rats, hamsters, gerbils and voles: the largest branch of the rodents.',
+    'עכברים, חולדות, אוגרים, גרבילים ונברנים: הענף הגדול ביותר של המכרסמים.'),
+  murinae: g(
+    'Mice and rats are close cousins, from the same subfamily of rodents.',
+    'עכברים וחולדות הם בני דודים קרובים, מאותה תת־משפחה של מכרסמים.'),
+  catarrhini: g(
+    'Old World monkeys and apes: macaques and baboons on one side, gibbons, great apes and people on the other.',
+    'קופי העולם הישן וקופי האדם: מקוקים ובבונים מצד אחד, גיבונים, קופי אדם ובני אדם מהצד השני.'),
+  felidae: g(
+    'The cat family: house cats, lions, tigers, lynxes and cheetahs.',
+    'משפחת החתוליים: חתולי בית, אריות, טיגריסים, לינקסים וברדלסים.'),
+  panthera: g(
+    'The big cats of one genus: lions, tigers, leopards, jaguars and snow leopards.',
+    'החתולים הגדולים מסוג אחד: אריות, טיגריסים, נמרים, יגוארים ונמרי שלג.'),
+  canidae: g(
+    'The dog family: dogs, wolves, foxes and jackals.',
+    'משפחת הכלביים: כלבים, זאבים, שועלים ותנים.'),
+  ursidae: g(
+    'The bear family, giant pandas included.',
+    'משפחת הדוביים, כולל הפנדה הענקית.'),
+  musteloidea: g(
+    'Skunks, raccoons, weasels, otters and badgers: one branch of the dog-like carnivores.',
+    'בואשים, דביבונים, סמורים, לוטרות וגיריות: ענף אחד של הטורפים דמויי הכלב.'),
+  mustelidae: g(
+    'The weasel family: weasels, otters, badgers and wolverines.',
+    'משפחת הסמוריים: סמורים, לוטרות, גיריות וגרגרנים.'),
+  camelidae: g(
+    'The camel family: camels, llamas, alpacas and vicuñas.',
+    'משפחת הגמליים: גמלים, לאמות, אלפקות וויקוניות.'),
+  bovidae: g(
+    'The cattle family: cows, sheep, goats, antelopes and buffalo.',
+    'משפחת הפריים: פרות, כבשים, עיזים, אנטילופות ותאואים.'),
+  equus: g(
+    'One genus: horses, donkeys and zebras.',
+    'סוג אחד: סוסים, חמורים וזברות.'),
+  asses_zebras: g(
+    'Donkeys and zebras: the branch of the horse genus that split away from horses.',
+    'חמורים וזברות: הענף בסוג של הסוסים שהתפצל מהסוסים.'),
+  spermatophyta: g(
+    'Seed plants: conifers, cycads and ginkgo on one side, flowering plants on the other.',
+    'צמחי זרע: מחטניים, ציקסים וגינקו מצד אחד, צמחים פורחים מהצד השני.'),
+  zingiberales: g(
+    'One order of plants: bananas, ginger, turmeric, cardamom and bird-of-paradise flowers.',
+    'סדרה אחת של צמחים: בננות, ג\'ינג\'ר, כורכום, הל ופרחי ציפור גן עדן.'),
+  nfc: g(
+    'One branch of the rosids: legumes, the rose family, gourds, and oaks and chestnuts.',
+    'ענף אחד של הצמחים: קטניות, משפחת הוורדיים, דלועים, ואלונים וערמונים.'),
+  papilionoideae: g(
+    'Peas, beans, lentils, chickpeas and peanuts: legumes of the pea subfamily.',
+    'אפונה, שעועית, עדשים, חומוס ובוטנים: קטניות מתת־משפחת הפרפרניים.'),
+  malvids: g(
+    'One branch of the rosids: citrus, maples and mangoes, cabbages and broccoli, and cocoa, cotton and hibiscus.',
+    'ענף אחד של הצמחים: הדרים, אדרים ומנגו, כרוב וברוקולי, וקקאו, כותנה והיביסקוס.'),
+  brassicales_malvales: g(
+    'The cabbage order and the mallow order: broccoli and mustard on one side, cocoa, cotton and hibiscus on the other.',
+    'סדרת הכרוב וסדרת החלמית: ברוקולי וחרדל מצד אחד, קקאו, כותנה והיביסקוס מהצד השני.'),
+  malvaceae: g(
+    'The mallow family: cocoa, cotton, okra, hibiscus and baobabs.',
+    'משפחת החלמיתיים: קקאו, כותנה, במיה, היביסקוס ובאובב.'),
+  cucumis: g(
+    'One genus: cucumbers and melons.',
+    'סוג אחד: מלפפונים ומלונים.'),
+  euasterids: g(
+    'Two big branches of asterids: coffee, tomatoes and olives on one, carrots, lettuce and sunflowers on the other.',
+    'שני ענפים גדולים של צמחים: קפה, עגבניות וזיתים באחד, גזר, חסה וחמניות בשני.'),
+  solanales: g(
+    'The nightshade family and the morning glories: potatoes, tomatoes and peppers, and sweet potatoes.',
+    'משפחת הסולניים ומשפחת החבלבליים: תפוחי אדמה, עגבניות ופלפלים, ובטטות.'),
+  solanaceae: g(
+    'One branch of the nightshade family: tomatoes, potatoes and eggplants, and sweet and hot peppers.',
+    'ענף אחד במשפחת הסולניים: עגבניות, תפוחי אדמה וחצילים, ופלפלים מתוקים וחריפים.'),
+  campanulids: g(
+    'One branch of plants: carrots, parsley and celery, and the daisy family.',
+    'ענף של צמחים שכולל גזר, פטרוזיליה וסלרי, ואת משפחת המורכבים.'),
 };

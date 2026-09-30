@@ -17,6 +17,8 @@ const fresh = () => ({
   history: {},          // Kin number -> score out of ten, for the stats screen
   sound: false,
   seenIntro: false,
+  install: { dismissedOn: null, installed: false },   // the home-screen offer: when it was last declined, and whether it was taken
+  counted: { visitOn: null },                          // the day a visit was last counted, when counting is on (analytics.js)
   stats: { firstSeen: null, days: [], dailies: 0, answers: 0, correct: 0, arcadeRuns: 0, bestArcade: 0, shares: 0 },
 });
 
@@ -26,7 +28,14 @@ export function load() {
     if (!raw) return fresh();
     const data = JSON.parse(raw);
     const base = fresh();
-    return { ...base, ...data, stats: { ...base.stats, ...(data.stats || {}) }, streak: { ...base.streak, ...(data.streak || {}) }, history: { ...(data.history || {}) } };
+    return {
+      ...base, ...data,
+      stats: { ...base.stats, ...(data.stats || {}) },
+      streak: { ...base.streak, ...(data.streak || {}) },
+      install: { ...base.install, ...(data.install || {}) },
+      counted: { ...base.counted, ...(data.counted || {}) },
+      history: { ...(data.history || {}) },
+    };
   } catch {
     return fresh();
   }

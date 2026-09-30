@@ -43,6 +43,23 @@ Things waiting on a decision rather than on work.
 
 ## Decision log
 
+### 2026-09 — Kin: the home screen, offline, and counting (off)
+
+| Decision | Rationale |
+|---|---|
+| The game is installable, and asks late | A daily game belongs on the home screen, but an install prompt to a first-time visitor is the same mistake as the name prompt. The card is on Home only, after two finished Kins, never inside the installed app, and "Not now" holds for 30 days. `beforeinstallprompt` is held (`preventDefault`) and used when the player taps Install, so Chrome's own mini-infobar never interrupts a game. |
+| An iPhone gets instructions, not a button | iOS has no install dialog; the only way on is Share ▸ Add to Home Screen. The same card says so and offers "Got it". iOS also ignores an SVG touch icon, hence real PNGs. |
+| Icons are drawn from one mark by a script | The dial from the opening with the smallest tree Kin asks about — a target and two candidates — inside it. `scripts/build-icons.mjs` writes the SVGs and renders 192, 512, maskable 512, the 180 touch icon and a 32 favicon, so they cannot drift. The Atlas's tree-of-dots icons are deleted; the Atlas's touch icon is the same PNG. |
+| A link-preview card for Kin | `assets/og-kin.png` beside the Atlas's. Shared results link to their own Kin, so this is what a friend sees first. `make-og-image.mjs` renders either or both. |
+| The worker precaches the game, not the encyclopedia | The worker's shell list was sixty Atlas files. Once the game registers it too, every Kin visitor would download them on first visit. Now the shell is Kin's page and the modules it imports; the Atlas is cached as it is used. |
+| Each shell entry is added on its own | `cache.addAll` rejects if any URL fails, and a worker that fails to install never updates. The old list named `quiz.js`, `trivia.js` and `imagePrompts.js`, which the front-door change deletes; with `addAll` that would have stranded every returning visitor on the old worker for good. A unit test holds the list to the files on disk and to what `main.js` imports. |
+| Pages are cached by path, and beacons never | A shared link's query string is the same page; keying on it would store one copy per link and find none offline. Counting beacons carry a fresh query each time and would have added an entry per visit. |
+| Counting is written and switched off | Phase 3's gate needs D1, D7 and shares per finished daily. All three can be read from counts without knowing anyone: a device announces `visit/dN` once a day (N = days since it first played), plus `daily/finish` and `share`. It needs a site code Gabi has not chosen, so it does nothing until a page names an endpoint, and the stats screen says which is true. Do Not Track and Global Privacy Control are honoured. The endpoint is meant to be this domain, rewritten to a counter, so no third party sees a visitor. |
+| Workers are blocked in every test context but one | A service worker answers requests before `page.route` can see them, so a test that routes requests must not have one. The offline check is the one context that allows it. |
+| The offline checks were vacuous until they were mutated | Four deliberate breakages of the worker were run against the new checks; three went unnoticed. The first version took the network away with Playwright's `setOffline`, which reaches the page but not the service worker's own requests, so the game "opened offline" with the cache fallback deleted. The check now kills a real server. The shell check also compared the cache with the worker's own list, which can only agree with itself; it now compares the cache with what the page actually loaded, and the list itself is held to the module graph by a unit test. Every mutation after the fix turns the right check red: 12 against the browser checks, 5 against the worker's unit tests. |
+| A bug found while reading, not by a check | The stats screen said "nothing is sent anywhere" on every device. True today; false the day counting is switched on. The note is now chosen by whether counting is on. |
+| Hebrew and Russian copy unreviewed | Seven new strings each (the card, the iOS instruction, the counted-stats note). |
+
 ### 2026-09 — Kin: Home and the return loop
 
 | Decision | Rationale |

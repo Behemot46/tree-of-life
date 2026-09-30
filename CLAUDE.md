@@ -106,8 +106,13 @@ tree-of-life/
 │   ├── rtl.css          # Hebrew RTL layout overrides
 │   ├── responsive.css   # Mobile breakpoints, reduced motion, high contrast
 │   └── kin.css          # play.html only — self-contained, see *Kin*
+├── manifest.json        # The installed game: Kin's name, icons, start page (see *Kin*)
+├── sw.js                # Service worker shared by both apps — see *Kin*
 ├── assets/
 │   ├── placeholder.svg  # Fallback image when taxon photo is unavailable
+│   ├── icon.svg · icon-maskable.svg # The dial and its three-leaf tree, drawn by scripts/build-icons.mjs
+│   ├── icon-192.png · icon-512.png · icon-maskable-512.png · apple-touch-icon.png · favicon-32.png # rendered from those
+│   ├── og-image.png · og-kin.png # Link-preview cards (scripts/make-og-image.mjs): the Atlas, and Kin
 │   └── silhouettes/*.svg # 267 PhyloPic outlines, one per taxon
 └── js/                  # All ES modules — single entry: app.js
     ├── # ── Data modules ──
@@ -174,6 +179,8 @@ tree-of-life/
         ├── strings.js   # Every word the player reads, English, Hebrew and Russian
         ├── reveal.js    # The three-line tree drawn after each answer
         ├── main.js      # play.html's only script
+        ├── install.js   # Pure: when to offer the home screen, and in which form
+        ├── analytics.js # Counting that is off until a page names an endpoint — see *Kin*
         ├── rng.js · store.js · sfx.js
 ```
 
@@ -337,10 +344,49 @@ Things worth knowing before changing it:
   in one day, and no question again within 45 days. When a day cannot be
   filled, the rules give way one at a time (a Sunday's theme first), but a
   question never returns within a week.
-- **The service worker fetches Kin network-first.** `sw.js`, registered by
-  the Atlas, serves the rest of the site stale-while-revalidate; for Kin
-  that would hand a returning player the previous build — and so a different
-  daily puzzle from everyone else's — once after every deploy.
+- **The service worker fetches Kin network-first.** `sw.js` serves the rest of
+  the site stale-while-revalidate; for Kin that would hand a returning player
+  the previous build — and so a different daily puzzle from everyone else's —
+  once after every deploy. The bullets below say the rest of what it does.
+- **The home screen is offered, not pushed.** `installOffer` in `install.js`
+  decides, and only Home draws it: never to a first-time visitor (two finished
+  Kins first), never mid-game or on a result, never inside the installed app,
+  never again for 30 days after "Not now", never to a device that has it.
+  Where the browser has its own install dialog (`beforeinstallprompt`, held
+  until the player taps Install) the card has an Install button; an iPhone or
+  iPad has none, so the card says *Share ▸ Add to Home Screen* and offers
+  "Got it". The event is held with `preventDefault()` so Chrome's mini-infobar
+  does not interrupt, and the card redraws only if it changes what Home shows.
+  `manifest.json` is Kin's (name, PNG icons at 192 and 512, a maskable one, the
+  SVG); `apple-touch-icon` is a PNG because iOS ignores an SVG. The icons are
+  drawn by `scripts/build-icons.mjs` from one mark, so they cannot drift apart.
+- **The service worker precaches the game and nothing else.** A visitor who
+  came for Kin should not download sixty Atlas modules, so `APP_SHELL` in
+  `sw.js` is Kin's page, stylesheet, dispatcher and every module it imports;
+  the Atlas is cached as it is used. Each entry is added on its own
+  (`allSettled`): `cache.addAll` rejects as a whole, and a worker that cannot
+  install never updates, so one deleted file would have stranded everyone on
+  the version they had. A unit test holds the list to the files on disk and to
+  the modules `main.js` actually imports. A page is cached under its path
+  alone — a shared link's query string is the same page, and keying on it
+  filled the cache with one copy per link and found none of them offline — and
+  `/_c/` (counting beacons) is never intercepted. The game registers the worker
+  on `load`, so it never delays the first question; the play check blocks
+  workers in every context but the one that tests them, because a worker
+  answers requests before `page.route` can see them.
+- **Counting is off, and what it would send names no one.** `analytics.js`
+  does nothing until the page carries `<meta name="kin-analytics"
+  content="/_c/count">`. Then it sends an image request per event — `visit/dN`
+  (once a day per device, N = days since that device first played, so D1 and
+  D7 are read off counts with no identifier), `daily/finish`, `share`,
+  `arcade/start`, `install`, `link/kin`, `link/challenge` — carrying an event
+  name and noise and nothing else: no cookie, id, referrer or screen size. A
+  browser that sends Do Not Track or Global Privacy Control is not counted.
+  The endpoint is meant to be this site's own domain rewritten by Vercel to a
+  counter such as GoatCounter, so the CSP needs no new origin and no third
+  party sees the visitor. The stats screen says "nothing is sent" when it is
+  off and says what is counted when it is on. To turn it on: add the meta tag
+  and a `rewrites` entry in `vercel.json`; nothing else changes.
 - **`npm run play:check`** drives the page in Chromium as a first-time visitor
   (phone and desktop, English, Hebrew and Russian): first question within
   3 s, the header fits and its ten dots stay on one row, reveal labels fit and
@@ -352,8 +398,15 @@ Things worth knowing before changing it:
   known numbers, and erasing it. In one scenario per language and kind of
   screen it also plays the long stories — a friend's Kin leaving the record
   alone, a challenge link, ten in the Arcade earning a freeze, a missed day
-  spending it, a broken streak starting over without blame. Seeded records
-  are written once, because an init script runs again on every navigation.
+  spending it, a broken streak starting over without blame. In every scenario
+  it also checks the home-screen offer (who gets it, what it says in each
+  language, that it fits, that Install uses the browser's dialog once, that
+  "Not now" is remembered for a month, the iPhone variant, never inside the
+  app or a game), and once each: the service worker caching the whole game and
+  the game opening, playing and opening a friend's link with the network off;
+  and counting — nothing sent by default, four events when on, no identifier,
+  Do Not Track honoured. Seeded records are written once, because an init
+  script runs again on every navigation.
   Screenshots in `.play-out/`. It also draws **every** question's reveal
   on a 360px phone in every language (`play:every-reveal-fits-*`), because a
   day only ever shows ten of them — that sweep found a Hebrew fossil-minimum

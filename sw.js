@@ -1,72 +1,58 @@
 // Tree of Life — Service Worker
-// Cache-first for app shell, network-first for API/images
+//
+// Kin's shell is precached, so the game opens with no network. Everything else
+// is cached as it is used: the encyclopedia after one visit, fonts and
+// Wikimedia photographs once seen.
 
-const CACHE_VERSION = 'tol-v11';
+const CACHE_VERSION = 'tol-v12';
+
+/* What Kin needs to open offline: the page, its stylesheet, the dispatcher and
+   every module it imports. Not the encyclopedia — a visitor who came for the
+   game should not download sixty modules they may never open.
+
+   Each entry is added on its own. cache.addAll() rejects as a whole if one URL
+   fails, and a worker that fails to install never updates, so a single file
+   that goes missing would strand every visitor on the version they have. A
+   static check (static/sw-shell-matches-the-game) holds this list to the files
+   on disk and to every module the game imports. */
 const APP_SHELL = [
-  '/',
-  '/index.html',
+  '/play.html',
   '/manifest.json',
-  // External CSS files
-  '/css/variables.css',
-  '/css/layout.css',
-  '/css/tree.css',
-  '/css/timeline.css',
-  '/css/panel.css',
-  '/css/hominin.css',
-  '/css/features.css',
-  '/css/theme.css',
-  '/css/rtl.css',
-  '/css/responsive.css',
-  // ES modules — data
-  '/js/data.js',
-  '/js/treeData.js',
-  '/js/treeExpansion.js',
-  '/js/speciesData.js',
-  '/js/uiData.js',
-  '/js/factLibrary.js',
-  '/js/imagePrompts.js',
-  '/js/imageLoader.js',
-  '/js/dnaSimilarity.js',
-  '/js/nodeIcons.js',
-  '/js/triviaData.js',
-  '/js/primateData.js',
-  '/js/geoData.js',
-  '/js/mapPaths.js',
-  '/js/tours.js',
-  // ES modules — application
-  '/js/app.js',
-  '/js/state.js',
-  '/js/utils.js',
-  '/js/layout.js',
-  '/js/zoom.js',
-  '/js/renderer.js',
-  '/js/navigation.js',
-  '/js/search.js',
-  '/js/timeline.js',
-  '/js/panel.js',
-  '/js/hominin.js',
-  '/js/speciesCompare.js',
-  '/js/trivia.js',
-  '/js/playback.js',
-  '/js/theme.js',
-  '/js/engagement.js',
-  '/js/quiz.js',
-  '/js/achievements.js',
-  '/js/whoFirst.js',
-  '/js/familyFoe.js',
-  // Assets
-  '/assets/placeholder.svg'
+  '/css/kin.css',
+  '/js/actions.js',
+  '/js/kin/main.js',
+  '/js/kin/analytics.js',
+  '/js/kin/bank.js',
+  '/js/kin/calendar.js',
+  '/js/kin/creatures.js',
+  '/js/kin/dates.js',
+  '/js/kin/engine.js',
+  '/js/kin/glyph.js',
+  '/js/kin/groups.js',
+  '/js/kin/install.js',
+  '/js/kin/key.js',
+  '/js/kin/questions.js',
+  '/js/kin/reveal.js',
+  '/js/kin/rng.js',
+  '/js/kin/schedule.js',
+  '/js/kin/sfx.js',
+  '/js/kin/store.js',
+  '/js/kin/strings.js',
+  '/js/kin/tree.js',
+  '/assets/icon-192.png',
+  '/assets/icon.svg',
+  '/assets/favicon-32.png'
 ];
 
 const FONT_CACHE = 'tol-fonts-v1';
 const IMG_CACHE = 'tol-images-v1';
 const API_CACHE = 'tol-api-v1';
 
-// Install — precache app shell
+// Install — precache Kin's shell, straight from the network
 self.addEventListener('install', (e) => {
   e.waitUntil(
     caches.open(CACHE_VERSION)
-      .then((cache) => cache.addAll(APP_SHELL))
+      .then((cache) => Promise.allSettled(APP_SHELL.map((url) => cache.add(new Request(url, { cache: 'reload' })))))
       .then(() => self.skipWaiting())
   );
 });
@@ -85,7 +71,13 @@ self.addEventListener('activate', (e) => {
 
 // Fetch — strategy depends on request type
 self.addEventListener('fetch', (e) => {
+  if (e.request.method !== 'GET') return;
   const url = new URL(e.request.url);
+
+  // Counting beacons (js/kin/analytics.js, when a page turns it on) go straight
+  // to the network: each has a fresh query string, so caching them would add one
+  // entry per visit and never find one again.
+  if (url.origin === self.location.origin && url.pathname.startsWith('/_c/')) return;
 
   // Google Fonts — cache-first (immutable)
   if (url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
@@ -129,6 +121,15 @@ function isKin(pathname) {
     || pathname === '/css/kin.css' || pathname === '/js/actions.js';
 }
 
+/* A page is cached under its path alone. A shared link's query string
+   (?kin=3, ?c=…&s=…, ?node=…) is the same page, and keying on it would fill
+   the cache with one copy per link and find none of them when offline. */
+function keyFor(request) {
+  if (request.mode !== 'navigate') return request;
+  const u = new URL(request.url);
+  return new Request(u.origin + u.pathname);
+}
+
 // ── Caching strategies ──
 
 async function cacheFirst(request, cacheName) {
@@ -147,15 +148,16 @@ async function cacheFirst(request, cacheName) {
 }
 
 async function networkFirst(request, cacheName, timeout) {
+  const key = keyFor(request);
   try {
     const response = await fetchWithTimeout(request, timeout);
     if (response.ok) {
       const cache = await caches.open(cacheName);
-      cache.put(request, response.clone());
+      cache.put(key, response.clone());
     }
     return response;
   } catch {
-    const cached = await caches.match(request);
+    const cached = await caches.match(key);
     if (cached) return cached;
     return new Response(JSON.stringify({ offline: true }), {
       status: 503,
@@ -165,10 +167,11 @@ async function networkFirst(request, cacheName, timeout) {
 }
 
 async function staleWhileRevalidate(request, cacheName) {
+  const key = keyFor(request);
   const cache = await caches.open(cacheName);
-  const cached = await cache.match(request);
+  const cached = await cache.match(key);
   const fetchPromise = fetch(request).then((response) => {
-    if (response.ok) cache.put(request, response.clone());
+    if (response.ok) cache.put(key, response.clone());
     return response;
   }).catch(() => null);
 

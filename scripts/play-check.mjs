@@ -27,6 +27,7 @@
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { mkdir } from 'node:fs/promises';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { localDateString, dayNumber } from '../js/kin/calendar.js';
@@ -36,10 +37,12 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const OUT = path.join(ROOT, '.play-out');
 const argv = process.argv.slice(2);
 const EXTERNAL_URL = argv.includes('--url') ? argv[argv.indexOf('--url') + 1] : null;
-/* --only phone-ru,desktop-en: just those scenarios, and not the sweeps that
-   follow them. It exists to prove a new check can fail (break the code, watch
-   it go red, put the code back); a filtered run is never a green branch. */
+/* --only phone-ru,desktop-en,offline: just those scenarios or sweeps (offline,
+   counting, every-reveal, emoji). It exists to prove a new check can fail
+   (break the code, watch it go red, put the code back); a filtered run is
+   never a green branch. */
 const ONLY = argv.includes('--only') ? argv[argv.indexOf('--only') + 1].split(',') : null;
+const wants = (name) => !ONLY || ONLY.includes(name);
 
 /* Fonts come from Google; a sandbox without access to them is not a defect
    in the game. Everything else that fails to load is. */
@@ -110,7 +113,7 @@ const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 async function runScenario(browser, base, sc) {
   process.stdout.write(`\n▸ ${sc.name}\n`);
-  const context = await browser.newContext({ viewport: sc.viewport, isMobile: sc.mobile, hasTouch: sc.mobile, locale: LOCALE[sc.lang] });
+  const context = await browser.newContext({ viewport: sc.viewport, isMobile: sc.mobile, hasTouch: sc.mobile, locale: LOCALE[sc.lang], serviceWorkers: 'block' });
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: base }).catch(() => {});
   const page = await context.newPage();
   page.setDefaultTimeout(8000);
@@ -351,8 +354,8 @@ function returning(over = {}) {
  * script runs again on every navigation and must not undo what the page has
  * saved since.
  */
-async function visit(browser, base, sc, { state = null, query = '' } = {}) {
-  const context = await browser.newContext({ viewport: sc.viewport, isMobile: sc.mobile, hasTouch: sc.mobile, locale: LOCALE[sc.lang] });
+async function visit(browser, base, sc, { state = null, query = '', context: ctx = {}, init = null, before = null } = {}) {
+  const context = await browser.newContext({ viewport: sc.viewport, isMobile: sc.mobile, hasTouch: sc.mobile, locale: LOCALE[sc.lang], serviceWorkers: 'block', ...ctx });
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: base }).catch(() => {});
   const page = await context.newPage();
   page.setDefaultTimeout(8000);
@@ -367,6 +370,8 @@ async function visit(browser, base, sc, { state = null, query = '' } = {}) {
     window.__csp = [];
     document.addEventListener('securitypolicyviolation', (e) => window.__csp.push(`${e.violatedDirective} ${e.blockedURI}`));
   }, { lang: sc.lang, theme: sc.theme, state });
+  if (init) await context.addInitScript(init);
+  if (before) await before(context, page);
   await page.goto(`${base}/play.html${query}`, { waitUntil: 'domcontentloaded' });
   return { context, page, seen };
 }
@@ -675,6 +680,351 @@ async function checkFlows(browser, base, sc) {
   cleanRun(sc, 'flows-no-script-errors-or-failed-requests', seens);
 }
 
+// ── The home screen, offline, and counting ──────────────────────────────────
+
+const IOS_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.4 Mobile/15E148 Safari/604.1';
+
+/** What Chrome hands a page that may offer the home screen, stood in for by an event with the same two members. */
+const fireInstallDialog = (page, choice = 'accepted') => page.evaluate((c) => {
+  const e = new Event('beforeinstallprompt', { cancelable: true });
+  e.prompt = () => { window.__prompted = (window.__prompted || 0) + 1; return Promise.resolve(); };
+  e.userChoice = Promise.resolve({ outcome: c, platform: 'web' });
+  window.dispatchEvent(e);
+}, choice);
+
+/** The offer on Home: who gets it, what it says, what its buttons do, and that it is asked for once. */
+async function checkInstall(browser, base, sc) {
+  const R = (id, ok, msg) => record(sc.name, `play:${id}`, ok, msg);
+  const seens = [];
+  const eligible = returning();            // four finished Kins: past the two that earn the ask
+  const card = (page) => page.$('.kin-install');
+
+  /* The browser offers its dialog: the card appears, reads right, and Install uses the dialog. */
+  {
+    const { context, page, seen } = await visit(browser, base, sc, { state: eligible });
+    seens.push(seen);
+    await page.waitForSelector('.kin-home');
+    const before = await card(page) !== null;
+    await fireInstallDialog(page);
+    const shown = await attempt(() => page.waitForSelector('.kin-install[data-offer="prompt"]', { timeout: 2000 }));
+    R('install-card-appears-when-the-browser-offers-it', !before && shown.ok, before ? 'the card was there before the browser offered anything' : shown.why);
+    if (shown.ok) {
+      const c = await page.evaluate(async (lang) => {
+        const { STRINGS } = await import('./js/kin/strings.js');
+        const T = STRINGS[lang];
+        const el = document.querySelector('.kin-install');
+        const box = (e) => { const b = e.getBoundingClientRect(); return { left: b.left, right: b.right, top: b.top, bottom: b.bottom, height: b.height }; };
+        const hit = (e) => { e.scrollIntoView({ block: 'nearest' }); const b = e.getBoundingClientRect(); const top = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2); return !!top && e.contains(top); };
+        const buttons = [...el.querySelectorAll('button')];
+        const icon = el.querySelector('img');
+        const tx = el.querySelector('.kin-install-tx');
+        return {
+          text: [el.querySelector('b').textContent.trim(), el.querySelector('span').textContent.trim(), ...buttons.map((b) => b.textContent.trim())],
+          want: [T.installTitle, T.installSub, T.installBtn, T.installNot],
+          named: el.getAttribute('aria-label') === T.installTitle,
+          latin: (el.textContent.match(/[A-Za-z]{2,}/g) || []).slice(0, 4),
+          card: box(el), icon: box(icon), tx: box(tx), iconLoaded: icon.complete && icon.naturalWidth > 0,
+          buttons: buttons.map((b) => ({ ...box(b), covered: !hit(b) })),
+          vw: document.documentElement.clientWidth, scrollW: document.documentElement.scrollWidth, dir: document.documentElement.dir,
+        };
+      }, sc.lang);
+      R('install-card-speaks-the-readers-language', JSON.stringify(c.text) === JSON.stringify(c.want) && c.named && !(SCRIPT[sc.lang] && c.latin.length), JSON.stringify({ text: c.text, named: c.named, latin: c.latin }));
+      const iconFirst = c.dir === 'rtl' ? c.icon.left >= c.tx.right - 1 : c.icon.right <= c.tx.left + 1;
+      R('install-card-fits-and-is-reachable', c.card.left >= 0 && c.card.right <= c.vw && c.scrollW <= c.vw && c.iconLoaded && iconFirst && c.buttons.every((b) => b.height >= 44 && !b.covered && b.left >= 0 && b.right <= c.vw),
+        JSON.stringify({ card: [Math.round(c.card.left), Math.round(c.card.right)], vw: c.vw, scrollW: c.scrollW, icon: c.iconLoaded, iconFirst, buttons: c.buttons.map((b) => [Math.round(b.height), b.covered]) }));
+      await page.screenshot({ path: path.join(OUT, `${sc.name}-10-install.png`), fullPage: true });
+      await page.click('.kin-install [data-action="kin:install"]');
+      const gone = await attempt(() => page.waitForSelector('.kin-install', { state: 'detached', timeout: 2000 }));
+      const prompted = await page.evaluate(() => window.__prompted || 0);
+      R('install-button-uses-the-browsers-dialog-once', gone.ok && prompted === 1, `dialog opened ${prompted} time(s); card ${gone.ok ? 'gone' : 'still there'}`);
+      await page.evaluate(() => window.dispatchEvent(new Event('appinstalled')));
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await page.waitForSelector('.kin-home');
+      const rec = await saved(page);
+      R('an-installed-game-is-not-offered-again', rec.install.installed === true && await card(page) === null, JSON.stringify(rec.install));
+    }
+    await context.close();
+  }
+
+  /* "Not now" is kept for a month; past that, the offer returns. */
+  {
+    const { context, page, seen } = await visit(browser, base, sc, { state: eligible });
+    seens.push(seen);
+    await page.waitForSelector('.kin-home');
+    await fireInstallDialog(page);
+    const shown = await attempt(() => page.waitForSelector('.kin-install'));
+    let ok = shown.ok, why = shown.why;
+    if (shown.ok) {
+      await page.click('.kin-install [data-action="kin:install-not"]');
+      const rec = await saved(page);
+      ok = await card(page) === null && rec.install.dismissedOn === dateAgo(0) && !rec.install.installed;
+      why = JSON.stringify(rec.install);
+    }
+    R('not-now-is-remembered', ok, why);
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.kin-home');
+    await fireInstallDialog(page);
+    await page.waitForTimeout(250);
+    R('not-now-is-not-asked-again-the-same-day', await card(page) === null, 'the card came back after a reload');
+    await context.close();
+  }
+  for (const [ago, wantCard, id] of [[10, false, 'not-now-holds-for-a-month'], [31, true, 'the-offer-returns-after-a-month']]) {
+    const { context, page, seen } = await visit(browser, base, sc, { state: returning({ install: { dismissedOn: dateAgo(ago), installed: false } }) });
+    seens.push(seen);
+    await page.waitForSelector('.kin-home');
+    await fireInstallDialog(page);
+    await page.waitForTimeout(250);
+    R(id, (await card(page) !== null) === wantCard, `declined ${ago} days ago: the card is ${wantCard ? 'missing' : 'there'}`);
+    await context.close();
+  }
+
+  /* Never to someone who has not finished two Kins, and never inside the app. */
+  {
+    const { context, page, seen } = await visit(browser, base, sc, { state: returning({ stats: { ...returning().stats, dailies: 1 } }) });
+    seens.push(seen);
+    await page.waitForSelector('.kin-home');
+    await fireInstallDialog(page);
+    await page.waitForTimeout(250);
+    R('install-waits-for-two-finished-kins', await card(page) === null, 'offered after one finished Kin');
+    await context.close();
+  }
+  {
+    const { context, page, seen } = await visit(browser, base, sc, { state: eligible, init: () => { Object.defineProperty(navigator, 'standalone', { value: true }); } });
+    seens.push(seen);
+    await page.waitForSelector('.kin-home');
+    await fireInstallDialog(page);
+    await page.waitForTimeout(250);
+    R('install-is-not-offered-inside-the-app', await card(page) === null, 'offered to a game already on the home screen');
+    await context.close();
+  }
+
+  /* An iPhone has no dialog: the card says how, and "Got it" ends it. */
+  {
+    const { context, page, seen } = await visit(browser, base, sc, { state: eligible, context: { userAgent: IOS_UA } });
+    seens.push(seen);
+    await page.waitForSelector('.kin-home');
+    const ios = await attempt(() => page.waitForSelector('.kin-install[data-offer="ios"]', { timeout: 2000 }));
+    let ok = ios.ok, why = ios.why;
+    if (ios.ok) {
+      const m = await page.evaluate(async (lang) => {
+        const { STRINGS } = await import('./js/kin/strings.js');
+        const T = STRINGS[lang];
+        const el = document.querySelector('.kin-install');
+        return { text: el.querySelector('span').textContent.trim(), want: T.installIos, buttons: [...el.querySelectorAll('button')].map((b) => b.textContent.trim()), wantButton: T.installGotIt, latin: (el.textContent.match(/[A-Za-z]{2,}/g) || []).slice(0, 3), scrollW: document.documentElement.scrollWidth, vw: document.documentElement.clientWidth };
+      }, sc.lang);
+      ok = m.text === m.want && JSON.stringify(m.buttons) === JSON.stringify([m.wantButton]) && m.scrollW <= m.vw && !(SCRIPT[sc.lang] && m.latin.length);
+      why = JSON.stringify(m);
+      await page.screenshot({ path: path.join(OUT, `${sc.name}-11-install-ios.png`), fullPage: true });
+    }
+    R('an-iphone-is-told-how-to-add-it', ok, why);
+    if (ios.ok) {
+      await page.click('.kin-install [data-action="kin:install-not"]');
+      const rec = await saved(page);
+      R('got-it-ends-the-ios-offer', await card(page) === null && rec.install.dismissedOn === dateAgo(0), JSON.stringify(rec.install));
+    }
+    await context.close();
+  }
+
+  /* Only ever on Home: a game in progress and its result are not interrupted. */
+  if (sc.flows) {
+    const { context, page, seen } = await visit(browser, base, sc, { state: eligible });
+    seens.push(seen);
+    await page.waitForSelector('.kin-home');
+    await fireInstallDialog(page);
+    await page.waitForSelector('.kin-install');
+    await page.click('.kin-today .kin-btn');
+    await page.waitForSelector('.kin-opt');
+    const onQuestion = await card(page) !== null;
+    for (let i = 0; i < 10; i++) await answer(page, i % 2 === 0);
+    await page.waitForSelector('.kin-res');
+    const onResult = await card(page) !== null;
+    await page.click('#kin-home');
+    await page.waitForSelector('.kin-home');
+    R('install-never-interrupts-a-game', !onQuestion && !onResult && await card(page) !== null, JSON.stringify({ onQuestion, onResult, backOnHome: await card(page) !== null }));
+    await context.close();
+  }
+  cleanRun(sc, 'install-no-script-errors-or-failed-requests', seens);
+}
+
+/**
+ * The service worker the game registers: its shell is cached, and the game
+ * plays with the server gone.
+ *
+ * "Gone" is a dead server, not Playwright's setOffline: that reaches the page
+ * but not the worker's own requests, so a first version of this check stayed
+ * green with the cache fallback deleted — found by the mutation run, not by
+ * looking. It needs a server of its own to kill, so it is skipped against a
+ * deployed site.
+ */
+async function checkOffline(browser) {
+  process.stdout.write('\n▸ offline\n');
+  const R = (id, ok, msg) => record('offline', `play:${id}`, ok, msg);
+  if (EXTERNAL_URL) { process.stdout.write('  (skipped: a deployed site cannot be stopped from here)\n'); return; }
+  const port = Number(process.env.PLAY_PORT || 5598) + 1;
+  const base = `http://127.0.0.1:${port}`;
+  const child = spawn(process.execPath, [path.join(ROOT, 'serve.js')], { env: { ...process.env, PORT: String(port) }, stdio: 'ignore' });
+  const until = async (up) => {
+    for (let i = 0; i < 60; i++) {
+      let answered = false;
+      try { answered = (await fetch(`${base}/play.html`)).ok; } catch { answered = false; }
+      if (answered === up) return true;
+      await new Promise((r) => setTimeout(r, 250));
+    }
+    return false;
+  };
+  const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
+  const shell = [...sw.match(/const APP_SHELL = \[([\s\S]*?)\];/)[1].matchAll(/'([^']+)'/g)].map((m) => m[1]);
+  let context = null;
+  try {
+    if (!await until(true)) { R('offline-server-starts', false, 'the check\'s own server never came up'); return; }
+    context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, serviceWorkers: 'allow' });
+    const page = await context.newPage();
+    page.setDefaultTimeout(8000);
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    page.on('console', (m) => { if (m.type() === 'error' && !/Failed to load resource|ERR_CONNECTION_REFUSED/.test(m.text())) errors.push(m.text()); });
+    await page.goto(`${base}/play.html`, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.kin-opt');
+    const active = await attempt(() => page.evaluate(() => navigator.serviceWorker.ready.then((r) => { if (!r.active) throw new Error('no active worker'); })));
+    R('service-worker-registers-from-the-game', active.ok, active.why);
+    if (!active.ok) return;
+
+    const cacheKeys = () => page.evaluate(async () => {
+      const out = {};
+      for (const name of await caches.keys()) out[name] = (await (await caches.open(name)).keys()).map((r) => { const u = new URL(r.url); return u.pathname + u.search; });
+      return out;
+    });
+    const keys = await cacheKeys();
+    const held = Object.values(keys).reduce((a, b) => (b.length > a.length ? b : a), []);
+    /* Two directions: everything the list names was really cached (an install that quietly skipped a file is not caught by the list), and
+       everything the page actually loaded is on the list (a module added and forgotten is not caught by a list that only agrees with itself). */
+    R('every-listed-file-is-cached', shell.every((u) => held.includes(u)), `listed but not cached: ${shell.filter((u) => !held.includes(u)).join(', ')}`);
+    const loaded = await page.evaluate(() => performance.getEntriesByType('resource').map((e) => new URL(e.name)).filter((u) => u.origin === location.origin && /\.(js|css)$/.test(u.pathname)).map((u) => u.pathname));
+    R('service-worker-precaches-everything-the-game-loads', loaded.length > 15 && loaded.every((u) => held.includes(u)), `loaded but not cached: ${loaded.filter((u) => !held.includes(u)).join(', ')} (${loaded.length} loaded)`);
+    R('the-encyclopedia-is-not-precached', !held.some((u) => u === '/index.html' || u === '/js/app.js'), 'a visitor who came for the game was made to download the Atlas');
+
+    /* A few shared links, opened while the server is still there. A cache that keyed on the query string would now hold a copy of each. */
+    for (const q of ['?kin=2&lang=ru', '?c=31337&s=2', '?stats=1']) {
+      await page.goto(`${base}/play.html${q}`, { waitUntil: 'domcontentloaded' });
+      await page.waitForSelector('#kin-stage > *');
+    }
+    const withQuery = Object.values(await cacheKeys()).flat().filter((u) => u.includes('?'));
+    R('links-are-not-cached-one-by-one', !withQuery.length, withQuery.slice(0, 3).join(', '));
+
+    /* Stop the server. The game must open, be playable, and open a link it has never seen. */
+    child.kill();
+    const down = await until(false);
+    R('offline-server-stopped', down, 'the check could not take its own server down');
+    await page.goto(`${base}/play.html`, { waitUntil: 'domcontentloaded' }).catch(() => {});
+    const open = await attempt(() => page.waitForSelector('.kin-opt, .kin-home', { timeout: 6000 }));
+    R('the-game-opens-with-no-network', open.ok, open.why);
+    if (open.ok) {
+      const played = await attempt(async () => { await answer(page, true); await page.waitForSelector('.kin-dots i.ok'); });
+      R('the-game-plays-with-no-network', played.ok, played.why);
+    }
+    await page.goto(`${base}/play.html?kin=1&lang=he`, { waitUntil: 'domcontentloaded' }).catch(() => {});
+    const link = await attempt(() => page.waitForSelector('.kin-banner', { timeout: 6000 }));
+    R('a-friends-link-opens-with-no-network', link.ok, link.why);
+    await page.goto(`${base}/play.html?c=4242&s=3`, { waitUntil: 'domcontentloaded' }).catch(() => {});
+    const challenge = await attempt(() => page.waitForSelector('.kin-mode', { timeout: 6000 }));
+    R('a-challenge-link-opens-with-no-network', challenge.ok, challenge.why);
+
+    const manifest = await fs.promises.readFile(path.join(ROOT, 'manifest.json'), 'utf8').then(JSON.parse);
+    R('manifest-icons-exist', !!manifest.name && manifest.display === 'standalone' && manifest.icons.length >= 3 && manifest.icons.every((i) => fs.existsSync(path.join(ROOT, i.src))), JSON.stringify(manifest.icons.map((i) => i.src)));
+    R('offline-no-script-errors', !errors.length, errors.slice(0, 3).join('; '));
+  } finally {
+    child.kill();
+    if (context) await context.close();
+  }
+}
+
+/** Counting is off unless the page turns it on, and what it sends names no one. */
+async function checkCounting(browser, base) {
+  process.stdout.write('\n▸ counting\n');
+  const R = (id, ok, msg) => record('counting', `play:${id}`, ok, msg);
+  const sc = { name: 'counting', lang: 'en', theme: 'dark', viewport: { width: 390, height: 844 }, mobile: true };
+  const GIF = Buffer.from('R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', 'base64');
+  const isBeacon = (u) => u.includes('/_c/');
+  /* A visit is counted while the page loads, so the listener goes on before the page does. */
+  const open = async (opts = {}) => {
+    const all = [];
+    const { before, ...rest } = opts;
+    const v = await visit(browser, base, sc, { ...rest, before: async (ctx, pg) => { pg.on('request', (r) => all.push(r.url())); if (before) await before(ctx, pg); } });
+    return { ...v, all };
+  };
+  /* What the page would carry if the site turned counting on: one meta tag, and a host that answers. */
+  const turnOn = async (context) => {
+    await context.route('**/play.html*', async (route) => {
+      const res = await route.fetch();
+      const body = (await res.text()).replace('</head>', '<meta name="kin-analytics" content="/_c/count"></head>');
+      await route.fulfill({ response: res, body, headers: { ...res.headers(), 'content-length': String(Buffer.byteLength(body)) } });
+    });
+    await context.route('**/_c/**', (route) => route.fulfill({ status: 200, contentType: 'image/gif', body: GIF }));
+  };
+  const session = async (page) => {
+    await page.waitForSelector('.kin-opt');
+    for (let i = 0; i < 10; i++) await answer(page, i % 2 === 0);
+    await page.waitForSelector('.kin-res');
+    await page.click('#kin-share-btn');
+    await page.waitForTimeout(300);
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.kin-home');
+    await page.click('[data-action="kin:arcade"]');
+    await page.waitForSelector('.kin-opt');
+  };
+
+  /* Off: a whole first session sends nothing anywhere but to this site and its fonts and photographs. */
+  {
+    const { context, page, all } = await open();
+    await session(page);
+    const hosts = new Set(all.map((u) => new URL(u).host));
+    const allowed = new Set([new URL(base).host, 'fonts.googleapis.com', 'fonts.gstatic.com', 'upload.wikimedia.org']);
+    const strangers = [...hosts].filter((h) => !allowed.has(h));
+    R('nothing-is-sent-by-default', !all.some(isBeacon) && !strangers.length, JSON.stringify({ beacons: all.filter(isBeacon).length, strangers }));
+    await page.goto(`${base}/play.html?stats=1`, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.kin-stats');
+    const off = await page.$eval('.kin-note', (e) => e.textContent.trim());
+    R('stats-say-nothing-is-sent-when-nothing-is', off === await say(page, 'en', 'statsNote'), off);
+    await context.close();
+  }
+
+  /* On: four kinds of event, each once, carrying an event name and noise and nothing else. */
+  {
+    const { context, page, all } = await open({ before: async (ctx) => { await turnOn(ctx); } });
+    await session(page);
+    const beacons = all.filter(isBeacon).map((u) => new URL(u));
+    const events = beacons.map((u) => u.searchParams.get('p'));
+    R('counting-names-a-visit-a-finish-a-share-and-a-run', JSON.stringify(events) === JSON.stringify(['/kin/visit/d0', '/kin/daily/finish', '/kin/share', '/kin/arcade/start']), JSON.stringify(events));
+    R('a-beacon-carries-no-identifier', beacons.length > 0 && beacons.every((u) => [...u.searchParams.keys()].sort().join() === 'e,p,rnd,t' && u.searchParams.get('e') === 'true') && !(await context.cookies()).length && (await page.evaluate(() => document.cookie)) === '',
+      JSON.stringify({ keys: [...new Set(beacons.flatMap((u) => [...u.searchParams.keys()]))], cookies: (await context.cookies()).length }));
+    await page.goto(`${base}/play.html?stats=1`, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.kin-stats');
+    const on = await page.$eval('.kin-note', (e) => e.textContent.trim());
+    R('stats-say-what-is-counted-when-something-is', on === await say(page, 'en', 'statsNoteCounted'), on);
+    await context.close();
+  }
+
+  /* A visit is named for the days since the device first played, and counted once a day. */
+  {
+    const state = returning({ stats: { ...returning().stats, firstSeen: dateAgo(3) }, counted: { visitOn: dateAgo(1) } });
+    const { context, page, all } = await open({ state, before: async (ctx) => { await turnOn(ctx); } });
+    await page.waitForSelector('.kin-home');
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.kin-home');
+    const visits = all.filter(isBeacon).map((u) => new URL(u).searchParams.get('p'));
+    R('a-visit-is-counted-once-a-day-by-age', JSON.stringify(visits) === JSON.stringify(['/kin/visit/d3']), JSON.stringify(visits));
+    await context.close();
+  }
+
+  /* Do Not Track is honoured even when the page turns counting on. */
+  {
+    const { context, page, all } = await open({ before: async (ctx) => { await turnOn(ctx); }, init: () => { Object.defineProperty(navigator, 'doNotTrack', { get: () => '1' }); } });
+    await session(page);
+    R('do-not-track-is-respected', !all.some(isBeacon), `${all.filter(isBeacon).length} beacon(s) sent to a browser that asked not to be counted`);
+    await context.close();
+  }
+}
+
 /**
  * A scenario reveals the ten questions of one day; the bank holds hundreds,
  * with dates that only some days would ever show. Draw every question's
@@ -684,7 +1034,7 @@ async function checkFlows(browser, base, sc) {
 async function checkEveryReveal(browser, base) {
   process.stdout.write('\n▸ every-reveal (360×640)\n');
   for (const lang of Object.keys(LOCALE)) {
-    const context = await browser.newContext({ viewport: { width: 360, height: 640 }, isMobile: true, hasTouch: true });
+    const context = await browser.newContext({ viewport: { width: 360, height: 640 }, isMobile: true, hasTouch: true, serviceWorkers: 'block' });
     const page = await context.newPage();
     await page.addInitScript((l) => { try { localStorage.setItem('tol-lang', l); } catch { /* private mode */ } }, lang);
     await page.goto(`${base}/play.html`, { waitUntil: 'domcontentloaded' });
@@ -726,7 +1076,7 @@ async function checkEveryReveal(browser, base) {
  */
 async function checkEmojiFallback(browser, base) {
   process.stdout.write('\n▸ emoji\n');
-  const context = await browser.newContext();
+  const context = await browser.newContext({ serviceWorkers: 'block' });
   const page = await context.newPage();
   await page.goto(`${base}/play.html`, { waitUntil: 'domcontentloaded' });
   const r = await page.evaluate(async () => {
@@ -748,7 +1098,7 @@ await mkdir(OUT, { recursive: true });
 const server = await startServer();
 const browser = await chromium.launch();
 try {
-  for (const sc of SCENARIOS.filter((x) => !ONLY || ONLY.includes(x.name))) {
+  for (const sc of SCENARIOS.filter((x) => wants(x.name))) {
     /* A step that cannot happen (a button that never appears) is a failure
        to report, not a reason to abandon the other scenarios. */
     try { await runScenario(browser, server.url, sc); }
@@ -756,15 +1106,28 @@ try {
     process.stdout.write(`\n▸ ${sc.name}: Home and stats\n`);
     try { await checkHome(browser, server.url, sc); await checkStats(browser, server.url, sc); }
     catch (e) { record(sc.name, 'play:home-and-stats-complete', false, String(e.message || e).split('\n')[0]); }
+    process.stdout.write(`\n▸ ${sc.name}: the home-screen offer\n`);
+    try { await checkInstall(browser, server.url, sc); }
+    catch (e) { record(sc.name, 'play:install-complete', false, String(e.message || e).split('\n')[0]); }
     if (sc.flows) {
       process.stdout.write(`\n▸ ${sc.name}: friends' links, freezes\n`);
       try { await checkFlows(browser, server.url, sc); }
       catch (e) { record(sc.name, 'play:flows-complete', false, String(e.message || e).split('\n')[0]); }
     }
   }
-  if (!ONLY) {
+  if (wants('offline')) {
+    try { await checkOffline(browser, server.url); }
+    catch (e) { record('offline', 'play:offline-complete', false, String(e.message || e).split('\n')[0]); }
+  }
+  if (wants('counting')) {
+    try { await checkCounting(browser, server.url); }
+    catch (e) { record('counting', 'play:counting-complete', false, String(e.message || e).split('\n')[0]); }
+  }
+  if (wants('every-reveal')) {
     try { await checkEveryReveal(browser, server.url); }
     catch (e) { record('every-reveal', 'play:every-reveal-completes', false, String(e.message || e).split('\n')[0]); }
+  }
+  if (wants('emoji')) {
     try { await checkEmojiFallback(browser, server.url); }
     catch (e) { record('emoji', 'play:emoji-check-completes', false, String(e.message || e).split('\n')[0]); }
   }

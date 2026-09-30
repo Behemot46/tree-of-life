@@ -4,6 +4,10 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
 import * as E from '../js/kin/engine.js';
 import { CREATURES } from '../js/kin/creatures.js';
@@ -15,6 +19,10 @@ import { GROUPS } from '../js/kin/groups.js';
 import { BANK } from '../js/kin/bank.js';
 import { SCHEDULE } from '../js/kin/schedule.js';
 import { generateBank, REST_DAYS, MIN_REST_DAYS } from '../js/kin/generate.js';
+import * as I from '../js/kin/install.js';
+import * as A from '../js/kin/analytics.js';
+
+const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
 test('the answer key has no problems', () => {
   /* One list, so a failure names every broken question at once: branching
@@ -320,4 +328,172 @@ test('results titles and the share text', () => {
 test('the seeded generator is repeatable', () => {
   const a = mulberry32(hashString('kin')), b = mulberry32(hashString('kin'));
   for (let i = 0; i < 5; i++) assert.equal(a(), b());
+});
+
+// ── The home screen, counting, and the offline shell ────────────────────────
+
+test('the home screen is offered only to someone who has earned the ask, and not again for a month', () => {
+  const base = { dailies: 2, canPrompt: true, today: '2026-10-10' };
+  assert.equal(I.installOffer(base), 'prompt');
+  assert.equal(I.installOffer({ ...base, dailies: 1 }), null, 'one finished Kin is curiosity, not a habit');
+  assert.equal(I.installOffer({ ...base, dailies: 0 }), null);
+  assert.equal(I.installOffer({ ...base, standalone: true }), null, 'already running as an app');
+  assert.equal(I.installOffer({ ...base, installed: true }), null, 'already installed');
+  assert.equal(I.installOffer({ ...base, canPrompt: false }), null, 'no install dialog and not an iPhone: nothing to offer');
+  assert.equal(I.installOffer({ ...base, canPrompt: false, ios: true }), 'ios');
+  assert.equal(I.installOffer({ ...base, ios: true }), 'prompt', 'the real dialog beats instructions');
+  // "Not now" holds for thirty days: day 29 is still quiet, day 30 asks again
+  assert.equal(I.installOffer({ ...base, dismissedOn: '2026-10-10' }), null);
+  assert.equal(I.installOffer({ ...base, dismissedOn: '2026-09-11' }), null, 'after 29 days');
+  assert.equal(I.installOffer({ ...base, dismissedOn: '2026-09-10' }), 'prompt', 'after 30 days');
+});
+
+test('iPhones and iPads are recognised, including an iPad that asks for the desktop site', () => {
+  const ios = { userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)', platform: 'iPhone', maxTouchPoints: 5 };
+  const ipad = { userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)', platform: 'MacIntel', maxTouchPoints: 5 };
+  const mac = { ...ipad, maxTouchPoints: 0 };
+  const android = { userAgent: 'Mozilla/5.0 (Linux; Android 14; Pixel 8)', platform: 'Linux armv8l', maxTouchPoints: 5 };
+  assert.deepEqual([ios, ipad, mac, android].map(I.isIOS), [true, true, false, false]);
+  const win = (nav, mq) => ({ navigator: { standalone: nav }, matchMedia: () => ({ matches: mq }) });
+  assert.equal(I.isStandalone(win(true, false)), true, 'iOS says so on navigator');
+  assert.equal(I.isStandalone(win(undefined, true)), true, 'everyone else through a media query');
+  assert.equal(I.isStandalone(win(undefined, false)), false);
+  assert.equal(I.isStandalone({}), false, 'a window that cannot say is not standalone');
+});
+
+test('counting is a bucket per device and day, capped, and never negative', () => {
+  assert.equal(A.visitBucket('2026-09-30', '2026-09-30'), 'd0');
+  assert.equal(A.visitBucket('2026-09-30', '2026-10-01'), 'd1');
+  assert.equal(A.visitBucket('2026-09-30', '2026-10-07'), 'd7');
+  assert.equal(A.visitBucket('2026-09-30', '2027-09-30'), 'd30', 'a month or more is one bucket');
+  assert.equal(A.visitBucket(null, '2026-09-30'), 'd0');
+  assert.equal(A.visitBucket('2026-10-05', '2026-09-30'), 'd0', 'a clock set back');
+});
+
+test('nothing is counted unless the page names an endpoint, nor for a visitor who asked not to be', () => {
+  const doc = (content) => ({ querySelector: () => (content === undefined ? null : { getAttribute: () => content }) });
+  assert.equal(A.endpoint(doc(undefined), {}), '', 'no tag: off');
+  assert.equal(A.endpoint(doc(''), {}), '', 'an empty tag: off');
+  assert.equal(A.endpoint(doc('  '), {}), '', 'a blank tag: off');
+  assert.equal(A.endpoint(doc('/_c/count'), {}), '/_c/count');
+  assert.equal(A.endpoint(doc('/_c/count'), { doNotTrack: '1' }), '', 'Do Not Track');
+  assert.equal(A.endpoint(doc('/_c/count'), { globalPrivacyControl: true }), '', 'Global Privacy Control');
+  assert.equal(A.enabled(doc(undefined), {}), false);
+  assert.equal(A.enabled(doc('/_c/count'), {}), true);
+  assert.equal(A.track('share'), false, 'with no page to name an endpoint, track() sends nothing');
+});
+
+test('a beacon is an event name and noise, and nothing that identifies anyone', () => {
+  const u = new URL(A.beaconURL('/_c/count', 'visit/d3', 'abc'), 'https://example.test');
+  assert.equal(u.pathname, '/_c/count');
+  assert.deepEqual([...u.searchParams.keys()].sort(), ['e', 'p', 'rnd', 't']);
+  assert.equal(u.searchParams.get('p'), '/kin/visit/d3');
+  assert.equal(u.searchParams.get('t'), 'visit/d3');
+  assert.equal(u.searchParams.get('e'), 'true');
+  assert.equal(new URL(A.beaconURL('/c?x=1', 'share', 'n'), 'https://example.test').searchParams.get('x'), '1', 'an endpoint that already has a query keeps it');
+});
+
+test('the service worker precaches exactly the game: every file exists, every module the game imports is listed', () => {
+  const sw = fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8');
+  const shell = [...sw.match(/const APP_SHELL = \[([\s\S]*?)\];/)[1].matchAll(/'([^']+)'/g)].map((m) => m[1]);
+  assert.ok(shell.length > 20, 'the list was read');
+  assert.deepEqual(shell.filter((u) => !fs.existsSync(path.join(ROOT, u))), [], 'a precache entry points at a file that is not there');
+  assert.equal(new Set(shell).size, shell.length, 'an entry is listed twice');
+
+  // everything main.js reaches through its imports
+  const seen = new Set();
+  const walk = (file) => {
+    if (seen.has(file)) return;
+    seen.add(file);
+    const src = fs.readFileSync(path.join(ROOT, file), 'utf8');
+    for (const m of src.matchAll(/from '(\.{1,2}\/[^']+\.js)'/g)) walk(path.posix.normalize(path.posix.join(path.posix.dirname(file), m[1])));
+  };
+  walk('js/kin/main.js');
+  const needed = [...seen].map((f) => `/${f}`);
+  assert.deepEqual(needed.filter((u) => !shell.includes(u)), [], 'the game imports a module the offline shell does not hold');
+  for (const u of ['/play.html', '/css/kin.css', '/manifest.json']) assert.ok(shell.includes(u), `${u} is missing from the shell`);
+  // build-time code is not shipped to a phone
+  assert.ok(!shell.includes('/js/kin/generate.js'));
+});
+
+test('the manifest names icons that exist, in the sizes a phone asks for', () => {
+  const m = JSON.parse(fs.readFileSync(path.join(ROOT, 'manifest.json'), 'utf8'));
+  for (const icon of m.icons) assert.ok(fs.existsSync(path.join(ROOT, icon.src)), `${icon.src} is named and not there`);
+  const png = (size, purpose) => m.icons.some((i) => i.type === 'image/png' && i.sizes === size && i.purpose === purpose);
+  assert.ok(png('192x192', 'any') && png('512x512', 'any'), 'installability wants 192 and 512 pixel PNGs');
+  assert.ok(png('512x512', 'maskable'), 'a maskable icon, so a phone does not shrink ours into a white tile');
+  assert.ok(fs.existsSync(path.join(ROOT, 'assets/apple-touch-icon.png')), 'iOS ignores an SVG touch icon');
+  for (const page of ['play.html', 'index.html']) {
+    const html = fs.readFileSync(path.join(ROOT, page), 'utf8');
+    const touch = html.match(/rel="apple-touch-icon" href="\/?([^"]+)"/);
+    assert.ok(touch && touch[1].endsWith('.png') && fs.existsSync(path.join(ROOT, touch[1])), `${page} needs a PNG touch icon that exists`);
+  }
+});
+
+/** Runs sw.js against a stand-in for the worker's world and hands back what it registered and did. */
+function loadWorker({ failOn = null } = {}) {
+  const listeners = {};
+  const state = { puts: [], adds: [], skipped: false };
+  const cache = {
+    match: async () => undefined,
+    put: async (key) => { state.puts.push(key.url); },
+    add: async (req) => { state.adds.push(req.url); if (failOn && req.url.endsWith(failOn)) throw new TypeError('fetch failed'); },
+  };
+  const world = {
+    self: {
+      location: { origin: 'https://www.treeoflife.wiki' },
+      addEventListener: (type, fn) => { listeners[type] = fn; },
+      skipWaiting: () => { state.skipped = true; return Promise.resolve(); },
+      clients: { claim: () => Promise.resolve() },
+    },
+    caches: { open: async () => cache, match: async () => undefined, keys: async () => [], delete: async () => true },
+    fetch: async () => new Response('ok'),
+    /* In a worker a relative URL resolves against the worker's own address; Node's Request wants it whole. */
+    Request: class extends Request { constructor(input, init) { super(typeof input === 'string' && input.startsWith('/') ? `${SITE}${input}` : input, init); } },
+    Response, URL, Promise, setTimeout, clearTimeout, JSON,
+  };
+  vm.createContext(world);
+  vm.runInContext(fs.readFileSync(path.join(ROOT, 'sw.js'), 'utf8'), world);
+  return { listeners, state };
+}
+const fetchEvent = (url, { method = 'GET', mode = 'cors' } = {}) => {
+  const e = { request: { url, method, mode }, handled: null, respondWith(p) { e.handled = p; } };
+  return e;
+};
+const SITE = 'https://www.treeoflife.wiki';
+
+test('the service worker leaves counting beacons and anything that is not a GET alone, and handles the game', async () => {
+  const { listeners } = loadWorker();
+  const beacon = fetchEvent(`${SITE}/_c/count?p=%2Fkin%2Fshare&rnd=abc`);
+  listeners.fetch(beacon);
+  assert.equal(beacon.handled, null, 'a beacon goes straight to the network: each has a new query string and would only fill the cache');
+  const post = fetchEvent(`${SITE}/play.html`, { method: 'POST' });
+  listeners.fetch(post);
+  assert.equal(post.handled, null, 'only GETs are the worker\'s business');
+  for (const u of ['/play.html', '/js/kin/main.js', '/css/kin.css', '/index.html']) {
+    const e = fetchEvent(`${SITE}${u}`);
+    listeners.fetch(e);
+    assert.notEqual(e.handled, null, `${u} is handled`);
+    await e.handled;
+  }
+});
+
+test('a page is cached under its path, so a shared link is the same page and not a new cache entry', async () => {
+  const { listeners, state } = loadWorker();
+  for (const q of ['?kin=3', '?c=77&s=12&lang=ru', '?stats=1', '']) {
+    const e = fetchEvent(`${SITE}/play.html${q}`, { mode: 'navigate' });
+    listeners.fetch(e);
+    await e.handled;
+  }
+  assert.equal(state.puts.length, 4, 'every navigation was cached');
+  assert.deepEqual([...new Set(state.puts)], [`${SITE}/play.html`], 'under one key');
+});
+
+test('a file that cannot be fetched does not stop the worker installing', async () => {
+  const { listeners, state } = loadWorker({ failOn: '/js/kin/bank.js' });
+  let waited;
+  listeners.install({ waitUntil: (p) => { waited = p; } });
+  await waited;
+  assert.ok(state.skipped, 'the worker installed and took over anyway: cache.addAll would have rejected the lot and left everyone on the old one');
+  assert.ok(state.adds.length > 20, 'and tried every entry');
 });

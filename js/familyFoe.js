@@ -6,6 +6,7 @@
 import { nodeMap } from './state.js';
 import { PHOTO_MAP } from './data.js';
 import { findLCA } from './dnaSimilarity.js';
+import { offerNameAfterGame } from './profile.js';
 
 let _t, _checkAchievement;
 export function initFamilyFoeDeps(deps) {
@@ -238,6 +239,8 @@ export function diceFamilyFoe() {
 
 function showFamilyFoeResults() {
   const s = ffState;
+  if (s.resultsShown) return;
+  s.resultsShown = true;
   const container = document.getElementById('game-result');
   const qEl = document.getElementById('game-question');
   if (qEl) qEl.style.display = 'none';
@@ -276,4 +279,5 @@ function showFamilyFoeResults() {
       <button class="trivia-next-btn" data-action="close-game">Close</button>
     </div>
   `;
+  offerNameAfterGame(container, s.score);
 }

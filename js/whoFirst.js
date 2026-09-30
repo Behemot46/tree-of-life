@@ -6,6 +6,7 @@
 import { nodeMap } from './state.js';
 import { getTimeContext } from './utils.js';
 import { PHOTO_MAP } from './data.js';
+import { offerNameAfterGame } from './profile.js';
 
 let _t, _checkAchievement;
 export function initWhoFirstDeps(deps) {
@@ -175,6 +176,8 @@ export function diceWhoFirst() {
 
 function showWhoFirstResults() {
   const s = wfState;
+  if (s.resultsShown) return;
+  s.resultsShown = true;
   const container = document.getElementById('game-result');
   const qEl = document.getElementById('game-question');
   if (qEl) qEl.style.display = 'none';
@@ -213,4 +216,5 @@ function showWhoFirstResults() {
       <button class="trivia-next-btn" data-action="close-game">Close</button>
     </div>
   `;
+  offerNameAfterGame(container, s.score);
 }

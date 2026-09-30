@@ -7,6 +7,7 @@
 import { ACHIEVEMENTS } from './achievements.js';
 import { registerActions } from './actions.js';
 import { getUnlockedAchievements, getExploredSpecies, checkAchievement } from './engagement.js';
+import { t } from './theme.js';
 
 let _deps = {};
 export function initProfileDeps(deps) { Object.assign(_deps, deps); }
@@ -14,6 +15,7 @@ export function initProfileDeps(deps) { Object.assign(_deps, deps); }
 // ── Storage keys ──
 const LS_PLAYERS = 'tol-players';
 const LS_ACTIVE  = 'tol-active-player';
+const LS_ASKED   = 'tol-name-asked';
 
 // ── In-memory state ──
 let _players = [];
@@ -48,22 +50,6 @@ function _createPlayer(name) {
     lastActive: Date.now(),
     totalPoints: 0
   };
-}
-
-// ── Migration ──
-
-function _migrateOldData() {
-  // If old tol-explored exists but no tol-players, create default Guest profile
-  const oldExplored = localStorage.getItem('tol-explored');
-  if (oldExplored && _players.length <= 1) {
-    if (_players.length === 0) {
-      const guest = _createPlayer('Guest');
-      _players.push(guest);
-      _savePlayers();
-      _activePlayerName = 'Guest';
-      _saveActive();
-    }
-  }
 }
 
 // ── Public API ──
@@ -369,25 +355,110 @@ function renderKingdomProgress(container) {
   container.innerHTML = html;
 }
 
-// ── First-visit name prompt ──
+// ── Setup ──
 
 export function initProfile() {
   _loadPlayers();
   _loadActive();
-  _migrateOldData();
-
-  // If still no players after migration, schedule name prompt
-  if (_players.length === 0) {
-    setTimeout(() => {
-      if (!localStorage.getItem(LS_ACTIVE)) _promptPlayerName();
-    }, 5000);
-  }
+  /* No Guest is made up here. An earlier version turned anyone with a
+     `tol-explored` record into one on their next visit; with the name now asked
+     for after a game, that would have made a Guest of every visitor who had
+     looked around first — the ordinary one — and so pre-empted the offer.
+     The panel already reads "Guest" for a header with no player behind it. */
 
   registerActions({
     'profile:switch-player': (name) => _switchPlayer(name),
     'profile:add-player':    () => _addPlayerFromInput(),
     'profile:toggle-badge':  (_a, _b, { el }) => el.classList.toggle('expanded'),
+    'profile:save-name':     () => _saveOfferedName(),
+    'profile:skip-name':     () => _skipOfferedName(),
   });
+
+  // The offer's field is not a button, so Enter is not a click
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && e.target && e.target.id === 'name-offer-input') {
+      e.preventDefault();
+      _saveOfferedName();
+    }
+  });
+}
+
+// ── After a game: the name ──
+
+/* A name used to be asked for by a native prompt(), five seconds after a first
+   visit began — before the visitor had done anything to be named for, in a box
+   that blocks the page, cannot be styled and was never translated. It is now
+   asked once, on the results screen of a game, as a card that can be ignored.
+   Nothing else on the site may raise a native dialog: load:no-native-dialogs. */
+
+let _offerPoints = 0;      // what the game that raised the offer scored, credited if a name is kept
+
+function _asked() {
+  try { return !!localStorage.getItem(LS_ASKED); } catch (e) { return true; }   // storage blocked: do not nag
+}
+
+function _fill(template, name, pts) {
+  return String(template)
+    .replace('{name}', '<bdi>' + _esc(name) + '</bdi>')
+    .replace('{pts}', String(pts));
+}
+
+/** Called by every game as its results appear. Points go to whoever is playing.
+    And, once, when nobody on this device has a name yet, the first results that
+    show a score carry an offer to keep it under one — a game that scored
+    nothing has nothing to keep, and does not use up the one ask. */
+export function offerNameAfterGame(container, points) {
+  _loadPlayers();
+  _loadActive();
+  const pts = Math.max(0, Math.round(points || 0));
+  if (pts && getActivePlayer()) updatePlayerScore(pts);
+  if (!container || !pts || _players.length || _asked()) return;
+
+  try { localStorage.setItem(LS_ASKED, '1'); } catch (e) { /* private mode: it will be asked again */ }
+  _offerPoints = pts;
+  const card = document.createElement('div');
+  card.className = 'name-offer';
+  card.setAttribute('role', 'group');
+  card.setAttribute('aria-labelledby', 'name-offer-title');
+  card.innerHTML = `
+    <div class="name-offer-title" id="name-offer-title">${_esc(t('name_offer_title'))}</div>
+    <div class="name-offer-text">${_esc(t('name_offer_text'))}</div>
+    <div class="lb-add-player">
+      <input id="name-offer-input" type="text" maxlength="20" autocomplete="nickname" enterkeyhint="done"
+             placeholder="${_esc(t('name_offer_placeholder'))}" aria-label="${_esc(t('name_offer_placeholder'))}">
+      <button class="lb-add-btn" type="button" data-action="profile:save-name">${_esc(t('name_offer_save'))}</button>
+    </div>
+    <button class="name-offer-skip" type="button" data-action="profile:skip-name">${_esc(t('name_offer_skip'))}</button>`;
+  const actions = container.querySelector('.trivia-result-actions');
+  if (actions) actions.before(card); else container.append(card);
+}
+
+function _saveOfferedName() {
+  const input = document.getElementById('name-offer-input');
+  const name = input ? input.value.trim().slice(0, 20) : '';
+  if (!name) { if (input) input.focus(); return; }
+  addPlayer(name);
+  setActivePlayer(name);
+  if (_offerPoints) updatePlayerScore(_offerPoints);
+  _offerPoints = 0;
+  const p = getActivePlayer();
+  const card = document.querySelector('.name-offer');
+  if (card) {
+    card.innerHTML = `<div class="name-offer-done" role="status" tabindex="-1">${_fill(t('name_offer_saved'), name, p ? p.totalPoints || 0 : 0)}</div>`;
+    // The field that had focus is gone. Left alone, focus falls back to the top of the page:
+    // it moves to the words that replaced it, so a keyboard or a screen reader carries on from there.
+    card.querySelector('.name-offer-done').focus({ preventScroll: true });
+  }
+  _refreshPlayerHeader();
+}
+
+function _skipOfferedName() {
+  _offerPoints = 0;
+  const card = document.querySelector('.name-offer');
+  if (!card) return;
+  const next = card.parentElement && card.parentElement.querySelector('.trivia-result-actions button');
+  card.remove();
+  if (next) next.focus({ preventScroll: true });          // the button that had focus went with the card
 }
 
 /* Repaint the header and the leaderboard after the active player changes.
@@ -421,19 +492,6 @@ function _addPlayerFromInput() {
      ever assigned that global — so the achievement could not be won. It is
      an ordinary import now. */
   if (_players.length >= 3) checkAchievement('family_game_night');
-}
-
-function _promptPlayerName() {
-  try {
-    const name = prompt('Welcome! Enter your name for the leaderboard (or leave blank for Guest):');
-    const playerName = ((name || '').trim().slice(0, 20)) || 'Guest';
-    addPlayer(playerName);
-    setActivePlayer(playerName);
-  } catch(e) {
-    // prompt() blocked or unavailable
-    addPlayer('Guest');
-    setActivePlayer('Guest');
-  }
 }
 
 // ── Tab listener setup ──

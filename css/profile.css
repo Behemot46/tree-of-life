@@ -249,3 +249,59 @@
   .ach-grid { grid-template-columns: repeat(3, 1fr); }
   .kp-label { min-width: 4.5rem; }
 }
+
+/* ── The name, asked once after a game (offerNameAfterGame in js/profile.js) ──
+   A card on the results screen rather than a native prompt(): it can be
+   ignored, it is translated, and it sits in the reading direction. */
+.name-offer {
+  margin: 0 0 1rem;
+  padding: 0.8rem 0.9rem;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  text-align: start;
+}
+.name-offer-title {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.name-offer-text {
+  margin-top: 0.2rem;
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+.name-offer .lb-add-player { margin-top: 0.6rem; }
+.name-offer .lb-add-player input {
+  min-width: 0;
+  min-height: 2.75rem;
+  /* Under 16px iOS Safari zooms the page in when the field takes focus, and
+     the offer is asked on phones far more than anywhere else. */
+  font-size: max(16px, var(--text-sm));
+}
+/* .lb-add-player input removes the outline; the global focus ring is put back */
+.name-offer .lb-add-player input:focus-visible { outline: 2px solid var(--accent-primary); outline-offset: 2px; }
+.name-offer .lb-add-btn { min-height: 2.75rem; padding-inline: 1rem; }
+.name-offer-skip {
+  display: block;
+  margin: 0.4rem 0 0;
+  margin-inline-start: auto;
+  min-height: 2.5rem;
+  padding: 0 0.2rem;
+  background: none;
+  border: none;
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.name-offer-skip:hover { color: var(--text-primary); }
+.name-offer-done {
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  text-align: center;
+}
+/* focus is put here only so it is not lost; it is not a control */
+.name-offer-done:focus { outline: none; }

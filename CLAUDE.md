@@ -94,7 +94,7 @@ tree-of-life/
 │   ├── layout.css       # Header, search, breadcrumb, nav controls
 │   ├── chrome.css       # Left rail, floating controls, search pill
 │   ├── splash.css       # Opening: first paint, words, plaque, reduced motion
-│   ├── profile.css      # Player profile overlay
+│   ├── profile.css      # Player profile overlay, and the name offer after a game
 │   ├── sapiens.css      # Human-origins deep dive
 │   ├── tree.css         # SVG tree rendering, node/branch styles
 │   ├── timeline.css     # Era browser, extinction markers, playback
@@ -144,8 +144,12 @@ tree-of-life/
     ├── hominin.js       # buildHomininTree(), compare mode
     ├── dnaCalc.js       # DNA similarity calculator modal
     ├── evoPath.js       # Evolutionary path comparison tool
-    ├── trivia.js        # Trivia quiz game
-    ├── quiz.js          # Multiple-choice quiz mode
+    ├── trivia.js        # Trivia quiz game — unreachable, `game.js` superseded it (see ROADMAP)
+    ├── quiz.js          # Multiple-choice quiz mode — unreachable, likewise
+    ├── game.js          # The Games panel: Quick, Classic, Survival and Daily, and their results
+    ├── whoFirst.js      # Who Appeared First? — a mode of the Games panel
+    ├── familyFoe.js     # Family or Foe? — a mode of the Games panel
+    ├── profile.js       # Players on this device, the leaderboard, and the name offer — see *The name, asked for after a game*
     ├── playback.js      # Time-lapse playback mode
     ├── theme.js         # t(), setLang(), applyI18n(), toggleTheme()
     ├── explore.js       # Drill-down shell — see *The two shells*
@@ -775,6 +779,58 @@ measures on every viewport (tree 17–19% painted, dial 1.9–2.4%), so a slow
 runner cannot trip them and a canvas that draws nothing, or draws in the wrong
 place, always does.
 
+### The name, asked for after a game
+
+`js/profile.js` keeps the players on a device (`tol-players`, `tol-active-player`)
+and the leaderboard. A name used to be asked for by a native `prompt()` five
+seconds into a first visit — about half a second after the opening ended, before
+the visitor had done anything to be named for, in a box that blocks the page,
+cannot be styled and was English on every screen. It is now asked for once, on
+the results of the first game that scored, by `offerNameAfterGame()`,
+which every game's results screen calls (`game.js` for Quick, Classic, Survival
+and Daily; `whoFirst.js`; `familyFoe.js`).
+
+Things worth knowing before changing it:
+
+- **The card can be ignored.** It sits above Play Again on the results screen
+  and "Not now" removes it. Nothing waits on it, and closing the game is as good
+  an answer as any.
+- **Asked once, and only when there is a score to keep.** `tol-name-asked` is set
+  when the card is *shown*, whatever the visitor does with it. A game that scored
+  nothing does not use the ask up, and the Daily Challenge — which shows no
+  points — never raises it. Nobody who already has a player is asked, and neither
+  is anyone whose storage is blocked: an ask that cannot be remembered would be
+  repeated after every game.
+- **Points go to whoever is playing, asked or not.** `updatePlayerScore()` had
+  no caller at all, so the leaderboard showed every player on 0 points for as
+  long as it had existed. Each game's results now credit its score to the active
+  player, and the game that raised the offer is credited once a name is kept.
+  Each results function is guarded (`resultsShown`) against being run twice,
+  because the second run would score the game again.
+- **No Guest is made up.** `_migrateOldData()` used to turn anyone with a
+  `tol-explored` record into a "Guest" on their next visit. Under the old prompt
+  that only ever touched people from before profiles existed; with the name asked
+  for after a game it would have made a Guest of every visitor who looked around
+  first — the ordinary one — and settled the question of a name before it was
+  asked. It is deleted; the panel already reads "Guest" for a header with no
+  player behind it.
+- **The field is 16px and the controls are 44px.** Under 16px iOS Safari zooms
+  the page in when a text field takes focus, and this is the one field on the
+  site that is asked for on phones far more than anywhere else.
+  `.lb-add-player input` also removes the focus ring, so the offer puts it back.
+- **Nothing on the site may raise a native dialog.** `dialogs:none-in-source`
+  reads the source for `alert(`, `confirm(` and `prompt(`, and
+  `load:no-native-dialogs` fails on any that opens during a run. Playwright
+  dismisses a dialog in silence by default, which is how the old prompt made a
+  Guest of every visitor in every smoke run without anyone seeing it; the
+  runner now records each one.
+
+Ten `profile:` checks cover it, and two more guard the dialog rule (see *The
+name offer's checks* below). They play the games rather than reading the code,
+and drive each one from the page's own answer key — the right or the wrong
+answer is looked up, so a run means the same on every runner and a quiz that
+scored nothing is never mistaken for a missing offer.
+
 ### Rendering
 
 - **Library:** Pure vanilla JavaScript + SVG (no D3 layout algorithms)
@@ -1013,6 +1069,56 @@ holds a Hebrew group name on one screen and a Latin binomial on the next —
 for `חיידקים` and `ltr` for `Panthera leo`. Prose that is English by policy
 (`.ex-desc`, `.ex-latin`) takes `dir="ltr"` outright.
 
+### The name offer's checks
+
+The offer is measured from `nameProbe()`, which plays games in contexts of its
+own — a name is asked for on a first visit, so a fresh one is the state under
+test — and runs in every scenario, in that scenario's language, viewport and
+theme. Desktop-English and phone-Hebrew also carry the rest of the story, and
+phone-English adds Russian: the longest text in the narrowest window, and the
+one combination the matrix does not load.
+
+| Check | Fails when |
+|---|---|
+| `load:no-native-dialogs` | an alert, confirm or prompt opens on the page — at load, five seconds in, or after a game |
+| `dialogs:none-in-source` | *(static)* a file in `js/` calls `alert(`, `confirm(` or `prompt(` |
+| `i18n:name-offer-in-every-language` | *(static)* a language lacks one of the six strings, has the English text, or loses `{name}` or `{pts}` |
+| `profile:a-first-visit-is-not-interrupted` | seven quiet seconds bring a dialog, an offer, a player or a record of having asked |
+| `profile:looking-around-does-not-make-a-guest` | a visitor with `tol-explored` and no player is made one on arrival |
+| `profile:the-name-is-asked-after-a-game-that-scored` | a game that scored nothing, or the Daily Challenge, asks or uses up the ask; or the first game that scores (Who Appeared First? for a visitor, a Quick Quiz for a returning explorer) carries no card |
+| `profile:the-offer-speaks-the-readers-language` | any of its five strings differs from the translation, or the field or the card has no accessible name |
+| `profile:the-offer-fits-and-is-reachable` | the card runs off the screen or reads the wrong way; a control leaves it, is under 40px tall or is under something else; the field is under 16px; Save wraps away from the field; the page scrolls sideways |
+| `profile:the-offer-is-legible` | any of its text is below AA contrast in the scenario's theme |
+| `profile:keeping-the-name-keeps-the-score` | Save (Enter on a desktop, a tap on a phone) stores another name, makes someone else active, credits other than the score shown, or confirms in the wrong words |
+| `profile:a-declined-offer-is-not-repeated` | "Not now" leaves the card, makes a player, is forgotten, or is followed by another ask |
+| `profile:a-named-player-earns-points-without-being-asked-again` | a game after the name is kept does not add its score, or asks again |
+| `profile:a-game-is-scored-once` | a game whose results are reached twice is credited twice |
+
+Things worth knowing:
+
+- **The games are driven from the page's own data, not played.** The right or
+  the wrong answer to a quiz question is looked up in `TRIVIA_QUESTIONS`, and the
+  older of two species in Who Appeared First? in the tree, so a run scores the
+  same on every runner. Picking at random left a one-in-a-thousand run that
+  scored nothing and looked exactly like a missing offer.
+- **A pass keeps what it measured up to the step that failed.** The first version
+  threw its measurements away at the first error, so a missing offer became a
+  30-second `fill` timeout in six checks at once. Each check now reads only what
+  it needs, and one that needs a step the pass never reached says where it
+  stopped and why. Finding this took the mutations: catching every one was not
+  enough, the message had to name the right thing
+  (`node scripts/mutate-checks.mjs --group profile`, 23 of them).
+- **The Daily Challenge is played to prove it does not ask.** It scores inside
+  but shows no points, and it has Close where every other game has Play Again, so
+  the probe closes and reopens Games as a player would. The first version pressed
+  Play Again and timed out on a button that does not exist.
+- **A saved name is checked by what is stored**, not by what is drawn: the
+  stored player, the active player, and the points against the score the results
+  screen showed. A card that says "Saved" over an empty `tol-players` is the
+  failure this exists for.
+- **`SMOKE_DUMP_NAME=1`** prints everything the probe measured, one JSON line
+  per scenario.
+
 ---
 
 ## Images & Attribution
@@ -1112,7 +1218,7 @@ work is shown. So:
 ## Known Constraints & Important Notes
 
 1. **Tests are browser smoke checks, not unit tests** — `node scripts/smoke.mjs`
-   opens the real page in Chromium and asserts 522 things about layout, i18n,
+   opens the real page in Chromium and asserts 570 things about layout, i18n,
    contrast and rendering. See *Smoke tests* below.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
 3. **index.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
@@ -1254,9 +1360,9 @@ never mistaken for a working page.
 
 ## Smoke Tests
 
-`scripts/smoke.mjs` opens the real page in Chromium and asserts **522 checks**
-— ~86 per scenario across six scenarios (desktop in English, Hebrew and Russian,
-phone in English and Hebrew, and a desktop pass in the light theme), and five
+`scripts/smoke.mjs` opens the real page in Chromium and asserts **570 checks**
+— ~94 per scenario across six scenarios (desktop in English, Hebrew and Russian,
+phone in English and Hebrew, and a desktop pass in the light theme), and seven
 static checks that read the source before the browser starts. Scenarios differ
 in count because some checks are language- or viewport-specific. It runs on every
 push and pull request via `.github/workflows/smoke.yml`, and replaces the old
@@ -1272,7 +1378,9 @@ node scripts/smoke.mjs --url https://example.com   # check a deployed site
 node scripts/smoke.mjs --proxy http://host:port    # run from behind a proxy
 node scripts/smoke.mjs --only desktop-he           # one scenario, ~1 min
 node scripts/smoke.mjs --opening-only --only phone-en  # just the opening group, ~15 s
-node scripts/mutate-opening.mjs                    # break the opening 26 ways, watch each check go red (~4 min)
+node scripts/smoke.mjs --profile-only --only desktop-en # just the name offer, ~45 s
+node scripts/mutate-checks.mjs                     # break the opening 26 ways and the name offer 23, watch each check go red (~12 min)
+node scripts/mutate-checks.mjs --group profile     # one group's
 npm run smoke:update-baseline                      # re-record known failures
 ```
 
@@ -1281,16 +1389,18 @@ watch the check go red, put the code back. The full matrix is a ~35 minute
 round trip, which is too slow to do that honestly, and a check nobody has
 watched fail is a check nobody has tested. It takes a comma-separated list.
 
-`--opening-only` is the same idea for the opening: it skips each scenario's own
-page load and every probe but the opening's. `scripts/mutate-opening.mjs` is
-that loop automated — one deliberate breakage per check, in a scratch copy of
-the site, each run in the scenario that should notice. Run it after changing
-`js/splash.js`, `js/splashScene.js`, `js/boot.js`, `css/splash.css` or the
-`opening:` checks; a mutation whose target text has moved reports
-`PATCH FAILED` and wants updating beside the code it names.
-`SMOKE_DUMP_OPENING=1` prints everything the opening probe measured, one JSON
-line per scenario: the numbers the thresholds were chosen from, and the first
-thing to read when one goes red on a runner you cannot see.
+`--opening-only` and `--profile-only` are the same idea for the opening and for
+the name offer: each skips the scenario's own page load and every probe but its
+own. `scripts/mutate-checks.mjs` is that loop automated — one deliberate
+breakage per check, in a scratch copy of the site, each run in the scenario that
+should notice and in the group its first required check belongs to. Run it
+after changing `js/splash.js`, `js/splashScene.js`, `js/boot.js`,
+`css/splash.css` or the `opening:` checks; or `js/profile.js`, a game's results,
+`css/profile.css` or the `profile:` checks. A mutation whose target text has
+moved reports `PATCH FAILED` and wants updating beside the code it names.
+`SMOKE_DUMP_OPENING=1` and `SMOKE_DUMP_NAME=1` print everything the probe
+measured, one JSON line per scenario: the numbers the thresholds were chosen
+from, and the first thing to read when one goes red on a runner you cannot see.
 
 Never read a filtered run as a green branch — the summary counts only what
 ran and says so. It refuses `--update-baseline` outright, since rewriting the
@@ -1304,8 +1414,9 @@ as a CI artifact on every run).
 
 | Group | Covers |
 |---|---|
-| `load:` | uncaught errors, failed requests, SVG render errors, splash dismissal, nothing covering the stage |
+| `load:` | uncaught errors, failed requests, SVG render errors, splash dismissal, nothing covering the stage, **no native alert, confirm or prompt at any point** |
 | `opening:` | **the opening screen, in five page loads of its own per scenario**: the first paint with no script at all, the finished plate under reduced motion (title fitted, nothing colliding, both canvases drawn, Skip in the right corner, and Russian on a phone though the matrix has no such scenario), a first visit running for real and left by keyboard, the path with no 2D canvas, and a scene that throws while building |
+| `profile:` | **the name offer, in contexts of its own**: a first visit that only looks around is not interrupted for seven seconds; a returning explorer is not made a Guest; the first game that scores (and no other) carries the offer, in the reader's language, inside the screen, with thumb-sized controls that nothing covers, legible in the scenario's theme; keeping the name stores the player and credits the score shown; "Not now" is remembered; later games credit the player without asking; a game reached twice is credited once; focus is not lost when the card goes |
 | `tree:` | node and branch counts, **NaN coordinates**, fit-to-stage, spill, root visibility, horizontal scroll |
 | `chrome:` | header/timeline visible, reveal panel vs. zoom controls and timeline, closed panel off-screen, tooltip and fact toast vs. header, tooltip vs. the node it describes, nothing printed over the species name, **no floating control stretched across the window**, **the wayfinder reachable over every overlay and painted over nothing** |
 | `timeline:` | geological era labels clipped or colliding, **and both the labels and the density curve rebuilt on the way back from the drill-down**, where the strip is hidden and cannot measure itself |
@@ -1315,7 +1426,7 @@ as a CI artifact on every run).
 | `nav:` / `share:` | **Back takes off one layer and leaves the one beneath it**; the share link names the shell and the language as well as the node; following such a link opens in the sender's view without overwriting the recipient's stored preference |
 | `search:` | eight canonical queries return the answer a person would call correct; every common-name alias still matches something |
 | `interact:` | zoom buttons, reset re-fits, parent expands, leaf opens panel, search returns results, camera settles |
-| `static/` | Runs before the browser starts, over `index.html`, `play.html`, `credits.html`, `js/` (recursively), `css/` and `stories/`: CSS custom properties used but never defined; inline event-handler attributes; `script-src` still forbidding inline and eval; every `data-action` resolving to a registered handler; `js/boot.js` listing every language and every right-to-left one |
+| `static/` | Runs before the browser starts, over `index.html`, `play.html`, `credits.html`, `js/` (recursively), `css/` and `stories/`: CSS custom properties used but never defined; inline event-handler attributes; `script-src` still forbidding inline and eval; every `data-action` resolving to a registered handler; `js/boot.js` listing every language and every right-to-left one; no file in `js/` calling `alert`, `confirm` or `prompt`; the name offer's six strings present and translated in every language |
 
 ### The baseline
 

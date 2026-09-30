@@ -1349,7 +1349,7 @@ work is shown. So:
 ## Known Constraints & Important Notes
 
 1. **Tests are browser smoke checks, not unit tests** — `node scripts/smoke.mjs`
-   opens the real page in Chromium and asserts 570 things about layout, i18n,
+   opens the real page in Chromium and asserts 574 things about layout, i18n,
    contrast and rendering. See *Smoke tests* below.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
 3. **atlas.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
@@ -1491,7 +1491,7 @@ never mistaken for a working page.
 
 ## Smoke Tests
 
-`scripts/smoke.mjs` opens the real page in Chromium and asserts **570 checks**
+`scripts/smoke.mjs` opens the real page in Chromium and asserts **574 checks**
 — ~94 per scenario across six scenarios (desktop in English, Hebrew and Russian,
 phone in English and Hebrew, and a desktop pass in the light theme), and seven
 static checks that read the source before the browser starts. Scenarios differ

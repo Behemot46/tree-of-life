@@ -55,8 +55,18 @@ export function treeHTML(r, lang) {
   const leaf = (c, y, cls) => at(X_LEAF + 10, y, 'start', `kin-leaf ${cls}`,
     `<span aria-hidden="true">${c.e}</span> <span dir="auto">${esc(c[lang].n)}</span>`);
 
+  /* The near date is centred over its join, except at either end of the
+     axis. A recent split sits close to the leaves, and centred there its
+     date ran into the top leaf's name ("18.1M yrs ago" into "🍉 Watermelon"
+     on a 360px phone), so it hangs back toward the past instead. An old one
+     sits by the far edge, where the long Hebrew "more than 247 million" ran
+     out of the figure, so it reaches toward the leaves. Every question in the
+     bank is drawn to check this (play:every-reveal-fits). */
+  const [nearAnchor, nearX] = xN >= X_LEAF - 70 ? ['end', xN + 8]
+    : xN <= X_FAR + 70 ? ['start', xN - 8]
+    : ['mid', xN];
   const dates = r.dated
-    ? at(xN, Y1 - 13, 'mid', 'kin-date hot kin-fade n1', esc(s.short(r.dNear))) +
+    ? at(nearX, Y1 - 13, nearAnchor, 'kin-date hot kin-fade n1', esc(s.short(r.dNear))) +
       at(X_FAR + 9, YF, 'start', 'kin-date kin-fade n2', esc(s.short(r.dFar)))
     : '';
 

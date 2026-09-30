@@ -156,7 +156,8 @@ export const QUESTIONS = [
 ];
 
 /* The first four days are chosen by hand: an opener that surprises, then a
-   ramp. From day 5 the engine draws seeded sets from the whole bank. */
+   ramp. Later days are laid out by scripts/kin-build.mjs into the frozen
+   calendar, js/kin/schedule.js, from these questions and the generated bank. */
 export const CURATED_DAYS = [
   ['you-mushroom', 'koala', 'whale', 'tomato', 'chicken', 'dog', 'lobster', 'strawberry', 'flamingo', 'bat'],
   ['coffee', 'giraffe', 'frog', 'cucumber', 'snake', 'seal', 'spider', 'sunflower', 'turtle', 'hedgehog'],
@@ -164,5 +165,6 @@ export const CURATED_DAYS = [
   ['dolphin', 'otter', 'cherry', 'mosquito', 'camel', 'banana', 'croc', 'salmon', 'maple', 'cactus'],
 ];
 
-/* Openers for generated days: questions whose reveal is a jaw-dropper. */
+/* Openers for laid-out days, with generated questions whose wrong answer is
+   a strong decoy: questions whose reveal is a jaw-dropper. */
 export const HOOKS = ['you-mushroom', 'coffee', 'tulip', 'lobster', 'bat', 'flamingo', 'mushroom-you', 'hedgehog', 'turtle', 'salmon'];

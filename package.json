@@ -11,7 +11,9 @@
     "photos:pull": "git fetch --depth 1 origin chore/photo-cache && git checkout FETCH_HEAD -- photo-cache && git reset -q photo-cache",
     "test": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --test \"tests/*.test.mjs\"",
     "play:check": "node scripts/play-check.mjs",
-    "kin:opentree": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/kin-check-opentree.mjs"
+    "kin:opentree": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/kin-check-opentree.mjs",
+    "kin:build": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/kin-build.mjs",
+    "kin:frozen": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/kin-check-schedule.mjs"
   },
   "devDependencies": {
     "playwright": "1.56.1"

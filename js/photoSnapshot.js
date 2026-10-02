@@ -5,7 +5,7 @@
  * .github/workflows/photo-refresh.yml, which opens a pull request when an
  * article changes its lead image — that is what repairs dead photos.
  *
- * 439 of 439 entries carry an image.
+ * 440 of 440 entries carry an image.
  *
  * thumb — 400px, for the discs in the tree.
  * hero  — 1280px, for the panel.
@@ -234,6 +234,7 @@ export const PHOTO_SNAPSHOT = {
   "house-mouse": {thumb:"https://upload.wikimedia.org/wikipedia/commons/8/8f/Mouse_white_background.jpg",hero:"https://upload.wikimedia.org/wikipedia/commons/8/8f/Mouse_white_background.jpg",by:"Unknown author Unknown author (original) / Ilmari Karonen (editing)",lic:"Public domain",page:"https://commons.wikimedia.org/wiki/File:Mouse_white_background.jpg"},
   "hummingbird": {thumb:"https://upload.wikimedia.org/wikipedia/commons/thumb/7/7c/Archilochus_colubris_-flying_-male-8.jpg/500px-Archilochus_colubris_-flying_-male-8.jpg",hero:"https://upload.wikimedia.org/wikipedia/commons/7/7c/Archilochus_colubris_-flying_-male-8.jpg",by:"jeffreyw",lic:"CC BY 2.0",page:"https://commons.wikimedia.org/wiki/File:Archilochus_colubris_-flying_-male-8.jpg"},
   "humpback-whale": {thumb:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Humpback_whale_breaching_off_Cabo_San_Lucas.jpg/500px-Humpback_whale_breaching_off_Cabo_San_Lucas.jpg",hero:"https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Humpback_whale_breaching_off_Cabo_San_Lucas.jpg/1280px-Humpback_whale_breaching_off_Cabo_San_Lucas.jpg",by:"Juan Cruzado Cortés",lic:"CC BY 4.0",page:"https://commons.wikimedia.org/wiki/File:Humpback_whale_breaching_off_Cabo_San_Lucas.jpg"},
+  "ichthyosaur": {thumb:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Ichthyosaurus_communis_in_London.jpg/500px-Ichthyosaurus_communis_in_London.jpg",hero:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Ichthyosaurus_communis_in_London.jpg/1280px-Ichthyosaurus_communis_in_London.jpg",by:"Gary Todd",lic:"CC0",page:"https://commons.wikimedia.org/wiki/File:Ichthyosaurus_communis_in_London.jpg"},
   "iguana": {thumb:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Green_Iguana_In_Florida.jpg/960px-Green_Iguana_In_Florida.jpg",hero:"https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Green_Iguana_In_Florida.jpg/960px-Green_Iguana_In_Florida.jpg",by:"Ajoshi54",lic:"CC BY-SA 4.0",page:"https://commons.wikimedia.org/wiki/File:Green_Iguana_In_Florida.jpg"},
   "insecta": {thumb:"https://upload.wikimedia.org/wikipedia/commons/thumb/e/ed/Insects_-_Neoptera_-_Paleoptera_-_Apterygota.jpg/500px-Insects_-_Neoptera_-_Paleoptera_-_Apterygota.jpg",hero:"https://upload.wikimedia.org/wikipedia/commons/e/ed/Insects_-_Neoptera_-_Paleoptera_-_Apterygota.jpg",by:"Chiswick Chap",lic:"CC BY-SA 4.0",page:"https://commons.wikimedia.org/wiki/File:Insects_-_Neoptera_-_Paleoptera_-_Apterygota.jpg"},
   "insects": {thumb:"https://upload.wikimedia.org/wikipedia/commons/e/ed/Insects_-_Neoptera_-_Paleoptera_-_Apterygota.jpg",hero:"https://upload.wikimedia.org/wikipedia/commons/e/ed/Insects_-_Neoptera_-_Paleoptera_-_Apterygota.jpg",by:"Chiswick Chap",lic:"CC BY-SA 4.0",page:"https://commons.wikimedia.org/wiki/File:Insects_-_Neoptera_-_Paleoptera_-_Apterygota.jpg"},

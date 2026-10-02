@@ -777,6 +777,45 @@ check('share:link-restores-the-senders-view', 'A shared link opens in the shell 
   if (s.storedLang !== c.scenario.lang) fail(`following a link rewrote the stored language to ${s.storedLang}`);
 });
 
+/* The runner seeds the language before load, so a switch made afterwards was
+   never exercised. applyI18n() rewrote the rail and the title and left the
+   drill-down in the language it was drawn in, because Explore paints its words
+   at render time and nothing asked it to render again. */
+check('i18n:explore-follows-a-runtime-language-switch', 'Switching language inside the drill-down re-draws its rows', (c) => {
+  const a = c.probe.afterLoad;
+  if (!a) fail('the after-load pass never ran');
+  if (a.error) fail(`the after-load pass threw: ${a.error}`);
+  if (a.langAfter !== a.to) fail(`the language button did not switch to ${a.to} (lang=${a.langAfter})`);
+  if (!a.cardsBefore || !a.cardsAfter) fail('the drill-down had no rows to compare');
+  if (a.stale.length) fail(`${a.stale.length} row(s) still in the old language after switching ${a.from} → ${a.to}: ${a.stale.join(', ')}`);
+});
+
+check('chrome:rail-view-buttons-are-on-screen', 'The rail\'s View buttons are inside the window, and nothing is over them', (c) => {
+  const a = c.probe.afterLoad;
+  if (!a) fail('the after-load pass never ran');
+  if (a.error) fail(`the after-load pass threw: ${a.error}`);
+  if (!a.railButtons || a.railButtons.length < 4) fail(`only ${(a.railButtons || []).length} View button(s) in the rail`);
+  const bad = a.railButtons.filter((b) => b.x < 0 || b.right > a.viewport || b.w < 40 || !b.reachable);
+  if (bad.length) fail(`${bad.length} View button(s) off-screen or covered: ` +
+    bad.map((b) => `${b.label} [${b.x}..${b.right}] w=${b.w} reachable=${b.reachable}`).join('; '));
+});
+
+/* The rail offers Radial and Cladogram in both shells, but they lay out the
+   map. Clicked from the drill-down they used to do their work on a canvas
+   nobody could see, so a visible control did nothing visible. */
+check('chrome:rail-instruments-work-from-the-drill-down', 'Radial and Cladogram in the rail take a reader to the map', (c) => {
+  const a = c.probe.afterLoad;
+  if (!a) fail('the after-load pass never ran');
+  if (a.error) fail(`the after-load pass threw: ${a.error}`);
+  for (const r of a.rail) {
+    if (r.startView !== 'explore') fail(`could not return to the drill-down before testing ${r.mode} (was ${r.startView})`);
+    if (r.view !== 'map') fail(`${r.mode} clicked in the drill-down left the page in the ${r.view} shell`);
+    if (!r.mapVisible) fail(`${r.mode} clicked in the drill-down shows no map`);
+    if (!r.nodes) fail(`${r.mode} clicked in the drill-down drew no nodes`);
+    if (!r.active) fail(`${r.mode} is not the active mode after clicking it`);
+  }
+});
+
 // ── opening ───────────────────────────────────────────────────────────────────
 /* The opening is measured from openingProbe(), which loads the page four times
    in contexts of its own (see there). Every check below runs in every scenario,
@@ -3250,6 +3289,84 @@ async function probePage(page, scenario, baseUrl) {
     } catch (e) { return { error: String(e) }; }
   })();
 
+  /* ── Things a reader does after the page has loaded ────────────────────
+     The runner seeds the language and the shell before load, so neither
+     "switch language while in the drill-down" nor "click the rail's Radial
+     while in the drill-down" has ever been performed by any check above.
+     Both were broken on main: the rows kept the old language, and Radial
+     acted on a map that was display:none. Load into the drill-down without
+     persisting (?view=explore) and do them. */
+  const afterLoad = await (async () => {
+    try {
+      await page.goto(baseUrl + '/atlas.html?view=explore', { waitUntil: 'domcontentloaded' });
+      await page.waitForSelector('.ex-card', { timeout: 20000 });
+      await page.evaluate(() => { const b = document.getElementById('splash-skip'); if (b && b.offsetParent !== null) b.click(); });
+      await page.waitForTimeout(800);
+      return await page.evaluate(async ({ from }) => {
+        const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+        const { TREE } = await import(new URL('js/data.js', location.href).href);
+        const { displayName } = await import(new URL('js/utils.js', location.href).href);
+        const find = (n, id) => (n.id === id ? n : (n.children || []).reduce((f, c) => f || find(c, id), null));
+        const to = from === 'he' ? 'ru' : 'he';
+        const out = { from, to };
+        const names = () => [...document.querySelectorAll('.ex-card')].map((c) => ({
+          id: c.getAttribute('data-arg'),
+          text: (c.querySelector('.ex-card-name')?.textContent || '').trim(),
+        }));
+        out.cardsBefore = names().length;
+        document.querySelector(`.lang-btn[data-lang="${to}"]`)?.click();
+        await wait(400);
+        out.langAfter = document.documentElement.lang;
+        out.stale = names().filter((n) => {
+          const node = find(TREE, n.id);
+          return node && displayName(node).trim() !== n.text;
+        }).slice(0, 5).map((n) => `${n.id}="${n.text}"`);
+        out.cardsAfter = names().length;
+        out.chrome = (document.querySelector('.ex-back, .ex-here')?.textContent || '').trim();
+        // put the language back for whatever runs next
+        document.querySelector(`.lang-btn[data-lang="${from}"]`)?.click();
+        await wait(300);
+
+        /* The View group in the rail, as a reader meets it: on a phone the rail
+           is closed until the ☰ is pressed. A pre-rail mobile rule had shifted
+           the whole group off the start edge while it stayed in the DOM. */
+        const toggle = document.getElementById('left-rail-toggle');
+        const toggleShown = !!toggle && getComputedStyle(toggle).display !== 'none';
+        if (toggleShown && !document.getElementById('left-rail').classList.contains('open')) { toggle.click(); await wait(500); }
+        out.railButtons = [...document.querySelectorAll('#view-toggle .view-btn')]
+          .filter((b) => getComputedStyle(b).display !== 'none')
+          .map((b) => {
+            const r = b.getBoundingClientRect();
+            const hit = document.elementFromPoint(r.x + r.width / 2, r.y + r.height / 2);
+            return { label: b.textContent.trim().slice(0, 14), x: Math.round(r.x), right: Math.round(r.right),
+                     w: Math.round(r.width), h: Math.round(r.height), reachable: !!hit && (b === hit || b.contains(hit)) };
+          });
+        out.viewport = innerWidth;
+        if (toggleShown) { toggle.click(); await wait(400); }
+
+        // The rail's map instruments, clicked from the drill-down.
+        out.rail = [];
+        for (const mode of ['radial', 'cladogram']) {
+          document.querySelector('#view-toggle [data-view="explore"]')?.click();
+          await wait(300);
+          const startView = document.body.getAttribute('data-view');
+          document.querySelector(`#view-toggle [data-mode="${mode}"]`)?.click();
+          await wait(700);
+          const svg = document.getElementById('svg');
+          const r = svg ? svg.getBoundingClientRect() : { width: 0, height: 0 };
+          out.rail.push({
+            mode, startView,
+            view: document.body.getAttribute('data-view'),
+            active: !!document.querySelector(`#view-toggle [data-mode="${mode}"].active`),
+            mapVisible: !!svg && getComputedStyle(svg).display !== 'none' && r.width > 0 && r.height > 0,
+            nodes: document.querySelectorAll('#viewport g.node-group').length,
+          });
+        }
+        return out;
+      }, { from: scenario.lang });
+    } catch (e) { return { error: String(e) }; }
+  })();
+
   /* The opening has page loads of its own, in contexts of its own, so it goes
      last and touches nothing above. */
   const opening = await openingProbe(page, scenario, baseUrl).catch((e) => ({ error: String(e) }));
@@ -3257,7 +3374,7 @@ async function probePage(page, scenario, baseUrl) {
   const name = await nameProbe(page, scenario, baseUrl).catch((e) => ({ error: String(e) }));
 
   return { ...base, ...forced, tooltipShown, tooltipCoversNode, tipFact, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps, heroPhoto, photoHostReachable: await wikimediaReachable(), contrast, searchQuality,
-           searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations, explore, wayfinder, sharedLink, opening, name };
+           searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations, explore, wayfinder, sharedLink, afterLoad, opening, name };
 }
 
 

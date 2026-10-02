@@ -211,7 +211,17 @@
 #view-toggle{
   position:static !important;
   top:auto !important;left:auto !important;
-  display:flex !important;flex-direction:column;gap:4px;
+  display:flex !important;flex-direction:column !important;gap:4px;
+  /* The pre-rail phone layout centred this group on the screen with
+     left:50% and translateX(-50%) (responsive.css). left is released above;
+     the transform was not, so on a phone the whole group sat half its own
+     width off the start edge and the rail's View section read as empty. */
+  transform:none !important;
+  /* A rail taller than a phone scrolls, and its children are flex items. This
+     group still carries overflow:hidden from when it floated, which lets a flex
+     item shrink to nothing: it measured 0px tall at 390x844 with its buttons
+     inside it unpainted and unclickable. */
+  flex-shrink:0;overflow:visible !important;
   background:transparent !important;border:none !important;
   padding:0 !important;box-shadow:none !important;
   backdrop-filter:none !important;

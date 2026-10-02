@@ -1349,7 +1349,7 @@ work is shown. So:
 ## Known Constraints & Important Notes
 
 1. **Tests are browser smoke checks, not unit tests** — `node scripts/smoke.mjs`
-   opens the real page in Chromium and asserts 592 things about layout, i18n,
+   opens the real page in Chromium and asserts 598 things about layout, i18n,
    contrast and rendering. See *Smoke tests* below.
 2. **No linter/formatter config** — maintain consistent 2-space indentation.
 3. **atlas.html** is pure HTML markup (~462 lines). CSS is in `css/`, JS is in `js/`.
@@ -1491,7 +1491,7 @@ never mistaken for a working page.
 
 ## Smoke Tests
 
-`scripts/smoke.mjs` opens the real page in Chromium and asserts **592 checks**
+`scripts/smoke.mjs` opens the real page in Chromium and asserts **598 checks**
 — ~94 per scenario across six scenarios (desktop in English, Hebrew and Russian,
 phone in English and Hebrew, and a desktop pass in the light theme), and seven
 static checks that read the source before the browser starts. Scenarios differ
@@ -1559,7 +1559,7 @@ as a CI artifact on every run).
 | `load:` | uncaught errors, failed requests, SVG render errors, splash dismissal, nothing covering the stage, **no native alert, confirm or prompt at any point** |
 | `opening:` | **the opening screen, in five page loads of its own per scenario**: the first paint with no script at all, the finished plate under reduced motion (title fitted, nothing colliding, both canvases drawn, Skip in the right corner, and Russian on a phone though the matrix has no such scenario), a first visit running for real and left by keyboard, the path with no 2D canvas, and a scene that throws while building |
 | `profile:` | **the name offer, in contexts of its own**: a first visit that only looks around is not interrupted for seven seconds; a returning explorer is not made a Guest; the first game that scores (and no other) carries the offer, in the reader's language, inside the screen, with thumb-sized controls that nothing covers, legible in the scenario's theme; keeping the name stores the player and credits the score shown; "Not now" is remembered; later games credit the player without asking; a game reached twice is credited once; focus is not lost when the card goes |
-| `tree:` | node and branch counts, **NaN coordinates**, fit-to-stage, spill, root visibility, horizontal scroll |
+| `tree:` | node and branch counts, **NaN coordinates**, fit-to-stage, spill, root visibility, horizontal scroll, **cladogram leaf labels on the outward side in both directions of writing** (the tree is mirrored in Hebrew; its labels once were not, and the camera fitted at 0.3 against English's 0.4) |
 | `chrome:` | header/timeline visible, reveal panel vs. zoom controls and timeline, closed panel off-screen, tooltip and fact toast vs. header, tooltip vs. the node it describes, nothing printed over the species name, **no floating control stretched across the window**, **the wayfinder reachable over every overlay and painted over nothing** |
 | `timeline:` | geological era labels clipped or colliding, **and both the labels and the density curve rebuilt on the way back from the drill-down**, where the strip is hidden and cannot measure itself |
 | `chrome:` (rail) | after-load pass, in a page loaded into the drill-down: **the rail's View buttons are inside the window and hit-testable (on a phone, after pressing ☰); Radial and Cladogram clicked from the drill-down take the reader to the map, and on a phone close the rail over it; a language switched at runtime re-draws the drill-down's rows** — the runner seeds language and shell before load, so none of these had ever been performed by any check |

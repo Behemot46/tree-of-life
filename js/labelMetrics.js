@@ -95,12 +95,20 @@ export function labelBox(node, isCladogram) {
 
 /* Where the label block starts, relative to the node centre.
 
-   In the cladogram it always sits to the right. In the radial layout it is
+   In the cladogram it sits on the outward side of the node: to the right, and
+   to the left in Hebrew, where layoutCladogram() mirrors the whole tree so the
+   root is on the right. It stayed on the right there, so every label ran back
+   across its own branches and the camera framed a box the labels were not in
+   (the tree fitted at 0.3 against 0.4 in English on a phone). In the radial layout it is
    pushed outward along the node's own branch angle and anchored on whichever
    side keeps it clear of the tree, so a label can extend a full label-width
    further out than the node itself. */
 export function labelOffset(node, isCladogram, nodeR) {
-  if (isCladogram) return { lx: nodeR + 8, ly: 0, anchor: 'start' };
+  if (isCladogram) {
+    return document.documentElement.dir === 'rtl'
+      ? { lx: -(nodeR + 8), ly: 0, anchor: 'end' }
+      : { lx: nodeR + 8, ly: 0, anchor: 'start' };
+  }
   const dist = nodeR + 18 + Math.max(0, ((node.depth || 0) - 3) * 4);
 
   /* Radially outward is the empty side for a leaf, and exactly the wrong side

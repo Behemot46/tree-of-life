@@ -130,6 +130,7 @@ tree-of-life/
     ├── labelMetrics.js  # One source of truth for label size, placement, footprint
     ├── dnaSimilarity.js # DNA_KNOWN, estimateDnaSimilarity(), findLCA()
     ├── taxonRank.js     # rankKey(), subtreeDepth() — a node's rank and how deep it runs
+    ├── eraNames.js      # eraLabel() — a node's era string in Hebrew/Russian; unknown strings stay English
     ├── nodeIcons.js     # NODE_ICONS SVG paths + getIconGroup()
     ├── triviaData.js    # TRIVIA_QUESTIONS — 200+ quiz questions
     ├── primateData.js   # PRIMATE_DATA — taxonomy, genome, traits
@@ -1094,7 +1095,7 @@ Then add the language object to `TRANSLATIONS` and a `.lang-btn` in
 
 ### What is *not* translated
 
-**Major taxonomic groups are translated; individual species are not.**
+**Major taxonomic groups and eras are translated; individual species are not.** (`js/eraNames.js` translates the era line on Explore rows; `tests/era.test.mjs` fails when a node carries an era it cannot translate.)
 
 `js/taxonNames.js` holds Hebrew and Russian names for the 50 ranked groups —
 domains, kingdoms, phyla, classes, orders and the like. `displayName(node)` in

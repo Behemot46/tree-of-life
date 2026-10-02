@@ -11,6 +11,7 @@ import { reducedMotion, canonicalHomininId, getTimeContext, displayName } from '
 import { a11yAnnounce, markExplored } from './engagement.js';
 import { NODE_ICONS, getIconGroup, FACTS, ImageLoader } from './data.js';
 import { MAP_PATHS } from './mapPaths.js';
+import { SILHOUETTES } from './silhouettes.js';
 import { PRIMATE_DATA } from './primateData.js';
 import { GEO_DATA, BRANCH_DATA } from './geoData.js';
 import { countDescendants } from './layout.js';
@@ -340,6 +341,20 @@ export function renderPrimateCard(node) {
   return html;
 }
 
+/* What stands in for a photograph that has not arrived: the taxon's silhouette
+   in its own colour, or the line icon of its kind. Never the emoji — the
+   rest of the panel's chrome has dropped them. */
+function heroFbMark(node) {
+  const color = node.color || '#c8883a';
+  if (SILHOUETTES[node.id]) {
+    const url = `url(&quot;assets/silhouettes/${node.id}.svg&quot;)`;
+    return `<span class="panel-hero-sil" style="background-color:${color};-webkit-mask-image:${url};mask-image:${url}"></span>`;
+  }
+  const ig = getIconGroup(node);
+  const iconPath = (NODE_ICONS && NODE_ICONS[ig]) || (NODE_ICONS && NODE_ICONS.default) || '';
+  return `<svg class="panel-hero-icon" viewBox="0 0 40 40" aria-hidden="true"><path d="${iconPath}" fill="${color}"/></svg>`;
+}
+
 // ── Panel hero SVG silhouette fallback ──
 export function buildHeroFallback(node) {
   const ig = getIconGroup(node);
@@ -467,7 +482,7 @@ export function renderPanelContent(node) {
   p.innerHTML = `
     <div class="panel-hero">
       <img id="${panelImgId}" alt="${node.name}" style="display:none;" />
-      <div id="${panelFbId}" class="panel-hero-fb">${node.icon || '🌿'}</div>
+      <div id="${panelFbId}" class="panel-hero-fb">${heroFbMark(node)}</div>
       <div class="panel-hero-overlay"></div>
       ${node.extinct ? '<span class="panel-hero-badge">† EXTINCT</span>' : ''}
       ${(()=>{const c=node.conservation||node.iucn;if(!c||c==='NE')return '';const map={CR:'Critically Endangered',EN:'Endangered',VU:'Vulnerable',NT:'Near Threatened',LC:'Least Concern'};return `<span class="pri-iucn pri-iucn-${c.toLowerCase()}">${map[c]||c}</span>`;})()}

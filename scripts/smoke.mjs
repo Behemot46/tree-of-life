@@ -496,7 +496,7 @@ check('panel:hero-photo-loads', 'The species panel shows its photograph', (c) =>
   // Nothing to assert where the host cannot be reached — see wikimediaReachable().
   if (c.probe.photoHostReachable === false) return;
   if (!h.present) { fail('the panel rendered no hero image element at all'); return; }
-  if (!h.loaded) fail(`the hero photograph did not load, so the panel fell back to an emoji: ${h.src}`);
+  if (!h.loaded) fail(`the hero photograph did not load, so the panel fell back to its silhouette: ${h.src}`);
   else if (!h.shown) fail('the hero photograph loaded but is not displayed');
 });
 

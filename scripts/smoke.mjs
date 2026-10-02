@@ -813,6 +813,9 @@ check('chrome:rail-instruments-work-from-the-drill-down', 'Radial and Cladogram 
     if (!r.mapVisible) fail(`${r.mode} clicked in the drill-down shows no map`);
     if (!r.nodes) fail(`${r.mode} clicked in the drill-down drew no nodes`);
     if (!r.active) fail(`${r.mode} is not the active mode after clicking it`);
+    /* On a phone the rail is a sheet over the page. Choosing a view from it and
+       leaving it open puts the map the reader just asked for underneath it. */
+    if (r.overlayRail && r.railOpenAfter) fail(`${r.mode} chosen in the phone rail left the rail open over the map`);
   }
 });
 
@@ -3350,8 +3353,11 @@ async function probePage(page, scenario, baseUrl) {
           document.querySelector('#view-toggle [data-view="explore"]')?.click();
           await wait(300);
           const startView = document.body.getAttribute('data-view');
+          if (toggleShown) { toggle.click(); await wait(400); }   // a phone opens the rail first
+          // a real tap: the rail's own close-on-choose listens for click events that bubble
           document.querySelector(`#view-toggle [data-mode="${mode}"]`)?.click();
           await wait(700);
+          const railOpenAfter = document.getElementById('left-rail').classList.contains('open');
           const svg = document.getElementById('svg');
           const r = svg ? svg.getBoundingClientRect() : { width: 0, height: 0 };
           out.rail.push({
@@ -3360,6 +3366,7 @@ async function probePage(page, scenario, baseUrl) {
             active: !!document.querySelector(`#view-toggle [data-mode="${mode}"].active`),
             mapVisible: !!svg && getComputedStyle(svg).display !== 'none' && r.width > 0 && r.height > 0,
             nodes: document.querySelectorAll('#viewport g.node-group').length,
+            overlayRail: toggleShown, railOpenAfter,
           });
         }
         return out;

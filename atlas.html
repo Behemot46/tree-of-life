@@ -115,11 +115,11 @@
   <div class="rail-divider"></div>
   <div class="rail-caption" data-i18n="rail.tools">Tools</div>
   <div class="rail-group">
-    <button id="btn-compare" class="search-pill" data-action="species-compare:open" aria-label="Species Compare">🔬 <span id="i-btn-compare">Compare</span></button>
-    <button id="btn-quiz" class="search-pill" data-action="game:open" aria-label="Open games">🎮 <span id="quiz-label">Games</span></button>
-    <a href="./" class="search-pill" id="btn-kin" style="text-decoration:none;" aria-label="Kin, the daily game">📅 <span id="kin-label">Kin · daily game</span></a>
-    <a href="stories/superarchaic-dna.html" class="search-pill" id="btn-stories" style="text-decoration:none;" aria-label="Read interactive stories">📖 <span id="stories-label">Stories</span></a>
-    <button id="hominins-tab" class="search-pill" data-action="nav:to" data-arg="hominini" aria-label="Navigate to Hominin family tree">🧬 <span id="i-btn-hominins">Hominins</span></button>
+    <button id="btn-compare" class="search-pill" data-action="species-compare:open" aria-label="Species Compare"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="12" r="6"/><circle cx="15" cy="12" r="6"/></svg> <span id="i-btn-compare">Compare</span></button>
+    <button id="btn-quiz" class="search-pill" data-action="game:open" aria-label="Open games"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10a4 4 0 0 1 4 4v3a3 3 0 0 1-5.2 2L14.5 14h-5L8.2 16A3 3 0 0 1 3 14v-3a4 4 0 0 1 4-4z"/><path d="M8 10v3M6.5 11.5h3"/><circle cx="15.5" cy="10.5" r=".5"/><circle cx="17.5" cy="12.5" r=".5"/></svg> <span id="quiz-label">Games</span></button>
+    <a href="./" class="search-pill" id="btn-kin" style="text-decoration:none;" aria-label="Kin, the daily game"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4"/></svg> <span id="kin-label">Kin · daily game</span></a>
+    <a href="stories/superarchaic-dna.html" class="search-pill" id="btn-stories" style="text-decoration:none;" aria-label="Read interactive stories"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H12v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M12 4h6.5A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5H12"/></svg> <span id="stories-label">Stories</span></a>
+    <button id="hominins-tab" class="search-pill" data-action="nav:to" data-arg="hominini" aria-label="Navigate to Hominin family tree"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="5" r="2.3"/><path d="M12 8.5V15M7.5 11.5h9M8.5 21l3.5-6 3.5 6"/></svg> <span id="i-btn-hominins">Hominins</span></button>
   </div>
 
   <div class="rail-divider"></div>
@@ -127,11 +127,11 @@
     <button id="extinct-toggle" class="search-pill" data-action="extinct:toggle" aria-label="Toggle visibility of extinct species">
       <span>†</span> <span id="extinct-label">Show extinct</span>
     </button>
-    <button id="btn-tour-help" class="search-pill" data-action="tour:selector" aria-label="Guided tour" title="Guided Tour">? <span id="i-btn-guided-tour">Guided tour</span></button>
+    <button id="btn-tour-help" class="search-pill" data-action="tour:selector" aria-label="Guided tour" title="Guided Tour"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></svg> <span id="i-btn-guided-tour">Guided tour</span></button>
   </div>
 
   <div class="rail-foot">
-    <div class="rail-status" aria-label="Species explored">🔬 <b><span id="progress-count">0</span></b> / <b><span id="progress-total">0</span></b> <span id="i-rail-seen">seen</span></div>
+    <div class="rail-status" aria-label="Species explored"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg> <b><span id="progress-count">0</span></b> / <b><span id="progress-total">0</span></b> <span id="i-rail-seen">seen</span></div>
     <a id="rail-credits" class="rail-credits" href="credits.html">Credits</a>
     <!-- Species names come from the tree data, which is English-only. Exempt
          from the UI translation checks until the data itself is localised. -->
@@ -244,7 +244,7 @@
 
 <!-- DISCOVERY FACT TOAST -->
 <div id="fact-toast" role="status" aria-live="polite">
-  <div class="ft-label">💡 DID YOU KNOW</div>
+  <div class="ft-label">DID YOU KNOW</div>
   <div class="ft-text" id="ft-text"></div>
 </div>
 
@@ -284,7 +284,7 @@
 <div id="hominin-view" role="dialog" aria-modal="true" aria-label="Human Evolution Explorer">
   <div class="hom-header">
     <div class="hom-title-row">
-      <div class="hom-title">🧬 <span id="i-hom-title">Human Evolution</span></div>
+      <div class="hom-title"><span id="i-hom-title">Human Evolution</span></div>
       <div class="hom-header-actions">
         <button id="compare-btn" class="hom-action-btn" data-action="hominin:compare-toggle">⚖️ <span id="i-hom-compare">Compare</span><span id="compare-hint">(pick 2–4)</span></button>
         <button id="hom-close" class="hom-action-btn" aria-label="Close">✕</button>
@@ -447,9 +447,9 @@
     <button class="btn-back" data-action="profile:close" aria-label="Close profile panel">✕</button>
   </div>
   <div class="profile-tabs" role="tablist">
-    <button class="profile-tab active" data-tab="leaderboard" role="tab" aria-selected="true">🏆 Leaderboard</button>
-    <button class="profile-tab" data-tab="achievements" role="tab" aria-selected="false">🎖 Achievements</button>
-    <button class="profile-tab" data-tab="progress" role="tab" aria-selected="false">📊 Progress</button>
+    <button class="profile-tab active" data-tab="leaderboard" role="tab" aria-selected="true">Leaderboard</button>
+    <button class="profile-tab" data-tab="achievements" role="tab" aria-selected="false">Achievements</button>
+    <button class="profile-tab" data-tab="progress" role="tab" aria-selected="false">Progress</button>
   </div>
   <div class="profile-content" id="profile-content"></div>
 </div>

@@ -77,33 +77,33 @@ export function renderBranchSection(node, branchType) {
   let html = '';
   if (branchType === 'microbe' || branchType === 'protist') {
     const items = [];
-    if (bd.cellType) items.push(`<span class="panel-cap">🔬 ${bd.cellType}</span>`);
-    if (bd.metabolism) items.push(`<span class="panel-cap">⚡ ${bd.metabolism}</span>`);
-    if (bd.habitat) items.push(`<span class="panel-cap">🏠 ${bd.habitat}</span>`);
-    if (items.length) html += `<div class="panel-section"><div class="p-section">🧫 BIOLOGY</div><div class="panel-caps">${items.join('')}</div></div>`;
-    if (bd.relevance) html += `<div class="panel-section"><div class="p-section">🌍 SIGNIFICANCE</div><p class="p-detail" style="margin:0">${bd.relevance}</p></div>`;
+    if (bd.cellType) items.push(`<span class="panel-cap"><b>Cell</b> ${bd.cellType}</span>`);
+    if (bd.metabolism) items.push(`<span class="panel-cap"><b>Metabolism</b> ${bd.metabolism}</span>`);
+    if (bd.habitat) items.push(`<span class="panel-cap"><b>Habitat</b> ${bd.habitat}</span>`);
+    if (items.length) html += `<div class="panel-section"><div class="p-section">BIOLOGY</div><div class="panel-caps">${items.join('')}</div></div>`;
+    if (bd.relevance) html += `<div class="panel-section"><div class="p-section">SIGNIFICANCE</div><p class="p-detail" style="margin:0">${bd.relevance}</p></div>`;
   } else if (branchType === 'plant') {
     const items = [];
-    if (bd.pollination) items.push(`<span class="panel-cap">🌸 ${bd.pollination}</span>`);
-    if (bd.conservation) items.push(`<span class="panel-cap">🛡️ ${bd.conservation}</span>`);
-    if (bd.ecoRole) items.push(`<span class="panel-cap">🌱 ${bd.ecoRole}</span>`);
-    if (items.length) html += `<div class="panel-section"><div class="p-section">🌿 ECOLOGY</div><div class="panel-caps">${items.join('')}</div></div>`;
-    if (bd.record) html += `<div class="panel-section"><div class="panel-tip">🏆 ${bd.record}</div></div>`;
+    if (bd.pollination) items.push(`<span class="panel-cap"><b>Pollination</b> ${bd.pollination}</span>`);
+    if (bd.conservation) items.push(`<span class="panel-cap"><b>Status</b> ${bd.conservation}</span>`);
+    if (bd.ecoRole) items.push(`<span class="panel-cap"><b>Role</b> ${bd.ecoRole}</span>`);
+    if (items.length) html += `<div class="panel-section"><div class="p-section">ECOLOGY</div><div class="panel-caps">${items.join('')}</div></div>`;
+    if (bd.record) html += `<div class="panel-section"><div class="panel-tip"><b>Record</b> ${bd.record}</div></div>`;
   } else if (branchType === 'fungus') {
     const items = [];
-    if (bd.substrate) items.push(`<span class="panel-cap">🪵 ${bd.substrate}</span>`);
-    if (bd.symbiosis) items.push(`<span class="panel-cap">🤝 ${bd.symbiosis}</span>`);
-    if (bd.edibility) items.push(`<span class="panel-cap">${bd.edibility.includes('Toxic') || bd.edibility.includes('Deadly') ? '☠️' : '🍄'} ${bd.edibility}</span>`);
-    if (bd.dispersal) items.push(`<span class="panel-cap">💨 ${bd.dispersal}</span>`);
-    if (items.length) html += `<div class="panel-section"><div class="p-section">🍄 MYCOLOGY</div><div class="panel-caps">${items.join('')}</div></div>`;
+    if (bd.substrate) items.push(`<span class="panel-cap"><b>Substrate</b> ${bd.substrate}</span>`);
+    if (bd.symbiosis) items.push(`<span class="panel-cap"><b>Symbiosis</b> ${bd.symbiosis}</span>`);
+    if (bd.edibility) items.push(`<span class="panel-cap"><b>Edibility</b> ${bd.edibility}</span>`);
+    if (bd.dispersal) items.push(`<span class="panel-cap"><b>Dispersal</b> ${bd.dispersal}</span>`);
+    if (items.length) html += `<div class="panel-section"><div class="p-section">MYCOLOGY</div><div class="panel-caps">${items.join('')}</div></div>`;
   } else if (branchType === 'animal' || branchType === 'primate') {
     const items = [];
-    if (bd.diet) items.push(`<span class="panel-cap">🍽️ ${bd.diet}</span>`);
-    if (bd.lifespan) items.push(`<span class="panel-cap">⏳ ${bd.lifespan}</span>`);
-    if (bd.conservation) items.push(`<span class="panel-cap">🛡️ ${bd.conservation}</span>`);
-    if (items.length) html += `<div class="panel-section"><div class="p-section">🐾 WILDLIFE</div><div class="panel-caps">${items.join('')}</div></div>`;
-    if (bd.size) html += `<div class="panel-section"><div class="panel-tip">📏 ${bd.size}</div></div>`;
-    if (bd.ability) html += `<div class="panel-section"><div class="panel-tip">⭐ ${bd.ability}</div></div>`;
+    if (bd.diet) items.push(`<span class="panel-cap"><b>Diet</b> ${bd.diet}</span>`);
+    if (bd.lifespan) items.push(`<span class="panel-cap"><b>Lifespan</b> ${bd.lifespan}</span>`);
+    if (bd.conservation) items.push(`<span class="panel-cap"><b>Status</b> ${bd.conservation}</span>`);
+    if (items.length) html += `<div class="panel-section"><div class="p-section">WILDLIFE</div><div class="panel-caps">${items.join('')}</div></div>`;
+    if (bd.size) html += `<div class="panel-section"><div class="panel-tip"><b>Size</b> ${bd.size}</div></div>`;
+    if (bd.ability) html += `<div class="panel-section"><div class="panel-tip"><b>Ability</b> ${bd.ability}</div></div>`;
   }
   return html;
 }
@@ -143,16 +143,15 @@ export function renderMiniMap(nodeId, nodeColor, hasChildren) {
     }
   }
 
-  const typeIcon = geo.type === 'fossil' ? '🦴' : geo.type === 'endemic' ? '📌' : '🌍';
   const typeLabel = geo.type === 'fossil' ? 'Fossil sites' : geo.type === 'endemic' ? 'Endemic range' : 'Distribution';
   return `<div class="panel-section">
-    <div class="p-section">📍 ${typeLabel.toUpperCase()}</div>
+    <div class="p-section">${typeLabel.toUpperCase()}</div>
     <div class="mini-map">
       <svg viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">${svg}</svg>
     </div>
     <div class="mini-map-caption">
       <span class="mini-map-dot"></span>
-      ${typeIcon} ${geo.label}
+      ${geo.label}
     </div>
   </div>`;
 }
@@ -186,7 +185,7 @@ export function renderPrimateCard(node) {
       // Determine the most specific (current) rank
       const currentIdx = ranks.length - 1;
       html += `<div style="display:flex;flex-direction:column;gap:4px;">
-        <div class="pri-section-hdr" style="color:${nodeColor};">🔬 TAXONOMY</div>
+        <div class="pri-section-hdr" style="color:${nodeColor};">TAXONOMY</div>
         <div class="pri-taxonomy">
           ${ranks.map((r, i) => {
             const isCurrent = i >= currentIdx;
@@ -207,7 +206,7 @@ export function renderPrimateCard(node) {
     if (brainMax) {
       const pct = Math.round(brainMax / 1750 * 100);
       html += `<div style="display:flex;flex-direction:column;gap:4px;">
-        <div class="pri-section-hdr" style="color:${nodeColor};">🧠 BRAIN VOLUME</div>
+        <div class="pri-section-hdr" style="color:${nodeColor};">BRAIN VOLUME</div>
         <div style="display:flex;align-items:center;gap:8px;">
           <div class="pri-bar-track">
             <div class="pri-bar-fill" style="width:${pct}%;background:${nodeColor};"></div>
@@ -232,10 +231,9 @@ export function renderPrimateCard(node) {
   ].filter(Boolean);
   if (traits.length > 0) {
     html += `<div style="display:flex;flex-direction:column;gap:4px;">
-      <div class="pri-section-hdr" style="color:${nodeColor};">📐 PHYSICAL TRAITS</div>
+      <div class="pri-section-hdr" style="color:${nodeColor};">PHYSICAL TRAITS</div>
       <div class="pri-traits-grid">
         ${traits.map(t => `<div class="pri-trait-card">
-          <span class="pri-trait-icon">${t[0]}</span>
           <span class="pri-trait-label">${t[1]}</span>
           <span class="pri-trait-value">${t[2]}</span>
         </div>`).join('')}
@@ -247,7 +245,7 @@ export function renderPrimateCard(node) {
   const gen = pd && pd.genome;
   if (gen && (gen.size || gen.chromosomes || gen.dnaSimHuman != null)) {
     html += `<div style="display:flex;flex-direction:column;gap:4px;">
-      <div class="pri-section-hdr" style="color:${nodeColor};">🧬 GENOME & DNA</div>
+      <div class="pri-section-hdr" style="color:${nodeColor};">GENOME & DNA</div>
       <div class="pri-genome-card">`;
     if (gen.size) html += `<div class="pri-genome-row"><span class="pri-genome-label">Genome Size</span><span class="pri-genome-value">${gen.size}</span></div>`;
     if (gen.chromosomes) html += `<div class="pri-genome-row"><span class="pri-genome-label">Chromosomes</span><span class="pri-genome-value">${gen.chromosomes}</span></div>`;
@@ -275,7 +273,7 @@ export function renderPrimateCard(node) {
     const dPct = dna.denisovan != null ? dna.denisovan : null;
     if ((nPct != null && nPct > 0 && nPct < 100) || (dPct != null && dPct > 0 && dPct < 100)) {
       html += `<div style="display:flex;flex-direction:column;gap:4px;">
-        <div class="pri-section-hdr" style="color:${nodeColor};">🧬 DNA LEGACY</div>`;
+        <div class="pri-section-hdr" style="color:${nodeColor};">DNA LEGACY</div>`;
       if (nPct != null && nPct > 0 && nPct < 100) {
         html += `<div class="pri-dna-bar"><span style="min-width:80px;">Neanderthal</span><div class="pri-dna-bar-track"><div class="pri-dna-bar-fill" style="width:${Math.min(100,nPct*25)}%;background:var(--info);"></div></div><span>${nPct}%</span></div>`;
       }
@@ -294,11 +292,11 @@ export function renderPrimateCard(node) {
     const hasLang = h.language && h.language !== 'None';
     if (hasTools || hasFire || hasLang) {
       html += `<div style="display:flex;flex-direction:column;gap:4px;">
-        <div class="pri-section-hdr" style="color:${nodeColor};">⚡ CAPABILITIES</div>
+        <div class="pri-section-hdr" style="color:${nodeColor};">CAPABILITIES</div>
         <div class="pri-cap-row">`;
-      if (hasTools) html += `<span class="pri-cap-item">🪨 ${h.tools}</span>`;
-      if (hasFire) html += `<span class="pri-cap-item">🔥 ${h.fire}</span>`;
-      if (hasLang) html += `<span class="pri-cap-item">🗣️ ${h.language}</span>`;
+      if (hasTools) html += `<span class="pri-cap-item"><b>Tools</b> ${h.tools}</span>`;
+      if (hasFire) html += `<span class="pri-cap-item"><b>Fire</b> ${h.fire}</span>`;
+      if (hasLang) html += `<span class="pri-cap-item"><b>Language</b> ${h.language}</span>`;
       html += `</div></div>`;
     }
   }
@@ -311,7 +309,7 @@ export function renderPrimateCard(node) {
     const showComm = beh.communication && beh.communication !== 'Unknown';
     if (showBehavior || showCulture || showComm) {
       html += `<div style="display:flex;flex-direction:column;gap:4px;">
-        <div class="pri-section-hdr" style="color:${nodeColor};">🏛️ BEHAVIOR & CULTURE</div>
+        <div class="pri-section-hdr" style="color:${nodeColor};">BEHAVIOR & CULTURE</div>
         <div class="pri-behavior-card">`;
       if (showBehavior) html += `<div class="pri-behavior-row"><strong>Social:</strong> ${beh.socialStructure}</div>`;
       if (showComm) html += `<div class="pri-behavior-row"><strong>Communication:</strong> ${beh.communication}</div>`;
@@ -324,7 +322,7 @@ export function renderPrimateCard(node) {
   // ─ Fossil Sites (hominins) ─
   if (h && h.sites && h.sites.length) {
     html += `<div style="display:flex;flex-direction:column;gap:4px;">
-      <div class="pri-section-hdr" style="color:${nodeColor};">📍 FOSSIL SITES</div>
+      <div class="pri-section-hdr" style="color:${nodeColor};">FOSSIL SITES</div>
       <div style="font-size:var(--text-xs);color:var(--text-secondary);font-family:var(--font-sans);line-height:1.6;">${h.sites.join(' · ')}</div>
     </div>`;
   }
@@ -332,7 +330,7 @@ export function renderPrimateCard(node) {
   // ─ Conservation (living species) ─
   if (cons && cons.population) {
     html += `<div style="display:flex;flex-direction:column;gap:4px;">
-      <div class="pri-section-hdr" style="color:${nodeColor};">🌍 CONSERVATION</div>
+      <div class="pri-section-hdr" style="color:${nodeColor};">CONSERVATION</div>
       <div class="pri-behavior-card">`;
     if (cons.population) html += `<div class="pri-behavior-row"><strong>Population:</strong> ${cons.population}</div>`;
     if (cons.threat) html += `<div class="pri-behavior-row"><strong>Threat:</strong> ${cons.threat}</div>`;
@@ -460,8 +458,8 @@ export function renderPanelContent(node) {
   const isHominin = node._hominData || node._hominin || (node.tags && (node.tags.includes('Hominin') || node.tags.includes('Human evolution')));
   const isGreatApe = GREAT_APE_SET.has(node.id);
   let lineageBadge = '';
-  if (isHominin) lineageBadge = '<span class="panel-hero-lineage human">🧬 Human Lineage</span>';
-  else if (isGreatApe) lineageBadge = '<span class="panel-hero-lineage ape">🦍 Great Apes</span>';
+  if (isHominin) lineageBadge = '<span class="panel-hero-lineage human">Human Lineage</span>';
+  else if (isGreatApe) lineageBadge = '<span class="panel-hero-lineage ape">Great Apes</span>';
 
   // Branch type for customized sections
   const branchType = getBranchType(node);
@@ -477,7 +475,7 @@ export function renderPanelContent(node) {
       <div class="panel-hero-meta">
         <div class="p-name">${displayName(node)}</div>
         ${node.latin ? `<div class="p-latin" dir="ltr">${node.latin}</div>` : ''}
-        ${node.era ? `<div class="p-era" dir="ltr">📅 ${node.era}${node.appeared ? ' · ' + node.appeared + ' Mya' : ''}</div>` : ''}
+        ${node.era ? `<div class="p-era" dir="ltr">${node.era}${node.appeared ? ' · ' + node.appeared + ' Mya' : ''}</div>` : ''}
         ${node.appeared ? (() => { const tc = getTimeContext(node.appeared, node.id); return tc ? `<div class="p-time-context" dir="ltr">${tc.text}</div>` : ''; })() : ''}
       </div>
       <div id="${panelCrId}" class="panel-hero-credit" dir="ltr">${staticCredit}</div>
@@ -496,7 +494,7 @@ export function renderPanelContent(node) {
         const total=countDescendants(node);
         const leafCount=total-node.children.reduce((s,c)=>s+(c.children&&c.children.length?1:0),0);
         return `<div class="panel-section panel-taxonomy-summary">
-          <div class="p-section">🌳 TAXONOMY</div>
+          <div class="p-section">TAXONOMY</div>
           <div class="p-facts">
             <div class="fact-card" style="border-left:3px solid ${node.color}">
               <div class="fact-l">Direct groups</div>
@@ -512,7 +510,7 @@ export function renderPanelContent(node) {
       ${node.funFact ? `
         <div class="panel-section">
           <div class="panel-funfact">
-            <div class="panel-funfact-label">💡 DID YOU KNOW</div>
+            <div class="panel-funfact-label">DID YOU KNOW</div>
             <p class="panel-funfact-text">${node.funFact}</p>
           </div>
         </div>
@@ -544,7 +542,7 @@ export function renderPanelContent(node) {
         let html = '';
         if (brainMax) {
           html += `<div class="panel-section">
-            <div class="p-section">🧠 BRAIN VOLUME</div>
+            <div class="p-section">BRAIN VOLUME</div>
             <div class="panel-bar-wrap">
               <div class="panel-bar"><div class="panel-bar-fill" style="width:${Math.round(brainMax/1750*100)}%;background:${h.color}"></div></div>
               <span class="panel-bar-label">${brainMax} cm³</span>
@@ -556,30 +554,30 @@ export function renderPanelContent(node) {
         const hasLang = h.language && h.language !== 'None';
         if (hasTools || hasFire || hasLang) {
           html += `<div class="panel-section"><div class="panel-caps">`;
-          if (hasTools) html += `<span class="panel-cap">🪨 ${h.tools}</span>`;
-          if (hasFire)  html += `<span class="panel-cap">🔥 ${h.fire}</span>`;
-          if (hasLang)  html += `<span class="panel-cap">🗣️ ${h.language}</span>`;
+          if (hasTools) html += `<span class="panel-cap"><b>Tools</b> ${h.tools}</span>`;
+          if (hasFire)  html += `<span class="panel-cap"><b>Fire</b> ${h.fire}</span>`;
+          if (hasLang)  html += `<span class="panel-cap"><b>Language</b> ${h.language}</span>`;
           html += `</div></div>`;
         }
         const neanPct = h.dna && h.dna.neanderthal != null ? h.dna.neanderthal : null;
         const denPct  = h.dna && h.dna.denisovan != null ? h.dna.denisovan : null;
         if (neanPct != null || denPct != null) {
-          html += `<div class="panel-section"><div class="p-section">🧬 DNA LEGACY</div>`;
+          html += `<div class="panel-section"><div class="p-section">DNA LEGACY</div>`;
           if (neanPct != null) html += `<div class="panel-bar-wrap" style="margin-bottom:4px"><span style="min-width:75px;font-size:var(--text-xs);color:var(--text-secondary)">Neanderthal</span><div class="panel-bar" style="height:6px"><div class="panel-bar-fill" style="width:${Math.min(100,neanPct*25)}%;background:var(--info)"></div></div><span class="panel-bar-label">${neanPct}%</span></div>`;
           if (denPct != null) html += `<div class="panel-bar-wrap"><span style="min-width:75px;font-size:var(--text-xs);color:var(--text-secondary)">Denisovan</span><div class="panel-bar" style="height:6px"><div class="panel-bar-fill" style="width:${Math.min(100,denPct*20)}%;background:var(--info)"></div></div><span class="panel-bar-label">${denPct}%</span></div>`;
           if (h.dna && h.dna.note) html += `<div style="font-size:var(--text-2xs);color:var(--text-secondary);font-style:italic;margin-top:4px">${h.dna.note}</div>`;
           html += `</div>`;
         }
         if (h.sites && h.sites.length) {
-          html += `<div class="panel-section"><div class="p-section">📍 FOSSIL SITES</div>
+          html += `<div class="panel-section"><div class="p-section">FOSSIL SITES</div>
             <div style="font-size:var(--text-xs);color:var(--text-secondary);line-height:1.6">${h.sites.join(' · ')}</div></div>`;
         }
         return html;
       })()}
-      ${node.tipFact ? `<div class="panel-section"><div class="panel-tip">🌿 ${node.tipFact}</div></div>` : ''}
+      ${node.tipFact ? `<div class="panel-section"><div class="panel-tip">${node.tipFact}</div></div>` : ''}
       ${node.altFacts && node.altFacts.length ? `
         <div class="panel-section">
-          <div class="p-section">📚 MORE FACTS</div>
+          <div class="p-section">MORE FACTS</div>
           <div style="display:flex;flex-direction:column;gap:6px">
             ${node.altFacts.map(f => `<div class="panel-altfact">${f}</div>`).join('')}
           </div>
@@ -587,7 +585,7 @@ export function renderPanelContent(node) {
       ` : ''}
       ${node.links && node.links.length ? `
         <div class="panel-section">
-          <div class="p-section">🔗 LEARN MORE</div>
+          <div class="p-section">LEARN MORE</div>
           <div style="display:flex;flex-wrap:wrap;gap:6px">
             ${node.links.map(lnk => `<a href="${lnk.url}" target="_blank" rel="noopener noreferrer" class="panel-link">↗ ${lnk.label}</a>`).join('')}
           </div>
@@ -595,7 +593,7 @@ export function renderPanelContent(node) {
       ` : ''}
       ${(()=>{
         const isHom = node._hominData || node.id === 'hominini' || (node.id && node.id.startsWith('hom-'));
-        return isHom ? `<div class="panel-section"><button class="panel-cta" data-action="hominin:open">🧬 Hominin Deep Dive</button></div>` : '';
+        return isHom ? `<div class="panel-section"><button class="panel-cta" data-action="hominin:open">Hominin Deep Dive</button></div>` : '';
       })()}
     </div>
   `;

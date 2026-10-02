@@ -850,6 +850,43 @@ check('orbit:pressing-moves-the-focus-and-back-undoes-it', 'A press re-centres o
   if (!s.panelClosedByBack) fail('Back did not take the panel off before touching the view beneath');
 });
 
+check('orbit:the-lineage-strip-shows-the-path-and-jumps', 'The strip names every ancestor from the origin of life, and one tap goes to any of them', (c) => {
+  const o = orbitOf(c);
+  const bad = o.dom.filter((r) => r.lin.strip.length);
+  if (bad.length) fail(bad.map((r) => `${r.id}: ${r.lin.strip.join(', ')}`).join(' | '));
+  const s = o.story;
+  if (!s.crumb) fail('the strip offered no ancestor to jump to');
+  if (s.afterCrumb.focus !== s.crumb) fail(`tapping the "${s.crumb}" crumb centred "${s.afterCrumb.focus}"`);
+});
+
+check('orbit:up-is-the-parent-and-back-is-history', 'Up goes to the parent and Back to where the reader came from — they are not the same', (c) => {
+  const s = orbitOf(c).story;
+  const parent = s.pathAtTarget[s.pathAtTarget.length - 2];
+  if (s.pathAtTarget[s.pathAtTarget.length - 1] !== s.lvlTarget) fail(`the strip's path ends at "${s.pathAtTarget.slice(-1)}", not the centre "${s.lvlTarget}"`);
+  if (s.afterUp.focus !== parent) fail(`Up from "${s.lvlTarget}" landed on "${s.afterUp.focus}", not its parent "${parent}"`);
+  if (s.backAfterUp.focus !== s.lvlTarget) fail(`Back after Up landed on "${s.backAfterUp.focus}"; the reader was last on "${s.lvlTarget}"`);
+  if (s.lvlTarget === parent) fail('the probe chose a target that is its own parent');
+});
+
+check('orbit:a-press-travels-rather-than-replaces', 'The pressed bubble is the same element at the centre, and the old centre glides out as a child', (c) => {
+  const s = orbitOf(c).story;
+  if (!s.glided) fail(`pressing "${s.lvlTarget}" replaced its bubble instead of moving it to the centre`);
+  if (!s.leftGlided) fail('going up replaced the old centre instead of gliding it out to its ring');
+});
+
+check('orbit:rings-are-labelled-and-tappable', 'Each ring names its ancestor and its time, sits clear of the bubbles, and one tap centres on it', (c) => {
+  const o = orbitOf(c);
+  const bad = o.dom.filter((r) => r.lin.rings.length);
+  if (bad.length) fail(bad.map((r) => `${r.id}: ${r.lin.rings.slice(0, 3).join(', ')}`).join(' | '));
+  const h = o.dom.find((r) => r.id === 'h_sapiens');
+  if (!h || h.lin.ringLabels < 2) fail(`only ${h ? h.lin.ringLabels : 0} ring label(s) (want 2+) around the person`);
+  const sw = o.sweep;
+  if (sw.rings && sw.unlabelled / sw.rings > 0.35) fail(`${sw.unlabelled} of ${sw.rings} rings had no room for a label`);
+  const s = o.story;
+  if (!s.ringTarget) fail('no ring label to press');
+  if (s.afterRing.focus !== s.ringTarget) fail(`pressing the "${s.ringTarget}" ring label centred "${s.afterRing.focus}"`);
+});
+
 check('orbit:survives-a-view-switch-and-a-language-switch', 'Leaving for the drill-down and coming back is not an empty page; a language switched while looking is redrawn', (c) => {
   const o = orbitOf(c), w = o.switch;
   if (w.toExplore.view !== 'explore') fail(`the Explore button landed in "${w.toExplore.view}"`);
@@ -2275,6 +2312,7 @@ async function orbitProbe(page, scenario, baseUrl) {
       const W = host.width, H = host.height, rtl = document.documentElement.dir === 'rtl';
       const all = []; (function w(n) { all.push(n); (n.children || []).forEach(w); })(TREE);
       const bad = { outside: [], overlap: [], missing: [], stranded: [] };
+      const unlabelled = { total: 0, missing: 0 };
       for (const n of all) {
         const L = layoutOrbit(n, W, H, rtl);
         const box = (i) => ({ l: i.x - i.w / 2, r: i.x + i.w / 2, t: i.y - i.d / 2, b: i.y - i.d / 2 + i.h });
@@ -2292,7 +2330,7 @@ async function orbitProbe(page, scenario, baseUrl) {
           if (r.hidden && !r.more) bad.stranded.push(`${n.id}: ${r.hidden} relatives behind a "+N" that was not drawn`);
         }
       }
-      return { nodes: all.length, W: Math.round(W), H: Math.round(H),
+      return { nodes: all.length, W: Math.round(W), H: Math.round(H), rings: unlabelled.total, unlabelled: unlabelled.missing,
         outside: bad.outside.length, overlap: bad.overlap.length, missing: bad.missing.length, stranded: bad.stranded.length,
         sample: [...bad.outside, ...bad.overlap, ...bad.missing, ...bad.stranded].slice(0, 6) };
     });
@@ -2340,8 +2378,48 @@ async function orbitProbe(page, scenario, baseUrl) {
             if (r.width && lr.top < r.bottom - 1 && lr.bottom > r.top + 1 && lr.left < r.right && lr.right > r.left) problems.pills.push('legend under a pill');
           }
         }
+        // the lineage strip and the ring labels
+        const lin = { strip: [], rings: [], crumbs: 0, ringLabels: 0 };
+        const chain = (await import(new URL('js/orbit.js', location.href).href)).orbitPath();
+        const strip = host.querySelector('.orb-strip');
+        if (!strip) lin.strip.push('no strip');
+        else {
+          const sr = strip.getBoundingClientRect();
+          if (sr.left < hr.left - 1 || sr.right > hr.right + 1 || sr.top < hr.top - 1) lin.strip.push('strip outside the view');
+          lin.crumbs = strip.querySelectorAll('.orb-crumb').length;
+          if (lin.crumbs !== chain.length) lin.strip.push(`${lin.crumbs} crumbs for a path of ${chain.length}`);
+          const here = strip.querySelector('.orb-crumb.is-here');
+          if (!here || here.textContent.trim() !== host.querySelector('.orb-b.focus .orb-name')?.textContent.trim()) lin.strip.push('the current crumb is not the centre');
+          const up = strip.querySelector('.orb-up');
+          if (!up) lin.strip.push('no Up');
+          else {
+            const ur = up.getBoundingClientRect();
+            if (ur.height < 36 || ur.width < 36) lin.strip.push(`Up is ${Math.round(ur.width)}×${Math.round(ur.height)}`);
+            const hit = document.elementFromPoint(ur.left + ur.width / 2, ur.top + ur.height / 2);
+            if (!hit || !up.contains(hit)) lin.strip.push('Up is covered');
+            if (up.disabled !== (chain.length < 2)) lin.strip.push('Up is enabled with no parent or disabled with one');
+          }
+          // the crumbs on screen are tappable; those scrolled out of the strip are reached by scrolling it
+          const pr = strip.querySelector('.orb-path').getBoundingClientRect();
+          for (const c of strip.querySelectorAll('button.orb-crumb')) {
+            const r = c.getBoundingClientRect();
+            if (r.right <= pr.left + 2 || r.left >= pr.right - 2) continue;
+            const hit = document.elementFromPoint(Math.min(Math.max(r.left + r.width / 2, pr.left + 2), pr.right - 2), r.top + r.height / 2);
+            if (!hit || !c.contains(hit)) lin.strip.push(`crumb ${c.textContent.trim()} covered`);
+          }
+        }
+        for (const rl of host.querySelectorAll('.orb-ring')) {
+          lin.ringLabels++;
+          const r = rl.getBoundingClientRect();
+          if (r.left < hr.left - 1 || r.right > hr.right + 1 || r.bottom > hr.bottom + 1 || r.top < hr.top - 1) lin.rings.push(`${rl.dataset.arg} outside`);
+          for (const { b, r: br } of bs) if (r.left < br.right - 1 && r.right > br.left + 1 && r.top < br.bottom - 1 && r.bottom > br.top + 1) lin.rings.push(`${rl.dataset.arg}×${b.dataset.arg}`);
+          const hit = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+          if (!hit || !rl.contains(hit)) lin.rings.push(`${rl.dataset.arg} covered`);
+          if (r.height < 22) lin.rings.push(`${rl.dataset.arg} only ${Math.round(r.height)}px`);
+          if (!/\d/.test(rl.textContent)) lin.rings.push(`${rl.dataset.arg} states no time`);
+        }
         const bubbles = bs.length;
-        return { id, focus: host.querySelector('.orb-b.focus')?.dataset.arg, bubbles, ...problems };
+        return { id, lin, focus: host.querySelector('.orb-b.focus')?.dataset.arg, bubbles, ...problems };
       }, id);
       out.dom.push(row);
       /* A failing focus leaves a picture behind: what a runner saw is the only
@@ -2425,6 +2503,38 @@ async function orbitProbe(page, scenario, baseUrl) {
     await p.evaluate(() => document.querySelector('[data-action="way:back"]').click());
     await frames();
     out.story.panelClosedByBack = await p.evaluate(() => !document.getElementById('panel')?.classList.contains('open'));
+
+    // ── levels: glide, Up versus Back, the lineage strip, the rings' labels ──
+    const hop = async (id) => { await p.evaluate(async (id) => { const { orbitFocus } = await import(new URL('js/orbit.js', location.href).href); orbitFocus(id); }, id); await frames(); };
+    await hop('h_sapiens');
+    const lvlTarget = await p.evaluate(() => document.querySelector('#orbit .orb-b.rel')?.dataset.arg);
+    out.story.lvlTarget = lvlTarget;
+    // the pressed bubble is the same element afterwards: it travels to the centre rather than being replaced
+    await p.evaluate((t) => { document.querySelector(`#orbit .orb-b[data-arg="${t}"]`).__stamp = 1; }, lvlTarget);
+    await p.click(`#orbit .orb-b[data-arg="${lvlTarget}"] .orb-face`, { timeout: 5000 });
+    await frames();
+    out.story.glided = await p.evaluate(() => !!document.querySelector('#orbit .orb-b.focus')?.__stamp);
+    out.story.pathAtTarget = await p.evaluate(async () => (await import(new URL('js/orbit.js', location.href).href)).orbitPath());
+    // Up is the parent; the centre that was just left glides out to its ring as a child
+    await p.click('#orbit .orb-up', { timeout: 5000 });
+    await frames();
+    out.story.afterUp = await read();
+    out.story.leftGlided = await p.evaluate(() => [...document.querySelectorAll('#orbit .orb-b')].some((b) => b.__stamp && b.dataset.kind !== 'focus'));
+    // Back is where the reader came from, not the parent
+    await p.evaluate(() => document.querySelector('[data-action="way:back"]').click());
+    await frames();
+    out.story.backAfterUp = await read();
+    // a crumb in the strip: one tap to that ancestor
+    const crumb = await p.evaluate(() => document.querySelector('#orbit .orb-crumb[data-arg]')?.dataset.arg);
+    out.story.crumb = crumb;
+    if (crumb) { await p.evaluate((c) => document.querySelector(`#orbit .orb-crumb[data-arg="${c}"]`).click(), crumb); await frames(); }
+    out.story.afterCrumb = await read();
+    // a ring's label: one tap to that ancestor
+    await hop('h_sapiens');
+    const ringTarget = await p.evaluate(() => document.querySelector('#orbit .orb-ring')?.dataset.arg);
+    out.story.ringTarget = ringTarget;
+    if (ringTarget) { await p.click(`#orbit .orb-ring[data-arg="${ringTarget}"]`, { timeout: 5000 }); await frames(); }
+    out.story.afterRing = await read();
 
     // ── the way out and back in, and a language switched while looking ──
     await p.evaluate(() => document.querySelector('#view-toggle [data-view="explore"]').click());

@@ -1,0 +1,93 @@
+/* The Ladder. Colour comes from the site's own tokens, so both themes work
+   without a second stylesheet. Nothing here is a physical left or right. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+body.ld { margin: 0; background: var(--bg); color: var(--text-primary);
+  font-family: var(--font-sans, Inter, 'Heebo', system-ui, sans-serif); overflow: hidden; }
+
+/* ── Chrome ── */
+.ld-top { position: fixed; inset-inline: 0; top: 0; height: 52px; z-index: 6;
+  display: flex; align-items: center; gap: 8px; padding: 0 12px;
+  background: var(--bg); border-bottom: 1px solid var(--glass-border); }
+.ld-crumbs { flex: 1; min-width: 0; display: flex; gap: 6px; align-items: center;
+  font-size: 13px; color: var(--text-secondary); overflow: hidden; white-space: nowrap; }
+.ld-crumbs b { color: var(--text-primary); font-weight: 650; overflow: hidden; text-overflow: ellipsis; }
+.ld-crumbs i { font-style: normal; opacity: .5; }
+.ld-btn, .ld-seg button { min-width: 36px; min-height: 36px; padding: 0 8px; border-radius: 9px; cursor: pointer;
+  border: 1px solid var(--glass-border); background: transparent; color: var(--text-secondary);
+  font: inherit; font-size: 12px; font-weight: 650; }
+.ld-seg { display: flex; gap: 4px; }
+.ld-seg button[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
+.ld-btn:hover, .ld-seg button:hover { color: var(--text-primary); }
+
+/* ── The scroller: the axis is pinned inside it, so it shares the scrollbar's width ── */
+.ld-scroll { position: fixed; inset: 52px 0 0 0; overflow-y: auto; overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+#plot { position: relative; }
+.ld-axis { position: sticky; top: 0; z-index: 3; display: block; background: var(--bg); }
+.ld-svg { display: block; }
+/* No bidi-override anywhere: with the direction pinned below, "66 Ma" already
+   lays out left to right, and an override applied to a label that happens to be
+   a Hebrew word ("today") reverses its letters. */
+/* Every anchor in this drawing is PHYSICAL — render() has already mirrored the
+   whole layout once. SVG's text-anchor is relative to the text's direction, and
+   a Hebrew page hands its svg direction:rtl by inheritance, so "end" quietly
+   meant "left" and every name in Hebrew stood on top of the picture beside it.
+   Pinning the direction makes start and end mean what the layout computed;
+   pure Hebrew strings still shape and order themselves correctly. */
+.ld-svg text { direction: ltr; }
+
+/* ── Axis ── */
+.ld-era-name { fill: var(--text-secondary); font-weight: 700; letter-spacing: .07em; text-transform: uppercase;
+  text-anchor: middle; }
+.ld-tick { fill: var(--text-secondary); font-family: var(--font-mono, 'JetBrains Mono', monospace); font-weight: 600;
+  text-anchor: middle; }
+.ld-axis-rule { stroke: var(--glass-border); stroke-width: 1; }
+.ld-band { fill: var(--text-primary); opacity: .035; }
+.ld-grid { stroke: var(--text-primary); stroke-width: 1; opacity: .09; stroke-dasharray: 1 5; }
+.ld-now { stroke: var(--text-primary); stroke-width: 1; opacity: .22; }
+
+/* ── Lines ── */
+.ld-limb, .ld-rail, .ld-trail { fill: none; stroke-linecap: round; transition: opacity 140ms ease; }
+.ld-rail { opacity: .7; }
+.ld-trail { stroke-dasharray: .1 6.5; stroke-width: 2.2; opacity: .6; }
+.ld-svg.has-lit .ld-limb:not(.lit), .ld-svg.has-lit .ld-rail:not(.lit), .ld-svg.has-lit .ld-trail:not(.lit) { opacity: .16; }
+.ld-svg.has-lit .ld-limb.lit, .ld-svg.has-lit .ld-rail.lit { opacity: 1; }
+.ld-svg.has-lit .ld-trail.lit { opacity: .9; }
+.ld-stem { stroke: var(--text-secondary); stroke-width: 2; stroke-linecap: round; opacity: .6; }
+
+/* ── Nodes ── */
+.ld-node { cursor: pointer; outline: none; }
+.ld-hit { fill: transparent; stroke: transparent; }
+.ld-node:focus-visible .ld-hit { stroke: var(--accent); stroke-width: 2; rx: 8; }
+.ld-dot { stroke: var(--bg); stroke-width: 2.4; }
+.ld-name { fill: var(--text-primary); paint-order: stroke; stroke: var(--bg); stroke-width: 4px; stroke-linejoin: round;
+  transition: fill 120ms ease; }
+.ld-name.is-group { fill: var(--text-primary); }
+.ld-name.is-root { fill: var(--text-secondary); letter-spacing: .06em; }
+.ld-node:hover .ld-name, .ld-node:focus-visible .ld-name, .ld-node.is-focus .ld-name { fill: var(--accent); }
+.ld-chip rect { fill: var(--surface, rgba(127,127,127,.12)); stroke: var(--glass-border); }
+.ld-chip text { fill: var(--text-secondary); font-weight: 650; text-anchor: middle;
+  font-family: var(--font-mono, monospace); }
+.ld-node:hover .ld-chip rect, .ld-node:focus-visible .ld-chip rect { stroke: var(--accent); }
+.ld-sil { pointer-events: none; }
+.ld-pip { opacity: .85; }
+.ld-enter { animation: ldIn 240ms ease both; }
+@keyframes ldIn { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .ld-enter { animation: none; } .ld-limb, .ld-rail, .ld-trail, .ld-name { transition: none; } }
+
+/* ── Detail sheet ── */
+.ld-sheet { position: fixed; inset-inline: 0; bottom: 0; z-index: 5; padding: 14px 16px 18px;
+  background: var(--surface, var(--bg)); border-top: 1px solid var(--glass-border);
+  box-shadow: 0 -10px 30px rgba(0,0,0,.28); max-height: 46vh; overflow: auto; }
+.ld-sheet[hidden] { display: none; }
+.ld-sheet h2 { margin: 0; font-size: 20px; line-height: 1.15; }
+.ld-sheet .lat { margin: 3px 0 0; font-size: 13px; font-style: italic; color: var(--text-secondary); direction: ltr; text-align: start; }
+.ld-sheet .when { margin: 8px 0 0; font-size: 12px; font-weight: 650; color: var(--accent);
+  font-family: var(--font-mono, monospace); direction: ltr; unicode-bidi: plaintext; text-align: start; }
+.ld-sheet .desc { margin: 8px 0 0; font-size: 14px; line-height: 1.5; color: var(--parchment, var(--text-secondary)); direction: ltr; text-align: start; }
+.ld-sheet .x { position: absolute; inset-block-start: 8px; inset-inline-end: 10px; }
+.ld-sheet .dot { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-inline-end: 8px; vertical-align: 1px; }
+.ld-sub { fill: var(--text-secondary); font-weight: 650;
+  font-family: var(--font-mono, monospace); }
+.ld-dagger { font-weight: 700; paint-order: stroke; stroke: var(--bg); stroke-width: 3px; }

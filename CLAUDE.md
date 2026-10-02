@@ -90,6 +90,8 @@ tree-of-life/
 ├── docs/PLAY_STRATEGY.md # Why the site is becoming a game, and the phased plan
 ├── tests/kin.test.mjs   # Unit tests for Kin's engine and answer key (npm test)
 ├── mockups/opening/     # Concept gallery for the opening: four live scenes, no part of the site
+├── mockups/ladder/      # Explore redrawn as a time-calibrated tree (width = time, depth = rows): a sketch, no part of the site.
+│                        #   check-layout.mjs measures it (overlaps, reach, contrast, bidi); check-interactions.mjs drives it
 ├── css/                 # External stylesheets (15 files)
 │   ├── variables.css    # CSS custom properties, reset, focus styles
 │   ├── layout.css       # Header, search, breadcrumb, nav controls

@@ -11,7 +11,7 @@ import { reducedMotion, canonicalHomininId, preprocess, sortChildrenByAge, homin
 
 // ── Delegated event dispatch (replaces inline onclick attributes) ──
 import { registerActions } from './actions.js';
-import { initExplore, openInExplore, initExploreDeps, exploreSelection, exploreUp, exploreHome } from './explore.js';
+import { initExplore, openInExplore, initExploreDeps, exploreSelection, exploreUp, exploreHome, renderExplore } from './explore.js';
 import { initWayfinder, initWayfinderDeps, goBack, goHome } from './wayfinder.js';
 
 // ── Layout ──
@@ -82,7 +82,7 @@ setHomininOverlayOpener(openHomininOverlay);
 initCompareDeps({ searchEntities, t, showMainPanel, scheduleRender, smoothPanTo, layout, applyT });
 initGameDeps({ t, navigateTo: (...args) => navigateTo(...args) });
 initPlaybackDeps({ layout, centerOnTree, scheduleRender, applyT, buildEraPresets, getEraName, updateEraTint, updateSpeciesCount, t });
-initThemeDeps({ buildEraPresets, buildExtinctionMarkers, buildEraSegments, updateSpeciesCount, buildDensitySparkline, scheduleRender });
+initThemeDeps({ buildEraPresets, buildExtinctionMarkers, buildEraSegments, updateSpeciesCount, buildDensitySparkline, scheduleRender, renderExplore });
 initEngagementDeps({ t, navigateTo: (...args) => navigateTo(...args), showMainPanel });
 initRandomButton({ getRandomSpecies: () => getRandomSpecies(nodeMap), showMainPanel });
 initWhoFirstDeps({ t, checkAchievement });
@@ -1191,6 +1191,10 @@ function setShellView(v, opts){
   }
 }
 
+function ensureMap(){
+  if (document.body.getAttribute('data-view') !== 'map') setShellView('map');
+}
+
 registerActions({
   'shell:view': (_a,_b,{el}) => setShellView(el.dataset.view),
   // Core UI
@@ -1204,8 +1208,11 @@ registerActions({
   'domain:reset':    () => resetDomains(),
 
   // View modes — the buttons already carry data-mode
-  'view:set':        (_a, _b, { el }) => setViewMode(el.dataset.mode),
-  'playback:enter':  () => enterPlaybackMode(),
+  /* Radial, Cladogram and Playback are map layouts. In Explore they would act
+     on a canvas that is display:none, so the click would change nothing the
+     reader can see: take them to the map first. */
+  'view:set':        (_a, _b, { el }) => { ensureMap(); setViewMode(el.dataset.mode); },
+  'playback:enter':  () => { ensureMap(); enterPlaybackMode(); },
 
   // Hominin deep dive
   'hominin:open':            () => openHomininView(),

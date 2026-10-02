@@ -112,6 +112,8 @@ export function applyI18n(){
   if(_deps.buildExtinctionMarkers) _deps.buildExtinctionMarkers();
   if(_deps.buildEraSegments) _deps.buildEraSegments();
   if(_deps.updateSpeciesCount) _deps.updateSpeciesCount();
+  // Explore paints its words as HTML at render time, so it has to be redrawn
+  if(_deps.renderExplore) _deps.renderExplore();
   // Accessibility labels
   const skipLink=document.getElementById('skip-link');
   if(skipLink) skipLink.textContent=t('a11y_skip');

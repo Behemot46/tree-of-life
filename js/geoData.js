@@ -28,12 +28,10 @@ export const GEO_DATA = {
   'bacteroides':          { regions: ['worldwide'], label: 'Mammalian gut; dominant anaerobe in human colon', type: 'habitat' },
   'thermus-aquaticus':    { regions: ['north-america', 'east-asia', 'worldwide'], label: 'Hot springs worldwide; Yellowstone, New Zealand, Japan — source of Taq polymerase (PCR)', type: 'habitat' },
   'borrelia':             { regions: ['north-america', 'europe', 'east-asia'], label: 'Temperate forests of North America, Europe, and East Asia — Lyme disease agent', type: 'habitat' },
-  'treponema':            { regions: ['worldwide'], label: 'Human mucous membranes worldwide — syphilis agent (Treponema pallidum)', type: 'habitat' },
   'rhizobium':            { regions: ['worldwide'], label: 'Soil worldwide; root nodules of legumes, fixing atmospheric nitrogen', type: 'habitat' },
   'wolbachia':            { regions: ['worldwide'], label: 'Intracellular parasite of insects and nematodes on every continent except Antarctica', type: 'habitat' },
   'staphylococcus':       { regions: ['worldwide'], label: 'Human skin and nasal passages worldwide; soil and surfaces', type: 'habitat' },
   'spirulina':            { regions: ['africa', 'central-america', 'east-asia', 'worldwide'], label: 'Alkaline lakes — Lake Chad, Lake Texcoco, East African rift lakes; cultivated globally', type: 'habitat' },
-  'campylobacter':        { regions: ['worldwide'], label: 'Intestines of warm-blooded animals worldwide; leading bacterial cause of food-borne illness', type: 'habitat' },
   'aliivibrio':           { regions: ['north-america', 'southeast-asia', 'marine-global'], label: 'Shallow tropical and temperate coastal waters worldwide; symbiont of bobtail squids', type: 'habitat' },
 
   // ── ARCHAEA ──
@@ -44,12 +42,9 @@ export const GEO_DATA = {
   'sulfolobus':       { regions: ['worldwide'], label: 'Hot acidic springs, volcanic areas worldwide', type: 'habitat' },
   'pyrolobus':        { regions: ['marine-deep'], label: 'Deep-sea hydrothermal vents, Mid-Atlantic Ridge', type: 'habitat' },
   'lokiarchaeota':    { regions: ['marine-deep'], label: 'Loki\'s Castle hydrothermal vent, Arctic Mid-Ocean Ridge', type: 'habitat' },
-  'thermococcus':     { regions: ['marine-deep'], label: 'Hydrothermal vents and hot marine sediments worldwide; Pacific, Atlantic, and Mediterranean', type: 'habitat' },
   'haloquadratum':    { regions: ['west-asia', 'north-africa', 'central-asia'], label: 'Hypersaline lakes and salt evaporation ponds — Dead Sea, Lake Assal, salterns', type: 'habitat' },
   'nanoarchaeum':     { regions: ['marine-deep'], label: 'Hydrothermal vent at Kolbeinsey Ridge, Iceland; also deep sea globally', type: 'endemic' },
   'thaumarchaeota':   { regions: ['worldwide', 'marine-global'], label: 'Oceans, soils, and freshwater worldwide; one of the most abundant archaea in the ocean', type: 'habitat' },
-  'methanopyrus':     { regions: ['marine-deep'], label: 'Hydrothermal vents — Gulf of California, Mid-Atlantic Ridge; grows at 122°C', type: 'habitat' },
-  'ferroplasma':      { regions: ['worldwide'], label: 'Acidic mine drainage worldwide; Rio Tinto (Spain), Iron Mountain (USA), and similar sites', type: 'habitat' },
 
   // ── PROTISTS ──
   'protists':         { regions: ['worldwide', 'freshwater', 'marine-global'], label: 'Aquatic and moist environments worldwide', type: 'habitat' },
@@ -132,7 +127,6 @@ export const GEO_DATA = {
   'cycad':            { regions: ['central-america', 'south-america', 'africa', 'south-asia', 'southeast-asia', 'oceania'], label: 'Tropical and subtropical regions worldwide; relict group from dinosaur era', type: 'habitat' },
   'strangler-fig':    { regions: ['south-asia', 'southeast-asia', 'central-america', 'south-america', 'africa', 'oceania'], label: 'Tropical rainforests worldwide; keystone species in many tropical ecosystems', type: 'habitat' },
   'welwitschia-2':    { regions: ['southern-africa'], label: 'Namib Desert, Namibia and Angola — lives 1,000-2,000 years', type: 'endemic' },
-  'sensitive-fern':   { regions: ['north-america', 'east-asia'], label: 'Wetlands and moist forests of eastern North America and East Asia', type: 'habitat' },
   'resurrection-fern': { regions: ['north-america', 'africa'], label: 'Eastern North America and southern Africa; epiphyte on tree branches', type: 'habitat' },
 
   // ── ANIMALS — INVERTEBRATES ──
@@ -395,6 +389,71 @@ export const GEO_DATA = {
 
   // ── MISSING — INVERTEBRATES ──
   'bdelloid-rotifer':    { regions: ['worldwide', 'freshwater'], label: 'Freshwater, moss, lichen, and soil worldwide; survives desiccation', type: 'habitat' },
+
+  // ── CURATION — the extinct and the missing ──
+  'dinosaurs': { regions: ['worldwide'], label: 'Every continent, including Antarctica', type: 'fossil' },
+  'tyrannosaurus': { regions: ['north-america'], label: 'Western North America — Hell Creek and related formations', type: 'fossil' },
+  'triceratops': { regions: ['north-america'], label: 'Western North America — Hell Creek and Lance formations', type: 'fossil' },
+  'stegosaurus': { regions: ['north-america'], label: 'Morrison Formation, western USA', type: 'fossil' },
+  'argentinosaurus': { regions: ['south-america'], label: 'Patagonia, Argentina — Huincul Formation', type: 'fossil' },
+  'velociraptor': { regions: ['east-asia'], label: 'Gobi Desert, Mongolia and northern China', type: 'fossil' },
+  'spinosaurus': { regions: ['north-africa'], label: 'Egypt and Morocco — Kem Kem beds', type: 'fossil' },
+  'quetzalcoatlus': { regions: ['north-america'], label: 'Big Bend, Texas, USA', type: 'fossil' },
+  'ichthyosaur': { regions: ['marine-global', 'europe'], label: 'Mesozoic seas worldwide; famous fossils at Lyme Regis, England and Holzmaden, Germany', type: 'fossil' },
+  'plesiosaur': { regions: ['marine-global', 'europe'], label: 'Mesozoic seas worldwide; famous fossils at Lyme Regis, England', type: 'fossil' },
+  'mosasaur': { regions: ['marine-global', 'europe'], label: 'Late Cretaceous seas worldwide; type fossils from Maastricht, Netherlands', type: 'fossil' },
+  'galapagos-tortoise': { regions: ['south-america'], label: 'Galápagos Islands, Ecuador', type: 'endemic' },
+  'dimetrodon': { regions: ['north-america'], label: 'Red beds of Texas and Oklahoma, USA', type: 'fossil' },
+  'dunkleosteus': { regions: ['north-america', 'north-africa'], label: 'Devonian seas — Ohio, USA and Morocco', type: 'fossil' },
+  'tiktaalik': { regions: ['north-america'], label: 'Ellesmere Island, Nunavut, Canada', type: 'fossil' },
+  'megalodon': { regions: ['marine-global'], label: 'Warm and temperate seas worldwide', type: 'fossil' },
+  'whale-shark': { regions: ['marine-global'], label: 'Warm tropical and subtropical seas worldwide', type: 'habitat' },
+  'manta-ray': { regions: ['marine-global'], label: 'Tropical and subtropical open oceans worldwide', type: 'habitat' },
+  'pufferfish': { regions: ['marine-global', 'freshwater'], label: 'Tropical and temperate seas; some freshwater species', type: 'habitat' },
+  'electric-eel': { regions: ['south-america', 'freshwater'], label: 'Amazon and Orinoco basins, South America', type: 'habitat' },
+  'hagfish': { regions: ['marine-global', 'marine-deep'], label: 'Cold seabeds worldwide', type: 'habitat' },
+  'giant-panda': { regions: ['east-asia'], label: 'Mountains of Sichuan, Shaanxi and Gansu, China', type: 'endemic' },
+  'brown-bear': { regions: ['north-america', 'europe', 'central-asia', 'east-asia'], label: 'Forests and mountains across the Northern Hemisphere', type: 'habitat' },
+  'horse': { regions: ['worldwide'], label: 'Domesticated worldwide; wild ancestors once spanned Eurasia', type: 'habitat' },
+  'zebra': { regions: ['east-africa', 'southern-africa', 'africa'], label: 'Savannas of eastern and southern Africa', type: 'habitat' },
+  'dog': { regions: ['worldwide'], label: 'Worldwide, alongside humans', type: 'habitat' },
+  'domestic-cat': { regions: ['worldwide'], label: 'Worldwide, alongside humans', type: 'habitat' },
+  'dromedary': { regions: ['north-africa', 'west-asia', 'east-africa', 'oceania'], label: 'Deserts of North Africa, Arabia and the Horn of Africa; feral in Australia', type: 'habitat' },
+  'malayan-tapir': { regions: ['southeast-asia'], label: 'Rainforests of Malaysia, Sumatra, Thailand and Myanmar', type: 'habitat' },
+  'tasmanian-devil': { regions: ['oceania'], label: 'Tasmania, Australia', type: 'endemic' },
+  'aardvark': { regions: ['africa'], label: 'Savannas and woodlands of sub-Saharan Africa', type: 'habitat' },
+  'house-mouse': { regions: ['worldwide'], label: 'Worldwide, wherever people live', type: 'habitat' },
+  'red-fox': { regions: ['north-america', 'europe', 'central-asia', 'east-asia', 'north-africa', 'oceania'], label: 'Across the Northern Hemisphere; introduced to Australia', type: 'habitat' },
+  'leopard': { regions: ['africa', 'south-asia', 'southeast-asia', 'east-asia', 'west-asia'], label: 'Sub-Saharan Africa and southern Asia', type: 'habitat' },
+  'woolly-mammoth': { regions: ['north-america', 'europe', 'central-asia', 'east-asia'], label: 'Tundra-steppe across northern Eurasia and North America', type: 'fossil' },
+  'smilodon': { regions: ['north-america', 'south-america'], label: 'The Americas — La Brea Tar Pits, Los Angeles', type: 'fossil' },
+  'giant-ground-sloth': { regions: ['south-america'], label: 'The pampas of Argentina, Uruguay and Bolivia', type: 'fossil' },
+  'thylacine': { regions: ['oceania'], label: 'Tasmania, formerly mainland Australia and New Guinea', type: 'fossil' },
+  'paraceratherium': { regions: ['central-asia', 'south-asia', 'east-asia'], label: 'Oligocene Asia — Pakistan, Mongolia and China', type: 'fossil' },
+  'basilosaurus': { regions: ['north-africa', 'north-america'], label: 'Eocene seas — Wadi El-Hitan, Egypt and the southern USA', type: 'fossil' },
+  'chicken': { regions: ['worldwide'], label: 'Worldwide, alongside people; wild ancestor in Southeast Asia', type: 'habitat' },
+  'peacock': { regions: ['south-asia'], label: 'India and Sri Lanka; introduced elsewhere', type: 'habitat' },
+  'puffin': { regions: ['europe', 'north-america'], label: 'North Atlantic coasts and open sea', type: 'habitat' },
+  'dodo': { regions: ['africa'], label: 'Mauritius, Indian Ocean', type: 'endemic' },
+  'giant-moa': { regions: ['oceania'], label: 'South Island, New Zealand', type: 'endemic' },
+  'maize': { regions: ['central-america'], label: 'Domesticated in southern Mexico; now grown on every continent except Antarctica', type: 'habitat' },
+  'bristlecone-pine': { regions: ['north-america'], label: 'White Mountains of California; high ranges of Nevada and Utah', type: 'endemic' },
+  'lepidodendron': { regions: ['europe', 'north-america', 'east-asia'], label: 'Carboniferous coal swamps of Euramerica and China', type: 'fossil' },
+  'cooksonia': { regions: ['europe', 'north-america'], label: 'Silurian–Devonian land — Wales, Ireland, Czechia and elsewhere', type: 'fossil' },
+  'archaefructus': { regions: ['east-asia'], label: 'Yixian Formation, Liaoning, China', type: 'fossil' },
+  'prototaxites': { regions: ['north-america', 'europe', 'west-asia'], label: 'Devonian land — Canada, USA, Europe and Saudi Arabia', type: 'fossil' },
+  'coconut-crab': { regions: ['oceania', 'southeast-asia', 'east-africa'], label: 'Islands of the Indian and Pacific Oceans', type: 'habitat' },
+  'krill': { regions: ['marine-global'], label: 'Southern Ocean around Antarctica', type: 'habitat' },
+  'nudibranch': { regions: ['marine-global'], label: 'Oceans worldwide, especially warm reefs', type: 'habitat' },
+  'sea-anemone': { regions: ['marine-global'], label: 'Oceans worldwide, from tide pools to the deep sea', type: 'habitat' },
+  'ctenophore': { regions: ['marine-global', 'marine-deep'], label: 'Oceans worldwide, from the surface to the abyss', type: 'habitat' },
+  'hallucigenia': { regions: ['north-america', 'east-asia'], label: 'Burgess Shale, Canada, and Chengjiang, China', type: 'fossil' },
+  'anomalocaris': { regions: ['north-america', 'oceania'], label: 'Burgess Shale, Canada; Emu Bay Shale, Australia', type: 'fossil' },
+  'trilobite': { regions: ['marine-global'], label: 'Seabeds worldwide, 521–252 Mya', type: 'fossil' },
+  'sea-scorpion': { regions: ['north-america', 'europe'], label: 'Paleozoic seas and rivers — New York, Scotland and elsewhere', type: 'fossil' },
+  'meganeura': { regions: ['europe'], label: 'Carboniferous coal forests — Commentry, France', type: 'fossil' },
+  'ammonite': { regions: ['marine-global'], label: 'Seas worldwide, ~400–66 Mya', type: 'fossil' },
+  'dickinsonia': { regions: ['oceania', 'europe'], label: 'Ediacara Hills, Australia; White Sea coast, Russia', type: 'fossil' },
 };
 
 
@@ -1167,7 +1226,7 @@ export const BRANCH_DATA = {
     lifespan: '5-13 years in the wild',
     conservation: 'Least Concern globally; threatened in southern range',
     size: '9-25 kg; 65-107 cm body length',
-    ability: 'Strongest bite relative to size of any mammal; travels 24 km/day; climbs near-vertical cliffs'
+    ability: 'Jaws crush frozen meat and bone; travels 24 km/day; climbs near-vertical cliffs'
   },
   'humpback-whale': {
     diet: 'Carnivore; krill and small schooling fish',
@@ -2237,12 +2296,6 @@ export const BRANCH_DATA = {
     habitat: 'Tick vectors (Ixodes); vertebrate blood',
     relevance: 'Causes Lyme disease — most common tick-borne illness in Northern Hemisphere; ~500,000 cases/year in USA and Europe'
   },
-  'treponema': {
-    cellType: 'Gram-negative spirochete',
-    metabolism: 'Obligate anaerobe / microaerophilic',
-    habitat: 'Human mucous membranes',
-    relevance: 'T. pallidum causes syphilis — one of the oldest known human diseases; cannot be cultured in vitro due to extreme host dependence'
-  },
   'rhizobium': {
     cellType: 'Gram-negative bacterium',
     metabolism: 'Aerobic heterotroph; nitrogen fixer in symbiosis',
@@ -2267,12 +2320,6 @@ export const BRANCH_DATA = {
     habitat: 'Alkaline lakes, cultivated ponds',
     relevance: 'Superfood — 60-70% complete protein by weight; cultivated as dietary supplement; NASA studied it for space missions'
   },
-  'campylobacter': {
-    cellType: 'Gram-negative spiral bacterium',
-    metabolism: 'Microaerophilic',
-    habitat: 'Intestines of poultry and other warm-blooded animals',
-    relevance: 'Leading bacterial cause of food-borne gastroenteritis worldwide; ~1 million cases/year in the USA alone'
-  },
   'aliivibrio': {
     cellType: 'Gram-negative bacterium',
     metabolism: 'Facultative anaerobe; bioluminescent',
@@ -2296,12 +2343,6 @@ export const BRANCH_DATA = {
     habitat: 'Deep-sea sediments, hydrothermal vents',
     relevance: 'Most closely related prokaryotes to eukaryotes; revolutionized understanding of eukaryogenesis — suggest archaea engulfed a bacterium to form the first eukaryotic cell'
   },
-  'thermococcus': {
-    cellType: 'Archaeon (coccoid)',
-    metabolism: 'Anaerobic heterotroph; sulfur reducer',
-    habitat: 'Hydrothermal vents and hot marine sediments, 60-100°C',
-    relevance: 'Source of thermostable DNA polymerases used in high-fidelity PCR; model for hyperthermophilic metabolism'
-  },
   'haloquadratum': {
     cellType: 'Archaeon (square-shaped)',
     metabolism: 'Aerobic heterotroph with bacteriorhodopsin',
@@ -2319,18 +2360,6 @@ export const BRANCH_DATA = {
     metabolism: 'Ammonia-oxidizing chemolithoautotroph',
     habitat: 'Oceans, soils, and freshwater worldwide',
     relevance: 'Among the most abundant organisms in the ocean; drive the first step of nitrification — critical for the global nitrogen cycle'
-  },
-  'methanopyrus': {
-    cellType: 'Archaeon (rod-shaped)',
-    metabolism: 'Methanogen — CO2 + H2 → CH4',
-    habitat: 'Hydrothermal vents, 80-122°C',
-    relevance: 'Holds the record for highest growth temperature of any known organism (122°C); represents the upper thermal limit of life'
-  },
-  'ferroplasma': {
-    cellType: 'Archaeon (cell-wall-less)',
-    metabolism: 'Aerobic chemolithotroph (iron oxidation)',
-    habitat: 'Acidic mine drainage, pH 0-1',
-    relevance: 'Thrives in sulfuric acid at pH 0 — among the most acid-tolerant organisms known; important in biomining and acid mine drainage ecology'
   },
   'halococcus': {
     cellType: 'Archaeon (coccoid)',
@@ -2578,12 +2607,6 @@ export const BRANCH_DATA = {
     record: 'Produces only two continuously growing leaves in its entire 1,000-2,000-year lifespan; largest known specimen has leaves 2 m wide',
     ecoRole: 'Fog harvester — captures coastal fog on leaf surfaces for water in the hyper-arid Namib; living fossil gymnosperm'
   },
-  'sensitive-fern': {
-    pollination: 'Spores (non-flowering)',
-    conservation: 'Least Concern; common in wetlands',
-    record: 'Fronds wither at the first frost (hence "sensitive"); fertile fronds persist through winter as dark bead-like structures',
-    ecoRole: 'Wetland indicator species; forms dense colonies in moist forests and stream margins of eastern North America and East Asia'
-  },
   'resurrection-fern': {
     pollination: 'Spores (non-flowering)',
     conservation: 'Least Concern; common epiphyte',
@@ -2642,5 +2665,406 @@ export const BRANCH_DATA = {
     conservation: 'Least Concern; common in Indo-Pacific tide pools',
     size: '12-20 cm (including arms); 10-100 g',
     ability: 'Carries enough tetrodotoxin to kill 26 adult humans within minutes; no known antivenom; iridescent blue rings flash as a warning signal; venom paralyzes prey and is produced by symbiotic bacteria'
+  },
+
+  // ── CURATION — the extinct and the missing ──
+  'dinosaurs': {
+    diet: 'Herbivores and carnivores',
+    lifespan: 'Varied; large species likely 30–70+ years',
+    conservation: 'Extinct (non-avian lineages, 66 Mya)',
+    size: 'From chicken-sized to over 30 m long',
+    ability: 'Dominant land animals of the Mesozoic'
+  },
+  'tyrannosaurus': {
+    diet: 'Carnivore; hadrosaurs, Triceratops, carrion',
+    lifespan: '~28 years',
+    conservation: 'Extinct (~66 Mya)',
+    size: '~12 m long; 6,000–9,000 kg',
+    ability: 'One of the strongest bites of any land animal'
+  },
+  'triceratops': {
+    diet: 'Herbivore; ferns, cycads, low palms',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~66 Mya)',
+    size: '~8–9 m long; 6,000–12,000 kg',
+    ability: 'Three horns and a bony neck frill'
+  },
+  'stegosaurus': {
+    diet: 'Herbivore; ferns, cycads, horsetails',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~150 Mya)',
+    size: '~9 m long; ~5,000 kg',
+    ability: 'Tail spikes for defence; back plates for display'
+  },
+  'argentinosaurus': {
+    diet: 'Herbivore; conifers and ferns',
+    lifespan: 'Unknown; probably decades',
+    conservation: 'Extinct (~94 Mya)',
+    size: '30–35 m long; 65–80 tonnes (est.)',
+    ability: 'Among the heaviest land animals ever'
+  },
+  'velociraptor': {
+    diet: 'Carnivore; small animals, carrion',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~71 Mya)',
+    size: '~2 m long; ~15 kg',
+    ability: 'Sickle-shaped killing claw on each foot'
+  },
+  'spinosaurus': {
+    diet: 'Piscivore; large fish, small animals',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~93 Mya)',
+    size: '~14 m long; 6,000–7,500 kg (est.)',
+    ability: 'Likely the first swimming dinosaur'
+  },
+  'quetzalcoatlus': {
+    diet: 'Carnivore; small animals, carrion',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~66 Mya)',
+    size: '10–11 m wingspan; ~200–250 kg (est.)',
+    ability: 'Powered flight at giraffe size'
+  },
+  'ichthyosaur': {
+    diet: 'Carnivore; fish and squid-like cephalopods',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~90 Mya)',
+    size: '1–15 m, by species',
+    ability: 'Fast, deep-diving, live-bearing'
+  },
+  'plesiosaur': {
+    diet: 'Carnivore; fish, squid, ammonites',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~66 Mya)',
+    size: '2–15 m, by species',
+    ability: 'Four-flipper underwater "flight"'
+  },
+  'mosasaur': {
+    diet: 'Carnivore; fish, ammonites, other marine reptiles',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~66 Mya)',
+    size: 'Up to ~12 m long',
+    ability: 'Top predator of Cretaceous seas'
+  },
+  'galapagos-tortoise': {
+    diet: 'Herbivore; cactus pads, grasses, fruit',
+    lifespan: '100+ years',
+    conservation: 'Vulnerable',
+    size: 'Up to ~1.2 m shell; ~400 kg',
+    ability: 'Survives months without food or water'
+  },
+  'dimetrodon': {
+    diet: 'Carnivore; fish, amphibians, reptiles',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~272 Mya)',
+    size: '1.7–4.6 m long',
+    ability: 'Sail for display or temperature control'
+  },
+  'dunkleosteus': {
+    diet: 'Carnivore; fish, armoured fish',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~358 Mya)',
+    size: '~3.5–6 m long',
+    ability: 'Fast-opening, blade-edged jaws'
+  },
+  'tiktaalik': {
+    diet: 'Carnivore; small fish and invertebrates',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~370 Mya)',
+    size: '1.25–2.75 m long',
+    ability: 'Neck, lungs and wrist-like fin bones'
+  },
+  'megalodon': {
+    diet: 'Carnivore; whales, seals, large fish',
+    lifespan: 'Possibly 80+ years (est.)',
+    conservation: 'Extinct (~3.6 Mya)',
+    size: '~15–18 m long; ~30–50 tonnes (est.)',
+    ability: 'Strongest bite of any known fish'
+  },
+  'whale-shark': {
+    diet: 'Plankton, krill, small fish',
+    lifespan: '70–100 years (est.)',
+    conservation: 'Endangered',
+    size: '10–12 m typical; up to ~20 tonnes',
+    ability: 'Largest fish; filter feeder'
+  },
+  'manta-ray': {
+    diet: 'Plankton, small fish',
+    lifespan: '~40 years or more',
+    conservation: 'Endangered',
+    size: 'Wingspan up to ~7 m; up to ~1,400 kg',
+    ability: 'Largest brain of any fish'
+  },
+  'pufferfish': {
+    diet: 'Algae, molluscs, crustaceans',
+    lifespan: '3–10 years',
+    conservation: 'Mostly Least Concern',
+    size: '2.5 cm to ~1 m, by species',
+    ability: 'Inflates; carries tetrodotoxin'
+  },
+  'electric-eel': {
+    diet: 'Fish, amphibians, small animals',
+    lifespan: '10–15 years',
+    conservation: 'Least Concern',
+    size: 'Up to ~2.5 m; ~20 kg',
+    ability: 'Discharges up to ~860 volts'
+  },
+  'hagfish': {
+    diet: 'Dead and dying animals, marine worms',
+    lifespan: 'Unknown (possibly decades)',
+    conservation: 'Mostly Least Concern',
+    size: '~20–80 cm',
+    ability: 'Releases choking slime'
+  },
+  'giant-panda': {
+    diet: 'Bamboo (~99%); occasional small animals',
+    lifespan: '~20 years wild; 30+ in captivity',
+    conservation: 'Vulnerable; ~1,800 wild',
+    size: '1.2–1.9 m; 70–125 kg',
+    ability: 'Pseudo-thumb for gripping bamboo'
+  },
+  'brown-bear': {
+    diet: 'Omnivore; salmon, berries, roots, carrion',
+    lifespan: '20–30 years',
+    conservation: 'Least Concern',
+    size: '1.4–2.8 m; 80–680 kg',
+    ability: 'Months-long hibernation'
+  },
+  'horse': {
+    diet: 'Herbivore; grasses, hay',
+    lifespan: '25–30 years',
+    conservation: 'Domestic (not assessed)',
+    size: '1.4–1.7 m at shoulder; 380–550 kg',
+    ability: 'Sleeps standing; near-panoramic vision'
+  },
+  'zebra': {
+    diet: 'Herbivore; grasses',
+    lifespan: '20–25 years',
+    conservation: 'Near Threatened',
+    size: '1.2–1.5 m at shoulder; 175–385 kg',
+    ability: 'Stripes deter biting flies'
+  },
+  'dog': {
+    diet: 'Omnivore; meat and plant matter',
+    lifespan: '10–15 years',
+    conservation: 'Domestic (not assessed)',
+    size: '2 kg to over 80 kg, by breed',
+    ability: 'Extraordinary sense of smell'
+  },
+  'domestic-cat': {
+    diet: 'Carnivore; small prey',
+    lifespan: '12–18 years',
+    conservation: 'Domestic (not assessed)',
+    size: '3–5 kg',
+    ability: 'Righting reflex: lands on its feet'
+  },
+  'dromedary': {
+    diet: 'Herbivore; thorny shrubs, grasses',
+    lifespan: '40–50 years',
+    conservation: 'Domestic (not assessed)',
+    size: '1.8–2.4 m at shoulder; 400–600 kg',
+    ability: 'Goes days without water'
+  },
+  'malayan-tapir': {
+    diet: 'Herbivore; leaves, fruit, aquatic plants',
+    lifespan: '25–30 years',
+    conservation: 'Endangered',
+    size: '1.8–2.5 m; 250–540 kg',
+    ability: 'Swims and snorkels with a flexible snout'
+  },
+  'tasmanian-devil': {
+    diet: 'Carnivore and scavenger; carrion, small animals',
+    lifespan: '5–8 years',
+    conservation: 'Endangered',
+    size: '50–80 cm; 6–12 kg',
+    ability: 'Strongest bite per body weight of any living carnivorous mammal'
+  },
+  'aardvark': {
+    diet: 'Termites and ants',
+    lifespan: '~18 years',
+    conservation: 'Least Concern',
+    size: '1–1.3 m; 40–80 kg',
+    ability: 'Digs burrows in minutes'
+  },
+  'house-mouse': {
+    diet: 'Omnivore; seeds, grain, insects',
+    lifespan: '1–2 years',
+    conservation: 'Least Concern',
+    size: '7–10 cm; 20–25 g',
+    ability: 'Ultrasonic song; breeds all year'
+  },
+  'red-fox': {
+    diet: 'Omnivore; rodents, rabbits, fruit, insects',
+    lifespan: '2–5 years wild; up to 14 captive',
+    conservation: 'Least Concern',
+    size: '45–90 cm; 3–11 kg',
+    ability: 'Magnetic-field-aided hunting'
+  },
+  'leopard': {
+    diet: 'Carnivore; antelope, monkeys, rodents',
+    lifespan: '12–17 years',
+    conservation: 'Vulnerable',
+    size: '1–1.9 m; 30–90 kg',
+    ability: 'Climbs trees carrying prey'
+  },
+  'woolly-mammoth': {
+    diet: 'Herbivore; grasses and sedges',
+    lifespan: '~60 years',
+    conservation: 'Extinct (~4,000 years ago)',
+    size: '~3 m at shoulder; ~6,000 kg',
+    ability: 'Thick coat and fat layer for ice-age winters'
+  },
+  'smilodon': {
+    diet: 'Carnivore; bison, horses, camels',
+    lifespan: '~12–18 years (est.)',
+    conservation: 'Extinct (~10,000 years ago)',
+    size: '~2 m long; 160–280 kg',
+    ability: 'Canines up to ~28 cm; ~120° gape'
+  },
+  'giant-ground-sloth': {
+    diet: 'Herbivore; leaves, branches',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~10,000 years ago)',
+    size: '~6 m long; up to ~4,000 kg',
+    ability: 'Stood on hind legs to browse'
+  },
+  'thylacine': {
+    diet: 'Carnivore; kangaroos, wallabies, birds',
+    lifespan: '5–7 years (est.)',
+    conservation: 'Extinct (1936)',
+    size: '~1.2 m plus tail; ~30 kg',
+    ability: 'Jaws opened ~80°'
+  },
+  'paraceratherium': {
+    diet: 'Herbivore; tree leaves',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~23 Mya)',
+    size: '~7.5 m long; ~15–20 tonnes (est.)',
+    ability: 'Browsed high treetops'
+  },
+  'basilosaurus': {
+    diet: 'Carnivore; fish, small whales',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~34 Mya)',
+    size: '15–18 m long',
+    ability: 'Fully aquatic with vestigial hind limbs'
+  },
+  'chicken': {
+    diet: 'Omnivore; seeds, insects, small animals',
+    lifespan: '5–10 years',
+    conservation: 'Domestic (not assessed)',
+    size: '~40–70 cm; 1–4 kg',
+    ability: 'Domesticated worldwide'
+  },
+  'peacock': {
+    diet: 'Omnivore; seeds, insects, small reptiles',
+    lifespan: '15–20 years',
+    conservation: 'Least Concern',
+    size: 'Males up to ~2.3 m with train; 4–6 kg',
+    ability: 'Fan-shaped eyespot train'
+  },
+  'puffin': {
+    diet: 'Small fish — sand eels, herring',
+    lifespan: '20+ years',
+    conservation: 'Vulnerable',
+    size: '~28 cm; ~400 g',
+    ability: 'Flies and dives with its wings'
+  },
+  'dodo': {
+    diet: 'Herbivore; fruit, seeds',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (late 1600s)',
+    size: '~1 m tall; 10–20 kg',
+    ability: 'None needed — until humans arrived'
+  },
+  'giant-moa': {
+    diet: 'Herbivore; leaves, twigs, seeds',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~1400 CE)',
+    size: 'Up to ~3.6 m tall; ~230 kg',
+    ability: 'Wingless giant browser'
+  },
+  'coconut-crab': {
+    diet: 'Coconuts, fruit, carrion',
+    lifespan: '40–60 years',
+    conservation: 'Vulnerable',
+    size: 'Up to ~1 m leg span; ~4 kg',
+    ability: 'Cracks coconuts'
+  },
+  'krill': {
+    diet: 'Phytoplankton, algae under sea ice',
+    lifespan: 'Up to ~10 years',
+    conservation: 'Least Concern',
+    size: 'Up to ~6 cm; ~2 g',
+    ability: 'Forms enormous swarms'
+  },
+  'nudibranch': {
+    diet: 'Sponges, anemones, hydroids',
+    lifespan: 'Weeks to a year',
+    conservation: 'Not assessed',
+    size: '~0.5 cm to ~40 cm',
+    ability: 'Borrowed stinging cells'
+  },
+  'sea-anemone': {
+    diet: 'Fish, plankton, crustaceans',
+    lifespan: 'Decades',
+    conservation: 'Not assessed',
+    size: 'A few millimetres to ~1.5 m across',
+    ability: 'Stings in under a microsecond'
+  },
+  'ctenophore': {
+    diet: 'Plankton, small animals',
+    lifespan: 'Weeks to a few years',
+    conservation: 'Not assessed',
+    size: 'Millimetres to ~1.5 m',
+    ability: 'Swims with beating cilia'
+  },
+  'hallucigenia': {
+    diet: 'Probably scavenged dead sponges and animals',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~500 Mya)',
+    size: '~0.5–3.5 cm',
+    ability: 'Spiny armour on stilt-like legs'
+  },
+  'anomalocaris': {
+    diet: 'Carnivore; trilobites and other soft and hard-shelled animals',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~500 Mya)',
+    size: '~40 cm to ~1 m long',
+    ability: 'Compound eyes and grasping appendages'
+  },
+  'trilobite': {
+    diet: 'Scavengers, filter feeders and predators',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~252 Mya)',
+    size: '~1 cm to ~70 cm',
+    ability: 'Rolled up for defence; calcite-lens eyes'
+  },
+  'sea-scorpion': {
+    diet: 'Carnivore; fish and early arthropods',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~252 Mya)',
+    size: 'Up to ~2.5 m long',
+    ability: 'Giant paddle limbs and claws'
+  },
+  'meganeura': {
+    diet: 'Carnivore; other insects, small amphibians',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~295 Mya)',
+    size: '~65–70 cm wingspan',
+    ability: 'Largest flying insect known'
+  },
+  'ammonite': {
+    diet: 'Plankton, small animals',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~66 Mya)',
+    size: '~2 cm to ~2 m across',
+    ability: 'Buoyancy-controlled coiled shell'
+  },
+  'dickinsonia': {
+    diet: 'Probably absorbed nutrients from microbial mats',
+    lifespan: 'Unknown',
+    conservation: 'Extinct (~541 Mya)',
+    size: 'Up to ~1.4 m',
+    ability: 'Moved across the seabed'
   },
 };

@@ -88,7 +88,7 @@ body[data-view="orbit"] #orbit { display: block; }
 .orb-b:nth-child(3n+1) .orb-face { animation-delay: -3.4s; animation-duration: 6.4s; }
 @media (prefers-reduced-motion: reduce) {
   .orb-b .orb-face { animation: none; }
-  .orb-b { transition-duration: 1ms; }
+  .orb-b { transition: none !important; }
 }
 
 /* ── Chrome: the way back, and the two things to press ── */

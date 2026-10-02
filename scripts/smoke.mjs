@@ -2318,7 +2318,10 @@ async function orbitProbe(page, scenario, baseUrl) {
         }
         for (let a = 0; a < bs.length; a++) for (let c = a + 1; c < bs.length; c++) {
           const x = bs[a].r, y = bs[c].r;
-          if (x.left < y.right - 2 && x.right > y.left + 2 && x.top < y.bottom - 2 && x.bottom > y.top + 2) problems.overlap.push(`${bs[a].b.dataset.arg}×${bs[c].b.dataset.arg}`);
+          if (x.left < y.right - 2 && x.right > y.left + 2 && x.top < y.bottom - 2 && x.bottom > y.top + 2) {
+            const q = (r) => `[${Math.round(r.left)},${Math.round(r.top)} ${Math.round(r.width)}×${Math.round(r.height)}]`;
+            problems.overlap.push(`${bs[a].b.dataset.arg}${q(x)}×${bs[c].b.dataset.arg}${q(y)}`);
+          }
         }
         const pills = [...host.querySelectorAll('.orb-pill, .orb-legend')].filter((e) => e.getBoundingClientRect().width);
         for (const e of pills) {
@@ -2341,6 +2344,11 @@ async function orbitProbe(page, scenario, baseUrl) {
         return { id, focus: host.querySelector('.orb-b.focus')?.dataset.arg, bubbles, ...problems };
       }, id);
       out.dom.push(row);
+      /* A failing focus leaves a picture behind: what a runner saw is the only
+         way to tell a layout fault from a font or a photograph arriving late. */
+      if (row.outside.length || row.overlap.length || row.covered.length || row.pills.length) {
+        await p.screenshot({ path: path.join(OUT_DIR, `orbit-${scenario.id}-${id}.png`) }).catch(() => {});
+      }
     }
 
     // ── words: translated groups, no Latin chrome in Hebrew, the time on every chip ──

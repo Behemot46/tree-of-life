@@ -1,0 +1,83 @@
+/* Concept gallery for the Explore layout. No part of the site. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+body.xg {
+  margin: 0; background: var(--bg); color: var(--text-primary);
+  font-family: var(--font-sans, Inter, system-ui, sans-serif);
+  overflow: hidden;
+}
+#stage { position: fixed; inset: 0; top: 76px; bottom: 54px; }
+#stage svg { display: block; }
+
+.xg-top { position: fixed; inset-inline: 0; top: 0; padding: 10px 14px 6px;
+  display: flex; flex-direction: column; gap: 4px;
+  background: linear-gradient(to bottom, var(--bg) 70%, transparent); z-index: 5; }
+.xg-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.xg-tabs button {
+  min-height: 32px; padding: 0 12px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--glass-border); background: transparent;
+  color: var(--text-secondary); font: inherit; font-size: 13px; font-weight: 600;
+}
+.xg-tabs button[aria-selected="true"] { color: var(--accent); border-color: var(--accent); }
+.xg-cap { font-size: 12px; color: var(--text-secondary); display: flex; gap: 8px; align-items: baseline; }
+.xg-cap b { color: var(--text-primary); font-size: 13px; }
+
+.xg-bar { position: fixed; inset-inline: 0; bottom: 0; height: 54px;
+  display: flex; align-items: center; gap: 10px; padding: 0 14px;
+  background: linear-gradient(to top, var(--bg) 70%, transparent); z-index: 5; }
+.xg-bar button, .xg-seg button {
+  min-width: 34px; min-height: 34px; border-radius: 8px; cursor: pointer;
+  border: 1px solid var(--glass-border); background: transparent;
+  color: var(--text-secondary); font: inherit; font-size: 12px; font-weight: 600;
+}
+.xg-seg { display: flex; gap: 4px; }
+.xg-seg:first-of-type { margin-inline-start: auto; }
+.xg-seg button[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
+#where { font-size: 12px; color: var(--text-secondary); overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; max-width: 46vw; }
+
+/* ── Ladder ── */
+.lad-grid { stroke: var(--glass-border); stroke-width: 1; opacity: 0.5; }
+.lad-tick { fill: var(--text-secondary); font-size: 10px; font-family: var(--font-mono, monospace); }
+/* "500 Ma" is a Latin run, and SVG text has no dependable bidi handling — a
+   dir attribute alone still came back "Ma 500" in Hebrew, which is the
+   reordering the opening and the detail panel both already guard against.
+   Overriding the embedding level is what actually holds it. */
+.lad-tick, .riv-tick, .frk-when, .lad-more, .riv-sub, .frk-sub {
+  direction: ltr; unicode-bidi: bidi-override;
+}
+.lad-limb { fill: none; stroke-linecap: round; opacity: 0.85; }
+.lad-name { fill: var(--text-primary); font-size: 12.5px; font-weight: 600;
+  paint-order: stroke; stroke: var(--bg); stroke-width: 3px; stroke-linejoin: round; }
+.lad-name.is-fork { fill: var(--text-secondary); font-weight: 650; letter-spacing: 0.01em; }
+.lad-more { fill: var(--text-secondary); font-size: 10.5px; }
+.lad-node { cursor: pointer; }
+.lad-node:hover .lad-name, .lad-node:focus-visible .lad-name { fill: var(--accent); }
+.lad-node.is-sel .lad-name { fill: var(--accent); }
+
+/* ── River ── */
+.riv-grid { stroke: var(--glass-border); stroke-width: 1; opacity: 0.45; }
+.riv-band { opacity: 0.30; transition: opacity 120ms ease; }
+.riv-band.is-sel { opacity: 0.52; }
+.riv-label { cursor: pointer; }
+.riv-name { fill: var(--text-primary); font-size: 12.5px; font-weight: 650; paint-order: stroke;
+  stroke: var(--bg); stroke-width: 3px; stroke-linejoin: round; }
+.riv-sub { fill: var(--text-secondary); font-size: 10.5px; paint-order: stroke;
+  stroke: var(--bg); stroke-width: 3px; }
+.riv-label:hover .riv-name, .riv-label:focus-visible .riv-name { fill: var(--accent); }
+
+/* ── Fork ── */
+.frk-stem { stroke: var(--glass-border); stroke-width: 2; }
+.frk-bead { cursor: pointer; }
+.frk-bead.is-sel circle { stroke: var(--accent); stroke-width: 2; }
+.frk-title { fill: var(--text-primary); font-size: 22px; font-weight: 700; }
+.frk-when { fill: var(--accent); font-size: 13px; font-weight: 600;
+  font-family: var(--font-mono, monospace); }
+.frk-limb { fill: none; stroke-width: 3; opacity: 0.8; stroke-linecap: round; }
+.frk-card { cursor: pointer; }
+.frk-card:hover circle, .frk-card:focus-visible circle { stroke: var(--accent); stroke-width: 3; }
+.frk-name { fill: var(--text-primary); font-size: 13px; font-weight: 650; }
+.frk-sub { fill: var(--text-secondary); font-size: 11px; }
+.riv-tick { fill: var(--text-secondary); font-size: 10px; opacity: 0.75;
+  font-family: var(--font-mono, monospace); paint-order: stroke;
+  stroke: var(--bg); stroke-width: 3px; }

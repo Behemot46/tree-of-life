@@ -20,7 +20,8 @@
   color: var(--text-primary);
   font-family: var(--font-sans);
 }
-body[data-view="map"] #explore { display: none; }
+body[data-view="map"] #explore,
+body[data-view="orbit"] #explore { display: none; }
 /* Map furniture, hidden here because none of it drives this view.
    #timeline is the one that mattered: the era slider filters the canvas and
    has no effect on a card grid, but it is fixed to the bottom of the window
@@ -43,7 +44,11 @@ body[data-view="map"] #explore { display: none; }
 body[data-view="explore"] #svg,
 body[data-view="explore"] #zoom-ctrl,
 body[data-view="explore"] #timeline,
-body[data-view="explore"] .reveal-panel { display: none !important; }
+body[data-view="explore"] .reveal-panel,
+body[data-view="orbit"] #svg,
+body[data-view="orbit"] #zoom-ctrl,
+body[data-view="orbit"] #timeline,
+body[data-view="orbit"] .reveal-panel { display: none !important; }
 
 /* ── Back ── */
 .ex-head { margin-bottom: 10px; }

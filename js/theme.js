@@ -114,6 +114,7 @@ export function applyI18n(){
   if(_deps.updateSpeciesCount) _deps.updateSpeciesCount();
   // Explore paints its words as HTML at render time, so it has to be redrawn
   if(_deps.renderExplore) _deps.renderExplore();
+  if(_deps.refreshOrbit) _deps.refreshOrbit();
   // Accessibility labels
   const skipLink=document.getElementById('skip-link');
   if(skipLink) skipLink.textContent=t('a11y_skip');

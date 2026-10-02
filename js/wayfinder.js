@@ -68,7 +68,10 @@ function topLayer() {
   return null;
 }
 
-const shell = () => document.body.getAttribute('data-view') === 'map' ? 'map' : 'explore';
+const shell = () => {
+  const v = document.body.getAttribute('data-view');
+  return v === 'map' || v === 'orbit' ? v : 'explore';
+};
 
 /* Back: take off whatever is on top; failing that, climb one level in the
    shell underneath. In the drill-down that is one fold up the lineage, which
@@ -78,6 +81,7 @@ export function goBack() {
   const layer = topLayer();
   if (layer) { layer.close(); return; }
   if (shell() === 'explore') { if (D.exploreUp?.()) return; }
+  else if (shell() === 'orbit') { if (D.orbitUp?.()) return; }
   /* navStack, not just navBack: on an empty stack navBack() returns having
      done nothing, and delegating to it unconditionally is how the map's Back
      became a dead press at the root — the fall-through below never ran. */
@@ -89,6 +93,7 @@ export function goBack() {
 export function goHome() {
   for (const l of LAYERS) { try { if (l.open()) l.close(); } catch (e) { /* absent module */ } }
   if (shell() === 'explore') D.exploreHome?.();
+  else if (shell() === 'orbit') D.orbitHome?.();
   else D.navHome?.();
 }
 
@@ -105,6 +110,7 @@ function shareNode() {
     if (sel && sel._parent) return sel.id;
     return null;
   }
+  if (shell() === 'orbit') return D.orbitSelection?.()?.id || null;
   const focused = state.currentPanelNode || state.focusedBranch;
   if (focused && focused._parent) return focused.id;
   return state.highlightedId || null;

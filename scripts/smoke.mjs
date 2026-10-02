@@ -625,8 +625,12 @@ check('orbit:lays-out-relatives', 'The picture shows rings of relatives, near an
   const rel = f.bubbles.filter((b) => b.kind === 'rel');
   if (f.bubbles.length < 12) fail(`only ${f.bubbles.length} bubbles are drawn`);
   if (rel.length < 8) fail(`only ${rel.length} relatives`);
-  const far = rel.filter((b) => / Ga$/.test(b.sub));
-  if (!far.length) fail('no relative sharing an ancestor billions of years back (fungi, plants, bacteria) is on screen');
+  /* The far branches (fungi, plants, bacteria) are the most surprising relatives there are, so
+     they must be on screen. A phone has room for three bubbles on its outermost ring, so
+     there they may stand behind the "+N" bubble of the ancestor they branch from: one press
+     away, and still on screen as a way in. */
+  const far = f.bubbles.filter((b) => (b.kind === 'rel' && / Ga$/.test(b.sub)) || (b.kind === 'more' && b.moreAge >= 1000));
+  if (!far.length) fail('nothing billions of years back (fungi, plants, bacteria), nor a "+N" bubble leading to them, is on screen');
 });
 
 /* Compared with the tree, not with a pattern: "12 Ma" matches any regex for a
@@ -1618,7 +1622,9 @@ async function orbitProbe(page, scenario, baseUrl) {
       if (kind === 'rel' && n && fnode) expected = fmt(lca(n, fnode).appeared || 0);
       if (kind === 'sat' && n) expected = (n.children || []).length ? String(count(n)) : '';
       const sub = b.querySelector('.orb-sub');
-      return { id, kind, sub: sub ? sub.textContent : '', expected, face: rect(face), label: rect(lab), cover: coveredBy(face),
+      // a "+N" bubble stands for the branches of one ancestor, so its age is that ancestor's
+      const stands = kind === 'more' ? idx.get(String(id).split(':')[1]) : null;
+      return { id, kind, moreAge: stands ? stands.appeared || 0 : null, sub: sub ? sub.textContent : '', expected, face: rect(face), label: rect(lab), cover: coveredBy(face),
         fallback: !!(face.querySelector('.orb-sil') || face.querySelector('.orb-emoji') || face.classList.contains('orb-more')),
         name: b.querySelector('.orb-name') ? b.querySelector('.orb-name').textContent : '' };
     });

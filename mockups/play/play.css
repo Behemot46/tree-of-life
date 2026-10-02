@@ -1,0 +1,161 @@
+/* Play — the three scenes. Colour comes from the site's own tokens, so both
+   themes work from one stylesheet. Nothing here is a physical left or right. */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+body.pl { margin: 0; overflow: hidden; color: var(--text-primary);
+  font-family: var(--font-sans, Inter, 'Heebo', system-ui, sans-serif);
+  background:
+    radial-gradient(90% 70% at 50% -10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 70%),
+    radial-gradient(70% 50% at 10% 100%, color-mix(in srgb, #3b82f6 9%, transparent), transparent 70%),
+    var(--bg); }
+
+/* ── Chrome ── */
+.pl-top { position: fixed; inset-inline: 0; top: 0; z-index: 8; height: 52px; display: flex; align-items: center; gap: 8px; padding: 0 12px;
+  background: color-mix(in srgb, var(--bg) 82%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--glass-border); }
+.pl-tabs { display: flex; gap: 6px; flex: 1; min-width: 0; overflow-x: auto; scrollbar-width: none; }
+.pl-tabs button { flex: none; min-height: 36px; padding: 0 14px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 13px; font-weight: 650;
+  border: 1px solid var(--glass-border); background: transparent; color: var(--text-secondary); }
+.pl-tabs button[aria-selected="true"] { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+.pl-seg { display: flex; gap: 4px; }
+.pl-seg button { min-width: 36px; min-height: 36px; padding: 0 8px; border-radius: 9px; cursor: pointer; font: inherit; font-size: 12px; font-weight: 650;
+  border: 1px solid var(--glass-border); background: transparent; color: var(--text-secondary); }
+.pl-seg button[aria-pressed="true"] { color: var(--accent); border-color: var(--accent); }
+#scene { position: fixed; inset: 52px 0 0 0; overflow: hidden; }
+
+/* ── The bubble: large, round, photographic, and obviously pressable ── */
+.pl-b { position: absolute; left: 0; top: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 0; margin: 0;
+  background: none; border: 0; color: inherit; font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: transform 560ms cubic-bezier(.2, .9, .25, 1), opacity 320ms ease; will-change: transform; }
+.pl-face { position: relative; display: block; width: var(--d); height: var(--d); border-radius: 50%; overflow: hidden; flex: none;
+  background: color-mix(in srgb, var(--c) 22%, var(--surface, var(--bg)));
+  box-shadow: 0 0 0 3px var(--c), 0 8px 22px rgba(0, 0, 0, .34), 0 0 28px color-mix(in srgb, var(--c) 34%, transparent);
+  transition: transform 220ms cubic-bezier(.3, 1.4, .5, 1), box-shadow 220ms ease; }
+.pl-b:hover .pl-face, .pl-b:focus-visible .pl-face { transform: scale(1.1);
+  box-shadow: 0 0 0 3px var(--c), 0 12px 28px rgba(0, 0, 0, .4), 0 0 38px color-mix(in srgb, var(--c) 55%, transparent); }
+.pl-b:active .pl-face { transform: scale(.94); }
+.pl-b:focus-visible { outline: none; }
+.pl-b:focus-visible .pl-face { box-shadow: 0 0 0 3px var(--c), 0 0 0 7px var(--accent); }
+.pl-sil, .pl-emoji { position: absolute; inset: 14%; display: block; }
+.pl-sil { background: var(--c); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;
+  -webkit-mask-size: contain; mask-size: contain; }
+.pl-emoji { display: grid; place-items: center; font-size: calc(var(--d) * .5); line-height: 1; }
+.pl-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 420ms ease; }
+.pl-b.has-img .pl-img { opacity: 1; }
+.pl-label { display: flex; flex-direction: column; align-items: center; gap: 1px; max-width: 100%; text-align: center; line-height: 1.12; pointer-events: none; }
+.pl-name { max-width: 100%; font-size: 12px; font-weight: 700; color: var(--text-primary); text-shadow: 0 1px 6px var(--bg), 0 0 2px var(--bg);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pl-b.focus .pl-name { white-space: normal; text-overflow: clip; }
+.pl-sub { font-size: 10.5px; font-weight: 650; color: var(--text-secondary); font-family: var(--font-mono, monospace); text-shadow: 0 1px 6px var(--bg); }
+.pl-b.focus .pl-face { box-shadow: 0 0 0 4px var(--c), 0 0 0 9px color-mix(in srgb, var(--c) 28%, transparent), 0 10px 34px rgba(0, 0, 0, .45), 0 0 60px color-mix(in srgb, var(--c) 45%, transparent); }
+.pl-b.focus .pl-name { font-size: 15px; }
+.pl-b.sat .pl-face { box-shadow: 0 0 0 2.5px var(--c), 0 6px 16px rgba(0, 0, 0, .3); }
+.pl-face.pl-more { display: grid; place-items: center; font-size: calc(var(--d) * .3); font-weight: 750; color: var(--text-secondary);
+  background: color-mix(in srgb, var(--text-primary) 8%, transparent); box-shadow: 0 0 0 2px var(--glass-border); font-family: var(--font-mono, monospace); }
+
+/* Alive, so it says "press me" without a word: a slow drift, each bubble out of step. */
+@keyframes plDrift { 0%, 100% { translate: 0 0; } 50% { translate: 0 -3px; } }
+.pl-b .pl-face { animation: plDrift 5.5s ease-in-out infinite; }
+.pl-b:nth-child(3n) .pl-face { animation-delay: -1.6s; }
+.pl-b:nth-child(3n+1) .pl-face { animation-delay: -3.4s; animation-duration: 6.4s; }
+@media (prefers-reduced-motion: reduce) { .pl-b .pl-face { animation: none; } .pl-b { transition-duration: 1ms; } }
+
+/* ── Orbit ── */
+.pl-orbit { position: absolute; inset: 0; }
+.pl-guide { position: absolute; inset: 0; pointer-events: none; }
+.pl-arc { fill: none; stroke: var(--text-primary); stroke-opacity: .13; stroke-width: 1.5; stroke-dasharray: 2 7; stroke-linecap: round; }
+.pl-arc.is-in { stroke-opacity: .22; stroke-dasharray: none; }
+.pl-stage { position: absolute; inset: 0; }
+.pl-actions { position: absolute; inset-block-start: 12px; inset-inline-end: 12px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; z-index: 4; }
+[dir="rtl"] .pl-actions { align-items: flex-start; }
+.pl-trail { position: absolute; inset-block-start: 12px; inset-inline-start: 12px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; z-index: 4; max-width: 34vw; }
+[dir="rtl"] .pl-trail { align-items: flex-end; }
+/* A phone's primary action goes where the thumb already is. */
+@media (max-width: 559px) {
+  .pl-actions { inset-block-start: auto; inset-block-end: 38px; inset-inline: 12px; flex-direction: row; justify-content: center; align-items: center; }
+  [dir="rtl"] .pl-actions { align-items: center; }
+}
+.pl-pill { min-height: 44px; padding: 0 16px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 14px; font-weight: 700; white-space: nowrap;
+  border: 1px solid var(--glass-border); color: var(--text-primary); background: color-mix(in srgb, var(--surface, var(--bg)) 88%, transparent);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: 0 4px 16px rgba(0, 0, 0, .22); transition: transform 160ms ease; }
+.pl-pill:active { transform: scale(.95); }
+.pl-pill.is-main { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+.pl-pill.is-trail { font-size: 12.5px; min-height: 36px; font-weight: 600; color: var(--text-secondary); max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.pl-legend { position: absolute; inset-inline: 12px; bottom: 10px; margin: 0; text-align: center; font-size: 11.5px; color: var(--text-secondary); pointer-events: none;
+  text-shadow: 0 1px 8px var(--bg), 0 0 3px var(--bg); }
+
+/* ── The card ── */
+.pl-card { position: fixed; z-index: 20; inset-inline: 0; bottom: 0; max-height: 86vh; overflow: auto; display: none;
+  background: var(--surface, var(--bg)); border-top: 3px solid var(--c, var(--accent)); border-radius: 22px 22px 0 0; box-shadow: 0 -16px 50px rgba(0, 0, 0, .45); }
+.pl-card.is-open { display: block; animation: plUp 320ms cubic-bezier(.2, .9, .25, 1); }
+@keyframes plUp { from { transform: translateY(40px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (min-width: 760px) { .pl-card { inset-inline: auto; inset-inline-end: 24px; bottom: 24px; width: 420px; border-radius: 22px; border: 1px solid var(--glass-border); border-top: 3px solid var(--c, var(--accent)); } }
+.pl-x { position: absolute; inset-block-start: 10px; inset-inline-end: 10px; z-index: 2; width: 38px; height: 38px; border-radius: 50%; cursor: pointer; font-size: 15px;
+  border: 0; color: #fff; background: rgba(0, 0, 0, .5); }
+.pl-hero { display: block; width: 100%; height: 220px; object-fit: cover; }
+.pl-card-body { padding: 16px 18px 22px; }
+.pl-card h2 { margin: 0; font-size: 24px; line-height: 1.15; }
+.pl-latin { margin: 3px 0 0; font-style: italic; font-size: 13px; color: var(--text-secondary); text-align: start; }
+.pl-when { margin: 10px 0 0; font-size: 13px; font-weight: 700; color: var(--accent); }
+.pl-desc { margin: 10px 0 0; font-size: 14.5px; line-height: 1.55; color: var(--parchment, var(--text-secondary)); text-align: start; }
+.pl-credit { margin: 10px 0 0; font-size: 11px; color: var(--text-secondary); text-align: start; }
+.pl-credit a { color: inherit; }
+.pl-open { display: inline-flex; align-items: center; min-height: 44px; margin-top: 14px; padding: 0 18px; border-radius: 999px; font-weight: 700; font-size: 14px;
+  text-decoration: none; color: var(--bg); background: var(--accent); }
+@media (max-width: 559px) { .pl-name { font-size: 11.5px; letter-spacing: -.005em; } .pl-sub { font-size: 10px; } }
+.pl-pill.is-icon { padding: 0 14px; font-size: 18px; }
+@media (max-width: 559px) { .pl-pill.is-icon { min-width: 44px; padding: 0; } }
+
+/* ── Name printed on the picture, and the "there is more inside" badge ── */
+.pl-tag { position: absolute; inset-inline: 0; bottom: 0; padding: 12% 8% 9%; font-size: 11px; font-weight: 700; line-height: 1.1; text-align: center; color: #fff;
+  background: linear-gradient(to top, rgba(0, 0, 0, .72), rgba(0, 0, 0, 0)); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.pl-badge { position: absolute; inset-block-start: -3px; inset-inline-end: -3px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; display: grid; place-items: center;
+  font-size: 10.5px; font-weight: 750; font-family: var(--font-mono, monospace); color: var(--bg); background: var(--accent); box-shadow: 0 2px 8px rgba(0, 0, 0, .4); }
+.pl-b.tagged { width: var(--d); }
+
+/* ── Dive ── */
+.pl-dive { position: absolute; inset: 0; }
+.pl-disc { position: absolute; border-radius: 50%;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--c) 18%, transparent), color-mix(in srgb, var(--c) 6%, transparent) 72%, transparent 100%);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--c) 45%, transparent), 0 0 80px color-mix(in srgb, var(--c) 22%, transparent); }
+.pl-mark { position: absolute; inset: 20%; opacity: .07; background: var(--c); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain; pointer-events: none; }
+.pl-planets { position: absolute; inset: 0; transition: transform 560ms cubic-bezier(.55, 0, .25, 1), opacity 420ms ease; }
+.pl-planets .pl-b { transition: none; }
+.pl-planets.is-in .pl-b { animation: plPop 460ms cubic-bezier(.3, 1.4, .5, 1) both; }
+@keyframes plPop { from { opacity: 0; scale: .4; } to { opacity: 1; scale: 1; } }
+.pl-head { position: absolute; inset-block-start: 14px; inset-inline-start: 16px; z-index: 4; max-width: min(42vw, 460px); }
+.pl-head h2 { margin: 0; font-size: clamp(24px, 3.4vw, 40px); line-height: 1.05; }
+.pl-head p { margin: 6px 0 0; font-size: 13px; color: var(--text-secondary); }
+.pl-crumbs { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 10px; }
+.pl-crumbs button { min-height: 30px; padding: 0 10px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 12px; font-weight: 600;
+  border: 1px solid var(--glass-border); background: transparent; color: var(--text-secondary); }
+.pl-crumbs button:hover { color: var(--text-primary); }
+@media (max-width: 559px) { .pl-head { inset-inline: 12px; max-width: none; text-align: center; } .pl-head h2 { font-size: 26px; } .pl-crumbs { justify-content: center; } }
+
+/* ── Travel ── */
+.pl-travel { position: absolute; inset: 0; --era: #3fae5a; }
+.pl-era { position: absolute; inset: 0; pointer-events: none; background-color: var(--era); opacity: .13; transition: background-color 700ms ease;
+  -webkit-mask: radial-gradient(90% 70% at 50% 40%, #000, transparent 75%); mask: radial-gradient(90% 70% at 50% 40%, #000, transparent 75%); }
+.pl-when-big { position: absolute; inset-inline: 0; top: 10px; text-align: center; z-index: 3; pointer-events: none; padding: 0 12px; }
+.pl-when-big h2 { margin: 0; font-size: clamp(26px, 4.4vw, 46px); line-height: 1.05; letter-spacing: -.01em; text-shadow: 0 2px 18px var(--bg); }
+.pl-when-big p { margin: 6px 0 0; font-size: 14px; font-weight: 650; color: var(--era); filter: brightness(1.25); }
+.pl-mosaic { position: absolute; }
+.pl-mosaic .pl-b.is-new { animation: plBloom 520ms cubic-bezier(.3, 1.5, .5, 1) both; }
+@keyframes plBloom { from { opacity: 0; scale: .3; } to { opacity: 1; scale: 1; } }
+.pl-mosaic .pl-b { transition: transform 420ms cubic-bezier(.2, .9, .25, 1); }
+.pl-dock { position: absolute; inset-inline: 0; bottom: 0; z-index: 4; padding: 10px 16px 14px;
+  background: linear-gradient(to top, var(--bg) 62%, transparent); }
+.pl-dock-row { display: flex; align-items: center; gap: 14px; max-width: 980px; margin: 0 auto; }
+.pl-play { width: 52px; min-width: 52px; padding: 0; font-size: 18px; flex: none; }
+.pl-range { flex: 1; min-width: 0; height: 34px; -webkit-appearance: none; appearance: none; background: transparent; cursor: pointer; accent-color: var(--accent); touch-action: pan-y; }
+.pl-range::-webkit-slider-runnable-track { height: 8px; border-radius: 4px; background: linear-gradient(90deg, #c2603a, #2f9d8f 30%, #3fae5a 62%, #8b55d6 82%, #e3a63d); }
+.pl-range::-moz-range-track { height: 8px; border-radius: 4px; background: linear-gradient(90deg, #c2603a, #2f9d8f 30%, #3fae5a 62%, #8b55d6 82%, #e3a63d); }
+.pl-range::-webkit-slider-thumb { -webkit-appearance: none; width: 30px; height: 30px; margin-top: -11px; border-radius: 50%; background: var(--accent); border: 4px solid var(--bg); box-shadow: 0 0 0 2px var(--accent), 0 4px 14px rgba(0, 0, 0, .5); }
+.pl-range::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--accent); border: 4px solid var(--bg); box-shadow: 0 0 0 2px var(--accent); }
+.pl-eras { position: relative; display: flex; max-width: 980px; height: 26px; margin: 22px auto 0; padding-inline-start: 66px; }
+.pl-era-seg { flex-basis: 0; min-width: 0; border: 0; cursor: pointer; padding: 0 2px; font: inherit; font-size: 10.5px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--ec) 70%, var(--text-primary)); background: color-mix(in srgb, var(--ec) 18%, transparent); white-space: nowrap; overflow: hidden; text-overflow: clip; border-inline-end: 2px solid var(--bg); }
+.pl-skull { position: absolute; inset-block-start: -19px; translate: -50% 0; width: 26px; height: 22px; padding: 0; border: 0; background: none; cursor: pointer; font-size: 14px; color: var(--text-primary); opacity: .85; }
+.pl-hint { max-width: 980px; margin: 8px auto 0; padding-inline-start: 66px; font-size: 12px; color: var(--text-secondary); text-align: start; }
+@media (max-width: 559px) { .pl-dock { padding: 8px 12px 12px; } .pl-dock-row { gap: 10px; } .pl-eras, .pl-hint { padding-inline-start: 62px; } .pl-era-seg { font-size: 9px; } }

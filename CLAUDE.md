@@ -90,6 +90,8 @@ tree-of-life/
 ├── docs/PLAY_STRATEGY.md # Why the site is becoming a game, and the phased plan
 ├── tests/kin.test.mjs   # Unit tests for Kin's engine and answer key (npm test)
 ├── mockups/opening/     # Concept gallery for the opening: four live scenes, no part of the site
+├── mockups/play/        # Explore as something to touch: Orbit (everyone is your relative), Dive (zoomable photo-planets), Time (a slider through 3.8 Ga). A sketch, no part of the site.
+│                        #   check-play.mjs measures all three (overlap, off-screen, tap size, covered, blank) across phone/desktop × en/he/ru × dark/light
 ├── css/                 # External stylesheets (15 files)
 │   ├── variables.css    # CSS custom properties, reset, focus styles
 │   ├── layout.css       # Header, search, breadcrumb, nav controls

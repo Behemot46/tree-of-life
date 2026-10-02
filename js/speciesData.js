@@ -2272,7 +2272,7 @@ export const WIKI_TITLES = {
   'velociraptor':'Velociraptor',
   'spinosaurus':'Spinosaurus',
   'quetzalcoatlus':'Quetzalcoatlus',
-  'ichthyosaur':'Ichthyosaur',
+  'ichthyosaur':'Ichthyosaurus',
   'plesiosaur':'Plesiosauria',
   'mosasaur':'Mosasaurus',
   'galapagos-tortoise':'Galápagos_tortoise',

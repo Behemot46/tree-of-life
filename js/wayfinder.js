@@ -68,7 +68,7 @@ function topLayer() {
   return null;
 }
 
-const shell = () => document.body.getAttribute('data-view') === 'map' ? 'map' : 'explore';
+const shell = () => { const v = document.body.getAttribute('data-view'); return v === 'map' || v === 'orbit' ? v : 'explore'; };
 
 /* Back: take off whatever is on top; failing that, climb one level in the
    shell underneath. In the drill-down that is one fold up the lineage, which
@@ -77,7 +77,8 @@ const shell = () => document.body.getAttribute('data-view') === 'map' ? 'map' : 
 export function goBack() {
   const layer = topLayer();
   if (layer) { layer.close(); return; }
-  if (shell() === 'explore') { if (D.exploreUp?.()) return; }
+  if (shell() === 'orbit') { if (D.orbitBack?.()) return; }
+  else if (shell() === 'explore') { if (D.exploreUp?.()) return; }
   /* navStack, not just navBack: on an empty stack navBack() returns having
      done nothing, and delegating to it unconditionally is how the map's Back
      became a dead press at the root — the fall-through below never ran. */
@@ -88,7 +89,8 @@ export function goBack() {
 /* Home: everything off, and the shell back to the origin of life. */
 export function goHome() {
   for (const l of LAYERS) { try { if (l.open()) l.close(); } catch (e) { /* absent module */ } }
-  if (shell() === 'explore') D.exploreHome?.();
+  if (shell() === 'orbit') D.orbitHome?.();
+  else if (shell() === 'explore') D.exploreHome?.();
   else D.navHome?.();
 }
 
@@ -100,6 +102,10 @@ export function goHome() {
    link to LUCA is a link to the site, so it is left off. */
 function shareNode() {
   if (state.currentPanelNode) return state.currentPanelNode.id;
+  if (shell() === 'orbit') {
+    const sel = D.orbitSelection?.();
+    return sel && sel._parent ? sel.id : null;
+  }
   if (shell() === 'explore') {
     const sel = D.exploreSelection?.();
     if (sel && sel._parent) return sel.id;

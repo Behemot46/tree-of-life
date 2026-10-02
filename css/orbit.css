@@ -1,0 +1,114 @@
+/* ══════════════════════════════════════════════════════
+   orbit.css — the default view
+
+   One creature in the middle, every other relative laid out below it by how
+   long ago you shared an ancestor. Colour comes from the site's own tokens, so
+   both themes work from one stylesheet, and nothing here is a physical left or
+   right: the fan mirrors in Hebrew by logical properties and by js/orbit.js
+   flipping its x axis.
+   ══════════════════════════════════════════════════════ */
+#orbit {
+  position: fixed;
+  inset: 0;
+  top: var(--ex-top, 108px);
+  bottom: var(--ex-bottom, 0px);
+  z-index: 30;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  display: none;
+}
+body[data-view="orbit"] #orbit { display: block; }
+
+.orb-guide { position: absolute; inset: 0; pointer-events: none; }
+.orb-arc { fill: none; stroke: var(--text-primary); stroke-opacity: .13; stroke-width: 1.5; stroke-dasharray: 2 7; stroke-linecap: round; }
+.orb-arc.is-in { stroke-opacity: .22; stroke-dasharray: none; }
+.orb-stage { position: absolute; inset: 0; }
+
+/* ── The bubble: large, round, photographic, and obviously pressable ── */
+.orb-b {
+  position: absolute; left: 0; top: 0; display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 0; margin: 0; background: none; border: 0; color: inherit; font: inherit; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 560ms cubic-bezier(.2, .9, .25, 1), opacity 320ms ease;
+  will-change: transform;
+}
+.orb-face {
+  position: relative; display: block; width: var(--d); height: var(--d); border-radius: 50%; overflow: hidden; flex: none;
+  background: color-mix(in srgb, var(--c) 22%, var(--surface, var(--bg)));
+  box-shadow: 0 0 0 3px var(--c), 0 8px 22px rgba(0, 0, 0, .34), 0 0 28px color-mix(in srgb, var(--c) 34%, transparent);
+  transition: transform 220ms cubic-bezier(.3, 1.4, .5, 1), box-shadow 220ms ease;
+}
+.orb-b:hover .orb-face, .orb-b:focus-visible .orb-face {
+  transform: scale(1.1);
+  box-shadow: 0 0 0 3px var(--c), 0 12px 28px rgba(0, 0, 0, .4), 0 0 38px color-mix(in srgb, var(--c) 55%, transparent);
+}
+.orb-b:active .orb-face { transform: scale(.94); }
+.orb-b:focus-visible { outline: none; }
+.orb-b:focus-visible .orb-face { box-shadow: 0 0 0 3px var(--c), 0 0 0 7px var(--accent); }
+.orb-sil, .orb-emoji { position: absolute; inset: 14%; display: block; }
+.orb-sil {
+  background: var(--c); -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-position: center; mask-position: center; -webkit-mask-size: contain; mask-size: contain;
+}
+.orb-emoji { display: grid; place-items: center; font-size: calc(var(--d) * .5); line-height: 1; }
+.orb-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 420ms ease; }
+.orb-b.has-img .orb-img { opacity: 1; }
+.orb-label { display: flex; flex-direction: column; align-items: center; gap: 1px; max-width: 100%; text-align: center; line-height: 1.12; pointer-events: none; }
+.orb-name {
+  max-width: 100%; font-size: 12px; font-weight: 700; color: var(--text-primary);
+  text-shadow: 0 1px 6px var(--bg), 0 0 2px var(--bg);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.orb-sub { font-size: 10.5px; font-weight: 650; color: var(--text-secondary); font-family: var(--font-mono, monospace); text-shadow: 0 1px 6px var(--bg); }
+.orb-b.focus .orb-name { white-space: normal; text-overflow: clip; font-size: 15px; }
+.orb-b.focus .orb-face {
+  box-shadow: 0 0 0 4px var(--c), 0 0 0 9px color-mix(in srgb, var(--c) 28%, transparent), 0 10px 34px rgba(0, 0, 0, .45), 0 0 60px color-mix(in srgb, var(--c) 45%, transparent);
+}
+.orb-b.sat .orb-face { box-shadow: 0 0 0 2.5px var(--c), 0 6px 16px rgba(0, 0, 0, .3); }
+.orb-face.orb-more {
+  display: grid; place-items: center; font-size: calc(var(--d) * .3); font-weight: 750; color: var(--text-secondary);
+  background: color-mix(in srgb, var(--text-primary) 8%, transparent); box-shadow: 0 0 0 2px var(--glass-border); font-family: var(--font-mono, monospace);
+}
+
+/* Alive, so it says "press me" without a word: a slow drift, each bubble out of step. */
+@keyframes orbDrift { 0%, 100% { translate: 0 0; } 50% { translate: 0 -3px; } }
+.orb-b .orb-face { animation: orbDrift 5.5s ease-in-out infinite; }
+.orb-b:nth-child(3n) .orb-face { animation-delay: -1.6s; }
+.orb-b:nth-child(3n+1) .orb-face { animation-delay: -3.4s; animation-duration: 6.4s; }
+@media (prefers-reduced-motion: reduce) { .orb-b .orb-face { animation: none; } }
+
+/* ── Actions ── */
+.orb-actions { position: absolute; inset-block-start: 12px; inset-inline-end: 12px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; z-index: 4; }
+[dir="rtl"] .orb-actions { align-items: flex-start; }
+.orb-trail { position: absolute; inset-block-start: 12px; inset-inline-start: 12px; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; z-index: 4; max-width: 34vw; }
+[dir="rtl"] .orb-trail { align-items: flex-end; }
+/* A phone's primary action goes where the thumb already is. */
+@media (max-width: 559px) {
+  .orb-actions { inset-block-start: auto; inset-block-end: 38px; inset-inline: 12px; flex-direction: row; justify-content: center; align-items: center; }
+  [dir="rtl"] .orb-actions { align-items: center; }
+}
+.orb-pill {
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+  min-height: 44px; padding: 0 16px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 14px; font-weight: 700; white-space: nowrap;
+  border: 1px solid var(--glass-border); color: var(--text-primary); background: color-mix(in srgb, var(--surface, var(--bg)) 88%, transparent);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); box-shadow: 0 4px 16px rgba(0, 0, 0, .22); transition: transform 160ms ease;
+}
+.orb-pill:active { transform: scale(.95); }
+.orb-pill.is-main { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+.orb-pill.is-trail { font-size: 12.5px; min-height: 36px; font-weight: 600; color: var(--text-secondary); max-width: 100%; overflow: hidden; text-overflow: ellipsis; display: block; line-height: 36px; }
+.orb-pill.is-icon .ico { width: 18px; height: 18px; }
+@media (max-width: 559px) { .orb-pill.is-icon { min-width: 44px; padding: 0; } }
+.orb-legend {
+  position: absolute; inset-inline: 12px; bottom: 10px; margin: 0; text-align: center; font-size: 11.5px; color: var(--text-secondary); pointer-events: none;
+  text-shadow: 0 1px 8px var(--bg), 0 0 3px var(--bg);
+}
+@media (max-width: 559px) { .orb-name { font-size: 11.5px; letter-spacing: -.005em; } .orb-sub { font-size: 10px; } }
+
+/* The rail is fixed to the start edge on a desktop and would sit on top of the
+   bubbles beneath it, so the picture takes the space beside it instead. On a
+   phone the rail is a drawer that closes over the picture. */
+@media (min-width: 769px) {
+  #orbit { inset-inline-start: calc(var(--rail-w) + var(--chrome-pad) * 2); }
+}

@@ -44,6 +44,7 @@
 <link rel="stylesheet" href="css/rtl.css">
 <link rel="stylesheet" href="css/responsive.css">
   <link rel="stylesheet" href="css/explore.css">
+  <link rel="stylesheet" href="css/orbit.css">
 <link rel="stylesheet" href="css/splash.css">
 <link rel="stylesheet" href="css/sapiens.css">
 <link rel="stylesheet" href="css/profile.css">
@@ -104,7 +105,8 @@
 <aside id="left-rail" aria-label="Main controls">
   <div class="rail-caption" data-i18n="rail.view">View</div>
   <div id="view-toggle" class="rail-group" role="toolbar" aria-label="View mode selector">
-    <button class="view-btn active" data-view="explore" data-action="shell:view" id="i-view-explore" data-i18n="view.explore">&#9776; Explore</button>
+    <button class="view-btn active" data-view="orbit" data-action="shell:view" id="i-view-orbit" data-i18n="view.orbit">&#9678; Orbit</button>
+    <button class="view-btn" data-view="explore" data-action="shell:view" id="i-view-explore" data-i18n="view.explore">&#9776; Explore</button>
     <button class="view-btn" data-view="map" data-action="shell:view" id="i-view-map" data-i18n="view.map">&#9673; Map</button>
     <button class="view-btn" data-mode="radial" data-action="view:set">&#9673; Radial</button>
     <button class="view-btn" data-mode="chronological" data-action="view:set" style="display:none">&#8594; Timeline</button>
@@ -177,6 +179,7 @@
 
 <!-- SVG CANVAS -->
 <div id="canvas-wrap" tabindex="-1">
+  <div id="orbit" role="region" aria-label="Your relatives, by how long ago you shared an ancestor"></div>
   <div id="explore" role="region" aria-label="Explore life by group"></div>
 
   <svg id="svg" xmlns="http://www.w3.org/2000/svg" role="tree" aria-label="Interactive Tree of Life showing evolutionary relationships among 130+ species. Use arrow keys to navigate, Enter to open details." aria-labelledby="svg-title" aria-describedby="svg-desc" tabindex="0">

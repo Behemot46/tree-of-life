@@ -106,6 +106,7 @@ const I18N_BINDINGS = [
   { id: 'btn-collapse-all', key: 'collapse_all' },
   { id: 'btn-expand-all', key: 'expand_all' },
   { id: 'i-btn-guided-tour', key: 'btn_guided_tour' },
+  { id: 'i-view-orbit', key: 'view_orbit' },
   { id: 'i-rail-seen', key: 'rail_seen' },
   { id: 'rail-credits', key: 'rail_credits' },
 ];
@@ -597,6 +598,165 @@ check('explore:deep-landing-is-visible', 'Opening a deep node scrolls it clear o
   if (d.error) { fail(`could not open a deep node: ${d.error}`); return; }
   if (!d.onScreen) fail(`"${d.name.trim()}" is off-screen after opening it (top ${d.top})`);
   else if (!d.clearsRibbon) fail(`"${d.name.trim()}" lands behind the path ribbon (bottom ${d.bottom}, ribbon top ${d.floor})`);
+});
+
+// ── Orbit ─────────────────────────────────────────────────────────────────────
+/* Measured from orbitProbe(): one page load of its own, no stored shell, in the
+   scenario's viewport, language and theme. */
+const orbitOf = (c) => {
+  const o = c.probe.orbit;
+  if (!o) fail('the orbit probe never ran');
+  if (o.error && !o.first) fail(`the orbit probe stopped before it measured anything: ${o.error}`);
+  return o;
+};
+/* "Look at the data it needs, say where it stopped": a check that needs a step
+   the pass never reached says where, instead of passing on nothing. */
+const orbitNeeds = (o, key) => { if (!o[key]) fail(`the orbit pass stopped (${o.stoppedAt || o.error || 'unknown'}) before "${key}"`); return o[key]; };
+
+check('orbit:is-the-default', 'A first visit lands in Orbit, standing on humans', (c) => {
+  const f = orbitOf(c).first;
+  if (!f) fail('nothing measured');
+  if (f.view !== 'orbit') fail(`a visit with no stored shell opened in "${f.view}"`);
+  if (f.focusId !== 'h_sapiens') fail(`the picture is centred on "${f.focusId}", not on humans`);
+});
+
+check('orbit:lays-out-relatives', 'The picture shows rings of relatives, near and far', (c) => {
+  const f = orbitNeeds(orbitOf(c), 'first');
+  const rel = f.bubbles.filter((b) => b.kind === 'rel');
+  if (f.bubbles.length < 12) fail(`only ${f.bubbles.length} bubbles are drawn`);
+  if (rel.length < 8) fail(`only ${rel.length} relatives`);
+  const far = rel.filter((b) => / Ga$/.test(b.sub));
+  if (!far.length) fail('no relative sharing an ancestor billions of years back (fungi, plants, bacteria) is on screen');
+});
+
+/* Compared with the tree, not with a pattern: "12 Ma" matches any regex for a
+   number and a unit, and a ring labelled with the wrong ancestor's age would
+   read exactly like a right one. */
+check('orbit:ages-match-the-tree', 'Every relative states the real age of the split', (c) => {
+  const o = orbitOf(c);
+  for (const key of ['first', 'afterPress']) {
+    for (const b of (o[key] ? o[key].bubbles : [])) {
+      if (b.expected === null) continue;
+      if (b.sub !== b.expected) fail(`${b.name} (${b.id}) says "${b.sub}" in ${key}, the tree says "${b.expected}"`);
+    }
+  }
+});
+
+check('orbit:everything-fits', 'Bubbles stay inside the picture and never lie on one another', (c) => {
+  const o = orbitOf(c);
+  for (const key of ['first', 'afterPress']) {
+    const s = o[key]; if (!s) continue;
+    const R = s.orbit;
+    for (const b of s.bubbles) {
+      for (const [what, r] of [['picture', b.face], ['name', b.label]]) {
+        if (r.l < R.l - 1 || r.r > R.r + 1 || r.t < R.t - 1 || r.b > R.b + 1) fail(`${b.name} (${b.id}) has its ${what} outside the view in ${key}`);
+      }
+    }
+    const hit = (a, b) => a.l < b.r - 1 && a.r > b.l + 1 && a.t < b.b - 1 && a.b > b.t + 1;
+    for (let i = 0; i < s.bubbles.length; i++) {
+      for (let j = i + 1; j < s.bubbles.length; j++) {
+        const a = s.bubbles[i], b = s.bubbles[j];
+        if (hit(a.face, b.face)) fail(`${a.name} and ${b.name} are drawn on top of each other in ${key}`);
+        if (hit(a.label, b.label)) fail(`the names "${a.name}" and "${b.name}" overlap in ${key}`);
+      }
+    }
+    if (s.sidewaysScroll) fail(`the page scrolls sideways in ${key}`);
+  }
+});
+
+/* The rail sits on the start edge of a desktop and the wayfinder in a corner;
+   the first draft laid bubbles under the rail where they could be seen and not
+   pressed. Ask what is on top, not where the box is. */
+check('orbit:controls-are-not-covered', 'Nothing is painted over a bubble or a button', (c) => {
+  const o = orbitOf(c);
+  for (const key of ['first', 'afterPress']) {
+    const s = o[key]; if (!s) continue;
+    for (const b of s.bubbles) if (b.cover && b.cover !== 'offscreen') fail(`${b.name} (${b.id}) is covered by ${b.cover} in ${key}`);
+    for (const b of s.pills) if (b.cover && b.cover !== 'offscreen') fail(`"${b.text}" is covered by ${b.cover} in ${key}`);
+  }
+});
+
+check('orbit:buttons-are-thumb-sized', 'The pills are at least 44px tall', (c) => {
+  const f = orbitNeeds(orbitOf(c), 'first');
+  for (const b of f.pills) if (b.action !== 'orbit:go' && b.h < 43.5) fail(`"${b.text}" is ${Math.round(b.h)}px tall`);
+});
+
+check('orbit:pressing-recentres', 'Pressing a relative makes it the centre, and the way back is offered', (c) => {
+  const o = orbitOf(c);
+  const a = orbitNeeds(o, 'afterPress');
+  if (a.focusId !== o.pressed.id) fail(`pressed ${o.pressed.id}, the centre is ${a.focusId}`);
+  if (a.focusId === o.pressed.before) fail('nothing moved');
+  if (!o.trailHasBefore) fail('there is no button to go back to where the reader was');
+});
+
+check('orbit:the-centre-opens-the-panel', 'Pressing the centre opens its detail panel; Back closes it, then the picture steps back', (c) => {
+  const o = orbitOf(c);
+  if (!orbitNeeds(o, 'afterBack2')) return;
+  if (!o.panelAfterCentre) fail('the panel did not open');
+  if (o.afterBack1.panelOpen) fail('the first Back left the panel open');
+  if (o.afterBack1.focusId !== o.afterPress.focusId) fail('the first Back moved the picture as well as closing the panel');
+  if (o.afterBack2.focusId === o.afterPress.focusId) fail('the second Back did not step the picture back');
+});
+
+check('orbit:home-and-surprise', 'Home returns to humans; Surprise me lands on a species', (c) => {
+  const o = orbitOf(c);
+  const h = orbitNeeds(o, 'afterHome');
+  if (h.focusId !== 'h_sapiens') fail(`Home left the picture on "${h.focusId}"`);
+  const s = orbitNeeds(o, 'afterSurprise');
+  if (!s.leaf) fail(`Surprise me landed on "${s.id}", which is a group`);
+});
+
+check('orbit:share-link-names-this-view', 'The share link says view=orbit', (c) => {
+  const url = orbitNeeds(orbitOf(c), 'share');
+  if (!/[?&]view=orbit(&|$)/.test(url)) fail(`the link is ${url}`);
+});
+
+check('orbit:link-to-a-species-stands-beside-it', 'A link to a species centres the picture on it', (c) => {
+  const l = orbitOf(c).linked;
+  if (!l || l.error) fail(`could not follow the link: ${l && l.error}`);
+  if (l.view !== 'orbit') fail(`the link opened the ${l.view} view`);
+  if (l.focus !== 'gray-wolf') fail(`the link names gray-wolf and the picture is centred on "${l.focus}"`);
+});
+
+check('orbit:a-broken-photo-still-shows-something', 'A bubble whose photograph fails falls back to its silhouette or emoji', (c) => {
+  const b = orbitOf(c).brokenPhoto;
+  if (!b || b.skipped) return;            // no relative has a photograph here: nothing to break
+  if (!b.imgGone) fail('the failed photograph was left in the bubble');
+  if (!b.shown) fail('the bubble is an empty disc once its photograph fails');
+});
+
+check('orbit:speaks-the-readers-language', 'Its words are the reader\'s language, now and after a switch', (c) => {
+  const o = orbitOf(c);
+  const f = orbitNeeds(o, 'first');
+  if (f.legend !== f.legendWant) fail(`the legend reads "${f.legend}", not "${f.legendWant}"`);
+  if (!f.pills.some((p) => p.text === f.surpriseWant)) fail(`no button reads "${f.surpriseWant}"`);
+  const w = o.switched;
+  if (!w) return;
+  if (w.legend !== w.legendWant) fail(`after switching to ${w.lang} the legend still reads "${w.legend}"`);
+  if (!w.pills.some((p) => p.text === w.surpriseWant)) fail(`after switching to ${w.lang} no button reads "${w.surpriseWant}"`);
+});
+
+/* In Hebrew the fan is mirrored by logical properties and by the layout's own x
+   axis; a physical `right` on the actions would leave them on the wrong edge. */
+check('orbit:the-actions-sit-in-the-inline-end-corner', 'Surprise me sits in the corner a reader of this language reaches last', (c) => {
+  const f = orbitNeeds(orbitOf(c), 'first');
+  if (f.win.w < 560) return;              // on a phone the actions are a row at the foot, centred
+  const p = f.pills.find((x) => x.action === 'orbit:surprise');
+  if (!p) fail('no Surprise me button');
+  const mid = (f.orbit.l + f.orbit.r) / 2, x = (p.box.l + p.box.r) / 2;
+  if (f.dir === 'rtl' ? x > mid : x < mid) fail(`in ${f.dir} the button is at x=${Math.round(x)}, the picture's middle is ${Math.round(mid)}`);
+});
+
+check('a11y:orbit-text-contrast', 'Orbit text meets AA contrast', (c) => {
+  const o = orbitOf(c);
+  if (!o.contrast) fail('the contrast sweep did not run');
+  if (o.contrast.length) fail(`${o.contrast.length} below AA: ${o.contrast.slice(0, 5).join('; ')}`);
+});
+
+check('orbit:runs-clean', 'No uncaught error while using it', (c) => {
+  const o = orbitOf(c);
+  if (o.error) fail(o.error);
+  if (o.errors.length) fail(o.errors.slice(0, 3).join(' | '));
 });
 
 /* The row keeps a picture when its photograph does not arrive. The media box
@@ -1389,6 +1549,173 @@ function installContrastSweep() {
     }
     return out;
   };
+}
+
+// ── Probe: Orbit ──────────────────────────────────────────────────────────────
+/* Orbit is the default view, and the runner seeds the map, so no sweep above ever
+   sees it. It gets a page load of its own per scenario — in the scenario's
+   viewport, language and theme, and with no stored shell, because "a first visit
+   lands here" is one of the things under test.
+
+   Every claim is read from the page and compared with the tree rather than with
+   a pattern: a bubble's age has to be the real age of the split, not "a number
+   and a unit". A pass keeps what it measured up to the step that failed, so one
+   broken thing does not turn every check red. */
+async function orbitProbe(page, scenario, baseUrl) {
+  const browser = page.context().browser();
+  const vp = scenario.viewport;
+  const errors = [];
+  const out = { errors };
+  const ctx = await browser.newContext({
+    viewport: { width: vp.width, height: vp.height },
+    isMobile: vp.isMobile, hasTouch: vp.hasTouch,
+    deviceScaleFactor: vp.deviceScaleFactor || 1,
+    locale: scenario.lang === 'he' ? 'he-IL' : scenario.lang === 'ru' ? 'ru-RU' : 'en-US',
+  });
+  await servePhotoCache(ctx);
+  await ctx.addInitScript((cfg) => {
+    localStorage.setItem('tol-lang', cfg.lang);
+    localStorage.setItem('theme', cfg.theme);
+    localStorage.setItem('tol-tour-done', '1');
+    localStorage.setItem('tol-splash-seen', '1');
+  }, { lang: scenario.lang, theme: scenario.theme || 'dark' });
+  const p = await ctx.newPage();
+  p.on('pageerror', (e) => errors.push(String(e && e.message ? e.message : e)));
+  p.on('dialog', (d) => d.dismiss().catch(() => {}));
+
+  /* Everything the checks need about what is on screen, in one read: the bubbles
+     with their boxes and the real age of each split, the pills, and what is
+     painted on top of each. */
+  const read = () => p.evaluate(async () => {
+    const DATA = await import(new URL('js/data.js', location.href).href);
+    const T = await import(new URL('js/uiData.js', location.href).href).then((m) => m.TRANSLATIONS);
+    const lang = document.documentElement.lang;
+    const idx = new Map();
+    (function link(n, par) { n._par = par; idx.set(n.id, n); (n.children || []).forEach((c) => link(c, n)); })(DATA.TREE, null);
+    const chain = (n) => { const o = []; for (let x = n; x; x = x._par) o.push(x); return o; };
+    const lca = (a, b) => { const A = new Set(chain(a)); return chain(b).find((x) => A.has(x)); };
+    const fmt = (mya) => (mya >= 1000 ? `${+(mya / 1000).toFixed(mya % 1000 ? 1 : 0)} Ga` : mya >= 1 ? `${Math.round(mya)} Ma` : '<1 Ma');
+    const count = (n) => { let s = 0; for (const c of n.children || []) s += 1 + count(c); return s; };
+    const root = document.getElementById('orbit');
+    const vis = (el) => { const r = el.getBoundingClientRect(); const s = getComputedStyle(el); return r.width > 0 && r.height > 0 && s.display !== 'none' && +s.opacity > 0.5; };
+    const rect = (el) => { const r = el.getBoundingClientRect(); return { l: r.left, t: r.top, r: r.right, b: r.bottom }; };
+    const coveredBy = (el) => {
+      const r = el.getBoundingClientRect();
+      const x = r.left + r.width / 2, y = r.top + r.height / 2;
+      if (x < 0 || y < 0 || x > innerWidth || y > innerHeight) return 'offscreen';
+      const top = document.elementFromPoint(x, y);
+      if (top && (el === top || el.contains(top))) return null;
+      return top ? `${top.tagName.toLowerCase()}${top.id ? '#' + top.id : ''}${top.className && top.className.baseVal === undefined ? '.' + String(top.className).split(' ')[0] : ''}` : 'nothing';
+    };
+    const focusEl = root.querySelector('.orb-b.focus');
+    const focusId = focusEl ? focusEl.dataset.id : null;
+    const fnode = idx.get(focusId);
+    const bubbles = [...root.querySelectorAll('.orb-b')].filter(vis).map((b) => {
+      const face = b.querySelector('.orb-face'), lab = b.querySelector('.orb-label');
+      const kind = b.dataset.kind, id = b.dataset.id;
+      const n = idx.get(id);
+      let expected = null;
+      if (kind === 'rel' && n && fnode) expected = fmt(lca(n, fnode).appeared || 0);
+      if (kind === 'sat' && n) expected = (n.children || []).length ? String(count(n)) : '';
+      const sub = b.querySelector('.orb-sub');
+      return { id, kind, sub: sub ? sub.textContent : '', expected, face: rect(face), label: rect(lab), cover: coveredBy(face),
+        fallback: !!(face.querySelector('.orb-sil') || face.querySelector('.orb-emoji') || face.classList.contains('orb-more')),
+        name: b.querySelector('.orb-name') ? b.querySelector('.orb-name').textContent : '' };
+    });
+    const pills = [...root.querySelectorAll('.orb-pill')].filter(vis).map((b) => ({ text: b.textContent.trim(), action: b.dataset.action, box: rect(b), cover: coveredBy(b), h: b.getBoundingClientRect().height }));
+    const legend = root.querySelector('.orb-legend');
+    return {
+      view: document.body.dataset.view, stored: (() => { try { return localStorage.getItem('tol-shell-view'); } catch { return null; } })(),
+      focusId, bubbles, pills, dir: document.documentElement.dir, lang,
+      orbit: rect(root), win: { w: innerWidth, h: innerHeight },
+      legend: legend ? legend.textContent : null, legendWant: T[lang].orbit_legend,
+      surpriseWant: T[lang].orbit_surprise, homeWant: T[lang].orbit_home,
+      panelOpen: document.getElementById('panel').classList.contains('open'),
+      sidewaysScroll: document.documentElement.scrollWidth > innerWidth + 1,
+    };
+  });
+  const settle = () => p.waitForTimeout(1000);
+  const step = async (name, fn) => {
+    try { out[name] = await fn(); } catch (e) { out.stoppedAt = out.stoppedAt || `${name}: ${String(e.message).split('\n')[0]}`; throw e; }
+  };
+
+  try {
+    await p.goto(baseUrl + '/atlas.html', { waitUntil: 'domcontentloaded' });
+    await p.waitForSelector('.orb-b.focus', { state: 'visible', timeout: 25000 });
+    await p.waitForFunction(() => getComputedStyle(document.getElementById('splash')).display === 'none', null, { timeout: 15000 });
+    await p.evaluate(installContrastSweep);
+    await settle();
+    await step('first', read);
+    out.contrast = await p.evaluate(() => window.__contrastSweep(document.getElementById('orbit')));
+
+    // a photograph that fails must leave a picture, not a hole
+    out.brokenPhoto = await p.evaluate(() => {
+      const b = [...document.querySelectorAll('.orb-b.rel')].find((x) => x.querySelector('.orb-img'));
+      if (!b) return { skipped: true };
+      b.querySelector('.orb-img').dispatchEvent(new Event('error'));
+      const f = b.querySelector('.orb-sil') || b.querySelector('.orb-emoji');
+      const r = f && f.getBoundingClientRect();
+      return { shown: !!r && r.width > 4 && r.height > 4, imgGone: !b.querySelector('.orb-img') };
+    });
+
+    // pressing a relative makes it the centre
+    const rel = await p.evaluate(() => { const b = document.querySelector('.orb-b.rel'); return b ? b.dataset.id : null; });
+    out.pressed = { id: rel, before: out.first.focusId };
+    await p.click(`.orb-b.rel[data-id="${rel}"]`);
+    await settle();
+    await step('afterPress', read);
+    out.trailHasBefore = await p.evaluate((id) => !![...document.querySelectorAll('.orb-pill.is-trail')].find((b) => b.dataset.arg === id), out.first.focusId);
+
+    // the centre opens the panel; Back takes the panel off first, then the focus
+    await p.click(`.orb-b.focus`);
+    await p.waitForTimeout(500);
+    out.panelAfterCentre = await p.evaluate(() => document.getElementById('panel').classList.contains('open'));
+    await p.click('#nav-back', { timeout: 5000 });
+    await p.waitForTimeout(500);
+    out.afterBack1 = await read();
+    await p.click('#nav-back', { timeout: 5000 });
+    await settle();
+    out.afterBack2 = await read();
+
+    // Home returns to the start from anywhere
+    await p.click('.orb-b.rel');
+    await settle();
+    await p.click('#nav-home', { timeout: 5000 });
+    await settle();
+    out.afterHome = await read();
+
+    // Surprise me lands on a species
+    await p.click('.orb-pill.is-main');
+    await settle();
+    out.afterSurprise = await p.evaluate(async () => {
+      const f = document.querySelector('.orb-b.focus');
+      const DATA = await import(new URL('js/data.js', location.href).href);
+      const find = (n, id) => (n.id === id ? n : (n.children || []).map((c) => find(c, id)).find(Boolean));
+      const n = find(DATA.TREE, f && f.dataset.id);
+      return { id: f && f.dataset.id, leaf: !!n && !(n.children || []).length };
+    });
+
+    // the share link names this view
+    out.share = await p.evaluate(async () => (await import(new URL('js/wayfinder.js', location.href).href)).shareUrl());
+
+    // another language, at runtime
+    const other = scenario.lang === 'ru' ? 'en' : 'ru';
+    await p.evaluate((l) => document.querySelector(`.lang-btn[data-lang="${l}"]`).click(), other);
+    await settle();
+    out.switched = { lang: other, ...(await read()) };
+  } catch (e) {
+    out.error = String(e && e.message ? e.message : e).split('\n')[0];
+  }
+
+  // a link to a species stands you beside it, in its own load
+  try {
+    await p.goto(baseUrl + '/atlas.html?node=gray-wolf&view=orbit', { waitUntil: 'domcontentloaded' });
+    await p.waitForSelector('.orb-b.focus', { state: 'visible', timeout: 25000 });
+    await p.waitForTimeout(1800);
+    out.linked = await p.evaluate(() => { const f = document.querySelector('.orb-b.focus'); return { focus: f && f.dataset.id, view: document.body.dataset.view }; });
+  } catch (e) { out.linked = { error: String(e.message).split('\n')[0] }; }
+  await ctx.close();
+  return out;
 }
 
 // ── Probe: the opening screen ─────────────────────────────────────────────────
@@ -3411,9 +3738,10 @@ async function probePage(page, scenario, baseUrl) {
   const opening = await openingProbe(page, scenario, baseUrl).catch((e) => ({ error: String(e) }));
   // and so does the name, in contexts of its own
   const name = await nameProbe(page, scenario, baseUrl).catch((e) => ({ error: String(e) }));
+  const orbit = await orbitProbe(page, scenario, baseUrl).catch((e) => ({ error: String(e) }));
 
   return { ...base, ...forced, tooltipShown, tooltipCoversNode, tipFact, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps, heroPhoto, photoHostReachable: await wikimediaReachable(), contrast, searchQuality,
-           searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations, explore, wayfinder, sharedLink, afterLoad, opening, name };
+           searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations, explore, wayfinder, sharedLink, afterLoad, opening, name, orbit };
 }
 
 

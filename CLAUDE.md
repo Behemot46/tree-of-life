@@ -91,7 +91,7 @@ tree-of-life/
 ├── tests/kin.test.mjs   # Unit tests for Kin's engine and answer key (npm test)
 ├── tests/tree.test.mjs  # Unit tests for the Atlas's tree data: ids, dates, extinction, map regions, photos
 ├── mockups/opening/     # Concept gallery for the opening: four live scenes, no part of the site
-├── css/                 # External stylesheets (15 files)
+├── css/                 # External stylesheets (16 files)
 │   ├── variables.css    # CSS custom properties, reset, focus styles
 │   ├── layout.css       # Header, search, breadcrumb, nav controls
 │   ├── chrome.css       # Left rail, floating controls, search pill
@@ -105,6 +105,7 @@ tree-of-life/
 │   ├── features.css     # Legend, zoom, tooltip, quiz, DNA, evo path, tours
 │   ├── theme.css        # Light theme overrides, dark mode polish
 │   ├── explore.css      # Drill-down shell — unfolding rows, path dots
+│   ├── orbit.css        # Orbit shell — the default view
 │   ├── rtl.css          # Hebrew RTL layout overrides
 │   ├── responsive.css   # Mobile breakpoints, reduced motion, high contrast
 │   └── kin.css          # index.html only — self-contained, see *Kin*
@@ -157,7 +158,8 @@ tree-of-life/
     ├── profile.js       # Players on this device, the leaderboard, and the name offer — see *The name, asked for after a game*
     ├── playback.js      # Time-lapse playback mode
     ├── theme.js         # t(), setLang(), applyI18n(), toggleTheme()
-    ├── explore.js       # Drill-down shell — see *The two shells*
+    ├── explore.js       # Drill-down shell — see *The three shells*
+    ├── orbit.js         # Orbit shell, the default — see *The three shells*
     ├── wayfinder.js     # Back / Home / Share — see *Getting out, and sharing*
     ├── boot.js          # Classic script in <head>, not a module: theme, language, direction before first paint
     ├── splashScene.js   # The opening's picture — the Astrolabe, a pure function of time
@@ -499,13 +501,46 @@ Where an element already carries its value (`data-lang`, `data-mode`,
 `data-domain`), the handler reads it from there instead of repeating it in a
 `data-arg` that could drift.
 
-### The two shells
+### The three shells
 
-The site has two front doors, switched from the rail and remembered in
-`localStorage` under `tol-shell-view`. `body[data-view]` carries the choice and
-the CSS hides one side wholesale.
+The site has three front doors, switched from the rail and remembered in
+`localStorage` under `tol-shell-view`. `body[data-view]` carries the choice
+(`orbit`, `explore` or `map`) and the CSS hides the others wholesale.
 
-**Explore** (`js/explore.js`) is the default and the thing a visitor lands on.
+**Orbit** (`js/orbit.js`, `css/orbit.css`) is the default. One creature in the
+middle — Homo sapiens to start with — and every other relative laid out below
+it in rings, nearest ancestor first; the bubbles on a ring are that ancestor's
+*other* children, each stating the age of the split ("85 Ma"). Press a bubble
+and it becomes the centre; press the centre and its detail panel opens; "+N"
+bubbles open the group they stand for. It exists because the drill-down was
+accurate and nobody wanted to touch it: a list is read, a bubble is pressed.
+It began as a sketch (`mockups/play/` on `claude/explore-play`, which also
+holds Dive and Time, not built).
+
+Things worth knowing before changing Orbit:
+
+- **The human is `h_sapiens`, not `homo-sapiens`.** `treeData.js` names the leaf
+  `homo-sapiens`, but the hominin module restructures the tree and the live node
+  is `h_sapiens`. Looking up the old id found nothing and silently centred the
+  picture on LUCA.
+- **Placement is a search, not a force.** Each bubble asks for the spot its ring
+  gives it, tries along the ring and a little in or out, and takes the first
+  free one; what does not fit joins the "+N" bubble. Nothing is pushed, so
+  nothing oscillates and two bubbles cannot land on each other.
+- **It measures its own box**, so constraint 11 applies: `setShellView` redraws
+  it on the way in, and a language switch redraws it through the same dependency
+  Explore uses. On a desktop it starts beside the rail (`--rail-w`), not under
+  it — the first draft laid a bubble under the rail where it could be seen and
+  not pressed.
+- **Its checks are `orbit:`** (one page load of its own per scenario, with no
+  stored shell, because "a first visit lands here" is under test). Ages are
+  compared with the tree's own, not with a pattern.
+- **Hebrew and Russian strings for it have had no native review.** Species
+  names stay English by policy, as everywhere.
+
+The other two, in the order they were built:
+
+**Explore** (`js/explore.js`) was the default and is now the second view.
 One tree, unfolding in place: tapping a group leaves it where it is and opens
 its children directly beneath it, indented a step, while the branches you did
 not take stay on the page greyed. There is no camera — nothing can be panned

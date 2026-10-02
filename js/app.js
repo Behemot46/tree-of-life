@@ -12,6 +12,7 @@ import { reducedMotion, canonicalHomininId, preprocess, sortChildrenByAge, homin
 // ── Delegated event dispatch (replaces inline onclick attributes) ──
 import { registerActions } from './actions.js';
 import { initExplore, openInExplore, initExploreDeps, exploreSelection, exploreUp, exploreHome, renderExplore } from './explore.js';
+import { initOrbit, initOrbitDeps, renderOrbit, openInOrbit, orbitSelection, orbitBack, orbitHome } from './orbit.js';
 import { initWayfinder, initWayfinderDeps, goBack, goHome } from './wayfinder.js';
 
 // ── Layout ──
@@ -82,7 +83,7 @@ setHomininOverlayOpener(openHomininOverlay);
 initCompareDeps({ searchEntities, t, showMainPanel, scheduleRender, smoothPanTo, layout, applyT });
 initGameDeps({ t, navigateTo: (...args) => navigateTo(...args) });
 initPlaybackDeps({ layout, centerOnTree, scheduleRender, applyT, buildEraPresets, getEraName, updateEraTint, updateSpeciesCount, t });
-initThemeDeps({ buildEraPresets, buildExtinctionMarkers, buildEraSegments, updateSpeciesCount, buildDensitySparkline, scheduleRender, renderExplore });
+initThemeDeps({ buildEraPresets, buildExtinctionMarkers, buildEraSegments, updateSpeciesCount, buildDensitySparkline, scheduleRender, renderExplore: () => { renderExplore(); renderOrbit(); } });
 initEngagementDeps({ t, navigateTo: (...args) => navigateTo(...args), showMainPanel });
 initRandomButton({ getRandomSpecies: () => getRandomSpecies(nodeMap), showMainPanel });
 initWhoFirstDeps({ t, checkAchievement });
@@ -410,6 +411,12 @@ function navigateTo(id){
     openInExplore(n);
     return;
   }
+  /* In Orbit a search result is somebody to stand beside: the picture
+     re-centres on them and lays out their relatives. */
+  if (document.body.getAttribute('data-view') === 'orbit') {
+    openInOrbit(n);
+    return;
+  }
 
   state.highlightedId=id;
   // Ensure path is not collapsed
@@ -514,10 +521,12 @@ function init(){
      before they need a map. */
   initExploreDeps({ showMainPanel });
   initExplore();
+  initOrbitDeps({ showMainPanel });
+  initOrbit();
   initWayfinderDeps({
     closePanel, closeGame, closeProfile, closeSpeciesCompare,
     closeHomininOverlay, cancelCompare, closeSapiens, endTour,
-    navBack, navHome, exploreUp, exploreHome, exploreSelection, showToast,
+    navBack, navHome, exploreUp, exploreHome, exploreSelection, orbitBack, orbitHome, orbitSelection, showToast,
   });
   initWayfinder();
   /* A shared link says which of the two front doors it came from. Both the
@@ -530,9 +539,9 @@ function init(){
      should not repoint the site they come back to tomorrow. */
   const _urlView = new URLSearchParams(location.search).get('view');
   setShellView(
-    _urlView === 'map' || _urlView === 'explore'
+    _urlView === 'map' || _urlView === 'explore' || _urlView === 'orbit'
       ? _urlView
-      : (()=>{ try { return localStorage.getItem('tol-shell-view') || 'explore'; } catch(e){ return 'explore'; } })(),
+      : (()=>{ try { return localStorage.getItem('tol-shell-view') || 'orbit'; } catch(e){ return 'orbit'; } })(),
     { persist: !_urlView });
 
   // Snapshot the zoom level that frames the full base tree. Used as the floor
@@ -1153,7 +1162,7 @@ initTourDeps({ state, nodeMap, layout, scheduleRender, applyT, animateSliderTo, 
    a body attribute so the CSS can hide one side wholesale, and remembered so
    the choice survives a reload. */
 function setShellView(v, opts){
-  const view = v === 'map' ? 'map' : 'explore';
+  const view = v === 'map' ? 'map' : v === 'explore' ? 'explore' : 'orbit';
   const persist = !opts || opts.persist !== false;
   /* The detail panel belongs to whichever shell opened it. It is fixed, high
      in the stack and 475px wide on a 1440px window, so switching to Explore
@@ -1191,6 +1200,10 @@ function setShellView(v, opts){
     layout(); fitTreeToStage(); scheduleRender(true); applyT();
     buildEraSegments(); buildDensitySparkline();
   }
+  /* Orbit measures its own box, and a hidden box has none: a language switch
+     or a resize while another shell was up skipped its redraw (constraint 11),
+     so it is redrawn on the way in. */
+  if (view === 'orbit') renderOrbit(true);
 }
 
 function ensureMap(){

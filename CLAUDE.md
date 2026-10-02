@@ -89,6 +89,7 @@ tree-of-life/
 ├── serve.js             # Local dev server (port 5555): node serve.js
 ├── docs/PLAY_STRATEGY.md # Why the site is becoming a game, and the phased plan
 ├── tests/kin.test.mjs   # Unit tests for Kin's engine and answer key (npm test)
+├── tests/tree.test.mjs  # Unit tests for the Atlas's tree data: ids, dates, extinction, map regions, photos
 ├── mockups/opening/     # Concept gallery for the opening: four live scenes, no part of the site
 ├── css/                 # External stylesheets (15 files)
 │   ├── variables.css    # CSS custom properties, reset, focus styles
@@ -115,7 +116,7 @@ tree-of-life/
 │   ├── icon.svg · icon-maskable.svg # The dial and its three-leaf tree, drawn by scripts/build-icons.mjs
 │   ├── icon-192.png · icon-512.png · icon-maskable-512.png · apple-touch-icon.png · favicon-32.png # rendered from those
 │   ├── og-image.png · og-kin.png # Link-preview cards (scripts/make-og-image.mjs): the Atlas, and Kin
-│   └── silhouettes/*.svg # 267 PhyloPic outlines, one per taxon
+│   └── silhouettes/*.svg # PhyloPic outlines, one per taxon that has one (337)
 └── js/                  # All ES modules — single entry: app.js
     ├── # ── Data modules ──
     ├── data.js          # Barrel re-exports for widely-shared constants
@@ -536,7 +537,7 @@ Things worth knowing before changing Explore:
   `_selected` node rather than stored. The two can therefore never disagree,
   and arriving from search is free: set `_selected` and every ancestor is open
   by construction. It also bounds the page to the depth of the tree (nine) and
-  never to its size (305 nodes), so no lazy rendering is needed.
+  never to its size (379 nodes), so no lazy rendering is needed.
 - **The nesting is drawn, not implied.** Each branch is wrapped in its own
   `.ex-branch`, and that wrapper is what makes the tree drawable: it spans the
   row *and everything below it*, which is the extent a limb has to cover. A
@@ -554,7 +555,7 @@ Things worth knowing before changing Explore:
   words.** A limb's thickness comes from `subtreeSize()` on a log scale, so
   Mammals leaves its parent visibly heavier than Chondrichthyes; a trunk is
   always at least as heavy as the limbs leaving it, because its subtree
-  contains theirs. Log, because the counts are not: LUCA carries 305
+  contains theirs. Log, because the counts are not: LUCA carries 379
   descendants and over half the rows carry none, so a linear scale draws one
   thick line and three hundred identical hairlines. And trunks fade with
   distance from the level the reader is standing on (`--near`, 0 at the root
@@ -969,6 +970,35 @@ scored nothing is never mistaken for a missing offer.
 - **Zoom/Pan:** Manual transform `{x, y, s}` applied via `setAttribute('transform', ...)`
 - **Node icons:** Photo thumbnails via `ImageLoader.getBestUrl(node,'thumb')`,
   emoji fallback
+
+### The roster, and how it grows
+
+The tree is curated, not exhaustive: it cannot show all of life, so it shows
+what a visitor expects to find and what teaches the shape. Obscure microbes are
+dropped before charismatic animals are.
+
+- **Extinct life is in the tree.** `extinct` holds the Mya the lineage died out
+  in (`archaeopteryx` and the hominin groups predate this and use `true`);
+  `nodeInEra()` reads it as a number, the renderer as a flag, and
+  `tests/tree.test.mjs` insists an extinct node says `iucn:'EX'` and did not die
+  before it appeared. Non-avian dinosaurs are a group beside the birds under
+  Reptiles rather than the parent of them: the group's own text says birds are
+  dinosaurs, and nesting 29 birds one level deeper was not worth the layout cost.
+- **A species is five edits** — its node in `treeExpansion.js`, a title in
+  `WIKI_TITLES`, map regions in `GEO_DATA`, quick facts in `BRANCH_DATA`, and
+  then the photograph and silhouette from `photo-refresh.yml` and
+  `silhouettes.yml`. Both workflows open a pull request against whatever branch
+  they were dispatched on, so run them on the feature branch and merge theirs
+  into it. A new species is red in `tests/tree.test.mjs` ("has a photograph")
+  until that has happened, deliberately.
+- **Data can outlive its node.** Dozens of `GEO_DATA`, `BRANCH_DATA` and
+  `PHOTO_MAP` entries exist for species that were never in the tree (hammerhead,
+  piranha, tuna, lichen...). 17 were given nodes by reusing their ids; the
+  remainder are still orphans and cost nothing.
+- **Search names its obvious answer.** An entry in `SEARCH_ALIASES` may carry a
+  `lead` pattern: among aliased matches the shortest name wins otherwise, which
+  put Triceratops above the group it belongs to. Typing "cat" answers Domestic
+  cat, not Lion.
 
 ### Node Data Shape (in `treeData.js`)
 

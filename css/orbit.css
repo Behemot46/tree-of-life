@@ -1,0 +1,137 @@
+/* ══════════════════════════════════════════════════════
+   orbit.css — the third view: pick a creature, see everyone else by how
+   long ago you last shared an ancestor.
+
+   Colour comes from the site's own tokens, so both themes work from one
+   sheet. Nothing here is a physical left or right: the layout engine mirrors
+   the fan in Hebrew and the chrome uses logical offsets.
+   ══════════════════════════════════════════════════════ */
+
+#orbit {
+  display: none;
+  position: fixed;
+  inset: 0;
+  top: var(--ex-top, 108px);           /* clear of the title and the floating buttons */
+  z-index: 30;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+}
+body[data-view="orbit"] #orbit { display: block; }
+/* A desktop has a rail on the inline-start edge; centre the fan in what is left. */
+@media (min-width: 780px) {
+  #orbit { top: var(--ex-top, 64px); inset-inline: 215px; }
+}
+
+.orb-guide { position: absolute; inset: 0; pointer-events: none; }
+.orb-arc { fill: none; stroke: var(--text-primary); stroke-opacity: .16; stroke-width: 1.5; stroke-dasharray: 2 7; stroke-linecap: round; }
+.orb-arc.is-in { stroke-opacity: .26; stroke-dasharray: none; }
+.orb-stage { position: absolute; inset: 0; }
+
+/* ── The bubble: large, round, photographic, and obviously pressable ── */
+.orb-b {
+  position: absolute; left: 0; top: 0;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 0; margin: 0; background: none; border: 0; color: inherit; font: inherit;
+  cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: transform 560ms cubic-bezier(.2, .9, .25, 1), opacity 320ms ease; will-change: transform;
+}
+/* Always anchored at the physical left: the layout engine already mirrors the
+   fan, and its x is a physical offset. */
+.orb-face {
+  position: relative; display: block; width: var(--d); height: var(--d);
+  border-radius: 50%; overflow: hidden; flex: none;
+  background: color-mix(in srgb, var(--c) 22%, var(--surface));
+  box-shadow: 0 0 0 3px var(--c), 0 8px 22px rgba(0, 0, 0, .3), 0 0 28px color-mix(in srgb, var(--c) 30%, transparent);
+  transition: transform 220ms cubic-bezier(.3, 1.4, .5, 1), box-shadow 220ms ease;
+}
+.orb-b:hover .orb-face, .orb-b:focus-visible .orb-face { transform: scale(1.1); }
+.orb-b:active .orb-face { transform: scale(.94); }
+.orb-b:focus-visible { outline: none; }
+.orb-b:focus-visible .orb-face { box-shadow: 0 0 0 3px var(--c), 0 0 0 7px var(--accent); }
+.orb-sil, .orb-ico { position: absolute; inset: 16%; display: block; width: 68%; height: 68%; }
+.orb-sil {
+  background: var(--c);
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-position: center; mask-position: center;
+  -webkit-mask-size: contain; mask-size: contain;
+}
+.orb-ico { fill: var(--c); opacity: .85; }
+.orb-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity 420ms ease; }
+.orb-b.has-img .orb-img { opacity: 1; }
+
+.orb-label {
+  display: flex; flex-direction: column; align-items: center; gap: 1px;
+  max-width: 100%; text-align: center; line-height: 1.12; pointer-events: none;
+}
+.orb-name {
+  max-width: 100%; font-size: 12px; font-weight: 700; color: var(--text-primary);
+  text-shadow: 0 1px 6px var(--bg), 0 0 2px var(--bg);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.orb-sub { font-size: 10.5px; font-weight: 650; color: var(--text-secondary); text-shadow: 0 1px 6px var(--bg); }
+.orb-sub:empty { display: none; }
+.orb-b.focus .orb-face { box-shadow: 0 0 0 4px var(--c), 0 0 0 9px color-mix(in srgb, var(--c) 28%, transparent), 0 10px 34px rgba(0, 0, 0, .4), 0 0 60px color-mix(in srgb, var(--c) 40%, transparent); }
+.orb-b.focus .orb-name { font-size: 15px; white-space: normal; text-overflow: clip; }
+.orb-b.sat .orb-face { box-shadow: 0 0 0 2.5px var(--c), 0 6px 16px rgba(0, 0, 0, .28); }
+.orb-more {
+  display: grid; place-items: center; font-size: calc(var(--d) * .3); font-weight: 750;
+  color: var(--text-secondary); background: color-mix(in srgb, var(--text-primary) 8%, transparent);
+  box-shadow: 0 0 0 2px var(--glass-border); font-family: var(--font-mono);
+}
+
+/* Alive, so it says "press me" without a word: a slow drift, each bubble out of step. */
+@keyframes orbDrift { 0%, 100% { translate: 0 0; } 50% { translate: 0 -3px; } }
+.orb-b .orb-face { animation: orbDrift 5.5s ease-in-out infinite; }
+.orb-b:nth-child(3n) .orb-face { animation-delay: -1.6s; }
+.orb-b:nth-child(3n+1) .orb-face { animation-delay: -3.4s; animation-duration: 6.4s; }
+@media (prefers-reduced-motion: reduce) {
+  .orb-b .orb-face { animation: none; }
+  .orb-b { transition: none !important; }
+}
+
+/* ── Chrome: the way back, and the two things to press ── */
+.orb-chrome { position: absolute; inset: 0; pointer-events: none; }
+.orb-chrome > * { pointer-events: auto; }
+.orb-actions {
+  position: absolute; inset-inline: 12px; bottom: 26px;
+  display: flex; justify-content: center; align-items: center; gap: 8px; pointer-events: none;
+}
+.orb-actions > * { pointer-events: auto; }
+.orb-actions { flex-wrap: wrap; }
+/* Newest first in the markup, and laid out so it sits next to the main button. */
+.orb-trail { display: flex; flex-direction: row-reverse; gap: 6px; }
+.orb-trail:empty { display: none; }
+.orb-home-glyph { display: none; font-size: 18px; }
+.orb-pill {
+  min-height: 44px; padding: 0 16px; border-radius: 999px; cursor: pointer;
+  font: inherit; font-size: 14px; font-weight: 700; white-space: nowrap;
+  border: 1px solid var(--glass-border); color: var(--text-primary);
+  background: color-mix(in srgb, var(--surface) 90%, transparent);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .2); transition: transform 160ms ease;
+}
+.orb-pill:active { transform: scale(.95); }
+.orb-pill.is-main { color: var(--bg); background: var(--accent); border-color: var(--accent); }
+.orb-pill.is-trail {
+  font-size: 12.5px; min-height: 44px; font-weight: 600; color: var(--text-secondary);
+  max-width: 44vw; overflow: hidden; text-overflow: ellipsis; display: inline-flex; align-items: center; gap: 5px;
+}
+[dir="rtl"] .orb-back { display: inline-block; transform: scaleX(-1); }
+.orb-legend {
+  position: absolute; inset-inline: 12px; bottom: 0; margin: 0; padding-bottom: 2px;
+  text-align: center; font-size: 11px; line-height: 1.2; color: var(--text-secondary); pointer-events: none;
+}
+@media (max-width: 559px) {
+  .orb-name { font-size: 11.5px; letter-spacing: -.005em; }
+  .orb-sub { font-size: 10px; }
+  .orb-legend { font-size: 10px; padding-bottom: 0; line-height: 1.15; }
+  .orb-actions { bottom: 36px; }
+  /* A phone has one row: the way back, the main thing, and Home as an icon. */
+  .orb-pill.is-trail { max-width: 34vw; }
+  .orb-trail > :nth-child(n+2) { display: none; }
+  .orb-pill.is-home { min-width: 44px; padding: 0; justify-content: center; display: inline-flex; align-items: center; }
+  .orb-home-glyph { display: inline; }
+  .orb-home-text { display: none; }
+}

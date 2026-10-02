@@ -91,7 +91,7 @@ tree-of-life/
 ├── tests/kin.test.mjs   # Unit tests for Kin's engine and answer key (npm test)
 ├── tests/tree.test.mjs  # Unit tests for the Atlas's tree data: ids, dates, extinction, map regions, photos
 ├── mockups/opening/     # Concept gallery for the opening: four live scenes, no part of the site
-├── css/                 # External stylesheets (15 files)
+├── css/                 # External stylesheets (16 files)
 │   ├── variables.css    # CSS custom properties, reset, focus styles
 │   ├── layout.css       # Header, search, breadcrumb, nav controls
 │   ├── chrome.css       # Left rail, floating controls, search pill
@@ -105,6 +105,7 @@ tree-of-life/
 │   ├── features.css     # Legend, zoom, tooltip, quiz, DNA, evo path, tours
 │   ├── theme.css        # Light theme overrides, dark mode polish
 │   ├── explore.css      # Drill-down shell — unfolding rows, path dots
+│   ├── orbit.css        # Orbit, the third view — bubbles, rings, the action row
 │   ├── rtl.css          # Hebrew RTL layout overrides
 │   ├── responsive.css   # Mobile breakpoints, reduced motion, high contrast
 │   └── kin.css          # index.html only — self-contained, see *Kin*
@@ -159,6 +160,7 @@ tree-of-life/
     ├── playback.js      # Time-lapse playback mode
     ├── theme.js         # t(), setLang(), applyI18n(), toggleTheme()
     ├── explore.js       # Drill-down shell — see *The two shells*
+    ├── orbit.js         # Orbit, the third view — see *Orbit*
     ├── wayfinder.js     # Back / Home / Share — see *Getting out, and sharing*
     ├── boot.js          # Classic script in <head>, not a module: theme, language, direction before first paint
     ├── splashScene.js   # The opening's picture — the Astrolabe, a pure function of time
@@ -651,6 +653,64 @@ Things worth knowing before changing Explore:
   `setShellView` rebuilds the era segments and the density curve on the way
   back into the map. Hide any other self-measuring component here and it needs
   the same treatment.
+
+### Orbit — the third view
+
+Pick a creature and it sits at the top; every other creature is laid out below
+it by how long ago the two of you last shared an ancestor. Press any bubble and
+it becomes the centre; press the centre and its species panel opens. It starts
+on the person (`h_sapiens`) and has no wrong tap. It was sketched three ways
+(Orbit, Dive, Time — `claude/explore-play`, `mockups/play/`) and this was the
+one picked. Reached from the rail's *Orbit* button or `?view=orbit[&node=…]`.
+
+Things worth knowing before changing it:
+
+- **It is `body[data-view="orbit"]`, a peer of `explore` and `map`.** The CSS
+  hides the other two wholesale, as Explore does for the map's furniture, and
+  `setShellView` repaints it on the way in because a hidden view has no box to
+  measure (constraint 11). `js/wayfinder.js` knows three shells now: Back walks
+  the way the reader came (the trail), then up the tree; Home returns to the
+  person; Share carries `view=orbit&node=<focus>`.
+- **`layoutOrbit()` is pure and is the thing worth testing.** Rings are the
+  ancestors from the focus to the root, nearest first; a ring's bubbles are
+  that ancestor's *other* children. Placement is a search, not a force — each
+  bubble takes the first free spot along its ring, then a little in or out,
+  then further out — so nothing oscillates and nothing lands on anything else.
+- **The "+N" bubble is placed first.** Placed last it found its ring full (the
+  shown bubbles drift to the first free spot, and the slot kept for it was one
+  of them), and every relative behind it was then unreachable. 385 rings did
+  this on a desktop, 562 on a phone. `orbit:every-focus-fits-and-accounts-for-everyone`
+  runs `layoutOrbit` with each of the tree's 410 nodes at the centre and fails
+  when a relative is neither drawn nor counted in a "+N" that is itself drawn.
+  A deep lineage (a hominin is nine rings down) gets only as many rings as the
+  window's height holds; the rest merge into the last ring.
+- **The person is found at paint time, not in `initOrbit()`.** The hominin
+  nodes are grafted into the tree after start-up and `homo-sapiens` becomes
+  `h_sapiens`; a lookup made too early quietly fell back to LUCA. Parents are
+  worked out on every paint for the same reason (`_parent` is set by
+  `preprocess`, which has not always run).
+- **Bubbles are anchored at the physical left, always.** The layout engine
+  already mirrors the fan in Hebrew and its x is a physical offset; anchoring
+  at `right:0` in RTL pushed everything off-screen. The chrome uses logical
+  offsets.
+- **Time on a chip is written in the reader's language.** "541 Ma" is a Latin
+  run in an RTL paragraph; Hebrew reads `541 מל"ש`, `2.1 מיליארד`, Russian
+  `541 млн`, `2.1 млрд` (`chipAge`). Species names stay English (data) and
+  carry `data-i18n-exempt`; ranked groups take `displayName`.
+- **No emoji, anywhere in it.** A bubble is the silhouette, else the kind's line
+  icon, with the photograph fading in over it when it has decoded.
+- **One row at the foot.** The way back, *Surprise me*, and Home share one row
+  that the layout reserves; on a phone Home is an icon and only the newest
+  trail entry shows. The legend sits under it and `orbit:nothing-overlaps-on-the-page`
+  fails when it is under a pill (mutation-tested).
+
+Checks: `node scripts/smoke.mjs --orbit-only --only desktop-en,phone-he` runs
+just the `orbit:` group (plus `i18n:orbit-translated`, `a11y:orbit-text-contrast`),
+about a minute a scenario. It reads the layout for every node, then paints
+eight foci for real and measures them, then plays a press, Back, Home, the
+centre opening the panel, a trip out to Explore and back, a language switch and
+a shared link. The probe runs under reduced motion so positions are read after
+the transition has landed (constraint 13).
 
 ### Getting out, and sharing
 

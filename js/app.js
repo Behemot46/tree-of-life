@@ -561,7 +561,8 @@ function init(){
       const ic = document.getElementById('sotd-icon');
       const nm = document.getElementById('sotd-name');
       if (badge && ic && nm) {
-        ic.textContent = sotd.icon || '🧬';
+        ic.className = 'sotd-dot';
+        ic.style.background = sotd.color || 'var(--accent-primary)';
         nm.textContent = sotd.name;
         badge.style.display = '';
         badge.addEventListener('click', () => showMainPanel(sotd));

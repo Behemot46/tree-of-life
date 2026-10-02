@@ -489,3 +489,15 @@ body.detail-open[dir="rtl"] #zoom-ctrl{
 @media (min-width:769px){
   #left-rail-toggle{display:none;}
 }
+
+/* Line icons for the rail. One stroke weight, the text's own colour, so they
+   read as part of the label rather than as a coloured sticker beside it. */
+.ico{
+  width:1.15em;height:1.15em;flex:none;
+  fill:none;stroke:currentColor;stroke-width:1.6;
+  stroke-linecap:round;stroke-linejoin:round;
+  vertical-align:-0.2em;
+}
+.search-pill .ico,.rail-status .ico{margin-inline-end:2px;opacity:.85;}
+
+#sotd-icon.sotd-dot{display:inline-block;width:8px;height:8px;border-radius:50%;flex:none;vertical-align:middle;}

@@ -807,7 +807,14 @@ if(railToggle&&leftRail){
   // close rail on outside tap when open (mobile)
   document.addEventListener('click',(e)=>{
     if(!leftRail.classList.contains('open'))return;
-    if(leftRail.contains(e.target)||railToggle.contains(e.target))return;
+    if(railToggle.contains(e.target))return;
+    if(leftRail.contains(e.target)){
+      /* Where the rail is an overlay (the ☰ shows), choosing something in it
+         should reveal the result, not leave it underneath the menu: Radial
+         drew its map behind the rail that had just been used to ask for it. */
+      if(e.target.closest('button,a')&&getComputedStyle(railToggle).display!=='none') leftRail.classList.remove('open');
+      return;
+    }
     leftRail.classList.remove('open');
   });
 }

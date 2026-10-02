@@ -800,6 +800,24 @@ check('chrome:rail-view-buttons-are-on-screen', 'The rail\'s View buttons are in
     bad.map((b) => `${b.label} [${b.x}..${b.right}] w=${b.w} reachable=${b.reachable}`).join('; '));
 });
 
+/* layoutCladogram() mirrors the tree in Hebrew, with the root on the right. The
+   labels did not follow: they stayed on the right of every node, so each one ran
+   back across its own branches and the camera framed a box they were not in.
+   Fitted at 0.3 against 0.4 in English on a phone, and nothing failed, because
+   every label was present, translated and on screen. Ask which side they are on. */
+check('tree:cladogram-labels-sit-on-the-outward-side', 'Cladogram leaf labels point away from the root in both directions of writing', (c) => {
+  const a = c.probe.afterLoad;
+  if (!a) fail('the after-load pass never ran');
+  if (a.error) fail(`the after-load pass threw: ${a.error}`);
+  if (a.mode !== 'cladogram') fail(`the probe was not left in the cladogram (${a.mode})`);
+  if (!a.cladogramLabels.length) fail('no leaf labels were drawn to measure');
+  const want = a.dir === 'rtl' ? -1 : 1;
+  const wrong = a.cladogramLabels.filter((l) => Math.sign(l.dx) !== want);
+  if (wrong.length) {
+    fail(`${wrong.length} of ${a.cladogramLabels.length} leaf label(s) sit on the root's side in ${a.dir} (e.g. ${wrong.slice(0, 3).map((l) => `${l.id} dx=${l.dx}`).join(', ')})`);
+  }
+});
+
 /* The rail offers Radial and Cladogram in both shells, but they lay out the
    map. Clicked from the drill-down they used to do their work on a canvas
    nobody could see, so a visible control did nothing visible. */
@@ -3369,6 +3387,19 @@ async function probePage(page, scenario, baseUrl) {
             overlayRail: toggleShown, railOpenAfter,
           });
         }
+        /* The probe's last step left the map in the cladogram. Where does each
+           leaf's label sit against its own node? Outward: to the right, and in
+           Hebrew — where the whole tree is mirrored — to the left. (Labels are
+           drawn at absolute x, so the node's own x comes from the tree.) */
+        const kids = (n) => (n.children || []).filter((c) => !c._hiddenByToggle);
+        out.cladogramLabels = [...document.querySelectorAll('#viewport g.node-group[data-node-id]')].map((g) => {
+          const node = find(TREE, g.getAttribute('data-node-id'));
+          const t = g.querySelector('.node-label-name');
+          if (!node || !t || (kids(node).length && !node._collapsed)) return null;   // leaves only: no visible children, or collapsed
+          return { id: node.id, dx: Math.round(+t.getAttribute('x') - node._x) };
+        }).filter(Boolean);
+        out.dir = document.documentElement.dir;
+        out.mode = document.querySelector('#view-toggle .view-btn.active[data-mode]')?.dataset.mode;
         return out;
       }, { from: scenario.lang });
     } catch (e) { return { error: String(e) }; }

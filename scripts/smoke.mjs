@@ -2546,8 +2546,9 @@ async function probePage(page, scenario, baseUrl) {
     const st = await import(new URL('js/state.js', location.href).href);
     const CASES = [
       ['human', 'Homo sapiens'], ['whale', 'Blue whale'], ['tiger', 'Tiger'],
-      ['cat', 'Lion'], ['snake', 'King cobra'], ['bear', 'Polar bear'],
+      ['cat', 'Domestic cat'], ['snake', 'King cobra'], ['bear', 'Polar bear'],
       ['oak', 'Oak'], ['elephent', 'African elephant'],
+      ['dinosaur', 'Non-avian dinosaurs'], ['dog', 'Domestic dog'], ['mouse', 'House mouse'],
     ];
     const wrong = [];
     for (const [q, want] of CASES) {

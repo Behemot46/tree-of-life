@@ -107,26 +107,34 @@ export function buildSearchIndex(){
    no node is called that. "cat" found Meerkat. These are the words a visitor
    actually types, mapped to what is actually in the data; each pattern is
    checked against the built index by the smoke suite, so one that stops
-   matching anything is a failure rather than a silent dead end. */
+   matching anything is a failure rather than a silent dead end. An optional
+   `lead` pattern names the answer that should come first among the matches;
+   without it the shortest name wins, which put Triceratops above the group it
+   belongs to. */
 export const SEARCH_ALIASES = [
   { words: ['human', 'humans', 'people', 'person', 'mankind', 'us'], match: /^homo sapiens$/ },
-  { words: ['cat', 'cats', 'feline', 'felines'], match: /^(tiger|lion|cheetah|jaguar|snow leopard)$/ },
-  { words: ['dog', 'dogs', 'canine'], match: /^(gray wolf|african wild dog)$/ },
+  { words: ['cat', 'cats', 'kitten'], match: /^domestic cat$/ },
+  { words: ['feline', 'felines', 'big cat', 'big cats'], match: /^(tiger|lion|cheetah|jaguar|snow leopard|leopard)$/ },
+  { words: ['dog', 'dogs', 'puppy'], match: /^domestic dog$/ },
+  { words: ['canine', 'canines'], match: /^(domestic dog|gray wolf|african wild dog|red fox)$/ },
   { words: ['monkey', 'monkeys'], match: /^(japanese macaque|mandrill)$/ },
   { words: ['ape', 'apes'], match: /^(great apes|chimpanzee|bonobo|gorilla|orangutan|lar gibbon)$/ },
   { words: ['snake', 'snakes', 'serpent'], match: /^(king cobra|green anaconda|reticulated python)$/ },
   { words: ['lizard', 'lizards'], match: /^(komodo dragon|panther chameleon|tokay gecko|marine iguana)$/ },
-  { words: ['dinosaur', 'dinosaurs'], match: /^(birds|archaeopteryx)$/ },
+  { words: ['dinosaur', 'dinosaurs'], match: /^(non-avian dinosaurs|tyrannosaurus rex|triceratops|stegosaurus|velociraptor|spinosaurus|argentinosaurus|archaeopteryx)$/, lead: /^non-avian dinosaurs$/ },
+  { words: ['whale', 'whales'], match: /^(blue whale|humpback whale|sperm whale|basilosaurus)$/ },
+  { words: ['panda'], match: /^(giant panda|red panda)$/, lead: /^giant panda$/ },
   { words: ['spider', 'spiders'], match: /^golden orb-weaver$/ },
   { words: ['crab', 'crabs'], match: /^(horseshoe crab|japanese spider crab)$/ },
   { words: ['bat', 'bats'], match: /^(common vampire bat|large flying fox)$/ },
-  { words: ['rodent', 'rodents', 'mouse', 'rat'], match: /^(naked mole rat|capybara|north american beaver)$/ },
+  { words: ['rodent', 'rodents', 'rat'], match: /^(naked mole rat|capybara|north american beaver|house mouse)$/ },
+  { words: ['mouse', 'mice'], match: /^house mouse$/ },
   { words: ['turtle', 'turtles', 'tortoise'], match: /^(green sea turtle|leatherback sea turtle)$/ },
-  { words: ['bear', 'bears'], match: /^polar bear$/ },
-  { words: ['fish', 'fishes'], match: /^(clownfish|anglerfish|coelacanth|australian lungfish|actinopterygii|chondrichthyes)$/ },
+  { words: ['bear', 'bears'], match: /^(polar bear|brown bear|giant panda)$/, lead: /^polar bear$/ },
+  { words: ['fish', 'fishes'], match: /^(clownfish|anglerfish|coelacanth|australian lungfish|actinopterygii|chondrichthyes|whale shark|giant manta ray|ocean sunfish|pufferfish|electric eel|atlantic salmon|hagfish|tiktaalik|dunkleosteus)$/ },
   { words: ['algae', 'seaweed', 'kelp'], match: /^(giant kelp|diatoms|volvox|spirulina|euglena|nostoc)$/ },
   { words: ['mushroom', 'mushrooms', 'fungus'], match: /^(fungi|death cap|destroying angel|shiitake|chanterelle|morel|amanita muscaria|psilocybe cubensis)$/ },
-  { words: ['tree', 'trees'], match: /^(oak|giant sequoia|ginkgo|magnolia|eucalyptus|african baobab|dragon blood tree|wollemi pine|strangler fig)$/ },
+  { words: ['tree', 'trees'], match: /^(oak|giant sequoia|ginkgo|magnolia|eucalyptus|african baobab|dragon blood tree|wollemi pine|strangler fig|great basin bristlecone pine|scale tree)$/ },
   { words: ['flower', 'flowers'], match: /^(flowering plants|orchid|sunflower|water lily|sacred lotus|magnolia|rafflesia arnoldii)$/ },
 ];
 
@@ -192,7 +200,7 @@ export function searchEntities(query){
     /* A curated common name outranks an incidental literal one. Someone
        typing "bat" means the animal, not Batrachochytrium dendrobatidis; "bear"
        means the polar bear before the tardigrade called a water bear. */
-    if(alias&&alias.match.test(names[0])) score=Math.max(score,W.alias);
+    if(alias&&alias.match.test(names[0])) score=Math.max(score,W.alias+(alias.lead&&alias.lead.test(names[0])?20:0));
 
     if(!score) continue;
     /* Shorter names win ties: for "oak", Oak should come before Oak Woodland,

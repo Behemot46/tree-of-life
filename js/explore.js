@@ -48,6 +48,7 @@ import { TREE } from './data.js';
 import { ImageLoader } from './data.js';
 import { state } from './state.js';
 import { displayName } from './utils.js';
+import { eraLabel } from './eraNames.js';
 import { registerActions } from './actions.js';
 import { t } from './theme.js';
 import { SILHOUETTES } from './silhouettes.js';
@@ -182,13 +183,17 @@ function rowHTML(node, depth, { open, lit, live, titled }) {
   /* Translated, and every count kept beside a translated word. "10 inside" put
      a Latin run in an RTL paragraph, which bidi reorders to "inside 10" — the
      same reordering the detail panel already guards against. */
-  const sub = kids ? groupSub(node, kids) : (node.era || node.latin || '');
+  const era = node.era ? eraLabel(node.era, state.currentLang) : '';
+  const sub = kids ? groupSub(node, kids) : (era || node.latin || '');
   /* With children the subtitle is a translated word; without them it is the
      node's era or binomial, which come from the tree data and are English by
      policy. Marking which one it is here is what lets the leak scan tell an
      untranslated control from data that is meant to stay English — and, in
      Hebrew, what enrols it in the direction check instead. */
-  const subData = kids ? '' : ' data-i18n-exempt="species-data" dir="ltr"';
+  /* An era that has a translation is chrome, like the rest of the row; one that
+     did not translate, or no era at all, is English data. */
+  const translatedEra = !kids && era && era !== node.era && !/[A-Za-z]/.test(era);
+  const subData = kids ? '' : translatedEra ? ' dir="auto"' : ' data-i18n-exempt="species-data" dir="ltr"';
   const cls = [
     'ex-card',
     depth <= 1 ? 'ex-card-lv1' : 'ex-card-deep',

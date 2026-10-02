@@ -195,7 +195,7 @@ export function updateBreadcrumb(n){
        well as illegible. */
     const dot=p.color?`<i class="bc-dot" style="background:${p.color}"></i>`:'';
     if(p.id==='_ellipsis') return `<span class="bc-item bc-ellipsis">…</span><span class="bc-sep">›</span>`;
-    return `<span class="bc-item ${isLast?'active':''}"${isLast?'':` data-action="nav:collapse-below" data-arg="${p.id}"`}>${dot}${p.icon} ${p.name}</span>${isLast?'':'<span class="bc-sep">›</span>'}`;
+    return `<span class="bc-item ${isLast?'active':''}"${isLast?'':` data-action="nav:collapse-below" data-arg="${p.id}"`}>${dot}${p.name}</span>${isLast?'':'<span class="bc-sep">›</span>'}`;
   }).join('');
 }
 /* Collapse everything below a given node and zoom to fit its children.

@@ -699,6 +699,24 @@ Things worth knowing before changing it:
   carry `data-i18n-exempt`; ranked groups take `displayName`.
 - **No emoji, anywhere in it.** A bubble is the silhouette, else the kind's line
   icon, with the photograph fading in over it when it has decoded.
+- **Levels are navigable four ways, and they are different things.** The *lineage
+  strip* along the top is the path from the origin of life to the centre, one chip
+  per ancestor, one tap to any of them (it scrolls to keep the centre in view; the
+  current chip is not a button). *Up* is the first control in it and is always the
+  parent. *Back* (the trail beside Surprise me, and the wayfinder) is history: where
+  you came from, which after a jump is not the parent. *Ring labels* sit on each
+  ring's arc — "Primates · 85 Ma" — and centre on that ancestor.
+- **A label never costs a relative its place.** Labels are placed after every
+  bubble in the ring, in whatever is left; a ring with no room goes unlabelled
+  (`orbit:rings-are-labelled-and-tappable` allows 35%). Placed first they took the
+  room the "+N" bubble needed and 230 rings on a phone left relatives unreachable.
+- **A press travels.** The pressed bubble keeps its element and grows into the
+  centre (the face's size and the button's width transition, not just its
+  position); going up, the old centre glides out as a child. `layoutOrbit` takes
+  the centre just left as `prefer` and keeps it among the children even when it
+  would be behind "+N" — a leaf in a big group, otherwise, vanished at the moment
+  it was the answer to "where was I?". Reduced motion has no transitions at all
+  (`transition: none`; a 1ms one was not finished on a busy runner).
 - **One row at the foot.** The way back, *Surprise me*, and Home share one row
   that the layout reserves; on a phone Home is an icon and only the newest
   trail entry shows. The legend sits under it and `orbit:nothing-overlaps-on-the-page`

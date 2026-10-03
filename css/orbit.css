@@ -35,7 +35,7 @@ body[data-view="orbit"] #orbit { display: block; }
   display: flex; flex-direction: column; align-items: center; gap: 5px;
   padding: 0; margin: 0; background: none; border: 0; color: inherit; font: inherit;
   cursor: pointer; -webkit-tap-highlight-color: transparent;
-  transition: transform 560ms cubic-bezier(.2, .9, .25, 1), opacity 320ms ease; will-change: transform;
+  transition: transform 560ms cubic-bezier(.2, .9, .25, 1), opacity 320ms ease, width 560ms cubic-bezier(.2, .9, .25, 1); will-change: transform;
 }
 /* Always anchored at the physical left: the layout engine already mirrors the
    fan, and its x is a physical offset. */
@@ -44,7 +44,8 @@ body[data-view="orbit"] #orbit { display: block; }
   border-radius: 50%; overflow: hidden; flex: none;
   background: color-mix(in srgb, var(--c) 22%, var(--surface));
   box-shadow: 0 0 0 3px var(--c), 0 8px 22px rgba(0, 0, 0, .3), 0 0 28px color-mix(in srgb, var(--c) 30%, transparent);
-  transition: transform 220ms cubic-bezier(.3, 1.4, .5, 1), box-shadow 220ms ease;
+  transition: transform 220ms cubic-bezier(.3, 1.4, .5, 1), box-shadow 220ms ease,
+    width 560ms cubic-bezier(.2, .9, .25, 1), height 560ms cubic-bezier(.2, .9, .25, 1);
 }
 .orb-b:hover .orb-face, .orb-b:focus-visible .orb-face { transform: scale(1.1); }
 .orb-b:active .orb-face { transform: scale(.94); }
@@ -88,7 +89,7 @@ body[data-view="orbit"] #orbit { display: block; }
 .orb-b:nth-child(3n+1) .orb-face { animation-delay: -3.4s; animation-duration: 6.4s; }
 @media (prefers-reduced-motion: reduce) {
   .orb-b .orb-face { animation: none; }
-  .orb-b { transition: none !important; }
+  .orb-b, .orb-face { transition: none !important; }
 }
 
 /* ── Chrome: the way back, and the two things to press ── */
@@ -126,6 +127,7 @@ body[data-view="orbit"] #orbit { display: block; }
 @media (max-width: 559px) {
   .orb-name { font-size: 11.5px; letter-spacing: -.005em; }
   .orb-sub { font-size: 10px; }
+  .orb-ring { font-size: 10px; padding: 0 6px; gap: 4px; }
   .orb-legend { font-size: 10px; padding-bottom: 0; line-height: 1.15; }
   .orb-actions { bottom: 36px; }
   /* A phone has one row: the way back, the main thing, and Home as an icon. */
@@ -135,3 +137,46 @@ body[data-view="orbit"] #orbit { display: block; }
   .orb-home-glyph { display: inline; }
   .orb-home-text { display: none; }
 }
+
+/* ── The lineage strip: origin of life → the centre, one tap to any ancestor ── */
+.orb-strip {
+  position: absolute; inset-inline: 8px; top: 4px; height: 40px; z-index: 5;
+  display: flex; align-items: center; gap: 6px;
+}
+.orb-up {
+  flex: none; display: inline-flex; align-items: center; gap: 4px; height: 36px; padding: 0 12px;
+  border-radius: 999px; cursor: pointer; font: inherit; font-size: 13px; font-weight: 700;
+  color: var(--bg); background: var(--accent); border: 1px solid var(--accent);
+}
+.orb-up[disabled] { cursor: default; color: var(--text-secondary); background: transparent; border-color: var(--glass-border); }
+.orb-path {
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 2px; overflow-x: auto; scrollbar-width: none;
+  padding-block: 2px;
+}
+.orb-path::-webkit-scrollbar { display: none; }
+.orb-crumb {
+  flex: none; max-width: 112px; min-height: 36px; padding: 0 10px; border-radius: 999px; cursor: pointer;
+  font: inherit; font-size: 12.5px; font-weight: 650; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  display: inline-flex; align-items: center;
+  color: var(--text-secondary); background: transparent; border: 1px solid var(--glass-border);
+}
+.orb-crumb:hover { color: var(--text-primary); border-color: var(--c, var(--accent)); }
+.orb-crumb.is-here {
+  cursor: default; color: var(--text-primary); border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 14%, transparent);
+}
+.orb-sep { flex: none; color: var(--text-secondary); font-size: 14px; }
+[dir="rtl"] .orb-sep { display: inline-block; transform: scaleX(-1); }
+@media (max-width: 559px) { .orb-up-text { display: none; } .orb-up { width: 44px; padding: 0; justify-content: center; } }
+
+/* ── A ring names its ancestor ── */
+.orb-ring {
+  position: absolute; z-index: 2; height: 24px; padding: 0 8px; border-radius: 12px; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 5px;
+  font: inherit; font-size: 10.5px; font-weight: 650; white-space: nowrap; overflow: hidden;
+  color: var(--text-secondary);
+  background: color-mix(in srgb, var(--surface) 92%, transparent); border: 1px solid var(--glass-border);
+}
+.orb-ring:hover, .orb-ring:focus-visible { color: var(--text-primary); border-color: var(--c, var(--accent)); outline: none; }
+.orb-ring-name { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.orb-ring-age { flex: none; opacity: .85; }

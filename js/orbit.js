@@ -57,6 +57,7 @@ let _focus = null;
 let _trail = [];                 // where the reader has been, oldest first
 const _els = new Map();          // key → bubble element
 let _built = false;
+let _from = null;                // the centre we just left, kept among the children when going up
 
 const root = () => document.getElementById('orbit');
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
@@ -122,13 +123,14 @@ export function relatives(f) {
 }
 
 /* Pure: a focus and a window in, a list of placed bubbles out. */
-export function layoutOrbit(focus, W, H, rtl) {
+export function layoutOrbit(focus, W, H, rtl, prefer = null) {
   const phone = W < 560;
   const R = rtl ? -1 : 1;
   const Sf = phone ? 96 : 124;
   const Wb = phone ? 96 : 112;                  // a bubble's footprint: its label is clipped to this
   const LH = 32;                                // the label under a bubble: a name and a number
-  const cx = W / 2, cy = 14 + Sf / 2;
+  const TOP = 48;                               // the lineage strip lives above this
+  const cx = W / 2, cy = TOP + 6 + Sf / 2;
   const bottom = H - (phone ? 100 : 80);         // the action row lives below this
   const items = [];
   const rings = [];
@@ -167,7 +169,7 @@ export function layoutOrbit(focus, W, H, rtl) {
   /* The focus's label is a name that may take two lines and a count under it,
      so its footprint is taller than a relative's. */
   const placed = [{ l: cx - Wf / 2, r: cx + Wf / 2, t: cy - Sf / 2, b: cy + Sf / 2 + 62 }];
-  const clear = (bx) => bx.l >= 4 && bx.r <= W - 4 && bx.t >= 4 && bx.b <= H - (phone ? 96 : 76) &&
+  const clear = (bx) => bx.l >= 4 && bx.r <= W - 4 && bx.t >= TOP && bx.b <= H - (phone ? 96 : 76) &&
     !placed.some((p) => bx.l < p.r + 2 && bx.r > p.l - 2 && bx.t < p.b + 2 && bx.b > p.t - 2);
   const spot = (rad, th0, phi, d) => {
     const step = 5 / rad;
@@ -186,6 +188,25 @@ export function layoutOrbit(focus, W, H, rtl) {
     }
     return null;
   };
+  /* A ring names its ancestor, and pressing the name centres on it. The label sits
+     on the arc near one end — where bubbles are fewest — and is a footprint like
+     any other, so no bubble is laid across it. It slides inward until it finds a
+     free spot; a ring with none goes unlabelled rather than overlapping. */
+  const LBW = phone ? 120 : 140, LBH = 24;
+  const labelFor = (A, mya, rad, phi) => {
+    for (const dr of [0, 12, -12, 24, -24]) {
+      for (const back of [0, 0.12, 0.24, 0.36, 0.5, 0.7, 0.9]) {
+        for (const sg of [-1, 1]) {
+          const th = sg * (phi - back);
+          const x = clamp(cx + R * (rad + dr) * Math.sin(th), 4 + LBW / 2, W - 4 - LBW / 2);
+          const y = cy + (rad + dr) * Math.cos(th);
+          const bx = { l: x - LBW / 2, r: x + LBW / 2, t: y - LBH / 2, b: y + LBH / 2 };
+          if (clear(bx)) { placed.push(bx); return { id: A.id, n: A, mya, x, y, w: LBW, h: LBH }; }
+        }
+      }
+    }
+    return null;
+  };
   const put = (n, kind, rad, th0, d, sub, extra = {}) => {
     const at = spot(rad, th0, extra.phi, d);
     return at && { key: extra.key || n.id, n, kind, d, sub, w: Wb, h: d + LH, ...at, ...extra };
@@ -198,6 +219,10 @@ export function layoutOrbit(focus, W, H, rtl) {
     const { phi, cap } = arcOf(rad, 1.3);
     const all = kids(focus);
     const take = [...all].sort((x, y) => size(y) - size(x)).slice(0, all.length > cap ? cap - 1 : cap);
+    /* Going up, the place you came from is always among the children: a leaf in a
+       big group would otherwise be behind "+N", and the picture could not show
+       where you were. */
+    if (prefer && all.includes(prefer) && !take.includes(prefer) && take.length) take[take.length - 1] = prefer;
     const shown = all.filter((k) => take.includes(k));
     const n = shown.length + (all.length > shown.length ? 1 : 0);
     const at = spread(n, phi, 0);
@@ -256,10 +281,12 @@ export function layoutOrbit(focus, W, H, rtl) {
     const hidden = ring.sibs.length - mine.length;
     items.push(...mine);
     if (m) { m.sub = `+${hidden}`; items.push(m); }
-    rings.push({ r: rad, phi, kind: 'out', total: ring.sibs.length, shown: mine.length, hidden, more: !!m });
+    /* Last, and only in what is left: a label never costs a relative its place. */
+    const label = labelFor(ring.A, ring.age, rad, phi);
+    rings.push({ r: rad, phi, kind: 'out', total: ring.sibs.length, shown: mine.length, hidden, more: !!m, label });
   });
 
-  return { items, rings, cx, cy, W, H };
+  return { items, rings, cx, cy, W, H, top: TOP };
 }
 
 // ── One bubble ────────────────────────────────────────────────────────────
@@ -325,7 +352,8 @@ function retune(el, it) {
 
 // ── Drawing ───────────────────────────────────────────────────────────────
 
-function chrome() {
+function chrome(L) {
+  const lang = state.currentLang;
   const home = _focus !== startNode();
   const back = _trail.slice(-3).reverse().map((id) => {
     const n = byId(id);
@@ -333,7 +361,33 @@ function chrome() {
       aria-label="${t('orbit_back_to')} ${displayName(n)}"><span class="orb-back" aria-hidden="true">↩</span>
       <span data-i18n-exempt="species-data" dir="auto">${displayName(n)}</span></button>` : '';
   }).join('');
+
+  /* The lineage, origin of life to the centre: where you are, and a way to any
+     ancestor in one tap. Up is its own control and always the parent; Back (the
+     trail on the right) is where you came from. */
+  const chain = pathTo(_focus);
+  const parent = parentOf(_focus);
+  const crumbs = chain.map((n, i) => (i === chain.length - 1
+    ? `<span class="orb-crumb is-here" aria-current="true" data-i18n-exempt="species-data" dir="auto">${displayName(n)}</span>`
+    : `<button type="button" class="orb-crumb" data-action="orbit:to" data-arg="${n.id}" style="--c:${n.color}"
+        aria-label="${t('ex_go_to')} ${displayName(n)}"><span data-i18n-exempt="species-data" dir="auto">${displayName(n)}</span></button><span class="orb-sep" aria-hidden="true">›</span>`)).join('');
+  const strip = `
+    <nav class="orb-strip" aria-label="${t('orbit_path')}">
+      <button type="button" class="orb-up" data-action="orbit:parent" ${parent ? `aria-label="${t('orbit_up_to')} ${displayName(parent)}"` : 'disabled aria-label="' + t('orbit_up') + '"'}>
+        <span aria-hidden="true">↑</span><span class="orb-up-text">${t('orbit_up')}</span></button>
+      <div class="orb-path">${crumbs}</div>
+    </nav>`;
+
+  const rings = L.rings.filter((r) => r.label).map((r) => `
+    <button type="button" class="orb-ring" data-action="orbit:to" data-arg="${r.label.id}"
+      style="left:${Math.round(r.label.x - r.label.w / 2)}px;top:${Math.round(r.label.y - r.label.h / 2)}px;width:${r.label.w}px;--c:${r.label.n.color}"
+      aria-label="${t('ex_go_to')} ${displayName(r.label.n)}">
+      <span class="orb-ring-name" data-i18n-exempt="species-data" dir="auto">${displayName(r.label.n)}</span>
+      <span class="orb-ring-age">${chipAge(r.label.mya, lang)}</span></button>`).join('');
+
   return `
+    ${strip}
+    ${rings}
     <div class="orb-actions">
       <span class="orb-trail">${back}</span>
       <button type="button" class="orb-pill is-main" data-action="orbit:surprise">${t('orbit_surprise')}</button>
@@ -350,7 +404,7 @@ export function renderOrbit(first = false) {
   linkParents();
   /* Resolved here and not in initOrbit(): the person is grafted into the tree
      after start-up, and a focus looked up too early falls back to the root. */
-  if (!_focus || !_up.has(_focus)) _focus = startNode();
+  if (!_focus || !_up.has(_focus)) { _focus = startNode(); _from = null; }
   if (!_built) {
     host.innerHTML = '<svg class="orb-guide" aria-hidden="true"></svg><div class="orb-stage"></div><div class="orb-chrome"></div>';
     _built = true;
@@ -358,7 +412,7 @@ export function renderOrbit(first = false) {
   const guide = host.querySelector('.orb-guide');
   const stage = host.querySelector('.orb-stage');
   const rtl = document.documentElement.dir === 'rtl';
-  const L = layoutOrbit(_focus, W, H, rtl);
+  const L = layoutOrbit(_focus, W, H, rtl, _from);
   host._layout = L;
   const still = first || reducedMotion();
 
@@ -379,8 +433,12 @@ export function renderOrbit(first = false) {
     if (!el) {
       el = bubbleEl(it);
       el.style.width = `${it.w}px`;
-      if (!still) {                               // new arrivals pop out of the centre
-        el.style.transform = `translate(${L.cx - it.w / 2}px, ${L.cy - it.d / 2}px) scale(.2)`;
+      if (!still) {
+        /* New arrivals pop out of the centre; a new centre grows where it stands
+           (the old centre is gliding out to its ring at the same moment). */
+        el.style.transform = it.kind === 'focus'
+          ? `translate(${it.x - it.w / 2}px, ${it.y - it.d / 2}px) scale(.5)`
+          : `translate(${L.cx - it.w / 2}px, ${L.cy - it.d / 2}px) scale(.2)`;
         el.style.opacity = '0';
       }
       stage.appendChild(el);
@@ -403,7 +461,12 @@ export function renderOrbit(first = false) {
     el.removeAttribute('data-action');            // leaving: not a target while it fades
     setTimeout(() => el.remove(), still ? 0 : 420);
   }
-  host.querySelector('.orb-chrome').innerHTML = chrome();
+  const chromeEl = host.querySelector('.orb-chrome');
+  chromeEl.innerHTML = chrome(L);
+  /* The path can be longer than the strip; keep the place you are in view. */
+  const here = chromeEl.querySelector('.orb-crumb.is-here');
+  const pathEl = chromeEl.querySelector('.orb-path');
+  if (here && pathEl) pathEl.scrollLeft = (document.documentElement.dir === 'rtl' ? -1 : 1) * 1e5;
   host.setAttribute('aria-label', `${t('orbit_region')}: ${displayName(_focus)}`);
 }
 
@@ -418,6 +481,7 @@ export function orbitFocus(nodeOrId, { back = false } = {}) {
       ? _trail.filter((id) => id !== n.id)
       : [..._trail.filter((id) => id !== _focus.id), _focus.id].slice(-5);
   }
+  _from = _focus;
   _focus = n;
   renderOrbit();
   return true;
@@ -430,6 +494,13 @@ export function orbitUp() {
   return false;
 }
 
+/* Up is the parent, always; Back (orbitUp) is where the reader came from. */
+export function orbitParent() {
+  const p = _focus && parentOf(_focus);
+  if (!p) return false;
+  return orbitFocus(p);
+}
+
 export function orbitHome() {
   const home = startNode();
   if (_focus === home) return false;
@@ -440,6 +511,9 @@ export function orbitHome() {
 }
 
 export function orbitSelection() { return _focus; }
+
+/* The ids from the origin of life to the centre — what the lineage strip shows. */
+export function orbitPath() { return _focus ? pathTo(_focus).map((n) => n.id) : []; }
 
 function surprise() {
   const leaves = [];
@@ -460,6 +534,8 @@ export function initOrbit() {
   registerActions({
     'orbit:press': (key) => press(key),
     'orbit:go': (id) => orbitFocus(id, { back: true }),
+    'orbit:to': (id) => orbitFocus(id),
+    'orbit:parent': () => orbitParent(),
     'orbit:surprise': () => surprise(),
     'orbit:home': () => orbitHome(),
   });

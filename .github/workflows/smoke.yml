@@ -12,14 +12,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  smoke:
-    name: Browser smoke checks
+  scenario:
+    name: Smoke ${{ matrix.scenario }}
     runs-on: ubuntu-latest
-    # The suite itself takes about nine minutes; installing Chromium has taken
-    # anywhere from half a minute to nearly six, depending on the day. A run on
-    # main finished with seconds to spare under the old fifteen-minute cap, and a
-    # slow install would have failed it for a reason that is not a defect.
+    # One scenario is a few minutes; the Chromium install has taken anywhere from
+    # half a minute to nearly six. The six run side by side, so the wall-clock is
+    # the slowest one, not their sum (the single job took 17 of its 30 minutes).
     timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario: [desktop-en, desktop-he, desktop-ru, phone-en, phone-he, desktop-en-light]
 
     steps:
       - uses: actions/checkout@v4
@@ -36,20 +39,31 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       - name: Run smoke checks
-        run: npm run smoke
+        run: npm run smoke -- --only ${{ matrix.scenario }}
 
       - name: Upload screenshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: smoke-screenshots
+          name: smoke-screenshots-${{ matrix.scenario }}
           path: .smoke-out/
           # .smoke-out is a dotfile, and upload-artifact skips hidden paths
-          # unless told otherwise — so this step had been uploading nothing
-          # since it was written, logging "No files were found" under a green
-          # run while CLAUDE.md promised the screenshots on every run. The
-          # suite is meant to be looked at, not only counted; if-no-files-found
-          # stays on `warn` so a genuinely empty run still does not fail CI.
+          # unless told otherwise. if-no-files-found stays on `warn` so a
+          # genuinely empty run still does not fail CI.
           include-hidden-files: true
           if-no-files-found: warn
           retention-days: 14
+
+  # The check a branch rule or a reader looks for keeps its old name: it is green
+  # only when every scenario was, and red if any was red, cancelled or skipped.
+  smoke:
+    name: Browser smoke checks
+    needs: scenario
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: All scenarios green
+        run: |
+          if [ "${{ needs.scenario.result }}" != "success" ]; then
+            echo "scenarios: ${{ needs.scenario.result }}"; exit 1
+          fi

@@ -885,6 +885,18 @@ check('orbit:a-move-says-why-they-are-where-they-are', 'After a press, one line 
   if (w.box.l < 0 || w.box.r > w.vw || w.box.b > w.vh) fail(`the line leaves the window: ${JSON.stringify(w.box)}`);
 });
 
+check('orbit:compare-pins-one-creature-and-keeps-saying-how-it-relates', 'Compare pins the centre; pressing another creature keeps a line naming the pinned one and the new centre; pressing again lets go', (c) => {
+  const k = orbitOf(c).story.cmp;
+  if (!k) fail('the compare steps never ran');
+  if (k.before.on !== 'false') fail(`the button starts pressed (${k.before.on})`);
+  if (k.pinned.on !== 'true' || !k.pinned.sticky) fail('pinning did not press the button and raise a standing line');
+  if (k.pinned.names.length !== 1) fail(`the pinned line should name one creature: "${k.pinned.text}"`);
+  if (!k.moved.sticky || k.moved.names.length < 2) fail(`after a move the line should stay and name two creatures: "${k.moved.text}"`);
+  if (k.moved.names[0] !== k.pinName) fail(`the line starts with "${k.moved.names[0]}", not the pinned "${k.pinName}"`);
+  if (/[{}]/.test(k.moved.text + k.pinned.text)) fail('an unfilled placeholder');
+  if (k.off.on !== 'false' || (k.off.text && k.off.sticky)) fail('pressing again did not let go');
+});
+
 check('orbit:rings-are-labelled-and-tappable', 'Each ring names its ancestor and its time, sits clear of the bubbles, and one tap centres on it', (c) => {
   const o = orbitOf(c);
   const bad = o.dom.filter((r) => r.lin.rings.length);
@@ -2611,6 +2623,22 @@ async function orbitProbe(page, scenario, baseUrl) {
     out.story.ringTarget = ringTarget;
     if (ringTarget) { await p.click(`#orbit .orb-ring[data-arg="${ringTarget}"]`, { timeout: 5000 }); await frames(); }
     out.story.afterRing = await read();
+    // compare: pin the centre, press another creature; the line stays and names the pinned one
+    await hop('h_sapiens');
+    const cmpWhy = () => p.evaluate(() => {
+      const w = document.querySelector('#orbit .orb-why'), b = document.querySelector('#orbit .orb-cmp');
+      return { text: w ? w.textContent.trim() : null, sticky: !!w && w.classList.contains('is-sticky'), names: w ? [...w.querySelectorAll('bdi')].map((x) => x.textContent.trim()) : [], on: b && b.getAttribute('aria-pressed'), label: b && b.textContent.trim() };
+    });
+    out.story.cmp = { before: await cmpWhy() };
+    await p.click('#orbit .orb-cmp', { timeout: 5000 }); await frames();
+    out.story.cmp.pinned = await cmpWhy();
+    const cmpTarget = await p.evaluate(() => document.querySelector('#orbit .orb-b.rel')?.dataset.arg);
+    await p.click(`#orbit .orb-b[data-arg="${cmpTarget}"] .orb-face`, { timeout: 5000 }); await frames();
+    out.story.cmp.moved = await cmpWhy();
+    out.story.cmp.pinName = await p.evaluate(async () => { const m = await import(new URL('js/orbit.js', location.href).href); const n = m.orbitPinned(); return n && n.name; });
+    await p.click('#orbit .orb-cmp', { timeout: 5000 }); await frames();
+    out.story.cmp.off = await cmpWhy();
+    await hop('h_sapiens');
 
     TR('gestures');
     // ── gestures and keys ──

@@ -752,6 +752,15 @@ Things worth knowing before changing it:
   unreviewed). It is `pointer-events: none` and hides the legend while up, so it
   never covers a tap; it replaces the one-time hint if both would show.
   `orbit:a-move-says-why-they-are-where-they-are` (mutation-tested).
+- **Compare pins one creature.** The *Compare* pill at the end of the lineage strip
+  pins the current centre (`_pin`); from then on every move shows a standing
+  `.orb-why.is-sticky` line about the pinned creature and the new centre, not the
+  centre just left, until the pill (now *Stop comparing*, `aria-pressed`) is pressed
+  again. Pressing the pinned creature itself says "Comparing with X — press any
+  creature". The pin survives moves, Home and a language switch (`refreshOrbit`
+  re-raises the line), not a reload. It reuses `whyOf`, so containment is stated
+  as containment. `orbit:compare-pins-one-creature-and-keeps-saying-how-it-relates`
+  (mutation-tested: a pin that never sticks fails it).
 - **One row at the foot.** The way back, *Surprise me*, and Home share one row
   that the layout reserves; on a phone Home is an icon and only the newest
   trail entry shows. The legend sits under it and `orbit:nothing-overlaps-on-the-page`

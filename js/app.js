@@ -542,7 +542,7 @@ function init(){
   setShellView(
     _urlView === 'map' || _urlView === 'explore' || _urlView === 'orbit'
       ? _urlView
-      : (()=>{ try { return localStorage.getItem('tol-shell-view') || 'explore'; } catch(e){ return 'explore'; } })(),
+      : (()=>{ try { return localStorage.getItem('tol-shell-view') || 'orbit'; } catch(e){ return 'orbit'; } })(),
     { persist: !_urlView });
 
   // Snapshot the zoom level that frames the full base tree. Used as the floor
@@ -1158,12 +1158,14 @@ window.addEventListener('resize', () => {
 
 initTourDeps({ state, nodeMap, layout, scheduleRender, applyT, animateSliderTo, t });
 
-/* Which shell is on screen. Explore is the default: the map is an expert
-   view, and a first-time visitor needs a door before they need a map. Kept as
+/* Which shell is on screen. Orbit is the default: the map is an expert view and
+   Explore is a list, while Orbit is the one that starts from the reader. Someone
+   who chose Explore or the map before keeps it — only a visitor with no stored
+   choice lands here. Kept as
    a body attribute so the CSS can hide one side wholesale, and remembered so
    the choice survives a reload. */
 function setShellView(v, opts){
-  const view = v === 'map' || v === 'orbit' ? v : 'explore';
+  const view = v === 'map' || v === 'explore' ? v : 'orbit';
   const persist = !opts || opts.persist !== false;
   /* The detail panel belongs to whichever shell opened it. It is fixed, high
      in the stack and 475px wide on a 1440px window, so switching to Explore

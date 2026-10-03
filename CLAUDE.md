@@ -504,11 +504,13 @@ Where an element already carries its value (`data-lang`, `data-mode`,
 
 ### The two shells
 
-The site has two front doors, switched from the rail and remembered in
+The Atlas has three views, switched from the rail and remembered in
 `localStorage` under `tol-shell-view`. `body[data-view]` carries the choice and
-the CSS hides one side wholesale.
+the CSS hides the others wholesale. **Orbit** (see *Orbit*) is what a visitor
+with no stored choice lands on; someone who picked Explore or the map keeps it.
+This section describes the first two.
 
-**Explore** (`js/explore.js`) is the default and the thing a visitor lands on.
+**Explore** (`js/explore.js`) is the list: the thing a visitor landed on before Orbit.
 One tree, unfolding in place: tapping a group leaves it where it is and opens
 its children directly beneath it, indented a step, while the branches you did
 not take stay on the page greyed. There is no camera — nothing can be panned
@@ -717,6 +719,29 @@ Things worth knowing before changing it:
   would be behind "+N" — a leaf in a big group, otherwise, vanished at the moment
   it was the answer to "where was I?". Reduced motion has no transitions at all
   (`transition: none`; a 1ms one was not finished on a busy runner).
+- **Orbit is the front door.** A visitor with no stored `tol-shell-view` lands in
+  it, the rail lists it first, and `<body data-view="orbit">` is in the markup so
+  the first frame is the right view. A stored choice of Explore or the map is
+  honoured; `?view=` still wins for a visit and is not written back.
+  `orbit:the-front-door-is-orbit-and-choices-are-kept` loads a first visit, a
+  stored Explore and a stored map and asserts all three.
+- **Swipe, keys, and a hint.** Swipe up is Up (dragging a page up brings the next
+  ring to the top), swipe down is Back. A drag must be ≥64px, mostly vertical and
+  start anywhere but the strip, the action row and the ring labels; a drag that
+  counts swallows the click right behind it (80ms) so a swipe that began on a
+  bubble never also presses it, and the picture follows the finger a little and
+  eases back. Keys: ↑ up, ↓ back, ← → the neighbours (the parent's other
+  children, wrapping; mirrored in Hebrew), Home the start — and nothing while
+  typing, with a panel or game open, or in a tour. A first visit sees one hint for
+  seven seconds (`tol-orbit-hint`), in the reader's language, with
+  `pointer-events: none` so it cannot sit over a tap.
+- **The phone probe sends a finger, not a mouse.** A held mouse button in a
+  mobile-emulated page took this sandbox's Chromium down entirely — page, context
+  and browser — and the run then hung rather than failed. It reproduced on the
+  code from before the gestures, so it is the emulation and not the handler; a
+  finger (`Input.dispatchTouchEvent`) is what a phone has anyway. If a phone
+  probe hangs with "unsettled top-level await", suspect the browser dying and
+  trace the phases with `SMOKE_TRACE=1`.
 - **One row at the foot.** The way back, *Surprise me*, and Home share one row
   that the layout reserves; on a phone Home is an icon and only the newest
   trail entry shows. The legend sits under it and `orbit:nothing-overlaps-on-the-page`

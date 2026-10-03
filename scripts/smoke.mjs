@@ -887,6 +887,46 @@ check('orbit:rings-are-labelled-and-tappable', 'Each ring names its ancestor and
   if (s.afterRing.focus !== s.ringTarget) fail(`pressing the "${s.ringTarget}" ring label centred "${s.afterRing.focus}"`);
 });
 
+check('orbit:a-swipe-goes-up-or-back-and-never-also-presses', 'Swipe up is Up, swipe down is Back; a drag that starts on a bubble does not press it; short or sideways drags are not swipes', (c) => {
+  const g = orbitOf(c).gest;
+  if (g.afterSwipeUp.focus !== g.parentOfStart) fail(`a swipe up from "h_sapiens" landed on "${g.afterSwipeUp.focus}", not its parent "${g.parentOfStart}" (it began on "${g.rel}")`);
+  if (g.afterSwipeDown.focus !== 'h_sapiens') fail(`a swipe down (Back) landed on "${g.afterSwipeDown.focus}", not where the reader was`);
+  if (g.afterNonSwipes.focus !== g.beforeNonSwipes.focus) fail(`a short or sideways drag moved the focus from "${g.beforeNonSwipes.focus}" to "${g.afterNonSwipes.focus}"`);
+  if (g.stageTransform) fail(`the picture was left displaced (${g.stageTransform}) after a drag`);
+  if (g.tap.after.focus !== g.tap.target) fail(`a plain tap on "${g.tap.target}" centred "${g.tap.after.focus}" — a swipe's click guard must not eat taps`);
+});
+
+check('orbit:keys-move-between-levels-and-neighbours', 'Arrow keys go up, back and to neighbours, Home starts again; typing or an open panel keeps them still', (c) => {
+  const g = orbitOf(c).gest;
+  if (g.afterArrowUp.focus !== g.keyParent) fail(`↑ from platypus landed on "${g.afterArrowUp.focus}", not its parent "${g.keyParent}"`);
+  if (g.afterArrowDown.focus !== 'platypus') fail(`↓ (Back) landed on "${g.afterArrowDown.focus}"`);
+  if (g.afterRight.focus === 'platypus') fail('→ did not move to a neighbour');
+  if (g.afterLeft.focus !== 'platypus') fail(`← after → landed on "${g.afterLeft.focus}", not back on platypus`);
+  if (g.afterHome.focus !== 'h_sapiens') fail(`Home landed on "${g.afterHome.focus}"`);
+  if (g.typing.focus !== 'platypus') fail(`↑ typed into the search box moved the picture to "${g.typing.focus}"`);
+  if (g.withPanel.focus !== 'platypus') fail(`↑ with the species panel open moved the picture to "${g.withPanel.focus}"`);
+});
+
+check('orbit:the-front-door-is-orbit-and-choices-are-kept', 'A visitor with no stored choice lands in Orbit; someone who chose Explore or the map keeps it', (c) => {
+  const d = orbitOf(c).door;
+  const f = d.fresh;
+  if (f.view !== 'orbit') fail(`a first visit landed in "${f.view}"`);
+  if (!f.orbitVisible || f.exploreVisible) fail('a first visit shows the wrong view on screen');
+  if (f.active !== 'orbit' || f.first !== 'orbit') fail(`the rail marks "${f.active}" active and lists "${f.first}" first`);
+  if (f.bubbles < 8) fail(`a first visit drew ${f.bubbles} bubbles`);
+  if (d.returningExplore.view !== 'explore') fail(`a returning Explore reader landed in "${d.returningExplore.view}"`);
+  if (d.returningMap.view !== 'map') fail(`a returning map reader landed in "${d.returningMap.view}"`);
+});
+
+check('orbit:the-hint-is-said-once-and-cannot-be-pressed', 'A first visit shows a short hint in the reader\'s language; it takes no taps, goes at the first gesture and is not said again', (c) => {
+  const d = orbitOf(c).door;
+  if (!d.fresh.hint) fail('no hint on a first visit');
+  if (d.fresh.hint.text !== d.hintWant) fail(`the hint reads "${d.fresh.hint.text}", not "${d.hintWant}"`);
+  if (d.fresh.hint.events !== 'none') fail(`the hint has pointer-events:${d.fresh.hint.events} and would sit over a bubble`);
+  if (d.hintAfterKey) fail('the hint stayed after the first gesture');
+  if (d.hintAgain) fail('the hint came back on the next visit');
+});
+
 check('orbit:survives-a-view-switch-and-a-language-switch', 'Leaving for the drill-down and coming back is not an empty page; a language switched while looking is redrawn', (c) => {
   const o = orbitOf(c), w = o.switch;
   if (w.toExplore.view !== 'explore') fail(`the Explore button landed in "${w.toExplore.view}"`);
@@ -2263,6 +2303,13 @@ async function nameProbe(page, scenario, baseUrl) {
      the story    a press moves the focus, Back undoes it, Home returns, and the
                   rail's Explore and Orbit buttons take the reader away and back
                   without leaving the picture empty (constraint 11). */
+/* A probe whose browser dies never settles, and the run then hangs until the CI
+   job's own limit instead of failing. Orbit's takes about a minute. */
+const withinMs = (promise, ms, what) => Promise.race([
+  promise,
+  new Promise((resolve) => setTimeout(() => resolve({ error: `${what} did not finish in ${Math.round(ms / 1000)}s — the page or the browser stopped answering` }), ms)),
+]);
+
 async function orbitProbe(page, scenario, baseUrl) {
   const browser = page.context().browser();
   const vp = scenario.viewport;
@@ -2270,7 +2317,7 @@ async function orbitProbe(page, scenario, baseUrl) {
   const out = {};
   const ctx = await browser.newContext({
     viewport: { width: vp.width, height: vp.height },
-    isMobile: vp.isMobile, hasTouch: vp.hasTouch,
+    isMobile: vp.isMobile, hasTouch: true,        // see the note on `drag`: a finger, in every scenario
     deviceScaleFactor: vp.deviceScaleFactor || 1,
     reducedMotion: 'reduce',
     locale: lang === 'he' ? 'he-IL' : lang === 'ru' ? 'ru-RU' : 'en-US',
@@ -2286,7 +2333,9 @@ async function orbitProbe(page, scenario, baseUrl) {
   const errors = [];
   p.on('pageerror', (e) => errors.push(String(e && e.message ? e.message : e)));
   const frames = () => p.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(() => setTimeout(r, 60)))));
+  const TR = (m) => { if (process.env.SMOKE_TRACE) console.error('[orbit]', scenario.id, m); };
   try {
+    TR('start');
     await p.goto(baseUrl + '/atlas.html?view=orbit', { waitUntil: 'domcontentloaded' });
     await p.waitForSelector('#orbit .orb-b.focus', { timeout: 15000 });
     await frames();
@@ -2304,6 +2353,7 @@ async function orbitProbe(page, scenario, baseUrl) {
       };
     });
 
+    TR('sweep');
     // ── the layout, every node as the focus ──
     out.sweep = await p.evaluate(async () => {
       const { layoutOrbit } = await import(new URL('js/orbit.js', location.href).href);
@@ -2335,6 +2385,7 @@ async function orbitProbe(page, scenario, baseUrl) {
         sample: [...bad.outside, ...bad.overlap, ...bad.missing, ...bad.stranded].slice(0, 6) };
     });
 
+    TR('dom');
     // ── the page, a handful of foci painted for real ──
     const SAMPLE = ['h_sapiens', 'luca', 'bacteria', 'fungi', 'platypus', 'insects', 'mammals', 'plants'];
     out.dom = [];
@@ -2429,6 +2480,7 @@ async function orbitProbe(page, scenario, baseUrl) {
       }
     }
 
+    TR('words');
     // ── words: translated groups, no Latin chrome in Hebrew, the time on every chip ──
     out.words = await p.evaluate(async (lang) => {
       const { orbitFocus } = await import(new URL('js/orbit.js', location.href).href);
@@ -2468,6 +2520,7 @@ async function orbitProbe(page, scenario, baseUrl) {
     await p.evaluate(installContrastSweep);
     out.contrast = await p.evaluate(() => ({ theme: document.documentElement.getAttribute('data-theme') || 'dark', hits: window.__contrastSweep(document.getElementById('orbit')) }));
 
+    TR('story');
     // ── the story: press, Back, Home ──
     out.story = {};
     await p.evaluate(async () => {
@@ -2504,6 +2557,7 @@ async function orbitProbe(page, scenario, baseUrl) {
     await frames();
     out.story.panelClosedByBack = await p.evaluate(() => !document.getElementById('panel')?.classList.contains('open'));
 
+    TR('levels');
     // ── levels: glide, Up versus Back, the lineage strip, the rings' labels ──
     const hop = async (id) => { await p.evaluate(async (id) => { const { orbitFocus } = await import(new URL('js/orbit.js', location.href).href); orbitFocus(id); }, id); await frames(); };
     await hop('h_sapiens');
@@ -2536,6 +2590,115 @@ async function orbitProbe(page, scenario, baseUrl) {
     if (ringTarget) { await p.click(`#orbit .orb-ring[data-arg="${ringTarget}"]`, { timeout: 5000 }); await frames(); }
     out.story.afterRing = await read();
 
+    TR('gestures');
+    // ── gestures and keys ──
+    const box = async (sel) => p.evaluate((sel) => { const r = document.querySelector(sel)?.getBoundingClientRect(); return r && { x: r.left + r.width / 2, y: r.top + r.height / 2 }; }, sel);
+    /* The gesture is a finger, sent as touch events through the protocol, in every
+       scenario. A held *mouse* button over a bubble took this sandbox's Chromium
+       down entirely — the page, the context and the browser — in a mobile-emulated
+       page every time and in a desktop one now and then, and the gesture code is
+       Pointer Events either way. The touch-capable context is the probe's own. */
+    const cdp = await ctx.newCDPSession(p);
+    const drag = async (from, dx, dy) => {
+      if (cdp) {
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: from.x, y: from.y }] });
+        for (let i = 1; i <= 8; i++) await cdp.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: from.x + dx * i / 8, y: from.y + dy * i / 8 }] });
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+        // a protocol drag is instant, so Chromium treats the next touch as stopping a fling and drops its click
+        await p.waitForTimeout(500);
+      } else {
+        await p.mouse.move(from.x, from.y); await p.mouse.down();
+        for (let i = 1; i <= 8; i++) await p.mouse.move(from.x + dx * i / 8, from.y + dy * i / 8);
+        await p.mouse.up();
+      }
+      await frames();
+    };
+    out.gest = {};
+    await hop('h_sapiens');
+    TR('g1');
+    // a swipe up that starts on a bubble goes up a level and does not also press that bubble
+    const rel = await p.evaluate(() => document.querySelector('#orbit .orb-b.rel')?.dataset.arg);
+    const relBox = await box(`#orbit .orb-b[data-arg="${rel}"] .orb-face`);
+    out.gest.rel = rel;
+    await drag(relBox, 0, -110);
+    TR('g2');
+    out.gest.afterSwipeUp = await read();
+    TR('g3');
+    out.gest.parentOfStart = await p.evaluate(async () => { const m = await import(new URL('js/orbit.js', location.href).href); const pp = m.orbitPath(); return pp[pp.length - 1]; });
+    // swipe down is Back: to where the reader was
+    const downBox = await box('#orbit .orb-b.focus .orb-face');
+    await drag({ x: downBox.x, y: downBox.y + 60 }, 0, 110);
+    TR('g4');
+    out.gest.afterSwipeDown = await read();
+    TR('g5');
+    // a short drag, or a mostly sideways one, is not a swipe
+    const beforeDrags = await read();
+    await drag({ x: downBox.x, y: downBox.y + 160 }, 0, -30);
+    TR('g6');
+    await drag({ x: downBox.x - 60, y: downBox.y + 160 }, 150, -100);
+    TR('g7');
+    out.gest.afterNonSwipes = await read();
+    TR('g8');
+    out.gest.beforeNonSwipes = beforeDrags;
+    // the stage is not left displaced
+    out.gest.stageTransform = await p.evaluate(() => document.querySelector('#orbit .orb-stage').style.transform);
+    // a plain tap still presses
+    await hop('h_sapiens');
+    TR('g9');
+    const tapTarget = await p.evaluate(() => document.querySelector('#orbit .orb-b.rel')?.dataset.arg);
+    const tb = await box(`#orbit .orb-b[data-arg="${tapTarget}"] .orb-face`);
+    await p.touchscreen.tap(tb.x, tb.y);
+    await frames();
+    TR('g10');
+    out.gest.tap = { target: tapTarget, after: await read() };
+
+    TR('keys');
+    const press = async (k) => { await p.keyboard.press(k); await frames(); };
+    await hop('h_sapiens'); await hop('platypus');
+    TR('g11');
+    await p.evaluate(() => document.activeElement?.blur?.());
+    const parent = await p.evaluate(async () => { const m = await import(new URL('js/orbit.js', location.href).href); const pp = m.orbitPath(); return pp[pp.length - 2]; });
+    out.gest.keyParent = parent;
+    await press('ArrowUp');
+    TR('g12');
+    out.gest.afterArrowUp = await read();
+    TR('g13');
+    await press('ArrowDown');
+    TR('g14');
+    out.gest.afterArrowDown = await read();
+    TR('g15');
+    await hop('platypus');
+    TR('g16');
+    const sib = await p.evaluate(async () => { const m = await import(new URL('js/orbit.js', location.href).href); const pp = m.orbitPath(); return pp.length; });
+    await press('ArrowRight');
+    TR('g17');
+    out.gest.afterRight = await read();
+    TR('g18');
+    await press('ArrowLeft');
+    TR('g19');
+    out.gest.afterLeft = await read();
+    TR('g20');
+    await press('Home');
+    TR('g21');
+    out.gest.afterHome = await read();
+    TR('g22');
+    // keys do nothing while the reader is typing, or while something is open over the picture
+    await hop('platypus');
+    TR('g23');
+    await p.focus('#search-input').catch(() => {});
+    TR('g24');
+    await p.keyboard.press('ArrowUp'); await frames();
+    out.gest.typing = await read();
+    TR('g25');
+    await p.evaluate(() => document.activeElement?.blur?.());
+    await p.evaluate(async () => { const m = await import(new URL('js/orbit.js', location.href).href); m.orbitFocus('platypus'); document.getElementById('panel')?.classList.add('open'); });
+    await frames();
+    await p.keyboard.press('ArrowUp'); await frames();
+    out.gest.withPanel = await read();
+    TR('g26');
+    await p.evaluate(() => document.getElementById('panel')?.classList.remove('open'));
+
+    TR('switch');
     // ── the way out and back in, and a language switched while looking ──
     await p.evaluate(() => document.querySelector('#view-toggle [data-view="explore"]').click());
     await frames();
@@ -2564,6 +2727,7 @@ async function orbitProbe(page, scenario, baseUrl) {
     }));
     out.switch.before = before; out.switch.other = other;
 
+    TR('share');
     // ── a shared link names the view and the node, and following it lands there ──
     await p.evaluate(async () => { const { orbitFocus } = await import(new URL('js/orbit.js', location.href).href); orbitFocus('platypus'); });
     await frames();
@@ -2583,6 +2747,55 @@ async function orbitProbe(page, scenario, baseUrl) {
       stored: localStorage.getItem('tol-shell-view'),
     }));
     await q.close();
+
+    TR('door');
+    // ── the one-time hint, and what a visitor with no stored choice lands in ──
+    const door = async (seed, query = '') => {
+      const c2 = await browser.newContext({
+        viewport: { width: vp.width, height: vp.height }, isMobile: vp.isMobile, hasTouch: vp.hasTouch,
+        deviceScaleFactor: vp.deviceScaleFactor || 1, reducedMotion: 'reduce',
+        locale: lang === 'he' ? 'he-IL' : lang === 'ru' ? 'ru-RU' : 'en-US',
+      });
+      await c2.addInitScript((cfg) => {
+        localStorage.setItem('tol-lang', cfg.lang); localStorage.setItem('theme', cfg.theme);
+        localStorage.setItem('tol-tour-done', '1'); localStorage.setItem('tol-splash-seen', '1');
+        if (cfg.seed && !sessionStorage.getItem('seeded')) { localStorage.setItem('tol-shell-view', cfg.seed); sessionStorage.setItem('seeded', '1'); }
+      }, { lang, theme: scenario.theme || 'dark', seed });
+      const d = await c2.newPage();
+      d.on('pageerror', (e) => errors.push(String(e && e.message ? e.message : e)));
+      await d.goto(baseUrl + '/atlas.html' + query, { waitUntil: 'domcontentloaded' });
+      await d.waitForTimeout(2500);
+      const r = await d.evaluate(() => ({
+        view: document.body.getAttribute('data-view'),
+        active: document.querySelector('#view-toggle .view-btn.active')?.dataset.view,
+        first: document.querySelector('#view-toggle .view-btn')?.dataset.view,
+        bubbles: document.querySelectorAll('#orbit .orb-b').length,
+        orbitVisible: getComputedStyle(document.getElementById('orbit')).display !== 'none',
+        exploreVisible: getComputedStyle(document.getElementById('explore')).display !== 'none',
+        hint: (() => { const h = document.querySelector('#orbit .orb-hint'); return h && { text: h.textContent.trim(), events: getComputedStyle(h).pointerEvents }; })(),
+        stored: localStorage.getItem('tol-shell-view'),
+      }));
+      return { c2, d, r };
+    };
+    out.door = {};
+    {
+      const a = await door(null);
+      out.door.fresh = a.r;
+      out.door.hintWant = await a.d.evaluate(async () => {
+        const T = (await import(new URL('js/uiData.js', location.href).href)).TRANSLATIONS[document.documentElement.lang];
+        return matchMedia('(pointer: coarse)').matches ? T.orbit_hint_touch : T.orbit_hint_keys;
+      });
+      // the first gesture takes it away, and it is not said again on the next visit
+      await a.d.keyboard.press('ArrowUp'); await a.d.waitForTimeout(300);
+      out.door.hintAfterKey = await a.d.evaluate(() => !!document.querySelector('#orbit .orb-hint'));
+      await a.d.reload({ waitUntil: 'domcontentloaded' }); await a.d.waitForTimeout(2000);
+      out.door.hintAgain = await a.d.evaluate(() => !!document.querySelector('#orbit .orb-hint'));
+      await a.c2.close();
+      const b = await door('explore');
+      out.door.returningExplore = b.r; await b.c2.close();
+      const m = await door('map');
+      out.door.returningMap = m.r; await m.c2.close();
+    }
   } catch (e) {
     out.error = String(e && e.message ? e.message : e);
   }
@@ -3906,7 +4119,7 @@ async function probePage(page, scenario, baseUrl) {
   const opening = await openingProbe(page, scenario, baseUrl).catch((e) => ({ error: String(e) }));
   // and so does the name, in contexts of its own
   const name = await nameProbe(page, scenario, baseUrl).catch((e) => ({ error: String(e) }));
-  const orbit = await orbitProbe(page, scenario, baseUrl).catch((e) => ({ error: String(e) }));
+  const orbit = await withinMs(orbitProbe(page, scenario, baseUrl), 240000, 'the Orbit pass').catch((e) => ({ error: String(e) }));
 
   return { ...base, ...forced, tooltipShown, tooltipCoversNode, tipFact, zoomWorks, afterReset, parentExpands, panelOpened, panelProse, heroOverlaps, heroPhoto, photoHostReachable: await wikimediaReachable(), contrast, searchQuality,
            searchResults, afterExpandAll, toastBox, panelOpenBox, cameraSettles, cspViolations, explore, wayfinder, sharedLink, afterLoad, opening, name, orbit };
@@ -4256,7 +4469,7 @@ async function runScenario(browser, scenario, baseUrl) {
     : PROFILE_ONLY
       ? { name: await nameProbe(page, scenario, baseUrl).catch((e) => ({ error: String(e) })) }
       : ORBIT_ONLY
-        ? { orbit: await orbitProbe(page, scenario, baseUrl).catch((e) => ({ error: String(e) })) }
+        ? { orbit: await withinMs(orbitProbe(page, scenario, baseUrl), 240000, 'the Orbit pass').catch((e) => ({ error: String(e) })) }
         : await probePage(page, scenario, baseUrl);
   const c = { probe, scenario, pageErrors, consoleErrors, failedRequests, dialogs, page };
 

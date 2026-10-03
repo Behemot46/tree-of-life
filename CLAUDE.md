@@ -1215,6 +1215,12 @@ dropped before charismatic animals are.
 3. Add the element to `I18N_BINDINGS` in `scripts/smoke.mjs` so the smoke
    suite fails if it ever stops being translated.
 
+`t(key)` already falls back to English and then to the key itself, so a key written in
+no language shows as its own name (an iPhone once drew `orbit_compare_stop` on a button).
+`tests/translations.test.mjs` (`npm test`) reads the source for every `t('…')` and
+`data-i18n` key and fails when one is missing from any language — including a key chosen
+by `t(cond ? 'a' : 'b')`, but not one built from a template string.
+
 ### Adding a Language
 
 `setLang()` currently treats Hebrew as the only RTL language. To add another

@@ -430,8 +430,13 @@ Things worth knowing before changing it:
   a link to a species showing no opening (in a context of its own: once one
   entrance has played it, every later load in the tab is skipped anyway), the
   way between the two apps both ways, and Credits going back to whichever
-  opened it. Seeded records are written once, because an init script runs
-  again on every navigation. `--only front-door,offline` runs just those
+  opened it. A **fresh** sweep holds the service-worker rule above: it visits the Atlas
+  until the worker has cached its modules, then "deploys" by having a proxy in front of
+  `serve.js` append one export to `js/uiData.js`, and asks the module the page *loaded*
+  whether it has it (`play:a-returning-visitor-gets-the-new-code-on-the-next-visit`; red
+  against the pre-#224 worker, green now; skipped with `--url`). Seeded records are
+  written once, because an init script runs
+  again on every navigation. `--only front-door,offline,fresh` runs just those
   sweeps; against a deployed site (`--url`) the offline sweep is skipped, since
   it needs a server it can stop, and `verify-deployment.yml` runs the rest.
   Screenshots in `.play-out/`. It also draws **every** question's reveal

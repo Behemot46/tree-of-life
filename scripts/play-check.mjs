@@ -26,6 +26,7 @@
 
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
+import http from 'node:http';
 import { mkdir } from 'node:fs/promises';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -38,7 +39,7 @@ const OUT = path.join(ROOT, '.play-out');
 const argv = process.argv.slice(2);
 const EXTERNAL_URL = argv.includes('--url') ? argv[argv.indexOf('--url') + 1] : null;
 /* --only phone-ru,desktop-en,offline: just those scenarios or sweeps (front-door,
-   offline, counting, every-reveal, emoji). It exists to prove a new check can fail
+   offline, fresh, counting, every-reveal, emoji). It exists to prove a new check can fail
    (break the code, watch it go red, put the code back); a filtered run is
    never a green branch. */
 const ONLY = argv.includes('--only') ? argv[argv.indexOf('--only') + 1].split(',') : null;
@@ -1051,6 +1052,74 @@ async function checkFrontDoor(browser, base) {
 }
 
 /** Counting is off unless the page turns it on, and what it sends names no one. */
+/* ── A deploy reaches a returning visitor whole ────────────────────────────
+ * The service worker caches the Atlas's modules one file at a time. Served
+ * "cached, refreshed behind", a returning visitor got a mixture after every
+ * deploy — an iPhone home-screen app ran a new orbit.js against the previous
+ * uiData.js and drew the key `orbit_compare_stop` on a button. Code is now
+ * network-first, and this holds it there: visit the Atlas until the worker has
+ * cached everything, "deploy" (the page's own server starts adding one export to
+ * js/uiData.js, through a proxy, so no file on disk changes), and ask the module
+ * the page *loaded* — not the file on the network — whether it carries it.
+ * Against the previous worker this answers false. Skipped against a deployed
+ * site, which cannot be edited from here. */
+async function checkFresh(browser) {
+  process.stdout.write('\n▸ fresh\n');
+  const R = (id, ok, msg) => record('fresh', `play:${id}`, ok, msg);
+  if (EXTERNAL_URL) { process.stdout.write('  (skipped: a deployed site cannot be edited from here)\n'); return; }
+  const port = Number(process.env.PLAY_PORT || 5598) + 2;
+  const backPort = port + 1;
+  const back = spawn(process.execPath, [path.join(ROOT, 'serve.js')], { env: { ...process.env, PORT: String(backPort) }, stdio: 'ignore' });
+  let deployed = false;
+  const front = http.createServer((req, res) => {
+    const up = http.request({ host: '127.0.0.1', port: backPort, path: req.url, method: req.method, headers: req.headers }, (r) => {
+      const chunks = [];
+      r.on('data', (c) => chunks.push(c));
+      r.on('end', () => {
+        let body = Buffer.concat(chunks);
+        const headers = { ...r.headers };
+        if (deployed && req.url.split('?')[0] === '/js/uiData.js') {
+          body = Buffer.concat([body, Buffer.from('\nexport const SW_PROBE = 1;\n')]);
+          delete headers['content-length']; delete headers.etag;
+        }
+        res.writeHead(r.statusCode, headers);
+        res.end(body);
+      });
+    });
+    up.on('error', () => { res.writeHead(502); res.end(); });
+    req.pipe(up);
+  });
+  let context = null;
+  try {
+    await new Promise((resolve) => front.listen(port, '127.0.0.1', resolve));
+    const base = `http://127.0.0.1:${port}`;
+    for (let i = 0; i < 60; i++) { try { if ((await fetch(`${base}/`)).ok) break; } catch { /* not yet */ } await new Promise((r) => setTimeout(r, 250)); }
+    context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, serviceWorkers: 'allow' });
+    const page = await context.newPage();
+    page.setDefaultTimeout(10000);
+    await page.goto(`${base}/`, { waitUntil: 'domcontentloaded' });
+    const ready = await attempt(() => page.evaluate(() => navigator.serviceWorker.ready.then((r) => { if (!r.active) throw new Error('no active worker'); })));
+    R('fresh-worker-is-active', ready.ok, ready.why);
+    if (!ready.ok) return;
+    for (let i = 0; i < 3; i++) {
+      await page.goto(`${base}/atlas.html?view=orbit`, { waitUntil: 'domcontentloaded' });
+      await page.waitForSelector('.orb-b');
+      await page.waitForTimeout(800);
+    }
+    const cached = await page.evaluate(async () => { for (const k of await caches.keys()) if (await (await caches.open(k)).match('/js/uiData.js')) return true; return false; });
+    R('the-worker-holds-the-atlas-modules', cached, 'js/uiData.js was never cached, so the freshness check below would prove nothing');
+    deployed = true;
+    await page.goto(`${base}/atlas.html?view=orbit`, { waitUntil: 'domcontentloaded' });
+    await page.waitForSelector('.orb-b');
+    const fresh = await page.evaluate(async () => (await import('/js/uiData.js')).SW_PROBE === 1);
+    R('a-returning-visitor-gets-the-new-code-on-the-next-visit', fresh, 'the Atlas ran the previous js/uiData.js after a deploy: its modules are being served from the cache and refreshed behind');
+  } finally {
+    front.close();
+    back.kill();
+    if (context) await context.close();
+  }
+}
+
 async function checkCounting(browser, base) {
   process.stdout.write('\n▸ counting\n');
   const R = (id, ok, msg) => record('counting', `play:${id}`, ok, msg);
@@ -1234,6 +1303,10 @@ try {
   if (wants('offline')) {
     try { await checkOffline(browser, server.url); }
     catch (e) { record('offline', 'play:offline-complete', false, String(e.message || e).split('\n')[0]); }
+  }
+  if (wants('fresh')) {
+    try { await checkFresh(browser); }
+    catch (e) { record('fresh', 'play:fresh-complete', false, String(e.message || e).split('\n')[0]); }
   }
   if (wants('counting')) {
     try { await checkCounting(browser, server.url); }

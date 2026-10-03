@@ -461,6 +461,7 @@ export function renderOrbit(first = false) {
     el.removeAttribute('data-action');            // leaving: not a target while it fades
     setTimeout(() => el.remove(), still ? 0 : 420);
   }
+  if (first) showHint(host);
   const chromeEl = host.querySelector('.orb-chrome');
   chromeEl.innerHTML = chrome(L);
   /* The path can be longer than the strip; keep the place you are in view. */
@@ -501,6 +502,17 @@ export function orbitParent() {
   return orbitFocus(p);
 }
 
+/* The neighbours of the centre: the other children of its parent, in tree order,
+   wrapping. Sideways, where Up and Back are vertical. */
+export function orbitSibling(dir) {
+  const p = _focus && parentOf(_focus);
+  if (!p) return false;
+  const sibs = kids(p);
+  if (sibs.length < 2) return false;
+  const i = sibs.indexOf(_focus);
+  return orbitFocus(sibs[(i + dir + sibs.length) % sibs.length]);
+}
+
 export function orbitHome() {
   const home = startNode();
   if (_focus === home) return false;
@@ -530,12 +542,116 @@ function press(key) {
   orbitFocus(n);
 }
 
+/* ── Gestures ──────────────────────────────────────────────────────────────
+   Swipe up pulls the next ring to the top — the parent, as dragging a page up
+   brings what is below it into view. Swipe down is Back, the way you came. A
+   drag must be long, mostly vertical and mostly decisive to count; anything
+   shorter is a tap, and a drag that does count swallows the click that follows,
+   so a swipe that starts on a bubble never also presses it. While the finger is
+   down the picture follows it a little and eases back, so the gesture answers
+   before it is finished. Keys do the same on a desktop: ↑ up, ↓ back, ← → the
+   neighbours, Home the start. */
+const SWIPE = { min: 64, ratio: 1.6 };
+let _swallow = 0;
+
+function initGestures(host) {
+  let g = null;
+  const stage = () => host.querySelector('.orb-stage');
+  host.addEventListener('pointerdown', (e) => {
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (e.target.closest('.orb-strip, .orb-actions, .orb-ring')) { g = null; return; }
+    g = { id: e.pointerId, x: e.clientX, y: e.clientY, live: false };
+  });
+  host.addEventListener('pointermove', (e) => {
+    if (!g || e.pointerId !== g.id) return;
+    const dx = e.clientX - g.x, dy = e.clientY - g.y;
+    if (!g.live && Math.hypot(dx, dy) > 12 && Math.abs(dy) > Math.abs(dx)) {
+      g.live = true;
+      try { host.setPointerCapture(e.pointerId); } catch (err) { /* a synthetic pointer */ }
+    }
+    if (g.live && !reducedMotion()) {
+      const st = stage();
+      if (st) { st.style.transition = 'none'; st.style.transform = `translateY(${Math.max(-40, Math.min(40, dy * 0.25))}px)`; }
+    }
+  });
+  const end = (e, cancelled) => {
+    if (!g || e.pointerId !== g.id) return;
+    const dx = e.clientX - g.x, dy = e.clientY - g.y, was = g;
+    g = null;
+    const st = stage();
+    if (st) { st.style.transition = ''; st.style.transform = ''; }
+    if (cancelled || !was.live) return;
+    if (Math.abs(dy) >= SWIPE.min && Math.abs(dy) >= SWIPE.ratio * Math.abs(dx)) {
+      _swallow = Date.now();
+      dismissHint();
+      if (dy < 0) orbitParent(); else orbitUp();
+    } else {
+      _swallow = Date.now();                       // a drag that went nowhere is still not a press
+    }
+  };
+  host.addEventListener('pointerup', (e) => end(e, false));
+  host.addEventListener('pointercancel', (e) => end(e, true));
+  // the click that follows a drag belongs to the drag (it arrives straight after the pointerup)
+  host.addEventListener('click', (e) => {
+    if (Date.now() - _swallow < 80) { e.stopPropagation(); e.preventDefault(); _swallow = 0; }
+  }, true);
+}
+
+const OVERLAYS = ['panel', 'game-panel', 'profile-panel', 'species-compare-panel', 'hominin-view'];
+function keysApply(e) {
+  if (document.body.getAttribute('data-view') !== 'orbit') return false;
+  if (e.defaultPrevented || e.ctrlKey || e.metaKey || e.altKey) return false;
+  const t = e.target;
+  if (t && (t.closest?.('input, textarea, select, [contenteditable="true"]'))) return false;
+  if (OVERLAYS.some((id) => document.getElementById(id)?.classList.contains('open'))) return false;
+  if (document.querySelector('.tour-overlay, .sapiens-overlay, .tour-selector-overlay, .compare-banner.visible')) return false;
+  if (document.getElementById('kbd-help')?.classList.contains('visible')) return false;
+  return true;
+}
+function initKeys() {
+  document.addEventListener('keydown', (e) => {
+    if (!keysApply(e)) return;
+    const rtl = document.documentElement.dir === 'rtl';
+    let did = false;
+    if (e.key === 'ArrowUp') did = orbitParent();
+    else if (e.key === 'ArrowDown') did = orbitUp();
+    else if (e.key === 'ArrowLeft') did = orbitSibling(rtl ? 1 : -1);
+    else if (e.key === 'ArrowRight') did = orbitSibling(rtl ? -1 : 1);
+    else if (e.key === 'Home') did = orbitHome();
+    else return;
+    if (did) { e.preventDefault(); dismissHint(); }
+  });
+}
+
+/* Said once, for a few seconds, and gone at the first gesture. It cannot be
+   pressed (pointer-events: none), so it is never in the way of a bubble. */
+let _hint = null, _hintTimer = 0;
+function dismissHint() {
+  clearTimeout(_hintTimer);
+  if (_hint) { _hint.parentElement?.classList.remove('has-hint'); _hint.remove(); _hint = null; }
+}
+function showHint(host) {
+  /* A rebuild of the view (a language switch, a reveal) wipes the host's markup
+     and the hint with it; put the same one back rather than forgetting it. */
+  if (_hint) { if (!_hint.isConnected) host.appendChild(_hint); host.classList.add('has-hint'); return; }
+  try { if (localStorage.getItem('tol-orbit-hint')) return; localStorage.setItem('tol-orbit-hint', '1'); } catch (e) { return; }
+  const coarse = matchMedia('(pointer: coarse)').matches;
+  _hint = document.createElement('p');
+  _hint.className = 'orb-hint';
+  _hint.textContent = t(coarse ? 'orbit_hint_touch' : 'orbit_hint_keys');
+  host.appendChild(_hint);
+  host.classList.add('has-hint');
+  _hintTimer = setTimeout(dismissHint, 7000);
+}
+
 export function initOrbit() {
   registerActions({
     'orbit:press': (key) => press(key),
     'orbit:go': (id) => orbitFocus(id, { back: true }),
     'orbit:to': (id) => orbitFocus(id),
     'orbit:parent': () => orbitParent(),
+    'orbit:next': () => orbitSibling(1),
+    'orbit:prev': () => orbitSibling(-1),
     'orbit:surprise': () => surprise(),
     'orbit:home': () => orbitHome(),
   });
@@ -544,6 +660,8 @@ export function initOrbit() {
     let raf = 0;
     new ResizeObserver(() => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => renderOrbit(true)); }).observe(host);
   }
+  if (host) initGestures(host);
+  initKeys();
   renderOrbit(true);
 }
 

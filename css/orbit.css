@@ -172,7 +172,12 @@ body[data-view="orbit"] #orbit { display: block; }
 }
 .orb-cmp:hover { border-color: var(--accent); }
 .orb-cmp.is-on { color: var(--bg); background: var(--accent); border-color: var(--accent); }
-.orb-why.is-sticky { animation: none; }
+.orb-cmp-line {
+  flex: 1; min-width: 0; margin: 0; padding: 2px 4px; font-size: 12px; line-height: 1.2; font-weight: 600; color: var(--text-primary);
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; align-self: center;
+}
+@media (max-width: 559px) { .orb-cmp-line { font-size: 10.5px; padding-inline: 2px; } }
+@media (max-width: 379px) { .orb-cmp-line { font-size: 9.5px; line-height: 1.15; } .orb-cmp { padding: 0 9px; font-size: 12px; } }
 .orb-sep { flex: none; color: var(--text-secondary); font-size: 14px; }
 [dir="rtl"] .orb-sep { display: inline-block; transform: scaleX(-1); }
 @media (max-width: 559px) { .orb-up-text { display: none; } .orb-up { width: 44px; padding: 0; justify-content: center; } }

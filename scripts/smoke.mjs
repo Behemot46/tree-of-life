@@ -889,7 +889,9 @@ check('orbit:compare-pins-one-creature-and-keeps-saying-how-it-relates', 'Compar
   const k = orbitOf(c).story.cmp;
   if (!k) fail('the compare steps never ran');
   if (k.before.on !== 'false') fail(`the button starts pressed (${k.before.on})`);
-  if (k.pinned.on !== 'true' || !k.pinned.sticky) fail('pinning did not press the button and raise a standing line');
+  if (k.pinned.on !== 'true' || !k.pinned.sticky) fail('pinning did not press the button and raise a line in the strip');
+  if (!k.pinned.inView || !k.moved.inView) fail('the comparison line is not wholly on screen');
+  if (k.moved.overflow) fail(`the comparison line is cut off: "${k.moved.text}"`);
   if (k.pinned.names.length !== 1) fail(`the pinned line should name one creature: "${k.pinned.text}"`);
   if (!k.moved.sticky || k.moved.names.length < 2) fail(`after a move the line should stay and name two creatures: "${k.moved.text}"`);
   if (k.moved.names[0] !== k.pinName) fail(`the line starts with "${k.moved.names[0]}", not the pinned "${k.pinName}"`);
@@ -2626,8 +2628,10 @@ async function orbitProbe(page, scenario, baseUrl) {
     // compare: pin the centre, press another creature; the line stays and names the pinned one
     await hop('h_sapiens');
     const cmpWhy = () => p.evaluate(() => {
-      const w = document.querySelector('#orbit .orb-why'), b = document.querySelector('#orbit .orb-cmp');
-      return { text: w ? w.textContent.trim() : null, sticky: !!w && w.classList.contains('is-sticky'), names: w ? [...w.querySelectorAll('bdi')].map((x) => x.textContent.trim()) : [], on: b && b.getAttribute('aria-pressed'), label: b && b.textContent.trim() };
+      const w = document.querySelector('#orbit .orb-cmp-line'), b = document.querySelector('#orbit .orb-cmp');
+      const r = w && w.getBoundingClientRect();
+      return { text: w ? w.textContent.trim() : null, sticky: !!w, names: w ? [...w.querySelectorAll('bdi')].map((x) => x.textContent.trim()) : [], on: b && b.getAttribute('aria-pressed'), label: b && b.textContent.trim(),
+        inView: !!r && r.width > 0 && r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth, overflow: !!w && w.scrollHeight > w.clientHeight + 1 };
     });
     out.story.cmp = { before: await cmpWhy() };
     await p.click('#orbit .orb-cmp', { timeout: 5000 }); await frames();

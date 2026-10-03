@@ -485,6 +485,7 @@ export function orbitFocus(nodeOrId, { back = false } = {}) {
   _from = _focus;
   _focus = n;
   renderOrbit();
+  if (_from) showWhy(root(), _from, n);
   return true;
 }
 
@@ -644,6 +645,56 @@ function showHint(host) {
   _hintTimer = setTimeout(dismissHint, 7000);
 }
 
+/* Why they sit where they do: the last ancestor two centres share, and when it
+   lived. Said for a few seconds after a move, in the legend's place, and gone at
+   the next move. When one is inside the other there is no meeting to date, only
+   the containment. Names are data (exempt, and direction by content); the words
+   around them come from the template. */
+let _why = null, _whyTimer = 0;
+export function whyOf(a, b) {
+  const pa = pathTo(a), pb = pathTo(b);
+  let i = 0;
+  while (i < pa.length && i < pb.length && pa[i] === pb[i]) i++;
+  const lca = pa[i - 1];
+  if (!lca) return null;
+  if (lca === a) return { kind: 'in', a, b };
+  if (lca === b) return { kind: 'in', a: b, b: a };
+  return { kind: 'met', a, b, lca };
+}
+function dismissWhy() {
+  clearTimeout(_whyTimer);
+  if (_why) { _why.parentElement?.classList.remove('has-why'); _why.remove(); _why = null; }
+}
+function fillWhy(el, tpl, vals) {
+  el.replaceChildren();
+  for (const part of tpl.split(/(\{\w+\})/)) {
+    const m = /^\{(\w+)\}$/.exec(part);
+    if (!m) { if (part) el.append(part); continue; }
+    const v = vals[m[1]];
+    if (typeof v === 'string') { el.append(v); continue; }
+    const sp = document.createElement('bdi');
+    sp.setAttribute('data-i18n-exempt', 'species-data');
+    sp.dir = 'auto';
+    sp.textContent = displayName(v);
+    el.append(sp);
+  }
+}
+function showWhy(host, a, b) {
+  if (!host) return;
+  const w = whyOf(a, b);
+  dismissWhy();
+  if (!w) return;
+  dismissHint();
+  _why = document.createElement('p');
+  _why.className = 'orb-why';
+  _why.setAttribute('role', 'status');
+  if (w.kind === 'in') fillWhy(_why, t('orbit_why_in'), { a: w.a, b: w.b });
+  else fillWhy(_why, t('orbit_why'), { a: w.a, b: w.b, age: chipAge(age(w.lca), state.currentLang), group: w.lca });
+  host.appendChild(_why);
+  host.classList.add('has-why');
+  _whyTimer = setTimeout(dismissWhy, 9000);
+}
+
 export function initOrbit() {
   registerActions({
     'orbit:press': (key) => press(key),
@@ -667,4 +718,4 @@ export function initOrbit() {
 
 /* A hidden view cannot measure itself (constraint 11), so the shell asks for a
    repaint when it is revealed, and on a language switch while it is showing. */
-export function refreshOrbit() { _built = false; _els.clear(); renderOrbit(true); }
+export function refreshOrbit() { dismissWhy(); _built = false; _els.clear(); renderOrbit(true); }

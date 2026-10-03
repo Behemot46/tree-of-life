@@ -742,6 +742,16 @@ Things worth knowing before changing it:
   finger (`Input.dispatchTouchEvent`) is what a phone has anyway. If a phone
   probe hangs with "unsettled top-level await", suspect the browser dying and
   trace the phases with `SMOKE_TRACE=1`.
+- **A move says why.** After every press, Up, Back or jump, a line stands in the
+  legend's place for nine seconds: "Homo sapiens · Homo habilis: last shared
+  ancestor 2.4 Ma ago (Genus Homo)" — the last ancestor the old and new centres
+  share (`whyOf`), dated with `chipAge`. When one is inside the other there is no
+  meeting, so it says containment instead. Names are `<bdi data-i18n-exempt>`
+  data; the words come from `orbit_why` / `orbit_why_in`, one template per
+  language with no inflection of the names (Hebrew and Russian wording
+  unreviewed). It is `pointer-events: none` and hides the legend while up, so it
+  never covers a tap; it replaces the one-time hint if both would show.
+  `orbit:a-move-says-why-they-are-where-they-are` (mutation-tested).
 - **One row at the foot.** The way back, *Surprise me*, and Home share one row
   that the layout reserves; on a phone Home is an icon and only the newest
   trail entry shows. The legend sits under it and `orbit:nothing-overlaps-on-the-page`

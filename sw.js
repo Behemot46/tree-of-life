@@ -4,7 +4,7 @@
 // is cached as it is used: the encyclopedia (atlas.html) after one visit, fonts
 // and Wikimedia photographs once seen.
 
-const CACHE_VERSION = 'tol-v13';
+const CACHE_VERSION = 'tol-v14';
 
 /* What Kin needs to open offline: the page, its stylesheet, the dispatcher and
    every module it imports. Not the encyclopedia — a visitor who came for the
@@ -109,7 +109,18 @@ self.addEventListener('fetch', (e) => {
     return;
   }
 
-  // App shell (same-origin) — cache-first with network update
+  // The encyclopedia's own code (pages, scripts, styles, JSON) — network-first.
+  // Its modules are cached one file at a time, so serving each from the cache
+  // while refreshing it behind the reader's back left a returning visitor with
+  // a mixture: a new orbit.js reading the previous uiData.js drew the raw key
+  // "orbit_compare_stop" on a button. The cache is only the offline fallback.
+  if (url.origin === self.location.origin && isCode(url.pathname, e.request)) {
+    e.respondWith(networkFirst(e.request, CACHE_VERSION, 4000));
+    return;
+  }
+
+  // Other same-origin files (icons, silhouettes, images) never change under a
+  // name — cache-first with a refresh behind it is right for them.
   if (url.origin === self.location.origin) {
     e.respondWith(staleWhileRevalidate(e.request, CACHE_VERSION));
     return;
@@ -118,6 +129,10 @@ self.addEventListener('fetch', (e) => {
   // Everything else — network with cache fallback
   e.respondWith(networkFirst(e.request, CACHE_VERSION, 5000));
 });
+
+function isCode(pathname, request) {
+  return request.mode === 'navigate' || /\.(?:js|css|html|json)$/.test(pathname) || pathname === '/';
+}
 
 function isKin(pathname) {
   return pathname === '/' || pathname === '/index.html' || pathname.startsWith('/js/kin/')

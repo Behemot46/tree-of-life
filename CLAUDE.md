@@ -361,10 +361,13 @@ Things worth knowing before changing it:
   in one day, and no question again within 45 days. When a day cannot be
   filled, the rules give way one at a time (a Sunday's theme first), but a
   question never returns within a week.
-- **The service worker fetches Kin network-first.** `sw.js` serves the rest of
-  the site stale-while-revalidate; for Kin that would hand a returning player
-  the previous build — and so a different daily puzzle from everyone else's —
-  once after every deploy. The bullets below say the rest of what it does.
+- **The service worker fetches all code network-first.** Kin first, because a stale
+  copy would hand a returning player a different daily puzzle from everyone else's;
+  then the Atlas's pages, scripts, styles and JSON too, after an iPhone home-screen app
+  ran a new `orbit.js` against the previous `uiData.js` (modules are cached one file at
+  a time, so "serve cached, refresh behind" mixes versions) and drew the raw key
+  `orbit_compare_stop` on a button. Only images, icons and silhouettes stay
+  stale-while-revalidate. Bump `CACHE_VERSION` to drop everyone's old copies. The bullets below say the rest of what it does.
 - **The home screen is offered, not pushed.** `installOffer` in `install.js`
   decides, and only Home draws it: never to a first-time visitor (two finished
   Kins first), never mid-game or on a result, never inside the installed app,

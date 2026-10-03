@@ -874,6 +874,17 @@ check('orbit:a-press-travels-rather-than-replaces', 'The pressed bubble is the s
   if (!s.leftGlided) fail('going up replaced the old centre instead of gliding it out to its ring');
 });
 
+check('orbit:a-move-says-why-they-are-where-they-are', 'After a press, one line names both creatures and where their lineages met; it takes no taps and stands in for the legend', (c) => {
+  const w = orbitOf(c).story.why;
+  if (!w) fail('pressing a bubble raised no explanation');
+  if (w.names.length < 2) fail(`the line names ${w.names.length} creature(s): "${w.text}"`);
+  if (/[{}]/.test(w.text)) fail(`an unfilled placeholder: "${w.text}"`);
+  if (!w.exempt) fail('a name in the line is not marked as data');
+  if (w.events !== 'none') fail(`the line takes taps (pointer-events: ${w.events})`);
+  if (w.legend !== 'hidden') fail('the legend is still drawn under the line');
+  if (w.box.l < 0 || w.box.r > w.vw || w.box.b > w.vh) fail(`the line leaves the window: ${JSON.stringify(w.box)}`);
+});
+
 check('orbit:rings-are-labelled-and-tappable', 'Each ring names its ancestor and its time, sits clear of the bubbles, and one tap centres on it', (c) => {
   const o = orbitOf(c);
   const bad = o.dom.filter((r) => r.lin.rings.length);
@@ -2568,6 +2579,17 @@ async function orbitProbe(page, scenario, baseUrl) {
     await p.click(`#orbit .orb-b[data-arg="${lvlTarget}"] .orb-face`, { timeout: 5000 });
     await frames();
     out.story.glided = await p.evaluate(() => !!document.querySelector('#orbit .orb-b.focus')?.__stamp);
+    out.story.why = await p.evaluate(() => {
+      const w = document.querySelector('#orbit .orb-why');
+      const l = document.querySelector('#orbit .orb-legend');
+      return w && {
+        text: w.textContent.trim(), names: [...w.querySelectorAll('bdi')].map((b) => b.textContent.trim()),
+        events: getComputedStyle(w).pointerEvents, legend: l && getComputedStyle(l).visibility,
+        exempt: [...w.querySelectorAll('bdi')].every((b) => b.hasAttribute('data-i18n-exempt')),
+        box: (() => { const r = w.getBoundingClientRect(); return { l: r.left, r: r.right, b: r.bottom }; })(),
+        vw: innerWidth, vh: innerHeight,
+      };
+    });
     out.story.pathAtTarget = await p.evaluate(async () => (await import(new URL('js/orbit.js', location.href).href)).orbitPath());
     // Up is the parent; the centre that was just left glides out to its ring as a child
     await p.click('#orbit .orb-up', { timeout: 5000 });

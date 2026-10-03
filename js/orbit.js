@@ -353,6 +353,27 @@ function retune(el, it) {
 
 // ── Drawing ───────────────────────────────────────────────────────────────
 
+/* The comparison, as HTML for the strip: the pinned creature and the centre, and
+   where their lineages last met. Names are data, escaped and marked exempt. */
+const esc = (x) => String(x).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+function cmpLine() {
+  const name = (n) => `<bdi data-i18n-exempt="species-data" dir="auto">${esc(displayName(n))}</bdi>`;
+  const fill = (tpl, v) => tpl.split(/(\{\w+\})/).map((part) => {
+    const m = /^\{(\w+)\}$/.exec(part);
+    return m ? (typeof v[m[1]] === 'string' ? esc(v[m[1]]) : name(v[m[1]])) : esc(part);
+  }).join('');
+  let text;
+  if (_pin === _focus) text = fill(t('orbit_pinned'), { a: _pin });
+  else {
+    const w = whyOf(_pin, _focus);
+    if (!w) return '';
+    text = w.kind === 'in'
+      ? fill(t('orbit_why_in'), { a: w.a, b: w.b })
+      : fill(t('orbit_why'), { a: w.a, b: w.b, age: chipAge(age(w.lca), state.currentLang), group: w.lca });
+  }
+  return `<p class="orb-cmp-line" role="status">${text}</p>`;
+}
+
 function chrome(L) {
   const lang = state.currentLang;
   const home = _focus !== startNode();
@@ -376,7 +397,7 @@ function chrome(L) {
     <nav class="orb-strip" aria-label="${t('orbit_path')}">
       <button type="button" class="orb-up" data-action="orbit:parent" ${parent ? `aria-label="${t('orbit_up_to')} ${displayName(parent)}"` : 'disabled aria-label="' + t('orbit_up') + '"'}>
         <span aria-hidden="true">↑</span><span class="orb-up-text">${t('orbit_up')}</span></button>
-      <div class="orb-path">${crumbs}</div>
+      ${_pin && _up.has(_pin) ? cmpLine() : `<div class="orb-path">${crumbs}</div>`}
       <button type="button" class="orb-cmp${_pin ? ' is-on' : ''}" data-action="orbit:pin" aria-pressed="${_pin ? 'true' : 'false'}">${t(_pin ? 'orbit_compare_stop' : 'orbit_compare')}</button>
     </nav>`;
 
@@ -681,40 +702,37 @@ function fillWhy(el, tpl, vals) {
     el.append(sp);
   }
 }
-/* While a creature is pinned the line is about it and the centre, and stays up;
-   otherwise it is about the centre just left and the new one, and fades. */
+/* While a creature is pinned the comparison lives in the lineage strip, beside the
+   button that made it (see cmpLine); otherwise the line about the centre just left
+   and the new one fades at the foot. */
 function syncWhy(prev) {
   const host = root();
-  if (_pin && _up.has(_pin)) {
-    if (_pin === _focus) showWhy(host, _pin, _pin, true);
-    else showWhy(host, _pin, _focus, true);
-  } else if (prev) showWhy(host, prev, _focus, false);
+  if (_pin && _up.has(_pin)) dismissWhy();
+  else if (prev) showWhy(host, prev, _focus, false);
   else dismissWhy();
 }
 export function orbitPin() {
   if (_pin) _pin = null;
   else { _pin = _focus; }
+  dismissWhy();
   renderOrbit();
-  syncWhy(null);
   return !!_pin;
 }
 export function orbitPinned() { return _pin; }
-function showWhy(host, a, b, sticky = false) {
+function showWhy(host, a, b) {
   if (!host) return;
-  const same = a === b;
-  const w = same ? { kind: 'pinned', a } : whyOf(a, b);
+  const w = whyOf(a, b);
   dismissWhy();
   if (!w) return;
   dismissHint();
   _why = document.createElement('p');
-  _why.className = sticky ? 'orb-why is-sticky' : 'orb-why';
+  _why.className = 'orb-why';
   _why.setAttribute('role', 'status');
-  if (w.kind === 'pinned') fillWhy(_why, t('orbit_pinned'), { a: w.a });
-  else if (w.kind === 'in') fillWhy(_why, t('orbit_why_in'), { a: w.a, b: w.b });
+  if (w.kind === 'in') fillWhy(_why, t('orbit_why_in'), { a: w.a, b: w.b });
   else fillWhy(_why, t('orbit_why'), { a: w.a, b: w.b, age: chipAge(age(w.lca), state.currentLang), group: w.lca });
   host.appendChild(_why);
   host.classList.add('has-why');
-  if (!sticky) _whyTimer = setTimeout(dismissWhy, 9000);
+  _whyTimer = setTimeout(dismissWhy, 9000);
 }
 
 export function initOrbit() {

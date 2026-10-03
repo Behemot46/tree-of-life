@@ -57,6 +57,7 @@ let _focus = null;
 let _trail = [];                 // where the reader has been, oldest first
 const _els = new Map();          // key → bubble element
 let _built = false;
+let _pin = null;                 // the creature being compared against, until the reader lets go
 let _from = null;                // the centre we just left, kept among the children when going up
 
 const root = () => document.getElementById('orbit');
@@ -376,6 +377,7 @@ function chrome(L) {
       <button type="button" class="orb-up" data-action="orbit:parent" ${parent ? `aria-label="${t('orbit_up_to')} ${displayName(parent)}"` : 'disabled aria-label="' + t('orbit_up') + '"'}>
         <span aria-hidden="true">↑</span><span class="orb-up-text">${t('orbit_up')}</span></button>
       <div class="orb-path">${crumbs}</div>
+      <button type="button" class="orb-cmp${_pin ? ' is-on' : ''}" data-action="orbit:pin" aria-pressed="${_pin ? 'true' : 'false'}">${t(_pin ? 'orbit_compare_stop' : 'orbit_compare')}</button>
     </nav>`;
 
   const rings = L.rings.filter((r) => r.label).map((r) => `
@@ -485,7 +487,7 @@ export function orbitFocus(nodeOrId, { back = false } = {}) {
   _from = _focus;
   _focus = n;
   renderOrbit();
-  if (_from) showWhy(root(), _from, n);
+  syncWhy(_from);
   return true;
 }
 
@@ -679,20 +681,40 @@ function fillWhy(el, tpl, vals) {
     el.append(sp);
   }
 }
-function showWhy(host, a, b) {
+/* While a creature is pinned the line is about it and the centre, and stays up;
+   otherwise it is about the centre just left and the new one, and fades. */
+function syncWhy(prev) {
+  const host = root();
+  if (_pin && _up.has(_pin)) {
+    if (_pin === _focus) showWhy(host, _pin, _pin, true);
+    else showWhy(host, _pin, _focus, true);
+  } else if (prev) showWhy(host, prev, _focus, false);
+  else dismissWhy();
+}
+export function orbitPin() {
+  if (_pin) _pin = null;
+  else { _pin = _focus; }
+  renderOrbit();
+  syncWhy(null);
+  return !!_pin;
+}
+export function orbitPinned() { return _pin; }
+function showWhy(host, a, b, sticky = false) {
   if (!host) return;
-  const w = whyOf(a, b);
+  const same = a === b;
+  const w = same ? { kind: 'pinned', a } : whyOf(a, b);
   dismissWhy();
   if (!w) return;
   dismissHint();
   _why = document.createElement('p');
-  _why.className = 'orb-why';
+  _why.className = sticky ? 'orb-why is-sticky' : 'orb-why';
   _why.setAttribute('role', 'status');
-  if (w.kind === 'in') fillWhy(_why, t('orbit_why_in'), { a: w.a, b: w.b });
+  if (w.kind === 'pinned') fillWhy(_why, t('orbit_pinned'), { a: w.a });
+  else if (w.kind === 'in') fillWhy(_why, t('orbit_why_in'), { a: w.a, b: w.b });
   else fillWhy(_why, t('orbit_why'), { a: w.a, b: w.b, age: chipAge(age(w.lca), state.currentLang), group: w.lca });
   host.appendChild(_why);
   host.classList.add('has-why');
-  _whyTimer = setTimeout(dismissWhy, 9000);
+  if (!sticky) _whyTimer = setTimeout(dismissWhy, 9000);
 }
 
 export function initOrbit() {
@@ -705,6 +727,7 @@ export function initOrbit() {
     'orbit:prev': () => orbitSibling(-1),
     'orbit:surprise': () => surprise(),
     'orbit:home': () => orbitHome(),
+    'orbit:pin': () => orbitPin(),
   });
   const host = root();
   if (host && 'ResizeObserver' in window) {
@@ -718,4 +741,4 @@ export function initOrbit() {
 
 /* A hidden view cannot measure itself (constraint 11), so the shell asks for a
    repaint when it is revealed, and on a language switch while it is showing. */
-export function refreshOrbit() { dismissWhy(); _built = false; _els.clear(); renderOrbit(true); }
+export function refreshOrbit() { dismissWhy(); _built = false; _els.clear(); renderOrbit(true); syncWhy(null); }

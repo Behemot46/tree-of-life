@@ -58,6 +58,11 @@ let _trail = [];                 // where the reader has been, oldest first
 const _els = new Map();          // key → bubble element
 let _built = false;
 let _pin = null;                 // the creature being compared against, until the reader lets go
+const PIN_KEY = 'tol-orbit-pin'; // its id, kept so a reload (or the home-screen app waking) does not drop the comparison
+function savePin() {
+  try { _pin ? localStorage.setItem(PIN_KEY, _pin.id) : localStorage.removeItem(PIN_KEY); } catch (e) { /* blocked storage: the pin lasts the visit */ }
+}
+let _pinRestored = false;
 let _from = null;                // the centre we just left, kept among the children when going up
 
 const root = () => document.getElementById('orbit');
@@ -425,6 +430,12 @@ export function renderOrbit(first = false) {
   const W = host.clientWidth, H = host.clientHeight;
   if (!W) return;                                 // hidden: it cannot measure itself, and will be asked again on reveal
   linkParents();
+  /* Read here, once the tree is complete: a stored id for a creature that is not
+     in the tree (renamed, or grafted later) is dropped rather than shown as "Stop". */
+  if (!_pinRestored) {
+    _pinRestored = true;
+    try { const id = localStorage.getItem(PIN_KEY); const n = byId(id); if (n && !_pin) _pin = n; else if (id && !n) localStorage.removeItem(PIN_KEY); } catch (e) { /* nothing stored */ }
+  }
   /* Resolved here and not in initOrbit(): the person is grafted into the tree
      after start-up, and a focus looked up too early falls back to the root. */
   if (!_focus || !_up.has(_focus)) { _focus = startNode(); _from = null; }
@@ -714,6 +725,7 @@ function syncWhy(prev) {
 export function orbitPin() {
   if (_pin) _pin = null;
   else { _pin = _focus; }
+  savePin();
   dismissWhy();
   renderOrbit();
   return !!_pin;

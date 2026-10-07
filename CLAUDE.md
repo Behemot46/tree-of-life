@@ -12,6 +12,11 @@ branch, commit, push, open the PR, watch CI, fix failures, merge, delete the
 branch. Outcomes are reported in plain language — never as diffs or command
 transcripts.
 
+- **Spend pushes sparingly.** At most two pushes (so two PRs, each one squashed
+  commit) per week per project, counting from Monday, unless Gabi has allowed
+  more in advance. Batch related work, run the full checks locally first so CI
+  does not need a fix-up commit, and check `git log origin/main --since="last
+  monday"` before pushing. At the cap, stop and ask — even for "ship it".
 - Always work on a feature branch. Never commit directly to `main`.
 - Never end a session with unpushed work.
 - Every PR that changes the site must be visually verified before merge
@@ -771,7 +776,7 @@ Things worth knowing before changing it:
   indicator — so the answer now sits beside the button that asks for it. The cost:
   crumbs are hidden while comparing (Up and ring labels still navigate). Strings
   are shortened to fit two lines at 360px (the Russian drops "последний… жил"); at
-  320px it clamps. The pin survives moves, Home and a language switch, not a reload.
+  320px it clamps. The pin survives moves, Home, a language switch and a reload (its id is kept in `tol-orbit-pin`; an id no longer in the tree is dropped).
   `orbit:compare-pins-one-creature-and-keeps-saying-how-it-relates` checks the line
   is wholly on screen and not cut off (mutation-tested).
 - **One row at the foot.** The way back, *Surprise me*, and Home share one row
